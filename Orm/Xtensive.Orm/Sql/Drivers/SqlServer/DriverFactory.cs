@@ -7,13 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Sql.Info;
-using SqlServerConnection = Microsoft.Data.SqlClient.SqlConnection;
+using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer
 {

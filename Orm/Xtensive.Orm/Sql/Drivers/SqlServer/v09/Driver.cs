@@ -5,7 +5,7 @@
 using System;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
-using SqlServerConnection = Microsoft.Data.SqlClient.SqlConnection;
+using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v09
 {

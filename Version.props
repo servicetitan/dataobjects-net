@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 <PropertyGroup>
-    <DoVersion>0.1.2</DoVersion>
+    <DoVersion>0.1.3</DoVersion>
     <DoVersionSuffix>beta-2-microsoft-sqlclient</DoVersionSuffix>
 </PropertyGroup>
 

@@ -5,7 +5,7 @@
 // Created:    2009.07.07
 
 using Xtensive.Sql.Info;
-using SqlServerConnection = Microsoft.Data.SqlClient.SqlConnection;
+using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer.Azure
 {

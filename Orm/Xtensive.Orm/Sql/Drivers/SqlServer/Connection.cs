@@ -6,9 +6,9 @@
 
 using System.Data;
 using System.Data.Common;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using Xtensive.Orm;
-using SqlServerConnection = Microsoft.Data.SqlClient.SqlConnection;
+using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer
 {

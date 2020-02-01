@@ -7,7 +7,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 
 namespace Xtensive.Sql.Drivers.SqlServer
 {

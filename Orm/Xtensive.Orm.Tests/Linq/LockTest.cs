@@ -5,7 +5,7 @@
 // Created:    2009.08.25
 
 using System;
-using Microsoft.Data.SqlClient;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Transactions;
