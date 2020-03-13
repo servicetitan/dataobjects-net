@@ -35,11 +35,11 @@ namespace Xtensive.Reflection
     private static int createDummyTypeNumber = 0;
     private static AssemblyBuilder assemblyBuilder;
     private static ModuleBuilder moduleBuilder;
-    private static ThreadSafeDictionary<Type, Type[]> orderedInterfaces = 
+    private static ThreadSafeDictionary<Type, Type[]> orderedInterfaces =
       ThreadSafeDictionary<Type, Type[]>.Create(new object());
-    private static ThreadSafeDictionary<Type, Type[]> orderedCompatibles = 
+    private static ThreadSafeDictionary<Type, Type[]> orderedCompatibles =
       ThreadSafeDictionary<Type, Type[]>.Create(new object());
-    private static ThreadSafeDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps = 
+    private static ThreadSafeDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps =
       ThreadSafeDictionary<Pair<Type, Type>, InterfaceMapping>.Create(new object());
 
     /// <summary>
@@ -256,13 +256,13 @@ namespace Xtensive.Reflection
       return null;
     }
 
-    private static T CreateAssociateInternal<T>(Type originalForType, 
-      Type currentForType, 
+    private static T CreateAssociateInternal<T>(Type originalForType,
+      Type currentForType,
       out Type foundForType,
-      string associateTypePrefix, 
+      string associateTypePrefix,
       string[] associateTypeSuffixes,
-      List<Pair<Assembly, string>> locations, 
-      Type[] genericArguments, 
+      List<Pair<Assembly, string>> locations,
+      Type[] genericArguments,
       object[] constructorParams)
         where T : class
     {
@@ -379,7 +379,7 @@ namespace Xtensive.Reflection
             CallingConventions.Standard,
             parameterTypes
             );
-          
+
           // Create constructor
           ILGenerator methodIL = constructorBuilder.GetILGenerator();
           methodIL.Emit(OpCodes.Ldarg_0);
@@ -391,8 +391,8 @@ namespace Xtensive.Reflection
 
           // Create ProtectedConstructorAccessor
           if (implementProtectedConstructorAccessor) {
-            MethodBuilder methodBuilder = typeBuilder.DefineMethod(DelegateHelper.AspectedFactoryMethodName, 
-              MethodAttributes.Private | MethodAttributes.Static, 
+            MethodBuilder methodBuilder = typeBuilder.DefineMethod(DelegateHelper.AspectedFactoryMethodName,
+              MethodAttributes.Private | MethodAttributes.Static,
               CallingConventions.Standard, typeBuilder.UnderlyingSystemType, parameterTypes);
             ILGenerator accessorIL = methodBuilder.GetILGenerator();
             for (short i = 0; i < parameterTypes.Length; i++)
@@ -443,7 +443,7 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="assembly">Assembly where the type is located.</param>
     /// <param name="typeName">Name of the type to instantiate.</param>
-    /// <param name="genericArguments">Generic arguments for the type to instantiate 
+    /// <param name="genericArguments">Generic arguments for the type to instantiate
     /// (<see langword="null"/> means type isn't a generic type definition).</param>
     /// <param name="arguments">Arguments to pass to the type constructor.</param>
     /// <returns>An instance of specified type; <see langword="null"/>, if either no such a type,
@@ -463,7 +463,7 @@ namespace Xtensive.Reflection
     /// or an error has occurred.
     /// </summary>
     /// <param name="type">Generic type definition to instantiate.</param>
-    /// <param name="genericArguments">Generic arguments for the type to instantiate 
+    /// <param name="genericArguments">Generic arguments for the type to instantiate
     /// (<see langword="null"/> means <paramref name="type"/> isn't a generic type definition).</param>
     /// <param name="arguments">Arguments to pass to the type constructor.</param>
     /// <returns>An instance of specified type; <see langword="null"/>, if either no such a type,
@@ -533,7 +533,7 @@ namespace Xtensive.Reflection
           for (int i = 0; i < arguments.Length; i++) {
             object o = arguments[i];
             if (o==null)
-              cancelSearch = true; // Actually a case when GetConstructor will fail, 
+              cancelSearch = true; // Actually a case when GetConstructor will fail,
             // so we should fall back to Activator.CreateInstance
             argumentTypes[i] = o.GetType();
           }
@@ -549,7 +549,7 @@ namespace Xtensive.Reflection
     }
 
     /// <summary>
-    /// Gets the public constructor of type <paramref name="type"/> 
+    /// Gets the public constructor of type <paramref name="type"/>
     /// accepting specified <paramref name="arguments"/>.
     /// </summary>
     /// <param name="type">The type to get the constructor for.</param>
@@ -571,7 +571,7 @@ namespace Xtensive.Reflection
           let parameterType = parameter.ParameterType
           let argument = pair.Argument
           let argumentType = argument==null ? typeof (object) : argument.GetType()
-          select 
+          select
             !parameter.IsOut && (
               parameterType.IsAssignableFrom(argumentType) ||
               (!parameterType.IsValueType && argument==null) ||
@@ -678,7 +678,7 @@ namespace Xtensive.Reflection
             .ToArray();
         var sb = new StringBuilder();
         sb.Append(TrimGenericSuffix(result));
-        sb.Append("<");
+        sb.Append('<');
         string comma = "";
         foreach (Type argument in arguments) {
           sb.Append(comma);
@@ -686,18 +686,18 @@ namespace Xtensive.Reflection
             sb.Append(GetFullNameBase(argument));
           comma = ",";
         }
-        sb.Append(">");
+        sb.Append('>');
         result = sb.ToString();
       }
       if (type.IsArray) {
         var sb = new StringBuilder(result);
         Type elementType = type;
         while (elementType.IsArray) {
-          sb.Append("[");
+          sb.Append('[');
           int commaCount = elementType.GetArrayRank() - 1;
           for (int i = 0; i < commaCount; i++)
-            sb.Append(",");
-          sb.Append("]");
+            sb.Append(',');
+          sb.Append(']');
           elementType = elementType.GetElementType();
         }
         result = sb.ToString();
@@ -746,7 +746,7 @@ namespace Xtensive.Reflection
             .ToArray();
         var sb = new StringBuilder();
         sb.Append(TrimGenericSuffix(result));
-        sb.Append("<");
+        sb.Append('<');
         string comma = "";
         foreach (Type argument in arguments)
         {
@@ -755,7 +755,7 @@ namespace Xtensive.Reflection
             sb.Append(GetShortNameBase(argument));
           comma = ",";
         }
-        sb.Append(">");
+        sb.Append('>');
         result = sb.ToString();
       }
       if (type.IsArray)
@@ -764,11 +764,11 @@ namespace Xtensive.Reflection
         Type elementType = type;
         while (elementType.IsArray)
         {
-          sb.Append("[");
+          sb.Append('[');
           int commaCount = elementType.GetArrayRank() - 1;
           for (int i = 0; i < commaCount; i++)
-            sb.Append(",");
-          sb.Append("]");
+            sb.Append(',');
+          sb.Append(']');
           elementType = elementType.GetElementType();
         }
         result = sb.ToString();
@@ -822,7 +822,7 @@ namespace Xtensive.Reflection
     }
 
     /// <summary>
-    /// Gets the delegate "Invoke" method (describing the delegate) for 
+    /// Gets the delegate "Invoke" method (describing the delegate) for
     /// the specified <paramref name="delegateType"/>.
     /// </summary>
     /// <param name="delegateType">Type of the delegate to get the "Invoke" method of.</param>
@@ -847,7 +847,7 @@ namespace Xtensive.Reflection
     }
 
     /// <summary>
-    /// Determines whether the specified <paramref name="type"/> inherits 
+    /// Determines whether the specified <paramref name="type"/> inherits
     /// the generic <paramref name="baseType"/> and returns direct inheritor of generic <paramref name="baseType"/> if any.
     /// </summary>
     /// <param name="type">The type to check.</param>
@@ -888,7 +888,7 @@ namespace Xtensive.Reflection
     /// <param name="type">A type to convert.</param>
     /// <returns>
     /// If <paramref name="type"/> is a reference type or a <see cref="Nullable{T}"/> instance returns <paramref name="type"/>.
-    /// Otherwise returns <see cref="Nullable{T}"/> of <paramref name="type"/>. 
+    /// Otherwise returns <see cref="Nullable{T}"/> of <paramref name="type"/>.
     /// </returns>
     public static Type ToNullable(this Type type)
     {
@@ -925,10 +925,10 @@ namespace Xtensive.Reflection
     /// </returns>
     public static bool IsAnonymous(this Type type)
     {
-      return ((type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
+      return ((type.Name.StartsWith("<>", StringComparison.Ordinal) || type.Name.StartsWith("VB$", StringComparison.Ordinal))
         && type.BaseType==typeof (object)
           && Attribute.IsDefined(type, typeof (CompilerGeneratedAttribute), false)
-            && type.Name.Contains("AnonymousType")
+            && type.Name.Contains("AnonymousType", StringComparison.Ordinal)
               && (type.Attributes & TypeAttributes.NotPublic)==TypeAttributes.NotPublic);
     }
 
@@ -941,10 +941,10 @@ namespace Xtensive.Reflection
     /// </returns>
     public static bool IsClosure(this Type type)
     {
-      return ((type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
+      return ((type.Name.StartsWith("<>", StringComparison.Ordinal) || type.Name.StartsWith("VB$", StringComparison.Ordinal))
         && type.BaseType == typeof(object)
           && Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
-            && type.Name.Contains("DisplayClass")
+            && type.Name.Contains("DisplayClass", StringComparison.Ordinal)
               && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic);
     }
 

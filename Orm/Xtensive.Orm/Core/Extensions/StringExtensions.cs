@@ -22,7 +22,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="value">The original string value.</param>
     /// <param name="suffix">The suffix to cut.</param>
-    /// <returns>String without <paramref name="suffix"/> if it was found; 
+    /// <returns>String without <paramref name="suffix"/> if it was found;
     /// otherwise, original <paramref name="value"/>.</returns>
     public static string TryCutSuffix(this string value, string suffix)
     {
@@ -36,7 +36,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="value">The original string value.</param>
     /// <param name="prefix">The prefix to cut.</param>
-    /// <returns>String without <paramref name="prefix"/> if it was found; 
+    /// <returns>String without <paramref name="prefix"/> if it was found;
     /// otherwise, original <paramref name="value"/>.</returns>
     public static string TryCutPrefix(this string value, string prefix)
     {
@@ -419,5 +419,14 @@ namespace Xtensive.Core
         });
       return Regex.IsMatch(value, regexPattern);
     }
+
+    internal static bool Contains(this string str, string value, StringComparison comparison)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(str, nameof(str));
+      ArgumentValidator.EnsureArgumentNotNull(value, nameof(value));
+
+      return str.IndexOf(value, comparison) >= 0;
+    }
+
   }
 }
