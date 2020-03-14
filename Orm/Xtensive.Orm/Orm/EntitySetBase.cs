@@ -158,7 +158,7 @@ namespace Xtensive.Orm
       if (Owner.IsRemoved)
         throw new InvalidOperationException(Strings.ExEntityIsRemoved);
     }
-    
+
     #region System-level event-like members
 
     private void SystemInitialize()
@@ -368,7 +368,7 @@ namespace Xtensive.Orm
       var subscriptionInfo = GetSubscription(EntityEventBroker.CollectionChangedEventKey);
       if (subscriptionInfo.Second != null) {
         var handler = (NotifyCollectionChangedEventHandler) subscriptionInfo.Second;
-        if (action==NotifyCollectionChangedAction.Reset) 
+        if (action==NotifyCollectionChangedAction.Reset)
           handler.Invoke(this, new NotifyCollectionChangedEventArgs(action));
         else if (!index.HasValue) {
           if (action==NotifyCollectionChangedAction.Remove) {
@@ -377,11 +377,11 @@ namespace Xtensive.Orm
             foreach (var @delegate in invocationList) {
               var typedDelegate = (NotifyCollectionChangedEventHandler) @delegate;
               var subscriberAssemblyName = @delegate.Method.DeclaringType.Assembly.FullName;
-              if (subscriberAssemblyName.StartsWith(presentationFrameworkAssemblyPrefix))
+              if (subscriberAssemblyName.StartsWith(presentationFrameworkAssemblyPrefix, StringComparison.Ordinal))
                 // WPF can't handle "Remove" event w/o item index
                 typedDelegate.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 #if DEBUG
-              else if (subscriberAssemblyName.StartsWith(storageTestsAssemblyPrefix))
+              else if (subscriberAssemblyName.StartsWith(storageTestsAssemblyPrefix, StringComparison.Ordinal))
                 typedDelegate.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 #endif
               else
@@ -542,15 +542,15 @@ namespace Xtensive.Orm
             Session.EntitySetChangeRegistry.Register(state);
             index = GetItemIndex(state, itemKey);
           };
-          
+
           operations.NotifyOperationStarting();
           if (association.IsPaired)
-            Session.PairSyncManager.ProcessRecursively(syncContext, removalContext, 
+            Session.PairSyncManager.ProcessRecursively(syncContext, removalContext,
               OperationType.Add, association, Owner, item, finalizer);
           else
             finalizer.Invoke();
 
-          // removalContext is unused here, since Add is never 
+          // removalContext is unused here, since Add is never
           // invoked in reference cleanup process directly
 
           Owner.UpdateVersionInfo(Owner, Field);
@@ -624,7 +624,7 @@ namespace Xtensive.Orm
             removalContext.EnqueueFinalizer(() => {
               try {
                 try {
-                  index = GetItemIndex(State, itemKey); // Necessary, since index can be already changed 
+                  index = GetItemIndex(State, itemKey); // Necessary, since index can be already changed
                   Owner.UpdateVersionInfo(Owner, Field);
                   SystemRemove(item, index);
                   SystemRemoveCompleted(item, null);
@@ -658,7 +658,7 @@ namespace Xtensive.Orm
         throw;
       }
     }
-    
+
     /// <summary>
     /// Clears this collection.
     /// </summary>
@@ -810,8 +810,8 @@ namespace Xtensive.Orm
       if (foundInCache)
         return true;
       var ownerState = Owner.PersistenceState;
-      var itemState = item == null 
-        ? PersistenceState.Synchronized 
+      var itemState = item == null
+        ? PersistenceState.Synchronized
         : item.PersistenceState;
       if (PersistenceState.New.In(ownerState, itemState) || State.IsFullyLoaded)
         return false;
@@ -897,7 +897,7 @@ namespace Xtensive.Orm
           ArrayUtils<Type>.EmptyArray);
       return new EntitySetTypeState(seek, seekTransform, itemCtor, entitySet.GetItemCountQueryDelegate(field));
     }
-    
+
     private int? GetItemIndex(EntitySetState state, Key key)
     {
       if (!state.IsFullyLoaded)
@@ -908,7 +908,7 @@ namespace Xtensive.Orm
       if (subscriptionInfo.Second==null)
         return null;
 
-      // Ok, it seems there is a reason 
+      // Ok, it seems there is a reason
       // to waste linear time on calculating this...
       int i = 0;
       foreach (var cachedKey in state) {
@@ -930,7 +930,7 @@ namespace Xtensive.Orm
     // Initialization
 
     /// <summary>
-    /// Performs initialization (see <see cref="Initialize()"/>) of the <see cref="EntitySetBase"/> 
+    /// Performs initialization (see <see cref="Initialize()"/>) of the <see cref="EntitySetBase"/>
     /// if type of <see langword="this" /> is the same as <paramref name="ctorType"/>.
     /// Automatically invoked in the epilogue of any constructor of this type and its ancestors.
     /// </summary>

@@ -26,7 +26,7 @@ namespace Xtensive.Core
     /// otherwise, original <paramref name="value"/>.</returns>
     public static string TryCutSuffix(this string value, string suffix)
     {
-      if (!value.EndsWith(suffix))
+      if (!value.EndsWith(suffix, StringComparison.Ordinal))
         return value;
       return value.Substring(0, value.Length - suffix.Length);
     }
@@ -40,7 +40,7 @@ namespace Xtensive.Core
     /// otherwise, original <paramref name="value"/>.</returns>
     public static string TryCutPrefix(this string value, string prefix)
     {
-      if (!value.StartsWith(prefix))
+      if (!value.StartsWith(prefix, StringComparison.Ordinal))
         return value;
       return value.Substring(prefix.Length);
     }
@@ -412,7 +412,7 @@ namespace Xtensive.Core
           if (match.Value=="_") {
             return ".";
           }
-          if(match.Value.StartsWith(escapeCharacter.ToString())) {
+          if(match.Value.StartsWith(escapeCharacter.ToString(), StringComparison.Ordinal)) {
             return match.Value[1].ToString();
           }
           return Regex.Escape(match.Value);

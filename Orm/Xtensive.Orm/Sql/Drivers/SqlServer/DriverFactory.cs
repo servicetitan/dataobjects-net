@@ -53,7 +53,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     {
       using (var command = connection.CreateCommand()) {
         command.CommandText = "SELECT @@VERSION";
-        return ((string) command.ExecuteScalar()).Contains("Azure");
+        return ((string) command.ExecuteScalar()).Contains("Azure", StringComparison.Ordinal);
       }
     }
 
@@ -63,7 +63,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       SqlHelper.ValidateConnectionUrl(url);
 
       var builder = new SqlConnectionStringBuilder();
-      
+
       // host, port, database
       if (url.Port==0)
         builder.DataSource = url.Host;

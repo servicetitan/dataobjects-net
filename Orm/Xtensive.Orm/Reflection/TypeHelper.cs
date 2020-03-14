@@ -162,7 +162,7 @@ namespace Xtensive.Reflection
       }
 
       // Replacing 'I' at interface types
-      if (currentForType.IsInterface && associateTypePrefix.StartsWith("I"))
+      if (currentForType.IsInterface && associateTypePrefix.StartsWith("I", StringComparison.Ordinal))
         associateTypePrefix = AddSuffix(associateTypePrefix.Substring(1), "Interface");
 
       // Search for exact associate
