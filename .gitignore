@@ -27,3 +27,4 @@ _Work
 .vs
 .idea
 tmp/
+User.Directory.Build.props
