@@ -17,7 +17,6 @@
     <RunAnalyzers>false</RunAnalyzers>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <WarningLevel>0</WarningLevel>
-    <Configurations>Release</Configurations>
   </PropertyGroup>
   <!-- Force Release Configuration build and check env variables / User.Directory.Build.props -->
   <Target Name="_CheckConfiguration" BeforeTargets="CoreBuild">
