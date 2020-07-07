@@ -17,21 +17,47 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 {
   internal partial class MemberCompilerProvider<T> : LockableBase, IMemberCompilerProvider<T>
   {
-    private MemberCompilerCollection compilers = new MemberCompilerCollection();
+    private readonly struct CompilerKey : IEquatable<CompilerKey>
+    {
+      private readonly MemberInfo memberInfo;
 
-    public Type ExpressionType { get { return typeof(T); } }
+      public bool Equals(CompilerKey other) => ReferenceEquals(memberInfo.Module, other.memberInfo.Module)
+        && memberInfo.MetadataToken == other.memberInfo.MetadataToken;
+
+      public override bool Equals(object obj) => obj is CompilerKey other && Equals(other);
+
+      public override int GetHashCode()
+      {
+        unchecked {
+          return (memberInfo.Module.GetHashCode() * 397) ^ memberInfo.MetadataToken.GetHashCode();
+        }
+      }
+
+      public override string ToString() => memberInfo.GetFullName(true);
+
+      public CompilerKey(MemberInfo memberInfo)
+      {
+        this.memberInfo = memberInfo;
+      }
+    }
+
+    private readonly Dictionary<CompilerKey, MemberCompilerRegistration> compilerRegistrations
+      = new Dictionary<CompilerKey, MemberCompilerRegistration>();
+
+    public Type ExpressionType => typeof(T);
 
     public Delegate GetUntypedCompiler(MemberInfo target)
     {
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentValidator.EnsureArgumentNotNull(target, nameof(target));
 
       var actualTarget = GetCanonicalMember(target);
-      if (actualTarget == null)
+      if (actualTarget == null) {
         return null;
-      var registration = compilers.Get(actualTarget);
-      if (registration == null)
-        return null;
-      return registration.CompilerInvoker;
+      }
+
+      return compilerRegistrations.TryGetValue(new CompilerKey(actualTarget), out var registration)
+        ? registration.CompilerInvoker
+        : null;
     }
 
     public Func<T, T[], T> GetCompiler(MemberInfo target)
@@ -54,16 +80,11 @@ namespace Xtensive.Orm.Linq.MemberCompilation
         throw new InvalidOperationException(string.Format(
           Strings.ExTypeXShouldNotBeGeneric, compilerContainer.GetFullName(true)));
 
-      var compilersToRegister = new MemberCompilerCollection();
-
       var compilerMethods = compilerContainer
         .GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
         .Where(method => method.IsDefined(typeof (CompilerAttribute), false) && !method.IsGenericMethod);
 
-      foreach (var compiler in compilerMethods)
-        compilersToRegister.Add(ProcessCompiler(compiler));
-      
-      UpdateRegistry(compilersToRegister, conflictHandlingMethod);
+      UpdateRegistry(compilerMethods.Select(ProcessCompiler), conflictHandlingMethod);
     }
 
     public void RegisterCompilers(IEnumerable<KeyValuePair<MemberInfo, Func<MemberInfo, T, T[], T>>> compilerDefinitions)
@@ -76,28 +97,39 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       ArgumentValidator.EnsureArgumentNotNull(compilerDefinitions, "compilerDefinitions");
       this.EnsureNotLocked();
 
-      var newItems = new MemberCompilerCollection();
-      foreach (var item in compilerDefinitions)
-        newItems.Add(new MemberCompilerRegistration(GetCanonicalMember(item.Key), item.Value));
+      var newItems =
+        compilerDefinitions.Select(item => new MemberCompilerRegistration(GetCanonicalMember(item.Key), item.Value));
       UpdateRegistry(newItems, conflictHandlingMethod);
     }
 
     #region Private methods
 
-    private void UpdateRegistry(MemberCompilerCollection newItems, ConflictHandlingMethod conflictHandlingMethod)
+    private void UpdateRegistry(IEnumerable<MemberCompilerRegistration> newRegistrations, ConflictHandlingMethod conflictHandlingMethod)
     {
-      if (newItems.Count==0)
-        return;
       switch (conflictHandlingMethod) {
         case ConflictHandlingMethod.KeepOld:
-          newItems.MergeWith(compilers, false);
-          compilers = newItems;
+          foreach (var registration in newRegistrations) {
+            var key = new CompilerKey(registration.TargetMember);
+            if (!compilerRegistrations.ContainsKey(key)) {
+              compilerRegistrations.Add(key, registration);
+            }
+          }
           break;
         case ConflictHandlingMethod.Overwrite:
-          compilers.MergeWith(newItems, false);
+          foreach (var registration in newRegistrations) {
+            compilerRegistrations[new CompilerKey(registration.TargetMember)] = registration;
+          }
           break;
         case ConflictHandlingMethod.ReportError:
-          compilers.MergeWith(newItems, true);
+          foreach (var registration in newRegistrations) {
+            var key = new CompilerKey(registration.TargetMember);
+            if (compilerRegistrations.ContainsKey(key)) {
+              throw new InvalidOperationException(string.Format(
+                Strings.ExCompilerForXIsAlreadyRegistered, key.ToString()));
+            }
+
+            compilerRegistrations.Add(key, registration);
+          }
           break;
       }
     }
@@ -119,28 +151,33 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     private static MethodBase GetCanonicalMethod(MethodBase inputMethod, MethodBase[] possibleCanonicalMethods)
     {
-      var inputParameterTypes = inputMethod.GetParameterTypes();
-
       var candidates = possibleCanonicalMethods
-        .Where(candidate => candidate.Name==inputMethod.Name
-          && candidate.GetParameters().Length==inputParameterTypes.Length
-          && candidate.IsStatic==inputMethod.IsStatic)
-        .ToArray();
-
-      if (candidates.Length==0)
-        return null;
-      if (candidates.Length==1)
-        return candidates[0];
-
-      candidates = candidates
-        .Where(candidate =>
-          AllParameterTypesMatch(inputParameterTypes, candidate.GetParameterTypes()))
-        .ToArray();
-
-      if (candidates.Length!=1)
-        return null;
-
-      return candidates[0];
+        .Where(candidate => ReferenceEquals(inputMethod.Module, candidate.Module)
+          && inputMethod.MetadataToken == candidate.MetadataToken)
+        .ToList();
+      return candidates.Count == 1 ? candidates[0] : null;
+      // var inputParameterTypes = inputMethod.GetParameterTypes();
+      //
+      // var candidates = possibleCanonicalMethods
+      //   .Where(candidate => string.Equals(candidate.Name, inputMethod.Name, StringComparison.Ordinal)
+      //     && candidate.GetParameters().Length==inputParameterTypes.Length
+      //     && candidate.IsStatic==inputMethod.IsStatic)
+      //   .ToArray();
+      //
+      // if (candidates.Length==0)
+      //   return null;
+      // if (candidates.Length==1)
+      //   return candidates[0];
+      //
+      // candidates = candidates
+      //   .Where(candidate =>
+      //     AllParameterTypesMatch(inputParameterTypes, candidate.GetParameterTypes()))
+      //   .ToArray();
+      //
+      // if (candidates.Length!=1)
+      //   return null;
+      //
+      // return candidates[0];
     }
 
     private static Type[] ValidateCompilerParametersAndExtractTargetSignature(MethodInfo compiler, bool requireMemberInfo)
@@ -325,13 +362,10 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       if (sourceProperty!=null) {
         canonicalMember = sourceProperty.GetGetMethod();
         // GetGetMethod returns null in case of non public getter.
-        if (canonicalMember==null)
+        if (canonicalMember==null) {
           return null;
+        }
       }
-
-      var sourceMethod = canonicalMember as MethodInfo;
-      if (sourceMethod!=null && sourceMethod.IsGenericMethod)
-        canonicalMember = sourceMethod.GetGenericMethodDefinition();
 
       var targetType = canonicalMember.ReflectedType;
       if (targetType.IsGenericType) {
