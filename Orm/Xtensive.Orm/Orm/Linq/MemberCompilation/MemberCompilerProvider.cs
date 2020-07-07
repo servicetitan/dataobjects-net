@@ -108,17 +108,14 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     {
       foreach (var registration in newRegistrations) {
         var key = new CompilerKey(registration.TargetMember);
-        if (conflictHandlingMethod == ConflictHandlingMethod.Overwrite) {
-          compilerRegistrations[new CompilerKey(registration.TargetMember)] = registration;
-        }
-        else if (compilerRegistrations.ContainsKey(key)) {
+        if (conflictHandlingMethod != ConflictHandlingMethod.Overwrite && compilerRegistrations.ContainsKey(key)) {
           if (conflictHandlingMethod == ConflictHandlingMethod.ReportError) {
             throw new InvalidOperationException(string.Format(
               Strings.ExCompilerForXIsAlreadyRegistered, registration.TargetMember.GetFullName(true)));
           }
           continue;
         }
-        compilerRegistrations.Add(key, registration);
+        compilerRegistrations[key] = registration;
       }
     }
 
