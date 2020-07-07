@@ -19,25 +19,25 @@ namespace Xtensive.Orm.Linq.MemberCompilation
   {
     private readonly struct CompilerKey : IEquatable<CompilerKey>
     {
-      private readonly MemberInfo memberInfo;
+      private readonly Module module;
+      private readonly int metadataToken;
 
-      public bool Equals(CompilerKey other) => ReferenceEquals(memberInfo.Module, other.memberInfo.Module)
-        && memberInfo.MetadataToken == other.memberInfo.MetadataToken;
+      public bool Equals(CompilerKey other) => metadataToken == other.metadataToken
+        && (ReferenceEquals(module, other.module) || module == other.module);
 
       public override bool Equals(object obj) => obj is CompilerKey other && Equals(other);
 
       public override int GetHashCode()
       {
         unchecked {
-          return (memberInfo.Module.GetHashCode() * 397) ^ memberInfo.MetadataToken.GetHashCode();
+          return (module.GetHashCode() * 397) ^ metadataToken;
         }
       }
 
-      public override string ToString() => memberInfo.GetFullName(true);
-
       public CompilerKey(MemberInfo memberInfo)
       {
-        this.memberInfo = memberInfo;
+        module = memberInfo.Module;
+        metadataToken = memberInfo.MetadataToken;
       }
     }
 
@@ -106,78 +106,32 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     private void UpdateRegistry(IEnumerable<MemberCompilerRegistration> newRegistrations, ConflictHandlingMethod conflictHandlingMethod)
     {
-      switch (conflictHandlingMethod) {
-        case ConflictHandlingMethod.KeepOld:
-          foreach (var registration in newRegistrations) {
-            var key = new CompilerKey(registration.TargetMember);
-            if (!compilerRegistrations.ContainsKey(key)) {
-              compilerRegistrations.Add(key, registration);
-            }
+      foreach (var registration in newRegistrations) {
+        var key = new CompilerKey(registration.TargetMember);
+        if (conflictHandlingMethod == ConflictHandlingMethod.Overwrite) {
+          compilerRegistrations[new CompilerKey(registration.TargetMember)] = registration;
+        }
+        else if (compilerRegistrations.ContainsKey(key)) {
+          if (conflictHandlingMethod == ConflictHandlingMethod.ReportError) {
+            throw new InvalidOperationException(string.Format(
+              Strings.ExCompilerForXIsAlreadyRegistered, registration.TargetMember.GetFullName(true)));
           }
-          break;
-        case ConflictHandlingMethod.Overwrite:
-          foreach (var registration in newRegistrations) {
-            compilerRegistrations[new CompilerKey(registration.TargetMember)] = registration;
-          }
-          break;
-        case ConflictHandlingMethod.ReportError:
-          foreach (var registration in newRegistrations) {
-            var key = new CompilerKey(registration.TargetMember);
-            if (compilerRegistrations.ContainsKey(key)) {
-              throw new InvalidOperationException(string.Format(
-                Strings.ExCompilerForXIsAlreadyRegistered, key.ToString()));
-            }
-
-            compilerRegistrations.Add(key, registration);
-          }
-          break;
+          continue;
+        }
+        compilerRegistrations.Add(key, registration);
       }
-    }
-
-    private static bool ParameterTypeMatches(Type inputParameterType, Type candidateParameterType)
-    {
-      return inputParameterType.IsGenericParameter
-        ? candidateParameterType==inputParameterType
-        : (candidateParameterType.IsGenericParameter || inputParameterType==candidateParameterType);
-    }
-
-    private static bool AllParameterTypesMatch(
-      IEnumerable<Type> inputParameterTypes, IEnumerable<Type> candidateParameterTypes)
-    {
-      return inputParameterTypes
-        .Zip(candidateParameterTypes)
-        .All(pair => ParameterTypeMatches(pair.First, pair.Second));
     }
 
     private static MethodBase GetCanonicalMethod(MethodBase inputMethod, MethodBase[] possibleCanonicalMethods)
     {
-      var candidates = possibleCanonicalMethods
-        .Where(candidate => ReferenceEquals(inputMethod.Module, candidate.Module)
-          && inputMethod.MetadataToken == candidate.MetadataToken)
-        .ToList();
-      return candidates.Count == 1 ? candidates[0] : null;
-      // var inputParameterTypes = inputMethod.GetParameterTypes();
-      //
-      // var candidates = possibleCanonicalMethods
-      //   .Where(candidate => string.Equals(candidate.Name, inputMethod.Name, StringComparison.Ordinal)
-      //     && candidate.GetParameters().Length==inputParameterTypes.Length
-      //     && candidate.IsStatic==inputMethod.IsStatic)
-      //   .ToArray();
-      //
-      // if (candidates.Length==0)
-      //   return null;
-      // if (candidates.Length==1)
-      //   return candidates[0];
-      //
-      // candidates = candidates
-      //   .Where(candidate =>
-      //     AllParameterTypesMatch(inputParameterTypes, candidate.GetParameterTypes()))
-      //   .ToArray();
-      //
-      // if (candidates.Length!=1)
-      //   return null;
-      //
-      // return candidates[0];
+      foreach (var candidate in possibleCanonicalMethods) {
+        if (inputMethod.MetadataToken == candidate.MetadataToken
+          && (ReferenceEquals(inputMethod.Module, candidate.Module) || inputMethod.Module == candidate.Module)) {
+          return candidate;
+        }
+      }
+
+      return null;
     }
 
     private static Type[] ValidateCompilerParametersAndExtractTargetSignature(MethodInfo compiler, bool requireMemberInfo)
