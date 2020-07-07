@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       public override int GetHashCode()
       {
         unchecked {
-          return (module.GetHashCode() * 397) ^ metadataToken;
+          return module == null ? metadataToken : (module.GetHashCode() * 397) ^ metadataToken;
         }
       }
 
@@ -41,8 +41,8 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       }
     }
 
-    private readonly Dictionary<CompilerKey, MemberCompilerRegistration> compilerRegistrations
-      = new Dictionary<CompilerKey, MemberCompilerRegistration>();
+    private readonly Dictionary<CompilerKey, Delegate> compilers
+      = new Dictionary<CompilerKey, Delegate>();
 
     public Type ExpressionType => typeof(T);
 
@@ -50,13 +50,8 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     {
       ArgumentValidator.EnsureArgumentNotNull(target, nameof(target));
 
-      var actualTarget = GetCanonicalMember(target);
-      if (actualTarget == null) {
-        return null;
-      }
-
-      return compilerRegistrations.TryGetValue(new CompilerKey(actualTarget), out var registration)
-        ? registration.CompilerInvoker
+      return compilers.TryGetValue(GetCompilerKey(target), out var compiler)
+        ? compiler
         : null;
     }
 
@@ -97,25 +92,25 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       ArgumentValidator.EnsureArgumentNotNull(compilerDefinitions, "compilerDefinitions");
       this.EnsureNotLocked();
 
-      var newItems =
-        compilerDefinitions.Select(item => new MemberCompilerRegistration(GetCanonicalMember(item.Key), item.Value));
+      var newItems = compilerDefinitions.Select(item => (item.Key, (Delegate) item.Value));
       UpdateRegistry(newItems, conflictHandlingMethod);
     }
 
     #region Private methods
 
-    private void UpdateRegistry(IEnumerable<MemberCompilerRegistration> newRegistrations, ConflictHandlingMethod conflictHandlingMethod)
+    private void UpdateRegistry(
+      IEnumerable<(MemberInfo targetMember, Delegate compiler)> newRegistrations, ConflictHandlingMethod conflictHandlingMethod)
     {
-      foreach (var registration in newRegistrations) {
-        var key = new CompilerKey(registration.TargetMember);
-        if (conflictHandlingMethod != ConflictHandlingMethod.Overwrite && compilerRegistrations.ContainsKey(key)) {
+      foreach (var (targetMember, compiler) in newRegistrations) {
+        var key = GetCompilerKey(targetMember);
+        if (conflictHandlingMethod != ConflictHandlingMethod.Overwrite && compilers.ContainsKey(key)) {
           if (conflictHandlingMethod == ConflictHandlingMethod.ReportError) {
             throw new InvalidOperationException(string.Format(
-              Strings.ExCompilerForXIsAlreadyRegistered, registration.TargetMember.GetFullName(true)));
+              Strings.ExCompilerForXIsAlreadyRegistered, targetMember.GetFullName(true)));
           }
           continue;
         }
-        compilerRegistrations[key] = registration;
+        compilers[key] = compiler;
       }
     }
 
@@ -164,7 +159,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       return result;
     }
 
-    private static MemberCompilerRegistration ProcessCompiler(MethodInfo compiler)
+    private static (MemberInfo targetMember, Delegate compilerInvoker) ProcessCompiler(MethodInfo compiler)
     {
       var attribute = compiler.GetAttribute<CompilerAttribute>(AttributeSearchOptions.InheritNone);
 
@@ -259,7 +254,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
           compiler.GetFullName(true)));
 
       var invoker = WrapInvoker(CreateInvoker(compiler, isStatic || isCtor, isGeneric));
-      return new MemberCompilerRegistration(targetMember, invoker);
+      return (targetMember, invoker);
     }
 
     private static Func<MemberInfo, T, T[], T> WrapInvoker(Func<MemberInfo, T, T[], T> invoker)
@@ -306,7 +301,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
           compiler.GetFullName(true), parameter.Name, requiredType.GetFullName(true)));
     }
 
-    private static MemberInfo GetCanonicalMember(MemberInfo member)
+    private static CompilerKey GetCompilerKey(MemberInfo member)
     {
       var canonicalMember = member;
       var sourceProperty = canonicalMember as PropertyInfo;
@@ -314,7 +309,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
         canonicalMember = sourceProperty.GetGetMethod();
         // GetGetMethod returns null in case of non public getter.
         if (canonicalMember==null) {
-          return null;
+          return default;
         }
       }
 
@@ -333,7 +328,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       }
 
       if (canonicalMember == null) {
-        return null;
+        return default;
       }
 
       if (targetType.IsEnum) {
@@ -344,7 +339,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
           canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, targetType.GetMethods());
       }
 
-      return canonicalMember;
+      return new CompilerKey(canonicalMember);
     }
 
     #endregion
