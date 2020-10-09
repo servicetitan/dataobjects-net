@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.Keys;
@@ -165,6 +166,28 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
         var generatedKey = Key.Generate<Container>(session);
         Assert.That(generatedKey.NodeId, Is.EqualTo(TestNodeId2));
       }
+    }
+
+    [Test]
+    public async Task OpenSessionTest()
+    {
+      using var newDomain = await Domain.BuildAsync(Domain.Configuration);
+      await newDomain.StorageNodeManager.AddNodeAsync(new NodeConfiguration(TestNodeId2) {
+        ConnectionInfo = Domain.Configuration.ConnectionInfo
+      });
+      using var session = newDomain.OpenSession();
+      session.SelectStorageNode(TestNodeId2);
+    }
+
+    [Test]
+    public async Task OpenSessionAsyncTest()
+    {
+      using var newDomain = await Domain.BuildAsync(Domain.Configuration);
+      await newDomain.StorageNodeManager.AddNodeAsync(new NodeConfiguration(TestNodeId2) {
+        ConnectionInfo = Domain.Configuration.ConnectionInfo
+      });
+      using var session = await newDomain.OpenSessionAsync();
+      session.SelectStorageNode(TestNodeId2);
     }
   }
 }
