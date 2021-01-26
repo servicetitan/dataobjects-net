@@ -28,19 +28,26 @@ namespace Xtensive.Orm.Providers
     {
       var sequence = Factory.CreatePersistParts(task);
       foreach (var part in sequence) {
+        var allocateNextCommand = true;
         try {
           ValidateCommandParameters(part);
           context.ActiveCommand.AddPart(part);
           var affectedRowsCount = context.ActiveCommand.ExecuteNonQuery();
-          if (task.ValidateRowCount && affectedRowsCount==0) {
+          if (task.ValidateRowCount && affectedRowsCount == 0) {
             throw new VersionConflictException(string.Format(
               Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
           }
         }
+        catch {
+          allocateNextCommand = false;
+          throw;
+        }
         finally {
           context.ActiveCommand.DisposeSafely();
           ReleaseCommand(context);
-          AllocateCommand(context);
+          if (allocateNextCommand) {
+            AllocateCommand(context);
+          }
         }
       }
     }
