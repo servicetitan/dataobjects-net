@@ -28,7 +28,6 @@ namespace Xtensive.Orm.Providers
     {
       var sequence = Factory.CreatePersistParts(task);
       foreach (var part in sequence) {
-        var allocateNextCommand = true;
         try {
           ValidateCommandParameters(part);
           context.ActiveCommand.AddPart(part);
@@ -38,17 +37,11 @@ namespace Xtensive.Orm.Providers
               Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
           }
         }
-        catch {
-          allocateNextCommand = false;
-          throw;
-        }
         finally {
           context.ActiveCommand.DisposeSafely();
           ReleaseCommand(context);
-          if (allocateNextCommand) {
-            AllocateCommand(context);
-          }
         }
+        AllocateCommand(context);
       }
     }
 
