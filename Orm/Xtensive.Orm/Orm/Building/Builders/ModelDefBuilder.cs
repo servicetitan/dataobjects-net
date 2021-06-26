@@ -377,8 +377,7 @@ namespace Xtensive.Orm.Building.Builders
       // Attributes will contain attributes from all inheritance chain
       // with the most specific type first.
       // Reverse them for correct processing (i.e. descendants override settings from base).
-      Array.Reverse(attributes);
-      return attributes;
+      return attributes.Reverse().ToArray();
     }
 
     private bool IsTypeAvailable(Type type) =>
