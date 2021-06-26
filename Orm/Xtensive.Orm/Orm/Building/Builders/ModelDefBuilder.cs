@@ -286,7 +286,7 @@ namespace Xtensive.Orm.Building.Builders
     public FieldDef DefineField(PropertyInfo propertyInfo) =>
       DefineField(propertyInfo, GetFieldAttributes<FieldAttribute>(propertyInfo));
 
-    public FieldDef DefineField(PropertyInfo propertyInfo, IReadOnlyList<FieldAttribute> fieldAttributes)
+    public FieldDef DefineField(PropertyInfo propertyInfo, ReversedReadOnlyList<FieldAttribute> fieldAttributes)
     {
       // Persistent indexers are not supported
       var indexParameters = propertyInfo.GetIndexParameters();
@@ -370,7 +370,7 @@ namespace Xtensive.Orm.Building.Builders
       return hierarchy == null && !typeDef.IsStructure;
     }
 
-    private static IReadOnlyList<T> GetFieldAttributes<T>(PropertyInfo property)
+    private static ReversedReadOnlyList<T> GetFieldAttributes<T>(PropertyInfo property)
       where T : Attribute
     {
       var attributes = property.GetAttributes<T>(AttributeSearchOptions.InheritAll);
