@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Xtensive.Core
 {
-  public readonly struct ReversedReadOnlyList<T> : IReadOnlyList<T>
+  internal readonly struct ReversedReadOnlyList<T> : IReadOnlyList<T>
   {
     private readonly IReadOnlyList<T> implementation;
 
