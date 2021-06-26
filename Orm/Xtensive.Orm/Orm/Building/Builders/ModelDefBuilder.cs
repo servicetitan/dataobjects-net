@@ -372,7 +372,7 @@ namespace Xtensive.Orm.Building.Builders
 
     // Attributes will contain attributes from all inheritance chain
     // with the most specific type first.
-    // Reverse them for correct processing (i.e. descendants override settings from base).
+    // Should be enumerated in reversed order for correct processing (i.e. descendants override settings from base).
     private static IReadOnlyList<T> GetReversedFieldAttributes<T>(PropertyInfo property) where T : Attribute =>
       property.GetAttributes<T>(AttributeSearchOptions.InheritAll);
 
