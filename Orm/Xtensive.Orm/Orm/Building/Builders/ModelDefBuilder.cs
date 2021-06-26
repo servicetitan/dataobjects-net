@@ -286,7 +286,7 @@ namespace Xtensive.Orm.Building.Builders
     public FieldDef DefineField(PropertyInfo propertyInfo) =>
       DefineField(propertyInfo, GetFieldAttributes<FieldAttribute>(propertyInfo));
 
-    public FieldDef DefineField(PropertyInfo propertyInfo, ReversedReadOnlyList<FieldAttribute> fieldAttributes)
+    public FieldDef DefineField(PropertyInfo propertyInfo, in ReversedReadOnlyList<FieldAttribute> fieldAttributes)
     {
       // Persistent indexers are not supported
       var indexParameters = propertyInfo.GetIndexParameters();
