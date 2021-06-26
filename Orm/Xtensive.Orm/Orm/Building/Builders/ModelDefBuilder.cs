@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Building.Builders
 
         // FieldAttribute presence is required
         var fieldAttributes = GetFieldAttributes<FieldAttribute>(propertyInfo);
-        if (fieldAttributes.Length == 0) {
+        if (fieldAttributes.Count == 0) {
           continue;
         }
 
@@ -286,7 +286,7 @@ namespace Xtensive.Orm.Building.Builders
     public FieldDef DefineField(PropertyInfo propertyInfo) =>
       DefineField(propertyInfo, GetFieldAttributes<FieldAttribute>(propertyInfo));
 
-    public FieldDef DefineField(PropertyInfo propertyInfo, FieldAttribute[] fieldAttributes)
+    public FieldDef DefineField(PropertyInfo propertyInfo, IReadOnlyList<FieldAttribute> fieldAttributes)
     {
       // Persistent indexers are not supported
       var indexParameters = propertyInfo.GetIndexParameters();
@@ -297,7 +297,7 @@ namespace Xtensive.Orm.Building.Builders
       var fieldDef = new FieldDef(propertyInfo, context.Validator);
       fieldDef.Name = context.NameBuilder.BuildFieldName(fieldDef);
 
-      if (fieldAttributes.Length > 0) {
+      if (fieldAttributes.Count > 0) {
         foreach (var attribute in fieldAttributes) {
           attributeProcessor.Process(fieldDef, attribute);
         }
@@ -370,14 +370,14 @@ namespace Xtensive.Orm.Building.Builders
       return hierarchy == null && !typeDef.IsStructure;
     }
 
-    private static T[] GetFieldAttributes<T>(PropertyInfo property)
+    private static IReadOnlyList<T> GetFieldAttributes<T>(PropertyInfo property)
       where T : Attribute
     {
       var attributes = property.GetAttributes<T>(AttributeSearchOptions.InheritAll);
       // Attributes will contain attributes from all inheritance chain
       // with the most specific type first.
       // Reverse them for correct processing (i.e. descendants override settings from base).
-      return attributes.Reverse().ToArray();
+      return new ReversedReadOnlyList<T>(attributes);
     }
 
     private bool IsTypeAvailable(Type type) =>
