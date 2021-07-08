@@ -126,24 +126,28 @@ namespace Xtensive.Orm.Rse
     public RecordSetHeader Join(RecordSetHeader joined)
     {
       var columnCount = Columns.Count;
-      var newColumns = new List<Column>(Columns.Count + joined.Columns.Count);
+      var newColumns = new List<Column>(columnCount + joined.Columns.Count);
       newColumns.AddRange(Columns);
-      newColumns.AddRange(joined.Columns.Select(c => c.Clone(columnCount + c.Index)));
+      foreach (var c in joined.Columns) {
+        newColumns.Add(c.Clone(columnCount + c.Index));
+      }
 
       var newFieldTypes = new Type[newColumns.Count];
       for (var i = 0; i < newColumns.Count; i++)
         newFieldTypes[i] = newColumns[i].Type;
       var newTupleDescriptor = TupleDescriptor.Create(newFieldTypes);
 
-      var groups = new List<ColumnGroup>(ColumnGroups.Count + joined.ColumnGroups.Count);
+      var columnGroupCount = ColumnGroups.Count;
+      var groups = new List<ColumnGroup>(columnGroupCount + joined.ColumnGroups.Count);
       groups.AddRange(ColumnGroups);
-      groups.AddRange(
-        joined.ColumnGroups
-          .Select(g => new ColumnGroup(
+      foreach (var g in joined.ColumnGroups) {
+        groups.Add(new ColumnGroup(
             g.TypeInfoRef,
             g.Keys.Select(i => columnCount + i),
-            g.Columns.Select(i => columnCount + i))));
-      
+            g.Columns.Select(i => columnCount + i))
+        );
+      }
+
       return new RecordSetHeader(
         newTupleDescriptor, 
         newColumns, 
