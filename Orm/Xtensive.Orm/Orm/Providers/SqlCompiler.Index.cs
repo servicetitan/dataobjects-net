@@ -69,6 +69,7 @@ namespace Xtensive.Orm.Providers
       if (!atRootPolicy) {
         var tableRef = SqlDml.TableRef(table);
         query = SqlDml.Select(tableRef);
+        query.Columns.Capacity = query.Columns.Count + index.Columns.Count;
         query.Columns.AddRange(index.Columns.Select(c => tableRef[c.Name]));
       }
       else {
@@ -76,6 +77,7 @@ namespace Xtensive.Orm.Providers
         var lookup = root.Columns.ToDictionary(c => c.Field, c => c.Name);
         var tableRef = SqlDml.TableRef(table);
         query = SqlDml.Select(tableRef);
+        query.Columns.Capacity = query.Columns.Count + index.Columns.Count;
         query.Columns.AddRange(index.Columns.Select(c => tableRef[lookup[c.Field]]));
       }
       return query;
