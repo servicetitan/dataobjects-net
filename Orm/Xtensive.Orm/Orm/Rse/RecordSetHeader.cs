@@ -141,11 +141,15 @@ namespace Xtensive.Orm.Rse
       var groups = new List<ColumnGroup>(columnGroupCount + joined.ColumnGroups.Count);
       groups.AddRange(ColumnGroups);
       foreach (var g in joined.ColumnGroups) {
-        groups.Add(new ColumnGroup(
-            g.TypeInfoRef,
-            g.Keys.Select(i => columnCount + i),
-            g.Columns.Select(i => columnCount + i))
-        );
+        var keys = new List<int>(g.Keys.Count);
+        foreach (var i in g.Keys) {
+          keys.Add(columnCount + i);
+        }
+        var columns = new List<int>(g.Columns.Count);
+        foreach (var i in g.Columns) {
+          columns.Add(columnCount + i);
+        }
+        groups.Add(new ColumnGroup(g.TypeInfoRef, keys, columns));
       }
 
       return new RecordSetHeader(
