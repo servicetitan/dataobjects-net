@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.07.13
 
@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Internals
   [Serializable]
   internal sealed class Key<T> : Key
   {
-    private static readonly Predicate<T, T> equalityComparer1 = 
+    private static readonly Predicate<T, T> equalityComparer1 =
       ComparerProvider.Default.GetComparer<T>().Equals;
 
     private readonly T value1;
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Internals
       return new Key<T>(nodeId, type, accuracy, tuple.GetValueOrDefault<T>(0));
     }
 
-    
+
     // Constructors
 
     private Key(string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, T value)
