@@ -5,6 +5,7 @@
 // Created:    2009.07.13
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
@@ -43,7 +44,7 @@ namespace Xtensive.Orm.Internals
     }
 
     [UsedImplicitly]
-    public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)
+    public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, IReadOnlyList<int> keyIndexes)
     {
       return new Key<T>(nodeId, type, accuracy, tuple.GetValueOrDefault<T>(keyIndexes[0]));
     }
