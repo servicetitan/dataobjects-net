@@ -56,8 +56,6 @@ namespace Xtensive.Orm.Tests.Linq
     public string Name { get; set; }
     [Field(Nullable = false)] public TagType Type { get; set; }
 
-    [Field(Nullable = true)] public long? GeneratedForExternal { get; set; }
-
     [Field] public string Memo { get; set; }
 
     [Field] public DateTime? RemovedOn { get; set; }
@@ -87,17 +85,7 @@ namespace Xtensive.Orm.Tests.Linq
 
   public class TagModel
   {
-    public long Id { get; set; }
-    public long OwnerId { get; set; }
-    public long TypeId { get; set; }
-    public string TypeName { get; set; }
     public string Memo { get; set; }
-    public string Color { get; set; }
-    public string TextColor { get; set; }
-    public string Code { get; set; }
-    public string Importance { get; set; }
-    public bool IsVisibleOnDispatchBoard { get; set; }
-    public decimal ProjectedValueAdjustment { get; set; }
   }
 
   [Category("Linq")]
@@ -166,26 +154,25 @@ namespace Xtensive.Orm.Tests.Linq
     }
     
     [Test]
-    public async Task ComplexToLookup()
+    public void TagInPredicateJoin()
     {
       var realSession = Session.Demand();
-      
-      var tagLookup = await (
+
+      var tagLookup = (
           from tag in realSession.Query.All<Tag>().Tag("BU0001")
           from tagType in realSession.Query.All<TagType>().Tag("BU0002")
             .Where(tagType => tagType == tag.Type && tagType.Active == true)
           where realSession.Query.All<BusinessUnit>().Tag("BU0003")
             .Any(bu => bu.Active == true && bu.Active == tag.Active)
           select new TagTypePair { Tag = tag, Type = tagType })
-        .Select(pair => new TagModel {
-            Memo = pair.Tag.Memo
-          })
-        .ToLookupAsync(tagModel => tagModel.OwnerId);
+        .Select(pair => new TagModel { Memo = pair.Tag.Memo });
+
+      var queryFormatter = Session.Demand().Services.Demand<QueryFormatter>();
+      var queryString = queryFormatter.ToSqlString(tagLookup);
       
-      // var queryFormatter = Session.Demand().Services.Demand<QueryFormatter>();
-      // var queryString = queryFormatter.ToSqlString(query);
-      //
-      // Assert.IsTrue(queryString.StartsWith("/*superCoolTag*/"));
+      // Currently we don't enforce which tag should be in resulting query
+      // when there are many of them in sqlexpression tree
+      Assert.IsTrue(queryString.StartsWith("/*BU000"));
     }
   }
 }
