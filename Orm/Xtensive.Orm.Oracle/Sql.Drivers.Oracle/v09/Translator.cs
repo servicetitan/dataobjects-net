@@ -43,28 +43,29 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       DoubleNumberFormat.NegativeInfinitySymbol = "-BINARY_DOUBLE_INFINITY";
     }
 
-    public override string QuoteIdentifier(params string[] names)
-    {
-      return SqlHelper.QuoteIdentifierWithQuotes(names);
-    }
+    public override string QuoteIdentifier(params string[] names) =>
+      SqlHelper.QuoteIdentifierWithQuotes(names);
 
     public override string QuoteString(string str)
     {
       return "N" + base.QuoteString(str);
     }
 
-    public override string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
+    public override void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
     {
       switch (section) {
-      case SelectSection.HintsEntry:
-        return "/*+";
-      case SelectSection.HintsExit:
-        return "*/";
-      case SelectSection.Limit:
-      case SelectSection.Offset:
-        throw new NotSupportedException();
-      default:
-        return base.Translate(context, node, section);
+        case SelectSection.HintsEntry:
+          context.Output.Append("/*+");
+          break;
+        case SelectSection.HintsExit:
+          context.Output.Append("*/");
+          break;
+        case SelectSection.Limit:
+        case SelectSection.Offset:
+          throw new NotSupportedException();
+        default:
+          base.Translate(context, node, section);
+          break;
       }
     }
 
@@ -83,67 +84,77 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
-    public override string Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
-    {
-      switch(section) {
-      case NodeSection.Exit:
-        return ".nextval";
-      default:
-        return string.Empty;
-      }
-    }
-    
-    public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
-    {
-      if (node.DateTimePart==SqlDateTimePart.Second || node.IntervalPart==SqlIntervalPart.Second)
-        switch (section) {
-        case ExtractSection.Entry:
-          return "TRUNC(EXTRACT(";
-        case ExtractSection.Exit:
-          return "))";
-        default:
-          return base.Translate(context, node, section);
-        }
-
-      if (node.DateTimePart==SqlDateTimePart.Millisecond || node.IntervalPart==SqlIntervalPart.Millisecond)
-        switch (section) {
-        case ExtractSection.Entry:
-          return "MOD(EXTRACT(";
-        case ExtractSection.Exit:
-          return ")*1000,1000)";
-        default:
-          return base.Translate(context, node, section);
-        }
-
-      return base.Translate(context, node, section);
-    }
-
-    public override string Translate(SqlCompilerContext context, SqlDropTable node)
-    {
-      return "DROP TABLE " + Translate(context, node.Table) + (node.Cascade ? " CASCADE CONSTRAINTS" : string.Empty);
-    }
-
-    public override string Translate(SqlCompilerContext context, SqlDropSequence node)
-    {
-      return "DROP SEQUENCE " + Translate(context, node.Sequence);
-    }
-    
-    public override string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
+    public override void Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
     {
       switch (section) {
-      case AlterTableSection.AddColumn:
-        return "ADD";
-      case AlterTableSection.DropBehavior:
-        var cascadableAction = node.Action as SqlCascadableAction;
-        if (cascadableAction==null || !cascadableAction.Cascade)
-          return string.Empty;
-        if (cascadableAction is SqlDropConstraint)
-          return "CASCADE";
-        if (cascadableAction is SqlDropColumn)
-          return "CASCADE CONSTRAINTS";
-        throw new ArgumentOutOfRangeException("node.Action");
-      default:
-        return base.Translate(context, node, section);
+        case NodeSection.Exit:
+          context.Output.Append(".nextval");
+          break;
+      }
+    }
+
+    public override void Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
+    {
+      if (node.DateTimePart == SqlDateTimePart.Second || node.IntervalPart == SqlIntervalPart.Second)
+        switch (section) {
+          case ExtractSection.Entry:
+            context.Output.Append("TRUNC(EXTRACT(");
+            return;
+          case ExtractSection.Exit:
+            context.Output.Append("))");
+            return;
+        }
+
+      if (node.DateTimePart == SqlDateTimePart.Millisecond || node.IntervalPart == SqlIntervalPart.Millisecond)
+        switch (section) {
+          case ExtractSection.Entry:
+            context.Output.Append("MOD(EXTRACT(");
+            return;
+          case ExtractSection.Exit:
+            context.Output.Append(")*1000,1000)");
+            return;
+        }
+
+      base.Translate(context, node, section);
+    }
+
+    public override void Translate(SqlCompilerContext context, SqlDropTable node)
+    {
+      context.Output.Append("DROP TABLE ");
+      Translate(context, node.Table);
+      context.Output.Append(node.Cascade ? " CASCADE CONSTRAINTS" : string.Empty);
+    }
+
+    public override void Translate(SqlCompilerContext context, SqlDropSequence node)
+    {
+      context.Output.Append("DROP SEQUENCE ");
+      Translate(context, node.Sequence);
+    }
+    
+    public override void Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
+    {
+      var output = context.Output;
+      switch (section) {
+        case AlterTableSection.AddColumn:
+          output.Append("ADD");
+          break;
+        case AlterTableSection.DropBehavior:
+          var cascadableAction = node.Action as SqlCascadableAction;
+          if (cascadableAction == null || !cascadableAction.Cascade)
+            return;
+          if (cascadableAction is SqlDropConstraint) {
+            output.Append("CASCADE");
+          }
+          else if (cascadableAction is SqlDropColumn) {
+            output.Append("CASCADE CONSTRAINTS");
+          }
+          else {
+            throw new ArgumentOutOfRangeException("node.Action");
+          }
+          break;
+        default:
+          base.Translate(context, node, section);
+          break;
       }
     }
 
@@ -169,45 +180,46 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return base.Translate(context, literalValue);
     }
 
-    public override string Translate(SqlCompilerContext context, SqlDropIndex node)
+    public override void Translate(SqlCompilerContext context, SqlDropIndex node)
     {
-      return "DROP INDEX " + Translate(node.Index);
+      context.Output.Append("DROP INDEX ").Append(Translate(node.Index));
     }
 
-    public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
+    public override void Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
-      var builder = new StringBuilder();
+      var output = context.Output;
       var index = node.Index;
       switch (section) {
-      case CreateIndexSection.Entry:
-        builder.Append("CREATE ");
-        if (index.IsUnique)
-          builder.Append("UNIQUE ");
-        else if (index.IsBitmap)
-          builder.Append("BITMAP ");
-        builder.Append("INDEX ");
-        builder.Append(Translate(index));
-        builder.Append(" ON ");
-        builder.Append(Translate(context, index.DataTable));
-        return builder.ToString();
-      case CreateIndexSection.Exit:
-        break;
-      case CreateIndexSection.ColumnsEnter:
-        return "(";
-      case CreateIndexSection.ColumnsExit:
-        return ")";
-      case CreateIndexSection.NonkeyColumnsEnter:
-        break;
-      case CreateIndexSection.NonkeyColumnsExit:
-        break;
-      case CreateIndexSection.StorageOptions:
-        break;
-      case CreateIndexSection.Where:
-        break;
-      default:
-        throw new ArgumentOutOfRangeException("section");
+        case CreateIndexSection.Entry:
+          output.Append("CREATE ");
+          if (index.IsUnique)
+            output.Append("UNIQUE ");
+          else if (index.IsBitmap)
+            output.Append("BITMAP ");
+          output.Append("INDEX ")
+            .Append(Translate(index))
+            .Append(" ON ");
+          Translate(context, index.DataTable);
+          return;
+        case CreateIndexSection.Exit:
+          break;
+        case CreateIndexSection.ColumnsEnter:
+          output.Append("(");
+          break;
+        case CreateIndexSection.ColumnsExit:
+          output.Append(")");
+          break;
+        case CreateIndexSection.NonkeyColumnsEnter:
+          break;
+        case CreateIndexSection.NonkeyColumnsExit:
+          break;
+        case CreateIndexSection.StorageOptions:
+          break;
+        case CreateIndexSection.Where:
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("section");
       }
-      return string.Empty;
     }
 
     public virtual string Translate(Index node)
@@ -217,56 +229,62 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         : QuoteIdentifier(node.DbName);
     }
 
-    public override string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
+    public override void Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
     {
-      if (node.FunctionType==SqlFunctionType.Log10 && section==FunctionCallSection.Exit)
-        return ", 10)";
+      var output = context.Output;
       switch (section) {
-      case FunctionCallSection.ArgumentEntry:
-        return string.Empty;
-      case FunctionCallSection.ArgumentDelimiter:
-        return ArgumentDelimiter;
-      default:
-        return base.Translate(context, node, section, position);
+        case FunctionCallSection.Exit when node.FunctionType == SqlFunctionType.Log10:
+          output.Append(", 10)");
+          break;
+        case FunctionCallSection.ArgumentEntry:
+          break;
+        case FunctionCallSection.ArgumentDelimiter:
+          output.Append(ArgumentDelimiter);
+          break;
+        default:
+          base.Translate(context, node, section, position);
+          break;
       }
     }
 
-    public override string Translate(SqlCompilerContext context,
-      SequenceDescriptor descriptor, SequenceDescriptorSection section)
+    public override void Translate(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
     {
       switch (section) {
-      case SequenceDescriptorSection.RestartValue:
-        if (descriptor.StartValue.HasValue)
+        case SequenceDescriptorSection.RestartValue when descriptor.StartValue.HasValue:
           throw new NotSupportedException(Strings.ExAlterSequenceRestartWithIsNotSupported);
-        break;
-      case SequenceDescriptorSection.AlterMaxValue:
-        if (!descriptor.MaxValue.HasValue)
-          return "NOMAXVALUE";
-        break;
-      case SequenceDescriptorSection.AlterMinValue:
-        if (!descriptor.MinValue.HasValue)
-          return "NOMINVALUE";
-        break;
+        case SequenceDescriptorSection.AlterMaxValue when !descriptor.MaxValue.HasValue:
+          context.Output.Append("NOMAXVALUE");
+          break;
+        case SequenceDescriptorSection.AlterMinValue when !descriptor.MinValue.HasValue:
+          context.Output.Append("NOMINVALUE");
+          break;
+        default:
+          base.Translate(context, descriptor, section);
+          break;
       }
-      return base.Translate(context, descriptor, section);
     }
 
-    public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
+    public override void Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
     {
       var sqlType = node.Type.Type;
 
-      if (sqlType==SqlType.Char ||
-        sqlType==SqlType.VarChar ||
-        sqlType==SqlType.VarCharMax)
+      if (sqlType == SqlType.Char ||
+        sqlType == SqlType.VarChar ||
+        sqlType == SqlType.VarCharMax) {
         switch (section) {
-        case NodeSection.Entry:
-          return "TO_CHAR(";
-        case NodeSection.Exit:
-          return ")";
-        default:
-          throw new ArgumentOutOfRangeException("section");
+          case NodeSection.Entry:
+            context.Output.Append("TO_CHAR(");
+            break;
+          case NodeSection.Exit:
+            context.Output.Append(")");
+            break;
+          default:
+            throw new ArgumentOutOfRangeException("section");
         }
-      return base.Translate(context, node, section);
+      }
+      else {
+        base.Translate(context, node, section);
+      }
     }
 
     public override string Translate(SqlValueType type)

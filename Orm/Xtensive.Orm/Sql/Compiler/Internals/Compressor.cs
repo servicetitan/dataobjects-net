@@ -1,8 +1,10 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System.Text;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -12,16 +14,18 @@ namespace Xtensive.Sql.Compiler
     private char last;
     private byte indent;
     private StringBuilder buffer;
-    private Node root;
-    private Node current;
 
-    public static Node Process(SqlTranslator translator, ContainerNode node)
+    private List<Node> children = new List<Node>();
+
+    public IReadOnlyList<Node> Children => children;
+    
+    public static IReadOnlyList<Node> Process(SqlTranslator translator, ContainerNode node)
     {
       var compressor = new Compressor(translator);
       compressor.CreateBuffer();
-      compressor.VisitNodeSequence(node);
+      compressor.Visit(node);
       compressor.FlushBuffer();
-      return compressor.root;
+      return compressor.Children;
     }
 
     #region Private / internal methods
@@ -49,14 +53,7 @@ namespace Xtensive.Sql.Compiler
    
     private void AppendNode(Node node)
     {
-      if (current==null) {
-        current = node;
-        root = node;
-      }
-      else {
-        current.Next = node;
-        current = node;
-      }
+      children.Add(node);
     }
 
     private void Append(string text)
@@ -92,22 +89,19 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    private Node VisitBranch(Node node)
+    private IEnumerable<Node> VisitBranch(IEnumerable<Node> nodes)
     {
-      var originalCurrent = current;
-      var originalRoot = root;
-      root = null;
-      current = null;
+      var originalChildren = children;
+      children = new List<Node>();
       try {
         CreateBuffer();
-        VisitNodeSequence(node);
+        VisitNodeEnumerable(nodes);
         FlushBuffer();
-        return root;
+        return Children;
       }
       finally {
         buffer = null;
-        root = originalRoot;
-        current = originalCurrent;
+        children = originalChildren;
       }
     }
 
@@ -140,7 +134,7 @@ namespace Xtensive.Sql.Compiler
         buffer.AppendLine();
         AppendIndent();
       }
-      VisitNodeSequence(node.Child);
+      VisitNodeEnumerable(node.Children);
       if (node.RequireIndent)
         indent--;
     }
@@ -161,35 +155,28 @@ namespace Xtensive.Sql.Compiler
     public override void Visit(VariantNode node)
     {
       BeginNonTextNode();
-      var variant = new VariantNode(node.Id);
-      variant.Main = VisitBranch(node.Main);
-      variant.Alternative = VisitBranch(node.Alternative);
-      AppendNode(variant);
+      AppendNode(new VariantNode(node.Id, VisitBranch(node.Main), VisitBranch(node.Alternative)));
       EndNonTextNode();
     }
 
     public override void Visit(PlaceholderNode node)
     {
       BeginNonTextNode();
-      AppendNode(new PlaceholderNode(node.Id));
+      AppendNode(node);
       EndNonTextNode();
     }
 
     public override void Visit(CycleItemNode node)
     {
       BeginNonTextNode();
-      AppendNode(new CycleItemNode(node.Index));
+      AppendNode(node);
       EndNonTextNode();
     }
 
     public override void Visit(CycleNode node)
     {
       BeginNonTextNode();
-      var cycle = new CycleNode(node.Id);
-      cycle.Body = VisitBranch(node.Body);
-      cycle.EmptyCase = VisitBranch(node.EmptyCase);
-      cycle.Delimiter = node.Delimiter;
-      AppendNode(cycle);
+      AppendNode(new CycleNode(node.Id, VisitBranch(node.Body), VisitBranch(node.EmptyCase), node.Delimiter));
       EndNonTextNode();
     }
 

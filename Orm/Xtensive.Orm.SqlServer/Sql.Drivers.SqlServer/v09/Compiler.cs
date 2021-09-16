@@ -28,7 +28,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     public override void Visit(SqlSelect node)
     {
       using (context.EnterScope(node)) {
-        context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
+        AppendTranslated(node, SelectSection.Entry);
         VisitSelectLimitOffset(node);
         VisitSelectHints(node);
         VisitSelectColumns(node);
@@ -37,7 +37,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         VisitSelectGroupBy(node);
         VisitSelectOrderBy(node);
         VisitSelectLock(node);
-        context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
+        AppendTranslated(node, SelectSection.Exit);
       }
     }
 
@@ -59,10 +59,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       if (!node.Limit.IsNullReference()) {
         if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateLimit))
           throw new NotSupportedException(Strings.ExStorageDoesNotSupportLimitationOfRowCountToUpdate);
-        context.Output.AppendText(translator.Translate(context, node, UpdateSection.Limit));
-        context.Output.AppendText("(");
+        AppendTranslated(node, UpdateSection.Limit);
+        context.Output.Append("(");
         node.Limit.AcceptVisitor(this);
-        context.Output.AppendText(")");
+        context.Output.Append(")");
       }
     }
 
@@ -71,7 +71,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       using (context.EnterScope(node)) {
         VisitDeleteEntry(node);
         VisitDeleteLimit(node);
-        context.Output.AppendText(translator.Translate(context, node, DeleteSection.From));
+        AppendTranslated(node, DeleteSection.From);
         VisitDeleteDelete(node);
         VisitDeleteFrom(node);
         VisitDeleteWhere(node);
@@ -84,10 +84,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       if (!node.Limit.IsNullReference()) {
         if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.DeleteLimit))
           throw new NotSupportedException(Strings.ExStorageDoesNotSupportLimitationOfRowCountToDelete);
-        context.Output.AppendText(translator.Translate(context, node, DeleteSection.Limit));
-        context.Output.AppendText("(");
+        AppendTranslated(node, DeleteSection.Limit);
+        context.Output.Append("(");
         node.Limit.AcceptVisitor(this);
-        context.Output.AppendText(")");
+        context.Output.Append(")");
       }
     }
 
@@ -101,7 +101,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       var renameColumnAction = node.Action as SqlRenameColumn;
       if (renameColumnAction!=null) {
-        context.Output.AppendText(((Translator) translator).Translate(context, renameColumnAction));
+        ((Translator) translator).Translate(context, renameColumnAction);
         return;
       }
       var dropConstrainAction = node.Action as SqlDropConstraint;
@@ -115,7 +115,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
             //we doesn't know real name of default constraint.
             //Because of this we should find name of constraint in system views.
             //And we able to drop default constraint after that.
-            context.Output.AppendText(((Translator)translator).Translate(context, node, constraint));
+            ((Translator)translator).Translate(context, node, constraint);
             return;
           }
         }
@@ -198,9 +198,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         throw new NotSupportedException(Strings.ExSqlServerSupportsTrimmingOfSpaceCharactersOnly);
       
       using (context.EnterScope(node)) {
-        context.Output.AppendText(translator.Translate(context, node, TrimSection.Entry));
+        AppendTranslated(node, TrimSection.Entry);
         node.Expression.AcceptVisitor(this);
-        context.Output.AppendText(translator.Translate(context, node, TrimSection.Exit));
+        AppendTranslated(node, TrimSection.Exit);
       }
     }
     
@@ -330,33 +330,39 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
       else
         columns = "(" + string.Join(", ", node.TargetColumns.Select(c => translator.QuoteIdentifier(c.Name)).ToArray()) + ")";
-      context.Output.AppendText(string.Format(
-        "CONTAINSTABLE({0}, {1}, ", translator.Translate(context, node.TargetTable.DataTable), columns));
+      context.Output.Append("CONTAINSTABLE(");
+      translator.Translate(context, node.TargetTable.DataTable);
+      context.Output.Append(", ")
+        .Append(columns)
+        .Append(", ");
       node.SearchCondition.AcceptVisitor(this);
       if (node.TopNByRank!=null) {
-        context.Output.AppendText(", ");
+        context.Output.Append(", ");
         node.TopNByRank.AcceptVisitor(this);
       }
-      context.Output.AppendText(") ");
+      context.Output.Append(") ");
     }
 
     public override void Visit(SqlFreeTextTable node)
     {
-      string columns;
-      if (node.TargetColumns.Count==1)
-        columns = node.TargetColumns[0]==node.Asterisk
-          ? node.TargetColumns[0].Name
-          : translator.QuoteIdentifier(node.TargetColumns[0].Name);
-      else
-        columns = string.Join(", ", node.TargetColumns.Select(c => translator.QuoteIdentifier(c.Name)).ToArray());
-      context.Output.AppendText(string.Format(
-        "FREETEXTTABLE({0}, {1}, ", translator.Translate(context, node.TargetTable.DataTable), columns));
+      var output = context.Output;
+      var columns = node.TargetColumns.Count == 1
+        ? (node.TargetColumns[0] == node.Asterisk
+            ? node.TargetColumns[0].Name
+            : translator.QuoteIdentifier(node.TargetColumns[0].Name))
+        : string.Join(", ", node.TargetColumns.Select(c => translator.QuoteIdentifier(c.Name)).ToArray());
+
+      output.Append("FREETEXTTABLE(");
+      translator.Translate(context, node.TargetTable.DataTable);
+      output.Append(", ")
+        .Append(columns)
+        .Append(", ");
       node.FreeText.AcceptVisitor(this);
-      if (node.TopNByRank!=null) {
-        context.Output.AppendText(", ");
+      if (node.TopNByRank != null) {
+        context.Output.Append(", ");
         node.TopNByRank.AcceptVisitor(this);
       }
-      context.Output.AppendText(") ");
+      output.Append(") ");
     }
 
     public override void Visit(SqlCreateIndex node, IndexColumn item)
@@ -364,13 +370,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       base.Visit(node, item);
 
       if (item.TypeColumn!=null)
-        context.Output.AppendText(string.Format("TYPE COLUMN {0} ", translator.QuoteIdentifier(item.TypeColumn.Name)));
+        context.Output.Append(string.Format("TYPE COLUMN {0} ", translator.QuoteIdentifier(item.TypeColumn.Name)));
       switch (item.Languages.Count) {
         case 0:
           break;
         case 1:
           if (!string.IsNullOrEmpty(item.Languages[0].Name))
-            context.Output.AppendText(string.Format("LANGUAGE '{0}'", item.Languages[0].Name));
+            context.Output.Append(string.Format("LANGUAGE '{0}'", item.Languages[0].Name));
           break;
         default:
           throw new InvalidOperationException(string.Format(
