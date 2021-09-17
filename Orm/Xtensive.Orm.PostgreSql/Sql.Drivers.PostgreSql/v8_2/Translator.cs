@@ -18,7 +18,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
       return "E'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
     }
 
-    protected override void AppendIndexStorageParameters(IContainerNodeBuilder output, Index index)
+    public override void TranslateString(IOutput output, string str)
+    {
+      output.Append('E');
+      base.TranslateString(output, str);
+    }
+
+    protected override void AppendIndexStorageParameters(IOutput output, Index index)
     {
       if (index.FillFactor != null) {
         _ = output.Append($"WITH(FILLFACTOR={index.FillFactor})");

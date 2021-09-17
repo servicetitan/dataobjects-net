@@ -26,9 +26,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
       var output = context.Output;
       switch (section) {
         case CreateIndexSection.Entry:
-          output.Append("CREATE INDEX ")
-            .Append(QuoteIdentifier(index.Name))
-            .Append(" ON ");
+          output.Append("CREATE INDEX ");
+          TranslateIdentifier(output, index.Name);
+          output.Append(" ON ");
           Translate(context, index.DataTable);
           output.Append(" USING gin (");
           break;

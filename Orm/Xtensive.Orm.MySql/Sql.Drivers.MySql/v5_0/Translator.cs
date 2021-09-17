@@ -52,18 +52,25 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       DoubleNumberFormat.NumberGroupSeparator = "";
     }
 
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public override string QuoteIdentifier(params string[] names)
-    {
-      return SqlHelper.QuoteIdentifierWithBackTick(names);
-    }
+    public override SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithBackTick;
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public override string QuoteString(string str)
     {
       return "'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
+    }
+
+    protected override void TranslateStringChar(IOutput output, char ch)
+    {
+      switch (ch) {
+        case '\\':
+          output.Append("\\\\");
+          break;
+        default:
+          base.TranslateStringChar(output, ch);
+          break;
+      }
     }
 
     public override void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
@@ -276,7 +283,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     public override void Translate(SqlCompilerContext context, SchemaNode node)
     {
-      context.Output.Append(QuoteIdentifier(new[] {node.Name}));
+      TranslateIdentifier(context.Output, node.Name);
     }
 
     public override void Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
@@ -405,28 +412,33 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, object literalValue)
+    public override void Translate(SqlCompilerContext context, object literalValue)
     {
-      Type literalType = literalValue.GetType();
-      switch (Type.GetTypeCode(literalType)) {
-        case TypeCode.Boolean:
-          return (bool) literalValue ? "1" : "0";
-        case TypeCode.UInt64:
-          return QuoteString(((UInt64) literalValue).ToString());
+      var output = context.Output;
+      switch (literalValue) {
+        case bool v:
+          output.Append(v ? '1' : '0');
+          break;
+        case UInt64 v:
+          TranslateString(output, v.ToString());
+          break;
+        case byte[] values:
+          var builder = output.StringBuilder;
+          builder.EnsureCapacity(builder.Length + 2 * (values.Length + 1));
+          builder.Append("x'");
+          builder.AppendHexArray(values);
+          builder.Append("'");
+          break;
+        case Guid guid:
+          TranslateString(output, SqlHelper.GuidToString(guid));
+          break;
+        case TimeSpan timeSpan:
+          output.Append(timeSpan.Ticks * 100);
+          break;
+        default:
+          base.Translate(context, literalValue);
+          break;
       }
-      if (literalType==typeof (byte[])) {
-        var values = (byte[]) literalValue;
-        var builder = new StringBuilder(2 * (values.Length + 1));
-        builder.Append("x'");
-        builder.AppendHexArray(values);
-        builder.Append("'");
-        return builder.ToString();
-      }
-      if (literalType==typeof (Guid))
-        return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
-      if (literalType==typeof (TimeSpan))
-        return Convert.ToString(((TimeSpan) literalValue).Ticks * 100);
-      return base.Translate(context, literalValue);
     }
 
     /// <inheritdoc/>
@@ -627,7 +639,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlRenameColumn action) //TODO: Work on this.
+    public virtual void Translate(SqlCompilerContext context, SqlRenameColumn action) //TODO: Work on this.
     {
       string schemaName = action.Column.Table.Schema.DbName;
       string tableName = action.Column.Table.DbName;
@@ -635,17 +647,15 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
       //alter table `actor` change column last_name1 last_name varchar(45)
 
-      var builder = new StringBuilder();
-      builder.Append("ALTER TABLE ");
-      builder.Append(QuoteIdentifier(tableName));
-      builder.Append(" CHANGE COLUMN ");
-      builder.Append(QuoteIdentifier(columnName));
-      builder.Append(" ");
-      builder.Append(QuoteIdentifier(action.NewName));
-      builder.Append(" ");
-      builder.Append(Translate(action.Column.DataType));
-
-      return builder.ToString();
+      var output = context.Output;
+      output.Append("ALTER TABLE ");
+      TranslateIdentifier(output, tableName);
+      output.Append(" CHANGE COLUMN ");
+      TranslateIdentifier(output, columnName);
+      output.Append(" ");
+      TranslateIdentifier(output, action.NewName);
+      output.Append(" ")
+        .Append(Translate(action.Column.DataType));
     }
 
     // Constructors

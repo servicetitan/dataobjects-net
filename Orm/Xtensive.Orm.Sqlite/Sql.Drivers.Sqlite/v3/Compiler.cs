@@ -91,8 +91,10 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           var action = node.Action as SqlDropConstraint;
           var constraint = action.Constraint as TableConstraint;
           AppendTranslated(node, AlterTableSection.DropConstraint);
-          if (constraint is ForeignKey)
-            context.Output.Append("REFERENCES " + translator.QuoteIdentifier(constraint.DbName));
+          if (constraint is ForeignKey) {
+            context.Output.Append("REFERENCES ");
+            translator.TranslateIdentifier(context.Output, constraint.DbName);
+          }
           else
             AppendTranslated(constraint, ConstraintSection.Entry);
           AppendTranslated(node, AlterTableSection.DropBehavior);
@@ -207,7 +209,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       using (context.EnterScope(node)) {
         AppendTranslated(node, QueryExpressionSection.Entry);
         node.Left.AcceptVisitor(this);
-        context.Output.Append(translator.Translate(node.NodeType));
+        AppendTranslated(node.NodeType);
         AppendTranslated(node, QueryExpressionSection.All);
         node.Right.AcceptVisitor(this);
         AppendTranslated(node, QueryExpressionSection.Exit);
@@ -238,7 +240,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         node.Expression.AcceptVisitor(this);
         if (node.TrimCharacters!=null) {
           context.Output.Append(",");
-          context.Output.Append(translator.Translate(context, node.TrimCharacters));
+          AppendTranslatedLiteral(node.TrimCharacters);
         }
         AppendTranslated(node, TrimSection.Exit);
       }

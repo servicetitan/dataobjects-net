@@ -332,7 +332,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         AppendTranslated(node, ExtractSection.From);
         node.Operand.AcceptVisitor(this);
         AppendTranslated(node, ExtractSection.Exit);
-        context.Output.Append(translator.Translate(SqlNodeType.Multiply));
+        AppendTranslated(SqlNodeType.Multiply);
         OneSecondInterval.AcceptVisitor(this);
       }
     }

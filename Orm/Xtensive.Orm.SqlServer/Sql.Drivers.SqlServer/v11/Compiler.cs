@@ -24,17 +24,17 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       if (!node.HasOffset && !node.HasLimit)
         return; // Nothing to process.
 
-      translator.Translate(context, node, SelectSection.Offset);
+      AppendTranslated(node, SelectSection.Offset);
       if (node.HasOffset)
         node.Offset.AcceptVisitor(this);
       else
-        context.Output.Append("0");
-      translator.Translate(context, node, SelectSection.OffsetEnd);
+        context.Output.Append("0 ");
+      AppendTranslated(node, SelectSection.OffsetEnd);
 
       if (node.HasLimit) {
-        translator.Translate(context, node, SelectSection.Limit);
+        AppendTranslated(node, SelectSection.Limit);
         node.Limit.AcceptVisitor(this);
-        translator.Translate(context, node, SelectSection.LimitEnd);
+        AppendTranslated(node, SelectSection.LimitEnd);
       }
     }
 

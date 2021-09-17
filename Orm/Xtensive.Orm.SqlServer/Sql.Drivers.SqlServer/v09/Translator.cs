@@ -73,14 +73,18 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     public override void Translate(SqlCompilerContext context, TableColumn column, TableColumnSection section)
     {
+      var output = context.Output;
       switch (section) {
         case TableColumnSection.Type:
-          context.Output.Append(column.Domain == null
-            ? Translate(column.DataType)
-            : QuoteIdentifier(column.Domain.Schema.DbName, column.Domain.DbName));
+          if (column.Domain == null) {
+            output.Append(Translate(column.DataType));
+          }
+          else {
+            TranslateIdentifier(output, column.Domain.Schema.DbName, column.Domain.DbName);
+          }
           break;
         case TableColumnSection.GenerationExpressionEntry:
-          context.Output.Append("AS (");
+          output.Append("AS (");
           break;
         case TableColumnSection.GeneratedEntry:
         case TableColumnSection.GeneratedExit:
@@ -185,8 +189,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           return;
         case CreateTableSection.Exit:
           if (!string.IsNullOrEmpty(node.Table.Filegroup)) {
-            output.Append(" ON ")
-              .Append(QuoteIdentifier(node.Table.Filegroup));
+            output.Append(" ON ");
+            TranslateIdentifier(output, node.Table.Filegroup);
           }
           return;
       }
@@ -385,8 +389,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         return;
       }
       if (ftIndex.FullTextCatalog != null) {
-        context.Output.Append(" ON ")
-          .Append(QuoteIdentifier(ftIndex.FullTextCatalog));
+        context.Output.Append(" ON ");
+        TranslateIdentifier(context.Output, ftIndex.FullTextCatalog);
       }
       context.Output.Append(" WITH CHANGE_TRACKING ")
         .Append(TranslateChangeTrackingMode(ftIndex.ChangeTrackingMode));
@@ -396,8 +400,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       var table = action.Column.Table;
       var schema = table.Schema;
-      var columnName = QuoteIdentifier(schema.Catalog.DbName, schema.DbName, table.DbName, action.Column.DbName);
-      TranslateExecSpRename(context, table, () => context.Output.Append(columnName), action.NewName, "COLUMN");
+      TranslateExecSpRename(context,
+        table,
+        () => TranslateIdentifier(context.Output, schema.Catalog.DbName, schema.DbName, table.DbName, action.Column.DbName),
+        action.NewName,
+        "COLUMN");
     }
 
     public virtual void Translate(SqlCompilerContext context, SqlAlterTable node, DefaultConstraint constraint)
@@ -410,8 +417,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var output = context.Output;
       output.Append("EXEC ");
       if (context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects)) {
-        output.Append(QuoteIdentifier(affectedNode.Schema.Catalog.DbName))
-          .Append("..");
+        TranslateIdentifier(output, affectedNode.Schema.Catalog.DbName);
+        output.Append("..");
       }
       output.Append("sp_rename '");
       printObjectName();
@@ -560,7 +567,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     public override void Translate(SqlCompilerContext context, SqlDropSchema node)
     {
-      context.Output.Append("DROP SCHEMA ").Append(QuoteIdentifier(node.Schema.DbName));
+      context.Output.Append("DROP SCHEMA ");
+      TranslateIdentifier(context.Output, node.Schema.DbName);
     }
 
     public override void Translate(SqlCompilerContext context, SqlDropTable node)
@@ -580,33 +588,42 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return string.Empty;
     }
 
-    public override string Translate(SqlCompilerContext context, object literalValue)
+    public override void Translate(SqlCompilerContext context, object literalValue)
     {
-      var literalType = literalValue.GetType();
-      if (literalType == typeof(string) || literalType == typeof(char))
-        return "N" + QuoteString(literalValue.ToString());
-      if (literalType == typeof(TimeSpan))
-        return Convert.ToString((long) ((TimeSpan) literalValue).Ticks * 100);
-      if (literalType == typeof(Boolean))
-        return ((bool) literalValue) ? "cast(1 as bit)" : "cast(0 as bit)";
-      if (literalType == typeof(DateTime)) {
-        var dateTime = (DateTime) literalValue;
-        var dateTimeRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
-        var newValue = ValueRangeValidator.Correct(dateTime, dateTimeRange);
-        return newValue.ToString(DateTimeFormatString);
+      var output = context.Output;
+      switch (literalValue) {
+        case char:
+        case string:
+          output.Append('N');
+          TranslateString(output, literalValue.ToString());
+          break;
+        case TimeSpan v:
+          output.Append(v.Ticks * 100);
+          break;
+        case bool v:
+          output.Append(v ? "cast(1 as bit)" : "cast(0 as bit)");
+          break;
+        case DateTime dateTime:
+          var dateTimeRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
+          var newValue = ValueRangeValidator.Correct(dateTime, dateTimeRange);
+          output.Append(newValue.ToString(DateTimeFormatString));
+          break;
+        case byte[] array:
+          var builder = output.StringBuilder;
+          builder.EnsureCapacity(builder.Length + 2 * (array.Length + 1));
+          builder.Append("0x");
+          builder.AppendHexArray(array);
+          break;
+        case Guid guid:
+          TranslateString(output, guid.ToString());
+          break;
+        case Int64 v:
+          output.Append($"CAST({v} as BIGINT)");
+          break;
+        default:
+          base.Translate(context, literalValue);
+          break;
       }
-      if (literalType == typeof(byte[])) {
-        var array = (byte[]) literalValue;
-        var builder = new StringBuilder(2 * (array.Length + 1));
-        builder.Append("0x");
-        builder.AppendHexArray(array);
-        return builder.ToString();
-      }
-      if (literalType == typeof(Guid))
-        return QuoteString(literalValue.ToString());
-      if (literalType == typeof(Int64))
-        return String.Format("CAST({0} as BIGINT)", literalValue);
-      return base.Translate(context, literalValue);
     }
 
     public override string Translate(SqlLockType lockType)

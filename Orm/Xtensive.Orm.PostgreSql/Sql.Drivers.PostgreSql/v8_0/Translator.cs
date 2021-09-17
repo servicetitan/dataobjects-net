@@ -46,16 +46,24 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string DdlStatementDelimiter { get { return ";"; } }
     public override string BatchItemDelimiter { get { return ";\r\n"; } }
 
-    [DebuggerStepThrough]
-    public override string QuoteIdentifier(params string[] names)
-    {
-      return SqlHelper.QuoteIdentifierWithQuotes(names);
-    }
+    public override SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithQuotes;
 
     [DebuggerStepThrough]
     public override string QuoteString(string str)
     {
      return "'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
+    }
+
+    protected override void TranslateStringChar(IOutput output, char ch)
+    {
+      switch (ch) {
+        case '\\':
+          output.Append("\\\\");
+          break;
+        default:
+          base.TranslateStringChar(output, ch);
+          break;
+      }
     }
 
     public override string Translate(SqlFunctionType type)
@@ -273,7 +281,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
     }
 
-    protected virtual void AppendIndexStorageParameters(IContainerNodeBuilder output, Index index)
+    protected virtual void AppendIndexStorageParameters(IOutput output, Index index)
     {
     }
 
@@ -298,41 +306,44 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
     }
 
-    public override string Translate(SqlCompilerContext context, object literalValue)
+    public override void Translate(SqlCompilerContext context, object literalValue)
     {
+      var output = context.Output;
       var literalType = literalValue.GetType();
       if (literalType == WellKnownTypes.ByteArrayType) {
-        return TranslateByteArrayLiteral((byte[]) literalValue);
+        output.Append(TranslateByteArrayLiteral((byte[]) literalValue));
       }
-      if (literalType == WellKnownTypes.GuidType) {
-        return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
+      else if (literalType == WellKnownTypes.GuidType) {
+        TranslateString(output, SqlHelper.GuidToString((Guid) literalValue));
       }
-      if (literalType == WellKnownTypes.DateTimeOffsetType) {
-        return ((DateTimeOffset) literalValue).ToString(DateTimeOffsetFormatString);
+      else if (literalType == WellKnownTypes.DateTimeOffsetType) {
+        output.Append(((DateTimeOffset) literalValue).ToString(DateTimeOffsetFormatString));
       }
-      if (literalType == WellKnownTypes.NpgsqlPointType) {
+      else if (literalType == WellKnownTypes.NpgsqlPointType) {
         var point = (NpgsqlPoint) literalValue;
-        return string.Format("point'({0},{1})'", point.X, point.Y);
+        output.Append($"point'({point.X},{point.Y})'");
       }
-      if (literalType == WellKnownTypes.NpgsqlLSegType) {
+      else if (literalType == WellKnownTypes.NpgsqlLSegType) {
         var lSeg = (NpgsqlLSeg) literalValue;
-        return string.Format("lseg'[({0},{1}),({2},{3})]'", lSeg.Start.X, lSeg.Start.Y, lSeg.End.X, lSeg.End.Y);
+        output.Append($"lseg'[({lSeg.Start.X},{lSeg.Start.Y}),({lSeg.End.X},{lSeg.End.Y})]'");
       }
-      if (literalType == WellKnownTypes.NpgsqlBoxType) {
+      else if (literalType == WellKnownTypes.NpgsqlBoxType) {
         var box = (NpgsqlBox) literalValue;
-        return string.Format("box'({0},{1}),({2},{3})'", box.LowerLeft.X, box.LowerLeft.Y, box.UpperRight.X, box.UpperRight.Y);
+        output.Append($"box'({box.LowerLeft.X},{box.LowerLeft.Y}),({box.UpperRight.X},{box.UpperRight.Y})'");
       }
-      if (literalType == WellKnownTypes.NpgsqlPathType) {
-        return string.Format("path'(({0},{1}))'", 0, 0);
+      else if (literalType == WellKnownTypes.NpgsqlPathType) {
+        output.Append($"path'(({0},{0}))'");
       }
-      if (literalType == WellKnownTypes.NpgsqlPolygonType) {
-        return "polygon'((0,0))'";
+      else if (literalType == WellKnownTypes.NpgsqlPolygonType) {
+        output.Append("polygon'((0,0))'");
       }
-      if (literalType == WellKnownTypes.NpgsqlCircleType) {
+      else if (literalType == WellKnownTypes.NpgsqlCircleType) {
         var circle = (NpgsqlCircle) literalValue;
-        return string.Format("circle'<({0},{1}),{2}>'", circle.Center.X, circle.Center.Y, circle.Radius);
+        output.Append($"circle'<({circle.Center.X},{circle.Center.Y}),{circle.Radius}>'");
       }
-      return base.Translate(context, literalValue);
+      else {
+        base.Translate(context, literalValue);
+      }
     }
 
     public override void Translate(SqlCompilerContext context, SqlArray node, ArraySection section)

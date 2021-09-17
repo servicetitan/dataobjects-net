@@ -41,16 +41,18 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       return base.Translate(functionType);
     }
 
-    public override string Translate(SqlCompilerContext context, object literalValue)
+    public override void Translate(SqlCompilerContext context, object literalValue)
     {
-      var literalType = literalValue.GetType();
-      if (literalType==typeof (DateTimeOffset)) {
-        var dateTimeOffset = (DateTimeOffset) literalValue;
-        var dateTimeOffsetRange = (ValueRange<DateTimeOffset>) Driver.ServerInfo.DataTypes.DateTimeOffset.ValueRange;
-        var newValue = ValueRangeValidator.Correct(dateTimeOffset, dateTimeOffsetRange);
-        return newValue.ToString(DateTimeOffsetFormatString);
+      switch (literalValue) {
+        case DateTimeOffset dateTimeOffset:
+          var dateTimeOffsetRange = (ValueRange<DateTimeOffset>) Driver.ServerInfo.DataTypes.DateTimeOffset.ValueRange;
+          var newValue = ValueRangeValidator.Correct(dateTimeOffset, dateTimeOffsetRange);
+          context.Output.Append(newValue.ToString(DateTimeOffsetFormatString));
+          break;
+        default:
+          base.Translate(context, literalValue);
+          break;
       }
-      return base.Translate(context, literalValue);
     }
 
     // Constructors

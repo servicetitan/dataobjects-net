@@ -43,7 +43,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     {
       var renameColumnAction = node.Action as SqlRenameColumn;
       if (renameColumnAction!=null)
-        context.Output.Append(((Translator) translator).Translate(context, renameColumnAction));
+        ((Translator) translator).Translate(context, renameColumnAction);
       else if (node.Action is SqlDropConstraint) {
         using (context.EnterScope(node)) {
           AppendTranslated(node, AlterTableSection.Entry);
@@ -51,8 +51,10 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           var action = node.Action as SqlDropConstraint;
           var constraint = action.Constraint as TableConstraint;
           AppendTranslated(node, AlterTableSection.DropConstraint);
-          if (constraint is ForeignKey)
-            context.Output.Append("FOREIGN KEY " + translator.QuoteIdentifier(constraint.DbName));
+          if (constraint is ForeignKey) {
+            context.Output.Append("FOREIGN KEY ");
+            translator.TranslateIdentifier(context.Output, constraint.DbName);
+          }
           else if (constraint is PrimaryKey)
             context.Output.Append("PRIMARY KEY ");
           else
@@ -128,7 +130,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         node.Left.AcceptVisitor(this);
         if (needClosingParenthesis)
           context.Output.Append(")");
-        context.Output.Append(translator.Translate(node.NodeType));
+        AppendTranslated(node.NodeType);
         AppendTranslated(node, QueryExpressionSection.All);
         if (needOpeningParenthesis)
           context.Output.Append("(");

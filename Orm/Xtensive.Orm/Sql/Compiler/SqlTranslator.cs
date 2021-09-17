@@ -130,9 +130,9 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Translate(SqlCompilerContext context, SqlAlterPartitionFunction node)
     {
-      context.Output.Append("ALTER PARTITION FUNCTION ")
-        .Append(QuoteIdentifier(node.PartitionFunction.DbName))
-        .Append("()")
+      context.Output.Append("ALTER PARTITION FUNCTION ");
+      TranslateIdentifier(context.Output, node.PartitionFunction.DbName);
+      context.Output.Append("()")
         .Append(node.Option == SqlAlterPartitionFunctionOption.Split ? " SPLIT RANGE (" : " MERGE RANGE (")
         .Append(node.Boundary)
         .Append(")");
@@ -140,11 +140,12 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Translate(SqlCompilerContext context, SqlAlterPartitionScheme node)
     {
-      context.Output.Append("ALTER PARTITION SCHEME ")
-        .Append(QuoteIdentifier(node.PartitionSchema.DbName))
-        .Append(" NEXT USED");
+      var output = context.Output;
+      output.Append("ALTER PARTITION SCHEME ");
+      TranslateIdentifier(output, node.PartitionSchema.DbName);
+      output.Append(" NEXT USED");
       if (!string.IsNullOrEmpty(node.Filegroup)) {
-        context.Output.Append(" ")
+        output.Append(" ")
           .Append(node.Filegroup);
       }
     }
@@ -199,7 +200,7 @@ namespace Xtensive.Sql.Compiler
       var output = context.Output;
       switch (section) {
         case TableColumnSection.Entry:
-          output.Append(QuoteIdentifier(column.DbName));
+          TranslateIdentifier(output, column.DbName);
           break;
         case TableColumnSection.Type:
           if (column.Domain == null) {
@@ -238,7 +239,8 @@ namespace Xtensive.Sql.Compiler
       var output = context.Output;
       switch (section) {
         case ConstraintSection.Entry when !String.IsNullOrEmpty(constraint.DbName):
-          output.Append("CONSTRAINT ").Append(QuoteIdentifier(constraint.DbName));
+          output.Append("CONSTRAINT ");
+          TranslateIdentifier(output, constraint.DbName);
           break;
         case ConstraintSection.Check:
           output.Append("CHECK (");
@@ -406,12 +408,14 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Translate(SqlCompilerContext context, SqlColumnRef node, ColumnSection section)
     {
+      var output = context.Output;
       switch (section) {
         case ColumnSection.Entry:
-          context.Output.Append(QuoteIdentifier(node.Name));
+          TranslateIdentifier(output, node.Name);
           break;
         case ColumnSection.AliasDeclaration when !string.IsNullOrEmpty(node.Name):
-          context.Output.Append("AS ").Append(QuoteIdentifier(node.Name));
+          output.Append("AS ");
+          TranslateIdentifier(output, node.Name);
           break;
       }
     }
@@ -453,9 +457,8 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlCreateCharacterSet node)
+    public virtual void Translate(SqlCompilerContext context, SqlCreateCharacterSet node)
     {
-      StringBuilder sb = new StringBuilder();
       //      sb.Append("CREATE CHARACTER SET "+Translate(node.CharacterSet));
       //      sb.Append(" AS GET "+Translate(node.CharacterSet.CharacterSetSource));
       //      if (node.CharacterSet.Collate!=null)
@@ -481,12 +484,10 @@ namespace Xtensive.Sql.Compiler
       //            sb.Append(" THEN COLLATION "+Translate(collationSource.ThenCollation));
       //        }
       //      }
-      return sb.ToString();
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlCreateCollation node)
+    public virtual void Translate(SqlCompilerContext context, SqlCreateCollation node)
     {
-      StringBuilder sb = new StringBuilder();
       //      sb.Append("CREATE COLLATION "+Translate(node.Collation));
       //      sb.Append(" FOR "+Translate(node.Collation.CharacterSet));
       //      sb.Append(" FROM ");
@@ -514,7 +515,6 @@ namespace Xtensive.Sql.Compiler
       //        else
       //          sb.Append(" NO PAD");
       //      }
-      return sb.ToString();
     }
 
     public virtual void Translate(SqlCompilerContext context, SqlCreateDomain node, CreateDomainSection section)
@@ -556,9 +556,9 @@ namespace Xtensive.Sql.Compiler
           if (Driver.ServerInfo.Index.Features.Supports(IndexFeatures.Clustered))
             if (index.IsClustered)
               output.Append("CLUSTERED ");
-          output.Append("INDEX ")
-            .Append(QuoteIdentifier(index.DbName))
-            .Append(" ON ");
+          output.Append("INDEX ");
+          TranslateIdentifier(output, index.DbName);
+          output.Append(" ON ");
           Translate(context, index.DataTable);
           break;
         case CreateIndexSection.ColumnsEnter:
@@ -589,8 +589,8 @@ namespace Xtensive.Sql.Compiler
             output.Append(" ON " + index.Filegroup);
           else if (index is FullTextIndex) {
             var ftindex = index as FullTextIndex;
-            output.Append(" KEY INDEX ")
-              .Append(QuoteIdentifier(ftindex.UnderlyingUniqueIndex));
+            output.Append(" KEY INDEX ");
+            TranslateIdentifier(output, ftindex.UnderlyingUniqueIndex);
           }
           break;
       }
@@ -600,9 +600,9 @@ namespace Xtensive.Sql.Compiler
     {
       var output = context.Output;
       PartitionFunction pf = node.PartitionFunction;
-      output.Append("CREATE PARTITION FUNCTION ")
-        .Append(QuoteIdentifier(pf.DbName))
-        .Append(" (")
+      output.Append("CREATE PARTITION FUNCTION ");
+      TranslateIdentifier(output, pf.DbName);
+      output.Append(" (")
         .Append(Translate(pf.DataType))
         .Append(")")
         .Append(" AS RANGE ")
@@ -627,10 +627,10 @@ namespace Xtensive.Sql.Compiler
     {
       var output = context.Output;
       PartitionSchema ps = node.PartitionSchema;
-      output.Append("CREATE PARTITION SCHEME ")
-        .Append(QuoteIdentifier(ps.DbName))
-        .Append(" AS PARTITION ")
-        .Append(QuoteIdentifier(ps.PartitionFunction.DbName));
+      output.Append("CREATE PARTITION SCHEME ");
+      TranslateIdentifier(output, ps.DbName);
+      output.Append(" AS PARTITION ");
+      TranslateIdentifier(output, ps.PartitionFunction.DbName);
       if (ps.Filegroups.Count <= 1)
         output.Append(" ALL");
       output.Append(" TO (");
@@ -652,12 +652,12 @@ namespace Xtensive.Sql.Compiler
         case NodeSection.Entry:
           output.Append("CREATE SCHEMA ");
           if (!String.IsNullOrEmpty(node.Schema.DbName)) {
-            output.Append(QuoteIdentifier(node.Schema.DbName))
-              .Append(node.Schema.Owner == null ? "" : " ");
+            TranslateIdentifier(output, node.Schema.DbName);
+            output.Append(node.Schema.Owner == null ? "" : " ");
           }
           if (node.Schema.Owner != null) {
-            output.Append("AUTHORIZATION ")
-              .Append(QuoteIdentifier(node.Schema.Owner));
+            output.Append("AUTHORIZATION ");
+            TranslateIdentifier(output, node.Schema.Owner);
           }
           if (node.Schema.DefaultCharacterSet != null) {
             output.Append("DEFAULT CHARACTER SET ");
@@ -705,14 +705,13 @@ namespace Xtensive.Sql.Compiler
           Translate(output, node.Table.PartitionDescriptor, true);
           break;
         case CreateTableSection.Exit: {
-          string result = string.IsNullOrEmpty(node.Table.Filegroup)
-                            ? string.Empty
-                            : " ON " + QuoteIdentifier(node.Table.Filegroup);
-          var temporaryTable = node.Table as TemporaryTable;
-          if (temporaryTable != null) {
-            result += temporaryTable.PreserveRows ? "ON COMMIT PRESERVE ROWS" : "ON COMMIT DELETE ROWS";
+          if (!string.IsNullOrEmpty(node.Table.Filegroup)) {
+            output.Append(" ON ");
+            TranslateIdentifier(output, node.Table.Filegroup);
           }
-          output.Append(result);
+          if (node.Table is TemporaryTable temporaryTable) {
+            output.Append(temporaryTable.PreserveRows ? "ON COMMIT PRESERVE ROWS" : "ON COMMIT DELETE ROWS");
+          }
           break;
         }
       }
@@ -899,30 +898,35 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Translate(SqlCompilerContext context, SqlDropIndex node)
     {
-      if (!node.Index.IsFullText)
-        context.Output.Append("DROP INDEX ").Append(QuoteIdentifier(node.Index.DbName)).Append(" ON ");
+      var output = context.Output;
+      if (!node.Index.IsFullText) {
+        output.Append("DROP INDEX ");
+        TranslateIdentifier(output, node.Index.DbName);
+        output.Append(" ON ");
+      }
       else
-        context.Output.Append("DROP FULLTEXT INDEX ON ");
+        output.Append("DROP FULLTEXT INDEX ON ");
       Translate(context, node.Index.DataTable);
     }
 
     public virtual void Translate(SqlCompilerContext context, SqlDropPartitionFunction node)
     {
-      context.Output.Append("DROP PARTITION FUNCTION ")
-        .Append(QuoteIdentifier(node.PartitionFunction.DbName));
+      context.Output.Append("DROP PARTITION FUNCTION ");
+      TranslateIdentifier(context.Output, node.PartitionFunction.DbName);
     }
 
     public virtual void Translate(SqlCompilerContext context, SqlDropPartitionScheme node)
     {
-      context.Output.Append("DROP PARTITION SCHEME ")
-        .Append(QuoteIdentifier(node.PartitionSchema.DbName));
+      context.Output.Append("DROP PARTITION SCHEME ");
+      TranslateIdentifier(context.Output, node.PartitionSchema.DbName);
     }
 
     public virtual void Translate(SqlCompilerContext context, SqlDropSchema node)
     {
-      context.Output.Append("DROP SCHEMA ")
-        .Append(QuoteIdentifier(node.Schema.DbName))
-        .Append(node.Cascade ? " CASCADE" : " RESTRICT");
+      var output = context.Output;
+      output.Append("DROP SCHEMA ");
+      TranslateIdentifier(output, node.Schema.DbName);
+      output.Append(node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
     public virtual void Translate(SqlCompilerContext context, SqlDropSequence node)
@@ -956,7 +960,8 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
         case FetchSection.Entry:
-          context.Output.Append("FETCH " + node.Option);
+          context.Output.Append("FETCH ")
+            .Append(node.Option.ToString());
           break;
         case FetchSection.Targets:
           context.Output.Append("FROM ")
@@ -1132,19 +1137,24 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, object literalValue)
+    public virtual void Translate(SqlCompilerContext context, object literalValue)
     {
+      var output = context.Output;
       var literalType = literalValue.GetType();
       switch (Type.GetTypeCode(literalType)) {
         case TypeCode.Char:
         case TypeCode.String:
-          return QuoteString(literalValue.ToString());
+          TranslateString(output, literalValue.ToString());
+          return;
         case TypeCode.DateTime:
-          return ((DateTime) literalValue).ToString(DateTimeFormatString, DateTimeFormat);
+          output.Append(((DateTime) literalValue).ToString(DateTimeFormatString, DateTimeFormat));
+          return;
         case TypeCode.Single:
-          return ((float) literalValue).ToString(FloatFormatString, FloatNumberFormat);
+          output.Append(((float) literalValue).ToString(FloatFormatString, FloatNumberFormat));
+          return;
         case TypeCode.Double:
-          return ((double) literalValue).ToString(DoubleFormatString, DoubleNumberFormat);
+          output.Append(((double) literalValue).ToString(DoubleFormatString, DoubleNumberFormat));
+          return;
         case TypeCode.Byte:
         case TypeCode.SByte:
         case TypeCode.Int16:
@@ -1154,14 +1164,20 @@ namespace Xtensive.Sql.Compiler
         case TypeCode.Int64:
         case TypeCode.UInt64:
         case TypeCode.Decimal:
-          return Convert.ToString(literalValue, IntegerNumberFormat);
+          output.Append(Convert.ToString(literalValue, IntegerNumberFormat));
+          return;
       }
-      if (literalType == WellKnownTypes.TimeSpan)
-        return SqlHelper.TimeSpanToString((TimeSpan) literalValue, TimeSpanFormatString);
-      if (literalType == WellKnownTypes.Guid || literalType == WellKnownTypes.ByteArray)
-        throw new NotSupportedException(string.Format(
-          Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
-      return literalValue.ToString();
+      switch (literalValue) {
+        case TimeSpan timeSpan:
+          output.Append(SqlHelper.TimeSpanToString(timeSpan, TimeSpanFormatString));
+          break;
+        case Guid:
+        case byte[]:
+          throw new NotSupportedException(string.Format(Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
+        default:
+          output.Append(literalValue.ToString());
+          break;
+      }
     }
 
     public virtual void Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
@@ -1231,7 +1247,7 @@ namespace Xtensive.Sql.Compiler
         case TableSection.AliasDeclaration:
           string alias = context.TableNameProvider.GetName(node);
           if (!string.IsNullOrEmpty(alias)) {
-            context.Output.Append(QuoteIdentifier(alias));
+            TranslateIdentifier(context.Output, alias);
           }
           break;
       }
@@ -1267,8 +1283,8 @@ namespace Xtensive.Sql.Compiler
     {
       context.Output.Append("ALTER TABLE ");
       Translate(context, node.Table);
-      context.Output.Append(" RENAME TO ")
-        .Append(QuoteIdentifier(node.NewName));
+      context.Output.Append(" RENAME TO ");
+      TranslateIdentifier(context.Output, node.NewName);
     }
 
     public virtual void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
@@ -1310,19 +1326,24 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlTable node, NodeSection section)
+    public virtual void Translate(SqlCompilerContext context, SqlTable node, NodeSection section)
     {
-      return QuoteIdentifier(context.TableNameProvider.GetName(node));
+      TranslateIdentifier(context.Output, context.TableNameProvider.GetName(node));
     }
 
     public virtual void Translate(SqlCompilerContext context, SqlTableColumn node, NodeSection section)
     {
       var output = context.Output;
       if ((context.NamingOptions & SqlCompilerNamingOptions.TableQualifiedColumns) != 0) {
-        output.Append(Translate(context, node.SqlTable, NodeSection.Entry))
-          .Append(".");
+        Translate(context, node.SqlTable, NodeSection.Entry);
+        output.Append(".");
       }
-      output.Append((((object) node == (object) node.SqlTable.Asterisk) ? node.Name : QuoteIdentifier(node.Name)));
+      if ((object) node == (object) node.SqlTable.Asterisk) {
+        output.Append(node.Name);
+      }
+      else {
+        TranslateIdentifier(output, node.Name);
+      }
     }
 
     public virtual void Translate(SqlCompilerContext context, SqlTableRef node, TableSection section)
@@ -1334,8 +1355,8 @@ namespace Xtensive.Sql.Compiler
         case TableSection.AliasDeclaration:
           string alias = context.TableNameProvider.GetName(node);
           if (alias != node.DataTable.DbName) {
-            context.Output.Append(" ")
-              .Append(QuoteIdentifier(alias));
+            context.Output.Append(" ");
+            TranslateIdentifier(context.Output, alias);
           }
           break;
       }
@@ -1502,14 +1523,14 @@ namespace Xtensive.Sql.Compiler
         _ => string.Empty
       };
 
-    private void Translate(IContainerNodeBuilder output, PartitionDescriptor partitionDescriptor, bool withOn)
+    private void Translate(IOutput output, PartitionDescriptor partitionDescriptor, bool withOn)
     {
       if (partitionDescriptor.PartitionSchema != null) {
-        output.Append((withOn ? "ON " : ""))
-          .Append(QuoteIdentifier(partitionDescriptor.PartitionSchema.DbName))
-          .Append(" (")
-          .Append(QuoteIdentifier(partitionDescriptor.Column.DbName))
-          .Append(")");
+        output.Append((withOn ? "ON " : ""));
+        TranslateIdentifier(output, partitionDescriptor.PartitionSchema.DbName);
+        output.Append(" (");
+        TranslateIdentifier(output, partitionDescriptor.Column.DbName);
+        output.Append(")");
       }
       else {
         output.Append("PARTITION BY ");
@@ -1524,9 +1545,9 @@ namespace Xtensive.Sql.Compiler
             output.Append("RANGE");
             break;
         }
-        output.Append(" (")
-          .Append(QuoteIdentifier(partitionDescriptor.Column.DbName))
-          .Append(")");
+        output.Append(" (");
+        TranslateIdentifier(output, partitionDescriptor.Column.DbName);
+        output.Append(")");
         if (partitionDescriptor.Partitions == null)
           output.Append(" PARTITIONS " + partitionDescriptor.PartitionAmount);
         else {
@@ -1539,9 +1560,9 @@ namespace Xtensive.Sql.Compiler
                   first = false;
                 else
                   output.Append(ColumnDelimiter);
-                output.Append("PARTITION ")
-                  .Append(QuoteIdentifier(p.DbName))
-                  .Append(string.IsNullOrEmpty(p.Filegroup) ? "" : " TABLESPACE " + p.Filegroup);
+                output.Append("PARTITION ");
+                TranslateIdentifier(output, p.DbName);
+                output.Append(string.IsNullOrEmpty(p.Filegroup) ? "" : " TABLESPACE " + p.Filegroup);
               }
               break;
             case PartitionMethod.List:
@@ -1550,7 +1571,9 @@ namespace Xtensive.Sql.Compiler
                   first = false;
                 else
                   output.Append(ColumnDelimiter);
-                output.Append("PARTITION ").Append(QuoteIdentifier(p.DbName)).Append(" VALUES (");
+                output.Append("PARTITION ");
+                TranslateIdentifier(output, p.DbName);
+                output.Append(" VALUES (");
                 bool firstValue = true;
                 foreach (string v in p.Values) {
                   if (firstValue)
@@ -1559,7 +1582,7 @@ namespace Xtensive.Sql.Compiler
                     output.Append(RowItemDelimiter);
                   TypeCode t = Type.GetTypeCode(v.GetType());
                   if (t == TypeCode.String || t == TypeCode.Char)
-                    output.Append(QuoteString(v));
+                    TranslateString(output, v);
                   else
                     output.Append(v);
                 }
@@ -1574,7 +1597,9 @@ namespace Xtensive.Sql.Compiler
                   first = false;
                 else
                   output.Append(ColumnDelimiter);
-                output.Append("PARTITION ").Append(QuoteIdentifier(p.DbName)).Append(" VALUES LESS THAN (");
+                output.Append("PARTITION ");
+                TranslateIdentifier(output, p.DbName);
+                output.Append(" VALUES LESS THAN (");
                 TypeCode t = Type.GetTypeCode(p.Boundary.GetType());
                 if (t == TypeCode.String || t == TypeCode.Char)
                   output.Append(QuoteString(p.Boundary));
@@ -1601,7 +1626,7 @@ namespace Xtensive.Sql.Compiler
       var output = context.Output;
 
       if (!schemaQualified) {
-        output.Append(QuoteIdentifier(node.DbName));
+        TranslateIdentifier(output, node.DbName);
         return;
       }
 
@@ -1609,10 +1634,12 @@ namespace Xtensive.Sql.Compiler
         && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
       var actualizer = context.SqlNodeActualizer;
 
-      output.Append(dbQualified
-        ? QuoteIdentifier(actualizer.Actualize(node.Schema.Catalog), actualizer.Actualize(node.Schema), node.GetDbNameInternal())
-        : QuoteIdentifier(actualizer.Actualize(node.Schema), node.DbName)
-      );
+      if (dbQualified) {
+        TranslateIdentifier(output, actualizer.Actualize(node.Schema.Catalog), actualizer.Actualize(node.Schema), node.GetDbNameInternal());
+      }
+      else {
+        TranslateIdentifier(output, actualizer.Actualize(node.Schema), node.DbName);
+      }
     }
 
     public virtual string Translate(Collation collation)
@@ -1771,13 +1798,81 @@ namespace Xtensive.Sql.Compiler
       return SqlHelper.QuoteString(str);
     }
 
+    protected virtual void TranslateStringChar(IOutput output, char ch)
+    {
+      switch (ch) {
+        case '\0':
+          break;
+        case '\'':
+          output.Append("''");
+          break;
+        default:
+          output.Append(ch);
+          break;
+      }
+    }
+
+    public virtual void TranslateString(IOutput output, string str)
+    {
+      output.Append('\'');
+      foreach (var ch in str) {
+        TranslateStringChar(output, ch);
+      }
+      output.Append('\'');
+    }
+
+    public virtual SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithBrackets;
+
     /// <summary>
     /// Returns string holding quoted identifier name.
     /// </summary>
     /// <param name="names">An <see cref="Array"/> of unquoted identifier name parts.</param>
     /// <returns>Quoted identifier name.</returns>
-    public virtual string QuoteIdentifier(params string[] names) =>
-      SqlHelper.QuoteIdentifierWithBrackets(names);
+    public string QuoteIdentifier(params string[] names) =>
+      SqlHelper.Quote(EscapeSetup, names);
+
+    public void TranslateIdentifier(IOutput output, string name)
+    {
+      if (string.IsNullOrEmpty(name))
+        return;
+
+      var setup = EscapeSetup;
+      output.Append(setup.Opener);
+      foreach (var ch in name) {
+        if (ch == setup.Closer) {
+          output.Append(setup.EscapeCloser1)
+            .Append(setup.EscapeCloser2);
+        } else {
+          output.Append(ch);
+        }
+      }
+      output.Append(setup.Closer);
+    }
+
+    public void TranslateIdentifier(IOutput output, params string[] names)
+    {
+      var setup = EscapeSetup;
+      var first = true;
+      foreach (var name in names) {
+        if (!string.IsNullOrEmpty(name)) {
+          if (!first) {
+            output.Append(setup.Delimiter);
+          }
+          output.Append(setup.Opener);
+          foreach (var ch in name) {
+            if (ch == setup.Closer) {
+              output.Append(setup.EscapeCloser1)
+                .Append(setup.EscapeCloser2);
+            }
+            else {
+              output.Append(ch);
+            }
+          }
+          output.Append(setup.Closer);
+          first = false;
+        }
+      }
+    }
 
     /// <summary>
     /// Builds the batch from specified SQL statements.

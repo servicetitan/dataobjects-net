@@ -55,7 +55,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
         if (columnIndex != 0) {
           context.Output.Append(translator.ColumnDelimiter);
         }
-        context.Output.Append(translator.QuoteIdentifier(node.Columns[columnIndex].Name));
+        translator.TranslateIdentifier(context.Output, node.Columns[columnIndex].Name);
       }
       context.Output.Append(translator.ColumnDelimiter);
       context.Output.Append("ts_rank_cd(");

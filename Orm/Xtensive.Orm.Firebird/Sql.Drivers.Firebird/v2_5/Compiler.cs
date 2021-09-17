@@ -45,7 +45,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       if (node.From!=null)
         base.VisitSelectFrom(node);
       else
-        context.Output.Append("FROM RDB$DATABASE");
+        context.Output.Append("FROM RDB$DATABASE ");
     }
 
     /// <inheritdoc/>
@@ -60,7 +60,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         node.Left.AcceptVisitor(this);
         if (needClosingParenthesis)
           context.Output.Append(")");
-        context.Output.Append(translator.Translate(node.NodeType));
+        AppendTranslated(node.NodeType);
         AppendTranslated(node, QueryExpressionSection.All);
         if (needOpeningParenthesis)
           context.Output.Append("(");

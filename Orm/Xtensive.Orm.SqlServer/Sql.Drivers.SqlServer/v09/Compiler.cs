@@ -331,7 +331,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       else
         columns = "(" + string.Join(", ", node.TargetColumns.Select(c => translator.QuoteIdentifier(c.Name)).ToArray()) + ")";
       context.Output.Append("CONTAINSTABLE(");
-      translator.Translate(context, node.TargetTable.DataTable);
+      AppendTranslated(node.TargetTable.DataTable);
       context.Output.Append(", ")
         .Append(columns)
         .Append(", ");
@@ -353,7 +353,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         : string.Join(", ", node.TargetColumns.Select(c => translator.QuoteIdentifier(c.Name)).ToArray());
 
       output.Append("FREETEXTTABLE(");
-      translator.Translate(context, node.TargetTable.DataTable);
+      AppendTranslated(node.TargetTable.DataTable);
       output.Append(", ")
         .Append(columns)
         .Append(", ");

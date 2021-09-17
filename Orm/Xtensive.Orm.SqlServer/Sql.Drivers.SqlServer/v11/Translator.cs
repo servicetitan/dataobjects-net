@@ -79,8 +79,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
 
       AddUseStatement(context, sequence.Schema.Catalog);
       context.Output.Append(action)
-        .Append(" SEQUENCE ")
-        .Append(QuoteIdentifier(sequence.Schema.Name, sequence.Name));
+        .Append(" SEQUENCE ");
+      TranslateIdentifier(context.Output, sequence.Schema.Name, sequence.Name);
     }
 
     public Translator(SqlDriver driver)

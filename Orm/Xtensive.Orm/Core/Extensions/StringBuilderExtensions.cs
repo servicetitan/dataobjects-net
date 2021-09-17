@@ -78,11 +78,11 @@ namespace Xtensive.Core
     {
       ArgumentValidator.EnsureArgumentNotNull(builder, "builder");
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
+
+      const string lowerHexChars = "0123456789abcdef";
       foreach (var item in values) {
-        int hi = item >> 4;
-        int low = item & 0xF;
-        builder.Append(Convert.ToString(hi, 16));
-        builder.Append(Convert.ToString(low, 16));
+        builder.Append(lowerHexChars[item >> 4])
+          .Append(lowerHexChars[item & 0xF]);
       }
       return builder;
     }

@@ -43,12 +43,17 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       DoubleNumberFormat.NegativeInfinitySymbol = "-BINARY_DOUBLE_INFINITY";
     }
 
-    public override string QuoteIdentifier(params string[] names) =>
-      SqlHelper.QuoteIdentifierWithQuotes(names);
+    public override SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithQuotes;
 
     public override string QuoteString(string str)
     {
       return "N" + base.QuoteString(str);
+    }
+
+    public override void TranslateString(IOutput output, string str)
+    {
+      output.Append('N');
+      base.TranslateString(output, str);
     }
 
     public override void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
@@ -158,26 +163,30 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
-    public override string Translate(SqlCompilerContext context, object literalValue)
+    public override void Translate(SqlCompilerContext context, object literalValue)
     {
-      var literalType = literalValue.GetType();
-      switch (Type.GetTypeCode(literalType)) {
-      case TypeCode.Boolean:
-        return (bool) literalValue ? "1" : "0";
+      var output = context.Output;
+      switch (literalValue) {
+        case bool v:
+          output.Append(v ? "1" : "0");
+          break;
+        case byte[] values:
+          var builder = new StringBuilder(2 * (values.Length + 1));
+          builder.Append("'");
+          builder.AppendHexArray(values);
+          builder.Append("'");
+          output.Append(builder.ToString());
+          break;
+        case Guid guid:
+          TranslateString(output, SqlHelper.GuidToString(guid));
+          break;
+        case DateTimeOffset dt:
+          output.Append(dt.ToString(DateTimeOffsetFormatString));
+          break;
+        default:
+          base.Translate(context, literalValue);
+          break;
       }
-      if (literalType==typeof(byte[])) {
-        var values = (byte[]) literalValue;
-        var builder = new StringBuilder(2 * (values.Length + 1));
-        builder.Append("'");
-        builder.AppendHexArray(values);
-        builder.Append("'");
-        return builder.ToString();
-      }
-      if (literalType==typeof(Guid))
-        return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
-      if (literalType==typeof (DateTimeOffset)) 
-        return ((DateTimeOffset) literalValue).ToString(DateTimeOffsetFormatString);
-      return base.Translate(context, literalValue);
     }
 
     public override void Translate(SqlCompilerContext context, SqlDropIndex node)

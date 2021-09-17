@@ -33,11 +33,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
     public override string DoubleFormatString => $"{base.DoubleFormatString}e0";
 
-    /// <inheritdoc/>
-    public override string QuoteIdentifier(params string[] names)
-    {
-      return SqlHelper.QuoteIdentifierWithQuotes(names);
-    }
+    public override SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithQuotes;
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SequenceDescriptor descriptor,
@@ -92,28 +88,33 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, object literalValue)
+    public override void Translate(SqlCompilerContext context, object literalValue)
     {
-      var literalType = literalValue.GetType();
-      switch (Type.GetTypeCode(literalType)) {
-        case TypeCode.Boolean:
-          return (bool) literalValue ? "1" : "0";
-        case TypeCode.UInt64:
-          return QuoteString(((UInt64) literalValue).ToString());
+      var output = context.Output;
+      switch (literalValue) {
+        case bool v:
+          output.Append(v ? '1' : '0');
+          break;
+        case UInt64 v:
+          TranslateString(output, v.ToString());
+          break;
+        case byte[] values:
+          var builder = output.StringBuilder;
+          builder.EnsureCapacity(builder.Length + 2 * (values.Length + 1));
+          builder.Append("x'");
+          builder.AppendHexArray(values);
+          builder.Append("'");
+          break;
+        case Guid guid:
+          TranslateString(output, SqlHelper.GuidToString(guid));
+          break;
+        case TimeSpan timeSpan:
+          output.Append(timeSpan.Ticks * 100);
+          break;
+        default:
+          base.Translate(context, literalValue);
+          break;
       }
-      if (literalType==typeof (byte[])) {
-        var values = (byte[]) literalValue;
-        var builder = new StringBuilder(2 * (values.Length + 1));
-        builder.Append("x'");
-        builder.AppendHexArray(values);
-        builder.Append("'");
-        return builder.ToString();
-      }
-      if (literalType==typeof (Guid))
-        return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
-      if (literalType==typeof (TimeSpan))
-        return Convert.ToString((long) ((TimeSpan) literalValue).Ticks * 100);
-      return base.Translate(context, literalValue);
     }
 
     /// <inheritdoc/>

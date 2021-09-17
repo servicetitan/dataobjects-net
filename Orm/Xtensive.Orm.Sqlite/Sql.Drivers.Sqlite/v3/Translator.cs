@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -59,7 +59,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SchemaNode node)
     {
-      context.Output.Append(QuoteIdentifier(node.DbName));
+      TranslateIdentifier(context.Output, node.DbName);
     }
 
     /// <inheritdoc/>
@@ -100,31 +100,37 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       return base.Translate(functionType);
     }
 
-    public override string Translate(SqlCompilerContext context, object literalValue)
+    public override void Translate(SqlCompilerContext context, object literalValue)
     {
-      var literalType = literalValue.GetType();
-
-      if (literalType==typeof (byte[]))
-        return ByteArrayToString((byte[]) literalValue);
-      if (literalType==typeof (TimeSpan))
-        return Convert.ToString((long) ((TimeSpan) literalValue).Ticks * 100);
-      if (literalType==typeof (Boolean))
-        return ((Boolean) literalValue) ? "1" : "0";
-      if (literalType==typeof (Guid))
-        return ByteArrayToString(((Guid) literalValue).ToByteArray());
-      if (literalType==typeof (DateTimeOffset))
-        return ((DateTimeOffset) literalValue).ToString(DateTimeOffsetFormatString, DateTimeFormat);
-
-      return base.Translate(context, literalValue);
+      var output = context.Output;
+      switch (literalValue) {
+        case bool v:
+          output.Append(v ? '1' : '0');
+          break;
+        case byte[] values:
+          TranslateByteArray(output.StringBuilder, values);
+          break;
+        case Guid guid:
+          TranslateByteArray(output.StringBuilder, guid.ToByteArray());
+          break;
+        case TimeSpan timeSpan:
+          output.Append(timeSpan.Ticks * 100);
+          break;
+        case DateTimeOffset dt:
+          output.Append(dt.ToString(DateTimeOffsetFormatString, DateTimeFormat));
+          break;
+        default:
+          base.Translate(context, literalValue);
+          break;
+      }
     }
 
-    private string ByteArrayToString(byte[] literalValue)
+    private void TranslateByteArray(StringBuilder sb, byte[] bytes)
     {
-      var result = new StringBuilder(literalValue.Length * 2 + 3);
-      result.Append("x'");
-      result.AppendHexArray(literalValue);
-      result.Append("'");
-      return result.ToString();
+      sb.EnsureCapacity(sb.Length + bytes.Length * 2 + 3);
+      sb.Append("x'");
+      sb.AppendHexArray(bytes);
+      sb.Append("'");
     }
 
     /// <inheritdoc/>
@@ -299,8 +305,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       context.Output.Append("DROP INDEX ")
         .Append(context == null ? node.Index.DataTable.Schema.Name : context.SqlNodeActualizer.Actualize(node.Index.DataTable.Schema))    //!!! why context can be null?
-        .Append(".")
-        .Append(QuoteIdentifier(node.Index.DbName));
+        .Append(".");
+      TranslateIdentifier(context.Output, node.Index.DbName);
     }
 
     /// <inheritdoc/>
@@ -474,9 +480,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           if (primaryKey == null) {
             return;
           }
-          context.Output.Append("CONSTRAINT ")
-            .Append(QuoteIdentifier(primaryKey.Name))
-            .Append(" PRIMARY KEY AUTOINCREMENT");
+          context.Output.Append("CONSTRAINT ");
+          TranslateIdentifier(context.Output, primaryKey.Name);
+          context.Output.Append(" PRIMARY KEY AUTOINCREMENT");
           break;
         case TableColumnSection.GeneratedExit:
           break;

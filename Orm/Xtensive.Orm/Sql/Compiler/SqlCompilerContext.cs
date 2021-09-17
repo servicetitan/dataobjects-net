@@ -13,8 +13,8 @@ namespace Xtensive.Sql.Compiler
   public class SqlCompilerContext
   {
     private SqlNode[] traversalPath;
-    private readonly Stack<SqlNode> traversalStack;
-    private readonly HashSet<SqlNode> traversalTable;
+    private readonly Stack<SqlNode> traversalStack = new Stack<SqlNode>();
+    private readonly HashSet<SqlNode> traversalTable = new HashSet<SqlNode>();
 
     public SqlTableNameProvider TableNameProvider { get; private set; }
 
@@ -113,6 +113,7 @@ namespace Xtensive.Sql.Compiler
 
     internal void CloseScope(SqlCompilerOutputScope scope)
     {
+      Output.FlushBuffer();
       traversalPath = null;
       Output = scope.ParentContainer;
       if (scope.Type == ContextType.Node)
@@ -132,8 +133,6 @@ namespace Xtensive.Sql.Compiler
 
       TableNameProvider = new SqlTableNameProvider(this);
       ParameterNameProvider = new SqlParameterNameProvider(configuration);
-      traversalStack = new Stack<SqlNode>();
-      traversalTable = new HashSet<SqlNode>();
       Output = new ContainerNode();
       SqlNodeActualizer = new SqlNodeActualizer(configuration.DatabaseMapping, configuration.SchemaMapping);
     }

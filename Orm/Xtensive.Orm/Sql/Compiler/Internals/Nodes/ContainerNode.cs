@@ -9,22 +9,24 @@ using System.Text;
 
 namespace Xtensive.Sql.Compiler
 {
-  public interface IContainerNodeBuilder
+  public interface IOutput
   {
-    IContainerNodeBuilder Append(string text);
-    IContainerNodeBuilder Append(long v);
+    StringBuilder StringBuilder { get; }
+    IOutput Append(string text);
+    IOutput Append(char v);
+    IOutput Append(long v);
     void AppendPlaceholder(PlaceholderNode placeholder);    
   }
 
   internal static class ContainerNodeBuilderExtensions
   {
-    public static void AppendPlaceholderWithId(this IContainerNodeBuilder builder, object id) => builder.AppendPlaceholder(new PlaceholderNode(id));
+    public static void AppendPlaceholderWithId(this IOutput builder, object id) => builder.AppendPlaceholder(new PlaceholderNode(id));
   }
 
   /// <summary>
   /// Container node in SQL DOM query model.
   /// </summary>
-  public class ContainerNode : Node, IContainerNodeBuilder, IEnumerable<Node>
+  public class ContainerNode : Node, IOutput, IEnumerable<Node>
   {
     private readonly StringBuilder stringBuilder = new StringBuilder();
     private readonly List<Node> children = new List<Node>();
@@ -55,7 +57,7 @@ namespace Xtensive.Sql.Compiler
       Add(new CycleItemNode(index));
     }
 
-    private void FlushBuffer()
+    public void FlushBuffer()
     {
       if (stringBuilder.Length > 0) {
         children.Add(new TextNode(stringBuilder.ToString()));
@@ -69,10 +71,12 @@ namespace Xtensive.Sql.Compiler
       children.Add(node);
     }
 
-    void IContainerNodeBuilder.AppendPlaceholder(PlaceholderNode placeholder) =>
+    void IOutput.AppendPlaceholder(PlaceholderNode placeholder) =>
       Add(placeholder);
-    
-    public IContainerNodeBuilder Append(string text)
+
+    public StringBuilder StringBuilder => stringBuilder;
+
+    public IOutput Append(string text)
     {
       if (!string.IsNullOrEmpty(text)) {
         stringBuilder.Append(text);
@@ -80,7 +84,13 @@ namespace Xtensive.Sql.Compiler
       return this;
     }
 
-    public IContainerNodeBuilder Append(long v)
+    public IOutput Append(char v)
+    {
+      stringBuilder.Append(v);
+      return this;
+    }
+
+    public IOutput Append(long v)
     {
       stringBuilder.Append(v);
       return this;
