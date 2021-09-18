@@ -31,7 +31,7 @@ namespace Xtensive.Sql.Compiler
     private readonly StringBuilder stringBuilder = new StringBuilder();
     private readonly List<Node> children = new List<Node>();
 
-    public IEnumerable<Node> Children
+    public IReadOnlyList<Node> Children
     {
       get {
         FlushBuffer();

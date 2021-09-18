@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Xtensive.Sql.Compiler
@@ -21,9 +22,10 @@ namespace Xtensive.Sql.Compiler
 
     private string[] currentCycleItem;
 
-    public static string Process(IEnumerable<Node> nodes, SqlPostCompilerConfiguration configuration, int estimatedResultLength)
+    public static string Process(IReadOnlyList<Node> nodes, SqlPostCompilerConfiguration configuration, int estimatedResultLength)
     {
-      var compiler = new PostCompiler(configuration, estimatedResultLength);
+      var textNodesLength = nodes.Sum(o => (o as TextNode)?.Text.Length ?? 0);
+      var compiler = new PostCompiler(configuration, Math.Max(textNodesLength, estimatedResultLength));
       compiler.VisitNodeEnumerable(nodes);
       return compiler.result.ToString();
     }

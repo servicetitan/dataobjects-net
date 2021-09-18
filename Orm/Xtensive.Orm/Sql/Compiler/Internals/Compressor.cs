@@ -123,8 +123,8 @@ namespace Xtensive.Sql.Compiler
 
     public override void Visit(TextNode node)
     {
-      AppendSpace();
-      Append(node.Text);
+      AppendSpace();      
+      AppendNode(node); // Append node instead of strings copy to save to minimize amount of work and allocations
     }
 
     public override void Visit(ContainerNode node)
