@@ -229,7 +229,8 @@ namespace Xtensive.Sql.Compiler
           output.Append("NOT NULL");
           break;
         case TableColumnSection.Collate:
-          output.Append("COLLATE ").Append(Translate(column.Collation));
+          output.Append("COLLATE ");
+          Translate(output, column.Collation);
           break;
       }
     }
@@ -530,7 +531,8 @@ namespace Xtensive.Sql.Compiler
           output.Append("DEFAULT");
           break;
         case CreateDomainSection.DomainCollate:
-          output.Append("COLLATE ").Append(Translate(node.Domain.Collation));
+          output.Append("COLLATE ");
+          Translate(output, node.Domain.Collation);
           break;
       }
     }
@@ -1642,9 +1644,9 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual string Translate(Collation collation)
+    public virtual void Translate(IOutput output, Collation collation)
     {
-      return QuoteString(collation.DbName);
+      TranslateString(output, collation.DbName);
     }
 
     public virtual string Translate(ReferentialAction action) =>

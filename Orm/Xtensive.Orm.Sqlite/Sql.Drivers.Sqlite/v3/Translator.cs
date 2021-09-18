@@ -493,9 +493,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     }
 
     /// <inheritdoc/>
-    public override string Translate(Collation collation)
+    public override void Translate(IOutput output, Collation collation)
     {
-      return collation.DbName;
+      output.Append(collation.DbName);
     }
 
     /// <inheritdoc/>

@@ -656,9 +656,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return items.ToCommaDelimitedString();
     }
 
-    public override string Translate(Collation collation)
+    public override void Translate(IOutput output, Collation collation)
     {
-      return collation.DbName;
+      output.Append(collation.DbName);
     }
 
     protected virtual string TranslateChangeTrackingMode(ChangeTrackingMode mode)
