@@ -313,30 +313,45 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
     }
 
+    private static void AppendHint(IOutput output, string hint, ref bool hasHints)
+    {
+      if (hasHints) {
+        output.Append(", ");
+      }
+      else {
+        output.Append("OPTION (");
+        hasHints = true;
+      }
+      output.Append(hint);
+    }
+
     public override void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
     {
+      var output = context.Output;
       switch (section) {
         case SelectSection.Limit:
-          context.Output.Append("TOP");
+          output.Append("TOP");
           break;
         case SelectSection.Offset:
           throw new NotSupportedException();
         case SelectSection.Exit:
-          if (node.Hints.Count == 0)
-            break;
-          var hints = new List<string>(node.Hints.Count);
+          bool hasHints = false;
           foreach (var hint in node.Hints) {
-            if (hint is SqlForceJoinOrderHint)
-              hints.Add("FORCE ORDER");
-            else if (hint is SqlFastFirstRowsHint sqlFastFirstRowsHint)
-              hints.Add("FAST " + sqlFastFirstRowsHint.Amount);
-            else if (hint is SqlNativeHint sqlNativeHint)
-              hints.Add(sqlNativeHint.HintText);
+            switch (hint) {
+              case SqlForceJoinOrderHint:
+                AppendHint(output, "FORCE ORDER", ref hasHints);
+                break;
+              case SqlFastFirstRowsHint sqlFastFirstRowsHint:
+                AppendHint(output, "FAST ", ref hasHints);
+                output.Append(sqlFastFirstRowsHint.Amount);
+                break;
+              case SqlNativeHint sqlNativeHint:
+                AppendHint(output, sqlNativeHint.HintText, ref hasHints);
+                break;
+            }
           }
-          if (hints.Count > 0) {
-            context.Output.Append("OPTION (")
-              .Append(string.Join(", ", hints))
-              .Append(")");
+          if (hasHints) {
+            output.Append(")");
           }
           break;
         default:
