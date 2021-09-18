@@ -17,11 +17,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
       var output = context.Output;
       switch (literalValue) {
         case byte[] array:
-          var builder = new StringBuilder(2 * (array.Length + 6));
+          var builder = output.StringBuilder;
+          builder.EnsureCapacity(builder.Length + 2 * (array.Length + 6));
           builder.Append(@"E'\\x");
           builder.AppendHexArray(array);
           builder.Append("'");
-          output.Append(builder.ToString());
           break;
         default:
           base.Translate(context, literalValue);

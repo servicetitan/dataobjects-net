@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override string BatchBegin { get { return "BEGIN\n"; } }
     public override string BatchEnd { get { return "END;\n"; } }
-    
+
     public override string DateTimeFormatString { get { return @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'\)"; } }
     public override string TimeSpanFormatString { get { return "(INTERVAL '{0}{1} {2}:{3}:{4}.{5:000}' DAY(6) TO SECOND(3))"; } }
     public string DateTimeOffsetFormatString { get { return @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\ zzz\'\)"; } }
@@ -78,14 +78,14 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     {
       // TODO: add more hints
       switch (method) {
-      case SqlJoinMethod.Loop:
-        return "use_nl";
-      case SqlJoinMethod.Merge:
-        return "use_merge";
-      case SqlJoinMethod.Hash:
-        return "use_hash";
-      default:
-        return string.Empty;
+        case SqlJoinMethod.Loop:
+          return "use_nl";
+        case SqlJoinMethod.Merge:
+          return "use_merge";
+        case SqlJoinMethod.Hash:
+          return "use_hash";
+        default:
+          return string.Empty;
       }
     }
 
@@ -135,7 +135,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       context.Output.Append("DROP SEQUENCE ");
       Translate(context, node.Sequence);
     }
-    
+
     public override void Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
     {
       var output = context.Output;
@@ -171,11 +171,11 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
           output.Append(v ? "1" : "0");
           break;
         case byte[] values:
-          var builder = new StringBuilder(2 * (values.Length + 1));
+          var builder = output.StringBuilder;
+          builder.EnsureCapacity(builder.Length + 2 * (values.Length + 1));
           builder.Append("'");
           builder.AppendHexArray(values);
           builder.Append("'");
-          output.Append(builder.ToString());
           break;
         case Guid guid:
           TranslateString(output, SqlHelper.GuidToString(guid));
@@ -233,7 +233,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public virtual string Translate(Index node)
     {
-      return node.DataTable.Schema!=null
+      return node.DataTable.Schema != null
         ? QuoteIdentifier(node.DataTable.Schema.DbName, node.DbName)
         : QuoteIdentifier(node.DbName);
     }
@@ -299,72 +299,72 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     public override string Translate(SqlValueType type)
     {
       // we need to explicitly specify maximum interval precision
-      if (type.Type==SqlType.Interval)
+      if (type.Type == SqlType.Interval)
         return "INTERVAL DAY(6) TO SECOND(3)";
       return base.Translate(type);
     }
-    
+
     public override string Translate(SqlDateTimePart part)
     {
       switch (part) {
-      case SqlDateTimePart.DayOfWeek:
-      case SqlDateTimePart.DayOfYear:
-        throw new NotSupportedException();
-      case SqlDateTimePart.Millisecond:
-        return "SECOND";
-      default:
-        return base.Translate(part);
+        case SqlDateTimePart.DayOfWeek:
+        case SqlDateTimePart.DayOfYear:
+          throw new NotSupportedException();
+        case SqlDateTimePart.Millisecond:
+          return "SECOND";
+        default:
+          return base.Translate(part);
       }
     }
 
     public override string Translate(SqlIntervalPart part)
     {
       switch (part) {
-      case SqlIntervalPart.Millisecond:
-        return "SECOND";
-      default:
-        return base.Translate(part);
+        case SqlIntervalPart.Millisecond:
+          return "SECOND";
+        default:
+          return base.Translate(part);
       }
     }
 
     public override string Translate(SqlFunctionType type)
     {
       switch (type) {
-      case SqlFunctionType.Truncate:
-      case SqlFunctionType.DateTimeTruncate:
-        return "TRUNC";
-      case SqlFunctionType.IntervalNegate:
-        return "-1*";
-      case SqlFunctionType.Substring:
-        return "SUBSTR";
-      case SqlFunctionType.Log:
-        return "LN";
-      case SqlFunctionType.Log10:
-        return "LOG";
-      case SqlFunctionType.Ceiling:
-        return "CEIL";
-      case SqlFunctionType.CurrentDateTimeOffset:
-        return "CURRENT_TIMESTAMP";
-      default:
-        return base.Translate(type);
+        case SqlFunctionType.Truncate:
+        case SqlFunctionType.DateTimeTruncate:
+          return "TRUNC";
+        case SqlFunctionType.IntervalNegate:
+          return "-1*";
+        case SqlFunctionType.Substring:
+          return "SUBSTR";
+        case SqlFunctionType.Log:
+          return "LN";
+        case SqlFunctionType.Log10:
+          return "LOG";
+        case SqlFunctionType.Ceiling:
+          return "CEIL";
+        case SqlFunctionType.CurrentDateTimeOffset:
+          return "CURRENT_TIMESTAMP";
+        default:
+          return base.Translate(type);
       }
     }
 
     public override string Translate(SqlNodeType type)
     {
       switch (type) {
-      case SqlNodeType.DateTimeOffsetPlusInterval:
-      case SqlNodeType.DateTimePlusInterval:
-        return "+";
-      case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
-      case SqlNodeType.DateTimeOffsetMinusInterval:
-      case SqlNodeType.DateTimeMinusInterval:
-      case SqlNodeType.DateTimeMinusDateTime:
-        return "-";
-      case SqlNodeType.Except:
-        return "MINUS";
-      default:
-        return base.Translate(type);
+        case SqlNodeType.DateTimeOffsetPlusInterval:
+        case SqlNodeType.DateTimePlusInterval:
+          return "+";
+        case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
+        case SqlNodeType.DateTimeOffsetMinusInterval:
+        case SqlNodeType.DateTimeMinusInterval:
+        case SqlNodeType.DateTimeMinusDateTime:
+          return "-";
+        case SqlNodeType.Except:
+          return "MINUS";
+        default:
+          return base.Translate(type);
       }
     }
 
