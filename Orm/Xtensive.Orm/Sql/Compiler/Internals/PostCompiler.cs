@@ -24,7 +24,7 @@ namespace Xtensive.Sql.Compiler
 
     public static string Process(IReadOnlyList<Node> nodes, SqlPostCompilerConfiguration configuration, int estimatedResultLength)
     {
-      var textNodesLength = nodes.Sum(o => (o as TextNode)?.Text.Length ?? 0);
+      var textNodesLength = nodes.OfType<TextNode>().Sum(o => o.Text.Length);
       var compiler = new PostCompiler(configuration, Math.Max(textNodesLength, estimatedResultLength));
       compiler.VisitNodeEnumerable(nodes);
       return compiler.result.ToString();
