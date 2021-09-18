@@ -75,7 +75,9 @@ namespace Xtensive.Sql.Compiler
     private void AppendIndent()
     {
       if (indent > 0) {
-        buffer.Append(new string(' ', indent * 2));
+        for (int i = indent; i-- > 0;) {
+          buffer.Append("  ");
+        }
         last = ' ';
       }
     }
