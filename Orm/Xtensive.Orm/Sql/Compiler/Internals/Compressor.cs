@@ -13,7 +13,7 @@ namespace Xtensive.Sql.Compiler
     private readonly char newLineEnd;
     private char last;
     private byte indent;
-    private StringBuilder buffer;
+    private readonly StringBuilder buffer = new StringBuilder();
 
     private List<Node> children = new List<Node>();
 
@@ -22,7 +22,6 @@ namespace Xtensive.Sql.Compiler
     public static IReadOnlyList<Node> Process(SqlTranslator translator, ContainerNode node)
     {
       var compressor = new Compressor(translator);
-      compressor.CreateBuffer();
       compressor.Visit(node);
       compressor.FlushBuffer();
       return compressor.Children;
@@ -30,20 +29,12 @@ namespace Xtensive.Sql.Compiler
 
     #region Private / internal methods
 
-    private void CreateBuffer()
-    {
-      buffer = new StringBuilder();
-    }
-
     private void FlushBuffer()
     {
-      if (buffer == null)
-        return;
-      string text = buffer.ToString();
-      buffer = null;
-      if (string.IsNullOrEmpty(text))
-        return;
-      AppendNode(new TextNode(text));
+      if (buffer.Length > 0) {
+        AppendNode(new TextNode(buffer.ToString()));
+        buffer.Clear();
+      }
     }
 
     private void ResetLast()
@@ -94,13 +85,11 @@ namespace Xtensive.Sql.Compiler
       var originalChildren = children;
       children = new List<Node>();
       try {
-        CreateBuffer();
         VisitNodeEnumerable(nodes);
         FlushBuffer();
         return Children;
       }
       finally {
-        buffer = null;
         children = originalChildren;
       }
     }
@@ -113,7 +102,6 @@ namespace Xtensive.Sql.Compiler
 
     private void EndNonTextNode()
     {
-      CreateBuffer();
       ResetLast();
     }
 
@@ -126,7 +114,6 @@ namespace Xtensive.Sql.Compiler
       AppendSpace();
       if (buffer?.Length > 0) {
         FlushBuffer();
-        CreateBuffer();
         ResetLast();
       }
       AppendNode(node); // Append node instead of string copy to minimize amount of work and allocations.
