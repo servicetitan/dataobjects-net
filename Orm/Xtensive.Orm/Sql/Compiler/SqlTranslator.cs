@@ -263,9 +263,8 @@ namespace Xtensive.Sql.Compiler
         }
         break;
         case ConstraintSection.Exit: {
-          var fk = constraint as ForeignKey;
           output.Append(")");
-          if (fk != null) {
+          if (constraint is ForeignKey fk) {
             if (fk.MatchType != SqlMatchType.None)
               output.Append(" MATCH ").Append(Translate(fk.MatchType));
             if (fk.OnUpdate != ReferentialAction.NoAction)
