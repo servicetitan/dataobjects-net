@@ -124,6 +124,11 @@ namespace Xtensive.Sql.Compiler
     public override void Visit(TextNode node)
     {
       AppendSpace();
+      if (buffer?.Length > 0) {
+        FlushBuffer();
+        CreateBuffer();
+        ResetLast();
+      }
       AppendNode(node); // Append node instead of strings copy to save to minimize amount of work and allocations
     }
 
