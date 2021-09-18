@@ -129,7 +129,7 @@ namespace Xtensive.Sql.Compiler
         CreateBuffer();
         ResetLast();
       }
-      AppendNode(node); // Append node instead of strings copy to save to minimize amount of work and allocations
+      AppendNode(node); // Append node instead of string copy to minimize amount of work and allocations.
     }
 
     public override void Visit(ContainerNode node)
