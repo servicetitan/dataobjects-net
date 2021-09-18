@@ -13,9 +13,9 @@ namespace Xtensive.Sql.Compiler
   {
     private readonly SqlCompilerContext context;
 
-    internal ContextType Type { get;}
+    internal ContextType Type { get; }
 
-    internal ContainerNode ParentContainer { get;}
+    internal ContainerNode ParentContainer { get; }
 
     /// <inheritdoc/>
     public void Dispose()

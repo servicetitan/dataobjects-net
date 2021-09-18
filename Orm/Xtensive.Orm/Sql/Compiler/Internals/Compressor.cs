@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Compiler
     private List<Node> children = new List<Node>();
 
     public IReadOnlyList<Node> Children => children;
-    
+
     public static IReadOnlyList<Node> Process(SqlTranslator translator, ContainerNode node)
     {
       var compressor = new Compressor(translator);
@@ -37,7 +37,7 @@ namespace Xtensive.Sql.Compiler
 
     private void FlushBuffer()
     {
-      if (buffer==null)
+      if (buffer == null)
         return;
       string text = buffer.ToString();
       buffer = null;
@@ -50,7 +50,7 @@ namespace Xtensive.Sql.Compiler
     {
       last = '\0';
     }
-   
+
     private void AppendNode(Node node)
     {
       children.Add(node);
@@ -61,9 +61,9 @@ namespace Xtensive.Sql.Compiler
       if (string.IsNullOrEmpty(text))
         return;
       char first = text[0];
-      if (first==')' && last==' ')
+      if (first == ')' && last == ' ')
         buffer.Length--;
-      last = text[text.Length-1];
+      last = text[text.Length - 1];
       buffer.Append(text);
     }
 
@@ -75,7 +75,7 @@ namespace Xtensive.Sql.Compiler
 
     private void AppendSpace()
     {
-      if (!(last==' ' || last==newLineEnd || last=='(')) {
+      if (!(last == ' ' || last == newLineEnd || last == '(')) {
         buffer.Append(' ');
         last = ' ';
       }
@@ -83,8 +83,8 @@ namespace Xtensive.Sql.Compiler
 
     private void AppendIndent()
     {
-      if (indent>0) {
-        buffer.Append(new string(' ', indent*2));
+      if (indent > 0) {
+        buffer.Append(new string(' ', indent * 2));
         last = ' ';
       }
     }
@@ -108,13 +108,13 @@ namespace Xtensive.Sql.Compiler
     private void BeginNonTextNode()
     {
       AppendSpace();
-      FlushBuffer(); 
+      FlushBuffer();
     }
 
     private void EndNonTextNode()
     {
       CreateBuffer();
-      ResetLast(); 
+      ResetLast();
     }
 
     #endregion
@@ -123,7 +123,7 @@ namespace Xtensive.Sql.Compiler
 
     public override void Visit(TextNode node)
     {
-      AppendSpace();      
+      AppendSpace();
       AppendNode(node); // Append node instead of strings copy to save to minimize amount of work and allocations
     }
 
@@ -142,13 +142,13 @@ namespace Xtensive.Sql.Compiler
     public override void Visit(DelimiterNode node)
     {
       switch (node.Type) {
-      case SqlDelimiterType.Column:
-        AppendLine(node.Text);
-        AppendIndent();
-        break;
-      default:
-        Append(node.Text);
-        break;
+        case SqlDelimiterType.Column:
+          AppendLine(node.Text);
+          AppendIndent();
+          break;
+        default:
+          Append(node.Text);
+          break;
       }
     }
 
