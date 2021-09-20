@@ -26,7 +26,7 @@ namespace Xtensive.Sql.Compiler
     {
       var textNodesLength = nodes.OfType<TextNode>().Sum(o => o.Text.Length);
       var compiler = new PostCompiler(configuration, Math.Max(textNodesLength, estimatedResultLength));
-      compiler.VisitNodeEnumerable(nodes);
+      compiler.VisitNodes(nodes);
       return compiler.result.ToString();
     }
     
@@ -40,9 +40,9 @@ namespace Xtensive.Sql.Compiler
     public override void Visit(VariantNode node)
     {
       if (configuration.AlternativeBranches.Contains(node.Id))
-        VisitNodeEnumerable(node.Alternative);
+        VisitNodes(node.Alternative);
       else
-        VisitNodeEnumerable(node.Main);
+        VisitNodes(node.Main);
     }
 
     public override void Visit(PlaceholderNode node)
@@ -64,16 +64,16 @@ namespace Xtensive.Sql.Compiler
       if (!configuration.DynamicFilterValues.TryGetValue(node.Id, out items))
         throw new InvalidOperationException(string.Format(Strings.ExItemsForCycleXAreNotSpecified, node.Id));
       if (items==null || items.Count==0) {
-        VisitNodeEnumerable(node.EmptyCase);
+        VisitNodes(node.EmptyCase);
         return;
       }
       for (int i = 0; i < items.Count - 1; i++) {
         currentCycleItem = items[i];
-        VisitNodeEnumerable(node.Body);
+        VisitNodes(node.Body);
         result.Append(node.Delimiter);
       }
       currentCycleItem = items[items.Count - 1];
-      VisitNodeEnumerable(node.Body);
+      VisitNodes(node.Body);
     }
 
     #endregion

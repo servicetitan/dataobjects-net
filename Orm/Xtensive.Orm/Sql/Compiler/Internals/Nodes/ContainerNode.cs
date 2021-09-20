@@ -2,8 +2,10 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -28,6 +30,8 @@ namespace Xtensive.Sql.Compiler
   /// </summary>
   public class ContainerNode : Node, IOutput, IEnumerable<Node>
   {
+    private static readonly IFormatProvider invarianCulture = CultureInfo.InvariantCulture;
+
     private readonly StringBuilder stringBuilder = new StringBuilder();
     private readonly List<Node> children = new List<Node>();
 
@@ -92,7 +96,7 @@ namespace Xtensive.Sql.Compiler
 
     public IOutput Append(long v)
     {
-      stringBuilder.Append(v);
+      stringBuilder.AppendFormat(invarianCulture, "{0}", v);
       return this;
     }
 

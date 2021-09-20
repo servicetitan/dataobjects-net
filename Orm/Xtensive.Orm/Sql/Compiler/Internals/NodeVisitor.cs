@@ -46,7 +46,7 @@ namespace Xtensive.Sql.Compiler
       throw new InvalidOperationException();
     }
 
-    protected void VisitNodeEnumerable(IEnumerable<Node> nodes)
+    protected void VisitNodes(IEnumerable<Node> nodes)
     {
       foreach (var node in nodes) {
         node.AcceptVisitor(this);

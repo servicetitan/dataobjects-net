@@ -87,7 +87,7 @@ namespace Xtensive.Sql.Compiler
       var originalChildren = children;
       children = new List<Node>();
       try {
-        VisitNodeEnumerable(nodes);
+        VisitNodes(nodes);
         FlushBuffer();
         return Children;
       }
@@ -128,7 +128,7 @@ namespace Xtensive.Sql.Compiler
         buffer.AppendLine();
         AppendIndent();
       }
-      VisitNodeEnumerable(node.Children);
+      VisitNodes(node.Children);
       if (node.RequireIndent)
         indent--;
     }
