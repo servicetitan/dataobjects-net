@@ -6,7 +6,7 @@
 
 namespace Xtensive.Sql.Compiler
 {
-  public class PlaceholderNode : Node
+  internal class PlaceholderNode : Node
   {
     public readonly object Id;
 

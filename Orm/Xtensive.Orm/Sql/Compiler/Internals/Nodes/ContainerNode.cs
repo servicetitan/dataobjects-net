@@ -17,12 +17,6 @@ namespace Xtensive.Sql.Compiler
     IOutput Append(string text);
     IOutput Append(char v);
     IOutput Append(long v);
-    void AppendPlaceholder(PlaceholderNode placeholder);    
-  }
-
-  internal static class ContainerNodeBuilderExtensions
-  {
-    public static void AppendPlaceholderWithId(this IOutput builder, object id) => builder.AppendPlaceholder(new PlaceholderNode(id));
   }
 
   /// <summary>
@@ -75,8 +69,11 @@ namespace Xtensive.Sql.Compiler
       children.Add(node);
     }
 
-    void IOutput.AppendPlaceholder(PlaceholderNode placeholder) =>
+    internal void AppendPlaceholder(PlaceholderNode placeholder) =>
       Add(placeholder);
+
+    public void AppendPlaceholderWithId(object id) =>
+      AppendPlaceholder(new PlaceholderNode(id));
 
     public StringBuilder StringBuilder => stringBuilder;
 

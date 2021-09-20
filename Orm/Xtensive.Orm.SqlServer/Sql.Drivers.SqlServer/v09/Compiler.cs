@@ -320,43 +320,77 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return result;
     }
 
+    private void TranslateSingleColumnName(SqlTableColumn column, SqlTableColumn asterisk)
+    {
+      var output = context.Output;
+      if (column == asterisk) {
+        output.Append(column.Name);
+      }
+      else {
+        translator.TranslateIdentifier(output, column.Name);
+      }
+    }
+
+    private void TranslateJoinedColumnNames(SqlTableColumnCollection targetColumns)
+    {
+      var output = context.Output;
+      bool first = true;
+      foreach (var column in targetColumns) {
+        if (first) {
+          first = false;
+        }
+        else {
+          output.Append(", ");
+        }
+        translator.TranslateIdentifier(output, column.Name);
+      }
+    }
+
     public override void Visit(SqlContainsTable node)
     {
-      string columns;
-      if (node.TargetColumns.Count==1) {
-        columns = node.TargetColumns[0]==node.Asterisk 
-          ? node.TargetColumns[0].Name 
-          : translator.QuoteIdentifier(node.TargetColumns[0].Name);
-      }
-      else
-        columns = "(" + string.Join(", ", node.TargetColumns.Select(c => translator.QuoteIdentifier(c.Name)).ToArray()) + ")";
-      context.Output.Append("CONTAINSTABLE(");
+      var output = context.Output;
+
+      output.Append("CONTAINSTABLE(");
       AppendTranslated(node.TargetTable.DataTable);
-      context.Output.Append(", ")
-        .Append(columns)
-        .Append(", ");
+      output.Append(", ");
+
+      var targetColumns = node.TargetColumns;
+      if (targetColumns.Count == 1) {
+        TranslateSingleColumnName(targetColumns[0], node.Asterisk);
+      }
+      else {
+        output.Append('(');
+        TranslateJoinedColumnNames(targetColumns);
+        output.Append(')');
+      }
+
+
+      output.Append(", ");
       node.SearchCondition.AcceptVisitor(this);
       if (node.TopNByRank!=null) {
-        context.Output.Append(", ");
+        output.Append(", ");
         node.TopNByRank.AcceptVisitor(this);
       }
-      context.Output.Append(") ");
+      output.Append(") ");
     }
 
     public override void Visit(SqlFreeTextTable node)
     {
       var output = context.Output;
-      var columns = node.TargetColumns.Count == 1
-        ? (node.TargetColumns[0] == node.Asterisk
-            ? node.TargetColumns[0].Name
-            : translator.QuoteIdentifier(node.TargetColumns[0].Name))
-        : string.Join(", ", node.TargetColumns.Select(c => translator.QuoteIdentifier(c.Name)).ToArray());
 
       output.Append("FREETEXTTABLE(");
       AppendTranslated(node.TargetTable.DataTable);
-      output.Append(", ")
-        .Append(columns)
-        .Append(", ");
+      output.Append(", ");
+
+      var targetColumns = node.TargetColumns;
+      if (targetColumns.Count == 1) {
+        TranslateSingleColumnName(targetColumns[0], node.Asterisk);
+      }
+      else {
+        TranslateJoinedColumnNames(targetColumns);
+      }
+
+      output.Append(", ");
       node.FreeText.AcceptVisitor(this);
       if (node.TopNByRank != null) {
         context.Output.Append(", ");
