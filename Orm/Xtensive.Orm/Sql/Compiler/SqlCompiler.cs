@@ -917,9 +917,7 @@ namespace Xtensive.Sql.Compiler
             int argumentPosition = 0;
             foreach (SqlExpression item in node.Arguments) {
               if (!context.IsEmpty) {
-                //!!! we lost AppendDelimiter() logic here. But seems not important for SqlDelimiterType.Row delimiters
-                translator.Translate(context, node, FunctionCallSection.ArgumentDelimiter, argumentPosition);
-                AppendSpace();
+                AppendTranslated(node, FunctionCallSection.ArgumentDelimiter, argumentPosition);
               }
               AppendTranslated(node, FunctionCallSection.ArgumentEntry, argumentPosition);
               item.AcceptVisitor(this);
@@ -1515,9 +1513,7 @@ namespace Xtensive.Sql.Compiler
             int argumentPosition = 0;
             foreach (SqlExpression item in node.Arguments) {
               if (!context.IsEmpty) {
-                //!!! we lost AppendDelimiter() logic here. But seems not important for SqlDelimiterType.Row delimiters
-                translator.Translate(context, node, FunctionCallSection.ArgumentDelimiter, argumentPosition++);
-                AppendSpace();
+                AppendTranslated(node, FunctionCallSection.ArgumentDelimiter, argumentPosition++);
               }
               item.AcceptVisitor(this);
             }
