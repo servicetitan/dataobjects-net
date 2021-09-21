@@ -191,7 +191,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override void Translate(SqlCompilerContext context, SqlDropIndex node)
     {
-      context.Output.Append("DROP INDEX ").Append(Translate(node.Index));
+      context.Output.Append("DROP INDEX ");
+      Translate(context.Output, node.Index);
     }
 
     public override void Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
@@ -233,8 +234,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public virtual void Translate(IOutput output, Index node)
     {
-      if (DataTable.Schema != null) {
-        TranslateIdentifier(output, node.DataTable.Schema.DbName, node.DbName)
+      if (node.DataTable.Schema != null) {
+        TranslateIdentifier(output, node.DataTable.Schema.DbName, node.DbName);
       }
       else {
         TranslateIdentifier(output, node.DbName);
