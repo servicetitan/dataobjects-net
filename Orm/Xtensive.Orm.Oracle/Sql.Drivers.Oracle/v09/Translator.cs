@@ -205,9 +205,9 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
             output.Append("UNIQUE ");
           else if (index.IsBitmap)
             output.Append("BITMAP ");
-          output.Append("INDEX ")
-            .Append(Translate(index))
-            .Append(" ON ");
+          output.Append("INDEX ");
+          Translate(output, index);
+          output.Append(" ON ");
           Translate(context, index.DataTable);
           return;
         case CreateIndexSection.Exit:
@@ -231,11 +231,14 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
-    public virtual string Translate(Index node)
+    public virtual void Translate(IOutput output, Index node)
     {
-      return node.DataTable.Schema != null
-        ? QuoteIdentifier(node.DataTable.Schema.DbName, node.DbName)
-        : QuoteIdentifier(node.DbName);
+      if (DataTable.Schema != null) {
+        TranslateIdentifier(output, node.DataTable.Schema.DbName, node.DbName)
+      }
+      else {
+        TranslateIdentifier(output, node.DbName);
+      }
     }
 
     public override void Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
