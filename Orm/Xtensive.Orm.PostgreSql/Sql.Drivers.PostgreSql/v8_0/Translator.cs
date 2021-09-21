@@ -205,7 +205,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
     }
 
-    public string TranslateToString(SqlCompilerContext context, SchemaNode node)
+    public override string TranslateToString(SqlCompilerContext context, SchemaNode node)
     {
       //temporary tables need no schema qualifier
       if (!(node is TemporaryTable) && node.Schema != null) {
