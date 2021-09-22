@@ -19,10 +19,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
   internal class Translator : SqlTranslator
   {
-    public override string DateTimeFormatString { get { return @"'cast ('\'yyyy\-MM\-ddTHH\:mm\:ss\.fff\'' as datetime)'"; } }
-    public override string TimeSpanFormatString { get { return string.Empty; } }
-    public override string FloatFormatString { get { return "'cast('" + base.FloatFormatString + "'e0 as real')"; } }
-    public override string DoubleFormatString { get { return "'cast('" + base.DoubleFormatString + "'e0 as float')"; } }
+    public override string DateTimeFormatString => @"'cast ('\'yyyy\-MM\-ddTHH\:mm\:ss\.fff\'' as datetime)'";
+    public override string TimeSpanFormatString => string.Empty;
 
     public override void Initialize()
     {
@@ -687,6 +685,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     protected internal Translator(SqlDriver driver)
       : base(driver)
     {
+      FloatFormatString = "'cast('" + base.FloatFormatString + "'e0 as real')";
+      DoubleFormatString = "'cast('" + base.DoubleFormatString + "'e0 as float')";
     }
   }
 }

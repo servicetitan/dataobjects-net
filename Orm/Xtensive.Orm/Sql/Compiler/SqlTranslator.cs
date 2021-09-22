@@ -49,13 +49,13 @@ namespace Xtensive.Sql.Compiler
     /// Gets the float format string.
     /// See <see cref="double.ToString(string)"/> for details.
     /// </summary>
-    public virtual string FloatFormatString => "0.0######";
+    public string FloatFormatString { get; protected set; } = "0.0######";
 
     /// <summary>
     /// Gets the double format string.
     /// See <see cref="double.ToString(string)"/> for details.
     /// </summary>
-    public virtual string DoubleFormatString => "0.0##############";
+    public string DoubleFormatString { get; protected set; } = "0.0##############";
 
     /// <summary>
     /// Gets the date time format string.

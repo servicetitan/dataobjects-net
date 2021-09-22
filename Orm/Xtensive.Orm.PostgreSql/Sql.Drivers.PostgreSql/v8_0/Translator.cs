@@ -21,9 +21,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string DateTimeFormatString { get { return @"\'yyyyMMdd HHmmss.ffffff\''::timestamp(6)'"; } }
     public override string TimeSpanFormatString { get { return "'{0}{1} days {0}{2}:{3}:{4}.{5:000}'::interval"; } }
 
-    public override string FloatFormatString { get { return base.FloatFormatString + "'::float4'"; } }
-    public override string DoubleFormatString { get { return base.DoubleFormatString + "'::float8'"; } }
-
     public string DateTimeOffsetFormatString { get { return @"\'yyyyMMdd HHmmss.ffffff zzz\''::timestamp(6) with time zone'"; } }
 
 
@@ -51,7 +48,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     [DebuggerStepThrough]
     public override string QuoteString(string str)
     {
-     return "'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
+      return "'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
     }
 
     protected override void TranslateStringChar(IOutput output, char ch)
@@ -277,7 +274,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           output.Append(" WHERE ");
           break;
         default:
-          break;;
+          break;
+          ;
       }
     }
 
@@ -508,7 +506,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           subQueryNeeded = true;
         }
         else { //(!whenNotNeeded)
-         //Check if any row element is NULL
+               //Check if any row element is NULL
           _ = @case.Add(when == null ? true : when, true);
           subQueryNeeded = true;
         }
@@ -784,12 +782,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string Translate(SqlDateTimePart part)
     {
       switch (part) {
-      case SqlDateTimePart.Millisecond:
-        return "MILLISECONDS";
-      case SqlDateTimePart.DayOfYear:
-        return "DOY";
-      case SqlDateTimePart.DayOfWeek:
-        return "DOW";
+        case SqlDateTimePart.Millisecond:
+          return "MILLISECONDS";
+        case SqlDateTimePart.DayOfYear:
+          return "DOY";
+        case SqlDateTimePart.DayOfWeek:
+          return "DOW";
       }
 
       return base.Translate(part);
@@ -895,6 +893,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public Translator(SqlDriver driver)
       : base(driver)
     {
+      FloatFormatString = base.FloatFormatString + "'::float4'";
+      DoubleFormatString = base.DoubleFormatString + "'::float8'";
     }
   }
 }

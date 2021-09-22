@@ -29,10 +29,6 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       get { return string.Empty; }
     }
 
-    public override string FloatFormatString => $"{base.FloatFormatString}e0";
-
-    public override string DoubleFormatString => $"{base.DoubleFormatString}e0";
-
     public override SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithQuotes;
 
     /// <inheritdoc/>
@@ -276,7 +272,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           Translate(context, index.DataTable);
           return;
         case CreateIndexSection.ColumnsEnter:
-          if (node.Index.Columns[0].Expression!=null) {
+          if (node.Index.Columns[0].Expression != null) {
             if (node.Index.Columns.Count > 1)
               SqlHelper.NotSupported("expression index with multiple column");
             output.Append("COMPUTED BY (");
@@ -352,6 +348,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     public Translator(SqlDriver driver)
       : base(driver)
     {
+      FloatFormatString = $"{base.FloatFormatString}e0";
+      DoubleFormatString = $"{base.DoubleFormatString}e0";
     }
   }
 }
