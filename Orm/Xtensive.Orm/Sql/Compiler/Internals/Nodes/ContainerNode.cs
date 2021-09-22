@@ -15,6 +15,8 @@ namespace Xtensive.Sql.Compiler
   {
     StringBuilder StringBuilder { get; }
     IOutput Append(string text);
+    IOutput AppendPunctuation(string text);
+    void AppendSpaceIfNecessary();
     IOutput Append(char v);
     IOutput Append(long v);
   }
@@ -27,6 +29,7 @@ namespace Xtensive.Sql.Compiler
     private static readonly IFormatProvider invarianCulture = CultureInfo.InvariantCulture;
 
     private readonly StringBuilder stringBuilder = new StringBuilder();
+    private bool lastCharIsPunctuation;
     private readonly List<Node> children = new List<Node>();
 
     public IReadOnlyList<Node> Children
@@ -60,6 +63,7 @@ namespace Xtensive.Sql.Compiler
       if (stringBuilder.Length > 0) {
         children.Add(new TextNode(stringBuilder.ToString()));
         stringBuilder.Clear();
+        lastCharIsPunctuation = false;
       }
     }
 
@@ -75,25 +79,51 @@ namespace Xtensive.Sql.Compiler
     public void AppendPlaceholderWithId(object id) =>
       AppendPlaceholder(new PlaceholderNode(id));
 
-    public StringBuilder StringBuilder => stringBuilder;
+    public StringBuilder StringBuilder { get {
+      lastCharIsPunctuation = false;
+      return stringBuilder;
+    } }
 
     public IOutput Append(string text)
     {
       if (!string.IsNullOrEmpty(text)) {
         stringBuilder.Append(text);
+        lastCharIsPunctuation = false;
       }
       return this;
+    }
+
+    public IOutput AppendPunctuation(string text)
+    {
+      if (!string.IsNullOrEmpty(text)) {
+        var len = stringBuilder.Length;
+        if (len > 0 && Char.IsWhiteSpace(stringBuilder[len - 1])) {
+          stringBuilder.Length--;                                     // Remove space before punctuation
+        }
+        stringBuilder.Append(text);
+        lastCharIsPunctuation = true;
+      }
+      return this;
+    }
+
+    public void AppendSpaceIfNecessary()
+    {
+      if (!lastCharIsPunctuation) {
+        Append(' ');
+      }
     }
 
     public IOutput Append(char v)
     {
       stringBuilder.Append(v);
+      lastCharIsPunctuation = false;
       return this;
     }
 
     public IOutput Append(long v)
     {
       stringBuilder.AppendFormat(invarianCulture, "{0}", v);
+      lastCharIsPunctuation = false;
       return this;
     }
 

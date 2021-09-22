@@ -1742,7 +1742,7 @@ namespace Xtensive.Sql.Compiler
 
     protected void AppendSpace()
     {
-      context.Output.Append(' ');
+      context.Output.AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlNodeType nodeType)

@@ -100,7 +100,7 @@ namespace Xtensive.Sql.Compiler
             .Append(node.Distinct ? "DISTINCT" : string.Empty);
           break;
         case NodeSection.Exit:
-          output.Append(")");
+          output.AppendPunctuation(")");
           break;
       }
     }
@@ -424,10 +424,10 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
         case NodeSection.Entry:
-          context.Output.Append("(");
+          context.Output.AppendPunctuation("(");
           break;
         case NodeSection.Exit:
-          context.Output.Append(")");
+          context.Output.AppendPunctuation(")");
           break;
       }
     }
@@ -563,16 +563,16 @@ namespace Xtensive.Sql.Compiler
           Translate(context, index.DataTable);
           break;
         case CreateIndexSection.ColumnsEnter:
-          output.Append("(");
+          output.AppendPunctuation("(");
           break;
         case CreateIndexSection.ColumnsExit:
-          output.Append(")");
+          output.AppendPunctuation(")");
           break;
         case CreateIndexSection.NonkeyColumnsEnter:
-          output.Append(" INCLUDE (");
+          output.AppendPunctuation(" INCLUDE (");
           break;
         case CreateIndexSection.NonkeyColumnsExit:
-          output.Append(")");
+          output.AppendPunctuation(")");
           break;
         case CreateIndexSection.Where:
           output.Append(" WHERE");
@@ -697,7 +697,7 @@ namespace Xtensive.Sql.Compiler
           break;
         }
         case CreateTableSection.TableElementsEntry:
-          output.Append("(");
+          output.AppendPunctuation("(");
           break;
         case CreateTableSection.TableElementsExit:
           output.Append(")");
@@ -1069,10 +1069,10 @@ namespace Xtensive.Sql.Compiler
           output.Append("INSERT INTO");
           break;
         case InsertSection.ColumnsEntry when node.Values.Keys.Count > 0:
-          output.Append("(");
+          output.AppendPunctuation("(");
           break;
         case InsertSection.ColumnsExit when node.Values.Keys.Count > 0:
-          output.Append(")");
+          output.AppendPunctuation(")");
           break;
         case InsertSection.From:
           output.Append("FROM");
@@ -1081,7 +1081,7 @@ namespace Xtensive.Sql.Compiler
           output.Append("VALUES (");
           break;
         case InsertSection.ValuesExit:
-          output.Append(")");
+          output.AppendPunctuation(")");
           break;
         case InsertSection.DefaultValues:
           output.Append("DEFAULT VALUES");
@@ -1124,10 +1124,10 @@ namespace Xtensive.Sql.Compiler
       var output = context.Output;
       switch (section) {
         case LikeSection.Entry:
-          output.Append("(");
+          output.AppendPunctuation("(");
           break;
         case LikeSection.Exit:
-          output.Append(")");
+          output.AppendPunctuation(")");
           break;
         case LikeSection.Like:
           output.Append(node.Not ? "NOT LIKE" : "LIKE");
@@ -1240,10 +1240,10 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
         case TableSection.Entry when !(node.Query is SqlFreeTextTable || node.Query is SqlContainsTable):
-          context.Output.Append("(");
+          context.Output.AppendPunctuation("(");
           break;
         case TableSection.Exit when !(node.Query is SqlFreeTextTable || node.Query is SqlContainsTable):
-          context.Output.Append(")");
+          context.Output.AppendPunctuation(")");
           break;
         case TableSection.AliasDeclaration:
           string alias = context.TableNameProvider.GetName(node);
@@ -1258,10 +1258,10 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
         case NodeSection.Entry:
-          context.Output.Append("(");
+          context.Output.AppendPunctuation("(");
           break;
         case NodeSection.Exit:
-          context.Output.Append(")");
+          context.Output.AppendPunctuation(")");
           break;
       }
     }
@@ -1273,7 +1273,7 @@ namespace Xtensive.Sql.Compiler
           context.Output.Append("ROW_NUMBER() OVER(ORDER BY");
           break;
         case NodeSection.Exit:
-          context.Output.Append(")");
+          context.Output.AppendPunctuation(")");
           break;
         default:
           throw new ArgumentOutOfRangeException("section");
@@ -1319,10 +1319,10 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
         case NodeSection.Entry:
-          context.Output.Append("(");
+          context.Output.AppendPunctuation("(");
           break;
         case NodeSection.Exit:
-          context.Output.Append(")");
+          context.Output.AppendPunctuation(")");
           break;
       }
     }
@@ -1373,7 +1373,7 @@ namespace Xtensive.Sql.Compiler
           context.Output.Append("FROM");
           break;
         case TrimSection.Exit:
-          context.Output.Append(")");
+          context.Output.AppendPunctuation(")");
           break;
       }
     }
@@ -1392,7 +1392,7 @@ namespace Xtensive.Sql.Compiler
       switch (section) {
         case NodeSection.Entry:
           if (!omitParenthesis)
-            output.Append("(");
+            output.AppendPunctuation("(");
           if (!isNullCheck)
             output.Append(Translate(node.NodeType));
           break;
@@ -1400,7 +1400,7 @@ namespace Xtensive.Sql.Compiler
           if (isNullCheck)
             output.Append(Translate(node.NodeType));
           if (!omitParenthesis)
-            output.Append(")");
+            output.AppendPunctuation(")");
           break;
       }
     }
