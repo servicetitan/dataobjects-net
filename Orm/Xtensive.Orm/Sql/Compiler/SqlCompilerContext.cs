@@ -124,6 +124,7 @@ namespace Xtensive.Sql.Compiler
       }
       else {
         Output.StartOfCollection = scope.StartOfCollection;
+        Output.AppendSpaceIfNecessary();
         if (Output.RequireIndent) {
           Output.Indent--;
         }
