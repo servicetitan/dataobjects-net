@@ -133,19 +133,6 @@ namespace Xtensive.Sql.Compiler
         indent--;
     }
 
-    public override void Visit(DelimiterNode node)
-    {
-      switch (node.Type) {
-        case SqlDelimiterType.Column:
-          AppendLine(node.Text);
-          AppendIndent();
-          break;
-        default:
-          Append(node.Text);
-          break;
-      }
-    }
-
     public override void Visit(VariantNode node)
     {
       BeginNonTextNode();

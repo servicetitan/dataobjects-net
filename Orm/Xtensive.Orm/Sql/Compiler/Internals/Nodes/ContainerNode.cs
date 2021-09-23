@@ -31,6 +31,7 @@ namespace Xtensive.Sql.Compiler
     private readonly StringBuilder stringBuilder = new StringBuilder();
     private bool lastCharIsPunctuation;
     private readonly List<Node> children = new List<Node>();
+    public int Indent { get; set; }
 
     public IReadOnlyList<Node> Children
     {
@@ -127,15 +128,16 @@ namespace Xtensive.Sql.Compiler
       return this;
     }
 
-    public void AppendDelimiter(string text)
+    public void AppendIndent()
     {
-      Add(new DelimiterNode(SqlDelimiterType.Row, text));
+      if (Indent > 0) {
+        for (int i = Indent; i-- > 0;) {
+          Append("  ");
+        }
+        lastCharIsPunctuation = true;
+      }      
     }
 
-    public void AppendDelimiter(string text, SqlDelimiterType type)
-    {
-      Add(new DelimiterNode(type, text));
-    }
 
     // Constructors
 

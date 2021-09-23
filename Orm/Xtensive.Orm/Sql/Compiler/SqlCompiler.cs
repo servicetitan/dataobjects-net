@@ -247,7 +247,7 @@ namespace Xtensive.Sql.Compiler
         using (context.EnterCollectionScope()) {
           foreach (var item in statements) {
             item.AcceptVisitor(this);
-            context.Output.AppendDelimiter(translator.BatchItemDelimiter, SqlDelimiterType.Column);
+            AppendDelimiter(translator.BatchItemDelimiter, SqlDelimiterType.Column);
           }
         }
         context.Output.Append(translator.BatchEnd);
@@ -320,7 +320,7 @@ namespace Xtensive.Sql.Compiler
         using (context.EnterCollectionScope()) {
           foreach (KeyValuePair<SqlExpression, SqlExpression> item in node) {
             if (!context.IsEmpty) {
-              context.Output.AppendDelimiter(translator.WhenDelimiter);
+              AppendDelimiter(translator.WhenDelimiter);
             }
             AppendTranslated(node, item.Key, CaseSection.When);
             item.Key.AcceptVisitor(this);
@@ -643,7 +643,7 @@ namespace Xtensive.Sql.Compiler
 
         AppendTranslated(node, CreateTableSection.TableElementsExit);
         if (node.Table.PartitionDescriptor != null) {
-          context.Output.AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
+          AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
           AppendTranslated(node, CreateTableSection.Partition);
         }
         AppendTranslated(node, CreateTableSection.Exit);
@@ -654,10 +654,12 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterCollectionScope()) {
         foreach (TableConstraint constraint in constraints) {
-          if (hasItems)
-            context.Output.AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
-          else
+          if (hasItems) {
+            AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
+          }
+          else {
             hasItems = true;
+          }
           Visit(constraint);
         }
       }
@@ -671,10 +673,12 @@ namespace Xtensive.Sql.Compiler
           // Skipping computed columns
           if (!column.Expression.IsNullReference() && !CheckFeature(ColumnFeatures.Computed))
             continue;
-          if (hasItems)
-            context.Output.AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
-          else
+          if (hasItems) {
+            AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
+          }
+          else {
             hasItems = true;
+          }
           Visit(column);
         }
       }
@@ -1211,7 +1215,7 @@ namespace Xtensive.Sql.Compiler
         AppendTranslated(node, SelectSection.HintsEntry);
         hints[0].AcceptVisitor(this);
         for (int i = 1; i < hints.Count; i++) {
-          context.Output.AppendDelimiter(translator.HintDelimiter);
+          AppendDelimiter(translator.HintDelimiter);
           hints[i].AcceptVisitor(this);
         }
         AppendTranslated(node, SelectSection.HintsExit);
@@ -1355,7 +1359,7 @@ namespace Xtensive.Sql.Compiler
         using (context.EnterCollectionScope()) {
           foreach (SqlStatement item in node) {
             item.AcceptVisitor(this);
-            context.Output.AppendDelimiter(translator.BatchItemDelimiter, SqlDelimiterType.Column);
+            AppendDelimiter(translator.BatchItemDelimiter, SqlDelimiterType.Column);
           }
         }
         AppendTranslated(node, NodeSection.Exit);
@@ -1725,19 +1729,32 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    protected void AppendDelimiter(string text, SqlDelimiterType type = SqlDelimiterType.Row)
+    {
+      switch (type) {
+        case SqlDelimiterType.Column:
+          context.Output.Append(translator.NewLine);
+          context.Output.AppendIndent();
+          break;
+      }
+      context.Output.Append(text);
+      context.Output.AppendSpaceIfNecessary();
+    }
+
+
     protected void AppendColumnDelimiter()
     {
-      context.Output.AppendDelimiter(translator.ColumnDelimiter);
+      AppendDelimiter(translator.ColumnDelimiter);
     }
 
     protected void AppendDdlStatementDelimiter()
     {
-      context.Output.AppendDelimiter(translator.DdlStatementDelimiter, SqlDelimiterType.Column);
+      AppendDelimiter(translator.DdlStatementDelimiter, SqlDelimiterType.Column);
     }
 
     protected void AppendRowItemDelimiter()
     {
-      context.Output.AppendDelimiter(translator.RowItemDelimiter);
+      AppendDelimiter(translator.RowItemDelimiter);
     }
 
     protected void AppendSpaceIfNecessary()
