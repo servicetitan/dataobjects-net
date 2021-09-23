@@ -244,22 +244,22 @@ namespace Xtensive.Sql.Compiler
           TranslateIdentifier(output, constraint.DbName);
           break;
         case ConstraintSection.Check:
-          output.Append("CHECK (");
+          output.AppendPunctuation("CHECK (");
           break;
         case ConstraintSection.PrimaryKey:
-          output.Append("PRIMARY KEY (");
+          output.AppendPunctuation("PRIMARY KEY (");
           break;
         case ConstraintSection.Unique:
-          output.Append("UNIQUE (");
+          output.AppendPunctuation("UNIQUE (");
           break;
         case ConstraintSection.ForeignKey:
-          output.Append("FOREIGN KEY (");
+          output.AppendPunctuation("FOREIGN KEY (");
           break;
         case ConstraintSection.ReferencedColumns: {
           var fk = (ForeignKey) constraint;
           output.Append(") REFERENCES ");
           Translate(context, fk.ReferencedColumns[0].DataTable);
-          output.Append(" (");
+          output.AppendPunctuation(" (");
         }
         break;
         case ConstraintSection.Exit: {

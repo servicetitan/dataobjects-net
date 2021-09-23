@@ -29,6 +29,8 @@ namespace Xtensive.Sql.Compiler
     protected SqlCompilerConfiguration configuration;
     protected SqlCompilerContext context;
 
+    protected bool StartOfCollection => context.Output.StartOfCollection;
+
     public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration)
     {
       ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
@@ -319,7 +321,7 @@ namespace Xtensive.Sql.Compiler
 
         using (context.EnterCollectionScope()) {
           foreach (KeyValuePair<SqlExpression, SqlExpression> item in node) {
-            if (!context.IsEmpty) {
+            if (!StartOfCollection) {
               AppendDelimiter(translator.WhenDelimiter);
             }
             AppendTranslated(node, item.Key, CaseSection.When);
@@ -465,7 +467,7 @@ namespace Xtensive.Sql.Compiler
         AppendTranslated(node, CreateIndexSection.ColumnsEnter);
         using (context.EnterCollectionScope()) {
           foreach (var item in node.Index.Columns) {
-            if (!context.IsEmpty)
+            if (!StartOfCollection)
               AppendColumnDelimiter();
             Visit(node, item);
           }
@@ -476,7 +478,7 @@ namespace Xtensive.Sql.Compiler
         AppendTranslated(node, CreateIndexSection.NonkeyColumnsEnter);
         using (context.EnterCollectionScope()) {
           foreach (var item in node.Index.NonkeyColumns) {
-            if (!context.IsEmpty)
+            if (!StartOfCollection)
               AppendColumnDelimiter();
             translator.TranslateIdentifier(context.Output, item.Name);
           }
@@ -542,7 +544,7 @@ namespace Xtensive.Sql.Compiler
         if (node.Schema.Collations.Count > 0)
           using (context.EnterCollectionScope())
             foreach (Collation collation in node.Schema.Collations) {
-              if (!context.IsEmpty)
+              if (!StartOfCollection)
                 AppendDdlStatementDelimiter();
               new SqlCreateCollation(collation).AcceptVisitor(this);
             }
@@ -920,7 +922,7 @@ namespace Xtensive.Sql.Compiler
           using (context.EnterCollectionScope()) {
             int argumentPosition = 0;
             foreach (SqlExpression item in node.Arguments) {
-              if (!context.IsEmpty) {
+              if (!StartOfCollection) {
                 AppendTranslated(node, FunctionCallSection.ArgumentDelimiter, argumentPosition);
               }
               AppendTranslated(node, FunctionCallSection.ArgumentEntry, argumentPosition);
@@ -974,7 +976,7 @@ namespace Xtensive.Sql.Compiler
         if (node.Values.Keys.Count > 0)
           using (context.EnterCollectionScope())
             foreach (SqlColumn item in node.Values.Keys) {
-              if (!context.IsEmpty)
+              if (!StartOfCollection)
                 AppendColumnDelimiter();
               translator.TranslateIdentifier(context.Output, item.Name);
             }
@@ -992,7 +994,7 @@ namespace Xtensive.Sql.Compiler
             AppendTranslated(node, InsertSection.ValuesEntry);
             using (context.EnterCollectionScope())
               foreach (SqlExpression item in node.Values.Values) {
-                if (!context.IsEmpty)
+                if (!StartOfCollection)
                   AppendColumnDelimiter();
                 item.AcceptVisitor(this);
               }
@@ -1130,7 +1132,7 @@ namespace Xtensive.Sql.Compiler
         AppendTranslated(node, NodeSection.Entry);
         using (context.EnterCollectionScope()) {
           foreach (SqlExpression item in node) {
-            if (!context.IsEmpty) {
+            if (!StartOfCollection) {
               AppendRowItemDelimiter();
             }
             item.AcceptVisitor(this);
@@ -1149,7 +1151,7 @@ namespace Xtensive.Sql.Compiler
         AppendTranslated(node, NodeSection.Entry);
         using (context.EnterCollectionScope()) {
           foreach (var item in node.OrderBy) {
-            if (!context.IsEmpty)
+            if (!StartOfCollection)
               AppendColumnDelimiter();
             item.AcceptVisitor(this);
           }
@@ -1236,7 +1238,7 @@ namespace Xtensive.Sql.Compiler
           if (!cr.IsNullReference() && cr.SqlColumn is SqlColumnStub)
             continue;
 
-          if (!context.IsEmpty)
+          if (!StartOfCollection)
             AppendColumnDelimiter();
           if (!cr.IsNullReference()) {
             cr.SqlColumn.AcceptVisitor(this);
@@ -1300,7 +1302,7 @@ namespace Xtensive.Sql.Compiler
       AppendTranslated(node, SelectSection.GroupBy);
       using (context.EnterCollectionScope()) {
         foreach (SqlColumn item in node.GroupBy) {
-          if (!context.IsEmpty)
+          if (!StartOfCollection)
             AppendColumnDelimiter();
           var cr = item as SqlColumnRef;
           if (!cr.IsNullReference())
@@ -1323,7 +1325,7 @@ namespace Xtensive.Sql.Compiler
       AppendTranslated(node, SelectSection.OrderBy);
       using (context.EnterCollectionScope()) {
         foreach (SqlOrder item in node.OrderBy) {
-          if (!context.IsEmpty)
+          if (!StartOfCollection)
             AppendColumnDelimiter();
           item.AcceptVisitor(this);
         }
@@ -1449,14 +1451,13 @@ namespace Xtensive.Sql.Compiler
 
       using (context.EnterCollectionScope()) {
         foreach (ISqlLValue item in node.Values.Keys) {
-          if (!context.IsEmpty)
+          if (!StartOfCollection)
             AppendColumnDelimiter();
           var tc = item as SqlTableColumn;
           if (!tc.IsNullReference() && tc.SqlTable != node.Update)
             throw new SqlCompilerException(string.Format(Strings.ExUnboundColumn, tc.Name));
           translator.TranslateIdentifier(context.Output, tc.Name);
           AppendTranslated(SqlNodeType.Equals);
-          AppendSpaceIfNecessary();
           SqlExpression value = node.Values[item];
           value.AcceptVisitor(this);
         }
@@ -1516,7 +1517,7 @@ namespace Xtensive.Sql.Compiler
           using (context.EnterCollectionScope()) {
             int argumentPosition = 0;
             foreach (SqlExpression item in node.Arguments) {
-              if (!context.IsEmpty) {
+              if (!StartOfCollection) {
                 AppendTranslated(node, FunctionCallSection.ArgumentDelimiter, argumentPosition++);
               }
               item.AcceptVisitor(this);
@@ -1615,7 +1616,7 @@ namespace Xtensive.Sql.Compiler
         throw new SqlCompilerException(Strings.ExReferencingColumnsCountCantBeLessThenOne);
       using (context.EnterCollectionScope()) {
         foreach (TableColumn column in constraint.Columns) {
-          if (!context.IsEmpty)
+          if (!StartOfCollection)
             AppendColumnDelimiter();
           AppendTranslated(column, TableColumnSection.Entry);
         }
@@ -1624,7 +1625,7 @@ namespace Xtensive.Sql.Compiler
       AppendTranslated(constraint, ConstraintSection.ReferencedColumns);
       using (context.EnterCollectionScope()) {
         foreach (TableColumn tc in constraint.ReferencedColumns) {
-          if (!context.IsEmpty)
+          if (!StartOfCollection)
             AppendColumnDelimiter();
           AppendTranslated(tc, TableColumnSection.Entry);
         }
@@ -1641,7 +1642,7 @@ namespace Xtensive.Sql.Compiler
       if (constraint.Columns.Count > 0)
         using (context.EnterCollectionScope())
           foreach (TableColumn tc in constraint.Columns) {
-            if (!context.IsEmpty)
+            if (!StartOfCollection)
               AppendColumnDelimiter();
             AppendTranslated(tc, TableColumnSection.Entry);
           }

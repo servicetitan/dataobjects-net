@@ -31,7 +31,6 @@ namespace Xtensive.Sql.Compiler
     private readonly StringBuilder stringBuilder = new StringBuilder();
     private bool lastCharIsPunctuation;
     private readonly List<Node> children = new List<Node>();
-    public int Indent { get; set; }
 
     public IReadOnlyList<Node> Children
     {
@@ -44,10 +43,12 @@ namespace Xtensive.Sql.Compiler
     public IEnumerator<Node> GetEnumerator() => Children.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public bool RequireIndent;
+    public bool RequireIndent;            // Never set
+    public int Indent { get; set; }
+
+    public bool StartOfCollection { get; set; } = true;
 
     public Node Current => Children.Last();
-    public bool IsEmpty => !Children.Any();
 
     internal override void AcceptVisitor(NodeVisitor visitor)
     {
@@ -80,17 +81,37 @@ namespace Xtensive.Sql.Compiler
     public void AppendPlaceholderWithId(object id) =>
       AppendPlaceholder(new PlaceholderNode(id));
 
-    public StringBuilder StringBuilder { get {
-      lastCharIsPunctuation = false;
-      return stringBuilder;
-    } }
+    public StringBuilder StringBuilder
+    {
+      get {
+        lastCharIsPunctuation = false;
+        return stringBuilder;
+      }
+    }
 
     public IOutput Append(string text)
     {
       if (!string.IsNullOrEmpty(text)) {
         stringBuilder.Append(text);
         lastCharIsPunctuation = false;
+        StartOfCollection = false;
       }
+      return this;
+    }
+
+    public IOutput Append(char v)
+    {
+      stringBuilder.Append(v);
+      lastCharIsPunctuation = false;
+      StartOfCollection = false;
+      return this;
+    }
+
+    public IOutput Append(long v)
+    {
+      stringBuilder.AppendFormat(invarianCulture, "{0}", v);
+      lastCharIsPunctuation = false;
+      StartOfCollection = false;
       return this;
     }
 
@@ -101,8 +122,7 @@ namespace Xtensive.Sql.Compiler
         if (len > 0 && Char.IsWhiteSpace(stringBuilder[len - 1])) {
           stringBuilder.Length--;                                     // Remove space before punctuation
         }
-        stringBuilder.Append(text);
-        lastCharIsPunctuation = true;
+        Append(text);
       }
       return this;
     }
@@ -114,20 +134,6 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public IOutput Append(char v)
-    {
-      stringBuilder.Append(v);
-      lastCharIsPunctuation = false;
-      return this;
-    }
-
-    public IOutput Append(long v)
-    {
-      stringBuilder.AppendFormat(invarianCulture, "{0}", v);
-      lastCharIsPunctuation = false;
-      return this;
-    }
-
     public void AppendIndent()
     {
       if (Indent > 0) {
@@ -135,7 +141,7 @@ namespace Xtensive.Sql.Compiler
           Append("  ");
         }
         lastCharIsPunctuation = true;
-      }      
+      }
     }
 
 
