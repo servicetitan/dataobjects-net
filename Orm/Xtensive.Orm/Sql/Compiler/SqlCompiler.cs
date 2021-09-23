@@ -37,10 +37,7 @@ namespace Xtensive.Sql.Compiler
       configuration = compilerConfiguration;
       context = new SqlCompilerContext(configuration);
       unit.AcceptVisitor(this);
-      return new SqlCompilationResult(
-          Compressor.Process(translator, context.Output),
-          context.ParameterNameProvider.NameTable
-      );
+      return new SqlCompilationResult(context.Output.Children, context.ParameterNameProvider.NameTable);
     }
 
     public virtual void Visit(SqlAggregate node)
