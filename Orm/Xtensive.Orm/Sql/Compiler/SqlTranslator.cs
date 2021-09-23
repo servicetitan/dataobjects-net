@@ -100,7 +100,7 @@ namespace Xtensive.Sql.Compiler
             .Append(node.Distinct ? "DISTINCT" : string.Empty);
           break;
         case NodeSection.Exit:
-          output.AppendPunctuation(")");
+          output.AppendClosingPunctuation(")");
           break;
       }
     }
@@ -427,7 +427,7 @@ namespace Xtensive.Sql.Compiler
           context.Output.AppendPunctuation("(");
           break;
         case NodeSection.Exit:
-          context.Output.AppendPunctuation(")");
+          context.Output.AppendClosingPunctuation(")");
           break;
       }
     }
@@ -566,13 +566,13 @@ namespace Xtensive.Sql.Compiler
           output.AppendPunctuation("(");
           break;
         case CreateIndexSection.ColumnsExit:
-          output.AppendPunctuation(")");
+          output.AppendClosingPunctuation(")");
           break;
         case CreateIndexSection.NonkeyColumnsEnter:
           output.AppendPunctuation(" INCLUDE (");
           break;
         case CreateIndexSection.NonkeyColumnsExit:
-          output.AppendPunctuation(")");
+          output.AppendClosingPunctuation(")");
           break;
         case CreateIndexSection.Where:
           output.Append(" WHERE");
@@ -1072,7 +1072,7 @@ namespace Xtensive.Sql.Compiler
           output.AppendPunctuation("(");
           break;
         case InsertSection.ColumnsExit when node.Values.Keys.Count > 0:
-          output.AppendPunctuation(")");
+          output.AppendClosingPunctuation(")");
           break;
         case InsertSection.From:
           output.Append("FROM");
@@ -1081,7 +1081,7 @@ namespace Xtensive.Sql.Compiler
           output.Append("VALUES (");
           break;
         case InsertSection.ValuesExit:
-          output.AppendPunctuation(")");
+          output.AppendClosingPunctuation(")");
           break;
         case InsertSection.DefaultValues:
           output.Append("DEFAULT VALUES");
@@ -1127,7 +1127,7 @@ namespace Xtensive.Sql.Compiler
           output.AppendPunctuation("(");
           break;
         case LikeSection.Exit:
-          output.AppendPunctuation(")");
+          output.AppendClosingPunctuation(")");
           break;
         case LikeSection.Like:
           output.Append(node.Not ? "NOT LIKE" : "LIKE");
@@ -1243,7 +1243,7 @@ namespace Xtensive.Sql.Compiler
           context.Output.AppendPunctuation("(");
           break;
         case TableSection.Exit when !(node.Query is SqlFreeTextTable || node.Query is SqlContainsTable):
-          context.Output.AppendPunctuation(")");
+          context.Output.AppendClosingPunctuation(")");
           break;
         case TableSection.AliasDeclaration:
           string alias = context.TableNameProvider.GetName(node);
@@ -1261,7 +1261,7 @@ namespace Xtensive.Sql.Compiler
           context.Output.AppendPunctuation("(");
           break;
         case NodeSection.Exit:
-          context.Output.AppendPunctuation(")");
+          context.Output.AppendClosingPunctuation(")");
           break;
       }
     }
@@ -1273,7 +1273,7 @@ namespace Xtensive.Sql.Compiler
           context.Output.Append("ROW_NUMBER() OVER(ORDER BY");
           break;
         case NodeSection.Exit:
-          context.Output.AppendPunctuation(")");
+          context.Output.AppendClosingPunctuation(")");
           break;
         default:
           throw new ArgumentOutOfRangeException("section");
@@ -1322,7 +1322,7 @@ namespace Xtensive.Sql.Compiler
           context.Output.AppendPunctuation("(");
           break;
         case NodeSection.Exit:
-          context.Output.AppendPunctuation(")");
+          context.Output.AppendClosingPunctuation(")");
           break;
       }
     }
@@ -1373,7 +1373,7 @@ namespace Xtensive.Sql.Compiler
           context.Output.Append("FROM");
           break;
         case TrimSection.Exit:
-          context.Output.AppendPunctuation(")");
+          context.Output.AppendClosingPunctuation(")");
           break;
       }
     }
@@ -1400,7 +1400,7 @@ namespace Xtensive.Sql.Compiler
           if (isNullCheck)
             output.Append(Translate(node.NodeType));
           if (!omitParenthesis)
-            output.AppendPunctuation(")");
+            output.AppendClosingPunctuation(")");
           break;
       }
     }
@@ -1805,21 +1805,21 @@ namespace Xtensive.Sql.Compiler
         case '\0':
           break;
         case '\'':
-          output.Append("''");
+          output.AppendLiteral("''");
           break;
         default:
-          output.Append(ch);
+          output.AppendLiteral(ch);
           break;
       }
     }
 
     public virtual void TranslateString(IOutput output, string str)
     {
-      output.Append('\'');
+      output.AppendLiteral('\'');
       foreach (var ch in str) {
         TranslateStringChar(output, ch);
       }
-      output.Append('\'');
+      output.AppendLiteral('\'');
     }
 
     public virtual SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithBrackets;
@@ -1838,16 +1838,16 @@ namespace Xtensive.Sql.Compiler
         return;
 
       var setup = EscapeSetup;
-      output.Append(setup.Opener);
+      output.AppendLiteral(setup.Opener);
       foreach (var ch in name) {
         if (ch == setup.Closer) {
-          output.Append(setup.EscapeCloser1)
-            .Append(setup.EscapeCloser2);
+          output.AppendLiteral(setup.EscapeCloser1)
+            .AppendLiteral(setup.EscapeCloser2);
         } else {
-          output.Append(ch);
+          output.AppendLiteral(ch);
         }
       }
-      output.Append(setup.Closer);
+      output.AppendLiteral(setup.Closer);
     }
 
     public void TranslateIdentifier(IOutput output, params string[] names)
@@ -1857,19 +1857,19 @@ namespace Xtensive.Sql.Compiler
       foreach (var name in names) {
         if (!string.IsNullOrEmpty(name)) {
           if (!first) {
-            output.Append(setup.Delimiter);
+            output.AppendLiteral(setup.Delimiter);
           }
-          output.Append(setup.Opener);
+          output.AppendLiteral(setup.Opener);
           foreach (var ch in name) {
             if (ch == setup.Closer) {
-              output.Append(setup.EscapeCloser1)
-                .Append(setup.EscapeCloser2);
+              output.AppendLiteral(setup.EscapeCloser1)
+                .AppendLiteral(setup.EscapeCloser2);
             }
             else {
-              output.Append(ch);
+              output.AppendLiteral(ch);
             }
           }
-          output.Append(setup.Closer);
+          output.AppendLiteral(setup.Closer);
           first = false;
         }
       }

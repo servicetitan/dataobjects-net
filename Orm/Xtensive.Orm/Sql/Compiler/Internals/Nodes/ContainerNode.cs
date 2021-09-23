@@ -15,9 +15,11 @@ namespace Xtensive.Sql.Compiler
   {
     StringBuilder StringBuilder { get; }
     IOutput Append(string text);
+    IOutput AppendLiteral(string text);
     IOutput AppendPunctuation(string text);
     void AppendSpaceIfNecessary();
     IOutput Append(char v);
+    IOutput AppendLiteral(char v);
     IOutput Append(long v);
   }
 
@@ -29,6 +31,7 @@ namespace Xtensive.Sql.Compiler
     private static readonly IFormatProvider invarianCulture = CultureInfo.InvariantCulture;
 
     private readonly StringBuilder stringBuilder = new StringBuilder();
+    private char? lastChar;
     private bool lastCharIsPunctuation;
     private readonly List<Node> children = new List<Node>();
 
@@ -66,6 +69,7 @@ namespace Xtensive.Sql.Compiler
         children.Add(new TextNode(stringBuilder.ToString()));
         stringBuilder.Clear();
         lastCharIsPunctuation = false;
+        lastChar = null;
       }
     }
 
@@ -85,15 +89,17 @@ namespace Xtensive.Sql.Compiler
     {
       get {
         lastCharIsPunctuation = false;
+        lastChar = null;
         return stringBuilder;
       }
     }
 
-    public IOutput Append(string text)
+    public IOutput AppendLiteral(string text)
     {
       if (!string.IsNullOrEmpty(text)) {
         stringBuilder.Append(text);
         lastCharIsPunctuation = false;
+        lastChar = null;
         StartOfCollection = false;
       }
       return this;
@@ -103,7 +109,28 @@ namespace Xtensive.Sql.Compiler
     {
       stringBuilder.Append(v);
       lastCharIsPunctuation = false;
+      lastChar = v;
       StartOfCollection = false;
+      return this;
+    }
+
+    public IOutput AppendLiteral(char v)
+    {
+      stringBuilder.Append(v);
+      lastCharIsPunctuation = false;
+      lastChar = null;
+      StartOfCollection = false;
+      return this;
+    }
+
+    public IOutput Append(string text)
+    {
+      if (!string.IsNullOrEmpty(text)) {
+        stringBuilder.Append(text);
+        lastCharIsPunctuation = false;
+        lastChar = text[text.Length - 1];
+        StartOfCollection = false;
+      }
       return this;
     }
 
@@ -111,6 +138,7 @@ namespace Xtensive.Sql.Compiler
     {
       stringBuilder.AppendFormat(invarianCulture, "{0}", v);
       lastCharIsPunctuation = false;
+      lastChar = null;
       StartOfCollection = false;
       return this;
     }
@@ -118,20 +146,32 @@ namespace Xtensive.Sql.Compiler
     public IOutput AppendPunctuation(string text)
     {
       if (!string.IsNullOrEmpty(text)) {
-        var len = stringBuilder.Length;
-        if (len > 0 && Char.IsWhiteSpace(stringBuilder[len - 1])) {
-          stringBuilder.Length--;                                     // Remove space before punctuation
+        Append(text);
+        lastCharIsPunctuation = true;
+      }
+      return this;
+    }
+
+    // Call it with closing parenthesis like ")"
+    public IOutput AppendClosingPunctuation(string text)
+    {
+      if (!string.IsNullOrEmpty(text)) {
+        if (lastChar == ' ') {
+          stringBuilder.Length--;                                     // Remove space before closing punctuation
         }
         Append(text);
+        lastCharIsPunctuation = true;
       }
       return this;
     }
 
     public void AppendSpaceIfNecessary()
     {
-      if (!lastCharIsPunctuation) {
-        Append(' ');
+      if (lastCharIsPunctuation || lastChar == ' ' || lastChar == '\n' || lastChar == '(') {
+        lastCharIsPunctuation = false;
+        return;
       }
+      Append(' ');
     }
 
     public void AppendIndent()
