@@ -1078,7 +1078,7 @@ namespace Xtensive.Sql.Compiler
           output.Append("FROM");
           break;
         case InsertSection.ValuesEntry:
-          output.Append("VALUES (");
+          output.AppendPunctuation("VALUES (");
           break;
         case InsertSection.ValuesExit:
           output.AppendClosingPunctuation(")");
@@ -1443,12 +1443,17 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Translate(SqlCompilerContext context, SqlWhile node, WhileSection section)
     {
-      context.Output.Append(section switch {
-        WhileSection.Entry => "WHILE (",
-        WhileSection.Statement => ") BEGIN",
-        WhileSection.Exit => "END",
-        _ => string.Empty
-      });
+      switch (section) {
+        case WhileSection.Entry:
+          context.Output.AppendPunctuation("WHILE (");
+          break;
+        case WhileSection.Statement:
+          context.Output.Append(") BEGIN");
+          break;
+        case WhileSection.Exit:
+          context.Output.Append("END");
+          break;
+      }
     }
 
     public virtual void Translate(SqlCompilerContext context, SqlCommand node)
