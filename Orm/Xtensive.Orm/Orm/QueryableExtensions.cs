@@ -6,9 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -47,6 +49,21 @@ namespace Xtensive.Orm
       var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(tag) });
       return source.Provider.CreateQuery<TSource>(expression);
     }
+
+    /// <summary>
+    /// Constructs tag from caller line number, member name and file name.
+    /// See <see cref="QueryableExtensions.Tag{TSource}(IQueryable{TSource}, string)"/> for more information
+    /// </summary>
+    /// <typeparam name="TSource">The type of the source element.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="lineNumber">The compiler-injected caller line number.</param>
+    /// <param name="memberName">The compiler-injected caller function name.</param>
+    /// <param name="filePath">The compiler-injected caller file path.</param>
+    /// <returns>Same as <see cref="QueryableExtensions.Tag{TSource}(IQueryable{TSource}, string)"/></returns>
+    public static IQueryable<TSource> Tag<TSource>(this IQueryable<TSource> source, [CallerLineNumber]int lineNumber = 0,
+      [CallerMemberName]string memberName = "",
+      [CallerFilePath]string filePath = "") =>
+      source.Tag($"{Path.GetFileName(filePath)}:{memberName}:{lineNumber}");
 
     /// <summary>
     /// Returns the number of elements in <paramref name="source"/> sequence.
