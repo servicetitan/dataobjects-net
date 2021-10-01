@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Linq
       init => ModifyFlag(ref flags, TranslatorStateFlags.SkipNullableColumnsDetectionInGroupBy, value);
     }
 
-    public TranslatorState(TranslatorState currentState) =>
+    public TranslatorState(in TranslatorState currentState) =>
       this = currentState;
   }
 }
