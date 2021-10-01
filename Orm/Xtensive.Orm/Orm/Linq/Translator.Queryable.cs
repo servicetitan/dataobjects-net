@@ -249,11 +249,7 @@ namespace Xtensive.Orm.Linq
       var newDataSource = visitedSource.ItemProjector.DataSource.Lock(lockMode, lockBehavior);
       var newItemProjector = new ItemProjectorExpression(
         visitedSource.ItemProjector.Item, newDataSource, visitedSource.ItemProjector.Context);
-      var projectionExpression = new ProjectionExpression(
-        visitedSource.Type,
-        newItemProjector,
-        visitedSource.TupleParameterBindings,
-        visitedSource.ResultAccessMethod);
+      var projectionExpression = visitedSource.Select(newItemProjector);
       return projectionExpression;
     }
 
@@ -308,8 +304,7 @@ namespace Xtensive.Orm.Linq
 
       var visitedSource = VisitSequence(source);
       var itemProjector = visitedSource.ItemProjector.EnsureEntityIsJoined();
-      var projection = new ProjectionExpression(visitedSource.Type, itemProjector, visitedSource.TupleParameterBindings,
-        visitedSource.ResultAccessMethod);
+      var projection = visitedSource.Select(itemProjector);
       if (targetType == sourceType) {
         return projection;
       }
@@ -729,20 +724,14 @@ namespace Xtensive.Orm.Linq
               commonOriginDataSource, groupingDataSource.GroupColumnIndexes,
               groupingDataSource.AggregateColumns.Select(c => c.Descriptor).Append(aggregateDescriptor).ToArray());
             var optimizedItemProjector = groupingProjection.ItemProjector.Remap(resultDataSource, 0);
-            groupingProjection = new ProjectionExpression(
-              groupingProjection.Type, optimizedItemProjector,
-              groupingProjection.TupleParameterBindings, groupingProjection.ResultAccessMethod);
+            groupingProjection = groupingProjection.Select(optimizedItemProjector);
             context.Bindings.ReplaceBound(groupingParameter, groupingProjection);
             var isSubqueryParameter = state.OuterParameters.Contains(groupingParameter);
             if (isSubqueryParameter) {
               var newApplyParameter = context.GetApplyParameter(resultDataSource);
               foreach (var innerParameter in state.Parameters) {
                 var projectionExpression = context.Bindings[innerParameter];
-                var newProjectionExpression = new ProjectionExpression(
-                  projectionExpression.Type,
-                  projectionExpression.ItemProjector.RewriteApplyParameter(groupingFilterParameter, newApplyParameter),
-                  projectionExpression.TupleParameterBindings,
-                  projectionExpression.ResultAccessMethod);
+                var newProjectionExpression = projectionExpression.Select(projectionExpression.ItemProjector.RewriteApplyParameter(groupingFilterParameter, newApplyParameter));
                 context.Bindings.ReplaceBound(innerParameter, newProjectionExpression);
               }
             }
@@ -1015,15 +1004,10 @@ namespace Xtensive.Orm.Linq
           });
 
       var filter = FastExpression.Lambda(filterBody, tupleParameter);
-      var subqueryProjection = new ProjectionExpression(
-        sequence.Type,
-        new ItemProjectorExpression(
+      var subqueryProjection = sequence.Select(new ItemProjectorExpression(
           sequence.ItemProjector.Item,
           groupingSourceProjection.ItemProjector.DataSource.Filter((Expression<Func<Tuple, bool>>) filter),
-          context),
-        sequence.TupleParameterBindings,
-        sequence.ResultAccessMethod
-      );
+          context));
       //      var groupingParameter = Expression.Parameter(groupingProjection.ItemProjector.Item.Type, "groupingParameter");
       //      var applyParameter = context.GetApplyParameter(groupingProjection);
       //      using (context.Bindings.Add(groupingParameter, groupingProjection))
@@ -1215,11 +1199,7 @@ namespace Xtensive.Orm.Linq
           newGroupingExpression,
           innerGrouping.ItemProjector.DataSource,
           innerGrouping.ItemProjector.Context);
-        innerGrouping = new ProjectionExpression(
-          innerGrouping.Type,
-          newGroupingItemProjector,
-          innerGrouping.TupleParameterBindings,
-          innerGrouping.ResultAccessMethod);
+        innerGrouping = innerGrouping.Select(newGroupingItemProjector);
       }
 
       var groupingKeyPropertyInfo = groupingType.GetProperty("Key");
@@ -1304,11 +1284,7 @@ namespace Xtensive.Orm.Linq
             innerItemProjector = innerItemProjector.SetDefaultIfEmpty();
           }
 
-          innerProjection = new ProjectionExpression(
-            projection.Type,
-            innerItemProjector,
-            projection.TupleParameterBindings,
-            projection.ResultAccessMethod);
+          innerProjection = projection.Select(innerItemProjector);
         }
 
         var outerProjection = context.Bindings[outerParameter];
@@ -1328,11 +1304,7 @@ namespace Xtensive.Orm.Linq
 
         var resultProjection = CombineProjections(outerProjection, innerProjection, recordSet, resultSelector);
         var resultItemProjector = resultProjection.ItemProjector.RemoveOuterParameter();
-        resultProjection = new ProjectionExpression(
-          resultProjection.Type,
-          resultItemProjector,
-          resultProjection.TupleParameterBindings,
-          resultProjection.ResultAccessMethod);
+        resultProjection = resultProjection.Select(resultItemProjector);
         return resultProjection;
       }
     }
@@ -1362,7 +1334,7 @@ namespace Xtensive.Orm.Linq
         return new ProjectionExpression(
           WellKnownInterfaces.QueryableOfT.MakeGenericType(le.Body.Type),
           itemProjector,
-          new Dictionary<Parameter<Tuple>, Tuple>());
+          TranslatedQuery.EmptyTupleParameterBindings);
       }
     }
 
@@ -1505,11 +1477,7 @@ namespace Xtensive.Orm.Linq
           .Include(state.IncludeAlgorithm, true, rawProvider.Source, context.GetNextAlias(), filteredColumns);
 
         var newItemProjector = outerResult.ItemProjector.Remap(newDataSource, 0);
-        var newOuterResult = new ProjectionExpression(
-          outerResult.Type,
-          newItemProjector,
-          outerResult.TupleParameterBindings,
-          outerResult.ResultAccessMethod);
+        var newOuterResult = outerResult.Select(newItemProjector);
         context.Bindings.ReplaceBound(outerParameter, newOuterResult);
         Expression resultExpression = ColumnExpression.Create(WellKnownTypes.Bool, columnIndex);
         if (notExists) {
@@ -1687,11 +1655,7 @@ namespace Xtensive.Orm.Linq
       if (result != null) {
         var projectorExpression = result.ItemProjector.EnsureEntityIsJoined();
         if (projectorExpression != result.ItemProjector) {
-          result = new ProjectionExpression(
-            result.Type,
-            projectorExpression,
-            result.TupleParameterBindings,
-            result.ResultAccessMethod);
+          result = result.Select(projectorExpression);
         }
 
         return result;

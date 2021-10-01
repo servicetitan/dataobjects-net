@@ -30,18 +30,14 @@ namespace Xtensive.Orm.Linq
     public TranslatedQuery Translate()
     {
       var projection = (ProjectionExpression) Visit(context.Query);
-      return Translate(projection, Enumerable.Empty<Parameter<Tuple>>());
+      return Translate(projection, Array.Empty<Parameter<Tuple>>());
     }
 
     private TranslatedQuery Translate(ProjectionExpression projection,
-      IEnumerable<Parameter<Tuple>> tupleParameterBindings)
+      IReadOnlyList<Parameter<Tuple>> tupleParameterBindings)
     {
       var newItemProjector = projection.ItemProjector.EnsureEntityIsJoined();
-      var result = new ProjectionExpression(
-        projection.Type,
-        newItemProjector,
-        projection.TupleParameterBindings,
-        projection.ResultAccessMethod);
+      var result = projection.Select(newItemProjector);
       var optimized = Optimize(result);
 
       // Prepare cached query, if required
@@ -84,11 +80,7 @@ namespace Xtensive.Orm.Linq
       if (usedColumns.Count < origin.ItemProjector.DataSource.Header.Length) {
         var resultProvider = new SelectProvider(originProvider, usedColumns.ToArray());
         var itemProjector = origin.ItemProjector.Remap(resultProvider, usedColumns.ToArray());
-        var result = new ProjectionExpression(
-          origin.Type,
-          itemProjector,
-          origin.TupleParameterBindings,
-          origin.ResultAccessMethod);
+        var result = origin.Select(itemProjector);
         return result;
       }
       return origin;
@@ -172,11 +164,7 @@ namespace Xtensive.Orm.Linq
         var indexItemProjector = new ItemProjectorExpression(itemExpression, indexDataSource, context);
         var indexProjectionExpression = new ProjectionExpression(WellKnownTypes.Int64, indexItemProjector, sequence.TupleParameterBindings);
         var sequenceItemProjector = sequence.ItemProjector.Remap(indexDataSource, 0);
-        sequence = new ProjectionExpression(
-          sequence.Type, 
-          sequenceItemProjector, 
-          sequence.TupleParameterBindings, 
-          sequence.ResultAccessMethod);
+        sequence = sequence.Select(sequenceItemProjector);
         return indexProjectionExpression;
       }
       return null;
