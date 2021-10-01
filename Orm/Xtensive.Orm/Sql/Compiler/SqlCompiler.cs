@@ -1166,8 +1166,8 @@ namespace Xtensive.Sql.Compiler
     public void VisitSelectDefault(SqlSelect node)
     {
       using (context.EnterScope(node)) {
-        Visit(node.Comment);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
+        Visit(node.Comment);
         VisitSelectHints(node);
         VisitSelectColumns(node);
         VisitSelectFrom(node);

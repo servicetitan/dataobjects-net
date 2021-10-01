@@ -49,21 +49,29 @@ namespace Xtensive.Orm
       var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(tag) });
       return source.Provider.CreateQuery<TSource>(expression);
     }
-
+    
     /// <summary>
-    /// Constructs tag from caller line number, member name and file name.
-    /// See <see cref="QueryableExtensions.Tag{TSource}(IQueryable{TSource}, string)"/> for more information
+    /// Tags query with given <paramref name="tag"/> string 
+    /// (inserts string as comment in SQL statement) for 
+    /// further query identification.
     /// </summary>
-    /// <typeparam name="TSource">The type of the source element.</typeparam>
     /// <param name="source">The source sequence.</param>
-    /// <param name="lineNumber">The compiler-injected caller line number.</param>
-    /// <param name="memberName">The compiler-injected caller function name.</param>
-    /// <param name="filePath">The compiler-injected caller file path.</param>
-    /// <returns>Same as <see cref="QueryableExtensions.Tag{TSource}(IQueryable{TSource}, string)"/></returns>
-    public static IQueryable<TSource> Tag<TSource>(this IQueryable<TSource> source, [CallerLineNumber]int lineNumber = 0,
-      [CallerMemberName]string memberName = "",
-      [CallerFilePath]string filePath = "") =>
-      source.Tag($"{Path.GetFileName(filePath)}:{memberName}:{lineNumber}");
+    /// <param name="tag">The unique tag to insert.</param>
+    /// <returns>The same sequence, but with "comment" applied to query.</returns>
+    public static IQueryable Tag(this IQueryable source, string tag)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(tag, "tag");
+
+      var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
+      var providerType = source.Provider.GetType();
+      if (providerType != WellKnownOrmTypes.QueryProvider)
+        throw new NotSupportedException(String.Format(errorMessage, providerType));
+
+      var genericMethod = WellKnownMembers.Queryable.ExtensionTag.MakeGenericMethod(new[] { source.ElementType });
+      var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(tag) });
+      return source.Provider.CreateQuery(expression);
+    }
 
     /// <summary>
     /// Returns the number of elements in <paramref name="source"/> sequence.

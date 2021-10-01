@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Tests.Linq
       var queryString = queryFormatter.ToSqlString(query);
       
       Assert.IsFalse(queryString.Contains("/*firstTag*/"));
-      Assert.IsTrue(queryString.StartsWith("/*secondTag*/"));
+      Assert.IsTrue(queryString.Contains("/*secondTag*/"));
     }
     
     [Test]
@@ -137,7 +137,7 @@ namespace Xtensive.Orm.Tests.Linq
       var queryFormatter = Session.Demand().Services.Demand<QueryFormatter>();
       var queryString = queryFormatter.ToSqlString(query);
       
-      Assert.IsTrue(queryString.StartsWith("/*singleTag*/"));
+      Assert.IsTrue(queryString.Contains("/*singleTag*/"));
     }
     
     [Test]
@@ -150,7 +150,7 @@ namespace Xtensive.Orm.Tests.Linq
       var queryFormatter = Session.Demand().Services.Demand<QueryFormatter>();
       var queryString = queryFormatter.ToSqlString(query);
       
-      Assert.IsTrue(queryString.StartsWith("/*superCoolTag*/"));
+      Assert.IsTrue(queryString.Contains("/*superCoolTag*/"));
     }
     
     [Test]
@@ -172,7 +172,7 @@ namespace Xtensive.Orm.Tests.Linq
       
       // Currently we don't enforce which tag should be in resulting query
       // when there are many of them in sqlexpression tree
-      Assert.IsTrue(queryString.StartsWith("/*BU000"));
+      Assert.IsTrue(queryString.Contains("/*BU000"));
     }
   }
 }
