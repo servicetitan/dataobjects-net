@@ -31,12 +31,12 @@ namespace Xtensive.Orm.Linq
     internal TranslatorState state { get; private set; } = TranslatorState.InitState;
     private readonly TranslatorContext context;
 
-    internal void RestoreState(TranslatorState previousState) =>
+    internal void RestoreState(in TranslatorState previousState) =>
       state = previousState;
 
-    public TranslatorState.TranslatorScope CreateScope(TranslatorState newState)
+    public TranslatorState.TranslatorScope CreateScope(in TranslatorState newState)
     {
-      var scope = new TranslatorState.TranslatorScope(this, state);
+      var scope = new TranslatorState.TranslatorScope(this);
       state = newState;
       return scope;
     }

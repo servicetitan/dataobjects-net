@@ -34,10 +34,10 @@ namespace Xtensive.Orm.Linq
 
       public void Dispose() => translator.RestoreState(previousState);
 
-      public TranslatorScope(Translator translator, TranslatorState previousState)
+      public TranslatorScope(Translator translator)
       {
         this.translator = translator;
-        this.previousState = previousState;
+        previousState = translator.state;
       }
     }
 
