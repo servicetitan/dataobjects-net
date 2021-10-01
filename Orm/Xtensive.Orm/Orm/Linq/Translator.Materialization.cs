@@ -23,11 +23,6 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
-    public static readonly MethodInfo TranslateMethod = typeof(Translator).GetMethod(nameof(Translate),
-        BindingFlags.NonPublic | BindingFlags.Instance,
-        Array.Empty<string>(),
-        new object[] { WellKnownOrmTypes.ProjectionExpression, typeof(IReadOnlyList<Parameter<Tuple>>) });
-
     private static readonly MethodInfo VisitLocalCollectionSequenceMethod = typeof(Translator).GetMethod(nameof(VisitLocalCollectionSequence),
         BindingFlags.NonPublic | BindingFlags.Instance,
         new[] { "TItem" },
@@ -41,7 +36,7 @@ namespace Xtensive.Orm.Linq
       return Translate(projection, Array.Empty<Parameter<Tuple>>());
     }
 
-    private TranslatedQuery Translate(ProjectionExpression projection,
+    internal TranslatedQuery Translate(ProjectionExpression projection,
       IReadOnlyList<Parameter<Tuple>> tupleParameterBindings)
     {
       var newItemProjector = projection.ItemProjector.EnsureEntityIsJoined();
