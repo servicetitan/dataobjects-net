@@ -15,8 +15,6 @@
     <RunAnalyzers>false</RunAnalyzers>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <WarningLevel>0</WarningLevel>
-    <PackageVersion>7.0.0.28-servicetitan-test</PackageVersion>
-    <FileVersion>7.0.0.28</FileVersion>
   </PropertyGroup>
   <!-- Force Release Configuration build and check env variables / User.Directory.Build.props -->
   <Target Name="_CheckConfiguration" BeforeTargets="CoreBuild">
