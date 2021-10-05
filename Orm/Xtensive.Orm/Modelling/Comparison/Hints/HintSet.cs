@@ -82,16 +82,14 @@ namespace Xtensive.Modelling.Comparison.Hints
           else
             node = (Node) TargetModel.Resolve(target.Path, true);
           nodes.Add(node);
-          
-          if (!hintMap.ContainsKey(node))
-            hintMap.Add(node, new Dictionary<Type, object>());
-          var nodeHintMap = hintMap[node];
+
+          if (!hintMap.TryGetValue(node, out var nodeHintMap))
+            hintMap.Add(node, nodeHintMap = new Dictionary<Type, object>());
           var hintType = hint.GetType();
           
-          if (!nodeHintMap.ContainsKey(hintType))
-            nodeHintMap.Add(hintType, null);
+          if (!nodeHintMap.TryGetValue(hintType, out var hintOrList))
+            nodeHintMap.Add(hintType, hintOrList = null);
           
-          var hintOrList = nodeHintMap[hintType];
           if (hintOrList==null)
             nodeHintMap[hintType] = hint;
           else {
@@ -131,19 +129,13 @@ namespace Xtensive.Modelling.Comparison.Hints
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
 
-      if (!hintMap.ContainsKey(node))
-        hintMap.Add(node, new Dictionary<Type, object>());
-      var nodeHintMap = hintMap.GetValueOrDefault(node);
-      if (nodeHintMap==null)
-        return null;
-      var hintType = typeof(THint);
-      var hintOrList = nodeHintMap.GetValueOrDefault(hintType);
-      if (hintOrList==null)
-        return null;
-      var hint = hintOrList as THint;
-      if (hint!=null)
-        return hint;
-      throw new InvalidOperationException(Strings.ExMultipleHintsFound);
+      if (!hintMap.TryGetValue(node, out var nodeHintMap))
+        hintMap.Add(node, nodeHintMap = new Dictionary<Type, object>());
+      return nodeHintMap?.GetValueOrDefault(typeof(THint)) switch {
+        null => null,
+        THint hint => hint,
+        _ => throw new InvalidOperationException(Strings.ExMultipleHintsFound)
+      };
     }
 
     /// <inheritdoc/>
@@ -152,9 +144,8 @@ namespace Xtensive.Modelling.Comparison.Hints
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
 
-      if (!hintMap.ContainsKey(node))
-        hintMap.Add(node, new Dictionary<Type, object>());
-      var nodeHintMap = hintMap.GetValueOrDefault(node);
+      if (!hintMap.TryGetValue(node, out var nodeHintMap))
+        hintMap.Add(node, nodeHintMap = new Dictionary<Type, object>());
       if (nodeHintMap==null)
         return ArrayUtils<THint>.EmptyArray;
       var hintType = typeof (THint);
@@ -179,9 +170,8 @@ namespace Xtensive.Modelling.Comparison.Hints
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
 
-      if (!hintMap.ContainsKey(node))
-        hintMap.Add(node, new Dictionary<Type, object>());
-      var nodeHintMap = hintMap.GetValueOrDefault(node);
+      if (!hintMap.TryGetValue(node, out var nodeHintMap))
+        hintMap.Add(node, nodeHintMap = new Dictionary<Type, object>());
       if (nodeHintMap==null)
         return false;
 
