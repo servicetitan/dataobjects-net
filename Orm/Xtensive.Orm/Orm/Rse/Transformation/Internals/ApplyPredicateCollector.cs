@@ -65,8 +65,8 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private void SaveApplyPredicate(FilterProvider filter, ApplyParameter applyParameter)
     {
-      if (owner.State.Predicates.TryGetValue(applyParameter, out var predicate))
-        predicate.Add(new Pair<Expression<Func<Tuple, bool>>, ColumnCollection>(filter.Predicate,
+      if (owner.State.Predicates.TryGetValue(applyParameter, out var predicates))
+        predicates.Add(new Pair<Expression<Func<Tuple, bool>>, ColumnCollection>(filter.Predicate,
             filter.Header.Columns));
       else {
         var newPair = new Pair<Expression<Func<Tuple, bool>>, ColumnCollection>(filter.Predicate,
