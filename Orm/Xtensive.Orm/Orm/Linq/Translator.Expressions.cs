@@ -637,8 +637,7 @@ namespace Xtensive.Orm.Linq
           .ToList();
         if (members.Count!=1 || duplicateMembers.Contains(members[0]))
           continue;
-        if (bindings.ContainsKey(members[0])) {
-          bindings.Remove(members[0]);
+        if (bindings.Remove(members[0])) {
           duplicateMembers.Add(members[0]);
         }
         else
@@ -1566,7 +1565,7 @@ namespace Xtensive.Orm.Linq
       var fields = implementors
         .Select(im => im.UnderlyingType.GetProperty(property.Name, BindingFlags.Instance|BindingFlags.Public))
         .Concat(implementors
-          .Select(im => im.UnderlyingType.GetProperty(string.Format("{0}.{1}", @interface.Name, property.Name), BindingFlags.Instance|BindingFlags.NonPublic)))
+          .Select(im => im.UnderlyingType.GetProperty($"{@interface.Name}.{property.Name}", BindingFlags.Instance|BindingFlags.NonPublic)))
         .Where(f => f != null);
 
       return BuildExpression(ma, fields);
