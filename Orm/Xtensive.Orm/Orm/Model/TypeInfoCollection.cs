@@ -323,13 +323,16 @@ namespace Xtensive.Orm.Model
     /// <returns><see name="TypeDef"/> instance that is ancestor of specified <paramref name="type"/> or
     /// <see langword="null"/> if the ancestor is not found in this collection.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
-    private TypeInfo FindAncestor(Type type) =>
-      type == WellKnownTypes.Object
-        ? null
-        : type.BaseType switch {
-          null => null,
-          var baseType => TryGetValue(baseType, out var typeInfo) ? typeInfo : FindAncestor(baseType)
-        };
+    private TypeInfo FindAncestor(Type type)
+    {
+      if (type == WellKnownTypes.Object) {
+        return null;
+      }
+      return type.BaseType switch {
+        null => null,
+        var baseType => TryGetValue(baseType, out var typeInfo) ? typeInfo : FindAncestor(baseType)
+      };
+    }
 
     #endregion
 
