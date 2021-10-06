@@ -874,14 +874,14 @@ namespace Xtensive.Orm
       var itemState = item == null
         ? PersistenceState.Synchronized
         : item.PersistenceState;
-      if (PersistenceState.New.In(ownerState, itemState) || State.IsFullyLoaded) {
+      if (PersistenceState.New.IsOneOf(ownerState, itemState) || State.IsFullyLoaded) {
         return false;
       }
 
       // association check
       if (item != null) {
         var association = Field.GetAssociation(item.TypeInfo);
-        if (association.IsPaired && association.Multiplicity.In(Multiplicity.ManyToOne, Multiplicity.OneToMany)) {
+        if (association.IsPaired && association.Multiplicity.IsOneOf(Multiplicity.ManyToOne, Multiplicity.OneToMany)) {
           var candidate = (IEntity)item.GetFieldValue(association.Reversed.OwnerField);
           return candidate == Owner;
         }

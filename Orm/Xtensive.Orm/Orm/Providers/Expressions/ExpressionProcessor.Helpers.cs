@@ -227,7 +227,7 @@ namespace Xtensive.Orm.Providers
 
     private static bool IsComparisonExpression(Expression expression)
     {
-      return expression.NodeType.In(
+      return expression.NodeType.IsOneOf(
         ExpressionType.Equal,
         ExpressionType.NotEqual,
         ExpressionType.GreaterThan,

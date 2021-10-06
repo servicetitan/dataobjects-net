@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Linq.Rewriters
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     protected override Expression VisitBinary(BinaryExpression binaryExpression)
     {
-      if (binaryExpression.NodeType.In(ExpressionType.NotEqual, ExpressionType.Equal)) {
+      if (binaryExpression.NodeType.IsOneOf(ExpressionType.NotEqual, ExpressionType.Equal)) {
         Expression leftExpression = null;
         Expression rightExpression = null;
         if (IsIndexerAccessor(binaryExpression.Left))
@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       var methodCallExpression = (MethodCallExpression) expression;
       return methodCallExpression.Object!=null && 
         methodCallExpression.Method.Name=="get_Item" && 
-        methodCallExpression.Method.DeclaringType.In(WellKnownOrmTypes.Persistent, WellKnownOrmInterfaces.Entity) &&
+        methodCallExpression.Method.DeclaringType.IsOneOf(WellKnownOrmTypes.Persistent, WellKnownOrmInterfaces.Entity) &&
         context.Evaluator.CanBeEvaluated(methodCallExpression.Arguments[0]);
     }
 

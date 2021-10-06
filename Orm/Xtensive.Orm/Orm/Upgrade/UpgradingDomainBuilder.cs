@@ -596,7 +596,7 @@ namespace Xtensive.Orm.Upgrade
         var breifExceptionFormat = domain.Configuration.SchemaSyncExceptionFormat==SchemaSyncExceptionFormat.Brief;
         var result = SchemaComparer.Compare(extractedSchema, targetSchema,
           hints, context.Hints, schemaUpgradeMode, domain.Model, breifExceptionFormat, context.Stage);
-        var shouldDumpSchema = !schemaUpgradeMode.In(
+        var shouldDumpSchema = !schemaUpgradeMode.IsOneOf(
           SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate);
         if (shouldDumpSchema && UpgradeLog.IsLogged(LogLevel.Info))
           UpgradeLog.Info(result.ToString());
@@ -682,7 +682,7 @@ namespace Xtensive.Orm.Upgrade
         var briefExceptionFormat = domain.Configuration.SchemaSyncExceptionFormat==SchemaSyncExceptionFormat.Brief;
         var result = SchemaComparer.Compare(extractedSchema, targetSchema,
           hints, context.Hints, schemaUpgradeMode, domain.Model, briefExceptionFormat, context.Stage);
-        var shouldDumpSchema = !schemaUpgradeMode.In(
+        var shouldDumpSchema = !schemaUpgradeMode.IsOneOf(
           SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate);
         if (shouldDumpSchema && UpgradeLog.IsLogged(LogLevel.Info))
           UpgradeLog.Info(result.ToString());

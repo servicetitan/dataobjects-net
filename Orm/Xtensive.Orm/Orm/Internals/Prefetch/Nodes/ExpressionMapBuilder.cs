@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       e = e.StripCasts();
 
-      var isSupported = e.NodeType.In(
+      var isSupported = e.NodeType.IsOneOf(
         ExpressionType.MemberAccess, ExpressionType.Call, ExpressionType.New,
         ExpressionType.Lambda, ExpressionType.Parameter);
 
