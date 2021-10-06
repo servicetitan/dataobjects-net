@@ -80,20 +80,25 @@ namespace Xtensive.Orm.Rse.Transformation
         if (previousState == null)
           return;
         foreach (var pair in CalculateProviders) {
-          if (previousState.CalculateProviders.TryGetValue(pair.Key, out var providers))
+          if (previousState.CalculateProviders.TryGetValue(pair.Key, out var providers)) {
             providers.AddRange(pair.Value);
-          else
+          }
+          else {
             previousState.CalculateProviders.Add(pair.Key, pair.Value);
+          }
         }
         foreach (var pair in CalculateFilters) {
-          if (previousState.CalculateFilters.TryGetValue(pair.Key, out var filter))
+          if (previousState.CalculateFilters.TryGetValue(pair.Key, out var filter)) {
             filter.AddRange(pair.Value);
-          else
+          }
+          else {
             previousState.CalculateFilters.Add(pair.Key, pair.Value);
+          }
         }
         foreach (var pair in Predicates) {
-          if (!previousState.Predicates.TryAdd(pair.Key, pair.Value))
+          if (!previousState.Predicates.TryAdd(pair.Key, pair.Value)) {
             ThrowInvalidOperationException();
+          }
         }
       }
     }
@@ -340,8 +345,9 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private Provider InsertCalculateProviders(ApplyProvider provider, CompilableProvider convertedApply)
     {
-      if (!State.CalculateProviders.TryGetValue(provider.ApplyParameter, out var providers))
+      if (!State.CalculateProviders.TryGetValue(provider.ApplyParameter, out var providers)) {
         return convertedApply;
+      }
       var result = convertedApply;
       foreach (var providerPair in providers) {
         result = RewriteCalculateColumnExpressions(providerPair, result);

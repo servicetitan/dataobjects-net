@@ -14,8 +14,9 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.TryGetValue(this, out var value))
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
         return value;
+      }
       var clone = new SqlRowNumber();
       foreach (SqlOrder so in OrderBy)
         clone.OrderBy.Add((SqlOrder) so.Clone(context));

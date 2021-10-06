@@ -32,11 +32,13 @@ namespace Xtensive.Orm.Rse.Transformation
       if (owner.State.SelfConvertibleApplyProviders[applyParameter])
         return false;
       var newPair = new Pair<CalculateProvider, ColumnCollection>(provider, provider.Header.Columns);
-      if (owner.State.CalculateProviders.TryGetValue(applyParameter, out var providers))
+      if (owner.State.CalculateProviders.TryGetValue(applyParameter, out var providers)) {
         providers.Add(newPair);
-      else
+      }
+      else {
         owner.State.CalculateProviders.Add(applyParameter,
           new List<Pair<CalculateProvider, ColumnCollection>> {newPair});
+      }
       return true;
     }
 
@@ -83,8 +85,9 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       var result = false;
       foreach (var key in owner.State.Predicates.Keys) {
-        if (!owner.State.CalculateProviders.TryGetValue(key, out var providers))
+        if (!owner.State.CalculateProviders.TryGetValue(key, out var providers)) {
           continue;
+        }
         foreach (var providerPair in providers) {
           if (ContainsAccessToTupleField(tupleAccesses, providerPair.First, filterProvider)) {
             result = true;
@@ -106,11 +109,13 @@ namespace Xtensive.Orm.Rse.Transformation
       var newPair =
         new Pair<Expression<Func<Tuple, bool>>, ColumnCollection>(filterProvider.Predicate,
           filterProvider.Header.Columns);
-      if (owner.State.CalculateFilters.TryGetValue(calculateProvider, out var filters))
+      if (owner.State.CalculateFilters.TryGetValue(calculateProvider, out var filters)) {
         filters.Add(newPair);
-      else
+      }
+      else {
         owner.State.CalculateFilters.Add(calculateProvider,
           new List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>> {newPair});
+      }
     }
 
     #endregion

@@ -14,8 +14,9 @@ namespace Xtensive.Sql.Dml
   {
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.TryGetValue(this, out var value))
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
         return value;
+      }
 
       var expressionsClone = new Collection<SqlExpression>();
       foreach (var e in expressions)

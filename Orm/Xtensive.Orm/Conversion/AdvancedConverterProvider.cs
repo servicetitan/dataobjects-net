@@ -77,8 +77,9 @@ namespace Xtensive.Conversion
     protected override TAssociate CreateCustomAssociate<TKey1, TKey2, TAssociate>()
     {
       Pair<Type> keyTypePair = new Pair<Type>(typeof (TKey1), typeof(TKey2));
-      if (!InProgress.TryAdd(keyTypePair, true))
+      if (!InProgress.TryAdd(keyTypePair, true)) {
         throw new InvalidOperationException(Strings.ExRecursiveAssociateLookupDetected);
+      }
       try {
         TAssociate associate = base.CreateCustomAssociate<TKey1, TKey2, TAssociate>();
         if (associate!=null)

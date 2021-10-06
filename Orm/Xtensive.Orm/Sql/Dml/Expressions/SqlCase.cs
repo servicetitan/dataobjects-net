@@ -107,8 +107,9 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.TryGetValue(this, out var v))
+      if (context.NodeMapping.TryGetValue(this, out var v)) {
         return v;
+      }
 
       var clone = new SqlCase(value.IsNullReference() ? null : (SqlExpression) value.Clone(context));
 

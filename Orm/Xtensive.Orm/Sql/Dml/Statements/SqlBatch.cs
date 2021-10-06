@@ -107,8 +107,9 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.TryGetValue(this, out var value))
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
         return value;
+      }
 
       var clone = new SqlBatch();
       foreach (SqlStatement s in statements)

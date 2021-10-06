@@ -62,8 +62,9 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.TryGetValue(this, out var value))
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
         return value;
+      }
 
       SqlDelete clone = new SqlDelete();
       if (Delete!=null)
