@@ -140,8 +140,7 @@ namespace Xtensive.Orm.Linq
       var arguments = new List<Expression>();
       foreach (var argument in n.Arguments) {
         Expression body;
-        using (state.CreateScope()) {
-          state.CalculateExpressions = false;
+        using (CreateScope(new TranslatorState(state) { CalculateExpressions = false })) {
           body = Visit(argument);
         }
         body = body.IsProjection() 
@@ -194,7 +193,6 @@ namespace Xtensive.Orm.Linq
     {
       this.compiledQueryScope = compiledQueryScope;
       this.context = context;
-      state = new TranslatorState(this);
     }
   }
 }
