@@ -874,7 +874,7 @@ namespace Xtensive.Orm
       var itemState = item == null
         ? PersistenceState.Synchronized
         : item.PersistenceState;
-      if (PersistenceState.New.IsOneOf(ownerState, itemState) || State.IsFullyLoaded) {
+      if (PersistenceState.New == ownerState || PersistenceState.New == itemState || State.IsFullyLoaded) {
         return false;
       }
 

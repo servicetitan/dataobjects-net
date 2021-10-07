@@ -91,9 +91,9 @@ namespace Xtensive.Orm.Linq.Rewriters
       if (expression.NodeType!=ExpressionType.Call)
         return false;
       var methodCallExpression = (MethodCallExpression) expression;
-      return methodCallExpression.Object!=null && 
-        methodCallExpression.Method.Name=="get_Item" && 
-        methodCallExpression.Method.DeclaringType.IsOneOf(WellKnownOrmTypes.Persistent, WellKnownOrmInterfaces.Entity) &&
+      return methodCallExpression.Object != null &&
+        methodCallExpression.Method.Name == "get_Item" &&
+        (methodCallExpression.Method.DeclaringType == WellKnownOrmTypes.Persistent || methodCallExpression.Method.DeclaringType == WellKnownOrmInterfaces.Entity) &&
         context.Evaluator.CanBeEvaluated(methodCallExpression.Arguments[0]);
     }
 
