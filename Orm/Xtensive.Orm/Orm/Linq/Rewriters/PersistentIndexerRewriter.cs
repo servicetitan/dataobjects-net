@@ -88,13 +88,17 @@ namespace Xtensive.Orm.Linq.Rewriters
 
     private bool IsIndexerAccessor(Expression expression)
     {
-      if (expression.NodeType!=ExpressionType.Call)
+      if (expression.NodeType != ExpressionType.Call) {
         return false;
+      }
       var methodCallExpression = (MethodCallExpression) expression;
-      return methodCallExpression.Object != null &&
-        methodCallExpression.Method.Name == "get_Item" &&
-        (methodCallExpression.Method.DeclaringType == WellKnownOrmTypes.Persistent || methodCallExpression.Method.DeclaringType == WellKnownOrmInterfaces.Entity) &&
-        context.Evaluator.CanBeEvaluated(methodCallExpression.Arguments[0]);
+      if (methodCallExpression.Object == null) {
+        return false;
+      }
+      var method = methodCallExpression.Method;
+      return method.Name == "get_Item"
+        && method.DeclaringType switch { var declaringType => declaringType == WellKnownOrmTypes.Persistent || declaringType == WellKnownOrmInterfaces.Entity }
+        && context.Evaluator.CanBeEvaluated(methodCallExpression.Arguments[0]);
     }
 
     public static Expression Rewrite(Expression query, TranslatorContext context)
