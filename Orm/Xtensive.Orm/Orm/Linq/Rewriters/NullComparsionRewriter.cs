@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       var ifTrue = Visit(c.IfTrue);
       var ifFalse = Visit(c.IfFalse);
 
-      if (test.NodeType.IsOneOf(ExpressionType.Equal, ExpressionType.NotEqual)) {
+      if (test.NodeType is ExpressionType.Equal or ExpressionType.NotEqual) {
         var binaryExpression = (BinaryExpression) test;
         var left = binaryExpression.Left.StripCasts();
         var right = binaryExpression.Right.StripCasts();

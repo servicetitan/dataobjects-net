@@ -881,7 +881,7 @@ namespace Xtensive.Orm
       // association check
       if (item != null) {
         var association = Field.GetAssociation(item.TypeInfo);
-        if (association.IsPaired && association.Multiplicity.IsOneOf(Multiplicity.ManyToOne, Multiplicity.OneToMany)) {
+        if (association.IsPaired && association.Multiplicity is Multiplicity.ManyToOne or Multiplicity.OneToMany) {
           var candidate = (IEntity)item.GetFieldValue(association.Reversed.OwnerField);
           return candidate == Owner;
         }

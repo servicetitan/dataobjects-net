@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Linq.Rewriters
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     protected override Expression VisitBinary(BinaryExpression binaryExpression)
     {
-      if (binaryExpression.NodeType.IsOneOf(ExpressionType.NotEqual, ExpressionType.Equal)) {
+      if (binaryExpression.NodeType is ExpressionType.NotEqual or ExpressionType.Equal) {
         Expression leftExpression = null;
         Expression rightExpression = null;
         if (IsIndexerAccessor(binaryExpression.Left))

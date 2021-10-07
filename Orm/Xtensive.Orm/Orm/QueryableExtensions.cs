@@ -181,53 +181,6 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Checks if <paramref name="source"/> value is on of three specified values.
-    /// </summary>
-    /// <typeparam name="T">Type of value to check.</typeparam>
-    /// <param name="source">Source value.</param>
-    /// <param name="value1">First value</param>
-    /// <param name="value2">Second value</param>
-    /// <param name="value3">Third value</param>
-    /// <returns><see langword="True"/> if <paramref name="source"/> contains is value1 or value2 or value3 <see langword="false"/>.</returns>
-    public static bool IsOneOf<T>(this T source, T value1, T value2, T value3)
-    {
-      var comparer = EqualityComparer<T>.Default;
-      return comparer.Equals(source, value1)
-        || comparer.Equals(source, value2)
-        || comparer.Equals(source, value3);
-    }
-
-    public static bool IsOneOf<T>(this T source, T value1, T value2, T value3, T value4)
-    {
-      var comparer = EqualityComparer<T>.Default;
-      return comparer.Equals(source, value1)
-        || comparer.Equals(source, value2)
-        || comparer.Equals(source, value3)
-        || comparer.Equals(source, value4);
-    }
-
-    public static bool IsOneOf<T>(this T source, T value1, T value2, T value3, T value4, T value5)
-    {
-      var comparer = EqualityComparer<T>.Default;
-      return comparer.Equals(source, value1)
-        || comparer.Equals(source, value2)
-        || comparer.Equals(source, value3)
-        || comparer.Equals(source, value4)
-        || comparer.Equals(source, value5);
-    }
-
-    public static bool IsOneOf<T>(this T source, T value1, T value2, T value3, T value4, T value5, T value6)
-    {
-      var comparer = EqualityComparer<T>.Default;
-      return comparer.Equals(source, value1)
-        || comparer.Equals(source, value2)
-        || comparer.Equals(source, value3)
-        || comparer.Equals(source, value4)
-        || comparer.Equals(source, value5)
-        || comparer.Equals(source, value6);
-    }
-
-    /// <summary>
     /// Checks if <paramref name="source"/> value is contained in the specified list of values.
     /// </summary>
     /// <typeparam name="T">Type of value to check.</typeparam>

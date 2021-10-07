@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       // Detect f!=null and f==null for entity fields
 
-      if (!b.NodeType.IsOneOf(ExpressionType.Equal, ExpressionType.NotEqual))
+      if (!(b.NodeType is ExpressionType.Equal or ExpressionType.NotEqual))
         return base.VisitBinary(b);
 
       var left = Visit(b.Left);
