@@ -51,8 +51,6 @@ namespace Xtensive.Tuples.Packed
       private static readonly ValueFieldAccessor DecimalAccessor = new DecimalFieldAccessor();
       private static readonly ValueFieldAccessor GuidAccessor = new GuidFieldAccessor();
 
-      private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
-
       private static readonly IReadOnlyDictionary<Type, ValueFieldAccessor> accessorByType =
         new Dictionary<Type, ValueFieldAccessor>(ReferenceEqualityComparer.Instance) {
           [WellKnownTypes.Bool] = BoolAccessor,
@@ -70,10 +68,7 @@ namespace Xtensive.Tuples.Packed
           [WellKnownTypes.TimeSpan] = TimeSpanAccessor,
           [WellKnownTypes.Decimal] = DecimalAccessor,
           [WellKnownTypes.Guid] = GuidAccessor,
-        };
 
-      private static readonly IReadOnlyDictionary<Type, ValueFieldAccessor> accessorByNullableType =
-        new Dictionary<Type, ValueFieldAccessor>(ReferenceEqualityComparer.Instance) {
           [WellKnownTypes.NullableBool] = BoolAccessor,
           [WellKnownTypes.NullableByte] = ByteAccessor,
           [WellKnownTypes.NullableSByte] = SByteAccessor,
@@ -92,8 +87,7 @@ namespace Xtensive.Tuples.Packed
         };
 
       public static ValueFieldAccessor GetValue(Type probeType) =>
-        ((probeType.MetadataToken ^ NullableTypeMetadataToken) == 0 ? accessorByNullableType : accessorByType)
-          .GetValueOrDefault(probeType);
+          accessorByType.GetValueOrDefault(probeType);
     }
 
     private delegate void CounterIncrementer(ref Counters counters);
