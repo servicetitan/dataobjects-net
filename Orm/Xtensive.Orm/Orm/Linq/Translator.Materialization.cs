@@ -28,6 +28,10 @@ namespace Xtensive.Orm.Linq
         new[] { "TItem" },
         new object[] { WellKnownTypes.Expression });
 
+    private static readonly ParameterExpression parameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
+    private static readonly ParameterExpression tupleReader = Expression.Parameter(typeof(RecordSetReader), "tupleReader");
+    private static readonly ParameterExpression session = Expression.Parameter(typeof(Session), "session");
+
     private readonly CompiledQueryProcessingScope compiledQueryScope;
 
     public TranslatedQuery Translate()
@@ -102,10 +106,6 @@ namespace Xtensive.Orm.Linq
     private Materializer
       BuildMaterializer(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
-      var tupleReader = Expression.Parameter(typeof(RecordSetReader), "tupleReader");
-      var session = Expression.Parameter(typeof(Session), "session");
-      var parameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
-
       var itemProjector = projection.ItemProjector;
       var materializationInfo = itemProjector.Materialize(context, tupleParameters);
       var elementType = itemProjector.Item.Type;
@@ -143,8 +143,8 @@ namespace Xtensive.Orm.Linq
         using (CreateScope(new TranslatorState(state) { CalculateExpressions = false })) {
           body = Visit(argument);
         }
-        body = body.IsProjection() 
-          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type) 
+        body = body.IsProjection()
+          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
           : ProcessProjectionElement(body);
         arguments.Add(body);
       }

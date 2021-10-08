@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Aleksey Gamzov
@@ -874,14 +874,14 @@ namespace Xtensive.Orm
       var itemState = item == null
         ? PersistenceState.Synchronized
         : item.PersistenceState;
-      if (PersistenceState.New.In(ownerState, itemState) || State.IsFullyLoaded) {
+      if (PersistenceState.New == ownerState || PersistenceState.New == itemState || State.IsFullyLoaded) {
         return false;
       }
 
       // association check
       if (item != null) {
         var association = Field.GetAssociation(item.TypeInfo);
-        if (association.IsPaired && association.Multiplicity.In(Multiplicity.ManyToOne, Multiplicity.OneToMany)) {
+        if (association.IsPaired && association.Multiplicity is Multiplicity.ManyToOne or Multiplicity.OneToMany) {
           var candidate = (IEntity)item.GetFieldValue(association.Reversed.OwnerField);
           return candidate == Owner;
         }
