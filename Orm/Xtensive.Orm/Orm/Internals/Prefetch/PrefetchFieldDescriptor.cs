@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     /// <inheritdoc/>
     public override bool Equals(object obj) =>
-      obj is PrefetchFieldDescriptor x && Equals(x);
+      obj is PrefetchFieldDescriptor other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()

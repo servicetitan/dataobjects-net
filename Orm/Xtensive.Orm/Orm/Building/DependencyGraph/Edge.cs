@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Building.DependencyGraph
     /// <inheritdoc/>
     public override bool Equals(object obj) =>
       ReferenceEquals(this, obj)
-      || obj is Edge<TValue> x && Equals(x);
+      || obj is Edge<TValue> other && Equals(other);
 
     /// <inheritdoc/>
     public static bool operator ==(Edge<TValue> left, Edge<TValue> right)

@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       public override bool Equals(object obj) =>
-        obj is DatabaseReference x && Equals(x);
+        obj is DatabaseReference other && Equals(other);
 
       public override int GetHashCode()
       {

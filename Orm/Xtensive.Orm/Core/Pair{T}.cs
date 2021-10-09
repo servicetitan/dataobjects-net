@@ -55,7 +55,7 @@ namespace Xtensive.Core
 
     /// <inheritdoc/>
     public override bool Equals(object obj) =>
-      obj is Pair<T> x && Equals(x);
+      obj is Pair<T> other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()

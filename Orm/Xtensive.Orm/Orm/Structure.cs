@@ -313,7 +313,7 @@ namespace Xtensive.Orm
 
     /// <inheritdoc/>
     public override bool Equals(object obj) =>
-      obj is Structure x && Equals(x);
+      obj is Structure other && Equals(other);
 
     /// <inheritdoc/>
     public bool Equals(Structure other)

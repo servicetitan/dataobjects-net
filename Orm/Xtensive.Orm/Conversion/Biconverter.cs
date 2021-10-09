@@ -54,7 +54,7 @@ namespace Xtensive.Conversion
 
     /// <inheritdoc/>
     public override bool Equals(object obj) =>
-      obj is Biconverter<TFrom, TTo> x && Equals(x);
+      obj is Biconverter<TFrom, TTo> other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()

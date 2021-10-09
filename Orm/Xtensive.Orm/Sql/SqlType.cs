@@ -190,7 +190,7 @@ namespace Xtensive.Sql
     }
 
     public override bool Equals(object obj) =>
-      obj is SqlType x && Equals(x);
+      obj is SqlType other && Equals(other);
 
     public override int GetHashCode()
     {

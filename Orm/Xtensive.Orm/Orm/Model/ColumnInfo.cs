@@ -233,7 +233,7 @@ namespace Xtensive.Orm.Model
     /// <inheritdoc/>
     public override bool Equals(object obj) =>
       ReferenceEquals(this, obj)
-      || obj is ColumnInfo x && Equals(x);
+      || obj is ColumnInfo other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()

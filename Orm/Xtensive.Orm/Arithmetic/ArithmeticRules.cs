@@ -42,7 +42,7 @@ namespace Xtensive.Arithmetic
 
     /// <inheritdoc/>
     public override bool Equals(object obj) =>
-      obj is ArithmeticRules x && Equals(x);
+      obj is ArithmeticRules other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()

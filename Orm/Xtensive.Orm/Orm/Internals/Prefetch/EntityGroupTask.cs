@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
 
       public override bool Equals(object obj) =>
-        obj is CacheKey x && Equals(x);
+        obj is CacheKey other && Equals(other);
 
       public override int GetHashCode() => cachedHashCode;
 

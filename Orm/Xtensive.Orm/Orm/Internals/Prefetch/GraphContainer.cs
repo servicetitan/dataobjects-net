@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public override bool Equals(object obj) =>
       ReferenceEquals(this, obj)
-        || obj is GraphContainer x && Equals(x);
+        || obj is GraphContainer other && Equals(other);
 
     public override int GetHashCode()
     {

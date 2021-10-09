@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       public override bool Equals(object obj) =>
-        obj is MappingRequest x && Equals(x);
+        obj is MappingRequest other && Equals(other);
 
       public override int GetHashCode()
       {

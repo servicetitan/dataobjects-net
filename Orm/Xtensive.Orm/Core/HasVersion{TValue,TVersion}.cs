@@ -58,7 +58,7 @@ namespace Xtensive.Core
 
     /// <inheritdoc/>
     public override bool Equals(object obj) =>
-      obj is HasVersion<TValue, TVersion> x && Equals(x);
+      obj is HasVersion<TValue, TVersion> other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()
