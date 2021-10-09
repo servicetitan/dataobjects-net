@@ -124,7 +124,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public override bool Equals(object obj) =>
       ReferenceEquals(this, obj)
-        || obj is EntityGroupTask entityGroupTask && Equals(entityGroupTask);
+        || obj is EntityGroupTask other && Equals(other);
 
     public override int GetHashCode() => cacheKey.GetHashCode();
 

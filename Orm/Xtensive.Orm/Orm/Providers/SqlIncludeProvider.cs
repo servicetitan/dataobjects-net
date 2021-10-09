@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Providers
 
       public override bool Equals(object obj) =>
         ReferenceEquals(this, obj)
-          || obj is RowFilterParameter rowFilterParameter && Equals(rowFilterParameter);
+          || obj is RowFilterParameter other && Equals(other);
 
       public override int GetHashCode() => temporaryTableDescriptor != null ? temporaryTableDescriptor.GetHashCode() : 0;
 

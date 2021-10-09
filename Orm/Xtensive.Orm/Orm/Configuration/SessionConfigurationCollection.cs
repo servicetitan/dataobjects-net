@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Configuration
     /// <inheritdoc/>
     public override bool Equals(object obj) =>
       ReferenceEquals(this, obj)
-        || obj is SessionConfigurationCollection scc && Equals(scc);
+        || obj is SessionConfigurationCollection other && Equals(other);
 
     /// <inheritdoc/>
     public bool Equals(SessionConfigurationCollection obj)

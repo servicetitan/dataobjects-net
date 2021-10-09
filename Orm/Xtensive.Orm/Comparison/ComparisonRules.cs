@@ -194,7 +194,7 @@ namespace Xtensive.Comparison
 
     /// <inheritdoc/>
     public override bool Equals(object obj) =>
-      obj is ComparisonRules rules && Equals(rules);
+      obj is ComparisonRules other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()
