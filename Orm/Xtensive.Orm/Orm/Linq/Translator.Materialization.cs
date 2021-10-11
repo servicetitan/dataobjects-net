@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Linq
     }
 
     internal TranslatedQuery Translate(ProjectionExpression projection,
-      IReadOnlyList<Parameter<Tuple>> tupleParameterBindings)
+      IEnumerable<Parameter<Tuple>> tupleParameterBindings)
     {
       var newItemProjector = projection.ItemProjector.EnsureEntityIsJoined();
       var result = projection.Apply(newItemProjector);
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Linq
         projection.TupleParameterBindings, tupleParameterBindings);
 
       // Providing the result to caching layer, if required
-      if (compiledQueryScope != null && translatedQuery.TupleParameters.Count == 0) {
+      if (compiledQueryScope != null && !translatedQuery.TupleParameters.Any()) {
         var parameterizedQuery = new ParameterizedQuery(
           translatedQuery,
           compiledQueryScope.QueryParameter);

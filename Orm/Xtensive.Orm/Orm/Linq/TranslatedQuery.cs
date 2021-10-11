@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Linq
     /// <summary>
     /// Gets the tuple parameters.
     /// </summary>
-    public IReadOnlyList<Parameter<Tuple>> TupleParameters { get; }
+    public IEnumerable<Parameter<Tuple>> TupleParameters { get; }
 
     /// <summary>
     /// Executes the query in specified parameter context.
@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Linq
     public TranslatedQuery(ExecutableProvider dataSource,
       Materializer materializer,
       ResultAccessMethod resultAccessMethod,
-      IReadOnlyDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IReadOnlyList<Parameter<Tuple>> tupleParameters)
+      IReadOnlyDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       DataSource = dataSource;
       Materializer = materializer;

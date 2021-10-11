@@ -185,7 +185,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
       // 3. Make translation 
       elementType = projectionExpression.ItemProjector.Item.Type;
-      return context.Translator.Translate(projection, tupleParameters.Append(parameterOfTuple).ToList());
+      return context.Translator.Translate(projection, tupleParameters.Append(parameterOfTuple));
     }
 
     protected override Expression VisitFieldExpression(FieldExpression expression)
