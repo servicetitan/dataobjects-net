@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Linq
       IReadOnlyList<Parameter<Tuple>> tupleParameterBindings)
     {
       var newItemProjector = projection.ItemProjector.EnsureEntityIsJoined();
-      var result = projection.Select(newItemProjector);
+      var result = projection.Apply(newItemProjector);
       var optimized = Optimize(result);
 
       // Prepare cached query, if required
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Linq
       if (usedColumns.Count < origin.ItemProjector.DataSource.Header.Length) {
         var resultProvider = new SelectProvider(originProvider, usedColumns.ToArray());
         var itemProjector = origin.ItemProjector.Remap(resultProvider, usedColumns.ToArray());
-        var result = origin.Select(itemProjector);
+        var result = origin.Apply(itemProjector);
         return result;
       }
       return origin;
@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Linq
         var indexItemProjector = new ItemProjectorExpression(itemExpression, indexDataSource, context);
         var indexProjectionExpression = new ProjectionExpression(WellKnownTypes.Int64, indexItemProjector, sequence.TupleParameterBindings);
         var sequenceItemProjector = sequence.ItemProjector.Remap(indexDataSource, 0);
-        sequence = sequence.Select(sequenceItemProjector);
+        sequence = sequence.Apply(sequenceItemProjector);
         return indexProjectionExpression;
       }
       return null;

@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Linq.Expressions
     public override string ToString() => $"Projection:  {ItemProjector}, IsScalar = {IsScalar}";
 
     // Creates new ItemProjectorExpression, based on this but with new ItemProjectorExpression
-    public ProjectionExpression Select(ItemProjectorExpression itemProjectorExpression) =>
+    public ProjectionExpression Apply(ItemProjectorExpression itemProjectorExpression) =>
       new ProjectionExpression(Type, itemProjectorExpression, TupleParameterBindings, ResultAccessMethod);
 
     // Constructors

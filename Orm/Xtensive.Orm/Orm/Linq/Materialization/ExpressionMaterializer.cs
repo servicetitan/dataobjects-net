@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
       // 2. Add only parameter<tuple>. Tuple value will be assigned 
       // at the moment of materialization in SubQuery constructor
-      projection = projectionExpression.Select(itemProjector);
+      projection = projectionExpression.Apply(itemProjector);
 
       // 3. Make translation 
       elementType = projectionExpression.ItemProjector.Item.Type;

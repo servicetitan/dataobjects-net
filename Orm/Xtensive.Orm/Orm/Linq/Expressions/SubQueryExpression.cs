@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return new SubQueryExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter);
 
       var newItemProjector = ProjectionExpression.ItemProjector.RewriteApplyParameter(ApplyParameter, newApplyParameter);
-      var newProjectionExpression = ProjectionExpression.Select(newItemProjector);
+      var newProjectionExpression = ProjectionExpression.Apply(newItemProjector);
       return new SubQueryExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter);
     }
 

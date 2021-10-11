@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter, KeyExpression, SelectManyInfo);
 
       var newItemProjector = ProjectionExpression.ItemProjector.RewriteApplyParameter(ApplyParameter, newApplyParameter);
-      var newProjectionExpression = ProjectionExpression.Select(newItemProjector);
+      var newProjectionExpression = ProjectionExpression.Apply(newItemProjector);
       return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter, KeyExpression, SelectManyInfo);
     }
 
