@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Linq.Rewriters
 
       var attributes = mc.Object.Type.GetCustomAttributes(WellKnownTypes.DefaultMemberAttribute, true);
       var indexerPropertyName = ((DefaultMemberAttribute)attributes.Single()).MemberName;
-      var indexerProperty = mc.Object.Type.GetProperty(indexerPropertyName);
+      var indexerProperty = mc.Object.Type.GetPropertyInfo(indexerPropertyName);
       if (indexerProperty!=null)
         return Expression.MakeIndex(mc.Object, indexerProperty, new[] {Expression.Constant(name)});
       throw new InvalidOperationException(String.Format(Strings.ExFieldXNotFoundInTypeX, name, mc.Object.Type));

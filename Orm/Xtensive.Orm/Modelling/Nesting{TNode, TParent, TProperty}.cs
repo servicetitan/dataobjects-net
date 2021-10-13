@@ -70,7 +70,7 @@ namespace Xtensive.Modelling
       var tParent = typeof (TParent);
       var tProperty = typeof (TProperty);
       
-      propertyInfo = tParent.GetProperty(PropertyName);
+      propertyInfo = tParent.GetPropertyInfo(PropertyName);
       if (propertyInfo==null)
         throw new InvalidOperationException(string.Format(
           Strings.ExBindingFailedForX, tParent.GetShortName()+"."+PropertyName));

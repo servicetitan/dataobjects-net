@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return FastExpression.Lambda(visitor.Visit(processedExpression), tupleParameter);
     }
 
-    public static MaterializationInfo MakeMaterialization(ItemProjectorExpression projector, TranslatorContext context, 
+    public static MaterializationInfo MakeMaterialization(ItemProjectorExpression projector, TranslatorContext context,
       IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       var visitor = new ExpressionMaterializer(context, materializationContextParameter, tupleParameters);
@@ -179,11 +179,11 @@ namespace Xtensive.Orm.Linq.Materialization
       var itemProjector = new ItemProjectorExpression(newItemProjectorBody, newDataSource, projectionExpression.ItemProjector.Context);
       parameterOfTuple = context.GetTupleParameter(subQueryExpression.OuterParameter);
 
-      // 2. Add only parameter<tuple>. Tuple value will be assigned 
+      // 2. Add only parameter<tuple>. Tuple value will be assigned
       // at the moment of materialization in SubQuery constructor
       projection = projectionExpression.Apply(itemProjector);
 
-      // 3. Make translation 
+      // 3. Make translation
       elementType = projectionExpression.ItemProjector.Item.Type;
       return context.Translator.Translate(projection, tupleParameters.Append(parameterOfTuple));
     }
@@ -267,8 +267,8 @@ namespace Xtensive.Orm.Linq.Materialization
 
       var realBindings = expression.NativeBindings;
 
-      return expression.NativeBindings.Count == 0 
-        ? newExpression 
+      return expression.NativeBindings.Count == 0
+        ? newExpression
         : (Expression) Expression.MemberInit(newExpression, expression
         .NativeBindings
         .Where(item => Translator.FilterBindings(item.Key, item.Key.Name, item.Value.Type))
@@ -482,7 +482,7 @@ namespace Xtensive.Orm.Linq.Materialization
         if (field.Field.IsDynamicallyDefined) {
           var attributes = materializedOwner.Type.GetCustomAttributes(WellKnownTypes.DefaultMemberAttribute, true);
           var indexerPropertyName = ((DefaultMemberAttribute) attributes.Single()).MemberName;
-          var methodInfo = materializedOwner.Type.GetProperty(indexerPropertyName).GetGetMethod();
+          var methodInfo = materializedOwner.Type.GetPropertyInfo(indexerPropertyName).GetGetMethod();
           fieldExpression = Expression.Convert(Expression.Call(materializedOwner, methodInfo, Expression.Constant(field.Field.Name)), field.Field.ValueType);
         }
         else
@@ -555,7 +555,7 @@ namespace Xtensive.Orm.Linq.Materialization
     static ExpressionMaterializer()
     {
       ParameterContextProperty =
-        WellKnownOrmTypes.ItemMaterializationContext.GetProperty(nameof(ItemMaterializationContext.ParameterContext));
+        WellKnownOrmTypes.ItemMaterializationContext.GetPropertyInfo(nameof(ItemMaterializationContext.ParameterContext));
       GetParameterValueMethod = WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
       GetTupleParameterValueMethod = GetParameterValueMethod.MakeGenericMethod(WellKnownOrmTypes.Tuple);
       BuildPersistentTupleMethod = typeof (ExpressionMaterializer).GetMethod("BuildPersistentTuple", BindingFlags.NonPublic | BindingFlags.Static);

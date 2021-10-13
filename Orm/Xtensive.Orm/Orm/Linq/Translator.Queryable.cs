@@ -1074,7 +1074,7 @@ namespace Xtensive.Orm.Linq
         new ProjectionExpression(returnType, groupingItemProjector, subqueryProjection.TupleParameterBindings);
 
       if (resultSelector != null) {
-        var keyProperty = groupingType.GetProperty(WellKnown.KeyFieldName);
+        var keyProperty = groupingType.GetPropertyInfo(WellKnown.KeyFieldName);
         var convertedParameter = Expression.Convert(resultSelector.Parameters[1], groupingType);
         var keyAccess = Expression.MakeMemberAccess(convertedParameter, keyProperty);
         var rewrittenResultSelectorBody =
@@ -1225,7 +1225,7 @@ namespace Xtensive.Orm.Linq
         innerGrouping = innerGrouping.Apply(newGroupingItemProjector);
       }
 
-      var groupingKeyPropertyInfo = groupingType.GetProperty("Key");
+      var groupingKeyPropertyInfo = groupingType.GetPropertyInfo("Key");
       var groupingJoinParameter = Expression.Parameter(enumerableType, "groupingJoinParameter");
       var groupingKeyExpression = Expression.MakeMemberAccess(
         Expression.Convert(groupingJoinParameter, groupingType),

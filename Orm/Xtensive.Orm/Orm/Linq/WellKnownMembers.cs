@@ -180,7 +180,7 @@ namespace Xtensive.Orm.Linq
               && mi.GetParameters().Count()==1
                 && mi.GetParameters()[0].ParameterType==typeof (TupleDescriptor))
           .Single();
-        Descriptor = typeof (Xtensive.Tuples.Tuple).GetProperty(Xtensive.Reflection.WellKnown.Tuple.Descriptor);
+        Descriptor = typeof (Xtensive.Tuples.Tuple).GetPropertyInfo(Xtensive.Reflection.WellKnown.Tuple.Descriptor);
       }
     }
 
@@ -193,7 +193,7 @@ namespace Xtensive.Orm.Linq
       static Key()
       {
         // Key
-        Value = typeof (Orm.Key).GetProperty(nameof(Orm.Key.Value));
+        Value = typeof (Orm.Key).GetPropertyInfo(nameof(Orm.Key.Value));
         Create = typeof (Orm.Key).GetMethod(
           nameof(Orm.Key.Create),
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
@@ -303,17 +303,17 @@ namespace Xtensive.Orm.Linq
     static WellKnownMembers()
     {
       // IEntity
-      IEntityKey = WellKnownOrmInterfaces.Entity.GetProperty(WellKnown.KeyFieldName);
-      TypeId = WellKnownOrmInterfaces.Entity.GetProperty(WellKnown.TypeIdFieldName);
+      IEntityKey = WellKnownOrmInterfaces.Entity.GetPropertyInfo(WellKnown.KeyFieldName);
+      TypeId = WellKnownOrmInterfaces.Entity.GetPropertyInfo(WellKnown.TypeIdFieldName);
 
       // ApplyParameter
-      ApplyParameterValue = WellKnownOrmTypes.ApplyParameter.GetProperty("Value");
+      ApplyParameterValue = WellKnownOrmTypes.ApplyParameter.GetPropertyInfo("Value");
 
       // Parameter<Tuple>
       ParameterOfTupleValue = WellKnownOrmTypes.ParameterOfTuple.GetProperty("Value", typeof (Tuples.Tuple));
 
       // Parameter
-      ParameterValue = WellKnownOrmTypes.Parameter.GetProperty("Value");
+      ParameterValue = WellKnownOrmTypes.Parameter.GetPropertyInfo("Value");
 
       // Record
       RecordKey = typeof (Record).GetMethods()
@@ -335,7 +335,7 @@ namespace Xtensive.Orm.Linq
           && methodInfo.GetParameters().Length==2);
 
       // Session
-      SessionNodeId = typeof (Session).GetProperty("StorageNodeId");
+      SessionNodeId = typeof (Session).GetPropertyInfo("StorageNodeId");
     }
   }
 }

@@ -62,6 +62,9 @@ namespace Xtensive.Reflection
     private static readonly ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps =
       new ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping>();
 
+    private static readonly ConcurrentDictionary<(Type, string), PropertyInfo> propertyInfoByName =
+      new ConcurrentDictionary<(Type, string), PropertyInfo>();
+
     private static int createDummyTypeNumber = 0;
     private static AssemblyBuilder assemblyBuilder;
     private static ModuleBuilder moduleBuilder;
@@ -1010,6 +1013,11 @@ namespace Xtensive.Reflection
 
       return null;
     }
+
+    public static PropertyInfo GetPropertyInfo(this Type type, string name) =>
+      propertyInfoByName.GetOrAdd((type, name), PropertyInfoFactory);
+
+    private static readonly Func<(Type, string), PropertyInfo> PropertyInfoFactory = key => key.Item1.GetProperty(key.Item2);
 
     /// <summary>
     /// Converts <paramref name="type"/> to type that can assign both

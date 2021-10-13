@@ -900,7 +900,7 @@ namespace Xtensive.Orm.Linq
         }
       }
       var fieldInfo = typeInfo.Fields[evaluatedArgument];
-      return Expression.Convert(Expression.Call(objectExpression, objectExpression.Type.GetProperty("Item").GetGetMethod(), new[] {Expression.Constant(evaluatedArgument)}), fieldInfo.ValueType);
+      return Expression.Convert(Expression.Call(objectExpression, objectExpression.Type.GetPropertyInfo("Item").GetGetMethod(), new[] {Expression.Constant(evaluatedArgument)}), fieldInfo.ValueType);
     }
 
     private static bool IsConditionalOrWellknown(Expression expression, bool isRoot = true)
@@ -968,7 +968,7 @@ namespace Xtensive.Orm.Linq
         else {
           var attributes = structureType.GetCustomAttributes(WellKnownTypes.DefaultMemberAttribute, true);
           var indexerPropertyName = ((DefaultMemberAttribute)attributes.Single()).MemberName;
-          var methodInfo = structureType.GetProperty(indexerPropertyName).GetGetMethod();
+          var methodInfo = structureType.GetPropertyInfo(indexerPropertyName).GetGetMethod();
           propertyAccessorExpression = Expression.Call(Expression.Convert(expression, structureType), methodInfo, Expression.Constant(fieldExpression.Name));
         }
         var memberExpression = (Expression) Expression.Condition(
@@ -1623,7 +1623,7 @@ namespace Xtensive.Orm.Linq
 
       // the name of property is unique within type hierarchy
       // so we can use it.
-      var actualPropertyInfo = initializingType.GetProperty(propertyInfo.Name);
+      var actualPropertyInfo = initializingType.GetPropertyInfo(propertyInfo.Name);
       return actualPropertyInfo ?? propertyInfo;
     }
 

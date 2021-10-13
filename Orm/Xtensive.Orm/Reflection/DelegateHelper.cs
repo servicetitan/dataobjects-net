@@ -121,7 +121,7 @@ namespace Xtensive.Reflection
         var type = methodKey.TargetType;
         var memberName = methodKey.MemberName;
         return new Lazy<Delegate>(() => {
-          PropertyInfo pi = type.GetProperty(memberName);
+          PropertyInfo pi = type.GetPropertyInfo(memberName);
           FieldInfo fi = type.GetField(memberName);
           MethodInfo smi;
           if (pi != null) {
@@ -189,7 +189,7 @@ namespace Xtensive.Reflection
         var type = methodKey.TargetType;
         var memberName = methodKey.MemberName;
         return new Lazy<Delegate>(() => {
-          PropertyInfo pi = type.GetProperty(memberName);
+          PropertyInfo pi = type.GetPropertyInfo(memberName);
           FieldInfo fi = type.GetField(memberName);
           if (pi!=null) {
             // Member is a Property...

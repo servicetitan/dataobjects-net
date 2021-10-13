@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Services;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
@@ -149,7 +150,7 @@ namespace Xtensive.Orm.BulkOperations
         var propertyInfo = TypeInfo.Fields.FirstOrDefault(a => a.UnderlyingProperty==member);
         if (propertyInfo==null) {
           if (member.ReflectedType?.IsAssignableFrom(TypeInfo.UnderlyingType)==true) {
-            member = TypeInfo.UnderlyingType.GetProperty(member.Name);
+            member = TypeInfo.UnderlyingType.GetPropertyInfo(member.Name);
             propertyInfo = TypeInfo.Fields.FirstOrDefault(field => field.UnderlyingProperty==member);
           }
         }

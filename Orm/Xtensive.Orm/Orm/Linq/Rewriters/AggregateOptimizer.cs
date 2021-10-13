@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013-2020 Xtensive LLC.
+// Copyright (C) 2013-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -14,6 +14,7 @@ using Xtensive.Linq;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Linq.Model;
+using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
@@ -224,8 +225,8 @@ namespace Xtensive.Orm.Linq.Rewriters
       var keyType = keySelector.Body.Type;
       var elementType = elementSelector.Body.Type;
       var wrapperType = typeof (GroupByItemWrapper<,>).MakeGenericType(keyType, elementType);
-      var wrapperKeyProperty = wrapperType.GetProperty("Key");
-      var wrapperElementProperty = wrapperType.GetProperty("Element");
+      var wrapperKeyProperty = wrapperType.GetPropertyInfo("Key");
+      var wrapperElementProperty = wrapperType.GetPropertyInfo("Element");
 
       var projectionParameter = keySelector.Parameters[0];
       var projectionLambda = FastExpression.Lambda(
@@ -257,8 +258,8 @@ namespace Xtensive.Orm.Linq.Rewriters
       var projectionType = projection.Body.Type;
 
       var wrapperType = typeof (ProjectionWrapper<,>).MakeGenericType(itemType, projectionType);
-      var wrapperItemProperty = wrapperType.GetProperty("Item");
-      var wrapperProjectedProperty = wrapperType.GetProperty("Projected");
+      var wrapperItemProperty = wrapperType.GetPropertyInfo("Item");
+      var wrapperProjectedProperty = wrapperType.GetPropertyInfo("Projected");
 
       var wrapperProjectionParameter = projection.Parameters[0];
       var wrapperProjectionLambda = FastExpression.Lambda(

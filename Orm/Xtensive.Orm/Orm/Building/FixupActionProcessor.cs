@@ -13,6 +13,7 @@ using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Building.FixupActions;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Building
 {
@@ -210,7 +211,7 @@ namespace Xtensive.Orm.Building
 
     public void Process(AddTypeIdFieldAction action)
     {
-      var fieldDef = context.ModelDefBuilder.DefineField(WellKnownOrmTypes.Entity.GetProperty(WellKnown.TypeIdFieldName));
+      var fieldDef = context.ModelDefBuilder.DefineField(WellKnownOrmTypes.Entity.GetPropertyInfo(WellKnown.TypeIdFieldName));
       fieldDef.IsTypeId = true;
       fieldDef.IsSystem = true;
       action.Type.Fields.Add(fieldDef);
