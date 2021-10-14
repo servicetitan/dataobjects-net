@@ -112,6 +112,7 @@ namespace Xtensive.IoC
     private IEnumerable<object> GetOrCreateInstances(IEnumerable<ServiceRegistration> services)
     {
       foreach (var registration in services) {
+        // Not very optimal, but...
         lock (_lock) {
           if (!registration.Singleton || !instances.TryGetValue(registration, out var result)) {
             result = registration.MappedInstance ?? CreateInstance(registration);
