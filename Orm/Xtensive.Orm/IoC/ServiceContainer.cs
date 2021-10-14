@@ -37,6 +37,7 @@ namespace Xtensive.IoC
       new Dictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>>();
 
     private readonly HashSet<Type> creating = new HashSet<Type>();
+    private readonly object _lock = new object();
 
     #region Protected virtual methods (to override)
 
@@ -111,20 +112,16 @@ namespace Xtensive.IoC
     private IEnumerable<object> GetOrCreateInstances(IEnumerable<ServiceRegistration> services)
     {
       foreach (var registration in services) {
-        object result;
-        if (registration.Singleton && instances.TryGetValue(registration, out result)) {
+        lock (_lock) {
+          if (!registration.Singleton || !instances.TryGetValue(registration, out var result)) {
+            result = registration.MappedInstance ?? CreateInstance(registration);
+
+            if (registration.Singleton) {
+              instances[registration] = result;
+            }
+          }
           yield return result;
-          continue;
         }
-
-        if (registration.MappedInstance != null)
-          result = registration.MappedInstance;
-        else
-          result = CreateInstance(registration);
-
-        if (registration.Singleton)
-          instances[registration] = result;
-        yield return result;
       }
     }
 
