@@ -28,14 +28,15 @@ namespace Xtensive.IoC
   {
     private static readonly Type typeofIServiceContainer = typeof(IServiceContainer);
 
-    private readonly Dictionary<Key, List<ServiceRegistration>> types =
-      new Dictionary<Key, List<ServiceRegistration>>();
+    private readonly IReadOnlyDictionary<Key, List<ServiceRegistration>> types;
+
     private readonly Dictionary<ServiceRegistration, object> instances =
       new Dictionary<ServiceRegistration, object>();
+
     private readonly Dictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> constructorCache =
       new Dictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>>();
+
     private readonly HashSet<Type> creating = new HashSet<Type>();
-    private readonly object _lock = new object();
 
     #region Protected virtual methods (to override)
 
@@ -43,28 +44,20 @@ namespace Xtensive.IoC
     /// <exception cref="AmbiguousMatchException">Multiple services match to the specified arguments.</exception>
     protected override object HandleGet(Type serviceType, string name)
     {
-      // Not very optimal, but...
-      lock (_lock) {
-        if (!types.TryGetValue(GetKey(serviceType, name), out var list))
-          return null;
-        return list.Count switch {
-          0 => null,
-          1 => GetOrCreateInstances(list).Single(),
-          _ => throw new AmbiguousMatchException(Strings.ExMultipleServicesMatchToTheSpecifiedArguments)
-        };
-      }
+      if (!types.TryGetValue(GetKey(serviceType, name), out var list))
+        return null;
+      return list.Count switch {
+        0 => null,
+        1 => GetOrCreateInstances(list).Single(),
+        _ => throw new AmbiguousMatchException(Strings.ExMultipleServicesMatchToTheSpecifiedArguments)
+      };
     }
 
     /// <inheritdoc/>
-    protected override IEnumerable<object> HandleGetAll(Type serviceType)
-    {
-      // Not very optimal, but...
-      lock (_lock) {
-        return types.TryGetValue(GetKey(serviceType, null), out var list)
-          ? GetOrCreateInstances(list)
-          : Array.Empty<object>();
-      }
-    }
+    protected override IEnumerable<object> HandleGetAll(Type serviceType) =>
+      types.TryGetValue(GetKey(serviceType, null), out var list)
+        ? GetOrCreateInstances(list)
+        : Array.Empty<object>();
 
     /// <summary>
     /// Creates the service instance for the specified <paramref name="serviceInfo"/>.
@@ -135,7 +128,7 @@ namespace Xtensive.IoC
       }
     }
 
-    private void Register(ServiceRegistration serviceRegistration)
+    private static void Register(Dictionary<Key, List<ServiceRegistration>> types, ServiceRegistration serviceRegistration)
     {
       var key = GetKey(serviceRegistration.Type, serviceRegistration.Name);
       if (!types.TryGetValue(key, out var list)) {
@@ -201,7 +194,7 @@ namespace Xtensive.IoC
 
       Type configurationType = configuration?.GetType(),
         parentType = parent?.GetType();
-      return (IServiceContainer)(
+      return (IServiceContainer) (
         FindConstructor(containerType, configurationType, parentType)?.Invoke(new[] { configuration, parent })
         ?? FindConstructor(containerType, configurationType)?.Invoke(new[] { configuration })
         ?? FindConstructor(containerType, parentType)?.Invoke(new[] { parent })
@@ -305,32 +298,18 @@ namespace Xtensive.IoC
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
-    public ServiceContainer()
-      : this(null, null)
-    {
-    }
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    /// <param name="configuration">The configuration.</param>
-    public ServiceContainer(IEnumerable<ServiceRegistration> configuration)
-      : this(configuration, null)
-    {
-    }
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
     /// <param name="configuration">The configuration.</param>
     /// <param name="parent">The parent container.</param>
-    public ServiceContainer(IEnumerable<ServiceRegistration> configuration, IServiceContainer parent)
+    public ServiceContainer(IEnumerable<ServiceRegistration> configuration = null, IServiceContainer parent = null)
       : base(parent)
     {
-      if (configuration == null)
-        return;
-      foreach (var serviceRegistration in configuration)
-        Register(serviceRegistration);
+      var typesDictionary = new Dictionary<Key, List<ServiceRegistration>>();
+      if (configuration != null) {
+        foreach (var serviceRegistration in configuration) {
+          Register(typesDictionary, serviceRegistration);
+        }
+      }
+      types = typesDictionary;
     }
 
     // Dispose implementation
@@ -340,9 +319,9 @@ namespace Xtensive.IoC
       using (var toDispose = new DisposableSet()) {
         foreach (var pair in instances) {
           var service = pair.Value;
-          var disposable = service as IDisposable;
-          if (disposable != null)
+          if (service is IDisposable disposable) {
             toDispose.Add(disposable);
+          }
         }
       }
     }
