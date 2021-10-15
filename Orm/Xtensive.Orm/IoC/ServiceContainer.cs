@@ -50,7 +50,7 @@ namespace Xtensive.IoC
         return null;
       return list.Count switch {
         0 => null,
-        1 => GetOrCreateInstances(list).Single(),
+        1 => GetOrCreateInstance(list[0]),
         _ => throw new AmbiguousMatchException(Strings.ExMultipleServicesMatchToTheSpecifiedArguments)
       };
     }
@@ -58,7 +58,7 @@ namespace Xtensive.IoC
     /// <inheritdoc/>
     protected override IEnumerable<object> HandleGetAll(Type serviceType) =>
       types.TryGetValue(GetKey(serviceType, null), out var list)
-        ? GetOrCreateInstances(list)
+        ? list.Select(GetOrCreateInstance)
         : Array.Empty<object>();
 
     /// <summary>
@@ -121,11 +121,10 @@ namespace Xtensive.IoC
       }
     }
 
-    private IEnumerable<object> GetOrCreateInstances(IEnumerable<ServiceRegistration> services) =>
-      services.Select(registration => registration.Singleton
-          ? instances.GetOrAdd(registration, InstanceFactory)
-          : InstanceFactory(registration)
-      );
+    private object GetOrCreateInstance(ServiceRegistration registration) =>
+      registration.Singleton
+        ? instances.GetOrAdd(registration, InstanceFactory)
+        : InstanceFactory(registration);
 
     private static void Register(Dictionary<Key, List<ServiceRegistration>> types, ServiceRegistration serviceRegistration)
     {
