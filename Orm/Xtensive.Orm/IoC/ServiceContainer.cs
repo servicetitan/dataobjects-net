@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -37,8 +38,7 @@ namespace Xtensive.IoC
     private readonly ConcurrentDictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> constructorCache =
       new ConcurrentDictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>>();
 
-    private readonly HashSet<Type> creating = new HashSet<Type>();
-    private readonly object _lock = new object();
+    private readonly ConcurrentDictionary<(Type, int), bool> creating = new ConcurrentDictionary<(Type, int), bool>();
 
     #region Protected virtual methods (to override)
 
@@ -87,24 +87,23 @@ namespace Xtensive.IoC
       }
       var pInfos = cachedInfo.Second;
 
-      // Not very optimal, but...
-      lock (_lock) {
-        if (creating.Contains(serviceInfo.Type)) {
-          throw new ActivationException(Strings.ExRecursiveConstructorParemeterDependencyIsDetected);
-        }
-        if (pInfos.Length == 0)
-          return Activator.CreateInstance(serviceInfo.MappedType);
-        var args = new object[pInfos.Length];
-        creating.Add(serviceInfo.Type);
-        try {
-          for (int i = 0; i < pInfos.Length; i++)
-            args[i] = Get(pInfos[i].ParameterType);
-        }
-        finally {
-          creating.Remove(serviceInfo.Type);
-        }
-        return cInfo.Invoke(args);
+      var key = (serviceInfo.Type, Thread.CurrentThread.ManagedThreadId);
+
+      if (creating.ContainsKey(key)) {
+        throw new ActivationException(Strings.ExRecursiveConstructorParemeterDependencyIsDetected);
       }
+      if (pInfos.Length == 0)
+        return Activator.CreateInstance(serviceInfo.MappedType);
+      var args = new object[pInfos.Length];
+      creating.TryAdd(key, true);
+      try {
+        for (int i = 0; i < pInfos.Length; i++)
+          args[i] = Get(pInfos[i].ParameterType);
+      }
+      finally {
+        creating.TryRemove(key, out _);
+      }
+      return cInfo.Invoke(args);
     }
 
     #endregion
