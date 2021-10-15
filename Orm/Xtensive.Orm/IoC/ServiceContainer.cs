@@ -116,10 +116,19 @@ namespace Xtensive.IoC
     private Lazy<object> LazyFactory(ServiceRegistration registration) =>
       new Lazy<object>(() => InstanceFactory(registration));
 
-    private object GetOrCreateInstance(ServiceRegistration registration) =>
-      registration.Singleton
-        ? instances.GetOrAdd(registration, LazyFactory).Value
-        : InstanceFactory(registration);
+    private object GetOrCreateInstance(ServiceRegistration registration)
+    {
+      if (!registration.Singleton) {
+        return InstanceFactory(registration);
+      }
+      var lazy = instances.GetOrAdd(registration, LazyFactory);
+      try {
+        return lazy.Value;
+      }
+      catch (InvalidOperationException _) when (creating.ContainsKey((registration.Type, Thread.CurrentThread.ManagedThreadId))) {
+        throw new ActivationException(Strings.ExRecursiveConstructorParameterDependencyIsDetected);
+      }
+    }
 
     private static void Register(Dictionary<Key, List<ServiceRegistration>> types, ServiceRegistration serviceRegistration)
     {
