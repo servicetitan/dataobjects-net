@@ -87,7 +87,8 @@ namespace Xtensive.IoC
       var pInfos = cachedInfo.Second;
       if (pInfos.Length == 0)
         return Activator.CreateInstance(serviceInfo.MappedType);
-      var key = (serviceInfo.Type, Environment.CurrentManagedThreadId);
+      var managedThreadId = Environment.CurrentManagedThreadId;
+      var key = (serviceInfo.Type, managedThreadId);
       if (!creating.TryAdd(key, true)) {
         throw new ActivationException(Strings.ExRecursiveConstructorParameterDependencyIsDetected);
       }
@@ -95,7 +96,7 @@ namespace Xtensive.IoC
       try {
         for (int i = 0; i < pInfos.Length; i++) {
           var type = pInfos[i].ParameterType;
-          if (creating.ContainsKey((type, Environment.CurrentManagedThreadId))) {
+          if (creating.ContainsKey((type, managedThreadId))) {
             throw new ActivationException(Strings.ExRecursiveConstructorParameterDependencyIsDetected);
           }
           args[i] = Get(type);
