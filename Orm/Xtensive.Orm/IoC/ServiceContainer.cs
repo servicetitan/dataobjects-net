@@ -86,16 +86,13 @@ namespace Xtensive.IoC
         return null;
       }
       var pInfos = cachedInfo.Second;
-
-      var key = (serviceInfo.Type, Thread.CurrentThread.ManagedThreadId);
-
-      if (creating.ContainsKey(key)) {
-        throw new ActivationException(Strings.ExRecursiveConstructorParemeterDependencyIsDetected);
-      }
       if (pInfos.Length == 0)
         return Activator.CreateInstance(serviceInfo.MappedType);
       var args = new object[pInfos.Length];
-      creating.TryAdd(key, true);
+      var key = (serviceInfo.Type, Thread.CurrentThread.ManagedThreadId);
+      if (!creating.TryAdd(key, true)) {
+        throw new ActivationException(Strings.ExRecursiveConstructorParemeterDependencyIsDetected);
+      }
       try {
         for (int i = 0; i < pInfos.Length; i++)
           args[i] = Get(pInfos[i].ParameterType);
