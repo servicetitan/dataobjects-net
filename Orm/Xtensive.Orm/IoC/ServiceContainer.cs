@@ -112,9 +112,12 @@ namespace Xtensive.IoC
 
     private object InstanceFactory(ServiceRegistration registration)
     {
+      if (registration.MappedInstance != null) {
+        return registration.MappedInstance;
+      }
       // Not very optimal, but...
       lock (_lock) {
-        return registration.MappedInstance ?? CreateInstance(registration);
+        return CreateInstance(registration);
       }
     }
 
