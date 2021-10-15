@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -88,14 +87,19 @@ namespace Xtensive.IoC
       var pInfos = cachedInfo.Second;
       if (pInfos.Length == 0)
         return Activator.CreateInstance(serviceInfo.MappedType);
-      var args = new object[pInfos.Length];
-      var key = (serviceInfo.Type, Thread.CurrentThread.ManagedThreadId);
+      var key = (serviceInfo.Type, Environment.CurrentManagedThreadId);
       if (!creating.TryAdd(key, true)) {
         throw new ActivationException(Strings.ExRecursiveConstructorParameterDependencyIsDetected);
       }
+      var args = new object[pInfos.Length];
       try {
-        for (int i = 0; i < pInfos.Length; i++)
-          args[i] = Get(pInfos[i].ParameterType);
+        for (int i = 0; i < pInfos.Length; i++) {
+          var type = pInfos[i].ParameterType;
+          if (creating.ContainsKey((type, Environment.CurrentManagedThreadId))) {
+            throw new ActivationException(Strings.ExRecursiveConstructorParameterDependencyIsDetected);
+          }
+          args[i] = Get(type);
+        }
       }
       finally {
         creating.TryRemove(key, out _);
@@ -116,18 +120,10 @@ namespace Xtensive.IoC
     private Lazy<object> LazyFactory(ServiceRegistration registration) =>
       new Lazy<object>(() => InstanceFactory(registration));
 
-    private object GetOrCreateInstance(ServiceRegistration registration)
-    {
-      if (!registration.Singleton) {
-        return InstanceFactory(registration);
-      }
-      try {
-        return instances.GetOrAdd(registration, LazyFactory).Value;
-      }
-      catch (InvalidOperationException _) when (creating.ContainsKey((registration.Type, Thread.CurrentThread.ManagedThreadId))) {
-        throw new ActivationException(Strings.ExRecursiveConstructorParameterDependencyIsDetected);
-      }
-    }
+    private object GetOrCreateInstance(ServiceRegistration registration) =>
+      registration.Singleton
+        ? instances.GetOrAdd(registration, LazyFactory).Value
+        : InstanceFactory(registration);
 
     private static void Register(Dictionary<Key, List<ServiceRegistration>> types, ServiceRegistration serviceRegistration)
     {
