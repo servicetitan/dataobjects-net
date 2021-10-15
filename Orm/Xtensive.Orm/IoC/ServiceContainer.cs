@@ -34,8 +34,8 @@ namespace Xtensive.IoC
     private readonly ConcurrentDictionary<ServiceRegistration, object> instances =
       new ConcurrentDictionary<ServiceRegistration, object>();
 
-    private readonly Dictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> constructorCache =
-      new Dictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>>();
+    private readonly ConcurrentDictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> constructorCache =
+      new ConcurrentDictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>>();
 
     private readonly HashSet<Type> creating = new HashSet<Type>();
     private readonly object _lock = new object();
@@ -61,6 +61,17 @@ namespace Xtensive.IoC
         ? list.Select(GetOrCreateInstance)
         : Array.Empty<object>();
 
+    private static readonly Func<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> ConstructorFactory = serviceInfo => {
+      var mappedType = serviceInfo.MappedType;
+      var ctor = (
+        from c in mappedType.GetConstructors()
+        where c.GetAttribute<ServiceConstructorAttribute>(AttributeSearchOptions.InheritNone) != null
+        select c
+        ).SingleOrDefault() ?? mappedType.GetConstructor(Array.Empty<Type>());
+      var @params = ctor?.GetParameters();
+      return new Pair<ConstructorInfo, ParameterInfo[]>(ctor, @params);
+    };
+
     /// <summary>
     /// Creates the service instance for the specified <paramref name="serviceInfo"/>.
     /// </summary>
@@ -69,38 +80,31 @@ namespace Xtensive.IoC
     /// <exception cref="ActivationException">Something went wrong.</exception>
     protected virtual object CreateInstance(ServiceRegistration serviceInfo)
     {
-      if (creating.Contains(serviceInfo.Type))
-        throw new ActivationException(Strings.ExRecursiveConstructorParemeterDependencyIsDetected);
-      Pair<ConstructorInfo, ParameterInfo[]> cachedInfo;
-      var mappedType = serviceInfo.MappedType;
-      if (!constructorCache.TryGetValue(serviceInfo, out cachedInfo)) {
-        var @ctor = (
-          from c in mappedType.GetConstructors()
-          where c.GetAttribute<ServiceConstructorAttribute>(AttributeSearchOptions.InheritNone) != null
-          select c
-          ).SingleOrDefault();
-        if (@ctor == null)
-          @ctor = mappedType.GetConstructor(Array.Empty<Type>());
-        var @params = @ctor == null ? null : @ctor.GetParameters();
-        cachedInfo = new Pair<ConstructorInfo, ParameterInfo[]>(@ctor, @params);
-        constructorCache[serviceInfo] = cachedInfo;
-      }
+      var cachedInfo = constructorCache.GetOrAdd(serviceInfo, ConstructorFactory);
       var cInfo = cachedInfo.First;
-      if (cInfo == null)
+      if (cInfo == null) {
         return null;
+      }
       var pInfos = cachedInfo.Second;
-      if (pInfos.Length == 0)
-        return Activator.CreateInstance(mappedType);
-      var args = new object[pInfos.Length];
-      creating.Add(serviceInfo.Type);
-      try {
-        for (int i = 0; i < pInfos.Length; i++)
-          args[i] = Get(pInfos[i].ParameterType);
+
+      // Not very optimal, but...
+      lock (_lock) {
+        if (creating.Contains(serviceInfo.Type)) {
+          throw new ActivationException(Strings.ExRecursiveConstructorParemeterDependencyIsDetected);
+        }
+        if (pInfos.Length == 0)
+          return Activator.CreateInstance(serviceInfo.MappedType);
+        var args = new object[pInfos.Length];
+        creating.Add(serviceInfo.Type);
+        try {
+          for (int i = 0; i < pInfos.Length; i++)
+            args[i] = Get(pInfos[i].ParameterType);
+        }
+        finally {
+          creating.Remove(serviceInfo.Type);
+        }
+        return cInfo.Invoke(args);
       }
-      finally {
-        creating.Remove(serviceInfo.Type);
-      }
-      return cInfo.Invoke(args);
     }
 
     #endregion
@@ -110,16 +114,8 @@ namespace Xtensive.IoC
     private static Key GetKey(Type serviceType, string name) =>
       new Key(serviceType, string.IsNullOrEmpty(name) ? null : name);
 
-    private object InstanceFactory(ServiceRegistration registration)
-    {
-      if (registration.MappedInstance != null) {
-        return registration.MappedInstance;
-      }
-      // Not very optimal, but...
-      lock (_lock) {
-        return CreateInstance(registration);
-      }
-    }
+    private object InstanceFactory(ServiceRegistration registration) =>
+      registration.MappedInstance ?? CreateInstance(registration);
 
     private object GetOrCreateInstance(ServiceRegistration registration) =>
       registration.Singleton
