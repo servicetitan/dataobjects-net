@@ -121,9 +121,8 @@ namespace Xtensive.IoC
       if (!registration.Singleton) {
         return InstanceFactory(registration);
       }
-      var lazy = instances.GetOrAdd(registration, LazyFactory);
       try {
-        return lazy.Value;
+        return instances.GetOrAdd(registration, LazyFactory).Value;
       }
       catch (InvalidOperationException _) when (creating.ContainsKey((registration.Type, Thread.CurrentThread.ManagedThreadId))) {
         throw new ActivationException(Strings.ExRecursiveConstructorParameterDependencyIsDetected);
