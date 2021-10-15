@@ -315,7 +315,7 @@ namespace Xtensive.IoC
     public override void Dispose()
     {
       using (var toDispose = new DisposableSet()) {
-        foreach (var (_, lazy) in instances) {
+        foreach (var lazy in instances.Values) {
           if (lazy.IsValueCreated && lazy.Value is IDisposable disposable) {
             toDispose.Add(disposable);
           }
