@@ -85,8 +85,9 @@ namespace Xtensive.IoC
         return null;
       }
       var pInfos = cachedInfo.Second;
-      if (pInfos.Length == 0)
+      if (pInfos.Length == 0) {
         return Activator.CreateInstance(serviceInfo.MappedType);
+      }
       var managedThreadId = Environment.CurrentManagedThreadId;
       var key = (serviceInfo.Type, managedThreadId);
       if (!creating.TryAdd(key, true)) {
