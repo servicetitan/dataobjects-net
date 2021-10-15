@@ -91,7 +91,7 @@ namespace Xtensive.IoC
       var args = new object[pInfos.Length];
       var key = (serviceInfo.Type, Thread.CurrentThread.ManagedThreadId);
       if (!creating.TryAdd(key, true)) {
-        throw new ActivationException(Strings.ExRecursiveConstructorParemeterDependencyIsDetected);
+        throw new ActivationException(Strings.ExRecursiveConstructorParameterDependencyIsDetected);
       }
       try {
         for (int i = 0; i < pInfos.Length; i++)
