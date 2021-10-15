@@ -5,6 +5,7 @@
 // Created:    2009.10.12
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -30,8 +31,8 @@ namespace Xtensive.IoC
 
     private readonly IReadOnlyDictionary<Key, List<ServiceRegistration>> types;
 
-    private readonly Dictionary<ServiceRegistration, object> instances =
-      new Dictionary<ServiceRegistration, object>();
+    private readonly ConcurrentDictionary<ServiceRegistration, object> instances =
+      new ConcurrentDictionary<ServiceRegistration, object>();
 
     private readonly Dictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> constructorCache =
       new Dictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>>();
@@ -109,22 +110,19 @@ namespace Xtensive.IoC
     private static Key GetKey(Type serviceType, string name) =>
       new Key(serviceType, string.IsNullOrEmpty(name) ? null : name);
 
-    private IEnumerable<object> GetOrCreateInstances(IEnumerable<ServiceRegistration> services)
+    private object InstanceFactory(ServiceRegistration registration)
     {
-      foreach (var registration in services) {
-        // Not very optimal, but...
-        lock (_lock) {
-          if (!registration.Singleton || !instances.TryGetValue(registration, out var result)) {
-            result = registration.MappedInstance ?? CreateInstance(registration);
-
-            if (registration.Singleton) {
-              instances[registration] = result;
-            }
-          }
-          yield return result;
-        }
+      // Not very optimal, but...
+      lock (_lock) {
+        return registration.MappedInstance ?? CreateInstance(registration);
       }
     }
+
+    private IEnumerable<object> GetOrCreateInstances(IEnumerable<ServiceRegistration> services) =>
+      services.Select(registration => registration.Singleton
+          ? instances.GetOrAdd(registration, InstanceFactory)
+          : InstanceFactory(registration)
+      );
 
     private static void Register(Dictionary<Key, List<ServiceRegistration>> types, ServiceRegistration serviceRegistration)
     {
