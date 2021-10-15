@@ -31,8 +31,8 @@ namespace Xtensive.IoC
 
     private readonly IReadOnlyDictionary<Key, List<ServiceRegistration>> types;
 
-    private readonly ConcurrentDictionary<ServiceRegistration, object> instances =
-      new ConcurrentDictionary<ServiceRegistration, object>();
+    private readonly ConcurrentDictionary<ServiceRegistration, Lazy<object>> instances =
+      new ConcurrentDictionary<ServiceRegistration, Lazy<object>>();
 
     private readonly ConcurrentDictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> constructorCache =
       new ConcurrentDictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>>();
@@ -117,9 +117,12 @@ namespace Xtensive.IoC
     private object InstanceFactory(ServiceRegistration registration) =>
       registration.MappedInstance ?? CreateInstance(registration);
 
+    private Lazy<object> LazyFactory(ServiceRegistration registration) =>
+      new Lazy<object>(() => InstanceFactory(registration));
+
     private object GetOrCreateInstance(ServiceRegistration registration) =>
       registration.Singleton
-        ? instances.GetOrAdd(registration, InstanceFactory)
+        ? instances.GetOrAdd(registration, LazyFactory).Value
         : InstanceFactory(registration);
 
     private static void Register(Dictionary<Key, List<ServiceRegistration>> types, ServiceRegistration serviceRegistration)
@@ -311,9 +314,8 @@ namespace Xtensive.IoC
     public override void Dispose()
     {
       using (var toDispose = new DisposableSet()) {
-        foreach (var pair in instances) {
-          var service = pair.Value;
-          if (service is IDisposable disposable) {
+        foreach (var (_, lazy) in instances) {
+          if (lazy.IsValueCreated && lazy.Value is IDisposable disposable) {
             toDispose.Add(disposable);
           }
         }
