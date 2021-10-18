@@ -109,7 +109,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       SqlHelper.ValidateConnectionUrl(url);
 
       var builder = new SqlConnectionStringBuilder();
-      builder.Encrypt = false;
+      builder.Encrypt = url.Secure;
 
       // host, port, database
       if (url.Port==0) {
