@@ -47,14 +47,10 @@ namespace Xtensive.Orm
     /// </summary>
     public Tuple GetTuple(int index) => GetPair(index)?.Second;
 
-    private Pair<Key, Tuple>? GetPair(int index)
-    {
-      if (index == 0)
-        return keyTuplePair;
-      if (keyTuplePairs == null || index < 0 || index >= keyTuplePairs.Length)
-        return null;
-      return keyTuplePairs[index];
-    }
+    private Pair<Key, Tuple>? GetPair(int index) =>
+      index == 0 ? keyTuplePair
+      : keyTuplePairs == null || index < 0 || index >= keyTuplePairs.Length ? null
+      : keyTuplePairs[index];
 
     /// <summary>
     /// Gets the key count.
