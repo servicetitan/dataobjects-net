@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     private struct EntityMappingCache
     {
-      public TypeMapping SingleItem;
+      public TypeMapping? SingleItem;
       public Dictionary<int, TypeMapping> Items;
     }
 
@@ -62,16 +62,17 @@ namespace Xtensive.Orm.Linq.Materialization
     {
       TypeMapping result;
       var cache = entityMappings[entityIndex];
-      if (cache.SingleItem!=null) {
-        if (typeId!=ResolveTypeToNodeSpecificTypeIdentifier(cache.SingleItem.Type))
+      if (cache.SingleItem != null) {
+        if (typeId != ResolveTypeToNodeSpecificTypeIdentifier(cache.SingleItem?.Type)) {
           throw new ArgumentOutOfRangeException("typeId");
-        return cache.SingleItem;
+        }
+        return cache.SingleItem.Value;
       }
       if (cache.Items.TryGetValue(typeId, out result))
         return result;
 
-      var type       = TypeIdRegistry[typeId];
-      var keyInfo    = type.Key;
+      var type = TypeIdRegistry[typeId];
+      var keyInfo = type.Key;
       var descriptor = type.TupleDescriptor;
 
       var typeColumnMap = columns;

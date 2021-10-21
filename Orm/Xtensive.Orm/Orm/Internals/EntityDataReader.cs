@@ -90,25 +90,26 @@ namespace Xtensive.Orm.Internals
 
     private Pair<Key, Tuple> ParseColumnGroup(Tuple tuple, MaterializationContext context, int groupIndex, in RecordPartMapping mapping)
     {
-      TypeReferenceAccuracy accuracy;
-      int typeId = ExtractTypeId(mapping.ApproximateType, context.TypeIdRegistry, tuple, mapping.TypeIdColumnIndex, out accuracy);
-      var typeMapping = typeId == TypeInfo.NoTypeId ? null : context.GetTypeMapping(groupIndex, mapping.ApproximateType, typeId, mapping.Columns);
-      if (typeMapping == null)
+      int typeId = ExtractTypeId(mapping.ApproximateType, context.TypeIdRegistry, tuple, mapping.TypeIdColumnIndex, out var accuracy);
+      if (typeId == TypeInfo.NoTypeId) {
         return new Pair<Key, Tuple>(null, null);
+      }
+      var typeMapping = context.GetTypeMapping(groupIndex, mapping.ApproximateType, typeId, mapping.Columns);
 
       bool canCache = accuracy == TypeReferenceAccuracy.ExactType;
-      Key key;
-      if (typeMapping.KeyTransform.Descriptor.Count <= WellKnown.MaxGenericKeyLength)
-        key = KeyFactory.Materialize(Domain, context.Session.StorageNodeId, typeMapping.Type, tuple, accuracy, canCache, typeMapping.KeyIndexes);
-      else {
-        var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-        key = KeyFactory.Materialize(Domain, context.Session.StorageNodeId, typeMapping.Type, keyTuple, accuracy, canCache, null);
+      var keyTuple = tuple;
+      var keyIndexes = typeMapping.KeyIndexes;
+      if (typeMapping.KeyTransform.Descriptor.Count > WellKnown.MaxGenericKeyLength) {
+        keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+        keyIndexes = null;
       }
-      if (accuracy == TypeReferenceAccuracy.ExactType) {
-        var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, tuple);
-        return new Pair<Key, Tuple>(key, entityTuple);
-      }
-      return new Pair<Key, Tuple>(key, null);
+      var key = KeyFactory.Materialize(Domain, context.Session.StorageNodeId, typeMapping.Type, keyTuple, accuracy, canCache, keyIndexes);
+      return new Pair<Key, Tuple>(
+        key,
+        accuracy == TypeReferenceAccuracy.ExactType
+          ? typeMapping.Transform.Apply(TupleTransformType.Tuple, tuple)
+          : null
+      );
     }
 
     public static int ExtractTypeId(TypeInfo type, TypeIdRegistry typeIdRegistry, Tuple tuple, int typeIdIndex, out TypeReferenceAccuracy accuracy)
