@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Linq.Materialization
     public TypeMapping GetTypeMapping(int entityIndex, TypeInfo approximateType, int typeId, IReadOnlyList<Pair<int>> columns)
     {
       TypeMapping result;
-      var cache = entityMappings[entityIndex];
+      ref var cache = ref entityMappings[entityIndex];
       if (cache.SingleItem != null) {
         if (typeId != ResolveTypeToNodeSpecificTypeIdentifier(cache.SingleItem?.Type)) {
           throw new ArgumentOutOfRangeException("typeId");
@@ -102,7 +102,6 @@ namespace Xtensive.Orm.Linq.Materialization
         cache.SingleItem = result;
       else
         cache.Items.Add(typeId, result);
-      entityMappings[entityIndex] = cache;
       
       return result;
     }
