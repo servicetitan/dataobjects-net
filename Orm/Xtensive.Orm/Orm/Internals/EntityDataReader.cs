@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Internals
             (recordPartMapping, i) => ParseColumnGroup(tuple, context, i, recordPartMapping))
           );
 
-    private Pair<Key, Tuple> ParseColumnGroup(Tuple tuple, MaterializationContext context, int groupIndex, RecordPartMapping mapping)
+    private Pair<Key, Tuple> ParseColumnGroup(Tuple tuple, MaterializationContext context, int groupIndex, in RecordPartMapping mapping)
     {
       TypeReferenceAccuracy accuracy;
       int typeId = ExtractTypeId(mapping.ApproximateType, context.TypeIdRegistry, tuple, mapping.TypeIdColumnIndex, out accuracy);
