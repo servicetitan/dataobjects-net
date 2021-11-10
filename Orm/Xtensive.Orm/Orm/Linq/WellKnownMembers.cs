@@ -26,26 +26,26 @@ namespace Xtensive.Orm.Linq
 #pragma warning disable 612,618
     public static class Query
     {
-      private static readonly MethodInfo[] freetextMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name == nameof(Orm.Query.FreeText)).ToArray();      
+      private static readonly MethodInfo[] FreetextMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name == nameof(Orm.Query.FreeText)).ToArray();      
       private static readonly (MethodInfo Method, Type[] ParameterTypes)[] containsTableMethods = typeof(Orm.Query).GetMethods()
           .Where(m => m.Name == nameof(Orm.Query.ContainsTable))
           .Select(m => (Method: m, ParameterTypes: m.GetParameterTypes())).ToArray();
 
-      private static readonly IEnumerable<MethodInfo> singleMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name == nameof(Orm.Query.Single) && m.IsGenericMethod);
-      private static readonly IEnumerable<MethodInfo> singleOrDefaultMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name == nameof(Orm.Query.SingleOrDefault) && m.IsGenericMethod);
+      private static readonly IEnumerable<MethodInfo> SingleMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name == nameof(Orm.Query.Single) && m.IsGenericMethod);
+      private static readonly IEnumerable<MethodInfo> SingleOrDefaultMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name == nameof(Orm.Query.SingleOrDefault) && m.IsGenericMethod);
 
       public static readonly MethodInfo All = typeof(Orm.Query).GetMethod(nameof(Orm.Query.All), Array.Empty<Type>());
 
-      public static readonly MethodInfo FreeTextString = freetextMethods
+      public static readonly MethodInfo FreeTextString = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 1 && ft.GetParameterTypes()[0] == WellKnownTypes.String);
 
-      public static readonly MethodInfo FreeTextStringTopNByRank = freetextMethods
+      public static readonly MethodInfo FreeTextStringTopNByRank = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 2 && ft.GetParameterTypes()[0] == WellKnownTypes.String && ft.GetParameterTypes()[1] == WellKnownTypes.Int32);
 
-      public static readonly MethodInfo FreeTextExpression = freetextMethods
+      public static readonly MethodInfo FreeTextExpression = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 1 && ft.GetParameterTypes()[0] == typeof(Expression<Func<string>>));
 
-      public static readonly MethodInfo FreeTextExpressionTopNByRank = freetextMethods
+      public static readonly MethodInfo FreeTextExpressionTopNByRank = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 2 && ft.GetParameterTypes()[0] == typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1] == WellKnownTypes.Int32);
 
       public static readonly MethodInfo ContainsTableExpr = containsTableMethods
@@ -65,34 +65,34 @@ namespace Xtensive.Orm.Linq
                        g.ParameterTypes[1].IsArray &&
                        g.ParameterTypes[2] == WellKnownTypes.Int32).Method;
 
-      public static readonly MethodInfo SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
-      public static readonly MethodInfo SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0] == WellKnownTypes.ObjectArray);
-      public static readonly MethodInfo SingleOrDefaultKey = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
-      public static readonly MethodInfo SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == WellKnownTypes.ObjectArray);
+      public static readonly MethodInfo SingleKey = SingleMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
+      public static readonly MethodInfo SingleArray = SingleMethods.Single(ft => ft.GetParameterTypes()[0] == WellKnownTypes.ObjectArray);
+      public static readonly MethodInfo SingleOrDefaultKey = SingleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
+      public static readonly MethodInfo SingleOrDefaultArray = SingleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == WellKnownTypes.ObjectArray);
     }
 
     public static class QueryEndpoint
     {
-      private static readonly MethodInfo[] freetextMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == nameof(Orm.QueryEndpoint.FreeText)).ToArray();
+      private static readonly MethodInfo[] FreetextMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == nameof(Orm.QueryEndpoint.FreeText)).ToArray();
       private static readonly (MethodInfo Method, Type[] ParameterTypes)[] containsTableMethods = typeof(Orm.QueryEndpoint).GetMethods()
           .Where(m => m.Name == nameof(Orm.QueryEndpoint.ContainsTable))
           .Select(m => (Method: m, ParameterTypes: m.GetParameterTypes())).ToArray();
 
-      private static readonly IEnumerable<MethodInfo> singleMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == nameof(Orm.QueryEndpoint.Single) && m.IsGenericMethod);
-      private static readonly IEnumerable<MethodInfo> singleOrDefaultMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == nameof(Orm.QueryEndpoint.SingleOrDefault) && m.IsGenericMethod);
+      private static readonly IEnumerable<MethodInfo> SingleMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == nameof(Orm.QueryEndpoint.Single) && m.IsGenericMethod);
+      private static readonly IEnumerable<MethodInfo> SingleOrDefaultMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == nameof(Orm.QueryEndpoint.SingleOrDefault) && m.IsGenericMethod);
 
       public static readonly MethodInfo All = typeof(Orm.QueryEndpoint).GetMethod(nameof(Orm.QueryEndpoint.All), Array.Empty<Type>());
       
-      public static readonly MethodInfo FreeTextString = freetextMethods
+      public static readonly MethodInfo FreeTextString = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 1 && ft.GetParameterTypes()[0] == WellKnownTypes.String);
       
-      public static readonly MethodInfo FreeTextStringTopNByRank = freetextMethods
+      public static readonly MethodInfo FreeTextStringTopNByRank = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 2 && ft.GetParameterTypes()[0] == WellKnownTypes.String && ft.GetParameterTypes()[1] == WellKnownTypes.Int32);
       
-      public static readonly MethodInfo FreeTextExpression = freetextMethods
+      public static readonly MethodInfo FreeTextExpression = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 1 && ft.GetParameterTypes()[0] == typeof(Expression<Func<string>>));
       
-      public static readonly MethodInfo FreeTextExpressionTopNByRank = freetextMethods
+      public static readonly MethodInfo FreeTextExpressionTopNByRank = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 2 && ft.GetParameterTypes()[0] == typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1] == WellKnownTypes.Int32);
       
       public static readonly MethodInfo ContainsTableExpr = containsTableMethods
@@ -112,10 +112,10 @@ namespace Xtensive.Orm.Linq
                        g.ParameterTypes[1].IsArray &&
                        g.ParameterTypes[2] == WellKnownTypes.Int32).Method;
 
-      public static readonly MethodInfo SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
-      public static readonly MethodInfo SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0] == WellKnownTypes.ObjectArray);
-      public static readonly MethodInfo SingleOrDefaultKey = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
-      public static readonly MethodInfo SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == WellKnownTypes.ObjectArray);
+      public static readonly MethodInfo SingleKey = SingleMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
+      public static readonly MethodInfo SingleArray = SingleMethods.Single(ft => ft.GetParameterTypes()[0] == WellKnownTypes.ObjectArray);
+      public static readonly MethodInfo SingleOrDefaultKey = SingleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
+      public static readonly MethodInfo SingleOrDefaultArray = SingleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == WellKnownTypes.ObjectArray);
       public static readonly MethodInfo Items = typeof(Orm.QueryEndpoint).GetMethod(nameof(Orm.QueryEndpoint.Items));
     }
 #pragma warning restore 612,618
