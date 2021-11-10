@@ -31,8 +31,8 @@ namespace Xtensive.Orm.Linq
           .Where(m => m.Name == nameof(Orm.Query.ContainsTable))
           .Select(m => (Method: m, ParameterTypes: m.GetParameterTypes())).ToArray();
 
-      private static readonly IEnumerable<MethodInfo> SingleMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name == nameof(Orm.Query.Single) && m.IsGenericMethod);
-      private static readonly IEnumerable<MethodInfo> SingleOrDefaultMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name == nameof(Orm.Query.SingleOrDefault) && m.IsGenericMethod);
+      private static readonly MethodInfo[] SingleMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name == nameof(Orm.Query.Single) && m.IsGenericMethod).ToArray();
+      private static readonly MethodInfo[] SingleOrDefaultMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name == nameof(Orm.Query.SingleOrDefault) && m.IsGenericMethod).ToArray();
 
       public static readonly MethodInfo All = typeof(Orm.Query).GetMethod(nameof(Orm.Query.All), Array.Empty<Type>());
 
@@ -78,8 +78,8 @@ namespace Xtensive.Orm.Linq
           .Where(m => m.Name == nameof(Orm.QueryEndpoint.ContainsTable))
           .Select(m => (Method: m, ParameterTypes: m.GetParameterTypes())).ToArray();
 
-      private static readonly IEnumerable<MethodInfo> SingleMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == nameof(Orm.QueryEndpoint.Single) && m.IsGenericMethod);
-      private static readonly IEnumerable<MethodInfo> SingleOrDefaultMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == nameof(Orm.QueryEndpoint.SingleOrDefault) && m.IsGenericMethod);
+      private static readonly MethodInfo[] SingleMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == nameof(Orm.QueryEndpoint.Single) && m.IsGenericMethod).ToArray();
+      private static readonly MethodInfo[] SingleOrDefaultMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == nameof(Orm.QueryEndpoint.SingleOrDefault) && m.IsGenericMethod).ToArray();
 
       public static readonly MethodInfo All = typeof(Orm.QueryEndpoint).GetMethod(nameof(Orm.QueryEndpoint.All), Array.Empty<Type>());
       
