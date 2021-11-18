@@ -41,10 +41,8 @@ namespace Xtensive.Collections.Graphs
 
       public void Remove(T item)
       {
-        LinkedListNode<T> node;
-        if (map.TryGetValue(item, out node)) {
+        if (map.Remove(item, out var node)) {
           list.Remove(node);
-          map.Remove(item);
         }
       }
 
