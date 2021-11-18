@@ -136,6 +136,10 @@ namespace Xtensive.Orm.Internals.Prefetch
       Func<object, object> generator = CreateRecordSet;
       var session = manager.Owner.Session;
       Provider = (CompilableProvider) session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
+      if (!string.IsNullOrEmpty(session.Tag)) {
+        Provider = new TagProvider(Provider, session.Tag);
+        session.Tag = null;
+      }
       var executableProvider = session.Compile(Provider);
       return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
     }

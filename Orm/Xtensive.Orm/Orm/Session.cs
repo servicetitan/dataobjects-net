@@ -240,6 +240,8 @@ namespace Xtensive.Orm
 
     internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
 
+    internal string Tag { get; set; }
+
     internal void EnsureNotDisposed()
     {
       if (isDisposed)
@@ -604,6 +606,12 @@ namespace Xtensive.Orm
 
       // Query endpoint
       SystemQuery = Query = new QueryEndpoint(new QueryProvider(this));
+    }
+
+    public Session WithTag(string tag)
+    {
+      Tag = tag;
+      return this;
     }
 
     // IDisposable implementation
