@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Building.Definitions
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
       var interfaces = type.GetInterfaces();
-      return interfaces.Select(t => TryGetValue(t)).Where(result => result != null);
+      return interfaces.Select(TryGetValue).Where(result => result != null);
     }
 
     /// <summary>
