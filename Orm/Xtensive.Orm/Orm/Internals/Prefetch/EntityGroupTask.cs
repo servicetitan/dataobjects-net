@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Internals.Prefetch
   {
     #region Nested classes
 
-    private struct CacheKey : IEquatable<CacheKey>
+    internal struct CacheKey : IEquatable<CacheKey>
     {
       public readonly int[] ColumnIndexes;
       public readonly TypeInfo Type;
@@ -64,9 +64,22 @@ namespace Xtensive.Orm.Internals.Prefetch
     #endregion
 
     private const int MaxKeyCountInOneStatement = 40;
-    private static readonly object recordSetCachingRegion = new object();
     private static readonly Parameter<IEnumerable<Tuple>> includeParameter =
       new Parameter<IEnumerable<Tuple>>("Keys");
+
+    private static readonly Func<CacheKey, CompilableProvider> CreateRecordSet = cachingKey => {
+      var selectedColumnIndexes = cachingKey.ColumnIndexes;
+      var keyColumnsCount = cachingKey.Type.Indexes.PrimaryIndex.KeyColumns.Count;
+      var keyColumnIndexes = new int[keyColumnsCount];
+      foreach (var index in Enumerable.Range(0, keyColumnsCount)) {
+        keyColumnIndexes[index] = index;
+      }
+
+      var columnCollectionLength = cachingKey.Type.Indexes.PrimaryIndex.Columns.Count;
+      return cachingKey.Type.Indexes.PrimaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,
+        true, context => context.GetValue(includeParameter), $"includeColumnName-{Guid.NewGuid()}",
+        keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLength)).Select(selectedColumnIndexes);
+    };
 
     private Dictionary<Key, bool> keys;
     private readonly TypeInfo type;
@@ -132,28 +145,10 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var parameterContext = new ParameterContext();
       parameterContext.SetValue(includeParameter, currentKeySet);
-      object key = new Pair<object, CacheKey>(recordSetCachingRegion, cacheKey);
-      Func<object, object> generator = CreateRecordSet;
       var session = manager.Owner.Session;
-      Provider = (CompilableProvider) session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
+      Provider = session.StorageNode.InternalRecordSetCache.GetOrAdd(cacheKey, CreateRecordSet);
       var executableProvider = session.Compile(Provider);
       return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
-    }
-
-    private static CompilableProvider CreateRecordSet(object cachingKey)
-    {
-      var pair = (Pair<object, CacheKey>) cachingKey;
-      var selectedColumnIndexes = pair.Second.ColumnIndexes;
-      var keyColumnsCount = pair.Second.Type.Indexes.PrimaryIndex.KeyColumns.Count;
-      var keyColumnIndexes = new int[keyColumnsCount];
-      foreach (var index in Enumerable.Range(0, keyColumnsCount)) {
-        keyColumnIndexes[index] = index;
-      }
-
-      var columnCollectionLength = pair.Second.Type.Indexes.PrimaryIndex.Columns.Count;
-      return pair.Second.Type.Indexes.PrimaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,
-        true, context => context.GetValue(includeParameter), $"includeColumnName-{Guid.NewGuid()}",
-        keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLength)).Select(selectedColumnIndexes);
     }
 
     private void PutLoadedStatesInCache(IEnumerable<Tuple> queryResult, EntityDataReader reader,

@@ -39,7 +39,6 @@ namespace Xtensive.Orm
 #if DEBUG
     private static readonly string storageTestsAssemblyPrefix = "Xtensive.Orm.Tests";
 #endif
-    private static readonly object entitySetCachingRegion = new object();
     private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     internal static readonly Parameter<Entity> ownerParameter = new Parameter<Entity>("Owner");
 
@@ -923,17 +922,15 @@ namespace Xtensive.Orm
     private EntitySetTypeState GetEntitySetTypeState()
     {
       EnsureOwnerIsNotRemoved();
-      object key = new Pair<object, FieldInfo>(entitySetCachingRegion, Field);
-      Func<object, object> generator = k => BuildEntitySetTypeState(k, this);
-      return (EntitySetTypeState) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
+      return Session.StorageNode.InternalEntitySetCache.GetOrAdd(Field, BuildEntitySetTypeState);
     }
 
-    private static EntitySetTypeState BuildEntitySetTypeState(object key, EntitySetBase entitySet)
+    private EntitySetTypeState BuildEntitySetTypeState(object key)
     {
       var field = ((Pair<object, FieldInfo>) key).Second;
       var association = field.Associations.Last();
       var query = association.UnderlyingIndex.GetQuery().Seek(context => context.GetValue(keyParameter));
-      var seek = entitySet.Session.Compile(query);
+      var seek = Session.Compile(query);
       var ownerDescriptor = association.OwnerType.Key.TupleDescriptor;
       var targetDescriptor = association.TargetType.Key.TupleDescriptor;
 
@@ -963,7 +960,7 @@ namespace Xtensive.Orm
           Array.Empty<Type>());
       }
 
-      return new EntitySetTypeState(seek, seekTransform, itemCtor, entitySet.GetItemCountQueryDelegate(field));
+      return new EntitySetTypeState(seek, seekTransform, itemCtor, GetItemCountQueryDelegate(field));
     }
 
     private int? GetItemIndex(EntitySetState state, Key key)

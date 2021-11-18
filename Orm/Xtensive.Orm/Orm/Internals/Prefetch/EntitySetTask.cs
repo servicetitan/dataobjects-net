@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Internals.Prefetch
   {
     #region Nested classes
 
-    private struct CacheKey : IEquatable<CacheKey>
+    internal struct CacheKey : IEquatable<CacheKey>
     {
       public readonly FieldInfo ReferencingField;
       public readonly int? ItemCountLimit;
@@ -56,9 +56,21 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     #endregion
 
-    private static readonly object itemsQueryCachingRegion = new object();
     private static readonly Parameter<Tuple> ownerParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     private static readonly Parameter<int> itemCountLimitParameter = new Parameter<int>("ItemCountLimit");
+
+    private static readonly Func<CacheKey, CompilableProvider> CreateRecordSetLoadingItems = cachingKey => {
+      var association = cachingKey.ReferencingField.Associations.Last();
+      var primaryTargetIndex = association.TargetType.Indexes.PrimaryIndex;
+      var resultColumns = new List<int>(primaryTargetIndex.Columns.Count);
+      var result = association.AuxiliaryType == null
+        ? CreateQueryForDirectAssociation(cachingKey, primaryTargetIndex, resultColumns)
+        : CreateQueryForAssociationViaAuxType(cachingKey, primaryTargetIndex, resultColumns);
+      result = result.Select(resultColumns);
+      if (cachingKey.ItemCountLimit != null)
+        result = result.Take(context => context.GetValue(itemCountLimitParameter));
+      return result;
+    };
 
     private readonly Key ownerKey;
     private readonly bool isOwnerCached;
@@ -166,11 +178,9 @@ namespace Xtensive.Orm.Internals.Prefetch
         parameterContext.SetValue(itemCountLimitParameter, ItemCountLimit.Value);
       }
 
-      object key = new Pair<object, CacheKey>(itemsQueryCachingRegion, cacheKey);
-      Func<object, object> generator = CreateRecordSetLoadingItems;
       var session = manager.Owner.Session;
       var scope = new CompiledQueryProcessingScope(null, null, parameterContext, false);
-      QueryProvider = (CompilableProvider) session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
+      QueryProvider = session.StorageNode.InternalItemsQueryCache.GetOrAdd(cacheKey, CreateRecordSetLoadingItems);
       ExecutableProvider executableProvider;
       using (scope.Enter()) {
         executableProvider = session.Compile(QueryProvider);
@@ -178,24 +188,9 @@ namespace Xtensive.Orm.Internals.Prefetch
       return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
     }
 
-    private static CompilableProvider CreateRecordSetLoadingItems(object cachingKey)
+    private static CompilableProvider CreateQueryForAssociationViaAuxType(CacheKey cachingKey, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
-      var pair = (Pair<object, CacheKey>) cachingKey;
-      var association = pair.Second.ReferencingField.Associations.Last();
-      var primaryTargetIndex = association.TargetType.Indexes.PrimaryIndex;
-      var resultColumns = new List<int>(primaryTargetIndex.Columns.Count);
-      var result = association.AuxiliaryType == null
-        ? CreateQueryForDirectAssociation(pair, primaryTargetIndex, resultColumns)
-        : CreateQueryForAssociationViaAuxType(pair, primaryTargetIndex, resultColumns);
-      result = result.Select(resultColumns);
-      if (pair.Second.ItemCountLimit != null)
-        result = result.Take(context => context.GetValue(itemCountLimitParameter));
-      return result;
-    }
-
-    private static CompilableProvider CreateQueryForAssociationViaAuxType(Pair<object, CacheKey> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
-    {
-      var association = pair.Second.ReferencingField.Associations.Last();
+      var association = cachingKey.ReferencingField.Associations.Last();
       var associationIndex = association.UnderlyingIndex;
       var joiningColumns = GetJoiningColumnIndexes(primaryTargetIndex, associationIndex,
         association.AuxiliaryType != null);
@@ -214,10 +209,10 @@ namespace Xtensive.Orm.Internals.Prefetch
         .Join(primaryTargetIndex.GetQuery(), joiningColumns);
     }
 
-    private static CompilableProvider CreateQueryForDirectAssociation(Pair<object, CacheKey> pair, IndexInfo primaryTargetIndex, List<int> resultColumns)
+    private static CompilableProvider CreateQueryForDirectAssociation(CacheKey cachingKey, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
       AddResultColumnIndexes(resultColumns, primaryTargetIndex, 0);
-      var association = pair.Second.ReferencingField.Associations.Last();
+      var association = cachingKey.ReferencingField.Associations.Last();
       var field = association.Reversed.OwnerField;
       var keyColumnTypes = field.Columns.Select(column => column.ValueType).ToList();
       return primaryTargetIndex
