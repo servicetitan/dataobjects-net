@@ -50,8 +50,8 @@ namespace Xtensive.Orm
     internal ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider> InternalExecutableProviderCache { get; } =
       new ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider>();
 
-    internal ConcurrentDictionary<EntityGroupTask.CacheKey, CompilableProvider> InternalRecordSetCache { get; } =
-      new ConcurrentDictionary<EntityGroupTask.CacheKey, CompilableProvider>();
+    internal ConcurrentDictionary<RecordSetCacheKey, CompilableProvider> InternalRecordSetCache { get; } =
+      new ConcurrentDictionary<RecordSetCacheKey, CompilableProvider>();
 
     internal ConcurrentDictionary<EntitySetTask.CacheKey, CompilableProvider> InternalItemsQueryCache { get; } =
       new ConcurrentDictionary<EntitySetTask.CacheKey, CompilableProvider>();

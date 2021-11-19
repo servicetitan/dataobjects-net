@@ -42,6 +42,43 @@ namespace Xtensive.Orm
     private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     internal static readonly Parameter<Entity> ownerParameter = new Parameter<Entity>("Owner");
 
+    private static readonly Func<object, EntitySetBase, EntitySetTypeState> BuildEntitySetTypeState = (object key, EntitySetBase entitySet) => {
+      var field = ((Pair<object, FieldInfo>) key).Second;
+      var association = field.Associations.Last();
+      var query = association.UnderlyingIndex.GetQuery().Seek(context => context.GetValue(keyParameter));
+      var seek = entitySet.Session.Compile(query);
+      var ownerDescriptor = association.OwnerType.Key.TupleDescriptor;
+      var targetDescriptor = association.TargetType.Key.TupleDescriptor;
+
+      var itemColumnOffsets = association.AuxiliaryType == null
+        ? association.UnderlyingIndex.ValueColumns
+            .Where(ci => ci.IsPrimaryKey)
+            .Select(ci => ci.Field.MappingInfo.Offset)
+            .ToList()
+        : Enumerable.Range(0, targetDescriptor.Count).ToList();
+
+      var keyFieldCount = ownerDescriptor.Count + itemColumnOffsets.Count;
+      var keyFieldTypes = ownerDescriptor
+        .Concat(itemColumnOffsets.Select(i => targetDescriptor[i]))
+        .ToArray(keyFieldCount);
+      var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
+
+      var map = Enumerable.Range(0, ownerDescriptor.Count)
+        .Select(i => new Pair<int, int>(0, i))
+        .Concat(itemColumnOffsets.Select(i => new Pair<int, int>(1, i)))
+        .ToArray(keyFieldCount);
+      var seekTransform = new MapTransform(true, keyDescriptor, map);
+
+      Func<Tuple, Entity> itemCtor = null;
+      if (association.AuxiliaryType != null) {
+        itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,
+          association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedFactoryMethodName,
+          Array.Empty<Type>());
+      }
+
+      return new EntitySetTypeState(seek, seekTransform, itemCtor, entitySet.GetItemCountQueryDelegate(field));
+    };
+
     private readonly Entity owner;
     private readonly CombineTransform auxilaryTypeKeyTransform;
     private readonly bool skipOwnerVersionChange;
@@ -922,45 +959,7 @@ namespace Xtensive.Orm
     private EntitySetTypeState GetEntitySetTypeState()
     {
       EnsureOwnerIsNotRemoved();
-      return Session.StorageNode.InternalEntitySetCache.GetOrAdd(Field, BuildEntitySetTypeState);
-    }
-
-    private EntitySetTypeState BuildEntitySetTypeState(object key)
-    {
-      var field = ((Pair<object, FieldInfo>) key).Second;
-      var association = field.Associations.Last();
-      var query = association.UnderlyingIndex.GetQuery().Seek(context => context.GetValue(keyParameter));
-      var seek = Session.Compile(query);
-      var ownerDescriptor = association.OwnerType.Key.TupleDescriptor;
-      var targetDescriptor = association.TargetType.Key.TupleDescriptor;
-
-      var itemColumnOffsets = association.AuxiliaryType == null
-        ? association.UnderlyingIndex.ValueColumns
-            .Where(ci => ci.IsPrimaryKey)
-            .Select(ci => ci.Field.MappingInfo.Offset)
-            .ToList()
-        : Enumerable.Range(0, targetDescriptor.Count).ToList();
-
-      var keyFieldCount = ownerDescriptor.Count + itemColumnOffsets.Count;
-      var keyFieldTypes = ownerDescriptor
-        .Concat(itemColumnOffsets.Select(i => targetDescriptor[i]))
-        .ToArray(keyFieldCount);
-      var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
-
-      var map = Enumerable.Range(0, ownerDescriptor.Count)
-        .Select(i => new Pair<int, int>(0, i))
-        .Concat(itemColumnOffsets.Select(i => new Pair<int, int>(1, i)))
-        .ToArray(keyFieldCount);
-      var seekTransform = new MapTransform(true, keyDescriptor, map);
-
-      Func<Tuple, Entity> itemCtor = null;
-      if (association.AuxiliaryType != null) {
-        itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,
-          association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedFactoryMethodName,
-          Array.Empty<Type>());
-      }
-
-      return new EntitySetTypeState(seek, seekTransform, itemCtor, GetItemCountQueryDelegate(field));
+      return Session.StorageNode.InternalEntitySetCache.GetOrAdd(Field, BuildEntitySetTypeState, this);
     }
 
     private int? GetItemIndex(EntitySetState state, Key key)
