@@ -53,8 +53,8 @@ namespace Xtensive.Orm
     internal ConcurrentDictionary<RecordSetCacheKey, CompilableProvider> InternalRecordSetCache { get; } =
       new ConcurrentDictionary<RecordSetCacheKey, CompilableProvider>();
 
-    internal ConcurrentDictionary<EntitySetTask.CacheKey, CompilableProvider> InternalItemsQueryCache { get; } =
-      new ConcurrentDictionary<EntitySetTask.CacheKey, CompilableProvider>();
+    internal ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider> InternalItemsQueryCache { get; } =
+      new ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider>();
 
     internal ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState> InternalEntitySetCache { get; } =
       new ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState>();
