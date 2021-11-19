@@ -19,7 +19,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  internal struct ItemsQueryCacheKey : IEquatable<ItemsQueryCacheKey>
+  internal readonly struct ItemsQueryCacheKey : IEquatable<ItemsQueryCacheKey>
   {
     public readonly FieldInfo ReferencingField;
     public readonly int? ItemCountLimit;
@@ -184,7 +184,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
     }
 
-    private static CompilableProvider CreateQueryForAssociationViaAuxType(ItemsQueryCacheKey cachingKey, IndexInfo primaryTargetIndex, List<int> resultColumns)
+    private static CompilableProvider CreateQueryForAssociationViaAuxType(in ItemsQueryCacheKey cachingKey, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
       var association = cachingKey.ReferencingField.Associations.Last();
       var associationIndex = association.UnderlyingIndex;
@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         .Join(primaryTargetIndex.GetQuery(), joiningColumns);
     }
 
-    private static CompilableProvider CreateQueryForDirectAssociation(ItemsQueryCacheKey cachingKey, IndexInfo primaryTargetIndex, List<int> resultColumns)
+    private static CompilableProvider CreateQueryForDirectAssociation(in ItemsQueryCacheKey cachingKey, IndexInfo primaryTargetIndex, List<int> resultColumns)
     {
       AddResultColumnIndexes(resultColumns, primaryTargetIndex, 0);
       var association = cachingKey.ReferencingField.Associations.Last();

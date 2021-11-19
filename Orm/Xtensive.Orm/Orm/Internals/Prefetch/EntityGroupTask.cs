@@ -15,7 +15,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  internal struct RecordSetCacheKey : IEquatable<RecordSetCacheKey>
+  internal readonly struct RecordSetCacheKey : IEquatable<RecordSetCacheKey>
   {
     public readonly int[] ColumnIndexes;
     public readonly TypeInfo Type;
