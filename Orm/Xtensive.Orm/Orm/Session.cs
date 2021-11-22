@@ -240,6 +240,9 @@ namespace Xtensive.Orm
 
     internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
 
+    private List<string> tags;
+    internal IReadOnlyList<string> Tags => tags;
+
     internal void EnsureNotDisposed()
     {
       if (isDisposed)
@@ -606,11 +609,7 @@ namespace Xtensive.Orm
       SystemQuery = Query = new QueryEndpoint(new QueryProvider(this));
     }
 
-    public Scope<TagContext> Tag(string tag)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(tag, nameof(tag));
-      return new Scope<TagContext>(new TagContext { Tag = tag });
-    }
+    public TagContext Tag(string tag) => new TagContext(tags ??= new List<string>(), tag);
 
     // IDisposable implementation
 

@@ -143,8 +143,10 @@ namespace Xtensive.Orm.Internals.Prefetch
       parameterContext.SetValue(includeParameter, currentKeySet);
       var session = manager.Owner.Session;
       Provider = session.StorageNode.InternalRecordSetCache.GetOrAdd(cacheKey, CreateRecordSet);
-      if (Scope<TagContext>.CurrentContext is TagContext tagContext) {
-        Provider = new TagProvider(Provider, tagContext.Tag);
+      if (session.Tags != null) {
+        foreach (var tag in session.Tags) {
+          Provider = new TagProvider(Provider, tag);
+        }
       }
       var executableProvider = session.Compile(Provider);
       return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
