@@ -17,8 +17,9 @@ namespace Xtensive.Orm.Rse.Providers
 
     public TagContext(List<string> tags, string tag)
     {
+      ArgumentValidator.EnsureArgumentNotNull(tags, nameof(tags));
       ArgumentValidator.EnsureArgumentNotNull(tag, nameof(tag));
-      (this.tags = tags)?.Add(tag);
+      (this.tags = tags).Add(tag);
     }
   }
 }
