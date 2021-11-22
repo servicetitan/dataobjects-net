@@ -12,12 +12,8 @@ namespace Xtensive.Orm.Rse.Providers
   {
     private readonly List<string> tags;
 
-    public void Dispose()
-    {
-      if (tags != null) {
-        tags.RemoveAt(tags.Count - 1);
-      }
-    }
+    public void Dispose() =>
+      tags.RemoveAt(tags.Count - 1);
 
     public TagContext(List<string> tags, string tag)
     {
