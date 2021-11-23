@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Rse.Providers
     public void Dispose() =>
       tags.RemoveAt(tags.Count - 1);
 
-    public TagContext(List<string> tags, string tag)
+    internal TagContext(List<string> tags, string tag)
     {
       ArgumentValidator.EnsureArgumentNotNull(tags, nameof(tags));
       ArgumentValidator.EnsureArgumentNotNull(tag, nameof(tag));
