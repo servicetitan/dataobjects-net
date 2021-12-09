@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2008.08.07
 
@@ -44,9 +44,7 @@ namespace Xtensive.Orm.Rse
     /// </summary>    
     public static ColumnGroupCollection Empty {
       [DebuggerStepThrough]
-      get {
-        return cachedEmpty.Value;
-      }
+      get => cachedEmpty.Value;
     }
 
     // Constructors
@@ -57,16 +55,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="items">The collection items.</param>
     public ColumnGroupCollection(IEnumerable<ColumnGroup> items)
     {
-      this.items = items.ToList();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="items">The collection items.</param>
-    public ColumnGroupCollection(IReadOnlyList<ColumnGroup> items)
-    {
-      this.items = items;
+      this.items = items as IReadOnlyList<ColumnGroup> ?? items.ToList();
     }
   }
 }

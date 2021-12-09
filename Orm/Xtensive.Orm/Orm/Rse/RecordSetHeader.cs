@@ -334,18 +334,14 @@ namespace Xtensive.Orm.Rse
 
       TupleDescriptor = tupleDescriptor;
       // Unsafe perf. optimization: if you pass a list, it should be immutable!
-      Columns = columns is List<Column> columnList
-        ? new ColumnCollection(columnList)
-        : new ColumnCollection(columns);
-      if (tupleDescriptor.Count!=Columns.Count)
+      Columns = new ColumnCollection(columns);
+      if (tupleDescriptor.Count != Columns.Count)
         throw new ArgumentOutOfRangeException("columns.Count");
 
       ColumnGroups = columnGroups == null
         ? ColumnGroupCollection.Empty
         // Unsafe perf. optimization: if you pass a list, it should be immutable!
-        : (columnGroups is List<ColumnGroup> columnGroupList
-          ? new ColumnGroupCollection(columnGroupList)
-          : new ColumnGroupCollection(columnGroups));
+        : new ColumnGroupCollection(columnGroups);
 
       orderTupleDescriptor = orderKeyDescriptor ?? TupleDescriptor.Empty;
       Order = order ?? new DirectionCollection<int>();
