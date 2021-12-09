@@ -53,9 +53,9 @@ namespace Xtensive.Orm.Rse
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="items">The collection items.</param>
-    public ColumnGroupCollection(IEnumerable<ColumnGroup> items)
+    public ColumnGroupCollection(IReadOnlyList<ColumnGroup> items)
     {
-      this.items = items as IReadOnlyList<ColumnGroup> ?? items.ToList();
+      this.items = items;
     }
   }
 }

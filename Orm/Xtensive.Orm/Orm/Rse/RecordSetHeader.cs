@@ -195,7 +195,7 @@ namespace Xtensive.Orm.Rse
       return new RecordSetHeader(
         resultTupleDescriptor,
         resultColumns,
-        resultGroups,
+        resultGroups.ToList(),
         null,
         resultOrder);
     }
@@ -292,7 +292,7 @@ namespace Xtensive.Orm.Rse
     public RecordSetHeader(
       TupleDescriptor tupleDescriptor,
       IEnumerable<Column> columns,
-      IEnumerable<ColumnGroup> columnGroups)
+      IReadOnlyList<ColumnGroup> columnGroups)
       : this(tupleDescriptor, columns, columnGroups, null, null)
     {
     }
@@ -325,7 +325,7 @@ namespace Xtensive.Orm.Rse
     public RecordSetHeader(
       TupleDescriptor tupleDescriptor,
       IEnumerable<Column> columns,
-      IEnumerable<ColumnGroup> columnGroups,
+      IReadOnlyList<ColumnGroup> columnGroups,
       TupleDescriptor orderKeyDescriptor,
       DirectionCollection<int> order)
     {
