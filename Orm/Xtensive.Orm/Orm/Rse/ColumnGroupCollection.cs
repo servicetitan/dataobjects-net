@@ -20,10 +20,10 @@ namespace Xtensive.Orm.Rse
   [Serializable]
   public class ColumnGroupCollection : IReadOnlyList<ColumnGroup>
   {
-    private readonly IReadOnlyList<ColumnGroup> items;
-
-    private static Lazy<ColumnGroupCollection> cachedEmpty =
+    private static readonly Lazy<ColumnGroupCollection> CachedEmpty =
       new Lazy<ColumnGroupCollection>(() => new ColumnGroupCollection(Array.Empty<ColumnGroup>()));
+
+    private readonly IReadOnlyList<ColumnGroup> items;
 
     /// <inheritdoc/>
     public int Count => items.Count;
@@ -33,19 +33,21 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     public ColumnGroup this[int groupIndex] => items[groupIndex];
 
+    /// <summary>
+    /// Gets the empty <see cref="ColumnGroupCollection"/>.
+    /// </summary>
+    public static ColumnGroupCollection Empty {
+      [DebuggerStepThrough]
+      get {
+        return CachedEmpty.Value;
+      }
+    }
+
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc/>
     public IEnumerator<ColumnGroup> GetEnumerator() => items.GetEnumerator();
-
-    /// <summary>
-    /// Gets the empty <see cref="ColumnGroupCollection"/>.
-    /// </summary>    
-    public static ColumnGroupCollection Empty {
-      [DebuggerStepThrough]
-      get => cachedEmpty.Value;
-    }
 
     // Constructors
 
