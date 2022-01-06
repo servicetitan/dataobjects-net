@@ -63,10 +63,9 @@ namespace Xtensive.Orm.Providers
       // optimization: omitting BooleanToInt(IntToBoolean(x)) sequences
       if (enableEqualInt1Optimization && expression.NodeType == SqlNodeType.Equals) {
         var binary = (SqlBinary) expression;
-        var left = binary.Left;
-        var right = binary.Right as SqlLiteral<int>;
-        if (!ReferenceEquals(right, null) && right.Value == 1)
-          return left;
+        if ((binary.Right as SqlLiteral<int>)?.Value == 1) {
+          return binary.Left;
+        }
       }
 
       var result = SqlDml.Case();
