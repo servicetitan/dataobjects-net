@@ -528,6 +528,7 @@ namespace Xtensive.Orm.BulkOperations
 
     public virtual void Visit(SqlMetadata node)
     {
+      VisitInternal(node.Expression);
     }
     
     #region Non-public methods
