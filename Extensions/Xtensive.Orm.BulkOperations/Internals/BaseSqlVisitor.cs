@@ -525,6 +525,10 @@ namespace Xtensive.Orm.BulkOperations
     public virtual void Visit(SqlComment node)
     {
     }
+
+    public virtual void Visit(SqlMetadata node)
+    {
+    }
     
     #region Non-public methods
 
