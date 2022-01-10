@@ -320,10 +320,20 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void OrderByBoolExpression()
     {
-      var result = Session.Query.All<Invoice>().OrderBy(c => c.Status == (InvoiceStatus)1)
+      var result = Session.Query.All<Invoice>().OrderBy(c => c.Status == (InvoiceStatus) 1)
         .Select(c => c.Status)
         .ToArray();
-      Assert.AreEqual(result.Last(), (InvoiceStatus)1);
+      Assert.AreEqual(result.Last(), (InvoiceStatus) 1);
+    }
+
+    [Test]
+    public void OrderByBoolExpressionComplex()
+    {
+      var result = Session.Query.All<Invoice>()
+        .OrderBy(c => c.Status == (InvoiceStatus) 1 || c.Status == (InvoiceStatus) 2)
+        .Select(c => c.Status)
+        .ToArray();
+      Assert.AreEqual(result.Last(), (InvoiceStatus) 1);
     }
   }
 }
