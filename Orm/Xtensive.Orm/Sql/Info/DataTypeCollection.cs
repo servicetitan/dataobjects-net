@@ -112,7 +112,7 @@ namespace Xtensive.Sql.Info
     public DataTypeInfo Decimal { get; set; }
 
     /// <summary>
-    /// Floating point number data from –3.40E + 38 through 3.40E + 38. 
+    /// Floating point number data from â€“3.40E + 38 through 3.40E + 38. 
     /// Storage size is 4 bytes.
     /// </summary>
     public DataTypeInfo Float { get; set; }
@@ -143,6 +143,11 @@ namespace Xtensive.Sql.Info
     /// A representation of the interval data type.
     /// </summary>
     public DataTypeInfo Interval { get; set; }
+
+#if NET6_0_OR_GREATER
+    public DataTypeInfo DateOnly { get; set; }
+    public DataTypeInfo TimeOnly { get; set; }
+#endif
 
     /// <summary>
     /// Fixed-length Unicode character data of n characters. 
@@ -236,6 +241,10 @@ namespace Xtensive.Sql.Info
       yield return VarBinaryMax;
       yield return Guid;
       yield return Interval;
+#if NET6_0_OR_GREATER
+      yield return DateOnly;
+      yield return TimeOnly;
+#endif
       yield break;
     }
 

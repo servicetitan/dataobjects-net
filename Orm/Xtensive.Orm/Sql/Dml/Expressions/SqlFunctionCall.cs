@@ -15,7 +15,7 @@ namespace Xtensive.Sql.Dml
     /// <summary>
     /// Gets the expressions.
     /// </summary>
-    public IList<SqlExpression> Arguments { get; private set; }
+    public List<SqlExpression> Arguments { get; }
 
     /// <summary>
     /// Gets the function type.
@@ -29,8 +29,7 @@ namespace Xtensive.Sql.Dml
       var replacingExpression = (SqlFunctionCall) expression;
       FunctionType = replacingExpression.FunctionType;
       Arguments.Clear();
-      foreach (SqlExpression argument in replacingExpression.Arguments)
-        Arguments.Add(argument);
+      Arguments.AddRange(replacingExpression.Arguments);
     }
 
     internal override object Clone(SqlNodeCloneContext context)
@@ -57,19 +56,18 @@ namespace Xtensive.Sql.Dml
       : base(SqlNodeType.FunctionCall)
     {
       FunctionType = functionType;
-      Arguments = new Collection<SqlExpression>();
-      foreach (SqlExpression argument in arguments)
-        Arguments.Add(argument);
+      Arguments = new List<SqlExpression>();
+      Arguments.AddRange(arguments);
     }
 
     internal SqlFunctionCall(SqlFunctionType functionType, params SqlExpression[] arguments)
       : base(SqlNodeType.FunctionCall)
     {
       FunctionType = functionType;
-      Arguments = new Collection<SqlExpression>();
-      if (arguments != null)
-        foreach (SqlExpression argument in arguments)
-          Arguments.Add(argument);
+      Arguments = new List<SqlExpression>(arguments?.Length ?? 0);
+      if (arguments != null) {
+        Arguments.AddRange(arguments);
+      }
     }
   }
 }

@@ -25,7 +25,7 @@ namespace Xtensive.Core
     /// <param name="parameterName">Name of the method parameter.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #if NET6_0_OR_GREATER
-    [Obsolete("Use ArgumentNullException.ThrowIfNull()")]
+//!!!T    [Obsolete("Use ArgumentNullException.ThrowIfNull()")]
 #endif
     public static void EnsureArgumentNotNull(object value, [InvokerParameterName] string parameterName)
     {

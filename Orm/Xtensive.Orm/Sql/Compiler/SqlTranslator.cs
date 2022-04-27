@@ -65,11 +65,15 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     public abstract string DateTimeFormatString { get; }
 
+    public virtual string DateOnlyFormatString => throw new NotImplementedException();
+
     /// <summary>
     /// Gets the time span format string.
     /// See <see cref="SqlHelper.TimeSpanToString"/> for details.
     /// </summary>
     public abstract string TimeSpanFormatString { get; }
+
+    public virtual string TimeOnlyFormatString => throw new NotImplementedException();
 
     /// <summary>
     /// Gets the parameter prefix.
@@ -1189,6 +1193,14 @@ namespace Xtensive.Sql.Compiler
         case Guid:
         case byte[]:
           throw new NotSupportedException(string.Format(Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
+#if NET6_0_OR_GREATER
+        case DateOnly dateOnly:
+          output.Append(dateOnly.ToString(DateOnlyFormatString, DateTimeFormat));
+          break;
+        case TimeOnly timeOnly:
+          output.Append(timeOnly.ToString(TimeOnlyFormatString, DateTimeFormat));
+          break;
+#endif
         default:
           output.Append(literalValue.ToString());
           break;

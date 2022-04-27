@@ -142,9 +142,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     /// <inheritdoc/>
     public override void Visit(SqlFunctionCall node)
     {
+      var arguments = node.Arguments;
       switch (node.FunctionType) {
       case SqlFunctionType.CharLength:
-        (SqlDml.FunctionCall("DATALENGTH", node.Arguments) / 2).AcceptVisitor(this);
+        (SqlDml.FunctionCall("DATALENGTH", arguments) / 2).AcceptVisitor(this);
         return;
       case SqlFunctionType.PadLeft:
       case SqlFunctionType.PadRight:
@@ -152,10 +153,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         return;
       case SqlFunctionType.Round:
         // Round should always be called with 2 arguments
-        if (node.Arguments.Count==1) {
+        if (arguments.Count==1) {
           Visit(SqlDml.FunctionCall(
             translator.Translate(SqlFunctionType.Round),
-            node.Arguments[0],
+            arguments[0],
             SqlDml.Literal(0)));
           return;
         }
@@ -179,29 +180,38 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         }
         break;
       case SqlFunctionType.IntervalToMilliseconds:
-          Visit(CastToLong(node.Arguments[0]) / NanosecondsPerMillisecond);
+          Visit(CastToLong(arguments[0]) / NanosecondsPerMillisecond);
           return;
       case SqlFunctionType.IntervalConstruct:
       case SqlFunctionType.IntervalToNanoseconds:
-        Visit(CastToLong(node.Arguments[0]));
+        Visit(CastToLong(arguments[0]));
         return;
       case SqlFunctionType.DateTimeAddMonths:
-        Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
+        Visit(DateAddMonth(arguments[0], arguments[1]));
         return;
       case SqlFunctionType.DateTimeAddYears:
-        Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
+        Visit(DateAddYear(arguments[0], arguments[1]));
+        return;
+      case SqlFunctionType.DateOnlyAddDays:
+        Visit(DateAddDay(arguments[0], arguments[1]));
+        return;
+      case SqlFunctionType.TimeOnlyAddHours:
+        Visit(DateAddHour(arguments[0], arguments[1]));
+        return;
+      case SqlFunctionType.TimeOnlyAddMinutes:
+        Visit(DateAddMinute(arguments[0], arguments[1]));
         return;
       case SqlFunctionType.DateTimeTruncate:
-        DateTimeTruncate(node.Arguments[0]).AcceptVisitor(this);
+        DateTimeTruncate(arguments[0]).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeConstruct:
         Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
-          node.Arguments[0] - 2001),
-          node.Arguments[1] - 1),
-          node.Arguments[2] - 1));
+          arguments[0] - 2001),
+          arguments[1] - 1),
+          arguments[2] - 1));
         return;
       case SqlFunctionType.DateTimeToStringIso:
-        Visit(DateTimeToStringIso(node.Arguments[0]));
+        Visit(DateTimeToStringIso(arguments[0]));
         return;
       }
 
@@ -435,70 +445,44 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     #region Static helpers
 
-    protected static SqlCast CastToLong(SqlExpression arg)
-    {
-      return SqlDml.Cast(arg, SqlType.Int64);
-    }
+    protected static SqlCast CastToLong(SqlExpression arg) =>
+      SqlDml.Cast(arg, SqlType.Int64);
 
-    protected static SqlCast CastToDecimal(SqlExpression arg, short precision, short scale)
-    {
-      return SqlDml.Cast(arg, SqlType.Decimal, precision, scale);
-    }
+    protected static SqlCast CastToDecimal(SqlExpression arg, short precision, short scale) =>
+      SqlDml.Cast(arg, SqlType.Decimal, precision, scale);
 
-    protected static SqlUserFunctionCall DatePartWeekDay(SqlExpression date)
-    {
-      return SqlDml.FunctionCall("DATEPART", SqlDml.Native(WeekdayPart), date);
-    }
+    protected static SqlUserFunctionCall DatePartWeekDay(SqlExpression date) =>
+      SqlDml.FunctionCall("DATEPART", SqlDml.Native(WeekdayPart), date);
 
-    protected static SqlUserFunctionCall DateDiffDay(SqlExpression date1, SqlExpression date2)
-    {
-      return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native(DayPart), date1, date2);
-    }
+    protected static SqlUserFunctionCall DateDiffDay(SqlExpression date1, SqlExpression date2) =>
+      SqlDml.FunctionCall("DATEDIFF", SqlDml.Native(DayPart), date1, date2);
 
-    protected static SqlUserFunctionCall DateDiffMillisecond(SqlExpression date1, SqlExpression date2)
-    {
-      return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native(MillisecondPart), date1, date2);
-    }
+    protected static SqlUserFunctionCall DateDiffMillisecond(SqlExpression date1, SqlExpression date2) =>
+      SqlDml.FunctionCall("DATEDIFF", SqlDml.Native(MillisecondPart), date1, date2);
 
-    protected static SqlUserFunctionCall DateAddYear(SqlExpression date, SqlExpression years)
-    {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(YearPart),years, date);
-    }
+    protected static SqlUserFunctionCall DateAddYear(SqlExpression date, SqlExpression years) =>
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(YearPart),years, date);
 
-    protected static SqlUserFunctionCall DateAddMonth(SqlExpression date, SqlExpression months)
-    {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(MonthPart), months, date);
-    }
+    protected static SqlUserFunctionCall DateAddMonth(SqlExpression date, SqlExpression months) =>
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(MonthPart), months, date);
 
-    protected static SqlUserFunctionCall DateAddDay(SqlExpression date, SqlExpression days)
-    {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(DayPart), days, date);
-    }
+    protected static SqlUserFunctionCall DateAddDay(SqlExpression date, SqlExpression days) =>
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(DayPart), days, date);
 
-    protected static SqlUserFunctionCall DateAddHour(SqlExpression date, SqlExpression hours)
-    {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(HourPart), hours, date);
-    }
+    protected static SqlUserFunctionCall DateAddHour(SqlExpression date, SqlExpression hours) =>
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(HourPart), hours, date);
 
-    protected static SqlUserFunctionCall DateAddMinute(SqlExpression date, SqlExpression minutes)
-    {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(MinutePart), minutes, date);
-    }
+    protected static SqlUserFunctionCall DateAddMinute(SqlExpression date, SqlExpression minutes) =>
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(MinutePart), minutes, date);
 
-    protected static SqlUserFunctionCall DateAddSecond(SqlExpression date, SqlExpression seconds)
-    {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(SecondPart), seconds, date);
-    }
+    protected static SqlUserFunctionCall DateAddSecond(SqlExpression date, SqlExpression seconds) =>
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(SecondPart), seconds, date);
 
-    protected static SqlUserFunctionCall DateAddMillisecond(SqlExpression date, SqlExpression milliseconds)
-    {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(MillisecondPart), milliseconds, date);
-    }
+    protected static SqlUserFunctionCall DateAddMillisecond(SqlExpression date, SqlExpression milliseconds) =>
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(MillisecondPart), milliseconds, date);
 
-    protected static SqlUserFunctionCall DateTimeToStringIso(SqlExpression dateTime)
-    {
-      return SqlDml.FunctionCall("CONVERT", SqlDml.Native("NVARCHAR(19)"), dateTime, SqlDml.Native("126"));
-    }
+    protected static SqlUserFunctionCall DateTimeToStringIso(SqlExpression dateTime) =>
+      SqlDml.FunctionCall("CONVERT", SqlDml.Native("NVARCHAR(19)"), dateTime, SqlDml.Native("126"));
 
     private static SqlExpression BankersRound(SqlExpression value, bool shouldCastToDecimal)
     {

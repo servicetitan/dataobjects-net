@@ -32,6 +32,10 @@ namespace Xtensive.Sql
         WellKnownTypes.DateTime,
         WellKnownTypes.DateTimeOffset,
         WellKnownTypes.TimeSpan,
+#if NET6_0_OR_GREATER
+        WellKnownTypes.DateOnly,
+        WellKnownTypes.TimeOnly,
+#endif
         WellKnownTypes.ByteArray,
         WellKnownTypes.Guid,
         WellKnownOrmTypes.TypeInfo

@@ -3,7 +3,7 @@
 
 <PropertyGroup>
     <DoVersion>7.1.0.47</DoVersion>
-    <DoVersionSuffix>servicetitan-test</DoVersionSuffix>
+    <DoVersionSuffix>servicetitan-dateonly</DoVersionSuffix>
 </PropertyGroup>
 
 </Project>

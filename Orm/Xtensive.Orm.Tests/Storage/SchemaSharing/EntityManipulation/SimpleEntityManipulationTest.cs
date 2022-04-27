@@ -405,11 +405,19 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       Assert.That(a.DatabaseName, Is.EqualTo(databaseAndSchema.First));
       Assert.That(a.SchemaName, Is.EqualTo(databaseAndSchema.Second));
 
+      var now = DateTime.UtcNow;
+      var dateOnly = DateOnly.FromDateTime(now);
+      var timeOnly = TimeOnly.FromDateTime(now);
+
       a.Text = updatedText;
+      a.DateOnly = dateOnly;
+      a.TimeOnly = timeOnly;
       session.SaveChanges();
 
       Assert.That(session.Query.All<model.Part1.TestEntity1>().Count(), Is.EqualTo(initialCountOfEntities + 1));
       Assert.That(session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Text == updatedText), Is.Not.Null);
+      Assert.AreEqual(session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Text == updatedText).DateOnly, dateOnly);
+      Assert.AreEqual(session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Text == updatedText).TimeOnly, timeOnly);
       Assert.That(session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Text == text), Is.Null);
       Assert.That(
         session.Query.All<model.Part1.TestEntity1>()

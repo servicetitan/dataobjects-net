@@ -1,6 +1,6 @@
-// Copyright (C) 2014 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2014-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alena Mikshina
 // Created:    2014.05.06
 
@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Dml
     /// <summary>
     /// Gets the expressions.
     /// </summary>
-    public IList<SqlExpression> Arguments { get; private set; }
+    public List<SqlExpression> Arguments { get; }
 
     public override void ReplaceWith(SqlExpression expression)
     {
@@ -31,8 +31,7 @@ namespace Xtensive.Sql.Dml
       var replacingExpression = (SqlCustomFunctionCall) expression;
       FunctionType = replacingExpression.FunctionType;
       Arguments.Clear();
-      foreach (SqlExpression argument in replacingExpression.Arguments)
-        Arguments.Add(argument);
+      Arguments.AddRange(replacingExpression.Arguments);
     }
 
     internal override object Clone(SqlNodeCloneContext context)
@@ -57,19 +56,18 @@ namespace Xtensive.Sql.Dml
       : base(SqlNodeType.CustomFunctionCall)
     {
       FunctionType = sqlCustomFunctionType;
-      Arguments = new Collection<SqlExpression>();
-      foreach (SqlExpression argument in arguments)
-        Arguments.Add(argument);
+      Arguments = new List<SqlExpression>();
+      Arguments.AddRange(arguments);
     }
 
     public SqlCustomFunctionCall(SqlCustomFunctionType sqlCustomFunctionType, params SqlExpression[] arguments)
       : base(SqlNodeType.CustomFunctionCall)
     {
       FunctionType = sqlCustomFunctionType;
-      Arguments = new Collection<SqlExpression>();
-      if (arguments!=null)
-        foreach (SqlExpression argument in arguments)
-          Arguments.Add(argument);
+      Arguments = new List<SqlExpression>(arguments?.Length ?? 0);
+      if (arguments != null) {
+        Arguments.AddRange(arguments);
+      }
     }
   }
 }

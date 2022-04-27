@@ -14,8 +14,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
   internal class Translator : v09.Translator
   {
-    public override string DateTimeFormatString { get { return @"'cast ('\'yyyy\-MM\-ddTHH\:mm\:ss\.fffffff\'' as datetime2)'"; } }
-    public string DateTimeOffsetFormatString { get { return @"'cast ('\'yyyy\-MM\-dd HH\:mm\:ss\.fffffff\ zzz\'' as datetimeoffset)'"; } }
+    public override string DateTimeFormatString => @"'cast ('\'yyyy\-MM\-ddTHH\:mm\:ss\.fffffff\'' as datetime2)'";
+    public override string TimeOnlyFormatString => @"'cast ('\'HH\:mm\:ss\.fffffff\'' as time)'";
+    public string DateTimeOffsetFormatString => @"'cast ('\'yyyy\-MM\-dd HH\:mm\:ss\.fffffff\ zzz\'' as datetimeoffset)'";
 
     public override void Translate(SqlCompilerContext context, Ddl.SqlCreateIndex node, CreateIndexSection section)
     {

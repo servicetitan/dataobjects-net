@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2021 Xtensive LLC.
+// Copyright (C) 2011-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
@@ -183,6 +183,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           return;
         case SqlFunctionType.DateTimeAddMonths:
           Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
+          return;
+        case SqlFunctionType.DateOnlyAddDays:
+          Visit(DateAddDay(node.Arguments[0], node.Arguments[1]));
           return;
         case SqlFunctionType.DateTimeAddYears:
           Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
