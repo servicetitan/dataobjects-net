@@ -7,67 +7,47 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
   [Serializable]
-  public class SqlCustomFunctionCall : SqlExpression
+  public class SqlCustomFunctionCall : SqlFunctionCallBase
   {
     /// <summary>
     /// Gets the custom function type.
     /// </summary>
     public SqlCustomFunctionType FunctionType { get; private set; }
 
-    /// <summary>
-    /// Gets the expressions.
-    /// </summary>
-    public List<SqlExpression> Arguments { get; }
-
     public override void ReplaceWith(SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlCustomFunctionCall>(expression, "expression");
-      var replacingExpression = (SqlCustomFunctionCall) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlCustomFunctionCall>(expression);
       FunctionType = replacingExpression.FunctionType;
-      Arguments.Clear();
-      Arguments.AddRange(replacingExpression.Arguments);
+      Arguments = replacingExpression.Arguments;
     }
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
+      if (!context.NodeMapping.TryGetValue(this, out var clone)) {
+        context.NodeMapping[this] = clone= new SqlCustomFunctionCall(FunctionType, Arguments.Select(o => (SqlExpression) o.Clone(context)).ToArray(Arguments.Count));
       }
-
-      var clone = new SqlCustomFunctionCall(FunctionType);
-      for (int i = 0, l = Arguments.Count; i < l; i++)
-        clone.Arguments.Add((SqlExpression) Arguments[i].Clone(context));
-      context.NodeMapping[this] = clone;
       return clone;
     }
 
-    public override void AcceptVisitor(ISqlVisitor visitor)
-    {
-      visitor.Visit(this);
-    }
+    public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
 
     public SqlCustomFunctionCall(SqlCustomFunctionType sqlCustomFunctionType, IEnumerable<SqlExpression> arguments)
-      : base(SqlNodeType.CustomFunctionCall)
+      : base(SqlNodeType.CustomFunctionCall, arguments)
     {
       FunctionType = sqlCustomFunctionType;
-      Arguments = new List<SqlExpression>();
-      Arguments.AddRange(arguments);
     }
 
     public SqlCustomFunctionCall(SqlCustomFunctionType sqlCustomFunctionType, params SqlExpression[] arguments)
-      : base(SqlNodeType.CustomFunctionCall)
+      : base(SqlNodeType.CustomFunctionCall, arguments)
     {
       FunctionType = sqlCustomFunctionType;
-      Arguments = new List<SqlExpression>(arguments?.Length ?? 0);
-      if (arguments != null) {
-        Arguments.AddRange(arguments);
-      }
     }
   }
 }

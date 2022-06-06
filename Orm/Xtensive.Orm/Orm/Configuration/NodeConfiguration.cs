@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Configuration
       get { return nodeId; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         nodeId = value;
       }
     }
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Configuration
       get { return upgradeMode; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         upgradeMode = value;
       }
     }
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Configuration
       get { return connectionInfo; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         connectionInfo = value;
       }
     }
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Configuration
       get { return connectionInitializationSql; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         connectionInitializationSql = value;
       }
     }

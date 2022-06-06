@@ -27,9 +27,10 @@ namespace Xtensive.Orm.Upgrade
 
     private sealed class Descriptor : IPersistDescriptor
     {
-      public PersistRequest StoreRequest { get; set; }
-      public PersistRequest BatchStoreRequest { get; }
-      public PersistRequest ClearRequest { get; set; }
+      public Lazy<PersistRequest> LazyStoreRequest { get; set; }
+      public Lazy<PersistRequest> LazyLevel1BatchStoreRequest { get; }
+      public Lazy<PersistRequest> LazyLevel2BatchStoreRequest { get; }
+      public Lazy<PersistRequest> ClearRequest { get; set; }
     }
 
     private readonly StorageDriver driver;
@@ -119,8 +120,8 @@ namespace Xtensive.Orm.Upgrade
       clearRequest.Prepare();
 
       return new Descriptor {
-        StoreRequest = storeRequest,
-        ClearRequest = clearRequest
+        LazyStoreRequest = new Lazy<PersistRequest>(storeRequest),
+        ClearRequest = new Lazy<PersistRequest>(clearRequest)
       };
     }
 

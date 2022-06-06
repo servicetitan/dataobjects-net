@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets value indicating whether temporary tables are supported.
     /// </summary>
-    public bool Supported { get { return backEnd!=null; } }
+    public bool Supported { get { return backEnd != null; } }
 
     /// <summary>
     /// Builds the descriptor of a temporary table.
@@ -84,28 +84,32 @@ namespace Xtensive.Orm.Providers
 
       // insert statements
 
-      var batchStoreRequestBindings = new List<PersistParameterBinding>();
-      var numberOfRecordsInInsert = (int)Math.Sqrt(Handlers.Domain.Configuration.MaxNumberOfConditions);
-      var batchInsertStatement = MakeUpInsertQuery(tableRef, typeMappings, batchStoreRequestBindings, hasColumns, numberOfRecordsInInsert);
-
-      var storeRequestBindings = new List<PersistParameterBinding>();
-      var insertStatement = MakeUpInsertQuery(tableRef, typeMappings, storeRequestBindings, hasColumns, 1);
 
       var result = new TemporaryTableDescriptor(name) {
         TupleDescriptor = source,
         QueryStatement = queryStatement,
         CreateStatement = driver.Compile(SqlDdl.Create(table)).GetCommandText(),
         DropStatement = driver.Compile(SqlDdl.Drop(table)).GetCommandText(),
-        BatchStoreRequest = new PersistRequest(driver, batchInsertStatement, batchStoreRequestBindings),
-        StoreRequest = new PersistRequest(driver, insertStatement, storeRequestBindings),
-        ClearRequest = new PersistRequest(driver, Handlers.ProviderInfo.Supports(ProviderFeatures.TruncateTable) ? SqlDdl.Truncate(table) : SqlDml.Delete(tableRef), null)
+        LazyLevel1BatchStoreRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertLevel1BatchSize),
+        LazyLevel2BatchStoreRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertLevel2BatchSize),
+        LazyStoreRequest = CreateLazyPersistRequest(1),
+        ClearRequest = new Lazy<PersistRequest>(() => {
+          var request = new PersistRequest(driver, Handlers.ProviderInfo.Supports(ProviderFeatures.TruncateTable) ? SqlDdl.Truncate(table) : SqlDml.Delete(tableRef), null);
+          request.Prepare();
+          return request;
+        })
       };
 
-      result.BatchStoreRequest.Prepare();
-      result.StoreRequest.Prepare();
-      result.ClearRequest.Prepare();
-
       return result;
+
+      Lazy<PersistRequest> CreateLazyPersistRequest(int batchSize) =>
+        new Lazy<PersistRequest>(() => {
+          var bindings = new List<PersistParameterBinding>(batchSize);
+          var statement = MakeUpInsertQuery(tableRef, typeMappings, bindings, hasColumns, batchSize);
+          var persistRequest = new PersistRequest(driver, statement, bindings);
+          persistRequest.Prepare();
+          return persistRequest;
+        });
     }
 
     /// <summary>
@@ -146,7 +150,7 @@ namespace Xtensive.Orm.Providers
     private static TemporaryTableStateRegistry GetRegistry(Session session)
     {
       var registry = session.Extensions.Get<TemporaryTableStateRegistry>();
-      if (registry==null) {
+      if (registry == null) {
         registry = new TemporaryTableStateRegistry();
         session.Extensions.Set(registry);
       }
@@ -166,7 +170,7 @@ namespace Xtensive.Orm.Providers
           .Select(i => string.Format(ColumnNamePattern, i))
           .ToArray();
 
-    private Table CreateTemporaryTable(Schema schema, string name, TupleDescriptor source, TypeMapping[] typeMappings, string[]fieldNames, Collation collation)
+    private Table CreateTemporaryTable(Schema schema, string name, TupleDescriptor source, TypeMapping[] typeMappings, string[] fieldNames, Collation collation)
     {
       var tableName = Handlers.NameBuilder.ApplyNamingRules(string.Format(TableNamePattern, name));
       var table = backEnd.CreateTemporaryTable(schema, tableName);
@@ -177,7 +181,7 @@ namespace Xtensive.Orm.Providers
           var column = table.CreateColumn(fieldNames[fieldIndex], mapping.MapType());
           column.IsNullable = true;
           // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
-          if (mapping.Type==WellKnownTypes.String)
+          if (mapping.Type == WellKnownTypes.String)
             column.Collation = collation;
           fieldIndex++;
         }

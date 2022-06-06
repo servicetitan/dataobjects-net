@@ -25,7 +25,7 @@ namespace Xtensive.Core
     /// <param name="parameterName">Name of the method parameter.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #if NET6_0_OR_GREATER
-//!!!T    [Obsolete("Use ArgumentNullException.ThrowIfNull()")]
+    [Obsolete("Use ArgumentNullException.ThrowIfNull()")]
 #endif
     public static void EnsureArgumentNotNull(object value, [InvokerParameterName] string parameterName)
     {
@@ -33,7 +33,7 @@ namespace Xtensive.Core
         throw new ArgumentNullException(parameterName);
       }
     }
-    
+
     /// <summary>
     /// Ensures argument (<paramref name="value"/>) is not
     /// <see langoword="null"/>.
@@ -88,23 +88,25 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Ensures argument (<paramref name="value"/>) is not <see langword="null"/> 
+    /// Ensures argument (<paramref name="value"/>) is not <see langword="null"/>
     /// and of <typeparamref name="T"/> type.
     /// </summary>
     /// <param name="value">Value to compare check.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The expected type of value.</typeparam>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void EnsureArgumentIs<T>(object value, [InvokerParameterName] string parameterName)
+    public static T EnsureArgumentIs<T>(object value,
+      [InvokerParameterName, CallerArgumentExpression("value")] string parameterName = null)
     {
-      EnsureArgumentNotNull(value, parameterName);
-      if (!(value is T)) {
-        throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, typeof(T)), parameterName);
+      if (value is T result) {
+        return result;
       }
+      EnsureArgumentNotNull(value, parameterName);
+      throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, typeof(T)), parameterName);
     }
 
     /// <summary>
-    /// Ensures argument (<paramref name="value"/>) is not <see langword="null"/> 
+    /// Ensures argument (<paramref name="value"/>) is not <see langword="null"/>
     /// and of <paramref name="type"/> type.
     /// </summary>
     /// <param name="value">Value to compare check.</param>
@@ -118,7 +120,7 @@ namespace Xtensive.Core
         throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, type), parameterName);
       }
     }
-    
+
     /// <summary>
     /// Ensures argument (<paramref name="value"/>) is either <see langword="null"/>,
     /// or of <typeparamref name="T"/> type.
