@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         (left, right) => new JoinResult<DateTime> { LeftId = left.Id, RightId = right.Id, LeftDateTime = left.DateTime, RightDateTime = right.DateTime },
         c => c.LeftId,
         c => c.RightId));
-#if NET6_0_OR_GREATER
+#if DO_DATEONLY
       ExecuteInsideSession(() => JoinPrivate<DateTimeEntity, DateTimeEntity, JoinResult<DateOnly>, DateOnly, long>(
         left => left.DateOnly,
         right => right.DateOnly,

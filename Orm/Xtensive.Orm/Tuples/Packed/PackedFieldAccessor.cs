@@ -587,7 +587,7 @@ namespace Xtensive.Tuples.Packed
     { }
   }
 
-#if NET6_0_OR_GREATER
+#if DO_DATEONLY
   internal sealed class DateOnlyFieldAccessor : ValueFieldAccessor<DateOnly>
   {
     protected override DateOnly Decode(long value) =>

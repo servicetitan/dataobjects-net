@@ -573,7 +573,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case long v:
           _ = output.Append($"CAST({v} as BIGINT)");
           break;
-#if NET6_0_OR_GREATER
+#if DO_DATEONLY
         case DateOnly dateOnly:
           var dateOnlyRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
           var newDateOnly = ValueRangeValidator.Correct(dateOnly.ToDateTime(TimeOnly.MinValue), dateOnlyRange).Date;

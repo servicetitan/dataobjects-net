@@ -318,7 +318,7 @@ namespace Xtensive.Sql
     public virtual SqlValueType MapByteArray(int? length, int? precision, int? scale) =>
       ChooseStreamType(SqlType.VarBinary, SqlType.VarBinaryMax, length, VarBinaryMaxLength);
 
-#if NET6_0_OR_GREATER
+#if DO_DATEONLY
     public virtual void BindDateOnly(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Date;
@@ -342,7 +342,7 @@ namespace Xtensive.Sql
 
     public virtual SqlValueType MapTimeOnly(int? length, int? precision, int? scale) =>
       new SqlValueType(SqlType.Time);
-#endif // NET6_0_OR_GREATER
+#endif // DO_DATEONLY
 
     #endregion
 

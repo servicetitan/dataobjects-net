@@ -32,7 +32,7 @@ namespace Xtensive.Sql
         WellKnownTypes.DateTime,
         WellKnownTypes.DateTimeOffset,
         WellKnownTypes.TimeSpan,
-#if NET6_0_OR_GREATER
+#if DO_DATEONLY
         WellKnownTypes.DateOnly,
         WellKnownTypes.TimeOnly,
 #endif

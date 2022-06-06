@@ -307,7 +307,7 @@ namespace Xtensive.Orm.Providers
         if (columnType == WellKnownTypes.DateTime) {
           return SqlDml.Cast(expression, SqlType.DateTime);
         }
-#if NET6_0_OR_GREATER
+#if DO_DATEONLY
         if (columnType == WellKnownTypes.DateOnly) {
           return SqlDml.Cast(expression, SqlType.Date);
         }
@@ -339,7 +339,7 @@ namespace Xtensive.Orm.Providers
             rightExpression = SqlDml.Cast(rightExpression, SqlType.DateTime);
           }
 
-#if NET6_0_OR_GREATER
+#if DO_DATEONLY
           if (columnPair.First.Type == WellKnownTypes.DateOnly) {
             leftExpression = SqlDml.Cast(leftExpression, SqlType.Date);
           }

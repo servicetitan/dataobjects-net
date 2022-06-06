@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         WherePrivate<DateTimeEntity, long>(c => c.DateTime.Hour == FirstDateTime.Hour, c => c.Id);
         WherePrivate<DateTimeEntity, long>(c => c.DateTime.Second == FirstDateTime.Second, c => c.Id);
 
-#if NET6_0_OR_GREATER
+#if DO_DATEONLY
         WherePrivate<DateTimeEntity, long>(c => c.DateOnly == FirstDateOnly, c => c.Id);
         WherePrivate<DateTimeEntity, long>(c => c.TimeOnly == FirstTimeOnly, c => c.Id);
         WherePrivate<DateTimeEntity, long>(c => c.TimeOnly.Hour == FirstTimeOnly.Hour, c => c.Id);

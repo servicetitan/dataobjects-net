@@ -564,7 +564,7 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.DateTimeConstruct, year, month, day);
     }
 
-#if NET6_0_OR_GREATER
+#if DO_DATEONLY
     public static SqlFunctionCall DateOnlyConstruct(SqlExpression year, SqlExpression month, SqlExpression day)
     {
       ArgumentNullException.ThrowIfNull(year);

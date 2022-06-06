@@ -51,7 +51,7 @@ namespace Xtensive.Tuples.Packed
         DecimalAccessor = new DecimalFieldAccessor(),
         GuidAccessor = new GuidFieldAccessor(),
         DateTimeOffsetAccessor = new DateTimeOffsetFieldAccessor()
-#if NET6_0_OR_GREATER
+#if DO_DATEONLY
         , DateOnlyAccessor = new DateOnlyFieldAccessor()
         , TimeOnlyAccessor = new TimeOnlyFieldAccessor()
 #endif
@@ -80,7 +80,7 @@ namespace Xtensive.Tuples.Packed
             ReferenceEquals(type, WellKnownTypes.Double) ? DoubleAccessor :
             ReferenceEquals(type, WellKnownTypes.DateTime) ? DateTimeAccessor :
             ReferenceEquals(type, WellKnownTypes.TimeSpan) ? TimeSpanAccessor :
-#if NET6_0_OR_GREATER
+#if DO_DATEONLY
             ReferenceEquals(type, WellKnownTypes.DateOnly) ? DateOnlyAccessor :
             ReferenceEquals(type, WellKnownTypes.TimeOnly) ? TimeOnlyAccessor :
 #endif
@@ -104,7 +104,7 @@ namespace Xtensive.Tuples.Packed
             ReferenceEquals(type, WellKnownTypes.NullableDouble) ? DoubleAccessor :
             ReferenceEquals(type, WellKnownTypes.NullableDateTime) ? DateTimeAccessor :
             ReferenceEquals(type, WellKnownTypes.NullableTimeSpan) ? TimeSpanAccessor :
-#if NET6_0_OR_GREATER
+#if DO_DATEONLY
             ReferenceEquals(type, WellKnownTypes.NullableDateOnly) ? DateOnlyAccessor :
             ReferenceEquals(type, WellKnownTypes.NullableTimeOnly) ? TimeOnlyAccessor :
 #endif

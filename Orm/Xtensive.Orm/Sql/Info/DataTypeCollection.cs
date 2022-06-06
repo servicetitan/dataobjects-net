@@ -144,7 +144,7 @@ namespace Xtensive.Sql.Info
     /// </summary>
     public DataTypeInfo Interval { get; set; }
 
-#if NET6_0_OR_GREATER
+#if DO_DATEONLY
     public DataTypeInfo DateOnly { get; set; }
     public DataTypeInfo TimeOnly { get; set; }
 #endif
@@ -241,7 +241,7 @@ namespace Xtensive.Sql.Info
       yield return VarBinaryMax;
       yield return Guid;
       yield return Interval;
-#if NET6_0_OR_GREATER
+#if DO_DATEONLY
       yield return DateOnly;
       yield return TimeOnly;
 #endif

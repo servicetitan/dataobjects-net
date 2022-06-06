@@ -79,7 +79,7 @@ namespace Xtensive.Sql.Info
     public static readonly ValueRange<System.TimeSpan> TimeSpan =
       new ValueRange<System.TimeSpan>(System.TimeSpan.MinValue, System.TimeSpan.MaxValue);
 
-#if NET6_0_OR_GREATER
+#if DO_DATEONLY
     public static readonly ValueRange<System.DateOnly> DateOnly = new(System.DateOnly.MinValue, System.DateOnly.MaxValue);
     public static readonly ValueRange<System.TimeOnly> TimeOnly = new(System.TimeOnly.MinValue, System.TimeOnly.MaxValue);
 #endif
