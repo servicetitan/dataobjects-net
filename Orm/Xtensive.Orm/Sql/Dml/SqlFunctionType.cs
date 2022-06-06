@@ -85,7 +85,7 @@ namespace Xtensive.Sql.Dml
     DateTimeToDateTimeOffset,
 
 #if DO_DATEONLY
-    DateOnlyConstruct,    
+    DateOnlyConstruct,
     TimeOnlyConstruct,
 #endif
 

@@ -27,8 +27,7 @@ namespace Xtensive.Sql.Info
     /// <value>The <see cref="DataTypeInfo"/> instance.</value>
     public DataTypeInfo this[string nativeType]
     {
-      get
-      {
+      get {
         DataTypeInfo result;
         nativeTypes.TryGetValue(nativeType, out result);
         return result;
@@ -41,8 +40,7 @@ namespace Xtensive.Sql.Info
     /// <value>The <see cref="DataTypeInfo"/> instance.</value>
     public DataTypeInfo this[SqlType sqlType]
     {
-      get
-      {
+      get {
         DataTypeInfo result;
         sqlTypes.TryGetValue(sqlType, out result);
         return result;
@@ -200,7 +198,7 @@ namespace Xtensive.Sql.Info
       base.Lock(recursive);
 
       foreach (DataTypeInfo item in this) {
-        if (item==null)
+        if (item == null)
           continue;
         sqlTypes[item.Type] = item;
         foreach (var type in item.NativeTypes)

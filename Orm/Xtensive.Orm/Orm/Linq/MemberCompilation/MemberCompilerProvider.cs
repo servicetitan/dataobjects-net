@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
               break;
             case ConflictHandlingMethod.ReportError:
               throw new InvalidOperationException(string.Format(Strings.ExCompilerForXIsAlreadyRegistered, targetMember.GetFullName(true)));
-          }          
+          }
         }
       }
     }
