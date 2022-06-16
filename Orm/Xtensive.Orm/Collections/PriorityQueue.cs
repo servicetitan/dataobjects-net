@@ -174,7 +174,7 @@ namespace Xtensive.Collections
         return result;
       }
       else {
-        return new T[0];
+        return Array.Empty<T>();
       }
 
     }
