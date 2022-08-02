@@ -373,7 +373,7 @@ namespace Xtensive.Orm.Building.Builders
         }
         else {
           result.ValueColumns.AddRange(GatherValueColumns(columns));
-        }        
+        }
       }
       else {
         foreach (var column in typeInfo.Columns.Where(c => c.IsPrimaryKey)) {
