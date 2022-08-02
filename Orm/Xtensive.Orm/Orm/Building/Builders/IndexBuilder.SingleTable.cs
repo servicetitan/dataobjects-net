@@ -68,12 +68,12 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       // Build indexes for descendants
-      var directDescendants = type.Descendants.ToList();
-      foreach (var descendant in directDescendants)
+      foreach (var descendant in type.Descendants) {
         BuildSingleTableIndexes(descendant);
+      }
 
       if (type == root) return;
-      var descendants = type.RecursiveDescendants.ToList();
+      var descendants = type.RecursiveDescendants;
 
       var primaryIndexFilterTypes = new List<TypeInfo>();
       if (!type.IsAbstract)
