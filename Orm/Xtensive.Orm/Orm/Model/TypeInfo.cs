@@ -572,19 +572,32 @@ namespace Xtensive.Orm.Model
         ? null
         : (Ancestors.FirstOrDefault() ?? this);
 
-    /// <summary>
-    /// Gets the associations this instance is participating in as target (it is referenced by other entities).
-    /// </summary>
-    public IReadOnlyList<AssociationInfo> GetTargetAssociations() => IsLocked ? targetAssociations : InnerGetTargetAssociations();
-
-    private List<AssociationInfo> InnerGetTargetAssociations() => model.Associations.Find(this, true).ToList();
+    public IEnumerable<AssociationInfo> GetTargetAssociations()
+    {
+      if (targetAssociations == null) {
+        var result = model.Associations.Find(this, true);
+        if (!IsLocked) {
+          return result;
+        }
+        targetAssociations = result.ToList().AsReadOnly();
+      }
+      return targetAssociations;
+    }
 
     /// <summary>
     /// Gets the associations this instance is participating in as owner (it has references to other entities).
     /// </summary>
-    public IReadOnlyList<AssociationInfo> GetOwnerAssociations() => IsLocked ? ownerAssociations : InnerGetOwnerAssociations();
-
-    public List<AssociationInfo> InnerGetOwnerAssociations() => model.Associations.Find(this, false).ToList();
+    public IEnumerable<AssociationInfo> GetOwnerAssociations()
+    {
+      if (ownerAssociations == null) {
+        var result = model.Associations.Find(this, false);
+        if (!IsLocked) {
+          return result;
+        }
+        ownerAssociations = result.ToList().AsReadOnly();
+      }
+      return ownerAssociations;
+    }
 
     /// <summary>
     /// Gets the association sequence for entity removal.
@@ -599,25 +612,33 @@ namespace Xtensive.Orm.Model
     /// Gets the version field sequence.
     /// </summary>
     /// <returns>The version field sequence.</returns>
-    public IReadOnlyList<FieldInfo> GetVersionFields() => IsLocked ? versionFields : InnerGetVersionFields();
+    public IEnumerable<FieldInfo> GetVersionFields()
+    {
+      if (versionFields == null) {
+        var result = InnerGetVersionFields();
+        if (!IsLocked) {
+          return result;
+        }
+        versionFields = result.ToList();
+      }
+      return versionFields;
+    }
 
-    private List<FieldInfo> InnerGetVersionFields()
+    private IEnumerable<FieldInfo> InnerGetVersionFields()
     {
       var fields = Fields
         .Where(field => field.IsPrimitive && (field.AutoVersion || field.ManualVersion))
         .ToList();
-      if (fields.Count == 0) {
-        var skipSet = Fields.Where(f => f.SkipVersion).ToHashSet();
-        fields.AddRange(Fields.Where(f => f.IsPrimitive
+      return fields.Count > 0
+        ? fields
+        : Fields.Where(f => f.IsPrimitive
           && !f.IsSystem
           && !f.IsPrimaryKey
           && !f.IsLazyLoad
           && !f.IsTypeId
           && !f.IsTypeDiscriminator
           && !f.ValueType.IsArray
-          && !skipSet.Contains(f)));
-      }
-      return fields;
+          && !f.SkipVersion);
     }
 
     /// <summary>
