@@ -114,23 +114,9 @@ namespace Xtensive.Orm.Model
     private HashSet<TypeInfo> interfaces;
     public IReadOnlySet<TypeInfo> Interfaces => interfaces ?? EmptyTypes;
 
-    private IReadOnlySet<TypeInfo> recursiveInterfaces;
-    public IReadOnlySet<TypeInfo> RecursiveInterfaces
-    {
-      get {
-        if (recursiveInterfaces == null) {
-          if (IsInterface) {
-            recursiveInterfaces = Interfaces;
-          }
-          else {
-            var set = new HashSet<TypeInfo>(Interfaces);
-            set.UnionWith(Ancestors.SelectMany(static o => o.Interfaces));
-            recursiveInterfaces = set;
-          }
-        }
-        return recursiveInterfaces;
-      }
-    }
+    private IReadOnlyList<TypeInfo> recursiveInterfaces;
+    public IReadOnlyList<TypeInfo> RecursiveInterfaces =>
+      recursiveInterfaces ??= (IsInterface ? Interfaces : Interfaces.Concat(AncestorChain.SelectMany(static o => o.Interfaces))).ToList();
 
     private HashSet<TypeInfo> implementors;
 
