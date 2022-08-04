@@ -193,7 +193,7 @@ namespace Xtensive.Orm.Model
     /// Finds all <see cref="TypeInfo"/> instances according to specified criteria.
     /// </summary>
     /// <param name="criteria">The attributes.</param>
-    /// <returns><see cref="ICollection{TItem}"/> that contains all found instances.</returns>
+    /// <returns><see cref="IEnumerable{TItem}"/> that contains all found instances.</returns>
     public IEnumerable<TypeInfo> Find(TypeAttributes criteria) => Find(criteria, MatchType.Partial);
 
     public IEnumerable<TypeInfo> Find(TypeAttributes criteria, MatchType matchType)
