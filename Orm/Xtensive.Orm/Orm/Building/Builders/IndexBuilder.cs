@@ -780,26 +780,18 @@ namespace Xtensive.Orm.Building.Builders
     private IEnumerable<ColumnInfo> GatherValueColumns(IEnumerable<ColumnInfo> columns)
     {
       var nameBuilder = context.NameBuilder;
-      var valueColumns = new ColumnInfoCollection(null, "ValueColumns");
-      try {
-        foreach (var column in columns)  {
-          if (valueColumns.Contains(column.Name)) {
-            if (column.IsSystem)
-              continue;
-            var clone = column.Clone();
-            clone.Name = nameBuilder.BuildColumnName(column);
-            clone.Field.MappingName = clone.Name;
-            valueColumns.Add(clone);
-            yield return clone;
-          }
-          else {
-            valueColumns.Add(column);
-            yield return column;
-          }
+      var valueColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+      foreach (var column in columns)  {
+        if (valueColumns.Add(column.Name)) {
+          yield return column;
         }
-      }
-      finally {
-        valueColumns.Clear();
+        else if (!column.IsSystem) {
+          var clone = column.Clone();
+          clone.Name = nameBuilder.BuildColumnName(column);
+          clone.Field.MappingName = clone.Name;
+          _ = valueColumns.Add(clone.Name);
+          yield return clone;
+        }
       }
     }
 
