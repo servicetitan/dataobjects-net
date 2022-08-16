@@ -781,19 +781,26 @@ namespace Xtensive.Orm.Building.Builders
     {
       var nameBuilder = context.NameBuilder;
       var valueColumns = new ColumnInfoCollection(null, "ValueColumns");
-      foreach (var column in columns)  {
-        if (valueColumns.Contains(column.Name)) {
-          if (column.IsSystem)
-            continue;
-          var clone = column.Clone();
-          clone.Name = nameBuilder.BuildColumnName(column);
-          clone.Field.MappingName = clone.Name;
-          valueColumns.Add(clone);
+      try {
+        foreach (var column in columns)  {
+          if (valueColumns.Contains(column.Name)) {
+            if (column.IsSystem)
+              continue;
+            var clone = column.Clone();
+            clone.Name = nameBuilder.BuildColumnName(column);
+            clone.Field.MappingName = clone.Name;
+            valueColumns.Add(clone);
+            yield return clone;
+          }
+          else {
+            valueColumns.Add(column);
+            yield return column;
+          }
         }
-        else
-          valueColumns.Add(column);
       }
-      return valueColumns;
+      finally {
+        valueColumns.Clear();
+      }
     }
 
     private ColumnGroup BuildColumnGroup(IndexInfo index)
