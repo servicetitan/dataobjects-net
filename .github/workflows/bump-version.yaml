@@ -1,4 +1,6 @@
 name: Bump package version
+on:
+  workflow_dispatch:
 jobs:
   bump-version:
     runs-on: ubuntu-latest
