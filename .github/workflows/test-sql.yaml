@@ -5,7 +5,7 @@ on:
 env:
   DO_CONFIG_FILE: "/tmp/do-test.cfg"
   DO_TargetFrameworks: net7.0
-  SQL_PASSWD=dbatools.I0
+  SQL_PASSWD: dbatools.I0
 jobs:
   test-with-sql:
     name: SQL tests
@@ -22,7 +22,7 @@ jobs:
       - name: Init Test DB
         run: sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests/./init-test-db.sql
       - name: Create DO Tests Config file
-        run: echo default=sqlserver://sa:${SQL_PASSWD}.I0@localhost/DO-Tests?MultipleActiveResultSets=True >$DO_CONFIG_FILE
+        run: echo default=sqlserver://sa:${SQL_PASSWD}@localhost/DO-Tests?MultipleActiveResultSets=True >$DO_CONFIG_FILE
       - name: Tests
         run: dotnet test -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj
 
