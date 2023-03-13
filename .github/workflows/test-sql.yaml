@@ -19,7 +19,7 @@ jobs:
         with:
           install: sqlengine, sqlclient, sqlpackage, localdb
       - name: Create DO Tests Config file
-        run: echo default=sqlserver://sa:sqlpasswd@localhost/DO-Tests?MultipleActiveResultSets=True >$DO_CONFIG_FILE
+        run: echo default=sqlserver://sa:dbatools.I0@localhost/DO-Tests?MultipleActiveResultSets=True >$DO_CONFIG_FILE
       - name: Tests
         run: dotnet test -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj
 
