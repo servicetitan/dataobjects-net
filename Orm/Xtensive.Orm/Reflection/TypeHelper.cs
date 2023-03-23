@@ -84,10 +84,11 @@ namespace Xtensive.Reflection
     private static readonly Func<(Type genericDefinition, Type typeArgument1, Type typeArgument2), Type> GenericTypeFactory2 = key =>
       key.genericDefinition.MakeGenericType(key.typeArgument1, key.typeArgument2);
 
+    private static readonly ConcurrentDictionary<(Type Type, bool UseShortForm), string> MemoizedTypeNames = new();
+
     private static int createDummyTypeNumber = 0;
     private static AssemblyBuilder assemblyBuilder;
     private static ModuleBuilder moduleBuilder;
-    private static readonly ConcurrentDictionary<(Type Type, bool UseShortForm), string> MemoizedTypeNames = new();
     
     /// <summary>
     /// Searches for associated class for <paramref name="forType"/>, creates its instance, if found.
