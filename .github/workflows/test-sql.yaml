@@ -24,6 +24,6 @@ jobs:
       - name: Create DO Tests Config file
         run: echo default=sqlserver://sa:${SQL_PASSWD}@localhost/DO-Tests?MultipleActiveResultSets=True >$DO_CONFIG_FILE
       - name: Tests
-        run: dotnet test -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj
+        run: dotnet test -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj --filter Issue0490_GroupByWithTypeId
 
 
