@@ -5,14 +5,11 @@
 // Created:    2007.10.25
 
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Xtensive.Arithmetic;
 using Xtensive.Core;
 
 
@@ -25,30 +22,14 @@ namespace Xtensive.Reflection
   /// </summary>
   public static class DelegateHelper
   {
-    private readonly struct DelegateSignatureKey : IEquatable<DelegateSignatureKey>
-    {
-      public Type ReturnType { get; init; }
-      public Type[] ParameterTypes { get; init; }
-
-      public bool Equals(DelegateSignatureKey other) =>
-        ReturnType == other.ReturnType && ParameterTypes.SequenceEqual(other.ParameterTypes);
-
-      public override bool Equals(object obj) => obj is DelegateSignatureKey other && Equals(other);
-
-      public override int GetHashCode() =>
-        ParameterTypes.Aggregate(ReturnType?.GetHashCode() ?? 0, HashCode.Combine);
-    }
-
     #region Constants
 
     private const string primitiveCastMethodName = "PrimitiveCast";
     private const string ctorMethodName = "Ctor";
     private const string createMethodName = "Create";
 
-    private static readonly Dictionary<Type, OpCode> opCodeConv = new();
-    private static readonly Dictionary<Type, Type> typeOnStack = new();
-
-    private static readonly ConcurrentDictionary<DelegateSignatureKey, Type> DelegateTypeByType = new();
+    private static readonly Dictionary<Type, OpCode> opCodeConv = new Dictionary<Type, OpCode>();
+    private static readonly Dictionary<Type, Type> typeOnStack = new Dictionary<Type, Type>();
 
     private static readonly Type[] ActionTypes = new[]
       {
@@ -123,7 +104,7 @@ namespace Xtensive.Reflection
 
     #region Nested type: MethodCallDelegateKey
 
-    private readonly struct MethodCallDelegateKey : IEquatable<MethodCallDelegateKey>
+    private readonly struct MethodCallDelegateKey: IEquatable<MethodCallDelegateKey>
     {
       private readonly (Type delegateType, string memberName, Type targetType, Type valueType) items;
       private readonly int hashCode;
@@ -143,11 +124,11 @@ namespace Xtensive.Reflection
 
       public MethodCallDelegateKey(string memberName)
         : this(null, memberName, null, null)
-      { }
+      {}
 
       public MethodCallDelegateKey(string memberName, Type targetType, Type valueType)
         : this(null, memberName, targetType, valueType)
-      { }
+      {}
 
       public MethodCallDelegateKey(Type delegateType, string memberName, Type targetType, Type valueType)
       {
@@ -177,9 +158,9 @@ namespace Xtensive.Reflection
     private static TDelegateType InnerCreateGetMemberDelegate<TObject, TValue, TDelegateType>(string memberName)
       where TDelegateType : class
     {
-      Type type = typeof(TObject);
-      Type tValue = typeof(TValue);
-      var methodKey = new MethodCallDelegateKey(typeof(TDelegateType), memberName, type, tValue);
+      Type type = typeof (TObject);
+      Type tValue = typeof (TValue);
+      var methodKey = new MethodCallDelegateKey(typeof (TDelegateType), memberName, type, tValue);
 
       static Lazy<Delegate> DelegateFactory(MethodCallDelegateKey methodKey)
       {
@@ -245,8 +226,8 @@ namespace Xtensive.Reflection
     /// that sets member value.</returns>
     public static Action<TObject, TValue> CreateSetMemberDelegate<TObject, TValue>(string memberName)
     {
-      Type type = typeof(TObject);
-      Type tValue = typeof(TValue);
+      Type type = typeof (TObject);
+      Type tValue = typeof (TValue);
       var methodKey = new MethodCallDelegateKey(memberName, type, tValue);
 
       static Lazy<Delegate> DelegateFactory(MethodCallDelegateKey methodKey)
@@ -256,24 +237,24 @@ namespace Xtensive.Reflection
         return new Lazy<Delegate>(() => {
           PropertyInfo pi = type.GetProperty(memberName);
           FieldInfo fi = type.GetField(memberName);
-          if (pi != null) {
+          if (pi!=null) {
             // Member is a Property...
             MethodInfo mi = pi.GetSetMethod(true);
-            if (mi != null) {
+            if (mi!=null) {
               //  Calling a property's get accessor is faster/cleaner using
               //  Delegate.CreateDelegate rather than Reflection.Emit
               // TODO: Check that type conversion is adequate.
-              return Delegate.CreateDelegate(typeof(Action<TObject, TValue>), mi);
+              return Delegate.CreateDelegate(typeof (Action<TObject, TValue>), mi);
             }
             else {
               throw new InvalidOperationException(string.Format(Strings.ExPropertyDoesNotHaveSetter,
                 memberName, type.GetShortName()));
             }
           }
-          else if (fi != null) {
+          else if (fi!=null) {
             // Member is a Field...
             DynamicMethod dm = new DynamicMethod("Set" + memberName,
-              typeof(TValue), new Type[] { type }, type);
+              typeof (TValue), new Type[] {type}, type);
             ILGenerator il = dm.GetILGenerator();
             // Load the instance of the object (argument 0) onto the stack
             il.Emit(OpCodes.Ldarg_0);
@@ -284,7 +265,7 @@ namespace Xtensive.Reflection
             il.Emit(OpCodes.Ldc_I4_1);
             il.Emit(OpCodes.Ret);
 
-            return dm.CreateDelegate(typeof(Func<TObject, TValue>));
+            return dm.CreateDelegate(typeof (Func<TObject, TValue>));
           }
           else {
             throw new InvalidOperationException(string.Format(Strings.ExMemberIsNotPublicPropertyOrField,
@@ -373,7 +354,7 @@ namespace Xtensive.Reflection
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(methodName, "methodName");
       ArgumentValidator.EnsureArgumentNotNull(genericArgumentTypes, "genericArgumentTypes");
-      Type delegateType = typeof(TDelegate);
+      Type delegateType = typeof (TDelegate);
       if (!WellKnownTypes.Delegate.IsAssignableFrom(delegateType))
         throw new ArgumentException(string.Format(Strings.ExGenericParameterShouldBeOfTypeT,
           "TDelegate", WellKnownTypes.Delegate.GetShortName()));
@@ -393,14 +374,14 @@ namespace Xtensive.Reflection
 
       MethodInfo methodInfo = MethodHelper.GetMethodEx(type, methodName, bindingFlags,
         genericArgumentNames, parameterTypes);
-      if (methodInfo == null)
+      if (methodInfo==null)
         return null;
-      if (genericArgumentTypes.Length != 0)
+      if (genericArgumentTypes.Length!=0)
         methodInfo = methodInfo.MakeGenericMethod(genericArgumentTypes);
-      if (callTarget == null)
-        return (TDelegate) (object) Delegate.CreateDelegate(delegateType, methodInfo, true);
+      if (callTarget==null)
+        return (TDelegate)(object)Delegate.CreateDelegate(delegateType, methodInfo, true);
 
-      return (TDelegate) (object) Delegate.CreateDelegate(delegateType, callTarget, methodInfo, true);
+      return (TDelegate)(object)Delegate.CreateDelegate(delegateType, callTarget, methodInfo, true);
     }
 
     /// <summary>
@@ -420,21 +401,21 @@ namespace Xtensive.Reflection
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(methodName, "methodName");
       ArgumentValidator.EnsureArgumentNotNull(genericArgumentVariants, "genericArgumentVariants");
-      Type delegateType = typeof(TDelegate);
+      Type delegateType = typeof (TDelegate);
       if (!WellKnownTypes.Delegate.IsAssignableFrom(delegateType))
         throw new ArgumentException(string.Format(Strings.ExGenericParameterShouldBeOfTypeT,
           "TDelegate", WellKnownTypes.Delegate.GetShortName()));
 
       int count = genericArgumentVariants.Count;
       TDelegate[] delegates = new TDelegate[count];
-      if (count == 0)
+      if (count==0)
         return delegates;
 
       BindingFlags bindingFlags =
         BindingFlags.Public |
         BindingFlags.NonPublic |
         BindingFlags.ExactBinding;
-      if (callTarget == null)
+      if (callTarget==null)
         bindingFlags |= BindingFlags.Static;
       else
         bindingFlags |= BindingFlags.Instance;
@@ -443,15 +424,15 @@ namespace Xtensive.Reflection
 
       MethodInfo methodInfo = MethodHelper.GetMethodEx(type, methodName, bindingFlags,
         genericArgumentNames, parameterTypes);
-      if (methodInfo == null)
+      if (methodInfo==null)
         return null;
 
-      for (int i = 0; i < count; i++) {
+      for (int i = 0; i<count; i++) {
         MethodInfo instantiatedMethodInfo = methodInfo.CachedMakeGenericMethod(genericArgumentVariants[i]);
-        if (callTarget == null)
-          delegates[i] = (TDelegate) (object) Delegate.CreateDelegate(delegateType, instantiatedMethodInfo, true);
+        if (callTarget==null)
+          delegates[i] = (TDelegate)(object)Delegate.CreateDelegate(delegateType, instantiatedMethodInfo, true);
         else
-          delegates[i] = (TDelegate) (object) Delegate.CreateDelegate(delegateType, callTarget, instantiatedMethodInfo, true);
+          delegates[i] = (TDelegate)(object)Delegate.CreateDelegate(delegateType, callTarget, instantiatedMethodInfo, true);
       }
       return delegates;
     }
@@ -466,20 +447,20 @@ namespace Xtensive.Reflection
     /// <param name="direction">Direction of execution.</param>
     /// <exception cref="ArgumentOutOfRangeException">Invalid <paramref name="direction"/> value.</exception>
     public static void ExecuteDelegates<T>(ExecutionSequenceHandler<T>[] delegates, ref T argument, Direction direction)
-      where T : struct
+      where T: struct
     {
-      if (direction == Direction.None)
+      if (direction==Direction.None)
         throw Exceptions.InvalidArgument(direction, "direction");
 
-      if (delegates == null)
+      if (delegates==null)
         return;
-      if (direction == Direction.Positive) {
-        for (int i = 0; i < delegates.Length; i++)
+      if (direction==Direction.Positive) {
+        for (int i = 0; i<delegates.Length; i++)
           if (delegates[i].Invoke(ref argument, i))
             return;
       }
       else {
-        for (int i = delegates.Length - 1; i >= 0; i--)
+        for (int i = delegates.Length-1; i>=0; i--)
           if (delegates[i].Invoke(ref argument, i))
             return;
       }
@@ -497,16 +478,13 @@ namespace Xtensive.Reflection
       ArgumentValidator.EnsureArgumentNotNull(parameterTypes, "parameterTypes");
       if (parameterTypes.Length > MaxNumberOfGenericDelegateParameters)
         throw new NotSupportedException();
-      return DelegateTypeByType.GetOrAdd(new DelegateSignatureKey { ReturnType = returnType, ParameterTypes = parameterTypes },
-        static k => {
-          if (k.ReturnType == WellKnownTypes.Void || k.ReturnType == null) {
-            return k.ParameterTypes.Length == 0
-              ? ActionTypes[0]
-              : ActionTypes[k.ParameterTypes.Length].MakeGenericType(k.ParameterTypes);
-          }
-          var funcGenericParameters = k.ParameterTypes.Append(k.ReturnType);
-          return FuncTypes[funcGenericParameters.Length - 1].MakeGenericType(funcGenericParameters);
-        });
+      if (returnType == WellKnownTypes.Void || returnType == null) {
+        if (parameterTypes.Length == 0)
+          return ActionTypes[0];
+        return ActionTypes[parameterTypes.Length].MakeGenericType(parameterTypes);
+      }
+      var funcGenericParameters = parameterTypes.Append(returnType);
+      return FuncTypes[funcGenericParameters.Length - 1].MakeGenericType(funcGenericParameters);
     }
 
     /// <summary>
@@ -533,13 +511,13 @@ namespace Xtensive.Reflection
       if (delegateType == ActionTypes[0])
         return new Pair<Type, Type[]>(WellKnownTypes.Void, Array.Empty<Type>());
       if (delegateType.IsGenericType) {
-        var genericTypeDefinition = delegateType.CachedGetGenericTypeDefinition();
+        var genericTypeDefinition = delegateType.GetGenericTypeDefinition();
         var genericArguments = delegateType.GetGenericArguments();
         int genericArgumentsLength = genericArguments.Length;
         // check for Func<>
         if (genericArgumentsLength >= 1
           && genericArgumentsLength <= MaxNumberOfGenericDelegateParameters + 1
-          && FuncTypes[genericArgumentsLength - 1] == genericTypeDefinition) {
+          && FuncTypes[genericArgumentsLength-1] == genericTypeDefinition) {
           var parameterTypes = new Type[genericArguments.Length - 1];
           Array.Copy(genericArguments, parameterTypes, parameterTypes.Length);
           return new Pair<Type, Type[]>(genericArguments[genericArgumentsLength - 1], parameterTypes);
@@ -559,25 +537,25 @@ namespace Xtensive.Reflection
 
     static DelegateHelper()
     {
-      opCodeConv.Add(WellKnownTypes.SByte, OpCodes.Conv_I1);
-      opCodeConv.Add(WellKnownTypes.Byte, OpCodes.Conv_U1);
-      opCodeConv.Add(WellKnownTypes.Int16, OpCodes.Conv_I2);
+      opCodeConv.Add(WellKnownTypes.SByte,  OpCodes.Conv_I1);
+      opCodeConv.Add(WellKnownTypes.Byte,   OpCodes.Conv_U1);
+      opCodeConv.Add(WellKnownTypes.Int16,  OpCodes.Conv_I2);
       opCodeConv.Add(WellKnownTypes.UInt16, OpCodes.Conv_U2);
-      opCodeConv.Add(WellKnownTypes.Char, OpCodes.Conv_U2);
-      opCodeConv.Add(WellKnownTypes.Int32, OpCodes.Conv_I4);
+      opCodeConv.Add(WellKnownTypes.Char,   OpCodes.Conv_U2);
+      opCodeConv.Add(WellKnownTypes.Int32,  OpCodes.Conv_I4);
       opCodeConv.Add(WellKnownTypes.UInt32, OpCodes.Conv_U4);
-      opCodeConv.Add(WellKnownTypes.Int64, OpCodes.Conv_I8);
+      opCodeConv.Add(WellKnownTypes.Int64,  OpCodes.Conv_I8);
       opCodeConv.Add(WellKnownTypes.UInt64, OpCodes.Conv_U8);
       opCodeConv.Add(WellKnownTypes.Single, OpCodes.Conv_R4);
       opCodeConv.Add(WellKnownTypes.Double, OpCodes.Conv_R8);
-      typeOnStack.Add(WellKnownTypes.SByte, WellKnownTypes.Int32);
-      typeOnStack.Add(WellKnownTypes.Byte, WellKnownTypes.UInt32);
-      typeOnStack.Add(WellKnownTypes.Int16, WellKnownTypes.Int32);
+      typeOnStack.Add(WellKnownTypes.SByte,  WellKnownTypes.Int32);
+      typeOnStack.Add(WellKnownTypes.Byte,   WellKnownTypes.UInt32);
+      typeOnStack.Add(WellKnownTypes.Int16,  WellKnownTypes.Int32);
       typeOnStack.Add(WellKnownTypes.UInt16, WellKnownTypes.UInt32);
-      typeOnStack.Add(WellKnownTypes.Char, WellKnownTypes.UInt32);
-      typeOnStack.Add(WellKnownTypes.Int32, WellKnownTypes.Int32);
+      typeOnStack.Add(WellKnownTypes.Char,   WellKnownTypes.UInt32);
+      typeOnStack.Add(WellKnownTypes.Int32,  WellKnownTypes.Int32);
       typeOnStack.Add(WellKnownTypes.UInt32, WellKnownTypes.UInt32);
-      typeOnStack.Add(WellKnownTypes.Int64, WellKnownTypes.Int64);
+      typeOnStack.Add(WellKnownTypes.Int64,  WellKnownTypes.Int64);
       typeOnStack.Add(WellKnownTypes.UInt64, WellKnownTypes.UInt64);
       typeOnStack.Add(WellKnownTypes.Single, WellKnownTypes.Single);
       typeOnStack.Add(WellKnownTypes.Double, WellKnownTypes.Double);
