@@ -533,7 +533,7 @@ namespace Xtensive.Reflection
       if (delegateType == ActionTypes[0])
         return new Pair<Type, Type[]>(WellKnownTypes.Void, Array.Empty<Type>());
       if (delegateType.IsGenericType) {
-        var genericTypeDefinition = delegateType.GetGenericTypeDefinition();
+        var genericTypeDefinition = delegateType.CachedGetGenericTypeDefinition();
         var genericArguments = delegateType.GetGenericArguments();
         int genericArgumentsLength = genericArguments.Length;
         // check for Func<>
