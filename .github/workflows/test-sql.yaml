@@ -21,7 +21,7 @@ jobs:
         with:
           install: sqlengine, sqlclient, sqlpackage, localdb
       - name: Init Test DB
-        run: sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests/./init-test-db.sql
+        run: sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests.sql 
       - name: Create DO Tests Config file
         run: echo default=sqlserver://sa:${SQL_PASSWD}@localhost/DO-Tests?MultipleActiveResultSets=True >$DO_CONFIG_FILE
       - name: Build
