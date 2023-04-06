@@ -9,17 +9,7 @@ if exists (select * from sysdatabases where name='DO-Tests-1')
   drop database [DO-Tests-1]
 GO
 
--- Creating the database
-DECLARE @server_directory NVARCHAR(520)
-SELECT @server_directory = SUBSTRING(filename, 1, CHARINDEX(N'DATA\master.mdf', LOWER(filename)) - 1)
-FROM master.dbo.sysaltfiles WHERE dbid = 1 AND fileid = 1
-
-DECLARE @data_directory NVARCHAR(520)
-SELECT @data_directory = @server_directory + N'DATA\'
-
-EXECUTE (N'CREATE DATABASE [DO-Tests-1]
-  ON PRIMARY (NAME = N''DO-Tests-1'', FILENAME = N''' + @data_directory + N'DO-Tests-1.mdf'')
-  LOG ON (NAME = N''DO-Tests-1_log'',  FILENAME = N''' + @data_directory + N'DO-Tests-1.ldf'')')
+CREATE DATABASE [DO-Tests-1]
 GO
 
 USE [DO-Tests-1]
