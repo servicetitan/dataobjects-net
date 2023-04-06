@@ -101,7 +101,7 @@ if exists (select * from sysdatabases where name='DO-Tests-4')
   drop database [DO-Tests-4]
 GO
 
-CREATE DATABASE [DO-Tests-4
+CREATE DATABASE [DO-Tests-4]
 GO
 
 USE [DO-Tests-4]
