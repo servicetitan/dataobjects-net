@@ -28,6 +28,32 @@ EXEC [dbo].[sp_fulltext_database] @action = 'enable'
 end
 GO
 
+
+CREATE SCHEMA Model1
+GO
+CREATE SCHEMA Model2
+GO
+CREATE SCHEMA Model3
+GO
+CREATE SCHEMA Model4
+GO
+CREATE SCHEMA Model5
+GO
+CREATE SCHEMA Model6
+GO
+CREATE SCHEMA Model7
+GO
+CREATE SCHEMA Model8
+GO
+CREATE SCHEMA Model9
+GO
+CREATE SCHEMA Model10
+GO
+CREATE SCHEMA Model11
+GO
+CREATE SCHEMA Model12
+GO
+
 --------------
 -- DO-Tests-2
 --------------
@@ -56,6 +82,31 @@ IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
 begin
 EXEC [dbo].[sp_fulltext_database] @action = 'enable'
 end
+GO
+
+CREATE SCHEMA Model1
+GO
+CREATE SCHEMA Model2
+GO
+CREATE SCHEMA Model3
+GO
+CREATE SCHEMA Model4
+GO
+CREATE SCHEMA Model5
+GO
+CREATE SCHEMA Model6
+GO
+CREATE SCHEMA Model7
+GO
+CREATE SCHEMA Model8
+GO
+CREATE SCHEMA Model9
+GO
+CREATE SCHEMA Model10
+GO
+CREATE SCHEMA Model11
+GO
+CREATE SCHEMA Model12
 GO
 
 --------------
