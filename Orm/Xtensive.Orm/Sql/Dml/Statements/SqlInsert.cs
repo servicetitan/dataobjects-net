@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Sql.Dml.Collections;
 
 namespace Xtensive.Sql.Dml
 {
@@ -69,7 +70,13 @@ namespace Xtensive.Sql.Dml
     /// Gets the values.
     /// </summary>
     /// <value>The values.</value>
+    [Obsolete]
     public ValuesCollection Values { get; private set; } = new();
+
+    /// <summary>
+    /// Gets the values.
+    /// </summary>
+    public SqlInsertValuesCollection ValueRows { get; private set; } = new SqlInsertValuesCollection();
 
     /// <summary>
     /// Gets or sets the FROM clause expression.
@@ -86,6 +93,7 @@ namespace Xtensive.Sql.Dml
       clone.Into = (SqlTableRef) Into?.Clone(context);
       clone.From = (SqlSelect) From?.Clone(context);
       clone.Values = Values.Clone(context);
+      clone.ValueRows = ValueRows.Clone(context);
 
       if (Hints.Count > 0)
         foreach (SqlHint hint in Hints)
