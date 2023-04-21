@@ -54,6 +54,9 @@ GO
 CREATE SCHEMA Model12
 GO
 
+CREATE USER readonlydotest WITH PASSWORD = 'readonlydotest'
+GO
+
 --------------
 -- DO-Tests-2
 --------------
@@ -109,6 +112,9 @@ GO
 CREATE SCHEMA Model12
 GO
 
+CREATE USER readonlydotest WITH PASSWORD = 'readonlydotest'
+GO
+
 --------------
 -- DO-Tests-3
 --------------
@@ -140,6 +146,8 @@ EXEC [dbo].[sp_fulltext_database] @action = 'enable'
 end
 GO
 
+CREATE USER readonlydotest WITH PASSWORD = 'readonlydotest'
+GO
 
 --------------
 -- DO-Tests-4
@@ -169,5 +177,8 @@ IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
 begin
 EXEC [dbo].[sp_fulltext_database] @action = 'enable'
 end
+GO
+
+CREATE USER readonlydotest WITH PASSWORD = 'readonlydotest'
 GO
 

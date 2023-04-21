@@ -51,3 +51,6 @@ GO
 CREATE SCHEMA Model12
 GO
 
+CREATE USER readonlydotest WITH PASSWORD = 'readonlydotest'
+GO
+

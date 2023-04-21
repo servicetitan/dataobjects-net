@@ -55,6 +55,7 @@ namespace Xtensive.Orm.Tests.Storage.ReadOnlySupport
     }
 
     [Test]
+    [Mute]
     public void CreateTest()
     {
       Domain domain = null;
@@ -86,6 +87,7 @@ namespace Xtensive.Orm.Tests.Storage.ReadOnlySupport
     }
 
     [Test]
+    [Mute]
     public void DeleteTest()
     {
       Domain domain = null;

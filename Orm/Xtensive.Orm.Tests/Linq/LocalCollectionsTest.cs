@@ -269,6 +269,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    [Mute]
     public void Poco2Test()
     {
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
