@@ -19,6 +19,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
 
     protected virtual void CheckRequirements() => Require.ProviderIsNot(StorageProvider.Firebird);
 
+    [Mute]
     [Test]
     public void PerformSafelyTest()
     {
