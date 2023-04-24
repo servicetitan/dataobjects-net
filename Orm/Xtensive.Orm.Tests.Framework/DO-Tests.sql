@@ -64,5 +64,3 @@ GO
 
 CREATE LOGIN readonlydotest WITH PASSWORD = 'readonlydotest', CHECK_POLICY = OFF
 CREATE USER readonlydotest FOR LOGIN readonlydotest;
-GO
-
