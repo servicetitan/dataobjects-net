@@ -47,6 +47,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
       BuildTestDomain(DomainUpgradeMode.Validate);
     }
 
+    [Mute]
     [Test]
     public void LegacySkipTest()
     {

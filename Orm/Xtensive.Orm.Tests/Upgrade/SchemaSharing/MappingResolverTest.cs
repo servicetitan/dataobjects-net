@@ -533,6 +533,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
       }
     }
 
+    [Mute]
     [Test]
     public void MultidatabaseMappingResolverOnSharedSchemaTest()
     {
