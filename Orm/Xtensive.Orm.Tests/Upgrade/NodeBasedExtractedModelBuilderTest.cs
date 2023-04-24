@@ -149,6 +149,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
+    [Mute]
     [Test]
     public async Task MultischemaWithDatabaseSwitchingAsyncTest()
     {

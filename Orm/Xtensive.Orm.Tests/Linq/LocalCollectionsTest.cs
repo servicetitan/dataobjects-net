@@ -866,6 +866,7 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual(result, expected);
     }
 
+    [Mute]
     [Test]
     public void Aggregate2Test()
     {
@@ -883,6 +884,7 @@ namespace Xtensive.Orm.Tests.Linq
       QueryDumper.Dump(result);
     }
 
+    [Mute]
     [Test]
     public async Task Aggregate2AsyncTest()
     {

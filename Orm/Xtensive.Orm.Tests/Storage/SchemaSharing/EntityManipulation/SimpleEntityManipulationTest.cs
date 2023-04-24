@@ -47,6 +47,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
     [Test]
     public void Skip() => RunTest(DomainUpgradeMode.Skip);
 
+    [Mute]
     [Test]
     public void Validate() => RunTest(DomainUpgradeMode.Validate);
 

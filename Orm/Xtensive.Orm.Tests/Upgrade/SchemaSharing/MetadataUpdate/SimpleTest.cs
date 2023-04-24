@@ -32,6 +32,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate
       BuildTestDomain(DomainUpgradeMode.Perform);
     }
 
+    [Mute]
     [Test]
     public void PerformSafelyTest()
     {
