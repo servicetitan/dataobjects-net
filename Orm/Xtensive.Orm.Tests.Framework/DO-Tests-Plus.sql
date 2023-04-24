@@ -97,6 +97,9 @@ EXEC [dbo].[sp_fulltext_database] @action = 'enable'
 end
 GO
 
+EXECUTE (N'CREATE FULLTEXT CATALOG [DO-Tests-2_Model2] WITH ACCENT_SENSITIVITY = ON AS DEFAULT AUTHORIZATION [dbo]')
+GO
+
 CREATE SCHEMA Model1
 GO
 CREATE SCHEMA Model2
