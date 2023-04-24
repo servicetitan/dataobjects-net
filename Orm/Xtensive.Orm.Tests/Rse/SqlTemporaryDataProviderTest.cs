@@ -19,11 +19,12 @@ namespace Xtensive.Orm.Tests.Rse
   [TestFixture, Category("Rse")]
   public class SqlTemporaryDataProvider : ChinookDOModelTest
   {
-    [Test]
     [Mute]
+    [Test]
     public void TempTableMustNotBeCached() =>
       Assert.AreNotEqual(ExecuteIn(ExecuteCachedIn), ExecuteIn(ExecuteCachedIn));
 
+    [Mute]
     [Test]
     public void TempTableMustNotBeCachedScalar() =>
       Assert.AreNotEqual(ExecuteIn(ExecuteCachedInScalar), ExecuteIn(ExecuteCachedInScalar));

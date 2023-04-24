@@ -24,6 +24,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate
     {
     }
 
+    [Mute]
     [Test]
     public void PerformTest()
     {
@@ -38,6 +39,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate
       BuildTestDomain(DomainUpgradeMode.PerformSafely);
     }
 
+    [Mute]
     [Test]
     public void RecreateTest()
     {

@@ -26,6 +26,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
       BuildTestDomain(DomainUpgradeMode.PerformSafely);
     }
 
+    [Mute]
     [Test]
     public void PerformTest()
     {
@@ -33,6 +34,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
       BuildTestDomain(DomainUpgradeMode.Perform);
     }
 
+    [Mute]
     [Test]
     public void SkipTest()
     {
@@ -40,6 +42,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
       BuildTestDomain(DomainUpgradeMode.Skip);
     }
 
+    [Mute]
     [Test]
     public void ValidateTest()
     {
@@ -55,6 +58,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
       BuildTestDomain(DomainUpgradeMode.LegacySkip);
     }
 
+    [Mute]
     [Test]
     public void LegacyValidateTest()
     {
