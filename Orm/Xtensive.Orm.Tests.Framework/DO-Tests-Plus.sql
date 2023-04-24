@@ -54,7 +54,11 @@ GO
 CREATE SCHEMA Model12
 GO
 
-CREATE USER readonlydotest WITH PASSWORD = 'readonlydotest'
+EXEC sp_configure 'CONTAINED DATABASE AUTHENTICATION'
+GO
+
+CREATE LOGIN readonlydotest WITH PASSWORD = 'readonlydotest', CHECK_POLICY = OFF
+CREATE USER readonlydotest FOR LOGIN readonlydotest;
 GO
 
 --------------
@@ -112,7 +116,11 @@ GO
 CREATE SCHEMA Model12
 GO
 
-CREATE USER readonlydotest WITH PASSWORD = 'readonlydotest'
+EXEC sp_configure 'CONTAINED DATABASE AUTHENTICATION'
+GO
+
+CREATE LOGIN readonlydotest WITH PASSWORD = 'readonlydotest', CHECK_POLICY = OFF
+CREATE USER readonlydotest FOR LOGIN readonlydotest;
 GO
 
 --------------
@@ -146,7 +154,11 @@ EXEC [dbo].[sp_fulltext_database] @action = 'enable'
 end
 GO
 
-CREATE USER readonlydotest WITH PASSWORD = 'readonlydotest'
+EXEC sp_configure 'CONTAINED DATABASE AUTHENTICATION'
+GO
+
+CREATE LOGIN readonlydotest WITH PASSWORD = 'readonlydotest', CHECK_POLICY = OFF
+CREATE USER readonlydotest FOR LOGIN readonlydotest;
 GO
 
 --------------
@@ -179,6 +191,10 @@ EXEC [dbo].[sp_fulltext_database] @action = 'enable'
 end
 GO
 
-CREATE USER readonlydotest WITH PASSWORD = 'readonlydotest'
+EXEC sp_configure 'CONTAINED DATABASE AUTHENTICATION'
+GO
+
+CREATE LOGIN readonlydotest WITH PASSWORD = 'readonlydotest', CHECK_POLICY = OFF
+CREATE USER readonlydotest FOR LOGIN readonlydotest;
 GO
 
