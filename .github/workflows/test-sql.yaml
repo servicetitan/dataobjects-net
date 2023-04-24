@@ -19,7 +19,7 @@ jobs:
       - name: Build SQL Docker image with FTS feature
         run: docker build -t sql .github/actions/mssql-fts
       - name: Run SQL Server container
-        run: docker run -p 1433:1433 sql
+        run: docker run -p 1433:1433 -d sql
       - name: Init Test DB
         run: sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests.sql && sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests-Plus.sql
       - name: Create DO Tests Config file
