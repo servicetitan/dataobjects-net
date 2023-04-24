@@ -26,6 +26,6 @@ jobs:
       - name: Create DO Tests Config file
         run: echo default=sqlserver://sa:${SQL_PASSWD}@localhost/DO-Tests?MultipleActiveResultSets=True >$DO_CONFIG_FILE
       - name: Tests
-        run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj --filter 'TestCategory=FTS&TestCategory!=Mute'
+        run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj --filter 'TestCategory!=Mute'
 
 
