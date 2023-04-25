@@ -267,7 +267,7 @@ namespace Xtensive.Reflection
 
         member = member.GetInterfaceMember();
       }
-      var sb = new ValueStringBuilder(stackalloc char[128]);
+      var sb = new ValueStringBuilder(stackalloc char[256]);
       sb.Append(member.DeclaringType.GetFullName());
       sb.Append(".");
       sb.Append(member.GetFullName(false));
@@ -294,7 +294,7 @@ namespace Xtensive.Reflection
         dotIndex = name.LastIndexOf('.', dotIndex - 1);
         return dotIndex <= 0 ? name : name.Substring(dotIndex + 1);
       }
-      var sb = new ValueStringBuilder(stackalloc char[128]);
+      var sb = new ValueStringBuilder(stackalloc char[256]);
       sb.Append(member.DeclaringType.GetShortName());
       sb.Append(".");
       sb.Append(member.GetShortName(false));
