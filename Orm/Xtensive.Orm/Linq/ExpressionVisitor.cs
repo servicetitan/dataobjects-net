@@ -21,11 +21,12 @@ namespace Xtensive.Linq
     protected override IReadOnlyList<Expression> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
     {
       bool isChanged = false;
-      var results = new List<Expression>(expressions.Count);
-      for (int i = 0, n = expressions.Count; i < n; i++) {
+      var expressionCount = expressions.Count;
+      var results = new Expression[expressionCount];
+      for (int i = 0, n = expressionCount; i < n; i++) {
         var expression = expressions[i];
         var p = Visit(expression);
-        results.Add(p);
+        results[i] = p;
         isChanged |= !ReferenceEquals(expression, p);
       }
       return isChanged ? results.AsSafeWrapper() : expressions;
@@ -38,8 +39,9 @@ namespace Xtensive.Linq
     /// <returns>Visit result.</returns>
     protected virtual ElementInit VisitElementInitializer(ElementInit initializer)
     {
-      var arguments = VisitExpressionList(initializer.Arguments);
-      if (arguments != initializer.Arguments) {
+      var initializerArguments = initializer.Arguments;
+      var arguments = VisitExpressionList(initializerArguments);
+      if (arguments != initializerArguments) {
         return Expression.ElementInit(initializer.AddMethod, arguments);
       }
       return initializer;
@@ -66,8 +68,9 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitUnary(UnaryExpression u)
     {
-      Expression operand = Visit(u.Operand);
-      if (operand!=u.Operand)
+      var uOperand = u.Operand;
+      Expression operand = Visit(uOperand);
+      if (operand != uOperand)
         return Expression.MakeUnary(u.NodeType, operand, u.Type, u.Method);
       return u;
     }
@@ -75,9 +78,11 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitBinary(BinaryExpression b)
     {
-      Expression left = Visit(b.Left);
-      Expression right = Visit(b.Right);
-      if ((left==b.Left) && (right==b.Right))
+      var bLeft = b.Left;
+      var bRight = b.Right;
+      Expression left = Visit(bLeft);
+      Expression right = Visit(bRight);
+      if ((left == bLeft) && (right == bRight))
         return b;
       return Expression.MakeBinary(b.NodeType, left, right, b.IsLiftedToNull, b.Method);
     }
@@ -85,8 +90,9 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
-      Expression expression = Visit(tb.Expression);
-      if (expression!=tb.Expression)
+      var tbExpression = tb.Expression;
+      Expression expression = Visit(tbExpression);
+      if (expression != tbExpression)
         return Expression.TypeIs(expression, tb.TypeOperand);
       return tb;
     }
@@ -106,10 +112,13 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitConditional(ConditionalExpression c)
     {
-      Expression test = Visit(c.Test);
-      Expression ifTrue = Visit(c.IfTrue);
-      Expression ifFalse = Visit(c.IfFalse);
-      if (((test==c.Test) && (ifTrue==c.IfTrue)) && (ifFalse==c.IfFalse))
+      var cTest = c.Test;
+      var cIfTrue = c.IfTrue;
+      var cIfFalse = c.IfFalse;
+      Expression test = Visit(cTest);
+      Expression ifTrue = Visit(cIfTrue);
+      Expression ifFalse = Visit(cIfFalse);
+      if (((test == cTest) && (ifTrue == cIfTrue)) && (ifFalse == cIfFalse))
         return c;
       return Expression.Condition(test, ifTrue, ifFalse);
     }
@@ -132,11 +141,13 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      Expression instance = Visit(mc.Object);
-      IEnumerable<Expression> arguments = VisitExpressionList(mc.Arguments);
-      if ((instance==mc.Object) && (arguments==mc.Arguments))
-        return mc;
-      return Expression.Call(instance, mc.Method, arguments);
+      var mcObject = mc.Object;
+      Expression instance = Visit(mcObject);
+      var mcArguments = mc.Arguments;
+      IEnumerable<Expression> arguments = VisitExpressionList(mcArguments);
+      return instance == mcObject && arguments == mcArguments
+        ? mc
+        : Expression.Call(instance, mc.Method, arguments);
     }
 
     /// <summary>
@@ -146,8 +157,9 @@ namespace Xtensive.Linq
     /// <returns>Visit result.</returns>
     protected virtual MemberAssignment VisitMemberAssignment(MemberAssignment ma)
     {
-      Expression expression = Visit(ma.Expression);
-      if (expression!=ma.Expression)
+      var maExpression = ma.Expression;
+      Expression expression = Visit(maExpression);
+      if (expression != maExpression)
         return Expression.Bind(ma.Member, expression);
       return ma;
     }
@@ -155,8 +167,9 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitLambda(LambdaExpression l)
     {
-      Expression body = Visit(l.Body);
-      if (body!=l.Body)
+      var lBody = l.Body;
+      Expression body = Visit(lBody);
+      if (body != lBody)
         return FastExpression.Lambda(l.Type, body, l.Parameters);
       return l;
     }
@@ -164,10 +177,11 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitNew(NewExpression n)
     {
-      IEnumerable<Expression> arguments = VisitExpressionList(n.Arguments);
-      if (arguments==n.Arguments)
+      var nArguments = n.Arguments;
+      IEnumerable<Expression> arguments = VisitExpressionList(nArguments);
+      if (arguments == nArguments)
         return n;
-      if (n.Members!=null)
+      if (n.Members != null)
         return Expression.New(n.Constructor, arguments, n.Members);
       return Expression.New(n.Constructor, arguments);
     }
@@ -175,9 +189,11 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitMemberInit(MemberInitExpression mi)
     {
-      var newExpression = (NewExpression) VisitNew(mi.NewExpression);
-      IEnumerable<MemberBinding> bindings = VisitBindingList(mi.Bindings);
-      if ((newExpression==mi.NewExpression) && (bindings==mi.Bindings))
+      var miNewExpression = mi.NewExpression;
+      var miBindings = mi.Bindings;
+      var newExpression = (NewExpression) VisitNew(miNewExpression);
+      IEnumerable<MemberBinding> bindings = VisitBindingList(miBindings);
+      if ((newExpression == miNewExpression) && (bindings == miBindings))
         return mi;
       return Expression.MemberInit(newExpression, bindings);
     }
@@ -185,9 +201,11 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitListInit(ListInitExpression li)
     {
-      var newExpression = (NewExpression) VisitNew(li.NewExpression);
-      IEnumerable<ElementInit> initializers = VisitElementInitializerList(li.Initializers);
-      if ((newExpression==li.NewExpression) && (initializers==li.Initializers))
+      var liNewExpression = li.NewExpression;
+      var liInitializers = li.Initializers;
+      var newExpression = (NewExpression) VisitNew(liNewExpression);
+      IEnumerable<ElementInit> initializers = VisitElementInitializerList(liInitializers);
+      if ((newExpression == liNewExpression) && (initializers == liInitializers))
         return li;
       return Expression.ListInit(newExpression, initializers);
     }
@@ -195,10 +213,11 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitNewArray(NewArrayExpression na)
     {
-      IEnumerable<Expression> initializers = VisitExpressionList(na.Expressions);
-      if (initializers==na.Expressions)
+      var naExpressions = na.Expressions;
+      IEnumerable<Expression> initializers = VisitExpressionList(naExpressions);
+      if (initializers == naExpressions)
         return na;
-      if (na.NodeType==ExpressionType.NewArrayInit)
+      if (na.NodeType == ExpressionType.NewArrayInit)
         return Expression.NewArrayInit(na.Type.GetElementType(), initializers);
       return Expression.NewArrayBounds(na.Type.GetElementType(), initializers);
     }
@@ -206,9 +225,10 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitInvocation(InvocationExpression i)
     {
-      IEnumerable<Expression> arguments = VisitExpressionList(i.Arguments);
+      var iArguments = i.Arguments;
+      IEnumerable<Expression> arguments = VisitExpressionList(iArguments);
       Expression expression = Visit(i.Expression);
-      if ((arguments==i.Arguments) && (expression==i.Expression))
+      if ((arguments == iArguments) && (expression == i.Expression))
         return i;
       return Expression.Invoke(expression, arguments);
     }
@@ -241,8 +261,9 @@ namespace Xtensive.Linq
     /// <returns>Visit result.</returns>
     protected virtual MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding binding)
     {
-      IEnumerable<MemberBinding> bindings = VisitBindingList(binding.Bindings);
-      if (bindings!=binding.Bindings) {
+      var bindingBindings = binding.Bindings;
+      IEnumerable<MemberBinding> bindings = VisitBindingList(bindingBindings);
+      if (bindings != bindingBindings) {
         return Expression.MemberBind(binding.Member, bindings);
       }
       return binding;
@@ -268,8 +289,9 @@ namespace Xtensive.Linq
 
     protected virtual MemberListBinding VisitMemberListBinding(MemberListBinding binding)
     {
-      IEnumerable<ElementInit> initializers = VisitElementInitializerList(binding.Initializers);
-      if (initializers!=binding.Initializers)
+      var bindingInitializers = binding.Initializers;
+      IEnumerable<ElementInit> initializers = VisitElementInitializerList(bindingInitializers);
+      if (initializers != bindingInitializers)
         return Expression.ListBind(binding.Member, initializers);
       return binding;
     }
