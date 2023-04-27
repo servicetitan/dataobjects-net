@@ -21,9 +21,9 @@ namespace Xtensive.Linq
     protected override IReadOnlyList<Expression> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
     {
       bool isChanged = false;
-      var expressionCount = expressions.Count;
-      var results = new Expression[expressionCount];
-      for (int i = 0, n = expressionCount; i < n; i++) {
+      var n = expressions.Count;
+      var results = new Expression[n];
+      for (int i = 0; i < n; i++) {
         var expression = expressions[i];
         var p = Visit(expression);
         results[i] = p;
@@ -66,14 +66,8 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitUnary(UnaryExpression u)
-    {
-      var uOperand = u.Operand;
-      Expression operand = Visit(uOperand);
-      if (operand != uOperand)
-        return Expression.MakeUnary(u.NodeType, operand, u.Type, u.Method);
-      return u;
-    }
+    protected override Expression VisitUnary(UnaryExpression u) =>
+      Visit(u, u.Operand, static (u, operand) => Expression.MakeUnary(u.NodeType, operand, u.Type, u.Method));
 
     /// <inheritdoc/>
     protected override Expression VisitBinary(BinaryExpression b)
@@ -88,14 +82,8 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitTypeIs(TypeBinaryExpression tb)
-    {
-      var tbExpression = tb.Expression;
-      Expression expression = Visit(tbExpression);
-      if (expression != tbExpression)
-        return Expression.TypeIs(expression, tb.TypeOperand);
-      return tb;
-    }
+    protected override Expression VisitTypeIs(TypeBinaryExpression tb) =>
+      Visit(tb, tb.Expression, static (tb, expression) => Expression.TypeIs(expression, tb.TypeOperand));
 
     /// <inheritdoc/>
     protected override Expression VisitConstant(ConstantExpression c)
@@ -130,13 +118,8 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitMemberAccess(MemberExpression m)
-    {
-      Expression expression = Visit(m.Expression);
-      if (expression!=m.Expression)
-        return Expression.MakeMemberAccess(expression, m.Member);
-      return m;
-    }
+    protected override Expression VisitMemberAccess(MemberExpression m) =>
+      Visit(m, m.Expression, static (m, expression) => Expression.MakeMemberAccess(expression, m.Member));
 
     /// <inheritdoc/>
     protected override Expression VisitMethodCall(MethodCallExpression mc)
@@ -155,23 +138,19 @@ namespace Xtensive.Linq
     /// </summary>
     /// <param name="ma">The member assignment expression.</param>
     /// <returns>Visit result.</returns>
-    protected virtual MemberAssignment VisitMemberAssignment(MemberAssignment ma)
-    {
-      var maExpression = ma.Expression;
-      Expression expression = Visit(maExpression);
-      if (expression != maExpression)
-        return Expression.Bind(ma.Member, expression);
-      return ma;
-    }
+    protected virtual MemberAssignment VisitMemberAssignment(MemberAssignment ma) =>
+      Visit(ma, ma.Expression, static (ma, expression) => Expression.Bind(ma.Member, expression));
 
     /// <inheritdoc/>
-    protected override Expression VisitLambda(LambdaExpression l)
+    protected override Expression VisitLambda(LambdaExpression l) =>
+      Visit(l, l.Body, static (l, body) => FastExpression.Lambda(l.Type, body, l.Parameters));
+
+    private TOriginal Visit<TOriginal, TSubExpression>(TOriginal original, TSubExpression subExpression, Func<TOriginal, Expression, TOriginal> func) where TSubExpression : Expression
     {
-      var lBody = l.Body;
-      Expression body = Visit(lBody);
-      if (body != lBody)
-        return FastExpression.Lambda(l.Type, body, l.Parameters);
-      return l;
+      var newExpr = Visit(subExpression);
+      return newExpr != subExpression
+        ? func(original, newExpr)
+        : original;
     }
 
     /// <inheritdoc/>
@@ -276,12 +255,13 @@ namespace Xtensive.Linq
     /// <returns>Visit result.</returns>
     protected virtual IReadOnlyList<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original)
     {
-      var results = new List<MemberBinding>();
+      var n = original.Count;
+      var results = new MemberBinding[n];
       bool isChanged = false;
-      for (int i = 0, n = original.Count; i < n; i++) {
+      for (int i = 0; i < n; i++) {
         var originalBinding = original[i];
         MemberBinding p = VisitBinding(originalBinding);
-        results.Add(p);
+        results[i] = p;
         isChanged |= !ReferenceEquals(originalBinding, p);
       }
       return isChanged ? results.AsSafeWrapper() : original;
