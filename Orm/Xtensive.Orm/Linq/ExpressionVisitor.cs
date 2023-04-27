@@ -230,16 +230,24 @@ namespace Xtensive.Linq
     protected virtual IReadOnlyList<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original) =>
       VisitList(original, VisitBinding);
 
-    private static IReadOnlyList<T> VisitList<T>(ReadOnlyCollection<T> original, Func<T, T> func) where T : class
+    public static IReadOnlyList<T> VisitList<T>(ReadOnlyCollection<T> original, Func<T, T> func) where T : class
     {
-      var n = original.Count;
-      var results = new T[n];
-      bool isChanged = false;
-      for (int i = 0; i < n; i++) {
+      T[] ar = null;
+      for (int i = 0, n = original.Count; i < n; i++) {
         var originalValue = original[i];
-        isChanged |= !ReferenceEquals(originalValue, results[i] = func(originalValue));
+        var p = func(originalValue);
+        if (ar != null) {
+          ar[i] = p;
+        }
+        else if (p != originalValue) {
+          ar = new T[n];
+          for (int j = 0; j < i; j++) {
+            ar[j] = original[j];
+          }
+          ar[i] = p;
+        }
       }
-      return isChanged ? results.AsSafeWrapper() : original;
+      return ar?.AsSafeWrapper() ?? original;
     }
 
     protected virtual MemberListBinding VisitMemberListBinding(MemberListBinding binding)

@@ -215,25 +215,8 @@ namespace Xtensive.Orm.BulkOperations
       return original;
     }
 
-    private IEnumerable<Expression> VisitExpressionList(ReadOnlyCollection<Expression> original)
-    {
-      Expression[] ar = null;
-      for (int i = 0, n = original.Count; i < n; i++) {
-        var p = Visit(original[i]);
-        if (ar != null)
-          ar[i] = p;
-        else if (p != original[i]) {
-          ar = new Expression[n];
-          for (int j = 0; j < i; j++) {
-            ar[j] = original[j];
-          }
-          ar[i] = p;
-        }
-      }
-      if (ar != null)
-        return ar.AsSafeWrapper();
-      return original;
-    }
+    private IEnumerable<Expression> VisitExpressionList(ReadOnlyCollection<Expression> original) =>
+      Xtensive.Linq.ExpressionVisitor.VisitList(original, Visit);
 
     private Expression VisitInvocation(InvocationExpression iv)
     {
