@@ -185,9 +185,10 @@ namespace Xtensive.Linq
     protected override Expression VisitInvocation(InvocationExpression i)
     {
       var iArguments = i.Arguments;
+      var iExpression = i.Expression;
       IEnumerable<Expression> arguments = VisitExpressionList(iArguments);
-      Expression expression = Visit(i.Expression);
-      if ((arguments == iArguments) && (expression == i.Expression))
+      Expression expression = Visit(iExpression);
+      if ((arguments == iArguments) && (expression == iExpression))
         return i;
       return Expression.Invoke(expression, arguments);
     }
