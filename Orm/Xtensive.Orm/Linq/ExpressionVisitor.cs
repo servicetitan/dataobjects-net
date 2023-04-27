@@ -18,19 +18,8 @@ namespace Xtensive.Linq
   /// </summary>
   public abstract class ExpressionVisitor : ExpressionVisitor<Expression>
   {
-    protected override IReadOnlyList<Expression> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
-    {
-      bool isChanged = false;
-      var n = expressions.Count;
-      var results = new Expression[n];
-      for (int i = 0; i < n; i++) {
-        var expression = expressions[i];
-        var p = Visit(expression);
-        results[i] = p;
-        isChanged |= !ReferenceEquals(expression, p);
-      }
-      return isChanged ? results.AsSafeWrapper() : expressions;
-    }
+    protected override IReadOnlyList<Expression> VisitExpressionList(ReadOnlyCollection<Expression> expressions) =>
+      VisitList(expressions, Visit);
 
     /// <summary>
     /// Visits the element initializer expression.
@@ -52,18 +41,8 @@ namespace Xtensive.Linq
     /// </summary>
     /// <param name="original">The original element initializer list.</param>
     /// <returns>Visit result.</returns>
-    protected virtual IReadOnlyList<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original)
-    {
-      var results = new List<ElementInit>();
-      bool isChanged = false;
-      for (int i = 0, n = original.Count; i < n; i++) {
-        var originalIntializer = original[i];
-        ElementInit p = VisitElementInitializer(originalIntializer);
-        results.Add(p);
-        isChanged |= !ReferenceEquals(originalIntializer, p);
-      }
-      return isChanged ? results.AsSafeWrapper() : original;
-    }
+    protected virtual IReadOnlyList<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original) =>
+      VisitList(original, VisitElementInitializer);
 
     /// <inheritdoc/>
     protected override Expression VisitUnary(UnaryExpression u) =>
@@ -253,16 +232,17 @@ namespace Xtensive.Linq
     /// </summary>
     /// <param name="original">The original binding list.</param>
     /// <returns>Visit result.</returns>
-    protected virtual IReadOnlyList<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original)
+    protected virtual IReadOnlyList<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original) =>
+      VisitList(original, VisitBinding);
+
+    private static IReadOnlyList<T> VisitList<T>(ReadOnlyCollection<T> original, Func<T, T> func) where T : class
     {
       var n = original.Count;
-      var results = new MemberBinding[n];
+      var results = new T[n];
       bool isChanged = false;
       for (int i = 0; i < n; i++) {
-        var originalBinding = original[i];
-        MemberBinding p = VisitBinding(originalBinding);
-        results[i] = p;
-        isChanged |= !ReferenceEquals(originalBinding, p);
+        var originalValue = original[i];
+        isChanged |= !ReferenceEquals(originalValue, results[i] = func(originalValue));
       }
       return isChanged ? results.AsSafeWrapper() : original;
     }
