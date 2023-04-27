@@ -239,7 +239,7 @@ namespace Xtensive.Linq
         if (ar != null) {
           ar[i] = p;
         }
-        else if (p != originalValue) {
+        else if (!ReferenceEquals(p, originalValue)) {
           ar = new T[n];
           for (int j = 0; j < i; j++) {
             ar[j] = original[j];
