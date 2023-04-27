@@ -217,20 +217,21 @@ namespace Xtensive.Orm.BulkOperations
 
     private IEnumerable<Expression> VisitExpressionList(ReadOnlyCollection<Expression> original)
     {
-      List<Expression> list = null;
+      Expression[] ar = null;
       for (int i = 0, n = original.Count; i < n; i++) {
         var p = Visit(original[i]);
-        if (list != null)
-          list.Add(p);
+        if (ar != null)
+          ar[i] = p;
         else if (p != original[i]) {
-          list = new List<Expression>(n);
-          for (int j = 0; j < i; j++)
-            list.Add(original[j]);
-          list.Add(p);
+          ar = new Expression[n];
+          for (int j = 0; j < i; j++) {
+            ar[j] = original[j];
+          }
+          ar[i] = p;
         }
       }
-      if (list != null)
-        return list.AsReadOnly();
+      if (ar != null)
+        return ar.AsSafeWrapper();
       return original;
     }
 

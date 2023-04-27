@@ -139,9 +139,10 @@ namespace Xtensive.Linq
       IEnumerable<Expression> arguments = VisitExpressionList(nArguments);
       if (arguments == nArguments)
         return n;
-      if (n.Members != null)
-        return Expression.New(n.Constructor, arguments, n.Members);
-      return Expression.New(n.Constructor, arguments);
+      var nMembers = n.Members;
+      return nMembers != null
+        ? Expression.New(n.Constructor, arguments, nMembers)
+        : Expression.New(n.Constructor, arguments);
     }
 
     /// <inheritdoc/>
@@ -198,19 +199,13 @@ namespace Xtensive.Linq
     /// </summary>
     /// <param name="binding">The member binding.</param>
     /// <returns>Visit result.</returns>
-    protected virtual MemberBinding VisitBinding(MemberBinding binding)
-    {
-      switch (binding.BindingType) {
-        case MemberBindingType.Assignment:
-          return VisitMemberAssignment((MemberAssignment) binding);
-        case MemberBindingType.MemberBinding:
-          return VisitMemberMemberBinding((MemberMemberBinding) binding);
-        case MemberBindingType.ListBinding:
-          return VisitMemberListBinding((MemberListBinding) binding);
-        default:
-          throw new Exception($"Unhandled binding type '{binding.BindingType}'");
-      }
-    }
+    protected virtual MemberBinding VisitBinding(MemberBinding binding) =>
+      binding.BindingType switch {
+        MemberBindingType.Assignment => VisitMemberAssignment((MemberAssignment) binding),
+        MemberBindingType.MemberBinding => VisitMemberMemberBinding((MemberMemberBinding) binding),
+        MemberBindingType.ListBinding => VisitMemberListBinding((MemberListBinding) binding),
+        _ => throw new Exception($"Unhandled binding type '{binding.BindingType}'")
+      };
 
     /// <summary>
     /// Visits the member member binding.

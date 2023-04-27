@@ -20,7 +20,7 @@ namespace Xtensive.Linq
   /// <typeparam name="TResult">Type of the visit result.</typeparam>
   public abstract class ExpressionVisitor<TResult>
   {
-    private readonly Dictionary<Expression, TResult> cache = null;
+    private readonly Dictionary<Expression, TResult> cache;
 
     /// <summary>
     /// Gets a value indicating whether this visitor is caching.
@@ -103,10 +103,10 @@ namespace Xtensive.Linq
     /// <returns>Visit result.</returns>
     protected virtual IReadOnlyList<TResult> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
     {
-      var results = new List<TResult>(expressions.Count);
-      for (int i = 0, n = expressions.Count; i < n; i++) {
-        var p = Visit(expressions[i]);
-        results.Add(p);
+      var n = expressions.Count;
+      var results = new TResult[n];
+      for (int i = 0; i < n; i++) {
+        results[i] = Visit(expressions[i]);
       }
       return results.AsSafeWrapper();
     }
@@ -238,9 +238,7 @@ namespace Xtensive.Linq
     /// should be cached and resolved by cache when possible.</param>
     protected ExpressionVisitor(bool isCaching = false)
     {
-      if (isCaching) {
-        cache = new();
-      }
+      cache = isCaching ? new() : null;
     }
   }
 }
