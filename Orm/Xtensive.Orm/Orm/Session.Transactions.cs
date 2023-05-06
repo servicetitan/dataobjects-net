@@ -235,7 +235,7 @@ namespace Xtensive.Orm
         await Handler.CreateSavepointAsync(transaction, token).ConfigureAwait(false);
       }
       else {
-        Handler.BeginTransaction(transaction);
+        await Handler.BeginTransactionAsync(transaction, token);
       }
     }
 

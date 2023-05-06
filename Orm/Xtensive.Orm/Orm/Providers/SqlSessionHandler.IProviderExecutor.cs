@@ -22,13 +22,16 @@ namespace Xtensive.Orm.Providers
     DataReader IProviderExecutor.ExecuteTupleReader(QueryRequest request,
       ParameterContext parameterContext)
     {
+      if (Session.Domain.Configuration.SyncOverAsyncSqlClientApi) {
+        return ExecuteTupleReaderAsync(request, parameterContext, default).GetAwaiter().GetResult();
+      }
       Prepare();
       using var context = new CommandProcessorContext(parameterContext);
       return commandProcessor.ExecuteTasksWithReader(request, context);
     }
 
     /// <inheritdoc/>
-    async Task<DataReader> IProviderExecutor.ExecuteTupleReaderAsync(QueryRequest request,
+    public async Task<DataReader> ExecuteTupleReaderAsync(QueryRequest request,
       ParameterContext parameterContext, CancellationToken token)
     {
       await PrepareAsync(token).ConfigureAwait(false);

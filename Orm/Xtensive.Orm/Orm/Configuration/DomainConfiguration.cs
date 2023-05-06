@@ -673,6 +673,12 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public int MaxNumberOfConditions { get; set; } = 256;
 
+    /// <summary>
+    /// Workaround of https://github.com/dotnet/SqlClient/issues/422 issue
+    /// Combination of MARS + Linux + Sync SqlClient API word slowly
+    /// </summary>
+    public bool SyncOverAsyncSqlClientApi { get; set; } = false;
+
     private bool GetIsMultidatabase()
     {
       return !string.IsNullOrEmpty(DefaultDatabase)
