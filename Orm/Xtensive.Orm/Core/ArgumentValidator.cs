@@ -80,8 +80,9 @@ namespace Xtensive.Core
 #endif
     }
 
+    [Obsolete("Use CommunityToolkit.Diagnostics.Guard.IsNotNullOrWhiteSpace()")]
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void EnsureArgumentNotNullOrEmptyOrWhiteSpace(string value, [InvokerParameterName] string parameterName)
+    internal static void EnsureArgumentNotNullOrEmptyOrWhiteSpace(string value, [InvokerParameterName] string parameterName)
     {
       ArgumentNullException.ThrowIfNull(value, parameterName);
 
