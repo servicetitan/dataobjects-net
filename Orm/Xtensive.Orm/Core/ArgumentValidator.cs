@@ -27,7 +27,7 @@ namespace Xtensive.Core
 #if NET6_0_OR_GREATER
     [Obsolete("Use ArgumentNullException.ThrowIfNull()")]
 #endif
-    public static void EnsureArgumentNotNull(object value, [InvokerParameterName] string parameterName)
+    internal static void EnsureArgumentNotNull(object value, [InvokerParameterName] string parameterName)
     {
 #if NET6_0_OR_GREATER
       ArgumentNullException.ThrowIfNull(value, parameterName);
@@ -65,7 +65,10 @@ namespace Xtensive.Core
     /// <param name="value">Value to check.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void EnsureArgumentNotNullOrEmpty(string value, [InvokerParameterName] string parameterName)
+#if NET7_0_OR_GREATER
+    [Obsolete("Use ArgumentException.ThrowIfNullOrEmpty()")]
+#endif
+    internal static void EnsureArgumentNotNullOrEmpty(string value, [InvokerParameterName] string parameterName)
     {
       ArgumentNullException.ThrowIfNull(value, parameterName);
       if (value.Length == 0) {
