@@ -70,10 +70,14 @@ namespace Xtensive.Core
 #endif
     internal static void EnsureArgumentNotNullOrEmpty(string value, [InvokerParameterName] string parameterName)
     {
+#if NET7_0_OR_GREATER
+      ArgumentException.ThrowIfNullOrEmpty(value, parameterName);
+#else
       ArgumentNullException.ThrowIfNull(value, parameterName);
       if (value.Length == 0) {
         throw new ArgumentException(Strings.ExArgumentCannotBeEmptyString, parameterName);
       }
+#endif
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
