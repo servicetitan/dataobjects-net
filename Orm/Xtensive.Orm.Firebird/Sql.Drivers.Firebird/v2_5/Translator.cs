@@ -238,10 +238,10 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 #endif
 
     public override void SelectLimit(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("FIRST ");
+      context.Output.AppendSpacePrefixed("FIRST ");
 
     public override void SelectOffset(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("SKIP ");
+      context.Output.AppendSpacePrefixed("SKIP ");
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)

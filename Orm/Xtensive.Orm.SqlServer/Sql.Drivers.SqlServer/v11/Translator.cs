@@ -50,17 +50,17 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       }
     }
 
-    public virtual void SelectLimit(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("FETCH NEXT ");
+    public override void SelectLimit(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("FETCH NEXT ");
 
     public override void SelectOffset(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("OFFSET ");
+      context.Output.AppendSpacePrefixed("OFFSET ");
 
     public override void SelectLimitEnd(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("ROWS ONLY ");
+      context.Output.AppendSpacePrefixed("ROWS ONLY ");
 
     public override void SelectOffsetEnd(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("ROWS ");
+      context.Output.AppendSpacePrefixed("ROWS ");
 
     private void TranslateSequenceStatement(SqlCompilerContext context, Sequence sequence, string action)
     {

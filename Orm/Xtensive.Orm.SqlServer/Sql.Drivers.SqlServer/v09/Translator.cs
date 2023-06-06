@@ -320,7 +320,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     }
 
     public override void SelectLimit(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("TOP ");
+      context.Output.AppendSpacePrefixed("TOP ");
 
     public override void SelectOffset(SqlCompilerContext context, SqlSelect node) => throw new NotSupportedException();
 

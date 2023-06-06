@@ -1717,25 +1717,25 @@ namespace Xtensive.Sql.Compiler
       context.Output.Append(node.Distinct ? "SELECT DISTINCT " : "SELECT ");
 
     public virtual void SelectFrom(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("FROM ");
+      context.Output.AppendSpacePrefixed("FROM ");
 
     public virtual void SelectWhere(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("WHERE ");
+      context.Output.AppendSpacePrefixed("WHERE ");
 
     public virtual void SelectLimit(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("LIMIT ");
+      context.Output.AppendSpacePrefixed("LIMIT ");
 
     public virtual void SelectGroupBy(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("GROUP BY ");
+      context.Output.AppendSpacePrefixed("GROUP BY ");
 
     public virtual void SelectOrderBy(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("ORDER BY ");
+      context.Output.AppendSpacePrefixed("ORDER BY ");
 
     public virtual void SelectHaving(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("HAVING ");
+      context.Output.AppendSpacePrefixed("HAVING ");
 
     public virtual void SelectOffset(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("OFFSET ");
+      context.Output.AppendSpacePrefixed("OFFSET ");
 
     public virtual void SelectLimitEnd(SqlCompilerContext context, SqlSelect node) { }
     public virtual void SelectOffsetEnd(SqlCompilerContext context, SqlSelect node) { }

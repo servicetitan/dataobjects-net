@@ -76,10 +76,10 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     public override void SelectOffset(SqlCompilerContext context, SqlSelect node) => throw new NotSupportedException();
 
     public override void SelectHintsEntry(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("/*+ ");
+      context.Output.AppendSpacePrefixed("/*+ ");
 
     public override void SelectHintsExit(SqlCompilerContext context, SqlSelect node) =>
-      context.Output.AppendSpaceIfNecessary().Append("*/ ");
+      context.Output.AppendSpacePrefixed("*/ ");
 
     /// <inheritdoc/>
     public override string Translate(SqlJoinMethod method)
