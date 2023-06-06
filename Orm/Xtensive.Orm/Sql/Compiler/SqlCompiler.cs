@@ -1577,13 +1577,13 @@ namespace Xtensive.Sql.Compiler
       }
 
       using (context.EnterCollectionScope()) {
-        AppendTranslated(node, SelectSection.HintsEntry);
+        translator.SelectHintsEntry(context, node);
         hints[0].AcceptVisitor(this);
         for (var i = 1; i < hints.Count; i++) {
           AppendDelimiter(translator.HintDelimiter);
           hints[i].AcceptVisitor(this);
         }
-        AppendTranslated(node, SelectSection.HintsExit);
+        translator.SelectHintsExit(context, node);
       }
     }
 
@@ -1635,8 +1635,7 @@ namespace Xtensive.Sql.Compiler
       }
 
       AppendSpace();
-      translator.Translate(context, node, SelectSection.From);
-      AppendSpace();
+      translator.SelectFrom(context, node);
 
       var joinedFrom = node.From as SqlJoinedTable;
       var linearJoinRequired = CheckFeature(QueryFeatures.StrictJoinSyntax) && joinedFrom != null;
@@ -1677,7 +1676,7 @@ namespace Xtensive.Sql.Compiler
         return;
       }
 
-      AppendTranslated(node, SelectSection.Where);
+      translator.SelectWhere(context, node);
       node.Where.AcceptVisitor(this);
     }
 
@@ -1691,9 +1690,7 @@ namespace Xtensive.Sql.Compiler
         return;
       }
       // group by
-      AppendSpace();
-      translator.Translate(context, node, SelectSection.GroupBy);
-      AppendSpace();
+      translator.SelectGroupBy(context, node);
       using (context.EnterCollectionScope()) {
         foreach (var item in node.GroupBy) {
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
@@ -1710,7 +1707,7 @@ namespace Xtensive.Sql.Compiler
         return;
       }
       // having
-      AppendTranslated(node, SelectSection.Having);
+      translator.SelectHaving(context, node);
       node.Having.AcceptVisitor(this);
     }
 
@@ -1724,9 +1721,7 @@ namespace Xtensive.Sql.Compiler
         return;
       }
 
-      AppendSpace();
-      translator.Translate(context, node, SelectSection.OrderBy);
-      AppendSpace();
+      translator.SelectOrderBy(context, node);
       using (context.EnterCollectionScope()) {
         foreach (var item in node.OrderBy) {
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
@@ -1742,14 +1737,14 @@ namespace Xtensive.Sql.Compiler
     protected virtual void VisitSelectLimitOffset(SqlSelect node)
     {
       if (node.Limit is not null) {
-        AppendTranslated(node, SelectSection.Limit);
+        translator.SelectLimit(context, node);
         node.Limit.AcceptVisitor(this);
-        AppendTranslated(node, SelectSection.LimitEnd);
+        translator.SelectLimitEnd(context, node);
       }
       if (node.Offset is not null) {
-        AppendTranslated(node, SelectSection.Offset);
+        translator.SelectOffset(context, node);
         node.Offset.AcceptVisitor(this);
-        AppendTranslated(node, SelectSection.OffsetEnd);
+        translator.SelectOffsetEnd(context, node);
       }
     }
 
@@ -2735,21 +2730,11 @@ namespace Xtensive.Sql.Compiler
     protected void AppendTranslated(SqlRowNumber node, NodeSection section) =>
       translator.Translate(context, node, section);
 
-    protected void AppendTranslated(SqlSelect node, SelectSection section)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslatedEntry(SqlSelect node)
-    {
-      translator.Translate(context, node, SelectSection.Entry);
-      AppendSpaceIfNecessary();
-    }
+    protected void AppendTranslatedEntry(SqlSelect node) =>
+      translator.SelectEntry(context, node);
 
     protected void AppendTranslatedExit(SqlSelect node) =>
-      translator.Translate(context, node, SelectSection.Exit);
+      translator.SelectExit(context, node);
 
     protected void AppendTranslated(SqlStatementBlock node, NodeSection section)
     {

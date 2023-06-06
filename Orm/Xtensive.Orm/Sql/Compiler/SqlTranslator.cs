@@ -1713,26 +1713,35 @@ namespace Xtensive.Sql.Compiler
       TranslateIdentifier(context.Output, node.NewName);
     }
 
-    /// <summary>
-    /// Translates <see cref="SqlSelect"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Statement to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
-    {
-      _ = context.Output.Append(section switch {
-        SelectSection.Entry => node.Distinct ? "SELECT DISTINCT" : "SELECT",
-        SelectSection.From => "FROM",
-        SelectSection.Where => "WHERE",
-        SelectSection.GroupBy => "GROUP BY",
-        SelectSection.Having => "HAVING",
-        SelectSection.OrderBy => "ORDER BY",
-        SelectSection.Limit => "LIMIT",
-        SelectSection.Offset => "OFFSET",
-        _ => string.Empty
-      });
-    }
+    public virtual void SelectEntry(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.Append(node.Distinct ? "SELECT DISTINCT " : "SELECT ");
+
+    public virtual void SelectFrom(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpaceIfNecessary().Append("FROM ");
+
+    public virtual void SelectWhere(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpaceIfNecessary().Append("WHERE ");
+
+    public virtual void SelectLimit(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpaceIfNecessary().Append("LIMIT ");
+
+    public virtual void SelectGroupBy(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpaceIfNecessary().Append("GROUP BY ");
+
+    public virtual void SelectOrderBy(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpaceIfNecessary().Append("ORDER BY ");
+
+    public virtual void SelectHaving(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpaceIfNecessary().Append("HAVING ");
+
+    public virtual void SelectOffset(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpaceIfNecessary().Append("OFFSET ");
+
+    public virtual void SelectLimitEnd(SqlCompilerContext context, SqlSelect node) { }
+    public virtual void SelectOffsetEnd(SqlCompilerContext context, SqlSelect node) { }
+    public virtual void SelectExit(SqlCompilerContext context, SqlSelect node) { }
+    public virtual void SelectHintsEntry(SqlCompilerContext context, SqlSelect node) { }
+    public virtual void SelectHintsExit(SqlCompilerContext context, SqlSelect node) { }
 
     /// <summary>
     /// Translates <see cref="SqlStatementBlock"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.

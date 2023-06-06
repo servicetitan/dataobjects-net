@@ -195,23 +195,6 @@ namespace Xtensive.Sql.Compiler
     Specification = 2,
   }
 
-  public enum SelectSection
-  {
-    Entry = 0,
-    Exit = 1,
-    From = 3,
-    Where = 4,
-    GroupBy = 5,
-    Having = 6,
-    OrderBy = 7,
-    HintsEntry = 8,
-    HintsExit = 9,
-    Limit = 10,
-    Offset = 11,
-    LimitEnd = 12,
-    OffsetEnd = 13,
-  }
-
   public enum TableSection
   {
     Entry = 0,

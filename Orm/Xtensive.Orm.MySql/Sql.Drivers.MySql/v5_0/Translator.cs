@@ -65,33 +65,25 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
+    public override void SelectHintsEntry(SqlCompilerContext context, SqlSelect node) { }
+
+    public override void SelectHintsExit(SqlCompilerContext context, SqlSelect node)
     {
-      switch (section) {
-        case SelectSection.HintsEntry:
-          break;
-        case SelectSection.HintsExit:
-          if (node.Hints.Count == 0) {
-            break;
+      if (node.Hints.Count != 0) {
+        var hints = new List<string>(node.Hints.Count);
+        foreach (var hint in node.Hints) {
+          if (hint is SqlNativeHint sqlNativeHint) {
+            hints.Add(QuoteIdentifier(sqlNativeHint.HintText));
           }
-          var hints = new List<string>(node.Hints.Count);
-          foreach (var hint in node.Hints) {
-            if (hint is SqlNativeHint sqlNativeHint) {
-              hints.Add(QuoteIdentifier(sqlNativeHint.HintText));
-            }
-          }
-          if (hints.Count > 0) {
-            _ = context.Output.Append("USE INDEX (")
-              .Append(string.Join(", ", hints))
-              .Append(")");
-          }
-          break;
-        default:
-          base.Translate(context, node, section);
-          break;
+        }
+        if (hints.Count > 0) {
+          _ = context.Output.Append("USE INDEX (")
+            .Append(string.Join(", ", hints))
+            .Append(")");
+        }
       }
     }
+
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlFunctionType type)

@@ -237,21 +237,11 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     }
 #endif
 
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
-    {
-      switch (section) {
-        case SelectSection.Limit:
-          _ = context.Output.Append("FIRST");
-          break;
-        case SelectSection.Offset:
-          _ = context.Output.Append("SKIP");
-          break;
-        default:
-          base.Translate(context, node, section);
-          break;
-      }
-    }
+    public override void SelectLimit(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpaceIfNecessary().Append("FIRST ");
+
+    public override void SelectOffset(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpaceIfNecessary().Append("SKIP ");
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
