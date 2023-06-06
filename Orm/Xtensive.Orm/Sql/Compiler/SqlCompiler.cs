@@ -444,7 +444,8 @@ namespace Xtensive.Sql.Compiler
     /// Visits <see cref="SqlColumnRef"/> and translates its parts.
     /// </summary>
     /// <param name="node">Column reference to visit.</param>
-    public virtual void Visit(SqlColumnRef node) => AppendTranslated(node, ColumnSection.Entry);
+    public virtual void Visit(SqlColumnRef node) =>
+      translator.ColumnEntry(context, node);
 
     /// <summary>
     /// Visits <see cref="SqlContainsTable"/> table and translates its parts.
@@ -1606,7 +1607,7 @@ namespace Xtensive.Sql.Compiler
           }
 
           var cr = item as SqlColumnRef;
-          if (cr is not null && cr.SqlColumn is SqlColumnStub) {
+          if (cr?.SqlColumn is SqlColumnStub) {
             continue;
           }
 
@@ -1614,7 +1615,7 @@ namespace Xtensive.Sql.Compiler
           if (cr is not null) {
             AppendSpaceIfNecessary();
             cr.SqlColumn.AcceptVisitor(this);
-            translator.Translate(context, cr, ColumnSection.AliasDeclaration);
+            translator.ColumnAliasDeclaration(context, cr);
           }
           else {
             AppendSpaceIfNecessary();
@@ -2394,13 +2395,6 @@ namespace Xtensive.Sql.Compiler
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-    }
-
-    protected void AppendTranslated(SqlColumnRef node, ColumnSection section)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslatedEntry(SqlConcat node)

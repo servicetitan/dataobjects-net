@@ -63,13 +63,6 @@ namespace Xtensive.Sql.Compiler
     Else = 5,
   }
 
-  public enum ColumnSection
-  {
-    Entry = 0,
-    Exit = 1,
-    AliasDeclaration = 2,
-  }
-
   public enum CreateDomainSection
   {
     Entry = 0,

@@ -516,23 +516,19 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    /// <summary>
-    /// Translates <see cref="SqlColumnRef"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Node to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlColumnRef node, ColumnSection section)
+    public virtual void ColumnEntry(SqlCompilerContext context, SqlColumnRef node)
     {
       var output = context.Output;
-      switch (section) {
-        case ColumnSection.Entry:
-          TranslateIdentifier(output, node.Name);
-          break;
-        case ColumnSection.AliasDeclaration when !string.IsNullOrEmpty(node.Name):
-          _ = output.Append(" AS ");
-          TranslateIdentifier(output, node.Name);
-          break;
+      output.AppendSpaceIfNecessary();
+      TranslateIdentifier(output, node.Name);
+      output.AppendSpaceIfNecessary();
+    }
+
+    public virtual void ColumnAliasDeclaration(SqlCompilerContext context, SqlColumnRef node)
+    {
+      if (!string.IsNullOrEmpty(node.Name)) {
+        _ = context.Output.Append(" AS ");
+        TranslateIdentifier(context.Output, node.Name);
       }
     }
 
