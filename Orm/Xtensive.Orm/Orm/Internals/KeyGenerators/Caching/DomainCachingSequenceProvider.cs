@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -14,17 +14,12 @@ namespace Xtensive.Orm.Internals.KeyGenerators
   {
     private readonly IStorageSequenceAccessor accessor;
 
-    public CachingSequence<TValue> GetSequence(SequenceInfo sequenceInfo, Session session)
-    {
-      var node = session.StorageNode;
-      var result = node.KeySequencesCache.GetOrAdd(sequenceInfo, CreateSequence);
-      return (CachingSequence<TValue>) result;
-    }
-
-    private object CreateSequence(SequenceInfo sequenceInfo)
-    {
-      return new CachingSequence<TValue>(accessor, true);
-    }
+    public CachingSequence<TValue> GetSequence(SequenceInfo sequenceInfo, Session session) =>
+      (CachingSequence<TValue>) session.StorageNode.KeySequencesCache.GetOrAdd(
+        sequenceInfo,
+        static (_, a) => new CachingSequence<TValue>(a, true),
+        accessor
+   );
 
     // Constructor
 
