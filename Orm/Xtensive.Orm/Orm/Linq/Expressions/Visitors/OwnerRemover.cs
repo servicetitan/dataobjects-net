@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
     protected override Expression VisitConstructorExpression(ConstructorExpression expression)
     {
-      var oldConstructorArguments = expression.ConstructorArguments.ToList().AsReadOnly();
+      var oldConstructorArguments = expression.ConstructorArguments;
       var newConstructorArguments = VisitExpressionList(oldConstructorArguments);
 
       var oldBindings = expression.Bindings.Select(b => b.Value).ToList().AsReadOnly();

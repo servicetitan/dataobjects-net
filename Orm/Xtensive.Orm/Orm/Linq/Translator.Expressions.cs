@@ -321,41 +321,43 @@ namespace Xtensive.Orm.Linq
 
     protected override Expression VisitMemberAccess(MemberExpression ma)
     {
-      if (ma.Expression != null)
-        if (ma.Expression.Type != ma.Member.ReflectedType
-          && ma.Member is PropertyInfo
-          && !ma.Member.ReflectedType.IsInterface)
-          ma = Expression.MakeMemberAccess(
-            ma.Expression, ma.Expression.Type.GetProperty(ma.Member.Name, ma.Member.GetBindingFlags()));
-      var customCompiler = context.CustomCompilerProvider.GetCompiler(ma.Member);
+      var maExpression = ma.Expression;
+      var maMember = ma.Member;
+      if (maExpression != null
+            && maExpression.Type != maMember.ReflectedType
+            && maMember is PropertyInfo
+            && !maMember.ReflectedType.IsInterface) {
+          ma = Expression.MakeMemberAccess(maExpression, maExpression.Type.GetProperty(maMember.Name, maMember.GetBindingFlags()));
+          maExpression = ma.Expression;
+          maMember = ma.Member;
+      }
+      var customCompiler = context.CustomCompilerProvider.GetCompiler(maMember);
 
       // Reflected type doesn't have custom compiler defined, so falling back to base class compiler
-      var declaringType = ma.Member.DeclaringType;
-      Type reflectedType = ma.Member.ReflectedType;
+      var declaringType = maMember.DeclaringType;
+      Type reflectedType = maMember.ReflectedType;
       if (customCompiler == null && declaringType != reflectedType && declaringType.IsAssignableFrom(reflectedType)) {
         var root = declaringType;
         var current = reflectedType;
         while (current != root && customCompiler == null) {
           current = current.BaseType;
-          var member = current.GetProperty(ma.Member.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+          var member = current.GetProperty(maMember.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
           customCompiler = context.CustomCompilerProvider.GetCompiler(member);
         }
       }
 
       if (customCompiler != null) {
-        var member = ma.Member;
-        var expression = customCompiler.Invoke(ma.Expression, Array.Empty<Expression>());
+        var expression = customCompiler.Invoke(maExpression, Array.Empty<Expression>());
         if (expression == null) {
-          if (member.ReflectedType.IsInterface)
+          if (maMember.ReflectedType.IsInterface)
             return Visit(BuildInterfaceExpression(ma));
-          if (member.ReflectedType.IsClass)
+          if (maMember.ReflectedType.IsClass)
             return Visit(BuildHierarchyExpression(ma));
         }
         else
           return Visit(expression);
       }
 
-      var expressionMember = ma.Member;
       if (context.Evaluator.CanBeEvaluated(ma) && context.ParameterExtractor.IsParameter(ma)) {
         if (WellKnownInterfaces.Queryable.IsAssignableFrom(ma.Type)) {
           Func<IQueryable> lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
@@ -365,7 +367,7 @@ namespace Xtensive.Orm.Linq
         }
         return ma;
       }
-      if (ma.Expression == null) {
+      if (maExpression == null) {
         if (WellKnownInterfaces.Queryable.IsAssignableFrom(ma.Type)) {
           var lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
           var rootPoint = lambda();
@@ -373,21 +375,21 @@ namespace Xtensive.Orm.Linq
             return VisitSequence(rootPoint.Expression);
         }
       }
-      else if (ma.Expression.NodeType == ExpressionType.Constant) {
-        if (expressionMember is FieldInfo rfi && rfi.FieldType.IsGenericType && WellKnownInterfaces.Queryable.IsAssignableFrom(rfi.FieldType)) {
+      else if (maExpression.NodeType == ExpressionType.Constant) {
+        if (maMember is FieldInfo rfi && rfi.FieldType.IsGenericType && WellKnownInterfaces.Queryable.IsAssignableFrom(rfi.FieldType)) {
           var lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
           var rootPoint = lambda();
           if (rootPoint != null)
             return VisitSequence(rootPoint.Expression);
         }
       }
-      else if (ma.Expression.GetMemberType() == MemberType.Entity && expressionMember.Name != "Key") {
-        var type = ma.Expression.Type;
-        if (ma.Expression is ParameterExpression parameter) {
+      else if (maExpression.GetMemberType() == MemberType.Entity && maMember.Name != "Key") {
+        var type = maExpression.Type;
+        if (maExpression is ParameterExpression parameter) {
           var projection = context.Bindings[parameter];
           type = projection.ItemProjector.Item.Type;
         }
-        var fieldName = context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) expressionMember);
+        var fieldName = context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) maMember);
         if (!context.Model.Types[type].Fields.Contains(fieldName) && fieldName != "TypeInfo") {
           throw new NotSupportedException(String.Format(Strings.ExFieldMustBePersistent, ma.ToString(true)));
         }
@@ -397,7 +399,7 @@ namespace Xtensive.Orm.Linq
         source = Visit(ma.Expression);
       }
 
-      var result = GetMember(source, expressionMember, ma);
+      var result = GetMember(source, maMember, ma);
       return result ?? base.VisitMemberAccess(ma);
     }
 
@@ -707,7 +709,7 @@ namespace Xtensive.Orm.Linq
 
     #region Private helper methods
 
-    private Dictionary<MemberInfo, Expression> GetBindingsForConstructor(ParameterInfo[] constructorParameters, IList<Expression> constructorArguments, Expression newExpression)
+    private Dictionary<MemberInfo, Expression> GetBindingsForConstructor(ParameterInfo[] constructorParameters, IReadOnlyList<Expression> constructorArguments, Expression newExpression)
     {
       var bindings = new Dictionary<MemberInfo, Expression>();
       var duplicateMembers = new HashSet<MemberInfo>();
@@ -1296,13 +1298,15 @@ namespace Xtensive.Orm.Linq
     protected override Expression VisitMemberInit(MemberInitExpression mi)
     {
       var newExpression = mi.NewExpression;
-      var arguments = VisitNewExpressionArguments(newExpression);
+      var _ = VisitNewExpressionArguments(newExpression);
       var bindings = VisitBindingList(mi.Bindings).Cast<MemberAssignment>();
-      var constructorExpression = (ConstructorExpression) VisitNew(mi.NewExpression);
+      var miNewExpression = mi.NewExpression;
+      var constructorExpression = (ConstructorExpression) VisitNew(miNewExpression);
       foreach (var binding in bindings) {
-        var member = binding.Member.MemberType == MemberTypes.Property
-          ? TryGetActualPropertyInfo((PropertyInfo) binding.Member, mi.NewExpression.Type)
-          : binding.Member;
+        var member = binding.Member;
+        if (member.MemberType == MemberTypes.Property) {
+          member = TryGetActualPropertyInfo((PropertyInfo) member, miNewExpression.Type);
+        }
         constructorExpression.Bindings[member] = binding.Expression;
         constructorExpression.NativeBindings[member] = binding.Expression;
       }

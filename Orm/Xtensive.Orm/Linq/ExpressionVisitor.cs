@@ -18,7 +18,7 @@ namespace Xtensive.Linq
   /// </summary>
   public abstract class ExpressionVisitor : ExpressionVisitor<Expression>
   {
-    protected override IReadOnlyList<Expression> VisitExpressionList(ReadOnlyCollection<Expression> expressions) =>
+    protected override IReadOnlyList<Expression> VisitExpressionList(IReadOnlyList<Expression> expressions) =>
       VisitList(expressions, Visit);
 
     /// <summary>
@@ -231,7 +231,7 @@ namespace Xtensive.Linq
     protected virtual IReadOnlyList<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original) =>
       VisitList(original, VisitBinding);
 
-    public static IReadOnlyList<T> VisitList<T>(ReadOnlyCollection<T> original, Func<T, T> func) where T : class
+    public static IReadOnlyList<T> VisitList<T>(IReadOnlyList<T> original, Func<T, T> func) where T : class
     {
       T[] ar = null;
       for (int i = 0, n = original.Count; i < n; i++) {
