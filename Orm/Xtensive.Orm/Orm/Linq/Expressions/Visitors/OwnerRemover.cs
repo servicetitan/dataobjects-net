@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       var oldConstructorArguments = expression.ConstructorArguments;
       var newConstructorArguments = VisitExpressionList(oldConstructorArguments);
 
-      var oldBindings = expression.Bindings.Select(b => b.Value).ToList().AsReadOnly();
+      var oldBindings = expression.Bindings.Values.ToArray(expression.Bindings.Count);
       var newBindings = VisitExpressionList(oldBindings);
 
       var oldNativeBindings = expression.NativeBindings.Select(b => b.Value).ToList().AsReadOnly();
