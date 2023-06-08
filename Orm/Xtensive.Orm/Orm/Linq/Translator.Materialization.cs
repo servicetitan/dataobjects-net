@@ -161,10 +161,9 @@ namespace Xtensive.Orm.Linq
         using (CreateScope(new TranslatorState(State) { CalculateExpressions = false })) {
           body = Visit(argument);
         }
-        body = body.StripMarkers().IsProjection()
+        arguments[i++] = body.StripMarkers().IsProjection()
           ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
           : ProcessProjectionElement(body);
-        arguments[i++] = body;
       }
       var constructorParameters = n.GetConstructorParameters();
       for (i = 0; i < count; i++) {

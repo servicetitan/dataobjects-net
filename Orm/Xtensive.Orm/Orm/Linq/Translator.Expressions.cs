@@ -662,11 +662,11 @@ namespace Xtensive.Orm.Linq
       // ReSharper disable ConditionIsAlwaysTrueOrFalse
 
       var strippedMarkersExpression = newExpression.StripMarkers();
-      if (newExpression.Members == null) {
-        if (strippedMarkersExpression.IsGroupingExpression()
-          || strippedMarkersExpression.IsSubqueryExpression()
-          || newExpression.IsNewExpressionSupportedByStorage())
-          return base.VisitNew(newExpression);
+      var newExpressionMembers = newExpression.Members;
+      if (newExpressionMembers is null && (strippedMarkersExpression.IsGroupingExpression()
+                                           || strippedMarkersExpression.IsSubqueryExpression()
+                                           || newExpression.IsNewExpressionSupportedByStorage())) {
+        return base.VisitNew(newExpression);
       }
 
       // ReSharper restore ConditionIsAlwaysTrueOrFalse
@@ -674,9 +674,9 @@ namespace Xtensive.Orm.Linq
 
       var arguments = VisitNewExpressionArguments(newExpression);
       if (strippedMarkersExpression.IsAnonymousConstructor()) {
-        return newExpression.Members == null
+        return newExpressionMembers is null
           ? Expression.New(newExpression.Constructor, arguments)
-          : Expression.New(newExpression.Constructor, arguments, newExpression.Members);
+          : Expression.New(newExpression.Constructor, arguments, newExpressionMembers);
       }
 
       var constructorParameters = newExpression.GetConstructorParameters();
