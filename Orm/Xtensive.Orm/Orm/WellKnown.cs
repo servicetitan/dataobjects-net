@@ -89,9 +89,22 @@ namespace Xtensive.Orm
     /// </summary>
     public const int MaxGenericKeyLength = 4;
 
+    /// <summary>
+    /// Maximal number of filtering values in an <see cref="IncludeProvider"/>
+    /// which are to be placed inside a resulted SQL command (as boolean predicate).
+    /// </summary>
+    [Obsolete("Use DefaultNumberOfConditions")]
+    public const int MaxNumberOfConditions = 256;
+
+    /// <summary>
+    /// Default value of maximal number of filtering values in an <see cref="IncludeProvider"/>
+    /// which are to be placed inside a resulted SQL command (as boolean predicate).
+    /// </summary>
+    public const int DefaultMaxNumberOfConditions = 256;
+
     public const int MultiRowInsertLevel1BatchSize = 16;
 
-    public const int MultiRowInsertLevel2BatchSize = 256;
+    public const int MultiRowInsertLevel2BatchSize = DefaultMaxNumberOfConditions;
 
     /// <summary>
     /// Maximum number of cached keys in <see cref="EntitySetState"/>.
