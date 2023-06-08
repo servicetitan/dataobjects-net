@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Linq
 
     public Dictionary<MemberInfo, Expression> NativeBindings { get; private set; }
 
-    public ConstructorInfo Constructor { get; private set; }
+    public ConstructorInfo Constructor { get; }
 
     public IReadOnlyList<Expression> ConstructorArguments { get; }
 
