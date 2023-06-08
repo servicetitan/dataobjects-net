@@ -1318,7 +1318,7 @@ namespace Xtensive.Sql.Compiler
         AppendTranslated(node, JoinSection.Specification);
         node.Right.AcceptVisitor(this);
         if (node.Expression is not null) {
-          AppendTranslated(node, JoinSection.Condition);
+          translator.JoinCondition(context, node);
           node.Expression.AcceptVisitor(this);
         }
         AppendTranslated(node, JoinSection.Exit);
@@ -1659,7 +1659,7 @@ namespace Xtensive.Sql.Compiler
         AppendTranslated(join, JoinSection.Specification);
         table.AcceptVisitor(this);
         if (condition is not null) {
-          AppendTranslated(join, JoinSection.Condition);
+          translator.JoinCondition(context, join);
           condition.AcceptVisitor(this);
         }
 
@@ -1874,7 +1874,8 @@ namespace Xtensive.Sql.Compiler
     /// Visits entry part of <see cref="SqlUpdate"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    protected virtual void VisitUpdateEntry(SqlUpdate node) => AppendTranslatedEntry(node);
+    protected virtual void VisitUpdateEntry(SqlUpdate node) =>
+      translator.UpdateEntry(context, node);
 
     /// <summary>
     /// Visits UPDATE part of <see cref="SqlUpdate"/> statement.
@@ -2763,9 +2764,6 @@ namespace Xtensive.Sql.Compiler
       translator.Translate(context, node, section);
       AppendSpaceIfNecessary();
     }
-
-    protected void AppendTranslatedEntry(SqlUpdate node) =>
-      translator.Translate(context, node, UpdateSection.Entry);
 
     protected void AppendTranslatedExit(SqlUpdate node) =>
       translator.Translate(context, node, UpdateSection.Exit);

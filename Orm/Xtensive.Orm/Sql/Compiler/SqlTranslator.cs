@@ -1463,14 +1463,14 @@ namespace Xtensive.Sql.Compiler
           Translate(output, node.JoinType);
           _ = output.Append(" JOIN");
           break;
-        case JoinSection.Condition:
-          _ = output.Append(node.JoinType == SqlJoinType.UsingJoin ? "USING" : "ON");
-          break;
         case JoinSection.Exit when explicitJoinOrder:
           _ = output.Append(")");
           break;
       }
     }
+
+    public virtual void JoinCondition(SqlCompilerContext context, SqlJoinExpression node) =>
+      context.Output.AppendSpacePrefixed(node.JoinType == SqlJoinType.UsingJoin ? "USING " : "ON ");
 
     /// <summary>
     /// Translates <see cref="SqlLike"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
@@ -1883,7 +1883,6 @@ namespace Xtensive.Sql.Compiler
     public virtual void Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
     {
       _ = context.Output.Append(section switch {
-        UpdateSection.Entry => "UPDATE",
         UpdateSection.Set => "SET",
         UpdateSection.From => "FROM",
         UpdateSection.Where => (node.Where is SqlCursor) ? "WHERE CURRENT OF" : "WHERE",
@@ -1891,6 +1890,9 @@ namespace Xtensive.Sql.Compiler
         _ => string.Empty
       });
     }
+
+    public virtual void UpdateEntry(SqlCompilerContext context, SqlUpdate node) =>
+      context.Output.Append("UPDATE ");
 
     /// <summary>
     /// Translates <see cref="SqlUserColumn"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.

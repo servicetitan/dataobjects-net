@@ -170,7 +170,6 @@ namespace Xtensive.Sql.Compiler
     Entry = 0,
     Exit = 1,
     Specification = 2,
-    Condition = 3,
   }
 
   public enum LikeSection
@@ -235,7 +234,6 @@ namespace Xtensive.Sql.Compiler
 
   public enum UpdateSection
   {
-    Entry = 0,
     Exit = 1,
     Set = 2,
     From = 3,

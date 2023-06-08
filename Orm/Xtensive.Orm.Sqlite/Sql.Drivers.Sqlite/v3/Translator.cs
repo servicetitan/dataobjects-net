@@ -280,7 +280,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override void Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
     {
       _ = context.Output.Append(section switch {
-        UpdateSection.Entry => "UPDATE",
         UpdateSection.Set => "SET",
         UpdateSection.From => "FROM",
         UpdateSection.Where => "WHERE",
