@@ -623,7 +623,7 @@ namespace Xtensive.Orm
 
     private async ValueTask DisposeImpl(bool isAsync)
     {
-      if (isDisposed || Interlocked.Exchange(ref isDisposing, 1) == 1) {
+      if (Interlocked.Exchange(ref isDisposing, 1) == 1) {
         return;
       }
 
