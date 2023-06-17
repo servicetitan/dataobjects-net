@@ -77,8 +77,8 @@ namespace Xtensive.Orm.Model
     {
       base.UpdateState();
       primaryIndex = FindPrimaryIndex();
-      realPrimaryIndexes = FindRealPrimaryIndexes(primaryIndex).AsSafeWrapper();
-      indexesContainingAllData = FindIndexesContainingAllData().AsSafeWrapper();
+      realPrimaryIndexes = FindRealPrimaryIndexes(primaryIndex).ToArray().AsSafeWrapper();
+      indexesContainingAllData = FindIndexesContainingAllData().ToArray().AsSafeWrapper();
     }
 
     private IndexInfo GetIndex(IEnumerable<FieldInfo> fields)
@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Model
         : FindIndexesContainingAllData().AsSafeWrapper();
     }
 
-    private List<IndexInfo> FindIndexesContainingAllData()
+    private IReadOnlyList<IndexInfo> FindIndexesContainingAllData()
     {
       var result = new List<IndexInfo>(Count);
       var virtualIndexes = this.Where(index => index.IsVirtual);
@@ -141,12 +141,14 @@ namespace Xtensive.Orm.Model
       return result ?? FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
     }
 
-    private List<IndexInfo> FindRealPrimaryIndexes(IndexInfo index)
+    private IReadOnlyList<IndexInfo> FindRealPrimaryIndexes(IndexInfo index)
     {
-      if (index==null)
-        return new List<IndexInfo>();
-      if (index.IsPrimary && !index.IsVirtual)
-        return new List<IndexInfo>(new[] {index});
+      if (index == null) {
+        return Array.Empty<IndexInfo>();
+      }
+      if (index.IsPrimary && !index.IsVirtual) {
+        return new[] { index };
+      }
       var result = new List<IndexInfo>();
       foreach (IndexInfo underlyingIndex in index.UnderlyingIndexes) {
         if (underlyingIndex.IsPrimary && !underlyingIndex.IsVirtual)
