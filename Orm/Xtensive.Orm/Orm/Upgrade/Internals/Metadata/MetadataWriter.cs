@@ -101,11 +101,13 @@ namespace Xtensive.Orm.Upgrade
 
       var insert = SqlDml.Insert(tableRef);
       var bindings = new PersistParameterBinding[columns.Count];
+      var row = new Dictionary<SqlColumn, SqlExpression>(columns.Count);
       for (int i = 0; i < columns.Count; i++) {
         var binding = new PersistParameterBinding(mappings[i], i, transmissionTypes[i]);
-        insert.Values.SetValueByColumn(tableRef.Columns[i], binding.ParameterReference);
+        row.Add(tableRef.Columns[i], binding.ParameterReference);
         bindings[i] = binding;
       }
+      insert.ValueRows.Add(row);
 
       var delete = SqlDml.Delete(tableRef);
       if (deleteTransform!=null)

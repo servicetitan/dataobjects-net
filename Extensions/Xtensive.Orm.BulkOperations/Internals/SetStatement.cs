@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
@@ -20,9 +21,9 @@ namespace Xtensive.Orm.BulkOperations
         get { return insert.Into; }
       }
 
-      public override void AddValue(SqlTableColumn column, SqlExpression value)
+      public override void AddValues(Dictionary<SqlColumn, SqlExpression> values)
       {
-        insert.Values.Add(column, value);
+        insert.ValueRows.Add(values);
       }
     }
 
@@ -42,15 +43,30 @@ namespace Xtensive.Orm.BulkOperations
         get { return update.Update; }
       }
 
-      public override void AddValue(SqlTableColumn column, SqlExpression value)
+      public override void AddValues(Dictionary<SqlColumn, SqlExpression> values)
       {
-        update.Values.Add(column, value);
+        if (update.Values.Count!=0) {
+          throw new InvalidOperationException("Update values have already been initialized");
+        }
+        foreach (var keyValue in values) {
+          update.Values.Add((SqlTableColumn)keyValue.Key, keyValue.Value);
+        }
       }
     }
 
     #endregion
 
     private SqlQueryStatement statement;
+
+    public static SetStatement Create(SqlUpdate updateStatement)
+    {
+      return new Update() { statement = updateStatement };
+    }
+
+    public static SetStatement Create(SqlInsert insertStatement)
+    {
+      return new Insert() { statement = insertStatement };
+    }
 
     public static SetStatement Create(SqlQueryStatement statement)
     {
@@ -66,6 +82,7 @@ namespace Xtensive.Orm.BulkOperations
     }
 
     public abstract SqlTable Table { get; }
-    public abstract void AddValue(SqlTableColumn column, SqlExpression value);
+
+    public abstract void AddValues(Dictionary<SqlColumn, SqlExpression> values);
   }
 }
