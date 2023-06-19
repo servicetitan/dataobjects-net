@@ -191,8 +191,9 @@ namespace Xtensive.Orm.Providers
           fieldIndex++;
         }
       }
-      else
-        table.CreateColumn("dummy", new SqlValueType(SqlType.Int32));
+      else {
+        _ = table.CreateColumn("dummy", new SqlValueType(SqlType.Int32));
+      }
 
       return table;
     }
@@ -207,25 +208,26 @@ namespace Xtensive.Orm.Providers
       return queryStatement;
     }
 
-    private SqlInsert MakeUpInsertQuery(SqlTableRef temporaryTable, TypeMapping[] typeMappings, List<PersistParameterBinding> storeRequestBindings, bool hasColumns, int rows = 1)
+    private SqlInsert MakeUpInsertQuery(SqlTableRef temporaryTable,
+      TypeMapping[] typeMappings, List<PersistParameterBinding> storeRequestBindings, bool hasColumns, int rows = 1)
     {
       var insertStatement = SqlDml.Insert(temporaryTable);
-      if (hasColumns) {
-        var paramIndex = 0;
-        for (int i = 0; i < rows; ++i) {
-          var fieldIndex = 0;
-          foreach (var column in temporaryTable.Columns) {
-            TypeMapping typeMapping = typeMappings[fieldIndex];
-            var binding = new PersistParameterBinding(typeMapping, paramIndex);
-            insertStatement.Values.Add(column, binding.ParameterReference);
-            storeRequestBindings.Add(binding);
-            fieldIndex++;
-            paramIndex++;
-          }
-        }
+      if (!hasColumns) {
+        insertStatement.ValueRows.Add(new Dictionary<SqlColumn, SqlExpression>(1) { { temporaryTable.Columns[0], SqlDml.Literal(0) } });
+        return insertStatement;
       }
-      else {
-        insertStatement.Values.SetValueByColumn(temporaryTable.Columns[0], SqlDml.Literal(0));
+
+      for (var rowIndex = 0; rowIndex < rows; ++rowIndex) {
+        var fieldIndex = 0;
+        var row = new Dictionary<SqlColumn, SqlExpression>(temporaryTable.Columns.Count);
+        foreach (var column in temporaryTable.Columns) {
+          var typeMapping = typeMappings[fieldIndex];
+          var binding = new PersistParameterBinding(typeMapping, rowIndex, fieldIndex);
+          row.Add(column, binding.ParameterReference);
+          storeRequestBindings.Add(binding);
+          fieldIndex++;
+        }
+        insertStatement.ValueRows.Add(row);
       }
       return insertStatement;
     }
