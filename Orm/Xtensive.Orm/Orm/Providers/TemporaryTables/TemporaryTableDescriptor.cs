@@ -51,12 +51,12 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets or sets the persist request used to store data in temporary table.
     /// </summary>
-    public Lazy<PersistRequest> LazyStoreRequest { get; set; }
+    public PersistRequest StoreRequest { get; set; }
 
     /// <summary>
     /// Gets or sets the clear reqest used to delete all data from temporary table.
     /// </summary>
-    public Lazy<PersistRequest> ClearRequest { get; set; }
+    public PersistRequest ClearRequest { get; set; }
 
     /// <summary>
     /// Gets or sets the query statement associated with this table descriptor.

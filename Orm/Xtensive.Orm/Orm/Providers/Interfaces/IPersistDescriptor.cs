@@ -10,8 +10,8 @@ namespace Xtensive.Orm.Providers
 {
   public interface IPersistDescriptor
   {
-    Lazy<PersistRequest> LazyStoreRequest { get; }
-    Lazy<PersistRequest> ClearRequest { get; }
+    PersistRequest StoreRequest { get; }
+    PersistRequest ClearRequest { get; }
   }
 
   public interface IMultiRecordPersistDescriptor : IPersistDescriptor

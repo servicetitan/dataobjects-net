@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Providers
     void IProviderExecutor.Clear(IPersistDescriptor descriptor, ParameterContext parameterContext)
     {
       Prepare();
-      commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest.Value));
+      commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest));
       Execute(parameterContext);
     }
 
@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Providers
     void IProviderExecutor.Overwrite(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)
     {
       Prepare();
-      commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest.Value));
+      commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest));
       Store(descriptor, tuples);
       Execute(new ParameterContext());
     }
