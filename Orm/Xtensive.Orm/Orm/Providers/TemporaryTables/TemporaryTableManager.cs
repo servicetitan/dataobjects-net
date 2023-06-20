@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -93,14 +93,13 @@ namespace Xtensive.Orm.Providers
         CreateStatement = driver.Compile(SqlDdl.Create(table)).GetCommandText(),
         DropStatement = driver.Compile(SqlDdl.Drop(table)).GetCommandText(),
 
-        LazyLevel1BatchStoreRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertLevel1BatchSize),
-        LazyLevel2BatchStoreRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertLevel2BatchSize),
+        StoreSingleRecordRequest = CreateLazyPersistRequest(1),
+        StoreSmallBatchRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertSmallBatchSize),
+        StoreBigBatchRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertBigBatchSize),
 
-        StoreRequest = new PersistRequest(Handlers.StorageDriver, insertStatement, storeRequestBindings),
         ClearRequest = new PersistRequest(Handlers.StorageDriver, useTruncate ? SqlDdl.Truncate(table) : SqlDml.Delete(tableRef), null),
       };
 
-      result.StoreRequest.Prepare();
       result.ClearRequest.Prepare();
 
       return result;
@@ -149,7 +148,7 @@ namespace Xtensive.Orm.Providers
     protected void ExecuteNonQuery(EnumerationContext context, string statement)
     {
       var executor = context.Session.Services.Demand<ISqlExecutor>();
-      executor.ExecuteNonQuery(statement);
+      _ = executor.ExecuteNonQuery(statement);
     }
 
     private static TemporaryTableStateRegistry GetRegistry(Session session)

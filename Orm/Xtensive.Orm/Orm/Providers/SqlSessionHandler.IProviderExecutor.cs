@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2022 Xtensive LLC.
+// Copyright (C) 2010-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -86,20 +86,20 @@ namespace Xtensive.Orm.Providers
     private void Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)
     {
       if (descriptor is IMultiRecordPersistDescriptor mDescriptor) {
-        var level2Chunks = tuples.Chunk(WellKnown.MultiRowInsertLevel2BatchSize).ToList();
+        var level2Chunks = tuples.Chunk(WellKnown.MultiRowInsertBigBatchSize).ToList();
         foreach (var level2Chunk in level2Chunks) {
-          if (level2Chunk.Length == WellKnown.MultiRowInsertLevel2BatchSize) {
-            commandProcessor.RegisterTask(new SqlPersistTask(mDescriptor.LazyLevel2BatchStoreRequest.Value, level2Chunk));
+          if (level2Chunk.Length == WellKnown.MultiRowInsertBigBatchSize) {
+            commandProcessor.RegisterTask(new SqlPersistTask(mDescriptor.StoreBigBatchRequest.Value, level2Chunk));
           }
           else {
-            var level1Chunks = level2Chunk.Chunk(WellKnown.MultiRowInsertLevel1BatchSize).ToList();
+            var level1Chunks = level2Chunk.Chunk(WellKnown.MultiRowInsertSmallBatchSize).ToList();
             foreach (var level1Chunk in level1Chunks) {
-              if (level1Chunk.Length == WellKnown.MultiRowInsertLevel1BatchSize) {
-                commandProcessor.RegisterTask(new SqlPersistTask(mDescriptor.LazyLevel1BatchStoreRequest.Value, level1Chunk));
+              if (level1Chunk.Length == WellKnown.MultiRowInsertSmallBatchSize) {
+                commandProcessor.RegisterTask(new SqlPersistTask(mDescriptor.StoreSmallBatchRequest.Value, level1Chunk));
               }
               else {
                 foreach (var tuple in level1Chunk) {
-                  commandProcessor.RegisterTask(new SqlPersistTask(mDescriptor.StoreRequest, tuple));
+                  commandProcessor.RegisterTask(new SqlPersistTask(mDescriptor.StoreSingleRecordRequest.Value, tuple));
                 }
               }
             }
