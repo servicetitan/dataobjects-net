@@ -68,19 +68,6 @@ namespace Xtensive.Orm.BulkOperations
       return new Insert() { statement = insertStatement };
     }
 
-    public static SetStatement Create(SqlQueryStatement statement)
-    {
-      SetStatement result;
-      if (statement is SqlUpdate)
-        result = new Update();
-      else if (statement is SqlInsert)
-        result = new Insert();
-      else
-        throw new InvalidOperationException("Statement must be SqlUpdate or SqlInsert");
-      result.statement = statement;
-      return result;
-    }
-
     public abstract SqlTable Table { get; }
 
     public abstract void AddValues(Dictionary<SqlColumn, SqlExpression> values);

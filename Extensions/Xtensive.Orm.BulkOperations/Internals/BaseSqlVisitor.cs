@@ -326,14 +326,6 @@ namespace Xtensive.Orm.BulkOperations
           VisitInternal(columnvalue.First);
         }
       }
-
-      //var columns = node.ValueRows.Columns.
-      //foreach (var column in node.Values.Columns) {
-      //  VisitInternal(column);
-      //  foreach (var value in node.Values.ValuesByColumn(column)) {
-      //    VisitInternal(value);
-      //  }
-      //}
     }
 
     public virtual void Visit(SqlJoinExpression node)
