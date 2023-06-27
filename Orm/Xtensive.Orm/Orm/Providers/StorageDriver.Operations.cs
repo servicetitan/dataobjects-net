@@ -469,6 +469,7 @@ namespace Xtensive.Orm.Providers
         result = await action(command, commandBehavior, cancellationToken).ConfigureAwait(false);
       }
       catch (OperationCanceledException) {
+        session?.Events.NotifyDbCommandCanceled(command);
         throw;
       }
       catch (Exception exception) {
