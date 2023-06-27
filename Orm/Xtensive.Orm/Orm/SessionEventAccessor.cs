@@ -43,6 +43,11 @@ namespace Xtensive.Orm
     public event EventHandler<DbCommandEventArgs> DbCommandExecuted;
 
     /// <summary>
+    /// Occurs when <see cref="DbCommand"/> is canceled.
+    /// </summary>
+    public event EventHandler<DbCommandEventArgs> DbCommandCanceled;
+
+    /// <summary>
     /// Occurs when LINQ query is about to execute.
     /// </summary>
     public event EventHandler<QueryEventArgs> QueryExecuting;
@@ -252,6 +257,9 @@ namespace Xtensive.Orm
     {
       DbCommandExecuted?.Invoke(this, new DbCommandEventArgs(command, exception));
     }
+
+    internal void NotifyDbCommandCanceled(DbCommand command) =>
+      DbCommandCanceled?.Invoke(this, new DbCommandEventArgs(command));
 
     internal Expression NotifyQueryExecuting(Expression expression)
     {
