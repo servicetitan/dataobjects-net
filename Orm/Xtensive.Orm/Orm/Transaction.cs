@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -28,12 +29,7 @@ namespace Xtensive.Orm
     /// Gets the current <see cref="Transaction"/> object
     /// using <see cref="Session"/>.<see cref="Orm.Session.Current"/>.
     /// </summary>
-    public static Transaction Current {
-      get {
-        var session = Session.Current;
-        return session?.Transaction;
-      }
-    }
+    public static Transaction Current => Session.Current?.Transaction;
 
     /// <summary>
     /// Gets the current <see cref="Transaction"/>, 
@@ -44,16 +40,8 @@ namespace Xtensive.Orm
     /// <exception cref="InvalidOperationException">
     /// <see cref="Transaction.Current"/> <see cref="Transaction"/> is <see langword="null" />.
     /// </exception>
-    public static Transaction Demand()
-    {
-      var current = Current;
-      if (current == null) {
-        throw new InvalidOperationException(
-          Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt);
-      }
-
-      return current;
-    }
+    public static Transaction Demand() =>
+      Current ?? throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt);
 
     /// <summary>
     /// Checks whether a transaction exists or not in the provided session.
@@ -76,30 +64,30 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets a value indicating whether this instance is automatic transaction.
     /// </summary>
-    public bool IsAutomatic { get; private set; }
-    
+    public bool IsAutomatic { get; }
+
     /// <summary>
     /// Gets a value indicating whether this instance is 
     /// transaction running locally.
     /// </summary>
-    public bool IsDisconnected { get; private set; }
-    
+    public bool IsDisconnected { get; }
+
     /// <summary>
     /// Gets the unique identifier of this transaction.
     /// Nested transactions have the same <see cref="Guid"/> 
     /// as their outermost.
     /// </summary>
-    public Guid Guid { get; private set; }
+    public Guid Guid { get; }
 
     /// <summary>
     /// Gets the session this transaction is bound to.
     /// </summary>
-    public Session Session { get; private set; }
+    public Session Session { get; }
 
     /// <summary>
     /// Gets the isolation level.
     /// </summary>
-    public IsolationLevel IsolationLevel { get; private set; }
+    public IsolationLevel IsolationLevel { get; }
 
     /// <summary>
     /// Gets the state of the transaction.
@@ -109,17 +97,28 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the outer transaction.
     /// </summary>
-    public Transaction Outer { get; private set; }
+    public Transaction Outer { get; }
 
     /// <summary>
     /// Gets the outermost transaction.
     /// </summary>
-    public Transaction Outermost { get; private set; }
+    public Transaction Outermost { get; }
 
     /// <summary>
     /// Gets the start time of this transaction.
     /// </summary>
-    public DateTime TimeStamp { get; private set; }
+    public DateTime TimeStamp { get; }
+
+    private TimeSpan? timeout;
+    /// <summary>
+    /// Gets or sets Transaction timeout
+    /// </summary>
+    public TimeSpan? Timeout {
+      get => timeout;
+      set => timeout = IsNested
+          ? throw new InvalidOperationException(Strings.ExNestedTransactionTimeout)
+          : value;
+    }
 
     /// <summary>
     /// Gets a value indicating whether this transaction is a nested transaction.
@@ -138,7 +137,7 @@ namespace Xtensive.Orm
 
     #endregion
 
-    internal string SavepointName { get; private set; }
+    internal string SavepointName { get; }
 
     /// <summary>
     /// Indicates whether changes made in this transaction are visible "as is"
@@ -278,9 +277,19 @@ namespace Xtensive.Orm
       LifetimeToken = null;
     }
 
+    internal void CheckForTimeout(DbCommand command)
+    {
+      if (Timeout is not null) {
+          var remain = TimeStamp + Timeout.Value - DateTime.UtcNow;
+          command.CommandTimeout = remain.Ticks > 0
+            ? Math.Max(1, (int) remain.TotalSeconds)
+            : throw new TimeoutException(String.Format(Strings.ExTransactionTimeout, Timeout));
+      }
+    }
+
     #endregion
 
-    
+
     // Constructors
 
     internal Transaction(Session session, IsolationLevel isolationLevel, bool isAutomatic)
@@ -293,7 +302,6 @@ namespace Xtensive.Orm
     {
       lifetimeTokens = new List<StateLifetimeToken>();
 
-      Guid = Guid.NewGuid();
       State = TransactionState.NotActivated;
       Session = session;
       IsolationLevel = isolationLevel;
@@ -310,8 +318,9 @@ namespace Xtensive.Orm
         SavepointName = savepointName;
       }
       else {
+        Guid = Guid.NewGuid();
         Outermost = this;
       }
     }
   }
-} 
+}

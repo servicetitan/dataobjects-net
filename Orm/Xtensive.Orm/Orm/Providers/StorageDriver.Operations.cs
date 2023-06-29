@@ -436,6 +436,7 @@ namespace Xtensive.Orm.Providers
         SqlLog.Info(nameof(Strings.LogSessionXQueryY), session.ToStringSafely(), command.ToHumanReadableString());
       }
 
+      session?.Transaction?.CheckForTimeout(command);
       session?.Events.NotifyDbCommandExecuting(command);
 
       TResult result;
@@ -462,6 +463,7 @@ namespace Xtensive.Orm.Providers
       }
 
       cancellationToken.ThrowIfCancellationRequested();
+      session?.Transaction?.CheckForTimeout(command);
       session?.Events.NotifyDbCommandExecuting(command);
 
       TResult result;
