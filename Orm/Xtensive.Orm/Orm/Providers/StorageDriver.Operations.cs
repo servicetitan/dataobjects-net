@@ -466,7 +466,7 @@ namespace Xtensive.Orm.Providers
       DbCommand command, CommandBehavior commandBehavior,
       CancellationToken cancellationToken, Func<DbCommand, CommandBehavior, CancellationToken, Task<TResult>> action)
     {
-      PreDbCommandExecuting(session, command);
+      PreDbCommandExecuting(session, command, cancellationToken);
 
       TResult result;
       try {
