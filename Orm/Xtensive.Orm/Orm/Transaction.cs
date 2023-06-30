@@ -103,7 +103,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the outermost transaction.
     /// </summary>
-    public Transaction Outermost { get; }
+    public Transaction Outermost => Outer?.Outermost ?? this;
 
     /// <summary>
     /// Gets the start time of this transaction.
@@ -304,11 +304,7 @@ namespace Xtensive.Orm
 
       if (outer != null) {
         Outer = outer;
-        Outermost = outer.Outermost;
         SavepointName = savepointName;
-      }
-      else {
-        Outermost = this;
       }
     }
   }
