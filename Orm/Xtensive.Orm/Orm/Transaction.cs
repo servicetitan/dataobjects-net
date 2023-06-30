@@ -300,8 +300,6 @@ namespace Xtensive.Orm
     internal Transaction(Session session, IsolationLevel isolationLevel, bool isAutomatic, Transaction outer,
       string savepointName)
     {
-      lifetimeTokens = new List<StateLifetimeToken>();
-
       State = TransactionState.NotActivated;
       Session = session;
       IsolationLevel = isolationLevel;
@@ -309,7 +307,7 @@ namespace Xtensive.Orm
       IsDisconnected = session.IsDisconnected;
       TimeStamp = DateTime.UtcNow;
       LifetimeToken = new StateLifetimeToken();
-      lifetimeTokens.Add(LifetimeToken);
+      lifetimeTokens = new List<StateLifetimeToken> { LifetimeToken };
 
       if (outer != null) {
         Outer = outer;
