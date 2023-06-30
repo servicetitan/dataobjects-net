@@ -1360,7 +1360,7 @@ namespace Xtensive {
                 return ResourceManager.GetString("ExDateOnlyToStringMethodIsNotSupported", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to DateTime.ToString() method is not supported, use the DateTime.ToString(&quot;s&quot;)..
         /// </summary>
@@ -1974,7 +1974,7 @@ namespace Xtensive {
                 return ResourceManager.GetString("ExIgnoreRuleIsAlreadyConfiguredForX", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Ignore rule &apos;{0}&apos; must be applied to column, index or table..
         /// </summary>
@@ -2848,7 +2848,7 @@ namespace Xtensive {
                 return ResourceManager.GetString("ExMaxNumberOfConditionsShouldBeBetweenXAndY", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Measurement is already completed..
         /// </summary>
@@ -3081,6 +3081,15 @@ namespace Xtensive {
         internal static string ExNestedFieldXIsNotSupported {
             get {
                 return ResourceManager.GetString("ExNestedFieldXIsNotSupported", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Nested transaction cannot have timeout.
+        /// </summary>
+        internal static string ExNestedTransactionTimeout {
+            get {
+                return ResourceManager.GetString("ExNestedTransactionTimeout", resourceCulture);
             }
         }
 
@@ -4325,7 +4334,7 @@ namespace Xtensive {
                 return ResourceManager.GetString("ExTimeOnlyToStringMethodIsNotSupported", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Transaction is not active..
         /// </summary>
@@ -4354,6 +4363,15 @@ namespace Xtensive {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Transaction is longer than {0}.
+        /// </summary>
+        internal static string ExTransactionTimeout {
+            get {
+                return ResourceManager.GetString("ExTransactionTimeout", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Translation of DateOnly.ToString(string) with arbitrary arguments is not supported. Use DateOnly.ToString(&quot;s&quot;)..
         /// </summary>
         internal static string ExTranslationOfDateOnlyToStringWithArbitraryArgumentIsNotSupported {
@@ -4361,7 +4379,7 @@ namespace Xtensive {
                 return ResourceManager.GetString("ExTranslationOfDateOnlyToStringWithArbitraryArgumentIsNotSupported", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Translation of DateTime.ToString(string) with arbitrary arguments is not supported. Use DateTime.ToString(&quot;s&quot;)..
         /// </summary>
@@ -4397,7 +4415,7 @@ namespace Xtensive {
                 return ResourceManager.GetString("ExTranslationOfTimeOnlyToStringWithArbitraryArgumentIsNotSupported", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Translation of {0} method does not support any parameter type, but {1}..
         /// </summary>
@@ -4659,7 +4677,7 @@ namespace Xtensive {
                 return ResourceManager.GetString("ExUnableToActualizeSchemaNodeInQuery", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Unable to apply VersionAttribute with VersionMode.Auto or Version.Mode.Manual mode set on field {0} of type {1}. Only VersionMode.Skip is allowed..
         /// </summary>
