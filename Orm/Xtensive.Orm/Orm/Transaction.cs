@@ -56,7 +56,7 @@ namespace Xtensive.Orm
 
     #endregion
 
-    private readonly List<StateLifetimeToken> lifetimeTokens;
+    private readonly List<StateLifetimeToken> lifetimeTokens = new(1);
 
     private ExtensionCollection extensions;
     private Transaction inner;
@@ -92,7 +92,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the state of the transaction.
     /// </summary>
-    public TransactionState State { get; private set; }
+    public TransactionState State { get; private set; } = TransactionState.NotActivated;
 
     /// <summary>
     /// Gets the outer transaction.
@@ -107,7 +107,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the start time of this transaction.
     /// </summary>
-    public DateTime TimeStamp { get; }
+    public DateTime TimeStamp { get; } = DateTime.UtcNow;
 
     private TimeSpan? timeout;
     /// <summary>
@@ -128,7 +128,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets <see cref="StateLifetimeToken"/> associated with this transaction.
     /// </summary>
-    public StateLifetimeToken LifetimeToken { get; private set; }
+    public StateLifetimeToken LifetimeToken { get; private set; } = new();
 
     #region IHasExtensions Members
 
@@ -292,22 +292,14 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    internal Transaction(Session session, IsolationLevel isolationLevel, bool isAutomatic)
-      : this(session, isolationLevel, isAutomatic, null, null)
+    internal Transaction(Session session, IsolationLevel isolationLevel, bool isAutomatic, Transaction outer = null,
+      string savepointName = null)
     {
-    }
-
-    internal Transaction(Session session, IsolationLevel isolationLevel, bool isAutomatic, Transaction outer,
-      string savepointName)
-    {
-      State = TransactionState.NotActivated;
       Session = session;
       IsolationLevel = isolationLevel;
       IsAutomatic = isAutomatic;
       IsDisconnected = session.IsDisconnected;
-      TimeStamp = DateTime.UtcNow;
-      LifetimeToken = new StateLifetimeToken();
-      lifetimeTokens = new List<StateLifetimeToken> { LifetimeToken };
+      lifetimeTokens.Add(LifetimeToken);
 
       if (outer != null) {
         Outer = outer;
