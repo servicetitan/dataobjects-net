@@ -72,12 +72,13 @@ namespace Xtensive.Orm
     /// </summary>
     public bool IsDisconnected { get; }
 
+    private Guid? guid;
     /// <summary>
     /// Gets the unique identifier of this transaction.
     /// Nested transactions have the same <see cref="Guid"/> 
     /// as their outermost.
     /// </summary>
-    public Guid Guid { get; }
+    public Guid Guid => Outer?.Guid ?? (guid ??= Guid.NewGuid());
 
     /// <summary>
     /// Gets the session this transaction is bound to.
@@ -303,12 +304,10 @@ namespace Xtensive.Orm
 
       if (outer != null) {
         Outer = outer;
-        Guid = outer.Guid;
         Outermost = outer.Outermost;
         SavepointName = savepointName;
       }
       else {
-        Guid = Guid.NewGuid();
         Outermost = this;
       }
     }
