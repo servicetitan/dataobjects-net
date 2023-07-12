@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Linq
     {
       var elementType = SequenceHelper.GetElementType(expression.Type);
       try {
-        var query = (IQueryable) WellKnownTypes.QueryableOfT.Activate(new[] {elementType}, this, expression);
+        var query = (IQueryable) WellKnownTypes.QueryableOfT.Activate(new[] { elementType }, this, expression);
         return query;
       }
       catch (TargetInvocationException e) {
@@ -54,10 +54,11 @@ namespace Xtensive.Orm.Linq
     {
       var resultType = expression.Type;
       var executeMethod = resultType.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT)
-        ? WellKnownMembers.QueryProvider.ExecuteSequence.CachedMakeGenericMethod(SequenceHelper.GetElementType(resultType))
+        ? WellKnownMembers.QueryProvider.ExecuteSequence.CachedMakeGenericMethod(
+          SequenceHelper.GetElementType(resultType))
         : WellKnownMembers.QueryProvider.ExecuteScalar.CachedMakeGenericMethod(resultType);
       try {
-        return executeMethod.Invoke(this, new object[] {expression});
+        return executeMethod.Invoke(this, new object[] { expression });
       }
       catch (TargetInvocationException e) {
         if (e.InnerException != null) {
@@ -95,24 +96,22 @@ namespace Xtensive.Orm.Linq
     private TResult Execute<TResult>(Expression expression,
       Func<TranslatedQuery, Session, ParameterContext, TResult> runQuery)
     {
-      expression = Session.Events.NotifyQueryExecuting(expression);
-      var query = Translate(expression);
-      TResult result;
-      var compiledQueryScope = CompiledQueryProcessingScope.Current;
-      if (compiledQueryScope != null && !compiledQueryScope.Execute) {
-        result = default;
+      var events = Session.Events;
+      expression = events.NotifyQueryExecuting(expression);
+      Exception eventException = null;
+      try {
+        var compiledQueryScope = CompiledQueryProcessingScope.Current;
+        return compiledQueryScope?.Execute == false
+          ? default
+          : runQuery(Translate(expression), Session, compiledQueryScope?.ParameterContext ?? new ParameterContext());
       }
-      else {
-        try {
-          result = runQuery(query, Session, compiledQueryScope?.ParameterContext ?? new ParameterContext());
-        }
-        catch (Exception exception) {
-          Session.Events.NotifyQueryExecuted(expression, exception);
-          throw;
-        }
+      catch (Exception exception) {
+        eventException = exception;
+        throw;
       }
-      Session.Events.NotifyQueryExecuted(expression);
-      return result;
+      finally {
+        events.NotifyQueryExecuted(expression, eventException);
+      }
     }
 
     internal Task<TResult> ExecuteScalarAsync<TResult>(Expression expression, CancellationToken token)
@@ -122,6 +121,7 @@ namespace Xtensive.Orm.Linq
       {
         return query.ExecuteScalarAsync<TResult>(session, parameterContext, token);
       }
+
       return ExecuteAsync(expression, ExecuteScalarQueryAsync, token);
     }
 
@@ -132,25 +132,27 @@ namespace Xtensive.Orm.Linq
       {
         return query.ExecuteSequenceAsync<T>(session, parameterContext, token);
       }
+
       return ExecuteAsync(expression, ExecuteSequenceQueryAsync, token);
     }
 
     private async Task<TResult> ExecuteAsync<TResult>(Expression expression,
-      Func<TranslatedQuery, Session, ParameterContext, CancellationToken, Task<TResult>> runQuery, CancellationToken token)
+      Func<TranslatedQuery, Session, ParameterContext, CancellationToken, Task<TResult>> runQuery,
+      CancellationToken token)
     {
-      expression = Session.Events.NotifyQueryExecuting(expression);
-      var query = Translate(expression);
-      TResult result;
+      var events = Session.Events;
+      expression = events.NotifyQueryExecuting(expression);
+      Exception eventException = null;
       try {
-        result = await runQuery(query, Session, new ParameterContext(), token).ConfigureAwait(false);
+        return await runQuery(Translate(expression), Session, new ParameterContext(), token).ConfigureAwait(false);
       }
       catch (Exception exception) {
-        Session.Events.NotifyQueryExecuted(expression, exception);
+        eventException = exception;
         throw;
       }
-
-      Session.Events.NotifyQueryExecuted(expression);
-      return result;
+      finally {
+        events.NotifyQueryExecuted(expression, eventException);
+      }
     }
 
     internal TranslatedQuery Translate(Expression expression) =>
