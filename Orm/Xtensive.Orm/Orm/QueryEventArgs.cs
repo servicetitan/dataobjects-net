@@ -12,12 +12,12 @@ namespace Xtensive.Orm
   /// Event args for <see cref="SessionEventAccessor.QueryExecuting"/>
   /// and <see cref="SessionEventAccessor.QueryExecuted"/>.
   /// </summary>
-  public readonly struct QueryEventArgs
+  public class QueryEventArgs
   {
     /// <summary>
     /// Gets executed expression.
     /// </summary>
-    public Expression Expression { get; }
+    public Expression Expression { get; set; }
 
     /// <summary>
     /// Gets exception, thrown during expression execution. <see langword="null" /> if expression executed successfully.
