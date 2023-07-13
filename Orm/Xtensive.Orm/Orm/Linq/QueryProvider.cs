@@ -100,10 +100,11 @@ namespace Xtensive.Orm.Linq
       expression = events.NotifyQueryExecuting(expression);
       Exception eventException = null;
       try {
+        var query = Translate(expression);
         var compiledQueryScope = CompiledQueryProcessingScope.Current;
         return compiledQueryScope?.Execute == false
           ? default
-          : runQuery(Translate(expression), Session, compiledQueryScope?.ParameterContext ?? new ParameterContext());
+          : runQuery(query, Session, compiledQueryScope?.ParameterContext ?? new ParameterContext());
       }
       catch (Exception exception) {
         eventException = exception;
