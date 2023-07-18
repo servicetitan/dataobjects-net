@@ -537,13 +537,6 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    public void VisitNullable(SqlExpression sqlExpression)
-    {
-      if (sqlExpression is not null) {
-        Visit(sqlExpression);
-      }
-    }
-
     public void Visit(SqlStatement sqlStatement)
     {
       sqlStatement.AcceptVisitor(this);
@@ -552,6 +545,13 @@ namespace Xtensive.Orm.Providers
     public void Visit(SqlTable sqlTable)
     {
       sqlTable.AcceptVisitor(this);
+    }
+
+    private void VisitNullable(SqlExpression sqlExpression)
+    {
+      if (sqlExpression is not null) {
+        Visit(sqlExpression);
+      }
     }
 
     private void Visit(ISqlQueryExpression queryExpression)
