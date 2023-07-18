@@ -554,6 +554,13 @@ namespace Xtensive.Orm.Providers
       sqlTable.AcceptVisitor(this);
     }
 
+    private void VisitNullable(SqlExpression sqlExpression)
+    {
+      if (sqlExpression is not null) {
+        Visit(sqlExpression);
+      }
+    }
+
     private void Visit(ISqlQueryExpression queryExpression)
     {
       queryExpression.AcceptVisitor(this);

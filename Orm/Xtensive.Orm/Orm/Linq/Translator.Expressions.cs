@@ -518,7 +518,7 @@ namespace Xtensive.Orm.Linq
           // List.Contains
           // Array.Contains
           ParameterInfo[] parameters = method.GetParameters();
-          if (methodName == "Contains" && parameters.Length == 1)
+          if (methodName=="Contains" && parameters.Length==1)
             return VisitContains(mc.Object, mc.Arguments[0], false);
         }
 
