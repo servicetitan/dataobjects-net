@@ -78,9 +78,7 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       _ = OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new TakeProvider(source, provider.Count);
+      return source == provider.Source ? provider : new TakeProvider(source, provider.Count);
     }
 
     /// <summary>
@@ -92,9 +90,7 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       _ = OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new SkipProvider(source, provider.Count);
+      return source == provider.Source ? provider : new SkipProvider(source, provider.Count);
     }
 
     /// <summary>
@@ -106,9 +102,7 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       _ = OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new PagingProvider(source, provider);
+      return source == provider.Source ? provider : new PagingProvider(source, provider);
     }
 
     /// <summary>
@@ -120,9 +114,9 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       var columnIndexes = (int[])OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new SelectProvider(source, columnIndexes ?? provider.ColumnIndexes);
+      return source == provider.Source
+        ? provider
+        : new SelectProvider(source, columnIndexes ?? provider.ColumnIndexes);
     }
 
     /// <summary>
@@ -134,9 +128,7 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       _ = OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new TagProvider(source, provider.Tag);
+      return source == provider.Source ? provider : new TagProvider(source, provider.Tag);
     }
 
     /// <summary>
@@ -148,9 +140,7 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       _ = OnRecursionExit(provider);
-      if (source==provider.Source)
-        return provider;
-      return new SeekProvider(source, provider.Key);
+      return source == provider.Source ? provider : new SeekProvider(source, provider.Key);
     }
 
     /// <summary>
@@ -171,9 +161,9 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       var order = OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new SortProvider(source, (order == null) ? provider.Order : (DirectionCollection<int>)order);
+      return source == provider.Source
+        ? provider
+        : new SortProvider(source, (order == null) ? provider.Order : (DirectionCollection<int>)order);
     }
 
     /// <summary>
@@ -186,10 +176,10 @@ namespace Xtensive.Orm.Rse.Providers
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
       var equalIndexes = OnRecursionExit(provider);
-      if (left == provider.Left && right == provider.Right)
-        return provider;
-      return new JoinProvider(left, right, provider.JoinType,
-        equalIndexes != null ? (Pair<int>[])equalIndexes : provider.EqualIndexes);
+      return left == provider.Left && right == provider.Right
+        ? provider
+        : new JoinProvider(left, right, provider.JoinType,
+            equalIndexes != null ? (Pair<int>[])equalIndexes : provider.EqualIndexes);
     }
 
     /// <summary>
@@ -202,9 +192,9 @@ namespace Xtensive.Orm.Rse.Providers
       var source = VisitCompilable(provider.Source);
       _ = OnRecursionExit(provider);
       var predicate = translate(provider, provider.Predicate);
-      if (source == provider.Source && predicate == provider.Predicate)
-        return provider;
-      return new FilterProvider(source, (Expression<Func<Tuple, bool>>) predicate);
+      return source == provider.Source && predicate == provider.Predicate
+        ? provider
+        : new FilterProvider(source, (Expression<Func<Tuple, bool>>) predicate);
     }
 
     /// <summary>
@@ -216,9 +206,7 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       _ = OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new DistinctProvider(source);
+      return source == provider.Source ? provider : new DistinctProvider(source);
     }
 
     /// <summary>
@@ -239,9 +227,9 @@ namespace Xtensive.Orm.Rse.Providers
         var ccd = new CalculatedColumnDescriptor(column.Name, column.Type, (Expression<Func<Tuple, object>>) expression);
         descriptors.Add(ccd);
       }
-      if (!translated && source == provider.Source)
-        return provider;
-      return new CalculateProvider(source, descriptors.ToArray());
+      return !translated && source == provider.Source
+        ? provider
+        : new CalculateProvider(source, descriptors.ToArray());
     }
 
     /// <summary>
@@ -253,9 +241,7 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       _ = OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new RowNumberProvider(source, provider.SystemColumn.Name);
+      return source == provider.Source ? provider : new RowNumberProvider(source, provider.SystemColumn.Name);
     }
 
 
@@ -268,9 +254,7 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       _ = OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new AliasProvider(source, provider.Alias);
+      return source == provider.Source ? provider : new AliasProvider(source, provider.Alias);
     }
 
     /// <summary>
@@ -304,9 +288,7 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(compilableSource);
       _ = OnRecursionExit(provider);
-      if (source == compilableSource)
-        return provider;
-      return new StoreProvider(source, provider.Name);
+      return source == compilableSource ? provider : new StoreProvider(source, provider.Name);
     }
 
     /// <summary>
@@ -354,9 +336,9 @@ namespace Xtensive.Orm.Rse.Providers
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
       var predicate = (Expression<Func<Tuple, Tuple, bool>>)OnRecursionExit(provider);
-      if (left == provider.Left && right == provider.Right)
-        return provider;
-      return new PredicateJoinProvider(left, right, predicate ?? provider.Predicate, provider.JoinType);
+      return left == provider.Left && right == provider.Right
+        ? provider
+        : new PredicateJoinProvider(left, right, predicate ?? provider.Predicate, provider.JoinType);
     }
 
     /// <summary>
@@ -368,9 +350,7 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       _ = OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new ExistenceProvider(source, provider.ExistenceColumnName);
+      return source == provider.Source ? provider : new ExistenceProvider(source, provider.ExistenceColumnName);
     }
 
     /// <summary>
@@ -383,9 +363,10 @@ namespace Xtensive.Orm.Rse.Providers
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
       _ = OnRecursionExit(provider);
-      if (left == provider.Left && right == provider.Right)
-        return provider;
-      return new ApplyProvider(provider.ApplyParameter, left, right, provider.IsInlined, provider.SequenceType, provider.ApplyType);
+      return left == provider.Left && right == provider.Right
+        ? provider
+        : new ApplyProvider(provider.ApplyParameter, left, right,
+            provider.IsInlined, provider.SequenceType, provider.ApplyType);
     }
 
     /// <summary>
@@ -399,9 +380,9 @@ namespace Xtensive.Orm.Rse.Providers
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
       _ = OnRecursionExit(provider);
-      if (left == provider.Left && right == provider.Right)
-        return provider;
-      return new IntersectProvider(left, right);
+      return left == provider.Left && right == provider.Right
+        ? provider
+        : new IntersectProvider(left, right);
     }
 
     /// <summary>
@@ -415,9 +396,9 @@ namespace Xtensive.Orm.Rse.Providers
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
       _ = OnRecursionExit(provider);
-      if (left == provider.Left && right == provider.Right)
-        return provider;
-      return new ExceptProvider(left, right);
+      return left == provider.Left && right == provider.Right
+        ? provider
+        : new ExceptProvider(left, right);
     }
 
     /// <summary>
@@ -431,9 +412,9 @@ namespace Xtensive.Orm.Rse.Providers
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
       _ = OnRecursionExit(provider);
-      if (left == provider.Left && right == provider.Right)
-        return provider;
-      return new ConcatProvider(left, right);
+      return left == provider.Left && right == provider.Right
+        ? provider
+        : new ConcatProvider(left, right);
     }
 
     /// <summary>
@@ -447,9 +428,9 @@ namespace Xtensive.Orm.Rse.Providers
       var left = VisitCompilable(provider.Left);
       var right = VisitCompilable(provider.Right);
       _ = OnRecursionExit(provider);
-      if (left == provider.Left && right == provider.Right)
-        return provider;
-      return new UnionProvider(left, right);
+      return left == provider.Left && right == provider.Right
+        ? provider
+        : new UnionProvider(left, right);
     }
 
     /// <summary>
@@ -462,9 +443,7 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       _ = OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new LockProvider(source, provider.LockMode, provider.LockBehavior);
+      return source == provider.Source ? provider : new LockProvider(source, provider.LockMode, provider.LockBehavior);
     }
 
     /// <summary>
@@ -477,10 +456,10 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       _ = OnRecursionExit(provider);
-      if (source == provider.Source)
-        return provider;
-      return new IncludeProvider(source, provider.Algorithm, provider.IsInlined,
-        provider.FilterDataSource, provider.ResultColumnName, provider.FilteredColumns);
+      return source == provider.Source
+        ? provider
+        : new IncludeProvider(source, provider.Algorithm, provider.IsInlined,
+            provider.FilterDataSource, provider.ResultColumnName, provider.FilteredColumns);
     }
 
     /// <summary>
