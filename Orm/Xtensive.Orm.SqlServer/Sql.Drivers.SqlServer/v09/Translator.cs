@@ -491,13 +491,35 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         return;
       }
 
-      var select = context.GetTraversalPath()
+      //TODO: optimize
+      var select = context
+        .GetTraversalPath()
         .OfType<SqlSelect>()
-        .Where(s => s.Lock != SqlLockType.Empty)
-        .FirstOrDefault();
+        .FirstOrDefault(s => s.Lock != SqlLockType.Empty ||
+                             s.Hints.Any(x => x is SqlIndexHint hint && hint.From.DataTable == node.DataTable));
+      
       if (select != null) {
         _ = context.Output.Append(" WITH (");
-        Translate(context.Output, select.Lock);
+        var hasLock = select.Lock != SqlLockType.Empty;
+        var hasIndexHints = false;
+        var indexHints = select.Hints
+          .Where(x => x is SqlIndexHint)
+          .Cast<SqlIndexHint>()
+          .Where(x => x.From.DataTable == node.DataTable);
+        
+        if (hasLock) {
+          Translate(context.Output, select.Lock);
+        }
+
+        foreach (var indexHint in indexHints) {
+          if (hasLock || hasIndexHints) {
+            context.Output.Append(", ");
+          }
+          
+          context.Output.Append($"INDEX=[{indexHint.IndexName}]");
+          hasIndexHints = true;
+        }
+
         _ = context.Output.Append(")");
       }
     }
