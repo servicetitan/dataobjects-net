@@ -505,7 +505,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         var indexHints = select.Hints
           .Where(x => x is SqlIndexHint)
           .Cast<SqlIndexHint>()
-          .Where(x => x.From.DataTable == node.DataTable);
+          .Where(x => x.From.DataTable == node.DataTable)
+          .DistinctBy(x => x.IndexName);
         
         if (hasLock) {
           Translate(context.Output, select.Lock);
