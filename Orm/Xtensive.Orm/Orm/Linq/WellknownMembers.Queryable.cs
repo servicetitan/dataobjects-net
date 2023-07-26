@@ -86,6 +86,7 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo ExtensionElementAt = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAt), 1, 2);
       public static readonly MethodInfo ExtensionElementAtOrDefault = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAtOrDefault), 1, 2);
       public static readonly MethodInfo ExtensionTag = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Tag), 1, 2);
+      public static readonly MethodInfo ExtensionWithIndexHint = GetQueryableExtensionsMethod(nameof(QueryableExtensions.WithIndexHint), 1, 2);
 
       static Queryable()
       {

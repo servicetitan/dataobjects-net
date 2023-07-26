@@ -467,6 +467,15 @@ namespace Xtensive.Sql.Compiler
     {
       // nothing
     }
+    
+    /// <summary>
+    /// Visits <see cref="SqlIndexHint"/> node and translates its parts.
+    /// </summary>
+    /// <param name="node">Node to visit.</param>
+    public virtual void Visit(SqlIndexHint node)
+    {
+      // nothing
+    }
 
     /// <summary>
     /// Visits <see cref="SqlConcat"/> expression and translates its parts.

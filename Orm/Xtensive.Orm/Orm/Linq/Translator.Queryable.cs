@@ -18,10 +18,12 @@ using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Linq.Model;
 using Xtensive.Orm.Linq.Rewriters;
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
 using Tuple = Xtensive.Tuples.Tuple;
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq
 {
@@ -292,6 +294,53 @@ namespace Xtensive.Orm.Linq
       var newDataSource = needToTag
         ? visitedSource.ItemProjector.DataSource.Tag(tag)
         : visitedSource.ItemProjector.DataSource;
+      var newItemProjector = new ItemProjectorExpression(
+        visitedSource.ItemProjector.Item, newDataSource, visitedSource.ItemProjector.Context);
+      var projectionExpression = new ProjectionExpression(
+        visitedSource.Type,
+        newItemProjector,
+        visitedSource.TupleParameterBindings,
+        visitedSource.ResultAccessMethod);
+      return projectionExpression;
+    }
+    
+    private Expression VisitWithIndexHint(MethodCallExpression expression)
+    {
+      var source = expression.Arguments[0];
+      var visitedSourceRaw = Visit(source);
+
+      ProjectionExpression visitedSource;
+      if (visitedSourceRaw.IsEntitySetExpression()) {
+        var entitySetExpression = (EntitySetExpression) visitedSourceRaw;
+        var entitySetQuery = QueryHelper.CreateEntitySetQuery(
+          source is MemberExpression { Expression: { } } memberExpression && context.Model.Types.Contains(memberExpression.Expression.Type)
+            ? memberExpression.Expression
+            : (Expression) entitySetExpression.Owner,
+          entitySetExpression.Field
+        );
+
+        visitedSource = (ProjectionExpression) Visit(entitySetQuery);
+      }
+      else {
+        visitedSource = (ProjectionExpression) visitedSourceRaw;
+      }
+      
+      var elementType = expression.Method.GetGenericArguments()[0];
+      if (!context.Model.Types.TryGetValue(elementType, out var type)) {
+        throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+      }
+      
+      var indexName = (string) ((ConstantExpression) expression.Arguments[1]).Value;
+      var indexInfo = type.Indexes
+        .Find(IndexAttributes.Real)
+        .FirstOrDefault(i => i.MappingName.Equals(indexName, StringComparison.OrdinalIgnoreCase));
+
+      if (indexInfo == null) {
+        return visitedSource;
+      }
+
+      var newDataSource = visitedSource.ItemProjector.DataSource.IndexHint(indexInfo);
+
       var newItemProjector = new ItemProjectorExpression(
         visitedSource.ItemProjector.Item, newDataSource, visitedSource.ItemProjector.Context);
       var projectionExpression = new ProjectionExpression(

@@ -12,6 +12,7 @@ using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Comparison;
 using Xtensive.Core;
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -216,6 +217,11 @@ namespace Xtensive.Orm.Rse
     public static CompilableProvider MakeVoid(this CompilableProvider source)
     {
       return new VoidProvider(source.Header);
+    }
+
+    public static CompilableProvider IndexHint(this CompilableProvider source, IndexInfo index)
+    {
+      return new IndexHintProvider(source, index);
     }
   }
 }

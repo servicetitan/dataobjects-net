@@ -348,6 +348,10 @@ namespace Xtensive.Orm.Providers
     public void Visit(SqlNativeHint node)
     {
     }
+    
+    public void Visit(SqlIndexHint node)
+    {
+    }
 
     public void Visit(SqlNextValue value)
     {

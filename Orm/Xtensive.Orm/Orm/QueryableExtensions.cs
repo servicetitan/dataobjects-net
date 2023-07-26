@@ -6,11 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -74,6 +71,51 @@ namespace Xtensive.Orm
       var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(tag) });
       return source.Provider.CreateQuery(expression);
     }
+    
+    /// <summary>
+    /// Add index hint to query with given <paramref name="indexName"/> string
+    /// </summary>
+    /// <typeparam name="TSource">The type of the source element.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="indexName">The index name</param>
+    /// <returns>The same sequence, but with index hint applied to query.</returns>
+    public static IQueryable<TSource> WithIndexHint<TSource>(this IQueryable<TSource> source, string indexName)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(indexName, "indexName");
+
+      var providerType = source.Provider.GetType();
+      if (providerType != WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExTagDoesNotSupportQueryProviderOfTypeX;
+        throw new NotSupportedException(string.Format(errorMessage, providerType));
+      }
+
+      var genericMethod = WellKnownMembers.Queryable.ExtensionWithIndexHint.MakeGenericMethod(new[] { typeof(TSource) });
+      var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(indexName)});
+      return source.Provider.CreateQuery<TSource>(expression);
+    }  
+    
+    /// <summary>
+    /// Add index hint to query with given <paramref name="indexName"/> string
+    /// </summary>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="indexName">The index name</param>
+    /// <returns>The same sequence, but with index hint applied to query.</returns>
+    public static IQueryable WithIndexHint(this IQueryable source, string indexName)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(indexName, "indexName");
+
+      var providerType = source.Provider.GetType();
+      if (providerType != WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExTagDoesNotSupportQueryProviderOfTypeX;
+        throw new NotSupportedException(string.Format(errorMessage, providerType));
+      }
+
+      var genericMethod = WellKnownMembers.Queryable.ExtensionWithIndexHint.MakeGenericMethod(new[] { source.ElementType });
+      var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(indexName)});
+      return source.Provider.CreateQuery(expression);
+    } 
 
     /// <summary>
     /// Returns the number of elements in <paramref name="source"/> sequence.
