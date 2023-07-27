@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Rse.Transformation
     private ProviderOrderingDescriptor consumerDescriptor;
 
     public static CompilableProvider Rewrite(
-      CompilableProvider originProvider, 
+      CompilableProvider originProvider,
       Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver)
     {
       ArgumentValidator.EnsureArgumentNotNull(originProvider, "originProvider");
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Rse.Transformation
         var selectProvider = (SelectProvider) originProvider;
         var source = rewriter.VisitCompilable(selectProvider.Source);
         return new SelectProvider(
-          rewriter.InsertSortProvider(source), 
+          rewriter.InsertSortProvider(source),
           selectProvider.ColumnIndexes);
       }
       var visited = rewriter.VisitCompilable(originProvider);
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return source;
     }
 
-    protected override SelectProvider VisitSelect(SelectProvider provider)
+    protected override CompilableProvider VisitSelect(SelectProvider provider)
     {
       var result = provider;
       var source = VisitCompilable(provider.Source);
@@ -84,16 +84,16 @@ namespace Xtensive.Orm.Rse.Transformation
         sortOrder = selectOrdering;
       }
 
-      if (sortOrder.Count > 0 
-        && provider.Header.Order.Count==0 
-        && !consumerDescriptor.BreaksOrder 
+      if (sortOrder.Count > 0
+        && provider.Header.Order.Count==0
+        && !consumerDescriptor.BreaksOrder
         && !consumerDescriptor.PreservesOrder) {
         throw new InvalidOperationException(Strings.ExSelectProviderRemovesColumnsUsedForOrdering);
       }
       return result;
     }
 
-    protected override AggregateProvider VisitAggregate(AggregateProvider provider)
+    protected override CompilableProvider VisitAggregate(AggregateProvider provider)
     {
       var result = provider;
       var source = VisitCompilable(provider.Source);
@@ -119,19 +119,19 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    protected override IndexProvider VisitIndex(IndexProvider provider)
+    protected override CompilableProvider VisitIndex(IndexProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
     }
 
-    protected override FreeTextProvider VisitFreeText(FreeTextProvider provider)
+    protected override CompilableProvider VisitFreeText(FreeTextProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
     }
 
-    protected override ContainsTableProvider VisitContainsTable(ContainsTableProvider provider)
+    protected override CompilableProvider VisitContainsTable(ContainsTableProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
@@ -143,7 +143,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return provider;
     }
 
-    protected override StoreProvider VisitStore(StoreProvider provider)
+    protected override CompilableProvider VisitStore(StoreProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
@@ -192,8 +192,8 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private CompilableProvider InsertSortProvider(CompilableProvider visited)
     {
-      return sortOrder.Count==0 
-        ? visited 
+      return sortOrder.Count==0
+        ? visited
         : new SortProvider(visited, sortOrder);
     }
 
