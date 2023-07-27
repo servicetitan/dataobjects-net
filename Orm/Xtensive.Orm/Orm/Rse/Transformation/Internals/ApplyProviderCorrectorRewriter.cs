@@ -313,7 +313,7 @@ namespace Xtensive.Orm.Rse.Transformation
       using (new CorrectorState(this))
         right = VisitCompilable(provider.Right);
     }
-
+    
     private CompilableProvider ProcesSelfConvertibleApply(ApplyProvider provider, CompilableProvider left,
       CompilableProvider right)
     {
