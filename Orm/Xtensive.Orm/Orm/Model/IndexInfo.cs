@@ -280,15 +280,6 @@ namespace Xtensive.Orm.Model
       get => (attributes & IndexAttributes.Clustered) > 0;
     }
 
-    /// <summary>
-    /// Unsubscribe ColumnInfoCollections from FieldInfo events to avoid memory leak
-    /// </summary>
-    public void Dispose()
-    {
-      IncludedColumns.Clear();
-      ValueColumns.Clear();
-    }
-
     /// <inheritdoc/>
     public override void UpdateState()
     {
@@ -397,24 +388,6 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// Used for cloning only
-    /// </summary>
-    private IndexInfo(IndexInfo original)
-    {
-      shortName = original.shortName;
-      Name = original.Name;
-      KeyColumns = original.KeyColumns;
-      IncludedColumns = original.IncludedColumns;
-      ValueColumns = original.ValueColumns;
-      ReflectedType = original.ReflectedType;
-      attributes = original.attributes;
-      DeclaringType = original.DeclaringIndex.DeclaringType;
-      fillFactor = original.DeclaringIndex.FillFactor;
-      filterExpression = original.DeclaringIndex.FilterExpression;
-      DeclaringIndex = original.DeclaringIndex.DeclaringIndex;
-    }
-
-    /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="reflectedType">Reflected type.</param>
@@ -437,6 +410,31 @@ namespace Xtensive.Orm.Model
 
       foreach (IndexInfo info in baseIndexes)
         UnderlyingIndexes.Add(info);
+    }
+
+    /// <summary>
+    /// Used for cloning only.
+    /// </summary>
+    private IndexInfo(IndexInfo original)
+    {
+      Name = original.Name;
+      attributes = original.attributes;
+      shortName = original.shortName;
+      fillFactor = original.DeclaringIndex.FillFactor;
+      filterExpression = original.DeclaringIndex.FilterExpression;
+      KeyColumns = original.KeyColumns;
+      IncludedColumns = original.IncludedColumns;
+      ValueColumns = original.ValueColumns;
+      ReflectedType = original.ReflectedType;
+      DeclaringType = original.DeclaringIndex.DeclaringType;
+      DeclaringIndex = original.DeclaringIndex.DeclaringIndex;
+    }
+
+    /// Unsubscribe ColumnInfoCollections from FieldInfo events to avoid memory leak.
+    public void Dispose()
+    {
+      IncludedColumns.Clear();
+      ValueColumns.Clear();
     }
   }
 }
