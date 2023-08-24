@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void IndexHintInWithLock()
+    public void IndexHintWithLock()
     {
       var session = Session.Demand();
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
@@ -92,6 +92,28 @@ namespace Xtensive.Orm.Tests.Linq
         
         Assert.IsTrue(CheckIndexHint(queryString, "Customer", "PK_Customer"));
         Assert.IsTrue(CheckIndexHint(queryString, "Customer", "Customer.IX_FirstName"));
+        Assert.DoesNotThrow(() => query.Run());
+      }
+    }
+    
+    [Test]
+    public void IndexHintWithApply()
+    {
+      var session = Session.Demand();
+      using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
+
+        var query = session.Query.All<Invoice>()
+          .WithIndexHint("PK_Invoice")
+          .GroupBy(i => i.Customer)
+          .SelectMany(g => g.Select(i => i.Customer))
+          .WithIndexHint("PK_Customer");
+
+        var queryFormatter = session.Services.Demand<QueryFormatter>();
+        var queryString = queryFormatter.ToSqlString(query);
+        Console.WriteLine(queryString);
+        
+        Assert.IsTrue(CheckIndexHint(queryString, "Customer", "PK_Customer"));
+        Assert.IsTrue(CheckIndexHint(queryString, "Invoice", "PK_Invoice"));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
