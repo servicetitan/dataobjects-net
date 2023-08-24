@@ -87,7 +87,7 @@ namespace Xtensive.Orm
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
-        var errorMessage = Strings.ExTagDoesNotSupportQueryProviderOfTypeX;
+        var errorMessage = Strings.ExWithIndexHintDoesNotSupportQueryProviderOfTypeX;
         throw new NotSupportedException(string.Format(errorMessage, providerType));
       }
 
@@ -118,7 +118,7 @@ namespace Xtensive.Orm
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
-        var errorMessage = Strings.ExTagDoesNotSupportQueryProviderOfTypeX;
+        var errorMessage = Strings.ExWithIndexHintDoesNotSupportQueryProviderOfTypeX;
         throw new NotSupportedException(string.Format(errorMessage, providerType));
       }
 
