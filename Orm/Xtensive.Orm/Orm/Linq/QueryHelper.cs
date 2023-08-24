@@ -186,7 +186,13 @@ namespace Xtensive.Orm.Linq
     public static Type GetSequenceElementType(Type type)
     {
       var sequenceType = type.GetGenericInterface(WellKnownInterfaces.EnumerableOfT);
-      return sequenceType!=null ? sequenceType.GetGenericArguments()[0] : null;
+      return sequenceType?.GetGenericArguments()[0];
+    }
+
+    public static bool TryGetSequenceElementType(Type type, out Type sequenceElementType)
+    {
+      sequenceElementType = GetSequenceElementType(type);
+      return sequenceElementType != null;
     }
 
     private static Expression BuildExpressionForFieldRecursivly(FieldInfo field, Expression parameter)

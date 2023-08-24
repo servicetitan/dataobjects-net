@@ -326,7 +326,9 @@ namespace Xtensive.Orm.Linq
       }
       
       var elementType = expression.Method.GetGenericArguments()[0];
-      if (!context.Model.Types.TryGetValue(elementType, out var type)) {
+      if (!context.Model.Types.TryGetValue(elementType, out var type)
+          && !(QueryHelper.TryGetSequenceElementType(elementType, out var sequenceElementType)
+               && context.Model.Types.TryGetValue(sequenceElementType, out type))) {
         throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
       }
       

@@ -119,6 +119,28 @@ namespace Xtensive.Orm.Tests.Linq
     }
     
     [Test]
+    public void IndexHintAfterAggregate()
+    {
+      var session = Session.Demand();
+      using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
+
+        var query = session.Query.All<Invoice>()
+          .GroupBy(i => i.Customer)
+          .WithIndexHint("PK_Invoice")
+          .SelectMany(g => g.Select(i => i.Customer))
+          .WithIndexHint("PK_Customer");
+
+        var queryFormatter = session.Services.Demand<QueryFormatter>();
+        var queryString = queryFormatter.ToSqlString(query);
+        Console.WriteLine(queryString);
+        
+        Assert.IsTrue(CheckIndexHint(queryString, "Customer", "PK_Customer"));
+        Assert.IsTrue(CheckIndexHint(queryString, "Invoice", "PK_Invoice"));
+        Assert.DoesNotThrow(() => query.Run());
+      }
+    }
+    
+    [Test]
     public void NonExistingIndexHint()
     {
       var session = Session.Demand();
