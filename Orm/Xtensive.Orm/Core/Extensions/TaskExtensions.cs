@@ -7,7 +7,7 @@ namespace Xtensive.Core
 {
   public static class TaskExtensions
   {
-#if DO_CONFIGURE_AWAIT
+#if DO_CONFIGURE_AWAIT_FALSE
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static ConfiguredTaskAwaitable ConfigureAwaitFalse(this Task task) => task.ConfigureAwait(false);
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static ConfiguredTaskAwaitable<T> ConfigureAwaitFalse<T>(this Task<T> task) => task.ConfigureAwait(false);
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static ConfiguredValueTaskAwaitable ConfigureAwaitFalse(this ValueTask task) => task.ConfigureAwait(false);
