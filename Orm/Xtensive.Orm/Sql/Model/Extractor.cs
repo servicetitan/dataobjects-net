@@ -131,7 +131,7 @@ namespace Xtensive.Sql.Model
       ISqlCompileUnit statement, CancellationToken token = default)
     {
       var command = Connection.CreateCommand(statement);
-      await using (command.ConfigureAwait(false)) {
+      await using (command.ConfigureAwaitFalse()) {
         return await command.ExecuteReaderAsync(token).ConfigureAwaitFalse();
       }
     }
@@ -158,7 +158,7 @@ namespace Xtensive.Sql.Model
     protected virtual async Task<DbDataReader> ExecuteReaderAsync(string commandText, CancellationToken token = default)
     {
       var command = Connection.CreateCommand(commandText);
-      await using (command.ConfigureAwait(false)) {
+      await using (command.ConfigureAwaitFalse()) {
         return await command.ExecuteReaderAsync(token).ConfigureAwaitFalse();
       }
     }

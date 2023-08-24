@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Providers
             await context.ActiveCommand.ExecuteReaderAsync(token).ConfigureAwaitFalse();
             var reader = context.ActiveCommand.CreateReader(loadTask.Request.GetAccessor(), token);
             await using (reader.ConfigureAwaitFalse()) {
-              while (await reader.MoveNextAsync().ConfigureAwait(false)) {
+              while (await reader.MoveNextAsync().ConfigureAwaitFalse()) {
                 loadTask.Output.Add(reader.Current);
               }
             }

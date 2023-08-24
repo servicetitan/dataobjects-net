@@ -304,7 +304,7 @@ namespace Xtensive.Orm
     {
       Validate();
       var transaction = OpenTransaction(TransactionOpenMode.New);
-      await using (transaction.ConfigureAwait(false)) {
+      await using (transaction.ConfigureAwaitFalse()) {
         try {
           await PersistAsync(PersistReason.Manual, token).ConfigureAwaitFalse();
         }

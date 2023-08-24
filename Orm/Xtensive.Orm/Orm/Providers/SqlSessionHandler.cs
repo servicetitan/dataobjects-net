@@ -320,7 +320,7 @@ namespace Xtensive.Orm.Providers
       }
 
       context = Session.CommandProcessorContextProvider.ProvideContext();
-      await using (context.ConfigureAwait(false)) {
+      await using (context.ConfigureAwaitFalse()) {
         await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwaitFalse();
       }
 

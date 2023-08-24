@@ -45,10 +45,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       var query = BuildExtractSequencesQuery(context);
 
       var cmd = Connection.CreateCommand(query);
-      await using (cmd.ConfigureAwait(false)) {
+      await using (cmd.ConfigureAwaitFalse()) {
         var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwaitFalse();
-        await using (reader.ConfigureAwait(false)) {
-          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+        await using (reader.ConfigureAwaitFalse()) {
+          while (await reader.ReadAsync(token).ConfigureAwaitFalse()) {
             ReadSequenceData(reader, context);
           }
         }

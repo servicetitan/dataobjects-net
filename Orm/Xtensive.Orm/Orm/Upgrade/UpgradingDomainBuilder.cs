@@ -213,10 +213,10 @@ namespace Xtensive.Orm.Upgrade
     {
       Domain finalDomain;
       var sqlAsyncWorker = StartSqlAsyncWorker(token);
-      await using (sqlAsyncWorker.ConfigureAwait(false)) {
+      await using (sqlAsyncWorker.ConfigureAwaitFalse()) {
         var domainBuilder = CreateDomainBuilder(UpgradeStage.Final);
         var finalDomainResult = CreateResult(domainBuilder);
-        await using (finalDomainResult.ConfigureAwait(false)) {
+        await using (finalDomainResult.ConfigureAwaitFalse()) {
           OnConfigureUpgradeDomain();
           using (var upgradeDomain = CreateDomainBuilder(UpgradeStage.Upgrading).Invoke()) {
             await CompleteSqlWorkerAsync().ConfigureAwaitFalse();
@@ -242,7 +242,7 @@ namespace Xtensive.Orm.Upgrade
     private async Task<Domain> BuildSingleStageDomainAsync(CancellationToken token)
     {
       var sqlAsyncWorker = StartSqlAsyncWorker(token);
-      await using (sqlAsyncWorker.ConfigureAwait(false)) {
+      await using (sqlAsyncWorker.ConfigureAwaitFalse()) {
         var domain = CreateDomainBuilder(UpgradeStage.Final).Invoke();
         await CompleteSqlWorkerAsync().ConfigureAwaitFalse();
         await PerformUpgradeAsync(domain, UpgradeStage.Final, token).ConfigureAwaitFalse();
@@ -443,14 +443,14 @@ namespace Xtensive.Orm.Upgrade
       await OnBeforeStageAsync(token).ConfigureAwaitFalse();
 
       var session = await domain.OpenSessionAsync(SessionType.System, token).ConfigureAwaitFalse();
-      await using (session.ConfigureAwait(false)) {
+      await using (session.ConfigureAwaitFalse()) {
         using (session.Activate()) {
           var transaction = session.OpenTransaction();
-          await using (transaction.ConfigureAwait(false)) {
+          await using (transaction.ConfigureAwaitFalse()) {
             var upgrader = new SchemaUpgrader(context, session);
             var extractor = new SchemaExtractor(context, session);
             await SynchronizeSchemaAsync(domain, upgrader, extractor, GetUpgradeMode(stage), token).ConfigureAwaitFalse();
-            var storageNode = BuildStorageNode(domain, await extractor.GetSqlSchemaAsync(token).ConfigureAwait(false));
+            var storageNode = BuildStorageNode(domain, await extractor.GetSqlSchemaAsync(token).ConfigureAwaitFalse());
             session.SetStorageNode(storageNode);
             await OnStageAsync(session, token).ConfigureAwaitFalse();
             transaction.Complete();

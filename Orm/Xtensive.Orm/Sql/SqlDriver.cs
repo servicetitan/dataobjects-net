@@ -227,7 +227,7 @@ namespace Xtensive.Sql
     {
       var defaultSchema = await GetDefaultSchemaAsync(connection, token).ConfigureAwaitFalse();
       var task = new SqlExtractionTask(defaultSchema.Database);
-      return (await ExtractAsync(connection, new[] {task}, token).ConfigureAwait(false)).Catalogs.Single();
+      return (await ExtractAsync(connection, new[] {task}, token).ConfigureAwaitFalse()).Catalogs.Single();
     }
 
     /// <summary>
@@ -492,7 +492,7 @@ namespace Xtensive.Sql
       CancellationToken token = default)
     {
       var task = new SqlExtractionTask(databaseName, schemaName);
-      return (await ExtractAsync(connection, new[] {task}, token).ConfigureAwait(false))
+      return (await ExtractAsync(connection, new[] {task}, token).ConfigureAwaitFalse())
         .Catalogs[databaseName].Schemas.FirstOrDefault(el => el.Name == schemaName);
     }
 

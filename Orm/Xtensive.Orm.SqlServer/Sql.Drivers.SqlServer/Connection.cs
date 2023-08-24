@@ -269,7 +269,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
         await underlyingConnection.OpenAsync(cancellationToken).ConfigureAwaitFalse();
         try {
           var command = underlyingConnection.CreateCommand();
-          await using (command.ConfigureAwait(false)) {
+          await using (command.ConfigureAwaitFalse()) {
             command.CommandText = checkQueryString;
             _ = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwaitFalse();
           }
@@ -318,7 +318,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
             .ConfigureAwaitFalse();
 
           var command = underlyingConnection.CreateCommand();
-          await using (command.ConfigureAwait(false)) {
+          await using (command.ConfigureAwaitFalse()) {
             command.CommandText = checkQueryString;
             _ = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwaitFalse();
           }

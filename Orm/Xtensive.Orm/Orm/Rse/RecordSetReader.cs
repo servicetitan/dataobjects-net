@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Rse
           goto case State.InProgress;
         case State.InProgress:
           try {
-            if (await dataReader.MoveNextAsync().ConfigureAwait(false)) {
+            if (await dataReader.MoveNextAsync().ConfigureAwaitFalse()) {
               return true;
             }
           }
@@ -148,8 +148,8 @@ namespace Xtensive.Orm.Rse
         if (isGreedy && !dataReader.IsInMemory) {
           var tuples = new List<Tuple>();
           if (executeAsync) {
-            await using (dataReader.ConfigureAwait(false)) {
-              while (await dataReader.MoveNextAsync().ConfigureAwait(false)) {
+            await using (dataReader.ConfigureAwaitFalse()) {
+              while (await dataReader.MoveNextAsync().ConfigureAwaitFalse()) {
                 tuples.Add(dataReader.Current);
               }
             }

@@ -135,9 +135,9 @@ namespace Xtensive.Orm.Upgrade
       CancellationToken token)
     {
       var command = await executor.ExecuteReaderAsync(query, CommandBehavior.SequentialAccess, token).ConfigureAwaitFalse();
-      await using (command.ConfigureAwait(false)) {
+      await using (command.ConfigureAwaitFalse()) {
         var reader = command.Reader;
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+        while (await reader.ReadAsync(token).ConfigureAwaitFalse()) {
           output.Add(parser.Invoke(reader));
         }
       }

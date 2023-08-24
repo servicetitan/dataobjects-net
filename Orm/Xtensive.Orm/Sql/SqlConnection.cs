@@ -274,7 +274,7 @@ namespace Xtensive.Sql
 
         try {
           var command = UnderlyingConnection.CreateCommand();
-          await using (command.ConfigureAwait(false)) {
+          await using (command.ConfigureAwaitFalse()) {
             command.CommandText = initializationScript;
             _ = await command.ExecuteNonQueryAsync(token).ConfigureAwaitFalse();
           }
@@ -296,7 +296,7 @@ namespace Xtensive.Sql
         try {
           await SqlHelper.NotifyConnectionInitializingAsync(accessors, UnderlyingConnection, initializationScript, false, token);
           var command = UnderlyingConnection.CreateCommand();
-          await using (command.ConfigureAwait(false)) {
+          await using (command.ConfigureAwaitFalse()) {
             command.CommandText = initializationScript;
             _ = await command.ExecuteNonQueryAsync(token).ConfigureAwaitFalse();
           }

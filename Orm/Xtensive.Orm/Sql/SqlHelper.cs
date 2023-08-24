@@ -396,12 +396,12 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(queryText, nameof(queryText));
 
       var command = connection.CreateCommand();
-      await using (command.ConfigureAwait(false)) {
+      await using (command.ConfigureAwaitFalse()) {
         command.CommandText = queryText;
         command.Transaction = transaction;
         var reader = await command.ExecuteReaderAsync(token).ConfigureAwaitFalse();
-        await using (reader.ConfigureAwait(false)) {
-          if (!await reader.ReadAsync(token).ConfigureAwait(false)) {
+        await using (reader.ConfigureAwaitFalse()) {
+          if (!await reader.ReadAsync(token).ConfigureAwaitFalse()) {
             throw new InvalidOperationException(Strings.ExCanNotReadDatabaseAndSchemaNames);
           }
 
@@ -457,7 +457,7 @@ namespace Xtensive.Sql
       }
 
       var command = connection.CreateCommand();
-      await using (command.ConfigureAwait(false)) {
+      await using (command.ConfigureAwaitFalse()) {
         command.CommandText = configuration.ConnectionInitializationSql;
         await command.ExecuteNonQueryAsync(token).ConfigureAwaitFalse();
       }
@@ -479,7 +479,7 @@ namespace Xtensive.Sql
       }
 
       var command = connection.CreateCommand();
-      await using (command.ConfigureAwait(false)) {
+      await using (command.ConfigureAwaitFalse()) {
         command.CommandText = initializationSql;
         _ = await command.ExecuteNonQueryAsync(token).ConfigureAwaitFalse();
       }
