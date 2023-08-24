@@ -303,7 +303,7 @@ namespace Xtensive.Orm.Linq
         visitedSource.ResultAccessMethod);
       return projectionExpression;
     }
-    
+
     private Expression VisitWithIndexHint(MethodCallExpression expression)
     {
       var source = expression.Arguments[0];
@@ -325,7 +325,7 @@ namespace Xtensive.Orm.Linq
         visitedSource = (ProjectionExpression) visitedSourceRaw;
       }
       
-      var elementType = expression.Method.GetGenericArguments()[0];
+      var elementType = expression.Method.GetGenericArguments()[1];
       if (!context.Model.Types.TryGetValue(elementType, out var type)
           && !(QueryHelper.TryGetSequenceElementType(elementType, out var sequenceElementType)
                && context.Model.Types.TryGetValue(sequenceElementType, out type))) {
