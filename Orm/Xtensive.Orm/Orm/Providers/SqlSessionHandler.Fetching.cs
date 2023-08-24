@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
@@ -66,7 +67,7 @@ namespace Xtensive.Orm.Providers
     public override async Task<EntityState> FetchEntityStateAsync(Key key, CancellationToken ct = default)
     {
       var type = key.TypeReference.Type;
-      await prefetchManager.PrefetchAsync(key, type, PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(Session.Domain, type), ct).ConfigureAwait(false);
+      await prefetchManager.PrefetchAsync(key, type, PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(Session.Domain, type), ct).ConfigureAwaitFalse();
       await prefetchManager.ExecuteTasksAsync(true, ct);
       return LookupState(key, out var result) ? result : null;
     }

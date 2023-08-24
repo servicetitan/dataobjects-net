@@ -92,7 +92,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       string catalogName, string[] schemaNames, CancellationToken token = default)
     {
       var context = CreateContext(catalogName, schemaNames);
-      await ExtractCatalogContentsAsync(context, token).ConfigureAwait(false);
+      await ExtractCatalogContentsAsync(context, token).ConfigureAwaitFalse();
       return context.Catalog;
     }
 
@@ -110,14 +110,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     protected virtual async Task ExtractCatalogContentsAsync(ExtractionContext context, CancellationToken token)
     {
-      await ExtractSchemasAsync(context, token).ConfigureAwait(false);
+      await ExtractSchemasAsync(context, token).ConfigureAwaitFalse();
       RegisterReplacements(context);
-      await ExtractTypesAsync(context, token).ConfigureAwait(false);
-      await ExtractTablesAndViewsAsync(context, token).ConfigureAwait(false);
-      await ExtractColumnsAsync(context, token).ConfigureAwait(false);
-      await ExtractIndexesAsync(context, token).ConfigureAwait(false);
-      await ExtractForeignKeysAsync(context, token).ConfigureAwait(false);
-      await ExtractFulltextIndexesAsync(context, token).ConfigureAwait(false);
+      await ExtractTypesAsync(context, token).ConfigureAwaitFalse();
+      await ExtractTablesAndViewsAsync(context, token).ConfigureAwaitFalse();
+      await ExtractColumnsAsync(context, token).ConfigureAwaitFalse();
+      await ExtractIndexesAsync(context, token).ConfigureAwaitFalse();
+      await ExtractForeignKeysAsync(context, token).ConfigureAwaitFalse();
+      await ExtractFulltextIndexesAsync(context, token).ConfigureAwaitFalse();
     }
 
     protected virtual void RegisterReplacements(ExtractionContext context)
@@ -155,7 +155,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
       var cmd = Connection.CreateCommand(query);
       await using (cmd.ConfigureAwait(false)) {
-        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwaitFalse();
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
             ReadSchemaData(reader, context);
@@ -208,7 +208,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
       var command = Connection.CreateCommand(query);
       await using (command.ConfigureAwait(false)) {
-        var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        var reader = await command.ExecuteReaderAsync(token).ConfigureAwaitFalse();
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
             ReadTypeData(reader, context);
@@ -278,7 +278,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
       var cmd = Connection.CreateCommand(query);
       await using (cmd.ConfigureAwait(false)) {
-        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwaitFalse();
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
             ReadTableOrViewData(reader, context);
@@ -363,7 +363,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var cmd = Connection.CreateCommand(query);
       ColumnResolver columnResolver = null;
       await using (cmd.ConfigureAwait(false)) {
-        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwaitFalse();
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
             ReadColumnData(context, reader, ref currentTableId, ref columnResolver);
@@ -375,7 +375,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
       cmd = Connection.CreateCommand(query);
       await using (cmd.ConfigureAwait(false)) {
-        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwaitFalse();
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
             ReadIdentityColumnData(reader, context);
@@ -614,7 +614,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       UniqueConstraint uniqueConstraint = null;
       var cmd = Connection.CreateCommand(query);
       await using (cmd.ConfigureAwait(false)) {
-        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwaitFalse();
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
             ReadIndexColumnData(reader, context,
@@ -725,7 +725,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       ForeignKey foreignKey = null;
       var cmd = Connection.CreateCommand(query);
       await using (cmd.ConfigureAwait(false)) {
-        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwaitFalse();
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
             ReadForeignKeyColumnData(reader, context, ref tableId, ref foreignKey, ref referencingTable, ref referencedTable);
@@ -801,7 +801,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       FullTextIndex index = null;
       var cmd = Connection.CreateCommand(query);
       await using (cmd.ConfigureAwait(false)) {
-        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwaitFalse();
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
             ReadFullTextIndexColumnData(reader, context, ref currentTableId, ref table, ref index);

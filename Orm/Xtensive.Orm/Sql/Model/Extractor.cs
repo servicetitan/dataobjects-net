@@ -5,6 +5,7 @@
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Model
 {
@@ -131,7 +132,7 @@ namespace Xtensive.Sql.Model
     {
       var command = Connection.CreateCommand(statement);
       await using (command.ConfigureAwait(false)) {
-        return await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        return await command.ExecuteReaderAsync(token).ConfigureAwaitFalse();
       }
     }
 
@@ -158,7 +159,7 @@ namespace Xtensive.Sql.Model
     {
       var command = Connection.CreateCommand(commandText);
       await using (command.ConfigureAwait(false)) {
-        return await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        return await command.ExecuteReaderAsync(token).ConfigureAwaitFalse();
       }
     }
 

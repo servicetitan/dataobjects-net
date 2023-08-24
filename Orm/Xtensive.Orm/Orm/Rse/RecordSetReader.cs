@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse.Providers;
 using EnumerationContext = Xtensive.Orm.Rse.Providers.EnumerationContext;
@@ -141,7 +142,7 @@ namespace Xtensive.Orm.Rse
 
       try {
         dataReader = executeAsync
-          ? await provider.OnEnumerateAsync(context, token).ConfigureAwait(false)
+          ? await provider.OnEnumerateAsync(context, token).ConfigureAwaitFalse()
           : provider.OnEnumerate(context);
 
         if (isGreedy && !dataReader.IsInMemory) {
@@ -194,7 +195,7 @@ namespace Xtensive.Orm.Rse
     public async ValueTask DisposeAsync()
     {
       if (state != State.New) {
-        await dataReader.DisposeAsync().ConfigureAwait(false);
+        await dataReader.DisposeAsync().ConfigureAwaitFalse();
       }
       enumerationScope?.Dispose();
     }
@@ -242,7 +243,7 @@ namespace Xtensive.Orm.Rse
       EnumerationContext context, ExecutableProvider provider, CancellationToken token)
     {
       var recordSet = new RecordSetReader(context, provider, token);
-      await recordSet.Prepare(true).ConfigureAwait(false);
+      await recordSet.Prepare(true).ConfigureAwaitFalse();
       return recordSet;
     }
 

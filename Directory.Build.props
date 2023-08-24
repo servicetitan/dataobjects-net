@@ -122,5 +122,6 @@
     <DefineConstants Condition="'$(Configuration)'=='Debug'">$(DefineConstants);DEBUG</DefineConstants>
 
     <DefineConstants Condition="'$(DO_SAFE_COLLECTION_WRAPPER)'=='true'">$(DefineConstants);DO_SAFE_COLLECTION_WRAPPER</DefineConstants>
+    <DefineConstants Condition="'$(DO_CONFIGURE_AWAIT)'=='true'">$(DefineConstants);DO_CONFIGURE_AWAIT</DefineConstants>
   </PropertyGroup>
 </Project>

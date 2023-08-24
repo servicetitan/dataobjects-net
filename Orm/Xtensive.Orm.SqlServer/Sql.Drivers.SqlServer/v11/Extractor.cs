@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v11
 {
@@ -24,8 +25,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
 
     protected override async Task ExtractCatalogContentsAsync(ExtractionContext context, CancellationToken token)
     {
-      await base.ExtractCatalogContentsAsync(context, token).ConfigureAwait(false);
-      await ExtractSequencesAsync(context, token).ConfigureAwait(false);
+      await base.ExtractCatalogContentsAsync(context, token).ConfigureAwaitFalse();
+      await ExtractSequencesAsync(context, token).ConfigureAwaitFalse();
     }
 
     private void ExtractSequences(ExtractionContext context)
@@ -45,7 +46,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
 
       var cmd = Connection.CreateCommand(query);
       await using (cmd.ConfigureAwait(false)) {
-        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwaitFalse();
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
             ReadSequenceData(reader, context);
