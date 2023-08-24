@@ -3,6 +3,7 @@
 // See the License.txt file in the project root for more information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -491,37 +492,47 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         return;
       }
 
-      //TODO: optimize
+      ICollection<SqlIndexHint> indexHints = null;
+
       var select = context
         .GetTraversalPath()
         .OfType<SqlSelect>()
-        .FirstOrDefault(s => s.Lock != SqlLockType.Empty ||
-                             s.Hints.Any(x => x is SqlIndexHint hint && hint.From.DataTable == node.DataTable));
+        .FirstOrDefault(s => (s.Lock != SqlLockType.Empty) | TryGetIndexHints(s, out indexHints));
+
+      if (select == null) {
+        return;
+      }
+
+      var withClauseBodyStarted = false;
       
-      if (select != null) {
-        _ = context.Output.Append(" WITH (");
-        var hasLock = select.Lock != SqlLockType.Empty;
-        var hasIndexHints = false;
-        var indexHints = select.Hints
+      _ = context.Output.Append(" WITH (");
+      
+      if (select.Lock != SqlLockType.Empty) {
+        Translate(context.Output, select.Lock);
+        withClauseBodyStarted = true;
+      }
+
+      foreach (var indexHint in indexHints ?? Enumerable.Empty<SqlIndexHint>()) {
+        if(withClauseBodyStarted) {
+          context.Output.Append(", ");
+        }
+          
+        context.Output.Append($"INDEX=[{indexHint.IndexName}]");
+        withClauseBodyStarted = true;
+      }
+
+      _ = context.Output.Append(")");
+
+      bool TryGetIndexHints(SqlQueryStatement sqlSelect, out ICollection<SqlIndexHint> hints)
+      {
+        hints = sqlSelect.Hints
           .Where(x => x is SqlIndexHint)
           .Cast<SqlIndexHint>()
           .Where(x => x.From.DataTable == node.DataTable)
-          .DistinctBy(x => x.IndexName);
+          .DistinctBy(x => x.IndexName)
+          .ToList();
         
-        if (hasLock) {
-          Translate(context.Output, select.Lock);
-        }
-
-        foreach (var indexHint in indexHints) {
-          if (hasLock || hasIndexHints) {
-            context.Output.Append(", ");
-          }
-          
-          context.Output.Append($"INDEX=[{indexHint.IndexName}]");
-          hasIndexHints = true;
-        }
-
-        _ = context.Output.Append(")");
+        return hints.Any();
       }
     }
 
