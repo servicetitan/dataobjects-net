@@ -325,7 +325,7 @@ namespace Xtensive.Orm.Linq
         visitedSource = (ProjectionExpression) visitedSourceRaw;
       }
       
-      var elementType = expression.Method.GetGenericArguments()[1];
+      var elementType = expression.Method.GetGenericArguments().Last();
       if (!context.Model.Types.TryGetValue(elementType, out var type)
           && !(QueryHelper.TryGetSequenceElementType(elementType, out var sequenceElementType)
                && context.Model.Types.TryGetValue(sequenceElementType, out type))) {
