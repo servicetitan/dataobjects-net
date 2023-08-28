@@ -43,18 +43,6 @@ namespace Xtensive.Sql.Compiler
     public SqlCommentLocation CommentLocation { get; set; } = SqlCommentLocation.Nowhere;
 
     /// <summary>
-    /// Gets database mapping.
-    /// </summary>
-    [Obsolete("No longer in use. Moved to SqlPostCompilerConfiguration.")]
-    public IReadOnlyDictionary<string, string> SchemaMapping { get; private set; }
-
-    /// <summary>
-    /// Gets database mapping.
-    /// </summary>
-    [Obsolete("No longer in use. Moved to SqlPostCompilerConfiguration.")]
-    public IReadOnlyDictionary<string, string> DatabaseMapping { get; private set; }
-
-    /// <summary>
     /// Clones this instance.
     /// </summary>
     /// <returns>Clone of this instance.</returns>
@@ -65,23 +53,6 @@ namespace Xtensive.Sql.Compiler
         DatabaseQualifiedObjects = DatabaseQualifiedObjects,
         ParametrizeSchemaNames = ParametrizeSchemaNames,
       };
-    }
-
-    public SqlCompilerConfiguration()
-    {
-#pragma warning disable CS0618 // Type or member is obsolete
-      SchemaMapping = null;
-      DatabaseMapping = null;
-#pragma warning restore CS0618 // Type or member is obsolete
-    }
-
-    [Obsolete]
-    public SqlCompilerConfiguration([NotNull] IReadOnlyDictionary<string, string> databaseMapping, [NotNull] IReadOnlyDictionary<string, string> schemaMapping)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(databaseMapping, "databaseMapping");
-      ArgumentValidator.EnsureArgumentNotNull(schemaMapping, "schemaMapping");
-      DatabaseMapping = databaseMapping;
-      SchemaMapping = schemaMapping;
     }
   }
 }

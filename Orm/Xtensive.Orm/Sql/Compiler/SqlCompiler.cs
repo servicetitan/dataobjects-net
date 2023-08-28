@@ -45,7 +45,7 @@ namespace Xtensive.Sql.Compiler
       configuration = compilerConfiguration;
       context = new SqlCompilerContext(configuration);
       unit.AcceptVisitor(this);
-      return new SqlCompilationResult(context.Output.Children, context.ParameterNameProvider.NameTable, typeIdRegistry, compilerConfiguration.SchemaMapping);
+      return new SqlCompilationResult(context.Output.Children, context.ParameterNameProvider.NameTable, typeIdRegistry);
     }
 
     #region Visitors

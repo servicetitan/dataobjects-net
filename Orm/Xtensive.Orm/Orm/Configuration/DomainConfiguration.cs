@@ -88,12 +88,6 @@ namespace Xtensive.Orm.Configuration
     public const bool DefaultEnsureConnectionIsAlive = true;
 
     /// <summary>
-    /// Default <see cref="EntityVersioningPolicy"/> value;
-    /// </summary>
-    [Obsolete("Use VersioningConvention.DefaultVersioningPolicy")]
-    public const EntityVersioningPolicy DefaultVersioningPolicy = EntityVersioningPolicy.Default;
-
-    /// <summary>
     /// Default <see cref="UpgradeMode"/> value.
     /// </summary>
     public const DomainUpgradeMode DefaultUpgradeMode = DomainUpgradeMode.Default;
@@ -719,6 +713,7 @@ namespace Xtensive.Orm.Configuration
       // because override sequence of Lock() is so broken.
       ValidateMappingConfiguration(multischema, multidatabase);
       ValidateIgnoreConfiguration();
+      ValidateMaxNumberOfConditions();
 
       types.Lock(true);
       sessions.Lock(true);

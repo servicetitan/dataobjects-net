@@ -280,47 +280,44 @@ namespace Xtensive.Orm.Model
       get => (attributes & IndexAttributes.Clustered) > 0;
     }
 
-    /// <summary>
-    /// Unsubscribe ColumnInfoCollections from FieldInfo events to avoid memory leak
-    /// </summary>
-    public void Dispose()
-    {
-      IncludedColumns.Clear();
-      ValueColumns.Clear();
-    }
-
     /// <inheritdoc/>
     public override void UpdateState()
     {
       base.UpdateState();
       CreateColumns();
       ValueColumns.UpdateState();
-      foreach (IndexInfo baseIndex in UnderlyingIndexes) {
+      foreach (var baseIndex in UnderlyingIndexes) {
         baseIndex.UpdateState();
       }
       filter?.UpdateState();
       CreateTupleDescriptors();
 
-      if (!IsPrimary)
+      if (!IsPrimary) {
         return;
+      }
 
-      var system = new List<int>();
+      var keyColumnsCount = KeyColumns.Count;
+      var system = new List<int>(keyColumnsCount + 1);
       var lazy = new List<int>();
-      var regular = new List<int>();
+      var regular = new List<int>(Columns.Count - keyColumnsCount);
 
       for (int i = 0, count = Columns.Count; i < count; i++) {
         var item = Columns[i];
-        if (item.IsPrimaryKey || item.IsSystem)
+        if (item.IsPrimaryKey || item.IsSystem) {
           system.Add(i);
+        }
+        else if (item.IsLazyLoad) {
+          lazy.Add(i);
+        }
         else {
-          if (item.IsLazyLoad)
-            lazy.Add(i);
-          else
-            regular.Add(i);
+          regular.Add(i);
         }
       }
 
-      ColumnIndexMap = new ColumnIndexMap(system, regular, lazy);
+      ColumnIndexMap = new ColumnIndexMap(
+        system,
+        (regular.Count == 0) ? Array.Empty<int>() : regular,
+        (lazy.Count == 0) ? Array.Empty<int>() : lazy);
     }
 
     /// <inheritdoc/>
@@ -354,14 +351,14 @@ namespace Xtensive.Orm.Model
       Columns = KeyColumns.Select(static pair => pair.Key).Concat(ValueColumns).ToArray(KeyColumns.Count + ValueColumns.Count).AsSafeWrapper();
     }
 
-    // Constructors
-
-    private IndexInfo()
+    /// Unsubscribe ColumnInfoCollections from FieldInfo events to avoid memory leak.
+    public void Dispose()
     {
-      KeyColumns = new DirectionCollection<ColumnInfo>();
-      IncludedColumns = new ColumnInfoCollection(this, "IncludedColumns");
-      ValueColumns = new ColumnInfoCollection(this, "ValueColumns");
+      IncludedColumns.Clear();
+      ValueColumns.Clear();
     }
+
+    // Constructors
 
     /// <summary>
     /// Initializes a new instance of this class.
@@ -381,9 +378,10 @@ namespace Xtensive.Orm.Model
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="reflectedType">Reflected type.</param>
-    /// <param name="ancestorIndex">The ancestors index.</param>
     /// <param name="indexAttributes"><see cref="IndexAttributes"/> attributes for this instance.</param>
-    public IndexInfo(TypeInfo reflectedType, IndexAttributes indexAttributes, IndexInfo ancestorIndex)
+    /// <param name="ancestorIndex">The ancestors index.</param>
+    /// <param name="addAncestorToUnderlyings"><see langword="true"/> if <paramref name="ancestorIndex"/> should also be treated as underlying index.</param>
+    public IndexInfo(TypeInfo reflectedType, IndexAttributes indexAttributes, IndexInfo ancestorIndex, bool addAncestorToUnderlyings = false)
       : this()
     {
       DeclaringType = ancestorIndex.DeclaringType;
@@ -394,24 +392,10 @@ namespace Xtensive.Orm.Model
       filterExpression = ancestorIndex.FilterExpression;
       DeclaringIndex = ancestorIndex.DeclaringIndex;
       shortName = ancestorIndex.ShortName;
-    }
 
-    /// <summary>
-    /// Used for cloning only
-    /// </summary>
-    private IndexInfo(IndexInfo original)
-    {
-      shortName = original.shortName;
-      Name = original.Name;
-      KeyColumns = original.KeyColumns;
-      IncludedColumns = original.IncludedColumns;
-      ValueColumns = original.ValueColumns;
-      ReflectedType = original.ReflectedType;
-      attributes = original.attributes;
-      DeclaringType = original.DeclaringIndex.DeclaringType;
-      fillFactor = original.DeclaringIndex.FillFactor;
-      filterExpression = original.DeclaringIndex.FilterExpression;
-      DeclaringIndex = original.DeclaringIndex.DeclaringIndex;
+      if (addAncestorToUnderlyings) {
+        UnderlyingIndexes.Add(ancestorIndex);
+      }
     }
 
     /// <summary>
@@ -421,6 +405,7 @@ namespace Xtensive.Orm.Model
     /// <param name="indexAttributes">The index attributes.</param>
     /// <param name="baseIndex">Base index.</param>
     /// <param name="baseIndexes">The base indexes.</param>
+    [Obsolete("Use either IndexInfo(reflectedType, indexAttributes, ancestorIndex, true) in case of one base index or varaint with sequence of indexes")]
     public IndexInfo(TypeInfo reflectedType, IndexAttributes indexAttributes, IndexInfo baseIndex, params IndexInfo[] baseIndexes)
       : this()
     {
@@ -437,6 +422,58 @@ namespace Xtensive.Orm.Model
 
       foreach (IndexInfo info in baseIndexes)
         UnderlyingIndexes.Add(info);
+    }
+
+    /// <summary>
+    /// Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="reflectedType">Reflected type.</param>
+    /// <param name="indexAttributes">The index attributes.</param>
+    /// <param name="baseIndexes">The base indexes, first of which will be used as source index properties.</param>
+    public IndexInfo(TypeInfo reflectedType, IndexAttributes indexAttributes, IEnumerable<IndexInfo> baseIndexes)
+      : this()
+    {
+      this.ReflectedType = reflectedType;
+      attributes = indexAttributes;
+
+      foreach (var info in baseIndexes) {
+        if (DeclaringType is null) {
+          DeclaringType = info.DeclaringType;
+          fillFactor = info.FillFactor;
+          filterExpression = info.FilterExpression;
+          DeclaringIndex = info.DeclaringIndex;
+          shortName = info.ShortName;
+        }
+        UnderlyingIndexes.Add(info);
+      }
+      if (UnderlyingIndexes.Count == 0) {
+        throw new ArgumentException(Strings.ExSequenceContainsNoElements, nameof(baseIndexes));
+      }
+    }
+
+    /// <summary>
+    /// Used for cloning only.
+    /// </summary>
+    private IndexInfo(IndexInfo original)
+    {
+      Name = original.Name;
+      attributes = original.attributes;
+      shortName = original.shortName;
+      fillFactor = original.DeclaringIndex.FillFactor;
+      filterExpression = original.DeclaringIndex.FilterExpression;
+      KeyColumns = original.KeyColumns;
+      IncludedColumns = original.IncludedColumns;
+      ValueColumns = original.ValueColumns;
+      ReflectedType = original.ReflectedType;
+      DeclaringType = original.DeclaringIndex.DeclaringType;
+      DeclaringIndex = original.DeclaringIndex.DeclaringIndex;
+    }
+
+    private IndexInfo()
+    {
+      KeyColumns = new DirectionCollection<ColumnInfo>();
+      IncludedColumns = new ColumnInfoCollection(this, "IncludedColumns");
+      ValueColumns = new ColumnInfoCollection(this, "ValueColumns");
     }
   }
 }

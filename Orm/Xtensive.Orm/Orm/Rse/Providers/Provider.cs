@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Rse.Providers
   /// Abstract base class for any query provider.
   /// </summary>
   [Serializable]
-  [DebuggerDisplay("{DebuggerDisplayName}, Source count = {Sources.Length}")]
+  [DebuggerDisplay("{DebuggerDisplayName}, Source count = {Sources.Count}")]
   public abstract class Provider
   {
     private const string ToString_ProviderTypeSuffix = "Provider";
@@ -60,7 +60,12 @@ namespace Xtensive.Orm.Rse.Providers
     protected abstract RecordSetHeader BuildHeader();
 
     private string DebuggerDisplayName {
-      get { return GetType().GetShortName(); }
+      get {
+        var type = GetType();
+        return type.IsGenericType
+          ? type.GetShortName()
+          : type.Name;
+      }
     }
 
     /// <summary>
@@ -98,8 +103,9 @@ namespace Xtensive.Orm.Rse.Providers
     private string TitleToString()
     {
       var sb = new StringBuilder();
-      string providerName = GetType().GetShortName().TryCutSuffix(ToString_ProviderTypeSuffix);
-      string parameters = ParametersToString();
+      var type = GetType();
+      var providerName = (type.IsGenericType ? type.GetShortName() : type.Name).TryCutSuffix(ToString_ProviderTypeSuffix);
+      var parameters = ParametersToString();
 
       sb.Append(providerName);
       if (!parameters.IsNullOrEmpty())
