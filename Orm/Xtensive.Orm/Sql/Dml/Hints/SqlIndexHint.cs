@@ -9,7 +9,7 @@ namespace Xtensive.Sql.Dml
     /// Gets the index name.
     /// </summary>
     /// <value>The index name.</value>
-    public string IndexName { get; private set; }
+    public string IndexName { get; }
 
     public SqlTableRef From { get; }
 

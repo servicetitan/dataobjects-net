@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Reference to the <see cref="IndexInfo"/> instance within the domain.
     /// </summary>
-    public IndexInfoRef Index { get; private set; }
+    public IndexInfoRef Index { get; }
 
     // Constructors
     public IndexHintProvider(CompilableProvider source, IndexInfo index)
@@ -34,3 +34,4 @@ namespace Xtensive.Orm.Rse.Providers
     }
   }
 }
+
