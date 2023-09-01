@@ -296,7 +296,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override void Visit(SqlNativeHint node) => context.Output.Append(node.HintText);
 
-
     public override void Visit(SqlForceJoinOrderHint node)
     {
       if (node.Tables.IsNullOrEmpty()) {

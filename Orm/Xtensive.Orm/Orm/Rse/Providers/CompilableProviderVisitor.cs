@@ -72,7 +72,20 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
       _ = OnRecursionExit(provider);
-      return source == provider.Source ? provider : new TagProvider(source, provider.Tag);
+      return source == provider.Source
+        ? provider
+        : new TagProvider(source, provider.Tag);
+    }
+    
+    /// <inheritdoc/>
+    protected override IndexHintProvider VisitIndexHint(IndexHintProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
+      return source == provider.Source
+        ? provider
+        : new IndexHintProvider(source, provider.Index);
     }
 
     /// <inheritdoc/>

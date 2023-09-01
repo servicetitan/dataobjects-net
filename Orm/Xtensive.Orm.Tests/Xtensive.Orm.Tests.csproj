@@ -4,6 +4,7 @@
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
     <IsPackable>false</IsPackable>
     <Configurations>Debug;Release;Debug-NET5;Release-NET5;Debug-NET6;Release-NET6;</Configurations>
+    <Nullable>annotations</Nullable>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>

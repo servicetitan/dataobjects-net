@@ -52,6 +52,7 @@ namespace Xtensive.Orm.Rse.Providers
           ProviderType.Include => VisitInclude((IncludeProvider) cp),
           ProviderType.FreeText => VisitFreeText((FreeTextProvider) cp),
           ProviderType.ContainsTable => VisitContainsTable((ContainsTableProvider) cp),
+          ProviderType.IndexHint => VisitIndexHint((IndexHintProvider) cp),
           ProviderType.Void => throw new NotSupportedException(Strings.ExProcessingOfVoidProviderIsNotSupported),
           _ => throw new ArgumentOutOfRangeException()
         };
@@ -109,6 +110,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="provider">Tag provider.</param>
     protected abstract TResult VisitTag(TagProvider provider);
+    
+    /// <summary>
+    /// Visits <see cref="IndexHintProvider"/>.
+    /// </summary>
+    /// <param name="provider">IndexHint provider.</param>
+    protected abstract TResult VisitIndexHint(IndexHintProvider provider);
 
     /// <summary>
     /// Visits <see cref="SeekProvider"/>.

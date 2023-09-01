@@ -443,6 +443,12 @@ namespace Xtensive.Sql
     /// </summary>
     /// <param name="node">Node to visit.</param>
     void Visit(SqlNativeHint node);
+    
+    /// <summary>
+    /// Visits <see cref="SqlIndexHint"/> node.
+    /// </summary>
+    /// <param name="node">Node to visit.</param>
+    void Visit(SqlIndexHint node);
 
     /// <summary>
     /// Visits <see cref="SqlNextValue"/> expression.

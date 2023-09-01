@@ -2609,4 +2609,7 @@ Error: {1}</value>
   <data name="ExTransactionTimeout" xml:space="preserve">
     <value>Transaction is longer than {0}</value>
   </data>
+  <data name="ExWithIndexHintDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
+    <value>'WithIndexHint' does not support query provider of type '{0}'.</value>
+  </data>  
 </root>

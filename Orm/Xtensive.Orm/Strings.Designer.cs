@@ -5380,7 +5380,16 @@ namespace Xtensive {
                 return ResourceManager.GetString("ExVisitKeyFieldIsNotSupportedByX", resourceCulture);
             }
         }
-
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;WithIndexHint&apos; does not support query provider of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExWithIndexHintDoesNotSupportQueryProviderOfTypeX {
+            get {
+                return ResourceManager.GetString("ExWithIndexHintDoesNotSupportQueryProviderOfTypeX", resourceCulture);
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized string similar to Wrong key structure..
         /// </summary>

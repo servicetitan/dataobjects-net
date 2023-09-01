@@ -364,6 +364,10 @@ namespace Xtensive.Orm.BulkOperations
     public virtual void Visit(SqlNativeHint node)
     {
     }
+    
+    public virtual void Visit(SqlIndexHint node)
+    {
+    }
 
     public virtual void Visit(SqlNextValue value)
     {

@@ -496,6 +496,7 @@ namespace Xtensive.Orm.Linq
             nameof(QueryableExtensions.ElementAtOrDefault) => VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.ReturnType, true),
             nameof(QueryableExtensions.Count) => VisitAggregate(mc.Arguments[0], method, null, context.IsRoot(mc), mc),
             nameof(QueryableExtensions.Tag) => VisitTag(mc),
+            nameof(QueryableExtensions.WithIndexHint) => VisitWithIndexHint(mc),
             _ => throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)))
           };
         }
