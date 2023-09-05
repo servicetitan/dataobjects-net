@@ -324,13 +324,14 @@ namespace Xtensive.Orm.Linq
       var maExpression = ma.Expression;
       var maMember = ma.Member;
       if (maExpression != null
-            && maExpression.Type != maMember.ReflectedType
-            && maMember is PropertyInfo
-            && !maMember.ReflectedType.IsInterface) {
+          && maExpression.Type != maMember.ReflectedType
+          && maMember is PropertyInfo
+          && !maMember.ReflectedType.IsInterface)  {
           ma = Expression.MakeMemberAccess(maExpression, maExpression.Type.GetProperty(maMember.Name, maMember.GetBindingFlags()));
           maExpression = ma.Expression;
           maMember = ma.Member;
       }
+
       var customCompiler = context.CustomCompilerProvider.GetCompiler(maMember);
 
       // Reflected type doesn't have custom compiler defined, so falling back to base class compiler
