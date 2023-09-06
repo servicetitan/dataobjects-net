@@ -2611,5 +2611,11 @@ Error: {1}</value>
   </data>
   <data name="ExWithIndexHintDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>'WithIndexHint' does not support query provider of type '{0}'.</value>
-  </data>  
+  </data>
+  <data name="ExJoinDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
+    <value>Join with join method does not support query provider of type '{0}'.</value>
+  </data>
+  <data name="ExGroupJoinDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
+    <value>GroupJoin with join method does not support query provider of type '{0}'.</value>
+  </data>
 </root>

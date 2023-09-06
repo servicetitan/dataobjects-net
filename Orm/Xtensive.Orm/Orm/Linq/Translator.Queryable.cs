@@ -22,6 +22,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
+using Xtensive.Sql.Dml;
 using Tuple = Xtensive.Tuples.Tuple;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
@@ -1221,6 +1222,12 @@ namespace Xtensive.Orm.Linq
           // Check key compatibility
           innerColumnKeyExpression.EnsureKeyExpressionCompatible(outerColumnKeyExpression, expressionPart);
         }
+        
+        var joinMethod = SqlJoinMethod.Default;
+        var mc = expressionPart as MethodCallExpression;
+        if (mc?.Method.DeclaringType == typeof(QueryableExtensions) && mc.Arguments.Last() is ConstantExpression constantExpression) {
+          joinMethod = (SqlJoinMethod?) constantExpression.Value ?? SqlJoinMethod.Default;
+        }
 
         var keyPairs = outerColumns.Zip(innerColumns, (o, i) => new Pair<int>(o.First, i.First)).ToArray();
 
@@ -1228,8 +1235,8 @@ namespace Xtensive.Orm.Linq
         var inner = context.Bindings[innerParameter];
         var innerAlias = inner.ItemProjector.DataSource.Alias(context.GetNextAlias());
         var recordSet = isLeftJoin
-          ? outer.ItemProjector.DataSource.LeftJoin(innerAlias, keyPairs)
-          : outer.ItemProjector.DataSource.Join(innerAlias, keyPairs);
+          ? outer.ItemProjector.DataSource.LeftJoin(innerAlias, joinMethod, keyPairs)
+          : outer.ItemProjector.DataSource.Join(innerAlias, joinMethod, keyPairs);
         return CombineProjections(outer, inner, recordSet, resultSelector);
       }
     }

@@ -228,6 +228,11 @@ namespace Xtensive.Orm.Providers
       {
         query.Hints.Add(sqlHint);
       }
+
+      if (provider.JoinMethod != SqlJoinMethod.Default) {
+        query.Hints.Add(new SqlJoinHint(provider.JoinMethod, rightTable));
+      }
+      
       return CreateProvider(query, provider, left, right);
     }
 

@@ -15,6 +15,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Sql.Dml;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse
@@ -41,10 +42,16 @@ namespace Xtensive.Orm.Rse
       return new RowNumberProvider(source, columnName);
     }
 
-    public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right,
+    public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right, 
       params Pair<int>[] joinedColumnIndexes)
     {
       return new JoinProvider(left, right, JoinType.Inner, joinedColumnIndexes);
+    }
+
+    public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right,
+      SqlJoinMethod joinMethod, params Pair<int>[] joinedColumnIndexes)
+    {
+      return new JoinProvider(left, right, JoinType.Inner, joinMethod, joinedColumnIndexes);
     }
 
     public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right,
@@ -57,6 +64,12 @@ namespace Xtensive.Orm.Rse
       params Pair<int>[] joinedColumnIndexes)
     {
       return new JoinProvider(left, right, JoinType.LeftOuter, joinedColumnIndexes);
+    }
+    
+    public static CompilableProvider LeftJoin(this CompilableProvider left, CompilableProvider right,
+      SqlJoinMethod joinMethod, params Pair<int>[] joinedColumnIndexes)
+    {
+      return new JoinProvider(left, right, JoinType.LeftOuter, joinMethod, joinedColumnIndexes);
     }
 
     public static CompilableProvider LeftJoin(this CompilableProvider left, CompilableProvider right,

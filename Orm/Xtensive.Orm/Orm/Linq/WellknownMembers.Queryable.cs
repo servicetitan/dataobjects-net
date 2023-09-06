@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Linq
 
       // Queryable extensions
       public static readonly MethodInfo ExtensionCount = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Count), 0, 1);
-      public static readonly MethodInfo ExtensionLeftJoin = GetQueryableExtensionsMethod(nameof(QueryableExtensions.LeftJoin), 4, 5);
+      public static readonly MethodInfo ExtensionLeftJoin = GetQueryableExtensionsMethod(nameof(QueryableExtensions.LeftJoin), 4, 6);
       public static readonly MethodInfo ExtensionLock = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Lock), 1, 3);
       public static readonly MethodInfo ExtensionTake = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Take), 1, 2);
       public static readonly MethodInfo ExtensionSkip = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Skip), 1, 2);
@@ -87,6 +87,10 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo ExtensionElementAtOrDefault = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAtOrDefault), 1, 2);
       public static readonly MethodInfo ExtensionTag = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Tag), 1, 2);
       public static readonly MethodInfo ExtensionWithIndexHint = GetQueryableExtensionsMethod(nameof(QueryableExtensions.WithIndexHint), 2, 2);
+      public static readonly MethodInfo ExtensionJoinWithJoinMethod =
+        GetQueryableExtensionsMethod(nameof(QueryableExtensions.Join), 4, 6);
+      public static readonly MethodInfo ExtensionGroupJoinWithJoinMethod =
+        GetQueryableExtensionsMethod(nameof(QueryableExtensions.GroupJoin), 4, 6);
 
       static Queryable()
       {

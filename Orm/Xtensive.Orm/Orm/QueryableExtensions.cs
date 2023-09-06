@@ -15,6 +15,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 using Xtensive.Reflection;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm
 {
@@ -125,7 +126,77 @@ namespace Xtensive.Orm
       var genericMethod = WellKnownMembers.Queryable.ExtensionWithIndexHint.MakeGenericMethod(new[] { source.ElementType, source.ElementType });
       var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(indexName)});
       return source.Provider.CreateQuery(expression);
-    } 
+    }
+
+    /// <summary>
+    /// Correlates the elements of two sequences based on matching keys.
+    /// </summary>
+    /// <typeparam name="TOuter">The type of the elements of the first sequence.</typeparam>
+    /// <typeparam name="TInner">The type of the elements of the second sequence.</typeparam>
+    /// <typeparam name="TKey">The type of the keys returned by the key selector functions.</typeparam>
+    /// <typeparam name="TResult">The type of the result elements.</typeparam>
+    /// <param name="outer">The first sequence to join.</param>
+    /// <param name="inner">The sequence to join to the first sequence.</param>
+    /// <param name="outerKeySelector">A function to extract the join key from each element of the first sequence.</param>
+    /// <param name="innerKeySelector">A function to extract the join key from each element of the second sequence.</param>
+    /// <param name="resultSelector">A function to create a result element from two matching elements.</param>
+    /// <param name="joinMethod">SqlJoinMethod to use</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException">One of provided arguments is <see langword="null" />.</exception>
+    /// <exception cref="NotSupportedException">Queryable is not a <see cref="Xtensive.Orm.Linq"/> query.</exception>
+    public static IQueryable<TResult> Join<TOuter, TInner, TKey, TResult>(
+      this IQueryable<TOuter> outer,
+      IEnumerable<TInner> inner,
+      Expression<Func<TOuter, TKey>> outerKeySelector,
+      Expression<Func<TInner, TKey>> innerKeySelector,
+      Expression<Func<TOuter, TInner, TResult>> resultSelector,
+      SqlJoinMethod joinMethod)
+    {
+      ArgumentNullException.ThrowIfNull(outer);
+      ArgumentNullException.ThrowIfNull(inner);
+      ArgumentNullException.ThrowIfNull(outerKeySelector);
+      ArgumentNullException.ThrowIfNull(innerKeySelector);
+      ArgumentNullException.ThrowIfNull(resultSelector);
+
+      var outerProviderType = outer.Provider.GetType();
+      if (outerProviderType!=WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExJoinDoesNotSupportQueryProviderOfTypeX;
+        throw new NotSupportedException(string.Format(errorMessage, outerProviderType));
+      }
+
+      var genericMethod =
+        WellKnownMembers.Queryable.ExtensionJoinWithJoinMethod.MakeGenericMethod(typeof(TOuter), typeof(TInner),
+          typeof(TKey), typeof(TResult));
+      var expression = Expression.Call(null, genericMethod, outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector, Expression.Constant(joinMethod));
+      return outer.Provider.CreateQuery<TResult>(expression);
+    }
+    
+    public static IQueryable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(
+      this IQueryable<TOuter> outer,
+      IEnumerable<TInner> inner,
+      Expression<Func<TOuter, TKey>> outerKeySelector,
+      Expression<Func<TInner, TKey>> innerKeySelector,
+      Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector,
+      SqlJoinMethod joinMethod)
+    {
+      ArgumentNullException.ThrowIfNull(outer);
+      ArgumentNullException.ThrowIfNull(inner);
+      ArgumentNullException.ThrowIfNull(outerKeySelector);
+      ArgumentNullException.ThrowIfNull(innerKeySelector);
+      ArgumentNullException.ThrowIfNull(resultSelector);
+
+      var outerProviderType = outer.Provider.GetType();
+      if (outerProviderType!=WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExGroupJoinDoesNotSupportQueryProviderOfTypeX;
+        throw new NotSupportedException(string.Format(errorMessage, outerProviderType));
+      }
+
+      var genericMethod =
+        WellKnownMembers.Queryable.ExtensionGroupJoinWithJoinMethod.MakeGenericMethod(typeof(TOuter), typeof(TInner),
+          typeof(TKey), typeof(TResult));
+      var expression = Expression.Call(null, genericMethod, outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector, Expression.Constant(joinMethod));
+      return outer.Provider.CreateQuery<TResult>(expression);
+    }
 
     /// <summary>
     /// Returns the number of elements in <paramref name="source"/> sequence.
@@ -324,7 +395,13 @@ namespace Xtensive.Orm
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">One of provided arguments is <see langword="null" />.</exception>
     /// <exception cref="NotSupportedException">Queryable is not a <see cref="Xtensive.Orm.Linq"/> query.</exception>
-    public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
+    public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(
+      this IQueryable<TOuter> outer,
+      IEnumerable<TInner> inner,
+      Expression<Func<TOuter, TKey>> outerKeySelector,
+      Expression<Func<TInner, TKey>> innerKeySelector,
+      Expression<Func<TOuter, TInner, TResult>> resultSelector,
+      SqlJoinMethod joinMethod = SqlJoinMethod.Default)
     {
       ArgumentValidator.EnsureArgumentNotNull(outer, nameof(outer));
       ArgumentValidator.EnsureArgumentNotNull(inner, nameof(inner));
@@ -339,7 +416,7 @@ namespace Xtensive.Orm
       }
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionLeftJoin.MakeGenericMethod(new[] {typeof (TOuter), typeof(TInner), typeof(TKey), typeof(TResult)});
-      var expression = Expression.Call(null, genericMethod, new[] {outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector});
+      var expression = Expression.Call(null, genericMethod, new[] {outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector, Expression.Constant(joinMethod) });
       return outer.Provider.CreateQuery<TResult>(expression);
     }
 

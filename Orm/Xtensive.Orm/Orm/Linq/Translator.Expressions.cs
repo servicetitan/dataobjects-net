@@ -497,6 +497,20 @@ namespace Xtensive.Orm.Linq
             nameof(QueryableExtensions.Count) => VisitAggregate(mc.Arguments[0], method, null, context.IsRoot(mc), mc),
             nameof(QueryableExtensions.Tag) => VisitTag(mc),
             nameof(QueryableExtensions.WithIndexHint) => VisitWithIndexHint(mc),
+            nameof(QueryableExtensions.Join) => VisitJoin(mc.Arguments[0],
+              mc.Arguments[1],
+              mc.Arguments[2].StripQuotes(),
+              mc.Arguments[3].StripQuotes(),
+              mc.Arguments[4].StripQuotes(),
+              false,
+              mc),
+            nameof(QueryableExtensions.GroupJoin) => VisitGroupJoin(mc.Arguments[0],
+              mc.Arguments[1],
+              mc.Arguments[2].StripQuotes(),
+              mc.Arguments[3].StripQuotes(),
+              mc.Arguments[4].StripQuotes(),
+              null,
+              mc),
             _ => throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)))
           };
         }

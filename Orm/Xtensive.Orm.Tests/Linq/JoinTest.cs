@@ -9,10 +9,13 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Linq;
+using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Tests.Linq
 {
@@ -388,6 +391,104 @@ namespace Xtensive.Orm.Tests.Linq
         });
       Assert.That(query, Is.Not.Empty);
       QueryDumper.Dump(query);
+    }
+    
+    [TestCase(SqlJoinMethod.Loop)]
+    [TestCase(SqlJoinMethod.Merge)]
+    [TestCase(SqlJoinMethod.Hash)]
+    public void JoinWithJoinMethodTest(SqlJoinMethod joinMethod)
+    {
+      var trackCount = Session.Query.All<Track>().Count();
+      var result = Session.Query.All<Track>()
+        .Join(Session.Query.All<MediaType>(), track => track.MediaType.MediaTypeId, mediaType => mediaType.MediaTypeId,
+          (track, mediaType) => new { track.Name, mediaTypeName = mediaType.Name, mediaType.MediaTypeId }, joinMethod);
+      
+      var queryFormatter = Session.Services.Demand<QueryFormatter>();
+      var queryString = queryFormatter.ToSqlString(result);
+      Console.WriteLine(queryString);
+
+      CheckJoinHint(queryString, nameof(MediaType), joinMethod);
+      
+      var list = result.ToList();
+      Assert.That(list, Is.Not.Empty);
+      Assert.AreEqual(trackCount, list.Count);
+    }
+
+    [TestCase(SqlJoinMethod.Loop)]
+    [TestCase(SqlJoinMethod.Merge)]
+    [TestCase(SqlJoinMethod.Hash)]
+    public void LeftJoinWithJoinMethodTest(SqlJoinMethod joinMethod)
+    {
+      var trackCount = Session.Query.All<Track>().Count();
+      var result = Session.Query.All<Track>()
+        .LeftJoin(Session.Query.All<Album>(),
+          track => track.Album.AlbumId,
+          album => album.AlbumId,
+          (track, album) => new {track.Name, album.Title, album.AlbumId},
+          joinMethod);
+      
+      var queryFormatter = Session.Services.Demand<QueryFormatter>();
+      var queryString = queryFormatter.ToSqlString(result);
+      Console.WriteLine(queryString);
+      
+      CheckJoinHint(queryString, nameof(MediaType), joinMethod);
+      
+      var list = result.ToList();
+      Assert.That(list, Is.Not.Empty);
+      Assert.AreEqual(trackCount, list.Count);
+    }
+    
+    [TestCase(SqlJoinMethod.Loop)]
+    [TestCase(SqlJoinMethod.Merge)]
+    [TestCase(SqlJoinMethod.Hash)]
+    public void GroupJoinWithJoinMethodTest(SqlJoinMethod joinMethod)
+    {
+      var mediaTypeCount = Session.Query.All<MediaType>().Count();
+      var result = Session.Query.All<MediaType>()
+        .GroupJoin(Session.Query.All<Track>(), mediaType => mediaType, track => track.MediaType,
+          (mediaType, groups) => groups, joinMethod);
+
+      var queryFormatter = Session.Services.Demand<QueryFormatter>();
+      var queryString = queryFormatter.ToSqlString(result);
+      Console.WriteLine(queryString);
+      
+      CheckJoinHint(queryString, nameof(MediaType), joinMethod);
+      
+      var list = result.ToList();
+      Assert.That(list, Is.Not.Empty);
+      Assert.AreEqual(mediaTypeCount, list.Count);
+    }
+    
+    //TODO: more hints
+    private static bool CheckJoinHint(string query, string table, SqlJoinMethod joinMethod)
+    {
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.SqlServer | StorageProvider.Sqlite)) {
+        switch (joinMethod) {
+          case SqlJoinMethod.Loop:
+            return query.Contains($"LOOP JOIN [dbo].[{table}]");
+          case SqlJoinMethod.Merge:
+            return query.Contains($"MERGE JOIN [dbo].[{table}]");
+          case SqlJoinMethod.Hash:
+            return query.Contains($"HASH JOIN [dbo].[{table}]");
+          default:
+            throw new ArgumentOutOfRangeException(nameof(joinMethod), joinMethod, null);
+        }
+      }
+
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Oracle)) {
+        switch (joinMethod) {
+          case SqlJoinMethod.Loop:
+            return query.Contains("use_nl");
+          case SqlJoinMethod.Merge:
+            return query.Contains("use_merge");
+          case SqlJoinMethod.Hash:
+            return query.Contains("use_hash");
+          default:
+            throw new ArgumentOutOfRangeException(nameof(joinMethod), joinMethod, null);
+        }
+      }
+
+      return true;
     }
   }
 }

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-
+using Xtensive.Sql.Dml;
 
 
 namespace Xtensive.Orm.Rse.Providers
@@ -37,6 +37,8 @@ namespace Xtensive.Orm.Rse.Providers
     /// Pairs of equal columns.
     /// </summary>
     public Pair<Column>[] EqualColumns { get; private set; }
+    
+    public SqlJoinMethod JoinMethod { get; private set; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -99,6 +101,27 @@ namespace Xtensive.Orm.Rse.Providers
         ei[i] = new Pair<int>(equalIndexes[j++], equalIndexes[j++]);
       JoinType = joinType;
       EqualIndexes = ei;
+      Initialize();
+    }
+    
+    /// <summary>
+    /// Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="left">The left provider to join.</param>
+    /// <param name="right">The right provider to join.</param>
+    /// <param name="joinType">The join operation type.</param>
+    /// <param name="joinMethod">The sql join method.</param>
+    /// <param name="equalIndexes">The <see cref="EqualIndexes"/> property value.</param>
+    /// <exception cref="ArgumentException">Wrong arguments.</exception>
+    public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType, SqlJoinMethod joinMethod, params Pair<int>[] equalIndexes)
+      : base(ProviderType.Join, left, right)
+    {
+      if (equalIndexes==null || equalIndexes.Length==0)
+        throw new ArgumentException(
+          Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, "equalIndexes");
+      JoinMethod = joinMethod;
+      JoinType = joinType;
+      EqualIndexes = equalIndexes;
       Initialize();
     }
   }
