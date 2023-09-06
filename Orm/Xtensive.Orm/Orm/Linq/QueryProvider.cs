@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Linq
       expression = events.NotifyQueryExecuting(expression);
       Exception eventException = null;
       try {
-        return await runQuery(Translate(expression), Session, new ParameterContext(), token).ConfigureAwait(false);
+        return await runQuery(Translate(expression), Session, new ParameterContext(), token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         eventException = exception;

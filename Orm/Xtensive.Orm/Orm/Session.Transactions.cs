@@ -8,6 +8,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Providers;
@@ -165,7 +166,7 @@ namespace Xtensive.Orm
 
           return
             isAsync
-              ? await CreateOutermostTransactionAsync(isolationLevel, isAutomatic, token).ConfigureAwait(false)
+              ? await CreateOutermostTransactionAsync(isolationLevel, isAutomatic, token).ConfigureAwaitFalse()
               : CreateOutermostTransaction(isolationLevel, isAutomatic);
         case TransactionOpenMode.New:
           if (isolationLevel == IsolationLevel.Unspecified) {
@@ -175,8 +176,8 @@ namespace Xtensive.Orm
           return
             isAsync
               ? transaction != null
-                ? await CreateNestedTransactionAsync(isolationLevel, isAutomatic, token).ConfigureAwait(false)
-                : await CreateOutermostTransactionAsync(isolationLevel, isAutomatic, token).ConfigureAwait(false)
+                ? await CreateNestedTransactionAsync(isolationLevel, isAutomatic, token).ConfigureAwaitFalse()
+                : await CreateOutermostTransactionAsync(isolationLevel, isAutomatic, token).ConfigureAwaitFalse()
               : transaction != null
                 ? CreateNestedTransaction(isolationLevel, isAutomatic)
                 : CreateOutermostTransaction(isolationLevel, isAutomatic);
@@ -229,11 +230,11 @@ namespace Xtensive.Orm
     internal async Task BeginTransactionAsync(Transaction transaction, CancellationToken token)
     {
       if (transaction.IsNested) {
-        await PersistAsync(PersistReason.NestedTransaction, token).ConfigureAwait(false);
-        await Handler.CreateSavepointAsync(transaction, token).ConfigureAwait(false);
+        await PersistAsync(PersistReason.NestedTransaction, token).ConfigureAwaitFalse();
+        await Handler.CreateSavepointAsync(transaction, token).ConfigureAwaitFalse();
       }
       else {
-        await Handler.BeginTransactionAsync(transaction, token).ConfigureAwait(false);
+        await Handler.BeginTransactionAsync(transaction, token).ConfigureAwaitFalse();
       }
     }
 
@@ -247,7 +248,7 @@ namespace Xtensive.Orm
       Events.NotifyTransactionPrecommitting(transaction);
 
       if (isAsync) {
-        await PersistAsync(PersistReason.Commit).ConfigureAwait(false);
+        await PersistAsync(PersistReason.Commit).ConfigureAwaitFalse();
       }
       else {
         Persist(PersistReason.Commit);
@@ -261,7 +262,7 @@ namespace Xtensive.Orm
       Handler.CompletingTransaction(transaction);
       if (transaction.IsNested) {
         if (isAsync) {
-          await Handler.ReleaseSavepointAsync(transaction).ConfigureAwait(false);
+          await Handler.ReleaseSavepointAsync(transaction).ConfigureAwaitFalse();
         }
         else {
           Handler.ReleaseSavepoint(transaction);
@@ -269,7 +270,7 @@ namespace Xtensive.Orm
       }
       else {
         if (isAsync) {
-          await Handler.CommitTransactionAsync(transaction).ConfigureAwait(false);
+          await Handler.CommitTransactionAsync(transaction).ConfigureAwaitFalse();
         }
         else {
           Handler.CommitTransaction(transaction);
@@ -294,11 +295,11 @@ namespace Xtensive.Orm
         finally {
           try {
             if (Configuration.Supports(SessionOptions.SuppressRollbackExceptions)) {
-              await RollbackWithSuppression(transaction, isAsync).ConfigureAwait(false);
+              await RollbackWithSuppression(transaction, isAsync).ConfigureAwaitFalse();
             }
             else {
               if (isAsync) {
-                await RollbackAsync(transaction).ConfigureAwait(false);
+                await RollbackAsync(transaction).ConfigureAwaitFalse();
               }
               else {
                 Rollback(transaction);
@@ -322,7 +323,7 @@ namespace Xtensive.Orm
     {
       try {
         if (isAsync) {
-          await RollbackAsync(transaction).ConfigureAwait(false);
+          await RollbackAsync(transaction).ConfigureAwaitFalse();
         }
         else {
           Rollback(transaction);
@@ -346,10 +347,10 @@ namespace Xtensive.Orm
     private async ValueTask RollbackAsync(Transaction transaction)
     {
       if (transaction.IsNested) {
-        await Handler.RollbackToSavepointAsync(transaction).ConfigureAwait(false);
+        await Handler.RollbackToSavepointAsync(transaction).ConfigureAwaitFalse();
       }
       else {
-        await Handler.RollbackTransactionAsync(transaction).ConfigureAwait(false);
+        await Handler.RollbackTransactionAsync(transaction).ConfigureAwaitFalse();
       }
     }
 
@@ -462,7 +463,7 @@ namespace Xtensive.Orm
 
       Transaction = transaction;
       if (isAsync) {
-        await transaction.BeginAsync(token).ConfigureAwait(false);
+        await transaction.BeginAsync(token).ConfigureAwaitFalse();
       }
       else {
         transaction.Begin();

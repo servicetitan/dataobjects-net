@@ -289,7 +289,7 @@ namespace Xtensive.Orm
       if (key is null) {
         return null;
       }
-      var result = await SingleOrDefaultAsync(key, ct).ConfigureAwait(false);
+      var result = await SingleOrDefaultAsync(key, ct).ConfigureAwaitFalse();
       if (result is null) {
         ThrowKeyNotFoundException(key);
       }
@@ -357,14 +357,14 @@ namespace Xtensive.Orm
           OrmLog.Debug(nameof(Strings.LogSessionXResolvingKeyYExactTypeIsZ), session, key, key.HasExactType ? Strings.Known : Strings.Unknown);
         }
 
-        state = await session.Handler.FetchEntityStateAsync(key, ct).ConfigureAwait(false);
+        state = await session.Handler.FetchEntityStateAsync(key, ct).ConfigureAwaitFalse();
       }
       else if (state.Tuple == null) {
         var stateKeyType = state.Key.TypeReference.Type.UnderlyingType;
         var keyType = key.TypeReference.Type.UnderlyingType;
         if (stateKeyType != keyType && !stateKeyType.IsAssignableFrom(keyType)) {
           session.RemoveStateFromCache(state.Key, true);
-          state = await session.Handler.FetchEntityStateAsync(key, ct).ConfigureAwait(false);
+          state = await session.Handler.FetchEntityStateAsync(key, ct).ConfigureAwaitFalse();
         }
       }
       var result = state == null || state.IsNotAvailableOrMarkedAsRemoved
