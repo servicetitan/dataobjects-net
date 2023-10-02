@@ -379,8 +379,7 @@ namespace Xtensive.Orm.Building.Builders
         underlyingTypeDef.Name = association.Name;
         underlyingTypeDef.MappingName = context.NameBuilder.BuildAuxiliaryTypeMappingName(association);
         // Copy mapping information from master type
-        underlyingTypeDef.MappingSchema = association.OwnerType.MappingSchema;
-        underlyingTypeDef.MappingDatabase = association.OwnerType.MappingDatabase;
+        underlyingTypeDef.SchemaMapping = association.OwnerType.SchemaMapping;
 
         // HierarchyRootAttribute is not inherited so we must take it from the generic type definition or generic instance type
         var hra = WellKnownOrmTypes.EntitySetItemOfT1T2

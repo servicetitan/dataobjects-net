@@ -48,8 +48,7 @@ namespace Xtensive.Orm.Building.Builders
           UnderlyingType = typeDef.UnderlyingType,
           Name = typeDef.Name,
           MappingName = typeDef.MappingName,
-          MappingDatabase = typeDef.MappingDatabase,
-          MappingSchema = typeDef.MappingSchema,
+          SchemaMapping = SchemaMapping.Get(typeDef.MappingDatabase, typeDef.MappingSchema),
           HasVersionRoots = TypeHelper.GetInterfacesUnordered(typeDef.UnderlyingType)
             .Any(static type => type == typeof(IHasVersionRoots)),
           Validators = validators.AsReadOnly(),
@@ -591,8 +590,7 @@ namespace Xtensive.Orm.Building.Builders
       var sequence = new SequenceInfo(generatorName) {
         Seed = seed + cacheSize, // Preallocate keys for the first access
         Increment = cacheSize,
-        MappingDatabase = hierarchyDef.Root.MappingDatabase,
-        MappingSchema = context.Configuration.DefaultSchema,
+        SchemaMapping = SchemaMapping.Get(hierarchyDef.Root.MappingDatabase, context.Configuration.DefaultSchema),
         MappingName = context.NameBuilder.BuildSequenceName(key),
       };
 

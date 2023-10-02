@@ -57,21 +57,8 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private struct MappingResult
-    {
-      public readonly string MappingDatabase;
-      public readonly string MappingSchema;
-
-      public MappingResult(string mappingDatabase, string mappingSchema)
-      {
-        MappingDatabase = mappingDatabase;
-        MappingSchema = mappingSchema;
-      }
-    }
-
     private readonly BuildingContext context;
-    private readonly Dictionary<MappingRequest, MappingResult> mappingCache
-      = new Dictionary<MappingRequest,MappingResult>();
+    private readonly Dictionary<MappingRequest, SchemaMapping> mappingCache = new();
 
     private readonly bool verbose;
     private readonly List<MappingRule> mappingRules;
@@ -105,12 +92,11 @@ namespace Xtensive.Orm.Building.Builders
             BuildLog.Info(nameof(Strings.LogReusingCachedMappingInformationForX), underlyingType.GetShortName());
           }
         }
-        type.MappingDatabase = result.MappingDatabase;
-        type.MappingSchema = result.MappingSchema;
+        type.SchemaMapping = result;
       }
     }
 
-    private MappingResult Process(Type type)
+    private SchemaMapping Process(Type type)
     {
       var rule = mappingRules.First(r => RuleMatch(r, type));
 
@@ -121,7 +107,7 @@ namespace Xtensive.Orm.Building.Builders
         BuildLog.Info(nameof(Strings.ApplyingRuleXToY), rule, type.GetShortName());
       }
 
-      return new MappingResult(resultDatabase, resultSchema);
+      return SchemaMapping.Get(resultDatabase, resultSchema);
     }
 
     private static bool RuleMatch(MappingRule rule, Type type)

@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Orm.Building.Builders;
 
 namespace Xtensive.Orm.Model
 {
@@ -15,34 +16,28 @@ namespace Xtensive.Orm.Model
   [Serializable]
   public abstract class SchemaMappedNode : MappedNode
   {
-    private string mappingDatabase;
-    private string mappingSchema;
+    private SchemaMapping schemaMapping;
+
+    /// <summary>
+    /// Gets or sets database/schema this node is mapped to.
+    /// </summary>
+    public SchemaMapping SchemaMapping {
+      get => schemaMapping;
+      set {
+        EnsureNotLocked();
+        schemaMapping = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets database this node is mapped to.
     /// </summary>
-    public string MappingDatabase
-    {
-      get { return mappingDatabase; }
-      set
-      {
-        EnsureNotLocked();
-        mappingDatabase = value;
-      }
-    }
+    public string MappingDatabase => SchemaMapping.Database;
 
     /// <summary>
     /// Gets or sets schema this node is mapped to.
     /// </summary>
-    public string MappingSchema
-    {
-      get { return mappingSchema; }
-      set
-      {
-        EnsureNotLocked();
-        mappingSchema = value;
-      }
-    }
+    public string MappingSchema => SchemaMapping.Schema;
 
 
     // Constructors

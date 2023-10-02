@@ -696,8 +696,7 @@ namespace Xtensive.Orm.Model
         // MappingSchema is not important: it's copied for consistency.
         var firstImplementor = DirectImplementors.FirstOrDefault();
         if (firstImplementor != null) {
-          MappingDatabase = firstImplementor.MappingDatabase;
-          MappingSchema = firstImplementor.MappingSchema;
+          SchemaMapping = firstImplementor.SchemaMapping;
         }
       }
 

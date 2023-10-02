@@ -127,8 +127,7 @@ namespace Xtensive.Orm.Building
         // Copy schema/database from first generic argument
         var originatingType = instanceType.GetGenericArguments()[0];
         var originatingEntity = context.ModelDef.Types[originatingType];
-        typeDef.MappingDatabase = originatingEntity.MappingDatabase;
-        typeDef.MappingSchema = originatingEntity.MappingSchema;
+        typeDef.SchemaMapping = originatingEntity.SchemaMapping;
       }
     }
 
