@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Building.Builders
           UnderlyingType = typeDef.UnderlyingType,
           Name = typeDef.Name,
           MappingName = typeDef.MappingName,
-          SchemaMapping = SchemaMapping.Get(typeDef.MappingDatabase, typeDef.MappingSchema),
+          SchemaMapping = typeDef.SchemaMapping,
           HasVersionRoots = TypeHelper.GetInterfacesUnordered(typeDef.UnderlyingType)
             .Any(static type => type == typeof(IHasVersionRoots)),
           Validators = validators.AsReadOnly(),
