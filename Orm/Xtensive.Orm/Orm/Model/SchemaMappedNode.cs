@@ -32,12 +32,12 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets database this node is mapped to.
     /// </summary>
-    public string MappingDatabase => SchemaMapping.Database;
+    public string MappingDatabase => SchemaMapping?.Database;
 
     /// <summary>
     /// Gets or sets schema this node is mapped to.
     /// </summary>
-    public string MappingSchema => SchemaMapping.Schema;
+    public string MappingSchema => SchemaMapping?.Schema;
 
 
     // Constructors
