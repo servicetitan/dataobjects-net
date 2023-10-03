@@ -6,11 +6,13 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -40,6 +42,9 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public const int MinTypeId = 100;
 
+    private static volatile int CurrentSharedId = 0;
+    private static readonly ConcurrentDictionary<Type, int> TypeToSharedId = new();
+
     private static readonly ImmutableHashSet<TypeInfo> EmptyTypes = ImmutableHashSet.Create<TypeInfo>();
 
     private readonly ColumnInfoCollection columns;
@@ -54,7 +59,6 @@ namespace Xtensive.Orm.Model
     private IReadOnlyList<AssociationInfo> removalSequence;
     private IReadOnlyList<FieldInfo> versionFields;
     private IReadOnlyList<ColumnInfo> versionColumns;
-    private Type underlyingType;
     private HierarchyInfo hierarchy;
     private int typeId = NoTypeId;
     private object typeDiscriminatorValue;
@@ -358,15 +362,9 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets the underlying system type.
     /// </summary>
-    public Type UnderlyingType
-    {
-      [DebuggerStepThrough]
-      get { return underlyingType; }
-      set {
-        EnsureNotLocked();
-        underlyingType = value;
-      }
-    }
+    public Type UnderlyingType { [DebuggerStepThrough] get; }
+
+    internal int SharedId { get; }
 
     /// <summary>
     /// Gets the attributes.
@@ -930,9 +928,11 @@ namespace Xtensive.Orm.Model
     /// </summary>
     /// <param name="model">The model.</param>
     /// <param name="typeAttributes">The type attributes.</param>
-    public TypeInfo(DomainModel model, TypeAttributes typeAttributes)
+    public TypeInfo(DomainModel model, Type underlyingType, TypeAttributes typeAttributes)
     {
       this.model = model;
+      UnderlyingType = underlyingType;
+      SharedId = TypeToSharedId.GetOrAdd(underlyingType, static _ => Interlocked.Increment(ref CurrentSharedId));
       attributes = typeAttributes;
       columns = new ColumnInfoCollection(this, "Columns");
       fields = new FieldInfoCollection(this, "Fields");
