@@ -467,7 +467,7 @@ namespace Xtensive.Orm.Upgrade
       var modelMapping = ModelMappingBuilder.Build(
         domain.Handlers, schemaExtractionResult,
         context.Services.MappingResolver, context.NodeConfiguration, context.UpgradeMode.IsLegacy());
-      var result = new StorageNode(domain, context.NodeConfiguration, modelMapping, new TypeIdRegistry());
+      var result = new StorageNode(domain, context.NodeConfiguration, modelMapping, new TypeIdRegistry(domain.Model.Types.SharedIdToTypeInfo));
       context.NodeConfiguration.TypeIdRegistry = result.TypeIdRegistry;
 
       // Register default storage node immediately,

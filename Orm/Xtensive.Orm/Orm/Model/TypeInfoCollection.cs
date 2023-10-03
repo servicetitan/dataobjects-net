@@ -64,6 +64,9 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public IEnumerable<TypeInfo> Interfaces => Find(TypeAttributes.Interface);
 
+    private TypeInfo[] sharedIdToTypeInfo = new TypeInfo[1];
+    internal IReadOnlyList<TypeInfo> SharedIdToTypeInfo => sharedIdToTypeInfo;
+
     internal TypeIdRegistry TypeIdRegistry
     {
       get { return typeIdRegistry; }
@@ -105,6 +108,11 @@ namespace Xtensive.Orm.Model
       base.Add(item);
       typeTable.Add(item.UnderlyingType, item);
       fullNameTable.Add(item.UnderlyingType.FullName, item);
+
+      if (item.SharedId >= sharedIdToTypeInfo.Length) {
+        Array.Resize(ref sharedIdToTypeInfo, Math.Max(item.SharedId + 1, sharedIdToTypeInfo.Length * 2));
+      }
+      sharedIdToTypeInfo[item.SharedId] = item;
     }
 
     /// <inheritdoc/>
