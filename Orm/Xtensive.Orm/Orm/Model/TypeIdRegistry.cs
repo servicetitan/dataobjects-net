@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Model
     /// Gets collection of registered types.
     /// </summary>
     public IEnumerable<TypeInfo> Types =>
-      mapping?.Keys ?? sharedIdToTypeInfo.OfType<TypeInfo>();
+      mapping?.Keys ?? typeIdToSharedId.Select(o => sharedIdToTypeInfo[o]).OfType<TypeInfo>();
 
     /// <summary>
     /// Gets collection of registered type identifiers.
