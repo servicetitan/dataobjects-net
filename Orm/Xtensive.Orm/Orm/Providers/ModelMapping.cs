@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Providers
     public void Register(TypeInfo typeInfo, Table table)
     {
       EnsureNotLocked();
-      Array.Resize(ref tableMap, Math.Max(tableMap.Length, typeInfo.SharedId + 1));
+      Array.Resize(ref tableMap, Math.Max(tableMap.Length, typeInfo.SharedId + 10));
       tableMap[typeInfo.SharedId] = table;
     }
 
