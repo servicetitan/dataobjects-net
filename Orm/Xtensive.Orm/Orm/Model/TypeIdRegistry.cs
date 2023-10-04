@@ -120,12 +120,12 @@ namespace Xtensive.Orm.Model
       EnsureNotLocked();
 
       if (mapping is null) {
-        if (typeId <= UInt16.MaxValue && type.SharedId <= UInt16.MaxValue) {
+        if ((uint)typeId <= UInt16.MaxValue && type.SharedId <= UInt16.MaxValue) {
           sharedIdToTypeId ??= new UInt16[1];
           typeIdToSharedId ??= new UInt16[1];
-          Array.Resize(ref sharedIdToTypeId, Math.Max(type.SharedId + 1, Math.Max(sharedIdToTypeInfo.Count, sharedIdToTypeId.Length)));
+          Array.Resize(ref sharedIdToTypeId, Math.Max(type.SharedId + 10, Math.Max(sharedIdToTypeInfo.Count, sharedIdToTypeId.Length)));
           sharedIdToTypeId[type.SharedId] = (UInt16)typeId;
-          Array.Resize(ref typeIdToSharedId, Math.Max(typeIdToSharedId.Length, typeId + 1));
+          Array.Resize(ref typeIdToSharedId, Math.Max(typeIdToSharedId.Length, typeId + 10));
           typeIdToSharedId[typeId] = (UInt16) type.SharedId;
           return;
         }
