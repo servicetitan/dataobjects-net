@@ -120,7 +120,7 @@ namespace Xtensive.Orm.Model
       EnsureNotLocked();
 
       if (mapping is null) {
-        if (typeId <= UInt16.MaxValue && type.SharedId <= UInt16.MaxValue) {
+        if ((uint)typeId <= UInt16.MaxValue && type.SharedId <= UInt16.MaxValue) {
           sharedIdToTypeId ??= new UInt16[1];
           typeIdToSharedId ??= new UInt16[1];
           Array.Resize(ref sharedIdToTypeId, Math.Max(type.SharedId + 10, Math.Max(sharedIdToTypeInfo.Count, sharedIdToTypeId.Length)));
