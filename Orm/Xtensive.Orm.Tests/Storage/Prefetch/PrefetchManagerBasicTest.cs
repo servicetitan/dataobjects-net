@@ -33,10 +33,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
     public class MemoryLeakTester
     {
-      ~MemoryLeakTester()
-      {
-        instanceCount--;
-      }
+      ~MemoryLeakTester() => Interlocked.Decrement(ref instanceCount);
     }
 
     #endregion
