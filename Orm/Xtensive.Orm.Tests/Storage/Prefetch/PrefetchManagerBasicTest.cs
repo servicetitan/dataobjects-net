@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -930,13 +931,14 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     [Test]
     public void ReferenceToSessionIsNotPreservedInCacheTest()
     {
-      // Use separate method for session related processing
+      // Use separate method with [MethodImpl(MethodImplOptions.NoInlining)] attribute for session related processing
       // to make sure we don't hold session reference somewhere on stack
       OpenSessionsAndRunPrefetches();
       TestHelper.CollectGarbage(true);
       Assert.That(instanceCount, Is.EqualTo(0));
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private void OpenSessionsAndRunPrefetches()
     {
       instanceCount = Iterations;
