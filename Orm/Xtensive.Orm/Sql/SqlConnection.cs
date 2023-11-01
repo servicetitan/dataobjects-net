@@ -373,13 +373,17 @@ namespace Xtensive.Sql
     /// <summary>
     /// Commits the current transaction.
     /// </summary>
-    public virtual void Commit()
+    public virtual void Commit(bool rollbackOnFail = false)
     {
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
 
       try {
         ActiveTransaction.Commit();
+      }
+      catch when (rollbackOnFail) {
+        ActiveTransaction.Rollback();
+        throw;
       }
       finally {
         ActiveTransaction.Dispose();
@@ -392,12 +396,16 @@ namespace Xtensive.Sql
     /// </summary>
     /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
     /// to ensure that all asynchronous operations have completed.</remarks>
-    public virtual async Task CommitAsync(CancellationToken token = default)
+    public virtual async Task CommitAsync(bool rollbackOnFail = false, CancellationToken token = default)
     {
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       try {
         await ActiveTransaction.CommitAsync(token).ConfigureAwaitFalse();
+      }
+      catch when (rollbackOnFail) {
+        await ActiveTransaction.RollbackAsync(token).ConfigureAwaitFalse();;
+        throw;
       }
       finally {
         await ActiveTransaction.DisposeAsync().ConfigureAwaitFalse();

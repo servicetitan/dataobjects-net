@@ -234,14 +234,14 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    public void CommitTransaction(Session session, SqlConnection connection)
+    public void CommitTransaction(Session session, SqlConnection connection, bool rollbackOnFail = false)
     {
       if (isLoggingEnabled) {
         SqlLog.Info(nameof(Strings.LogSessionXCommitTransaction), session.ToStringSafely());
       }
 
       try {
-        connection.Commit();
+        connection.Commit(rollbackOnFail);
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -249,14 +249,14 @@ namespace Xtensive.Orm.Providers
     }
 
     public async ValueTask CommitTransactionAsync(
-      Session session, SqlConnection connection, CancellationToken token = default)
+      Session session, SqlConnection connection, bool rollbackOnFail = false, CancellationToken token = default)
     {
       if (isLoggingEnabled) {
         SqlLog.Info(nameof(Strings.LogSessionXCommitTransaction), session.ToStringSafely());
       }
 
       try {
-        await connection.CommitAsync(token).ConfigureAwaitFalse();
+        await connection.CommitAsync(rollbackOnFail, token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);

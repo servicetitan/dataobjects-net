@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Upgrade
     {
       var connection = context.Services.Connection;
       if (connection.ActiveTransaction is not null) {
-        context.Services.StorageDriver.CommitTransaction(null, connection);
+        context.Services.StorageDriver.CommitTransaction(null, connection, true);
       }
     }
 
@@ -167,7 +167,7 @@ namespace Xtensive.Orm.Upgrade
     {
       var connection = context.Services.Connection;
       if (connection.ActiveTransaction is not null) {
-        await context.Services.StorageDriver.CommitTransactionAsync(null, connection, token);
+        await context.Services.StorageDriver.CommitTransactionAsync(null, connection, true, token);
       }
     }
 
