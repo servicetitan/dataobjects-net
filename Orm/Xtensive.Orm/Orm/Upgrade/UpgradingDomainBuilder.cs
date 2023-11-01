@@ -176,18 +176,8 @@ namespace Xtensive.Orm.Upgrade
     private async ValueTask CompleteUpgradeTransactionAsync(CancellationToken token)
     {
       var connection = context.Services.Connection;
-      var driver = context.Services.StorageDriver;
-
-      if (connection.ActiveTransaction == null) {
-        return;
-      }
-
-      try {
-        await driver.CommitTransactionAsync(null, connection, token);
-      }
-      catch {
-        await driver.RollbackTransactionAsync(null, connection, token);
-        throw;
+      if (connection.ActiveTransaction is not null) {
+        await context.Services.StorageDriver.CommitTransactionAsync(null, connection, token);
       }
     }
 
