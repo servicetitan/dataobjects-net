@@ -158,18 +158,8 @@ namespace Xtensive.Orm.Upgrade
     private void CompleteUpgradeTransaction()
     {
       var connection = context.Services.Connection;
-      var driver = context.Services.StorageDriver;
-
-      if (connection.ActiveTransaction == null) {
-        return;
-      }
-
-      try {
-        driver.CommitTransaction(null, connection);
-      }
-      catch {
-        driver.RollbackTransaction(null, connection);
-        throw;
+      if (connection.ActiveTransaction is not null) {
+        context.Services.StorageDriver.CommitTransaction(null, connection);
       }
     }
 
