@@ -19,16 +19,16 @@ namespace Xtensive.Orm
     /// <summary>
     /// Uses only for queries which defined by Future/Delayed api
     /// </summary>
-    private readonly IList<QueryTask> userDefinedQueryTasks = new List<QueryTask>();
+    private List<QueryTask> userDefinedQueryTasks;
 
     /// <summary>
     /// Uses for internal query tasks like fetching, validation of versions and some others
     /// </summary>
-    private readonly IList<QueryTask> internalQueryTasks = new List<QueryTask>();
+    private List<QueryTask> internalQueryTasks;
 
-    internal void RegisterUserDefinedDelayedQuery(QueryTask task) => userDefinedQueryTasks.Add(task);
+    internal void RegisterUserDefinedDelayedQuery(QueryTask task) => (userDefinedQueryTasks ??= new(1)).Add(task);
 
-    internal void RegisterInternalDelayedQuery(QueryTask task) => internalQueryTasks.Add(task);
+    internal void RegisterInternalDelayedQuery(QueryTask task) => (internalQueryTasks ??= new(1)).Add(task);
 
     internal bool ExecuteInternalDelayedQueries(bool skipPersist)
     {
@@ -70,7 +70,7 @@ namespace Xtensive.Orm
 
     private bool ProcessInternalDelayedQueries(bool allowPartialExecution)
     {
-      if (internalQueryTasks.Count==0) {
+      if (!(internalQueryTasks?.Count > 0)) {
         return false;
       }
 
@@ -85,13 +85,13 @@ namespace Xtensive.Orm
 
     private async Task<bool> ProcessInternalDelayedQueriesAsync(bool allowPartialExecution, CancellationToken token)
     {
-      if (internalQueryTasks.Count==0) {
+      if (!(internalQueryTasks?.Count > 0)) {
         return false;
       }
 
       try {
         await Handler.ExecuteQueryTasksAsync(
-          internalQueryTasks.Where(t=>t.LifetimeToken.IsActive), allowPartialExecution, token).ConfigureAwaitFalse();
+          internalQueryTasks.Where(t => t.LifetimeToken.IsActive), allowPartialExecution, token).ConfigureAwaitFalse();
         return true;
       }
       finally {
@@ -101,7 +101,7 @@ namespace Xtensive.Orm
 
     private bool ProcessUserDefinedDelayedQueries(bool allowPartialExecution)
     {
-      if (userDefinedQueryTasks.Count==0) {
+      if (!(userDefinedQueryTasks?.Count > 0)) {
         return false;
       }
 
@@ -116,13 +116,12 @@ namespace Xtensive.Orm
 
     private async Task<bool> ProcessUserDefinedDelayedQueriesAsync(bool allowPartialExecution, CancellationToken token)
     {
-      if (userDefinedQueryTasks.Count==0) {
+      if (!(userDefinedQueryTasks?.Count > 0)) {
         return false;
       }
 
-      var aliveTasks = new List<QueryTask>(userDefinedQueryTasks.Count);
-      aliveTasks.AddRange(userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive));
-      userDefinedQueryTasks.Clear();
+      var aliveTasks = userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive);
+      userDefinedQueryTasks = null;
       await Handler.ExecuteQueryTasksAsync(aliveTasks, allowPartialExecution, token).ConfigureAwaitFalse();
       return true;
     }
