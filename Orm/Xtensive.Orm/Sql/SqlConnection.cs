@@ -404,7 +404,7 @@ namespace Xtensive.Sql
         await ActiveTransaction.CommitAsync(token).ConfigureAwaitFalse();
       }
       catch when (rollbackOnFail) {
-        await ActiveTransaction.RollbackAsync(token).ConfigureAwaitFalse();;
+        await ActiveTransaction.RollbackAsync(token).ConfigureAwaitFalse();
         throw;
       }
       finally {
