@@ -79,7 +79,7 @@ namespace Xtensive.Orm
         return true;
       }
       finally {
-        internalQueryTasks.Clear();
+        internalQueryTasks?.Clear();
       }
     }
 
@@ -95,7 +95,7 @@ namespace Xtensive.Orm
         return true;
       }
       finally {
-        internalQueryTasks.Clear();
+        internalQueryTasks?.Clear();
       }
     }
 
@@ -110,7 +110,7 @@ namespace Xtensive.Orm
         return true;
       }
       finally {
-        userDefinedQueryTasks.Clear();
+        userDefinedQueryTasks?.Clear();
       }
     }
 
