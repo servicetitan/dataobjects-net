@@ -37,6 +37,7 @@ namespace Xtensive.Core
     /// <param name="items">Items to check.</param>
     /// <returns><see langword="True"/> if collection is definitely <see langword="null"/> or empty;
     /// otherwise, <see langword="false"/>.</returns>
+    [Obsolete]
     public static bool IsNullOrEmpty<TItem>(this IEnumerable<TItem> items)
     {
       if (items==null)
@@ -50,6 +51,9 @@ namespace Xtensive.Core
           return !e.MoveNext();
       return count.Value==0;
     }
+
+    [Obsolete("Use string.IsNullOrEmpty() instead")]
+    public static bool IsNullOrEmpty(this string s) => string.IsNullOrEmpty(s);
 
     /// <summary>
     /// Gets the count of items (as <see cref="long"/>) of <see cref="IEnumerable{T}"/>, if it is actually
