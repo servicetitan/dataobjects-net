@@ -52,7 +52,7 @@ namespace Xtensive.Core
       return count.Value==0;
     }
 
-    [Obsolete("Use string.IsNullOrEmpty() instead")]
+    [Obsolete("Use string.IsNullOrEmpty(s) instead")]
     public static bool IsNullOrEmpty(this string s) => string.IsNullOrEmpty(s);
 
     /// <summary>
