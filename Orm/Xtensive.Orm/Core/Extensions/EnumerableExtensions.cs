@@ -52,9 +52,6 @@ namespace Xtensive.Core
       return count.Value==0;
     }
 
-    [Obsolete("Use string.IsNullOrEmpty(s) instead")]
-    public static bool IsNullOrEmpty(this string s) => string.IsNullOrEmpty(s);
-
     /// <summary>
     /// Gets the count of items (as <see cref="long"/>) of <see cref="IEnumerable{T}"/>, if it is actually
     /// <see cref="ICollection{T}"/> or <see cref="IQueryable{T}"/>.
