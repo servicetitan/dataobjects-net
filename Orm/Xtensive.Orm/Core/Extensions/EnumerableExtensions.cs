@@ -37,7 +37,7 @@ namespace Xtensive.Core
     /// <param name="items">Items to check.</param>
     /// <returns><see langword="True"/> if collection is definitely <see langword="null"/> or empty;
     /// otherwise, <see langword="false"/>.</returns>
-    [Obsolete]
+    [Obsolete("Don't use Xtensive.Core for 'collection is empty' checking")]
     public static bool IsNullOrEmpty<TItem>(this IEnumerable<TItem> items)
     {
       if (items==null)
