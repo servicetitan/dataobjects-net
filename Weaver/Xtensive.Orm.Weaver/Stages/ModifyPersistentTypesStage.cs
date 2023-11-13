@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.21
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Xtensive.Orm.Weaver.Tasks;
@@ -107,12 +109,29 @@ namespace Xtensive.Orm.Weaver.Stages
       context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.StructureTypeAttributeConstructor));
     }
 
+    private static int NumberOfPersistentPropertis(TypeInfo type) =>
+      type is null
+        ? 0
+        : type.Properties.Values.Where(p => p.IsPersistent).Count() + NumberOfPersistentPropertis(type.BaseType);
+
     private void ProcessFields(ProcessorContext context, TypeInfo type)
     {
+      int propsInBaseClass = NumberOfPersistentPropertis(type.BaseType);
+      if (type.Kind == PersistentTypeKind.Entity) {
+        ++propsInBaseClass;   // for TypeId
+      }
+
+      var propertyToIndex = type.Properties.Values
+        .Where(p => p.IsPersistent)
+        .OrderBy(p => p.Definition.MetadataToken.ToInt32())
+        .Select((p, idx) => KeyValuePair.Create(p, propsInBaseClass + idx))
+        .ToDictionary(kv => kv.Key, kv => kv.Value);
+
       foreach (var property in type.Properties.Values.Where(p => p.IsPersistent)) {
         if (!propertyChecker.ShouldProcess(property, context))
           continue;
 
+        var persistentIndex = propertyToIndex[property];
         var typeDefinition = type.Definition;
         var propertyDefinition = property.Definition;
         var persistentName = property.PersistentName ?? property.Name;
@@ -120,16 +139,17 @@ namespace Xtensive.Orm.Weaver.Stages
         context.WeavingTasks.Add(new RemoveBackingFieldTask(typeDefinition, propertyDefinition));
         // Getter
         context.WeavingTasks.Add(new ImplementFieldAccessorTask(AccessorKind.Getter,
-          typeDefinition, propertyDefinition, persistentName));
+          typeDefinition, propertyDefinition, persistentIndex));
         // Setter
         if (property.IsKey)
           context.WeavingTasks.Add(new ImplementKeySetterTask(typeDefinition, propertyDefinition));
         else
           context.WeavingTasks.Add(new ImplementFieldAccessorTask(AccessorKind.Setter,
-            typeDefinition, propertyDefinition, persistentName));
+            typeDefinition, propertyDefinition, persistentIndex));
         if (property.PersistentName!=null)
           context.WeavingTasks.Add(new AddAttributeTask(propertyDefinition,
             context.References.OverrideFieldNameAttributeConstructor, property.PersistentName));
+        ++persistentIndex;
       }
     }
 

@@ -421,6 +421,24 @@ namespace Xtensive.Orm.Model
       get { return fields; }
     }
 
+    private FieldInfo[] persistentFields;
+
+    internal FieldInfo[] PersistentFields
+    {
+      get {
+        if (persistentFields == null) {
+          var baseFields = Ancestor?.PersistentFields
+            ?? (IsEntity ? new[] { Fields[nameof(Entity.TypeId)] } : Array.Empty<FieldInfo>());
+
+          persistentFields = baseFields.Concat(
+            Fields.Where(p => !p.IsDynamicallyDefined && p.Parent == null)
+              .Except(baseFields).OrderBy(p => p.UnderlyingProperty.MetadataToken)
+          ).ToArray();
+        }
+        return persistentFields;
+      }
+    }
+
     /// <summary>
     /// Gets the field map for implemented interfaces.
     /// </summary>

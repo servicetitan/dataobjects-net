@@ -165,6 +165,9 @@ namespace Xtensive.Orm
       return GetFieldValue(TypeInfo.Fields[fieldName]);
     }
 
+    protected internal T GetFieldValue<T>(int fieldIndex) =>
+      GetFieldValue<T>(TypeInfo.PersistentFields[fieldIndex]);
+
     /// <summary>
     /// Gets the field value.
     /// Field value type must be specified precisely.
@@ -355,6 +358,9 @@ namespace Xtensive.Orm
     {
       SetFieldValue(TypeInfo.Fields[fieldName], value);
     }
+
+    protected internal void SetFieldValue<T>(int fieldIndex, T value) =>
+      SetFieldValue(TypeInfo.PersistentFields[fieldIndex], value);
 
     /// <summary>
     /// Sets the field value.
