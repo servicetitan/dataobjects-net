@@ -422,15 +422,17 @@ namespace Xtensive.Orm.Model
       get { return fields; }
     }
 
-    private FieldInfo[] GetBaseFields(Type type, IEnumerable<FieldInfo> fields)
+    private IEnumerable<FieldInfo> GetBaseFields(Type type, IEnumerable<FieldInfo> fields)
     {
       if (type == typeof(Entity)) {
         return new[] { Fields[nameof(Entity.TypeId)] };
       }
       var tokens = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(p => (p.MetadataToken, p.Name)).ToHashSet();
-      var localFields = fields.Where(p => tokens.Contains((p.UnderlyingProperty.MetadataToken, p.UnderlyingProperty.Name)))
-        .OrderBy(p => p.UnderlyingProperty.MetadataToken);
-      return GetBaseFields(type.BaseType, fields).Concat(localFields).ToArray();
+      return GetBaseFields(type.BaseType, fields)
+        .Concat(
+          fields.Where(p => tokens.Contains((p.UnderlyingProperty.MetadataToken, p.UnderlyingProperty.Name)))
+            .OrderBy(p => p.UnderlyingProperty.MetadataToken)
+        );
     }
 
     private FieldInfo[] persistentFields;
@@ -441,7 +443,7 @@ namespace Xtensive.Orm.Model
         if (persistentFields == null) {
           var baseFields = Ancestor?.PersistentFields
             ?? (IsEntity
-              ? GetBaseFields(UnderlyingType.BaseType, Fields.Where(p => !p.IsDynamicallyDefined && p.Parent == null))
+              ? GetBaseFields(UnderlyingType.BaseType, Fields.Where(p => !p.IsDynamicallyDefined && p.Parent == null)).ToArray()
               : Array.Empty<FieldInfo>());
 
           persistentFields = baseFields.Concat(
