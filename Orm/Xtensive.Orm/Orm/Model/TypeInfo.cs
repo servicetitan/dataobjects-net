@@ -12,6 +12,7 @@ using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
 using Xtensive.Core;
@@ -421,6 +422,17 @@ namespace Xtensive.Orm.Model
       get { return fields; }
     }
 
+    private FieldInfo[] GetBaseFields(Type type, IEnumerable<FieldInfo> fields)
+    {
+      if (type == typeof(Entity)) {
+        return new[] { Fields[nameof(Entity.TypeId)] };
+      }
+      var tokens = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(p => (p.MetadataToken, p.Name)).ToHashSet();
+      var localFields = fields.Where(p => tokens.Contains((p.UnderlyingProperty.MetadataToken, p.UnderlyingProperty.Name)))
+        .OrderBy(p => p.UnderlyingProperty.MetadataToken);
+      return GetBaseFields(type.BaseType, fields).Concat(localFields).ToArray();
+    }
+
     private FieldInfo[] persistentFields;
 
     internal FieldInfo[] PersistentFields
@@ -428,7 +440,9 @@ namespace Xtensive.Orm.Model
       get {
         if (persistentFields == null) {
           var baseFields = Ancestor?.PersistentFields
-            ?? (IsEntity ? new[] { Fields[nameof(Entity.TypeId)] } : Array.Empty<FieldInfo>());
+            ?? (IsEntity
+              ? GetBaseFields(UnderlyingType.BaseType, Fields.Where(p => !p.IsDynamicallyDefined && p.Parent == null))
+              : Array.Empty<FieldInfo>());
 
           persistentFields = baseFields.Concat(
             Fields.Where(p => !p.IsDynamicallyDefined && p.Parent == null)
