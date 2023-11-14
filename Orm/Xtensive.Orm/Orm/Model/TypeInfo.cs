@@ -926,6 +926,7 @@ namespace Xtensive.Orm.Model
       var tokens = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Select(p => (p.MetadataToken, p.Name)).ToHashSet();
       return GetBaseFields(type.BaseType, fields)
         .Concat(
+          // MetadataToken key would not be enough because of possible collisions between modules
           fields.Where(p => tokens.Contains((p.UnderlyingProperty.MetadataToken, p.UnderlyingProperty.Name)))
             .OrderBy(p => p.UnderlyingProperty.MetadataToken)
         );
