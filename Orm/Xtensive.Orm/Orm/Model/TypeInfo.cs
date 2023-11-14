@@ -923,7 +923,7 @@ namespace Xtensive.Orm.Model
       if (type == typeof(Entity)) {
         return new[] { Fields[nameof(Entity.TypeId)] };
       }
-      var tokens = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(p => (p.MetadataToken, p.Name)).ToHashSet();
+      var tokens = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Select(p => (p.MetadataToken, p.Name)).ToHashSet();
       return GetBaseFields(type.BaseType, fields)
         .Concat(
           fields.Where(p => tokens.Contains((p.UnderlyingProperty.MetadataToken, p.UnderlyingProperty.Name)))
