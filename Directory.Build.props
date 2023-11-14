@@ -40,6 +40,7 @@
     <!-- Disable "BinaryFormatter is obsolete" warnings for test projects -->
     <NoWarn>$(NoWarn);CS0618;CS0672;CS1570;CS1572;CS1573;CS1574;CS1587;CS1734;SYSLIB0050;SYSLIB0051;</NoWarn>
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
 
   <!--Release and Debug are for final builds, builds on build server, etc. Target frameworks are configurable here -->
