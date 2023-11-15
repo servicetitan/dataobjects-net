@@ -167,7 +167,7 @@ namespace Xtensive.Orm.Linq
             context.RegisterPossibleQueryReuse(n.Members[i]);
           }
         }
-        arguments[i++] = body.StripMarkers().IsProjection()
+        arguments[i] = body.StripMarkers().IsProjection()
           ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
           : ProcessProjectionElement(body);
       }
