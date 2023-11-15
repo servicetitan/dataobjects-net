@@ -154,19 +154,25 @@ namespace Xtensive.Orm.Linq
 
     private IReadOnlyList<Expression> VisitNewExpressionArguments(NewExpression n)
     {
-      int i = 0, count = n.Arguments.Count;
+      var origArguments = n.Arguments;
+      int count = origArguments.Count;
       var arguments = new Expression[count];
-      foreach (var argument in n.Arguments) {
+      for (int i = 0; i < count; i++) {
+        var argument = origArguments[i];
+
         Expression body;
         using (CreateScope(new TranslatorState(State) { CalculateExpressions = false })) {
           body = Visit(argument);
+          if (argument.IsQuery()) {
+            context.RegisterPossibleQueryReuse(n.Members[i]);
+          }
         }
         arguments[i++] = body.StripMarkers().IsProjection()
           ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
           : ProcessProjectionElement(body);
       }
       var constructorParameters = n.GetConstructorParameters();
-      for (i = 0; i < count; i++) {
+      for (int i = 0; i < count; i++) {
         var parameterType = constructorParameters[i].ParameterType;
         ref var argument = ref arguments[i];
         if (argument.Type != parameterType) {
