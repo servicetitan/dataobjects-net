@@ -4,7 +4,7 @@ on:
     branches: [ master-servicetitan ]
 env:
   DO_CONFIG_FILE: "/tmp/do-test.cfg"
-  DO_TargetFrameworks: net7.0;net8.0
+  DO_TargetFrameworks: net8.0
   SQL_PASSWD: dbatools.I0
 jobs:
   test-with-sql:
