@@ -923,12 +923,15 @@ namespace Xtensive.Orm.Model
       if (type == typeof(Entity)) {
         return new[] { Fields[nameof(Entity.TypeId)] };
       }
-      var declared = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Select(p => (p.MetadataToken, p.Name)).ToHashSet();
+      var declared = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+        .ToDictionary(p => p.Name, p => p.MetadataToken);
+
       return GetBaseFields(type.BaseType, fields)
         .Concat(
-          // MetadataToken key would not be enough because of possible collisions between modules
-          fields.Where(p => declared.Contains((p.UnderlyingProperty.MetadataToken, p.UnderlyingProperty.Name)))
-            .OrderBy(p => p.UnderlyingProperty.MetadataToken)
+          fields.Where(p => declared.ContainsKey(p.UnderlyingProperty.Name))
+            .Select(p => (p, declared[p.UnderlyingProperty.Name]))
+            .OrderBy(t => t.Item2)
+            .Select(t => t.Item1.UnderlyingProperty.MetadataToken == t.Item2 ? t.Item1 : null)
         );
     }
 
