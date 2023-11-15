@@ -177,7 +177,7 @@ namespace Xtensive.Orm
     {
       if (field.ReflectedType.IsInterface)
         field = TypeInfo.FieldMap[field];
-      var fieldAccessor = GetFieldAccessor<T>(field);
+      var fieldAccessor = GetNormalizedFieldAccessor<T>(field);
       T result = default(T);
       try {
         SystemBeforeGetValue(field);
@@ -202,7 +202,7 @@ namespace Xtensive.Orm
     {
       if (field.ReflectedType.IsInterface)
         field = TypeInfo.FieldMap[field];
-      var fieldAccessor = GetFieldAccessor(field);
+      var fieldAccessor = GetNormalizedFieldAccessor(field);
       object result = fieldAccessor.DefaultUntypedValue;
       try {
         SystemBeforeGetValue(field);
@@ -364,12 +364,8 @@ namespace Xtensive.Orm
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
-    protected internal void SetFieldValue<T>(FieldInfo field, T value)
-    {
-      if (field.ReflectedType.IsInterface)
-        field = TypeInfo.FieldMap[field];
+    protected internal void SetFieldValue<T>(FieldInfo field, T value) =>
       SetFieldValue(field, (object) value);
-    }
 
     /// <summary>
     /// Sets the field value.
@@ -775,19 +771,17 @@ namespace Xtensive.Orm
       return Session.Domain.Model.Types[GetType()];
     }
 
-    internal FieldAccessor GetFieldAccessor(FieldInfo field)
-    {
-      if (field.ReflectedType.IsInterface)
-        field = TypeInfo.FieldMap[field];
-      return field.ReflectedType.Accessors.GetFieldAccessor(field);
-    }
+    internal FieldAccessor GetNormalizedFieldAccessor(FieldInfo field) =>
+      field.ReflectedType.Accessors.GetFieldAccessor(field);
 
-    internal FieldAccessor<T> GetFieldAccessor<T>(FieldInfo field)
-    {
-      if (field.ReflectedType.IsInterface)
-        field = TypeInfo.FieldMap[field];
-      return (FieldAccessor<T>) field.ReflectedType.Accessors.GetFieldAccessor(field);
-    }
+    internal FieldAccessor GetFieldAccessor(FieldInfo field) =>
+      GetNormalizedFieldAccessor(field.ReflectedType.IsInterface ? TypeInfo.FieldMap[field] : field);
+
+    private FieldAccessor<T> GetNormalizedFieldAccessor<T>(FieldInfo field) =>
+      (FieldAccessor<T>) field.ReflectedType.Accessors.GetFieldAccessor(field);
+
+    internal FieldAccessor<T> GetFieldAccessor<T>(FieldInfo field) =>
+      GetNormalizedFieldAccessor<T>(field.ReflectedType.IsInterface ? TypeInfo.FieldMap[field] : field);
 
     internal PersistentFieldState GetFieldState(string fieldName)
     {
