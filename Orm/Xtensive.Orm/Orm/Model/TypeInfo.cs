@@ -938,10 +938,9 @@ namespace Xtensive.Orm.Model
     private FieldInfo[] BuildPersistentFields()
     {
       var potentialFields = Fields.Where(p => !p.IsDynamicallyDefined && p.Parent == null).ToArray();
-      var baseFields = Ancestor?.PersistentFields
-        ?? (IsEntity
+      var baseFields = IsEntity
           ? GetBaseFields(UnderlyingType.BaseType, potentialFields).ToArray()
-          : Array.Empty<FieldInfo>());
+          : Array.Empty<FieldInfo>();
 
       return baseFields.Concat(
         potentialFields.Except(baseFields).OrderBy(p => p.UnderlyingProperty.MetadataToken)
