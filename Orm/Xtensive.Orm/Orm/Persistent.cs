@@ -198,11 +198,13 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
-    protected internal object GetFieldValue(FieldInfo field)
+    protected internal object GetFieldValue(FieldInfo field) =>
+      (field.ReflectedType.IsInterface ? TypeInfo.FieldMap[field] : field) switch {
+        var f => GetNormalizedFieldValue(f, GetNormalizedFieldAccessor(f))
+      };
+
+    private object GetNormalizedFieldValue(FieldInfo field, FieldAccessor fieldAccessor)
     {
-      if (field.ReflectedType.IsInterface)
-        field = TypeInfo.FieldMap[field];
-      var fieldAccessor = GetNormalizedFieldAccessor(field);
       object result = fieldAccessor.DefaultUntypedValue;
       try {
         SystemBeforeGetValue(field);
@@ -384,8 +386,8 @@ namespace Xtensive.Orm
       if (field.ReflectedType.IsInterface)
         field = TypeInfo.FieldMap[field];
       SystemSetValueAttempt(field, value);
-      var fieldAccessor = GetFieldAccessor(field);
-      object oldValue = GetFieldValue(field);
+      var fieldAccessor = GetNormalizedFieldAccessor(field);
+      object oldValue = GetNormalizedFieldValue(field, fieldAccessor);
 
       // Handling 'OldValue != NewValue' problem for structures
       var o = oldValue as Structure;
