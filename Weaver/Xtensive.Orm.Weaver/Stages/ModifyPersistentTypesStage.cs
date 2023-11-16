@@ -119,8 +119,7 @@ namespace Xtensive.Orm.Weaver.Stages
       if (type.Kind == PersistentTypeKind.Entity) {
         ++idx;   // for TypeId
       }
-      foreach (var p in type.Properties.Values
-          .Where(p => p.IsPersistent && propertyChecker.ShouldProcess(p, context))
+      foreach (var p in type.Properties.Values.Where(p => p.IsPersistent)
           .OrderBy(p => p.Definition.MetadataToken.ToInt32())) {
         r[p] = p.IsOverride && p.BaseProperty.IsPersistent
           ? r[p.BaseProperty]               // For overridden persistent property assign base property's index
