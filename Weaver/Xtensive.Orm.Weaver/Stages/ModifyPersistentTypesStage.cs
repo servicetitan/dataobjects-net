@@ -109,20 +109,20 @@ namespace Xtensive.Orm.Weaver.Stages
       context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.StructureTypeAttributeConstructor));
     }
 
-    private static int NumberOfPersistentPropertis(TypeInfo type) =>
+    private static int NumberOfPersistentProperties(TypeInfo type) =>
       type is null
         ? 0
-        : type.Properties.Values.Where(p => p.IsPersistent).Count() + NumberOfPersistentPropertis(type.BaseType);
+        : type.Properties.Values.Where(p => p.IsPersistent).Count() + NumberOfPersistentProperties(type.BaseType);
 
     private void ProcessFields(ProcessorContext context, TypeInfo type)
     {
-      int propsInBaseClass = NumberOfPersistentPropertis(type.BaseType);
+      int propsInBaseClass = NumberOfPersistentProperties(type.BaseType);
       if (type.Kind == PersistentTypeKind.Entity) {
         ++propsInBaseClass;   // for TypeId
       }
 
       var propertyToIndex = type.Properties.Values
-        .Where(p => p.IsPersistent)
+        .Where(p => p.IsPersistent && (!p.IsOverride || !p.BaseProperty.IsPersistent))    // skip overridden persistent properties
         .OrderBy(p => p.Definition.MetadataToken.ToInt32())
         .Select((p, idx) => KeyValuePair.Create(p, propsInBaseClass + idx))
         .ToDictionary(kv => kv.Key, kv => kv.Value);
