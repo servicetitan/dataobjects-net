@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/mssql/server:2022-latest
+FROM mcr.microsoft.com/mssql/server:2022-CU10-ubuntu-22.04
 USER root
 
 ENV ACCEPT_EULA=Y \
@@ -7,7 +7,3 @@ ENV ACCEPT_EULA=Y \
 RUN echo >>/etc/apt/sources.list "$(wget -qO- https://packages.microsoft.com/config/ubuntu/22.04/mssql-server-2022.list)" \
     && apt-get update \
     && apt-get install -y apt-utils mssql-server-fts
-
-
-
-
