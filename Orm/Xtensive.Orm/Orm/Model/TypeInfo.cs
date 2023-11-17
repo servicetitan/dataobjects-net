@@ -917,12 +917,26 @@ namespace Xtensive.Orm.Model
       return new ReadOnlyDictionary<Pair<FieldInfo>, FieldInfo>(result);
     }
 
-    private IEnumerable<FieldInfo> GetBaseFields(Type type, IEnumerable<FieldInfo> fields)
+    private IEnumerable<FieldInfo> GetRootBaseFields(Type type, IEnumerable<FieldInfo> fields)
     {
       if (type == typeof(Entity)) {
-        return new[] { Fields[nameof(Entity.TypeId)] };
+        return Array.Empty<FieldInfo>();
       }
-      if (type == typeof(Structure)) {
+      var declared = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+        .ToDictionary(p => p.Name, p => p.MetadataToken);
+
+      return GetBaseFields(type.BaseType, fields)
+        .Concat(
+          fields.Select(p => (p, declared.TryGetValue(p.UnderlyingProperty.Name, out var token) ? token : 0))
+            .Where(t => t.Item2 != 0)
+            .OrderBy(t => t.Item2)
+            .Select(t => t.Item1)
+        );
+    }
+
+    private IEnumerable<FieldInfo> GetBaseFields(Type type, IEnumerable<FieldInfo> fields)
+    {
+      if (type == typeof(Entity) || type == typeof(Structure)) {
         return Array.Empty<FieldInfo>();
       }
       var declared = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
@@ -946,20 +960,27 @@ namespace Xtensive.Orm.Model
 
     private FieldInfo[] BuildPersistentFields()
     {
-      var potentialFields = Fields.Where(p => !p.IsDynamicallyDefined && p.Parent == null).ToArray();
-      var baseFields = IsEntity || IsStructure
-          ? GetBaseFields(UnderlyingType.BaseType, potentialFields).ToArray()
-          : Array.Empty<FieldInfo>();
+      var propTypeId = IsEntity ? Fields[nameof(Entity.TypeId)] : null;
+      var potentialFields = Fields.Where(p => !p.IsDynamicallyDefined && p.Parent == null && p != propTypeId).ToArray();
+      bool isRoot = Hierarchy?.Root == this;
+      var baseFields =
+        isRoot ? GetRootBaseFields(UnderlyingType.BaseType, potentialFields).ToArray()
+        : IsEntity || IsStructure ? GetBaseFields(UnderlyingType.BaseType, potentialFields).ToArray()
+        : Array.Empty<FieldInfo>();
 
       var ancestorFields = Ancestor != null && Ancestor?.UnderlyingType != typeof(Structure)
         ? Ancestor.PersistentFields
         : Array.Empty<FieldInfo>();
 
-      return baseFields.Concat(
-        potentialFields.Where(p => p.DeclaringType == this &&
-          (!baseFields.Contains(p) || ancestorFields.Any(a => IsOverrideOfVirtual(a, p))))
+      var props = baseFields.Concat(
+        potentialFields.Where(p => p.UnderlyingProperty.DeclaringType == UnderlyingType
+          && (isRoot || !baseFields.Contains(p) || ancestorFields.Any(a => IsOverrideOfVirtual(a, p))))
           .OrderBy(p => p.UnderlyingProperty.MetadataToken)
-      ).ToArray();
+      );
+      if (IsEntity) {
+        props = props.Prepend(propTypeId);
+      }
+      return props.ToArray();
     }
 
     #endregion
