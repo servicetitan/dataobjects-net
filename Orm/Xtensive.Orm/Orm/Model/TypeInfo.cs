@@ -947,7 +947,7 @@ namespace Xtensive.Orm.Model
     private FieldInfo[] BuildPersistentFields()
     {
       var potentialFields = Fields.Where(p => !p.IsDynamicallyDefined && p.Parent == null).ToArray();
-      var baseFields = IsEntity
+      var baseFields = IsEntity || IsStructure
           ? GetBaseFields(UnderlyingType.BaseType, potentialFields).ToArray()
           : Array.Empty<FieldInfo>();
 
