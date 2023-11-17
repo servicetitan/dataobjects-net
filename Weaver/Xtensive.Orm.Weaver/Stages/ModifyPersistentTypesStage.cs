@@ -115,9 +115,9 @@ namespace Xtensive.Orm.Weaver.Stages
         return new();
       }
       var r = GetPropertyToIndexMap(context, type.BaseType);
-      int idx = r.Count;
-      if (type.Kind == PersistentTypeKind.Entity) {
-        ++idx;   // for TypeId
+      int idx = r.Count == 0 ? 0 : r.Values.Max() + 1;
+      if (idx == 0 && type.Kind == PersistentTypeKind.Entity) {
+        idx = 1;   // for TypeId
       }
       foreach (var p in type.Properties.Values.Where(p => p.IsPersistent)
           .OrderBy(p => p.Definition.MetadataToken.ToInt32())) {
