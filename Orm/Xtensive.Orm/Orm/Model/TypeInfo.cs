@@ -955,7 +955,7 @@ namespace Xtensive.Orm.Model
         ? Ancestor.PersistentFields
         : Array.Empty<FieldInfo>();
 
-      return persistentFields = baseFields.Concat(
+      return baseFields.Concat(
         potentialFields.Where(p => p.DeclaringType == this &&
           (!baseFields.Contains(p) || ancestorFields.Any(a => IsOverrideOfVirtual(a, p))))
           .OrderBy(p => p.UnderlyingProperty.MetadataToken)
