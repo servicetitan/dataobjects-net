@@ -917,23 +917,32 @@ namespace Xtensive.Orm.Model
       return new ReadOnlyDictionary<Pair<FieldInfo>, FieldInfo>(result);
     }
 
-
     private IEnumerable<FieldInfo> GetBaseFields(Type type, IEnumerable<FieldInfo> fields)
     {
       if (type == typeof(Entity)) {
         return new[] { Fields[nameof(Entity.TypeId)] };
+      }
+      if (type == typeof(Structure)) {
+        return Array.Empty<FieldInfo>();
       }
       var declared = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
         .ToDictionary(p => p.Name, p => p.MetadataToken);
 
       return GetBaseFields(type.BaseType, fields)
         .Concat(
-          fields.Where(p => declared.ContainsKey(p.UnderlyingProperty.Name))
-            .Select(p => (p, declared[p.UnderlyingProperty.Name]))
+          fields.Select(p => (p, declared.TryGetValue(p.Name, out var token) ? token : 0))
+            .Where(t => t.Item1.UnderlyingProperty.MetadataToken == t.Item2)
             .OrderBy(t => t.Item2)
-            .Select(t => t.Item1.UnderlyingProperty.MetadataToken == t.Item2 ? t.Item1 : null)
+            .Select(t => t.Item1)
         );
     }
+
+    private static bool IsOverrideOfVirtual(FieldInfo a, FieldInfo p) =>
+      a.Name == p.Name
+        && a.Name != "TypeId"
+        && p.IsInherited
+        && a.UnderlyingProperty.GetMethod?.IsVirtual == true
+        && p.UnderlyingProperty.GetMethod?.IsVirtual == true;
 
     private FieldInfo[] BuildPersistentFields()
     {
@@ -942,8 +951,14 @@ namespace Xtensive.Orm.Model
           ? GetBaseFields(UnderlyingType.BaseType, potentialFields).ToArray()
           : Array.Empty<FieldInfo>();
 
-      return baseFields.Concat(
-        potentialFields.Except(baseFields).OrderBy(p => p.UnderlyingProperty.MetadataToken)
+      var ancestorFields = Ancestor != null && Ancestor?.UnderlyingType != typeof(Structure)
+        ? Ancestor.PersistentFields
+        : Array.Empty<FieldInfo>();
+
+      return persistentFields = baseFields.Concat(
+        potentialFields.Where(p => p.DeclaringType == this &&
+          (!baseFields.Contains(p) || ancestorFields.Any(a => IsOverrideOfVirtual(a, p))))
+          .OrderBy(p => p.UnderlyingProperty.MetadataToken)
       ).ToArray();
     }
 
