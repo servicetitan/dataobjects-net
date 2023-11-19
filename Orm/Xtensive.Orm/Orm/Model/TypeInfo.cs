@@ -989,7 +989,7 @@ namespace Xtensive.Orm.Model
           .Concat(recycled.Select(p => ((FieldInfo)null, p.MetadataToken)))
           .OrderBy(t => t.Item2)
           .Select(t => t.Item1)
-      );
+      ).Select(p => p?.ReflectedType.IsInterface == true ? FieldMap[p] : p);
       if (IsEntity && Ancestor == null) {
         props = props.Prepend(propTypeId);
       }

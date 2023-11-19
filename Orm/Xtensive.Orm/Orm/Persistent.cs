@@ -166,7 +166,7 @@ namespace Xtensive.Orm
     }
 
     protected internal T GetFieldValue<T>(int fieldIndex) =>
-      GetFieldValue<T>(TypeInfo.PersistentFields[fieldIndex]);
+      GetNormalizedFieldValue<T>(TypeInfo.PersistentFields[fieldIndex]);
 
     /// <summary>
     /// Gets the field value.
@@ -176,10 +176,11 @@ namespace Xtensive.Orm
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
-    protected internal T GetFieldValue<T>(FieldInfo field)
+    protected internal T GetFieldValue<T>(FieldInfo field) =>
+      GetNormalizedFieldValue<T>(field.ReflectedType.IsInterface ? TypeInfo.FieldMap[field] : field);
+
+    protected internal T GetNormalizedFieldValue<T>(FieldInfo field)
     {
-      if (field.ReflectedType.IsInterface)
-        field = TypeInfo.FieldMap[field];
       var fieldAccessor = GetNormalizedFieldAccessor<T>(field);
       T result = default(T);
       try {
@@ -362,7 +363,7 @@ namespace Xtensive.Orm
     }
 
     protected internal void SetFieldValue<T>(int fieldIndex, T value) =>
-      SetFieldValue(TypeInfo.PersistentFields[fieldIndex], value);
+      SetNormalizedFieldValue(TypeInfo.PersistentFields[fieldIndex], value, null, null);
 
     /// <summary>
     /// Sets the field value.
@@ -387,10 +388,11 @@ namespace Xtensive.Orm
       SetFieldValue(field, value, null, null);
     }
 
-    internal void SetFieldValue(FieldInfo field, object value, SyncContext syncContext, RemovalContext removalContext)
+    internal void SetFieldValue(FieldInfo field, object value, SyncContext syncContext, RemovalContext removalContext) =>
+      SetNormalizedFieldValue(field.ReflectedType.IsInterface ? TypeInfo.FieldMap[field] : field, value, syncContext, removalContext);
+
+    internal void SetNormalizedFieldValue(FieldInfo field, object value, SyncContext syncContext, RemovalContext removalContext)
     {
-      if (field.ReflectedType.IsInterface)
-        field = TypeInfo.FieldMap[field];
       SystemSetValueAttempt(field, value);
       var fieldAccessor = GetNormalizedFieldAccessor(field);
       object oldValue = GetNormalizedFieldValue(field, fieldAccessor);
