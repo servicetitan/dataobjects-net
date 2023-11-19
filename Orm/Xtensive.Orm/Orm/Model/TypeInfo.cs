@@ -944,7 +944,7 @@ namespace Xtensive.Orm.Model
 
       return GetBaseFields(type.BaseType, fields)
         .Concat(
-          fields.Select(p => (p, declared.TryGetValue(p.Name, out var token) ? token : 0))
+          fields.Select(p => (p, declared.TryGetValue(p.UnderlyingProperty.Name, out var token) ? token : 0))
             .Where(t => t.Item1.UnderlyingProperty.MetadataToken == t.Item2)
             .OrderBy(t => t.Item2)
             .Select(t => t.Item1)
@@ -961,23 +961,29 @@ namespace Xtensive.Orm.Model
     private FieldInfo[] BuildPersistentFields()
     {
       var propTypeId = IsEntity ? Fields[nameof(Entity.TypeId)] : null;
-      var potentialFields = Fields.Where(p => !p.IsDynamicallyDefined && p.Parent == null && p != propTypeId).ToArray();
       bool isRoot = Hierarchy?.Root == this;
-      var baseFields =
-        isRoot ? GetRootBaseFields(UnderlyingType.BaseType, potentialFields).ToArray()
-        : IsEntity || IsStructure ? GetBaseFields(UnderlyingType.BaseType, potentialFields).ToArray()
-        : Array.Empty<FieldInfo>();
-
-      var ancestorFields = Ancestor != null && Ancestor?.UnderlyingType != typeof(Structure)
-        ? Ancestor.PersistentFields
-        : Array.Empty<FieldInfo>();
-
+      var potentialFields = Fields.Where(p => !p.IsDynamicallyDefined && p.Parent == null && p != propTypeId).ToArray();
+      FieldInfo[] baseFields;
+      FieldInfo[] ancestorFields = Array.Empty<FieldInfo>();
+      if (Ancestor != null && Ancestor.UnderlyingType != typeof(Structure)) {
+        ancestorFields = Ancestor.PersistentFields;
+        baseFields = ancestorFields.Select(p => p != null && Fields.TryGetValue(p.Name, out var f) ? f : null).ToArray();
+      }
+      else {
+        baseFields =
+          isRoot ? GetRootBaseFields(UnderlyingType.BaseType, potentialFields).ToArray()
+          : IsEntity || IsStructure ? GetBaseFields(UnderlyingType.BaseType, potentialFields).ToArray()
+          : Array.Empty<FieldInfo>();
+      }
       var props = baseFields.Concat(
         potentialFields.Where(p => p.UnderlyingProperty.DeclaringType == UnderlyingType
-          && (isRoot || !baseFields.Contains(p) || ancestorFields.Any(a => IsOverrideOfVirtual(a, p))))
+          && (isRoot
+            || p.IsExplicit
+            || !baseFields.Contains(p)
+            || ancestorFields.Any(a => IsOverrideOfVirtual(a, p))))
           .OrderBy(p => p.UnderlyingProperty.MetadataToken)
       );
-      if (IsEntity) {
+      if (IsEntity && Ancestor == null) {
         props = props.Prepend(propTypeId);
       }
       return props.ToArray();

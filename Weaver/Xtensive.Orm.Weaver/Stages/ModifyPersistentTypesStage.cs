@@ -40,8 +40,8 @@ namespace Xtensive.Orm.Weaver.Stages
         new[] {references.Entity, references.FieldInfo},
       };
 
-      propertyChecker = (context.Language==SourceLanguage.CSharp) 
-        ? (IPersistentPropertyChecker) new CsPropertyChecker() 
+      propertyChecker = (context.Language==SourceLanguage.CSharp)
+        ? (IPersistentPropertyChecker) new CsPropertyChecker()
         : new VbPropertyChecker();
 
       foreach (var type in context.PersistentTypes)
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Weaver.Stages
       }
       foreach (var p in type.Properties.Values.Where(p => p.IsPersistent)
           .OrderBy(p => p.Definition.MetadataToken.ToInt32())) {
-        r[p] = p.IsOverride && p.BaseProperty.IsPersistent
+        r[p] = (p.IsOverride && p.BaseProperty.IsPersistent)
           ? r[p.BaseProperty]               // For overridden persistent property assign base property's index
           : idx++;
       }
