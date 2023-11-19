@@ -18,6 +18,7 @@ using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
+using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Xtensive.Tuples.Transform;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -963,6 +964,9 @@ namespace Xtensive.Orm.Model
       var propTypeId = IsEntity ? Fields[nameof(Entity.TypeId)] : null;
       bool isRoot = Hierarchy?.Root == this;
       var potentialFields = Fields.Where(p => !p.IsDynamicallyDefined && p.Parent == null && p != propTypeId).ToArray();
+      var recycled = UnderlyingType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+        .Where(p => p.GetAttribute<Xtensive.Orm.Upgrade.RecycledAttribute>() != null && !potentialFields.Any(pf => pf.UnderlyingProperty == p)).ToHashSet();
+
       FieldInfo[] baseFields;
       FieldInfo[] ancestorFields = Array.Empty<FieldInfo>();
       if (Ancestor != null && Ancestor.UnderlyingType != typeof(Structure)) {
@@ -981,7 +985,10 @@ namespace Xtensive.Orm.Model
             || p.IsExplicit
             || !baseFields.Contains(p)
             || ancestorFields.Any(a => IsOverrideOfVirtual(a, p))))
-          .OrderBy(p => p.UnderlyingProperty.MetadataToken)
+          .Select(p => (p, p.UnderlyingProperty.MetadataToken))
+          .Concat(recycled.Select(p => ((FieldInfo)null, p.MetadataToken)))
+          .OrderBy(t => t.Item2)
+          .Select(t => t.Item1)
       );
       if (IsEntity && Ancestor == null) {
         props = props.Prepend(propTypeId);
