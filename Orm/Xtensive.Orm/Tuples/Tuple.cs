@@ -106,19 +106,11 @@ namespace Xtensive.Tuples
     /// <param name="fieldState">Field state associated with the field.</param>
     /// <returns>Field value, if it is available; otherwise, <see langword="default(T)"/>.</returns>
     /// <typeparam name="T">The type of value to get.</typeparam>
-    public T GetValue<T>(int fieldIndex, out TupleFieldState fieldState)
+    public virtual T GetValue<T>(int fieldIndex, out TupleFieldState fieldState)
     {
-      var isNullable = null==default(T); // Is nullable value type or class
-
-      if (this is PackedTuple packedTuple) {
-        ref readonly var descriptor = ref packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-        return descriptor.GetAccessor().GetValue<T>(packedTuple, descriptor, isNullable, out fieldState);
-      }
-
       var mappedContainer = GetMappedContainer(fieldIndex, false);
       if (mappedContainer.First is PackedTuple mappedTuple) {
-        ref readonly var descriptor = ref mappedTuple.PackedDescriptor.FieldDescriptors[mappedContainer.Second];
-        return descriptor.GetAccessor().GetValue<T>(mappedTuple, descriptor, isNullable, out fieldState);
+        return mappedTuple.GetValue<T>(mappedContainer.Second, out fieldState);
       }
 
       var value = GetValue(fieldIndex, out fieldState);
