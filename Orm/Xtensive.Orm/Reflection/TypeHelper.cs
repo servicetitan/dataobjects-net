@@ -68,6 +68,17 @@ namespace Xtensive.Reflection
 
     private static readonly ConcurrentDictionary<(MethodInfo, Type, Type), MethodInfo> GenericMethodInstances2 = new();
 
+#if NET8_0_OR_GREATER
+    private static readonly ConcurrentDictionary<(MethodInfo, Type), MethodInvoker> GenericMethodInvokers1 = new();
+    private static readonly ConcurrentDictionary<(MethodInfo, Type, Type), MethodInvoker> GenericMethodInvokers2 = new();
+
+    private static readonly Func<(MethodInfo genericDefinition, Type typeArgument), MethodInvoker> GenericMethodInvokerFactory1 =
+      key => MethodInvoker.Create(key.genericDefinition.MakeGenericMethod(key.typeArgument));
+
+    private static readonly Func<(MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2), MethodInvoker> GenericMethodInvokerFactory2 =
+      key => MethodInvoker.Create(key.genericDefinition.MakeGenericMethod(key.typeArgument1, key.typeArgument2));
+#endif
+
     // .NET8+ caches GenericTypeDefinition
     private static readonly ConcurrentDictionary<Type, Type> GenericTypeDefinitions = Environment.Version.Major < 8 ? new() : null;
 
@@ -932,6 +943,20 @@ namespace Xtensive.Reflection
 
     public static MethodInfo CachedMakeGenericMethod(this MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2) =>
       GenericMethodInstances2.GetOrAdd((genericDefinition, typeArgument1, typeArgument2), GenericMethodFactory2);
+
+#if NET8_0_OR_GREATER
+    public static MethodInvoker CachedMakeGenericMethodInvoker(this MethodInfo genericDefinition, Type typeArgument) =>
+      GenericMethodInvokers1.GetOrAdd((genericDefinition, typeArgument), GenericMethodInvokerFactory1);
+
+    public static MethodInvoker CachedMakeGenericMethodInvoker(this MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2) =>
+      GenericMethodInvokers2.GetOrAdd((genericDefinition, typeArgument1, typeArgument2), GenericMethodInvokerFactory2);
+#else
+    public static MethodInfo CachedMakeGenericMethodInvoker(this MethodInfo genericDefinition, Type typeArgument) =>
+      CachedMakeGenericMethod(genericDefinition, typeArgument);
+
+    public static MethodInfo CachedMakeGenericMethodInvoker(this MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2) =>
+      CachedMakeGenericMethod(genericDefinition, typeArgument1, typeArgument2);
+#endif
 
     public static Type CachedMakeGenericType(this Type genericDefinition, Type typeArgument) =>
       GenericTypeInstances1.GetOrAdd((genericDefinition, typeArgument), GenericTypeFactory1);
