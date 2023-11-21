@@ -18,6 +18,7 @@ using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
+using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Xtensive.Tuples.Transform;
@@ -43,6 +44,10 @@ namespace Xtensive.Orm.Model
     /// Value is <see langword="100" />.
     /// </summary>
     public const int MinTypeId = 100;
+
+    private static readonly Type
+      TypeEntity = typeof(Entity)
+      , TypeStructure = typeof(Structure);
 
     private static volatile int CurrentSharedId = 0;
     private static readonly ConcurrentDictionary<Type, int> TypeToSharedId = new();
@@ -918,35 +923,18 @@ namespace Xtensive.Orm.Model
       return new ReadOnlyDictionary<Pair<FieldInfo>, FieldInfo>(result);
     }
 
-    private IEnumerable<FieldInfo> GetRootBaseFields(Type type, IEnumerable<FieldInfo> fields)
+    private static IEnumerable<FieldInfo> GetBaseFields(Type type, IEnumerable<FieldInfo> fields, bool bRoot)
     {
-      if (type == typeof(Entity)) {
+      if (type == TypeEntity || type == TypeStructure) {
         return Array.Empty<FieldInfo>();
       }
       var declared = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
         .ToDictionary(p => p.Name, p => p.MetadataToken);
 
-      return GetBaseFields(type.BaseType, fields)
+      return GetBaseFields(type.BaseType, fields, bRoot)
         .Concat(
           fields.Select(p => (p, declared.TryGetValue(p.UnderlyingProperty.Name, out var token) ? token : 0))
-            .Where(t => t.Item2 != 0)
-            .OrderBy(t => t.Item2)
-            .Select(t => t.Item1)
-        );
-    }
-
-    private IEnumerable<FieldInfo> GetBaseFields(Type type, IEnumerable<FieldInfo> fields)
-    {
-      if (type == typeof(Entity) || type == typeof(Structure)) {
-        return Array.Empty<FieldInfo>();
-      }
-      var declared = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-        .ToDictionary(p => p.Name, p => p.MetadataToken);
-
-      return GetBaseFields(type.BaseType, fields)
-        .Concat(
-          fields.Select(p => (p, declared.TryGetValue(p.UnderlyingProperty.Name, out var token) ? token : 0))
-            .Where(t => t.Item1.UnderlyingProperty.MetadataToken == t.Item2)
+            .Where(t => bRoot ? t.Item2 != 0 : t.Item1.UnderlyingProperty.MetadataToken == t.Item2)
             .OrderBy(t => t.Item2)
             .Select(t => t.Item1)
         );
@@ -965,25 +953,25 @@ namespace Xtensive.Orm.Model
       bool isRoot = Hierarchy?.Root == this;
       var potentialFields = Fields.Where(p => !p.IsDynamicallyDefined && p.Parent == null && p != propTypeId).ToArray();
       var recycled = UnderlyingType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-        .Where(p => p.GetAttribute<Xtensive.Orm.Upgrade.RecycledAttribute>() != null && !potentialFields.Any(pf => pf.UnderlyingProperty == p)).ToHashSet();
+        .Where(p => p.GetAttribute<RecycledAttribute>() != null && !potentialFields.Any(pf => pf.UnderlyingProperty == p));
 
       FieldInfo[] baseFields;
       FieldInfo[] ancestorFields = Array.Empty<FieldInfo>();
-      if (Ancestor != null && Ancestor.UnderlyingType != typeof(Structure)) {
+      if (Ancestor != null && Ancestor.UnderlyingType != TypeStructure) {
         ancestorFields = Ancestor.PersistentFields;
         baseFields = ancestorFields.Select(p => p != null && Fields.TryGetValue(p.Name, out var f) ? f : null).ToArray();
       }
       else {
-        baseFields =
-          isRoot ? GetRootBaseFields(UnderlyingType.BaseType, potentialFields).ToArray()
-          : IsEntity || IsStructure ? GetBaseFields(UnderlyingType.BaseType, potentialFields).ToArray()
-          : Array.Empty<FieldInfo>();
+        baseFields = !(IsEntity || IsStructure)
+          ? Array.Empty<FieldInfo>()
+          : GetBaseFields(UnderlyingType.BaseType, potentialFields, isRoot).ToArray();
       }
+      var baseFieldsSet = baseFields.ToHashSet();
       var props = baseFields.Concat(
         potentialFields.Where(p => p.UnderlyingProperty.DeclaringType == UnderlyingType
           && (isRoot
             || p.IsExplicit
-            || !baseFields.Contains(p)
+            || !baseFieldsSet.Contains(p)
             || ancestorFields.Any(a => IsOverrideOfVirtual(a, p))))
           .Select(p => (p, p.UnderlyingProperty.MetadataToken))
           .Concat(recycled.Select(p => ((FieldInfo)null, p.MetadataToken)))

@@ -109,12 +109,12 @@ namespace Xtensive.Orm.Weaver.Stages
       context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.StructureTypeAttributeConstructor));
     }
 
-    private Dictionary<PropertyInfo, int> GetPropertyToIndexMap(ProcessorContext context, TypeInfo type)
+    private Dictionary<PropertyInfo, int> GetPropertyToIndexMap(TypeInfo type)
     {
       if (type is null) {
         return new();
       }
-      var r = GetPropertyToIndexMap(context, type.BaseType);
+      var r = GetPropertyToIndexMap(type.BaseType);
       int idx = r.Count == 0 ? 0 : r.Values.Max() + 1;
       if (idx == 0 && type.Kind == PersistentTypeKind.Entity) {
         idx = 1;   // for TypeId
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Weaver.Stages
     private void ProcessFields(ProcessorContext context, TypeInfo type)
     {
       var typeDefinition = type.Definition;
-      var propertyToIndex = GetPropertyToIndexMap(context, type);
+      var propertyToIndex = GetPropertyToIndexMap(type);
 
       foreach (var property in type.Properties.Values.Where(p => p.IsPersistent && propertyChecker.ShouldProcess(p, context))) {
         var persistentIndex = propertyToIndex[property];
