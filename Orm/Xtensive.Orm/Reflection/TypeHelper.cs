@@ -53,7 +53,11 @@ namespace Xtensive.Reflection
     private static readonly Type CompilerGeneratedAttributeType = typeof(CompilerGeneratedAttribute);
     private static readonly string TypeHelperNamespace = typeof(TypeHelper).Namespace;
 
+#if NET8_0_OR_GREATER
+    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInvoker> ConstructorInfoByTypes =
+#else
     private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> ConstructorInfoByTypes =
+#endif
       new(new TypesEqualityComparer());
 
     private static readonly ConcurrentDictionary<Type, Type[]> OrderedInterfaces = new();
@@ -660,9 +664,15 @@ namespace Xtensive.Reflection
     /// The <paramref name="type"/> has no constructors suitable for <paramref name="argumentTypes"/>
     /// -or- more than one such constructor.
     /// </exception>
+#if NET8_0_OR_GREATER
+    public static ConstructorInvoker GetSingleConstructorInvoker(this Type type, Type[] argumentTypes) =>
+      ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor)
+        ?? throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters);
+#else
     public static ConstructorInfo GetSingleConstructor(this Type type, Type[] argumentTypes) =>
       ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor)
         ?? throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters);
+#endif
 
     /// <summary>
     /// Gets the public constructor of type <paramref name="type"/>
@@ -675,10 +685,17 @@ namespace Xtensive.Reflection
     /// otherwise, <see langword="null"/>.
     /// </returns>
     [CanBeNull]
+#if NET8_0_OR_GREATER
+    public static ConstructorInvoker GetSingleConstructorInvokerOrDefault(this Type type, Type[] argumentTypes) =>
+      ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
+
+    private static readonly Func<(Type, Type[]), ConstructorInvoker> ConstructorExtractor = t => {
+#else
     public static ConstructorInfo GetSingleConstructorOrDefault(this Type type, Type[] argumentTypes) =>
       ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
 
     private static readonly Func<(Type, Type[]), ConstructorInfo> ConstructorExtractor = t => {
+#endif
       (var type, var argumentTypes) = t;
       var constructors =
         from ctor in type.GetConstructors()
@@ -698,7 +715,12 @@ namespace Xtensive.Reflection
             )
         ).All(passed => passed)
         select ctor;
-      return constructors.SingleOrDefault();
+      var constructor = constructors.SingleOrDefault();
+#if NET8_0_OR_GREATER
+      return constructor is null ? null : ConstructorInvoker.Create(constructor);
+#else
+      return constructor;
+#endif
     };
 
     /// <summary>
