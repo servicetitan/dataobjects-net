@@ -56,7 +56,7 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BitFaster.Caching" Version="2.3.2" />
+    <PackageReference Include="BitFaster.Caching" Version="2.3.3" />
   </ItemGroup>
   <ItemGroup Label="T4 templates">
     <None Include="Arithmetic\Internal\PrimitiveArithmetics.tt">
