@@ -8,6 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using DotNetNotNullAttribute = System.Diagnostics.CodeAnalysis.NotNullAttribute;
+using JBNotNullAttribute = JetBrains.Annotations.NotNullAttribute;
+using JBCanBeNullAttribute = JetBrains.Annotations.CanBeNullAttribute;
 
 namespace Xtensive.Sorting
 {
@@ -34,6 +37,7 @@ namespace Xtensive.Sorting
     /// Sorting result, if there were no cycles;
     /// otherwise, <see langword="null"/>.
     /// </returns>
+    [JBCanBeNull]
     public static IEnumerable<TNodeItem> Sort<TNodeItem>(IEnumerable<TNodeItem> items, Predicate<TNodeItem, TNodeItem> connector) =>
       Sort(items, connector, out List<Node<TNodeItem, object>> loops);
 
@@ -48,6 +52,7 @@ namespace Xtensive.Sorting
     /// Sorting result, if there were no loops;
     /// otherwise, <see langword="null"/>.
     /// </returns>
+    [JBCanBeNull]
     public static IReadOnlyList<TNodeItem> SortToList<TNodeItem>(IEnumerable<TNodeItem> items, Predicate<TNodeItem, TNodeItem> connector) =>
       SortToList(items, connector, out List<Node<TNodeItem, object>> loops);
 
@@ -64,6 +69,7 @@ namespace Xtensive.Sorting
     /// otherwise, <see langword="null"/>.
     /// In this case <paramref name="loops"/> will contain only the loop edges.
     /// </returns>
+    [JBCanBeNull]
     public static IEnumerable<TNodeItem> Sort<TNodeItem>(
       IEnumerable<TNodeItem> items,
       Predicate<TNodeItem, TNodeItem> connector,
@@ -88,6 +94,7 @@ namespace Xtensive.Sorting
     /// otherwise, <see langword="null"/>.
     /// In this case <paramref name="cycles"/> will contain only the cycle edges.
     /// </returns>
+    [JBCanBeNull]
     public static IReadOnlyList<TNodeItem> SortToList<TNodeItem>(
       IEnumerable<TNodeItem> items,
       Predicate<TNodeItem, TNodeItem> connector,
@@ -110,6 +117,8 @@ namespace Xtensive.Sorting
     /// <returns>
     /// Sorting result
     /// </returns>
+    [return: DotNetNotNull]
+    [JBNotNull]
     public static IEnumerable<TNodeItem> Sort<TNodeItem>(
       IEnumerable<TNodeItem> items,
       Predicate<TNodeItem, TNodeItem> connector,
@@ -126,6 +135,8 @@ namespace Xtensive.Sorting
     /// <returns>
     /// Sorting result
     /// </returns>
+    [return: DotNetNotNull]
+    [JBNotNull]
     public static IReadOnlyList<TNodeItem> SortToList<TNodeItem>(
       IEnumerable<TNodeItem> items,
       Predicate<TNodeItem, TNodeItem> connector,
@@ -143,6 +154,8 @@ namespace Xtensive.Sorting
     /// <returns>
     /// Sorting result
     /// </returns>
+    [return: DotNetNotNull]
+    [JBNotNull]
     public static IEnumerable<TNodeItem> Sort<TNodeItem>(
       IEnumerable<TNodeItem> items,
       Predicate<TNodeItem, TNodeItem> connector,
@@ -166,6 +179,8 @@ namespace Xtensive.Sorting
     /// <returns>
     /// Sorting result
     /// </returns>
+    [return: DotNetNotNull]
+    [JBNotNull]
     public static IReadOnlyList<TNodeItem> SortToList<TNodeItem>(
       IEnumerable<TNodeItem> items,
       Predicate<TNodeItem, TNodeItem> connector,
@@ -186,9 +201,16 @@ namespace Xtensive.Sorting
     /// <returns>Sorting result, if there were no loops;
     /// otherwise, <see langword="null" />.
     /// In this case <paramref name="nodes"/> will contain only the loop edges.</returns>
+    [JBCanBeNull]
     public static IEnumerable<TNodeItem> Sort<TNodeItem, TConnectionItem>(
       List<Node<TNodeItem, TConnectionItem>> nodes,
-      out List<Node<TNodeItem, TConnectionItem>> loops) => SortInternal(nodes, out loops).sorted ?? Array.Empty<TNodeItem>();
+      out List<Node<TNodeItem, TConnectionItem>> loops)
+    {
+      var (sorted, count) = SortInternal(nodes, out loops) /* ?? Array.Empty<TNodeItem>()*/;
+      return (sorted is not null && count == 0)
+        ? Array.Empty<TNodeItem>()
+        : sorted;
+    }
 
     /// <summary>
     /// Sorts the specified oriented graph of the nodes in their topological order
@@ -199,14 +221,17 @@ namespace Xtensive.Sorting
     /// <returns>Sorting result, if there were no loops;
     /// otherwise, <see langword="null" />.
     /// In this case <paramref name="nodes"/> will contain only the loop edges.</returns>
+    [JBCanBeNull]
     public static IReadOnlyList<TNodeItem> SortToList<TNodeItem, TConnectionItem>(
       List<Node<TNodeItem, TConnectionItem>> nodes,
       out List<Node<TNodeItem, TConnectionItem>> loops)
     {
       var (sorted, count) = SortInternal(nodes, out loops);
-      return (sorted is null || count == 0)
-        ? Array.Empty<TNodeItem>()
-        : sorted.ToArray(count);
+      return (sorted is null)
+        ? null
+        : count == 0
+          ? Array.Empty<TNodeItem>()
+          : sorted.ToArray(count);
     }
 
     /// <summary>
@@ -216,6 +241,8 @@ namespace Xtensive.Sorting
     /// <param name="nodes">The nodes.</param>
     /// <param name="removedEdges">Edges removed to make graph non-cyclic.</param>
     /// <returns>Sorting result.</returns>
+    [return: DotNetNotNull]
+    [JBNotNull]
     public static IEnumerable<TNodeItem> Sort<TNodeItem, TConnectionItem>(
       IEnumerable<Node<TNodeItem, TConnectionItem>> nodes,
       out List<NodeConnection<TNodeItem, TConnectionItem>> removedEdges) =>
@@ -228,6 +255,8 @@ namespace Xtensive.Sorting
     /// <param name="nodes">The nodes.</param>
     /// <param name="removedEdges">Edges removed to make graph non-cyclic.</param>
     /// <returns>Sorting result.</returns>
+    [return: DotNetNotNull]
+    [JBNotNull]
     public static IReadOnlyList<TNodeItem> SortToList<TNodeItem, TConnectionItem>(
       IEnumerable<Node<TNodeItem, TConnectionItem>> nodes,
       out List<NodeConnection<TNodeItem, TConnectionItem>> removedEdges) =>
@@ -241,6 +270,8 @@ namespace Xtensive.Sorting
     /// <param name="removedEdges">Edges removed to make graph non-cyclic.</param>
     /// <param name="removeWholeNode">If <see langword="true"/> removes whole node in the case of cycle, otherwise removes only one edge.</param>
     /// <returns>Sorting result.</returns>
+    [return: DotNetNotNull]
+    [JBNotNull]
     public static IEnumerable<TNodeItem> Sort<TNodeItem, TConnectionItem>(
         IEnumerable<Node<TNodeItem, TConnectionItem>> nodes,
         out List<NodeConnection<TNodeItem, TConnectionItem>> removedEdges,
@@ -255,6 +286,8 @@ namespace Xtensive.Sorting
     /// <param name="removedEdges">Edges removed to make graph non-cyclic.</param>
     /// <param name="removeWholeNode">If <see langword="true"/> removes whole node in the case of loop, otherwise removes only one edge.</param>
     /// <returns>Sorting result.</returns>
+    [return: DotNetNotNull]
+    [JBNotNull]
     public static IReadOnlyList<TNodeItem> SortToList<TNodeItem, TConnectionItem>(
       IEnumerable<Node<TNodeItem, TConnectionItem>> nodes,
       out List<NodeConnection<TNodeItem, TConnectionItem>> removedEdges,
