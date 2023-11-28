@@ -50,8 +50,7 @@ namespace Xtensive.Tuples.Packed
 
     public T GetValue<T>(PackedTuple tuple, in PackedFieldDescriptor descriptor, bool isNullable, out TupleFieldState fieldState)
     {
-      var getter = (isNullable ? NullableGetter : Getter) as GetValueDelegate<T>;
-      if (getter != null) {
+      if ((isNullable ? NullableGetter : Getter) is GetValueDelegate<T> getter) {
         return getter.Invoke(tuple, descriptor, out fieldState);
       }
       var targetType = typeof(T);
