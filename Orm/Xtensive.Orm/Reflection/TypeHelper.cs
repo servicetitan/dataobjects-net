@@ -666,8 +666,10 @@ namespace Xtensive.Reflection
     /// </exception>
 #if NET8_0_OR_GREATER
     public static ConstructorInvoker GetSingleConstructorInvoker(this Type type, Type[] argumentTypes) =>
-      ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor)
-        ?? throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters);
+      ConstructorInfoByTypes.GetOrAdd((type, argumentTypes),
+        static t => ConstructorExtractor(t) is ConstructorInfo ctor
+         ? ConstructorInvoker.Create(ctor)
+         : throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters));
 #else
     public static ConstructorInfo GetSingleConstructor(this Type type, Type[] argumentTypes) =>
       ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor)
@@ -687,15 +689,14 @@ namespace Xtensive.Reflection
     [CanBeNull]
 #if NET8_0_OR_GREATER
     public static ConstructorInvoker GetSingleConstructorInvokerOrDefault(this Type type, Type[] argumentTypes) =>
-      ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
-
-    private static readonly Func<(Type, Type[]), ConstructorInvoker> ConstructorExtractor = t => {
+      ConstructorInfoByTypes.GetOrAdd((type, argumentTypes),
+        static t => ConstructorExtractor(t) is ConstructorInfo ctor ? ConstructorInvoker.Create(ctor) : null);
 #else
     public static ConstructorInfo GetSingleConstructorOrDefault(this Type type, Type[] argumentTypes) =>
       ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
+#endif
 
     private static readonly Func<(Type, Type[]), ConstructorInfo> ConstructorExtractor = t => {
-#endif
       (var type, var argumentTypes) = t;
       var constructors =
         from ctor in type.GetConstructors()
@@ -716,12 +717,9 @@ namespace Xtensive.Reflection
         ).All(passed => passed)
         select ctor;
       var constructor = constructors.SingleOrDefault();
-#if NET8_0_OR_GREATER
-      return constructor is null ? null : ConstructorInvoker.Create(constructor);
-#else
       return constructor;
-#endif
     };
+
 
     /// <summary>
     /// Orders the specified <paramref name="types"/> by their inheritance
