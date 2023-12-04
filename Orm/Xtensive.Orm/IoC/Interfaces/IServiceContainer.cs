@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Reflection;
 
 namespace Xtensive.IoC
 {
@@ -79,5 +80,80 @@ namespace Xtensive.IoC
     /// <param name="name">The identifier of the service to get.</param>
     /// <returns>Requested instance.</returns>
     object Get(Type serviceType, string name);
+
+    /// <summary>
+    /// Demands the specified service 
+    /// using <see cref="IServiceContainer.Get{TService}()"/> method
+    /// and ensures the result is not <see langword="null" />.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service.</typeparam>
+    /// <param name="container">The container to demand the service on.</param>
+    /// <returns></returns>
+    /// <exception cref="ActivationException">There was an error on activation of some instance(s),
+    /// or service is not available.</exception>
+    public TService Demand<TService>() =>
+      EnsureNotNull(Get<TService>(), null);
+
+    /// <summary>
+    /// Demands the specified service
+    /// using <see cref="IServiceContainer.Get{TService}(string)"/> method
+    /// and ensures the result is not <see langword="null"/>.
+    /// </summary>
+    /// <typeparam name="TService">The type of the service.</typeparam>
+    /// <param name="name">The service name.</param>
+    /// <returns></returns>
+    /// <exception cref="ActivationException">There was an error on activation of some instance(s),
+    /// or service is not available.</exception>
+    public TService Demand<TService>(string name) =>
+      EnsureNotNull(Get<TService>(name), name);
+
+    /// <summary>
+    /// Demands the specified service
+    /// using <see cref="IServiceContainer.Get(System.Type)"/> method
+    /// and ensures the result is not <see langword="null"/>.
+    /// </summary>
+    /// <param name="serviceType">Type of the service.</param>
+    /// <returns></returns>
+    /// <exception cref="ActivationException">There was an error on activation of some instance(s),
+    /// or service is not available.</exception>
+    public object Demand(Type serviceType) =>
+      EnsureNotNull(Get(serviceType), serviceType, null);
+
+    /// <summary>
+    /// Demands the specified service
+    /// using <see cref="IServiceContainer.Get(System.Type,string)"/> method
+    /// and ensures the result is not <see langword="null"/>.
+    /// </summary>
+    /// <param name="container">The container to demand the service on.</param>
+    /// <param name="serviceType">Type of the service.</param>
+    /// <param name="name">The service name.</param>
+    /// <returns></returns>
+    /// <exception cref="ActivationException">There was an error on activation of some instance(s),
+    /// or service is not available.</exception>
+    public object Demand(Type serviceType, string name) =>
+      EnsureNotNull(Get(serviceType, name), serviceType, name);
+
+    #region Private / internal methods
+
+    private static TService EnsureNotNull<TService>(TService service, string name)
+    {
+      if (service == null) {
+        EnsureNotNull(service, typeof(TService), name);
+      }
+      return service;
+    }
+
+    /// <exception cref="ActivationException">Service is not available.</exception>
+    private static object EnsureNotNull(object service, Type serviceType, string name)
+    {
+      if (service != null)
+        return service;
+      if (name == null)
+        throw new ActivationException(string.Format(Strings.ExServiceOfTypeXIsNotAvailable, serviceType.GetShortName()));
+      throw new ActivationException(string.Format(Strings.ExServiceWithNameXOfTypeYIsNotAvailable, name, serviceType.GetShortName()));
+    }
+
+    #endregion
+
   }
 }
