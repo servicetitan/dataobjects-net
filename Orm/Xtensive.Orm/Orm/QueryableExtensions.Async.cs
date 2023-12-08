@@ -1459,16 +1459,15 @@ namespace Xtensive.Orm
     public static async Task<List<TSource>> ToListAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
-      if (source is not IAsyncEnumerable<TSource>) {
-        return source.ToList();
+      if (source is IAsyncEnumerable<TSource> asyncEnumerable) {
+        var list = new List<TSource>();
+        var asyncSource = asyncEnumerable.WithCancellation(cancellationToken).ConfigureAwaitFalse();
+        await foreach (var element in asyncSource) {
+          list.Add(element);
+        }
+        return list;
       }
-      var list = new List<TSource>();
-      var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwaitFalse();
-      await foreach (var element in asyncSource) {
-        list.Add(element);
-      }
-
-      return list;
+      return source.ToList();
     }
 
     /// <summary>
@@ -1574,16 +1573,15 @@ namespace Xtensive.Orm
     public static async Task<HashSet<TSource>> ToHashSetAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
-      if (source is not IAsyncEnumerable<TSource>) {
-        return source.ToHashSet();
+      if (source is IAsyncEnumerable<TSource> asyncEnumerable) {
+        var hashSet = new HashSet<TSource>();
+        var asyncSource = asyncEnumerable.WithCancellation(cancellationToken).ConfigureAwaitFalse();
+        await foreach (var element in asyncSource) {
+          hashSet.Add(element);
+        }
+        return hashSet;
       }
-      var hashSet = new HashSet<TSource>();
-      var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwaitFalse();
-      await foreach (var element in asyncSource) {
-        hashSet.Add(element);
-      }
-
-      return hashSet;
+      return source.ToHashSet();
     }
 
     /// <summary>
