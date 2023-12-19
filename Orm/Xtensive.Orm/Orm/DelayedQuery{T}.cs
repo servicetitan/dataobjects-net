@@ -28,6 +28,15 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+    /// <inheritdoc/>
+    async IAsyncEnumerator<TElement> IAsyncEnumerable<TElement>.GetAsyncEnumerator(CancellationToken token = default)
+    {
+      var elements = await MaterializeAsync<TElement>(token).ConfigureAwaitFalse();
+      foreach (var element in elements) {
+        yield return element;
+      }
+    }
+
     /// <summary>
     /// Asynchronously executes delayed query.
     /// </summary>
@@ -45,13 +54,5 @@ namespace Xtensive.Orm
       : base(session, translatedQuery, parameterContext)
     { }
 
-    /// <inheritdoc/>
-    public async IAsyncEnumerator<TElement> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-    {
-      var elements = await MaterializeAsync<TElement>(cancellationToken);
-      foreach (var element in elements) {
-        yield return element;
-      }
-    }
   }
 }
