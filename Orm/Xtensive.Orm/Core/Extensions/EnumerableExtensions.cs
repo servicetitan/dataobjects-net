@@ -174,6 +174,7 @@ namespace Xtensive.Core
     /// <param name="source">The sequence to convert.</param>
     /// <returns>Comma-delimited string containing string representation
     /// of all the items from <paramref name="source"/>.</returns>
+    [Obsolete("Use 'ServiceTitan.Util.StringExtensions` instead of Xtensive.Core")]
     public static string ToCommaDelimitedString<TItem>(this IEnumerable<TItem> source)
     {
       return ToDelimitedString((IEnumerable) source, ", ");
@@ -198,6 +199,7 @@ namespace Xtensive.Core
     /// <param name="delimiter">The delimiter.</param>
     /// <returns>A delimited string combining string representations
     /// of all the items from <paramref name="source"/>.</returns>
+    [Obsolete("Use 'ServiceTitan.Util.StringExtensions` instead of Xtensive.Core")]
     public static string ToDelimitedString<TItem>(this IEnumerable<TItem> source, string delimiter)
     {
       if (source==null)
@@ -220,6 +222,7 @@ namespace Xtensive.Core
     /// <param name="separator">The delimiter.</param>
     /// <returns>Delimited string containing string representation
     /// of all the items from <paramref name="source"/>.</returns>
+    [Obsolete("Use 'ServiceTitan.Util.StringExtensions` instead of Xtensive.Core")]
     public static string ToDelimitedString(this IEnumerable source, string separator)
     {
       if (source==null)
@@ -412,6 +415,7 @@ namespace Xtensive.Core
     /// <param name="initialBatchSize">The initial size of a batch.</param>
     /// <param name="maximalBatchSize">The maximal sized of a batch.</param>
     /// <returns>The source sequence split into batches.</returns>
+    [Obsolete("Use 'ServiceTitan.Util.EnumerableExtensions` instead of Xtensive.Core")]
     public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source, int firstFastCount,
       int initialBatchSize, int maximalBatchSize)
     {
@@ -450,6 +454,7 @@ namespace Xtensive.Core
     /// <typeparam name="T">The type of enumerated items.</typeparam>
     /// <param name="source">The source sequence.</param>
     /// <returns>The source sequence split into batches.</returns>
+    [Obsolete("Use 'ServiceTitan.Util.EnumerableExtensions` instead of Xtensive.Core")]
     public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source)
     {
       return source.Batch(defaultFirstFastCount, defaultInitialBatchSize, defaultMaximalBatchSize);
@@ -463,6 +468,7 @@ namespace Xtensive.Core
     /// <param name="firstFastCount">The count of the source sequence's items
     /// which will be returned without batching.</param>
     /// <returns>The source sequence split into batches.</returns>
+    [Obsolete("Use 'ServiceTitan.Util.EnumerableExtensions` instead of Xtensive.Core")]
     public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source, int firstFastCount)
     {
       return source.Batch(firstFastCount, defaultInitialBatchSize, defaultMaximalBatchSize);
