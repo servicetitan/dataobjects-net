@@ -20,7 +20,7 @@ namespace Xtensive.Orm
   /// </summary>
   /// <typeparam name="TElement">The type of the element in a resulting sequence.</typeparam>
   [Serializable]
-  public sealed class DelayedQuery<TElement> : DelayedQuery, IEnumerable<TElement>
+  public sealed class DelayedQuery<TElement> : DelayedQuery, IEnumerable<TElement>, IAsyncEnumerable<TElement>
   {
     /// <inheritdoc/>
     public IEnumerator<TElement> GetEnumerator() => Materialize<TElement>().GetEnumerator();
@@ -43,6 +43,15 @@ namespace Xtensive.Orm
 
     internal DelayedQuery(Session session, TranslatedQuery translatedQuery, ParameterContext parameterContext)
       : base(session, translatedQuery, parameterContext)
-    {}
+    { }
+
+    /// <inheritdoc/>
+    public async IAsyncEnumerator<TElement> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+    {
+      var elements = await MaterializeAsync<TElement>(cancellationToken);
+      foreach (var element in elements) {
+        yield return element;
+      }
+    }
   }
 }
