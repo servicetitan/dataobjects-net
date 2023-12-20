@@ -544,7 +544,6 @@ namespace Xtensive.Sql
       }
       return new SqlExtract(part, operand);
     }
-#if NET6_0_OR_GREATER
 
     public static SqlExtract Extract(SqlDatePart part, SqlExpression operand)
     {
@@ -565,7 +564,6 @@ namespace Xtensive.Sql
       }
       return new SqlExtract(part, operand);
     }
-#endif
 
     public static SqlExtract Extract(SqlIntervalPart part, SqlExpression operand)
     {
@@ -587,7 +585,6 @@ namespace Xtensive.Sql
       SqlValidator.EnsureIsArithmeticExpression(day);
       return new SqlFunctionCall(SqlFunctionType.DateTimeConstruct, year, month, day);
     }
-#if NET6_0_OR_GREATER
 
     public static SqlFunctionCall DateConstruct(SqlExpression year, SqlExpression month, SqlExpression day)
     {
@@ -624,30 +621,6 @@ namespace Xtensive.Sql
 
       return new SqlFunctionCall(SqlFunctionType.TimeConstruct, ticks);
     }
-#endif
-
-#if NET_6_0_OR_GREATER
-    public static SqlFunctionCall DateOnlyConstruct(SqlExpression year, SqlExpression month, SqlExpression day)
-    {
-      ArgumentNullException.ThrowIfNull(year);
-      ArgumentNullException.ThrowIfNull(month);
-      ArgumentNullException.ThrowIfNull(day);
-      SqlValidator.EnsureIsArithmeticExpression(year);
-      SqlValidator.EnsureIsArithmeticExpression(month);
-      SqlValidator.EnsureIsArithmeticExpression(day);
-      return new SqlFunctionCall(SqlFunctionType.DateOnlyConstruct, year, month, day);
-    }
-
-    public static SqlFunctionCall TimeOnlyConstruct(SqlExpression hours,
-      SqlExpression minutes,
-      SqlExpression seconds,
-      SqlExpression milliseconds)
-    {
-      var m = milliseconds + 1000L * (seconds + 60L * (minutes + 60L * hours));
-      var ticks = 10_000 * m;
-      return new SqlFunctionCall(SqlFunctionType.TimeOnlyConstruct, ticks);
-    }
-#endif
 
     public static SqlBinary DateTimePlusInterval(SqlExpression left, SqlExpression right)
     {
@@ -655,7 +628,6 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(right, "right");
       return new SqlBinary(SqlNodeType.DateTimePlusInterval, left, right);
     }
-#if NET6_0_OR_GREATER
 
     public static SqlBinary TimePlusInterval(SqlExpression left, SqlExpression right)
     {
@@ -670,7 +642,6 @@ namespace Xtensive.Sql
       ArgumentNullException.ThrowIfNull(right, nameof(right));
       return new SqlBinary(SqlNodeType.TimeMinusTime, left, right);
     }
-#endif
 
     public static SqlBinary DateTimeMinusInterval(SqlExpression left, SqlExpression right)
     {
@@ -700,7 +671,6 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.DateTimeAddMonths, source, months);
     }
 
-#if NET6_0_OR_GREATER
     public static SqlFunctionCall DateTimeToTime(SqlExpression expression)
     {
       ArgumentNullException.ThrowIfNull(expression, nameof(expression));
@@ -789,7 +759,6 @@ namespace Xtensive.Sql
       ArgumentNullException.ThrowIfNull(expression, nameof(expression));
       return new SqlFunctionCall(SqlFunctionType.TimeToDateTimeOffset, expression);
     }
-#endif
 
     public static SqlFunctionCall DateTimeToStringIso(SqlExpression expression)
     {
@@ -923,7 +892,6 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, nameof(dateTimeOffset));
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToDateTime, dateTimeOffset);
     }
-#if NET6_0_OR_GREATER //DO_DATEONLY
 
     public static SqlFunctionCall DateTimeOffsetToTime(SqlExpression dateTimeOffset)
     {
@@ -937,7 +905,6 @@ namespace Xtensive.Sql
       ArgumentNullException.ThrowIfNull(dateTimeOffset, nameof(dateTimeOffset));
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToDate, dateTimeOffset);
     }
-#endif
 
     #endregion
 
@@ -1164,7 +1131,6 @@ namespace Xtensive.Sql
     {
       return new SqlLiteral<DateTime>(value);
     }
-#if NET6_0_OR_GREATER
 
     public static SqlLiteral<DateOnly> Literal(DateOnly value)
     {
@@ -1175,7 +1141,6 @@ namespace Xtensive.Sql
     {
       return new SqlLiteral<TimeOnly>(value);
     }
-#endif
 
     public static SqlLiteral<TimeSpan> Literal(TimeSpan value)
     {
