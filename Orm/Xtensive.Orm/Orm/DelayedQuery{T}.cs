@@ -29,9 +29,9 @@ namespace Xtensive.Orm
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc/>
-    async IAsyncEnumerator<TElement> IAsyncEnumerable<TElement>.GetAsyncEnumerator(CancellationToken token = default)
+    async IAsyncEnumerator<TElement> IAsyncEnumerable<TElement>.GetAsyncEnumerator(CancellationToken token)
     {
-      var elements = await MaterializeAsync<TElement>(token).ConfigureAwaitFalse();
+      var elements = await ExecuteAsync(token).ConfigureAwaitFalse();
       foreach (var element in elements) {
         yield return element;
       }

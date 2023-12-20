@@ -11,10 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Xtensive.Core;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
-using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests;
@@ -50,7 +47,7 @@ namespace Xtensive.Orm.Manual.Prefetch
 
     public Person(Session session)
       : base(session)
-    {}
+    { }
   }
 
   #endregion
@@ -69,10 +66,10 @@ namespace Xtensive.Orm.Manual.Prefetch
     [TearDown]
     public void ClearContent()
     {
-      using(var session = Domain.OpenSession())
-      using(var tx = session.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         var people = session.Query.All<Person>().ToList();
-        foreach(var person in people) {
+        foreach (var person in people) {
           person.Manager = null;
         }
         session.SaveChanges();
@@ -253,7 +250,7 @@ namespace Xtensive.Orm.Manual.Prefetch
       var count = 1000;
 
       await using (var session = await Domain.OpenSessionAsync())
-      using (var transactionScope = session.OpenTransaction()){
+      using (var transactionScope = session.OpenTransaction()) {
         var people = new Person[count];
         for (var i = 0; i < count; i++) {
           people[i] = new Person(session) { Name = i.ToString(), Photo = new[] { (byte) (i % 256) } };
@@ -384,9 +381,8 @@ namespace Xtensive.Orm.Manual.Prefetch
 
     private class QueryCounterSessionHandlerMoq : ChainingSessionHandler
     {
-
-      private int syncCounter;
-      private int asyncCounter;
+      private volatile int syncCounter;
+      private volatile int asyncCounter;
 
       public int GetSyncCounter() => syncCounter;
 
@@ -398,13 +394,13 @@ namespace Xtensive.Orm.Manual.Prefetch
 
       public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
       {
-        Interlocked.Increment(ref syncCounter);
+        _ = Interlocked.Increment(ref syncCounter);
         base.ExecuteQueryTasks(queryTasks, allowPartialExecution);
       }
 
       public override Task ExecuteQueryTasksAsync(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution, CancellationToken token)
       {
-        Interlocked.Increment(ref asyncCounter);
+        _ = Interlocked.Increment(ref asyncCounter);
         return base.ExecuteQueryTasksAsync(queryTasks, allowPartialExecution, token);
       }
     }
