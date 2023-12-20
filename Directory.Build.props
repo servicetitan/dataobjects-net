@@ -108,8 +108,6 @@
 
   <ItemGroup>
     <SourceRoot Include="$(SolutionDir)"/>
-    <PackageReference Condition="$(DoGeneratePackage) == 'true'"
-                      Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
     <None Include="$(DoPackageIcon)" Visible="false" >
       <PackagePath>.</PackagePath>
       <Pack>true</Pack>
