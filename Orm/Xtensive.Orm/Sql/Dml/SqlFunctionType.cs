@@ -60,7 +60,6 @@ namespace Xtensive.Sql.Dml
 
     // date time / interval functions
     // not ansi sql but our cross-server solution
-#if NET6_0_OR_GREATER
     DateConstruct,
     DateAddYears,
     DateAddMonths,
@@ -75,7 +74,6 @@ namespace Xtensive.Sql.Dml
     TimeToDateTime,
     TimeToDateTimeOffset,
     TimeToNanoseconds,
-#endif
 
     DateTimeConstruct,
     DateTimeAddYears,
@@ -85,10 +83,8 @@ namespace Xtensive.Sql.Dml
     TimeOnlyAddMinutes,
     DateTimeTruncate,
     DateTimeToStringIso,
-#if NET6_0_OR_GREATER
     DateTimeToTime,
     DateTimeToDate,
-#endif
     IntervalConstruct,
     IntervalToMilliseconds,
     IntervalToNanoseconds,
@@ -104,12 +100,8 @@ namespace Xtensive.Sql.Dml
     DateTimeOffsetToUtcTime,
     DateTimeToDateTimeOffset,
     DateTimeOffsetToDateTime,
-#if NET6_0_OR_GREATER
     DateTimeOffsetToTime,
     DateTimeOffsetToDate,
-    DateOnlyConstruct,
-    TimeOnlyConstruct,
-#endif
 
     // .NET like rounding functions
 
