@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -20,7 +21,7 @@ namespace Xtensive.Orm
   /// </summary>
   /// <typeparam name="TElement">The type of the element in a resulting sequence.</typeparam>
   [Serializable]
-  public sealed class DelayedQuery<TElement> : DelayedQuery, IEnumerable<TElement>, IAsyncEnumerable<TElement>
+  public sealed class DelayedQuery<TElement> : DelayedQuery, IEnumerable<TElement>
   {
     /// <inheritdoc/>
     public IEnumerator<TElement> GetEnumerator() => Materialize<TElement>().GetEnumerator();
@@ -28,11 +29,9 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    /// <inheritdoc/>
-    async IAsyncEnumerator<TElement> IAsyncEnumerable<TElement>.GetAsyncEnumerator(CancellationToken token)
+    public async IAsyncEnumerable<TElement> AsAsyncEnumerable([EnumeratorCancellation]CancellationToken token)
     {
-      var elements = await ExecuteAsync(token).ConfigureAwaitFalse();
-      foreach (var element in elements) {
+      foreach (var element in await ExecuteAsync(token).ConfigureAwaitFalse()) {
         yield return element;
       }
     }
@@ -53,6 +52,5 @@ namespace Xtensive.Orm
     internal DelayedQuery(Session session, TranslatedQuery translatedQuery, ParameterContext parameterContext)
       : base(session, translatedQuery, parameterContext)
     { }
-
   }
 }

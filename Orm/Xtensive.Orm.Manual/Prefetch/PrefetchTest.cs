@@ -379,6 +379,17 @@ namespace Xtensive.Orm.Manual.Prefetch
       }
     }
 
+    [Test]
+    public async Task DelayedQueryAmbiguityTest()
+    {
+      await using (var session = await Domain.OpenSessionAsync())// no session activation!
+      using (var transactionScope = session.OpenTransaction()) {
+        var people = session.Query.CreateDelayedQuery(q => q.All<Person>());
+        _ = people.Select(o => o).Count();
+        transactionScope.Complete();
+      }
+    }
+
     private class QueryCounterSessionHandlerMoq : ChainingSessionHandler
     {
       private volatile int syncCounter;

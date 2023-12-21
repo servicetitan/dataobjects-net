@@ -63,7 +63,9 @@ namespace Xtensive.Orm.Internals.Prefetch
         currentTaskCount = sessionHandler.PrefetchTaskExecutionCount;
       }
 
-      if (source is IAsyncEnumerable<TItem> asyncItemSource) {
+      var asyncItemSource = (source as DelayedQuery<TItem>)?.AsAsyncEnumerable(token)
+        ?? source as IAsyncEnumerable<TItem>;
+      if (asyncItemSource is not null) {
         await foreach (var item in asyncItemSource.WithCancellation(token).ConfigureAwaitFalse()) {
           await foreach (var p in ProcessItem(item).WithCancellation(token).ConfigureAwaitFalse()) {
             yield return p;
