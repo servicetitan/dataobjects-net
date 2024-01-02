@@ -9,6 +9,7 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Sql;
 
@@ -105,10 +106,10 @@ namespace Xtensive.Orm.Providers
 
       try {
         if (!string.IsNullOrEmpty(script)) {
-          await connection.OpenAndInitializeAsync(script, cancellationToken).ConfigureAwait(false);
+          await connection.OpenAndInitializeAsync(script, cancellationToken).ConfigureAwaitFalse();
         }
         else {
-          await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+          await connection.OpenAsync(cancellationToken).ConfigureAwaitFalse();
         }
       }
       catch (OperationCanceledException) {
@@ -130,7 +131,7 @@ namespace Xtensive.Orm.Providers
       Session session, SqlConnection connection, CancellationToken cancellationToken)
     {
       if (connection.State != ConnectionState.Open) {
-        await OpenConnectionAsync(session, connection, cancellationToken).ConfigureAwait(false);
+        await OpenConnectionAsync(session, connection, cancellationToken).ConfigureAwaitFalse();
       }
     }
 
@@ -163,7 +164,7 @@ namespace Xtensive.Orm.Providers
       }
 
       try {
-        await connection.CloseAsync().ConfigureAwait(false);
+        await connection.CloseAsync().ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -191,7 +192,7 @@ namespace Xtensive.Orm.Providers
       }
 
       try {
-        await connection.DisposeAsync().ConfigureAwait(false);
+        await connection.DisposeAsync().ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -226,21 +227,21 @@ namespace Xtensive.Orm.Providers
       isolationLevel ??= IsolationLevelConverter.Convert(GetConfiguration(session).DefaultIsolationLevel);
 
       try {
-        await connection.BeginTransactionAsync(isolationLevel.Value, token).ConfigureAwait(false);
+        await connection.BeginTransactionAsync(isolationLevel.Value, token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
       }
     }
 
-    public void CommitTransaction(Session session, SqlConnection connection)
+    public void CommitTransaction(Session session, SqlConnection connection, bool rollbackOnFail = false)
     {
       if (isLoggingEnabled) {
         SqlLog.Info(nameof(Strings.LogSessionXCommitTransaction), session.ToStringSafely());
       }
 
       try {
-        connection.Commit();
+        connection.Commit(rollbackOnFail);
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -248,14 +249,14 @@ namespace Xtensive.Orm.Providers
     }
 
     public async ValueTask CommitTransactionAsync(
-      Session session, SqlConnection connection, CancellationToken token = default)
+      Session session, SqlConnection connection, bool rollbackOnFail = false, CancellationToken token = default)
     {
       if (isLoggingEnabled) {
         SqlLog.Info(nameof(Strings.LogSessionXCommitTransaction), session.ToStringSafely());
       }
 
       try {
-        await connection.CommitAsync(token).ConfigureAwait(false);
+        await connection.CommitAsync(rollbackOnFail, token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -284,7 +285,7 @@ namespace Xtensive.Orm.Providers
       }
 
       try {
-        await connection.RollbackAsync(token).ConfigureAwait(false);
+        await connection.RollbackAsync(token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -321,7 +322,7 @@ namespace Xtensive.Orm.Providers
       }
 
       try {
-        await connection.MakeSavepointAsync(name, token).ConfigureAwait(false);
+        await connection.MakeSavepointAsync(name, token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -358,7 +359,7 @@ namespace Xtensive.Orm.Providers
       }
 
       try {
-        await connection.RollbackToSavepointAsync(name, token).ConfigureAwait(false);
+        await connection.RollbackToSavepointAsync(name, token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -387,7 +388,7 @@ namespace Xtensive.Orm.Providers
       }
 
       try {
-        await connection.ReleaseSavepointAsync(name, token).ConfigureAwait(false);
+        await connection.ReleaseSavepointAsync(name, token).ConfigureAwaitFalse();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -397,14 +398,14 @@ namespace Xtensive.Orm.Providers
     #region Sync Execute methods
 
     public int ExecuteNonQuery(Session session, DbCommand command) =>
-      ExecuteCommand(session, command, CommandBehavior.Default, (c, cb) => c.ExecuteNonQuery());
+      ExecuteCommand(session, command, CommandBehavior.Default, static (c, cb) => c.ExecuteNonQuery());
 
     public object ExecuteScalar(Session session, DbCommand command) =>
-      ExecuteCommand(session, command, CommandBehavior.Default, (c, cb) => c.ExecuteScalar());
+      ExecuteCommand(session, command, CommandBehavior.Default, static (c, cb) => c.ExecuteScalar());
 
     public DbDataReader ExecuteReader(Session session, DbCommand command,
       CommandBehavior behavior = CommandBehavior.Default) =>
-      ExecuteCommand(session, command, behavior, (c, cb) => c.ExecuteReader(cb));
+      ExecuteCommand(session, command, behavior, static (c, cb) => c.ExecuteReader(cb));
 
     #endregion
 
@@ -412,11 +413,11 @@ namespace Xtensive.Orm.Providers
 
     public Task<int> ExecuteNonQueryAsync(Session session, DbCommand command, CancellationToken cancellationToken = default) =>
       ExecuteCommandAsync(session, command, CommandBehavior.Default, cancellationToken,
-        (c, cb, ct) => c.ExecuteNonQueryAsync(ct));
+        static (c, cb, ct) => c.ExecuteNonQueryAsync(ct));
 
     public Task<object> ExecuteScalarAsync(Session session, DbCommand command, CancellationToken cancellationToken = default) =>
       ExecuteCommandAsync(session, command, CommandBehavior.Default, cancellationToken,
-        (c, cb, ct) => c.ExecuteScalarAsync(ct));
+        static (c, cb, ct) => c.ExecuteScalarAsync(ct));
 
     public Task<DbDataReader> ExecuteReaderAsync(Session session, DbCommand command,
       CancellationToken cancellationToken = default) =>
@@ -425,18 +426,27 @@ namespace Xtensive.Orm.Providers
     public Task<DbDataReader> ExecuteReaderAsync(
       Session session, DbCommand command, CommandBehavior behavior, CancellationToken cancellationToken = default) =>
       ExecuteCommandAsync(session, command, behavior, cancellationToken,
-        (c, cb, ct) => c.ExecuteReaderAsync(cb, ct));
+        static (c, cb, ct) => c.ExecuteReaderAsync(cb, ct));
 
     #endregion
 
-    private TResult ExecuteCommand<TResult>(
-      Session session, DbCommand command, CommandBehavior commandBehavior, Func<DbCommand, CommandBehavior, TResult> action)
+    private void PreDbCommandExecuting(Session session, DbCommand command, CancellationToken ct = default)
     {
       if (isLoggingEnabled) {
         SqlLog.Info(nameof(Strings.LogSessionXQueryY), session.ToStringSafely(), command.ToHumanReadableString());
       }
 
-      session?.Events.NotifyDbCommandExecuting(command);
+      ct.ThrowIfCancellationRequested();
+      if (session is not null) {
+        session.Transaction?.CheckForTimeout(command);
+        session.Events.NotifyDbCommandExecuting(command);
+      }
+    }
+
+    private TResult ExecuteCommand<TResult>(
+      Session session, DbCommand command, CommandBehavior commandBehavior, Func<DbCommand, CommandBehavior, TResult> action)
+    {
+      PreDbCommandExecuting(session, command);
 
       TResult result;
       try {
@@ -457,18 +467,14 @@ namespace Xtensive.Orm.Providers
       DbCommand command, CommandBehavior commandBehavior,
       CancellationToken cancellationToken, Func<DbCommand, CommandBehavior, CancellationToken, Task<TResult>> action)
     {
-      if (isLoggingEnabled) {
-        SqlLog.Info(nameof(Strings.LogSessionXQueryY), session.ToStringSafely(), command.ToHumanReadableString());
-      }
-
-      cancellationToken.ThrowIfCancellationRequested();
-      session?.Events.NotifyDbCommandExecuting(command);
+      PreDbCommandExecuting(session, command, cancellationToken);
 
       TResult result;
       try {
-        result = await action(command, commandBehavior, cancellationToken).ConfigureAwait(false);
+        result = await action(command, commandBehavior, cancellationToken).ConfigureAwaitFalse();
       }
       catch (OperationCanceledException) {
+        session?.Events.NotifyDbCommandCanceled(command);
         throw;
       }
       catch (Exception exception) {

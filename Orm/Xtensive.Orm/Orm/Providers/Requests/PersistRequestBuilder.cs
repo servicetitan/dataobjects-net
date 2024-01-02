@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Providers
           batch.Add(request.Statement);
           bindings.UnionWith(request.ParameterBindings);
         }
-        var batchRequest = CreatePersistRequest(batch, bindings, node.Configuration);
+        var batchRequest = new PersistRequest(driver, batch, bindings);
         batchRequest.Prepare();
         return new List<PersistRequest> { batchRequest }.AsSafeWrapper();
       }
@@ -72,16 +72,18 @@ namespace Xtensive.Orm.Providers
         var query = SqlDml.Insert(tableRef);
         var bindings = new List<PersistParameterBinding>();
 
+        var row = new Dictionary<SqlColumn, SqlExpression>(index.Columns.Count);
         foreach (var column in index.Columns) {
           var fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0) {
             var binding = GetBinding(context, column, table, fieldIndex);
-            query.Values.SetValueByColumn(tableRef[column.Name], binding.ParameterReference);
+            row.Add(tableRef[column.Name], binding.ParameterReference);
             bindings.Add(binding);
           }
         }
+        query.ValueRows.Add(row);
 
-        result.Add(CreatePersistRequest(query, bindings, context.NodeConfiguration));
+        result.Add(new PersistRequest(driver, query, bindings));
       }
       return result;
     }
@@ -122,7 +124,7 @@ namespace Xtensive.Orm.Providers
         if (requiresVersionValidation) {
           query.Where &= BuildVersionFilter(context, tableRef, bindings);
         }
-        result.Add(CreatePersistRequest(query, bindings,context.NodeConfiguration));
+        result.Add(new PersistRequest(driver, query, bindings));
       }
 
       return result;
@@ -140,7 +142,7 @@ namespace Xtensive.Orm.Providers
         if (context.Task.ValidateVersion) {
           query.Where &= BuildVersionFilter(context, tableRef, bindings);
         }
-        result.Add(CreatePersistRequest(query, bindings, context.NodeConfiguration));
+        result.Add(new PersistRequest(driver, query, bindings));
       }
       return result;
     }
@@ -189,13 +191,6 @@ namespace Xtensive.Orm.Providers
         currentBindings.Add(binding);
       }
       return result;
-    }
-
-    protected PersistRequest CreatePersistRequest(SqlStatement query, IEnumerable<PersistParameterBinding> bindings, NodeConfiguration nodeConfiguration)
-    {
-      return Handlers.Domain.Configuration.ShareStorageSchemaOverNodes
-        ? new PersistRequest(driver, query, bindings, nodeConfiguration)
-        : new PersistRequest(driver, query, bindings);
     }
 
     private bool AddFakeVersionColumnUpdate(PersistRequestBuilderContext context, SqlUpdate update, SqlTableRef filteredTable)

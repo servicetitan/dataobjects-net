@@ -6,11 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -74,6 +71,61 @@ namespace Xtensive.Orm
       var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(tag) });
       return source.Provider.CreateQuery(expression);
     }
+    
+    /// <summary>
+    /// Add index hint to query with given <paramref name="indexName"/> string
+    /// </summary>
+    /// <typeparam name="TSource">The type of the source element.</typeparam>
+    /// <typeparam name="TEntity">The type of the entity to try to apply index to</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="indexName">The index name</param>
+    /// <returns>The same sequence, but with index hint applied to query.</returns>
+    public static IQueryable<TSource> WithIndexHint<TSource, TEntity>(this IQueryable<TSource> source, string indexName)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(indexName, "indexName");
+
+      var providerType = source.Provider.GetType();
+      if (providerType != WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExWithIndexHintDoesNotSupportQueryProviderOfTypeX;
+        throw new NotSupportedException(string.Format(errorMessage, providerType));
+      }
+
+      var genericMethod = WellKnownMembers.Queryable.ExtensionWithIndexHint.MakeGenericMethod(typeof(TSource), typeof(TEntity));
+      var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(indexName)});
+      return source.Provider.CreateQuery<TSource>(expression);
+    }  
+    
+    /// <summary>
+    /// Add index hint to query with given <paramref name="indexName"/> string
+    /// </summary>
+    /// <typeparam name="TSource">The type of the source element.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="indexName">The index name</param>
+    /// <returns>The same sequence, but with index hint applied to query.</returns>
+    public static IQueryable<TSource> WithIndexHint<TSource>(this IQueryable<TSource> source, string indexName) => source.WithIndexHint<TSource, TSource>(indexName);
+
+    /// <summary>
+    /// Add index hint to query with given <paramref name="indexName"/> string
+    /// </summary>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="indexName">The index name</param>
+    /// <returns>The same sequence, but with index hint applied to query.</returns>
+    public static IQueryable WithIndexHint(this IQueryable source, string indexName)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(indexName, "indexName");
+
+      var providerType = source.Provider.GetType();
+      if (providerType != WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExWithIndexHintDoesNotSupportQueryProviderOfTypeX;
+        throw new NotSupportedException(string.Format(errorMessage, providerType));
+      }
+
+      var genericMethod = WellKnownMembers.Queryable.ExtensionWithIndexHint.MakeGenericMethod(new[] { source.ElementType, source.ElementType });
+      var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(indexName)});
+      return source.Provider.CreateQuery(expression);
+    } 
 
     /// <summary>
     /// Returns the number of elements in <paramref name="source"/> sequence.
@@ -316,7 +368,7 @@ namespace Xtensive.Orm
     public static async Task<QueryResult<T>> ExecuteAsync<T>(this IQueryable<T> source, CancellationToken cancellationToken)
     {
       return source.Provider is QueryProvider queryProvider
-        ? await queryProvider.ExecuteSequenceAsync<T>(source.Expression, cancellationToken).ConfigureAwait(false)
+        ? await queryProvider.ExecuteSequenceAsync<T>(source.Expression, cancellationToken).ConfigureAwaitFalse()
         : new QueryResult<T>(source.AsEnumerable());
     }
 

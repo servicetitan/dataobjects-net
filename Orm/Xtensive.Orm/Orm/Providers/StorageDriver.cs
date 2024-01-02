@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Providers
     public async Task<SqlExtractionResult> ExtractAsync(
       SqlConnection connection, IEnumerable<SqlExtractionTask> tasks, CancellationToken token)
     {
-      var result = await underlyingDriver.ExtractAsync(connection, tasks, token).ConfigureAwait(false);
+      var result = await underlyingDriver.ExtractAsync(connection, tasks, token).ConfigureAwaitFalse();
       FixExtractionResult(result);
       return result;
     }
@@ -88,16 +88,6 @@ namespace Xtensive.Orm.Providers
         DatabaseQualifiedObjects = configuration.IsMultidatabase,
         ParametrizeSchemaNames = configuration.ShareQueryCacheOverNodes,
         CommentLocation = configuration.TagsLocation.ToCommentLocation(),
-      };
-      return underlyingDriver.Compile(statement, options);
-    }
-
-    [Obsolete]
-    public SqlCompilationResult Compile(ISqlCompileUnit statement, NodeConfiguration nodeConfiguration)
-    {
-      var options = new SqlCompilerConfiguration {
-        DatabaseQualifiedObjects = configuration.IsMultidatabase,
-        CommentLocation = configuration.TagsLocation.ToCommentLocation()
       };
       return underlyingDriver.Compile(statement, options);
     }
@@ -204,7 +194,11 @@ namespace Xtensive.Orm.Providers
           throw new NotSupportedException(string.Format(Strings.ExConnectionAccessorXHasNoParameterlessConstructor, type));
         }
 
+#if NET8_0_OR_GREATER
+        var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.CachedMakeGenericMethodInvoker(type).Invoke(null);
+#else
         var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.CachedMakeGenericMethod(type).Invoke(null, null);
+#endif
         instances.Add(accessorFactory());
         factoriesLocal[type] = accessorFactory;
       }
@@ -253,7 +247,7 @@ namespace Xtensive.Orm.Providers
       };
 
       var driver = await driverFactory.GetDriverAsync(configuration.ConnectionInfo, driverConfiguration, token)
-        .ConfigureAwait(false);
+        .ConfigureAwaitFalse();
       var providerInfo = ProviderInfoBuilder.Build(configuration.ConnectionInfo.Provider, driver);
 
       return new StorageDriver(driver, providerInfo, configuration, GetNullModel, factories);

@@ -50,7 +50,8 @@ namespace Xtensive.Orm.Providers
       var methodType = method.DeclaringType;
 
       // There no methods in IComparable except CompareTo so checking only DeclatingType.
-      bool isCompareTo = methodType==WellKnownInterfaces.Comparable || methodType.IsGenericType(WellKnownInterfaces.ComparableOfT);
+      bool isCompareTo = methodType==WellKnownInterfaces.Comparable
+        || (methodType.IsGenericType && methodType.GetGenericTypeDefinition() == WellKnownInterfaces.ComparableOfT);
 
       bool isVbStringCompare = method.DeclaringType.FullName=="Microsoft.VisualBasic.CompilerServices.Operators" 
         && method.Name=="CompareString" 
@@ -219,14 +220,12 @@ namespace Xtensive.Orm.Providers
 
     private static bool IsDateTimeExpression(Expression expression) =>
       IsExpressionOf(expression, WellKnownTypes.DateTime);
-#if NET6_0_OR_GREATER
 
     private static bool IsDateOnlyExpression(Expression expression) =>
       IsExpressionOf(expression, WellKnownTypes.DateOnly);
 
     private static bool IsTimeOnlyExpression(Expression expression) =>
       IsExpressionOf(expression, WellKnownTypes.TimeOnly);
-#endif
 
     private static bool IsDateTimeOffsetExpression(Expression expression) =>
       IsExpressionOf(expression, WellKnownTypes.DateTimeOffset);

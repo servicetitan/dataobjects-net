@@ -44,8 +44,7 @@ namespace Xtensive.Orm.Building.Builders
           validators.Add(new EntityValidator());
         }
 
-        var typeInfo = new TypeInfo(context.Model, typeDef.Attributes) {
-          UnderlyingType = typeDef.UnderlyingType,
+        var typeInfo = new TypeInfo(context.Model, typeDef.UnderlyingType, typeDef.Attributes) {
           Name = typeDef.Name,
           MappingName = typeDef.MappingName,
           MappingDatabase = typeDef.MappingDatabase,

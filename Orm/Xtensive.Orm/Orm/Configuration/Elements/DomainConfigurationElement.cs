@@ -53,6 +53,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string PreferTypeIdsAsQueryParametersElementName = "preferTypeIdsAsQueryParameters";
     private const string TagsLocationElementName = "tagsLocation";
     private const string TaggingBehaviorElementName = "taggingBehavior";
+    private const string MaxNumberOfConditionsElementName = "maxNumberOfConditions";
 
 
     /// <inheritdoc/>
@@ -425,7 +426,17 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// Converts the element to a native configuration object it corresponds to -
+    /// <see cref="DomainConfiguration.MaxNumberOfConditions" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(MaxNumberOfConditionsElementName, DefaultValue = WellKnown.DefaultMaxNumberOfConditions)]
+    public int MaxNumberOfConditions
+    {
+      get { return (int) this[MaxNumberOfConditionsElementName]; }
+      set { this[MaxNumberOfConditionsElementName] = value; }
+    }
+
+    /// <summary>
+    /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="DomainConfiguration"/> object.
     /// </summary>
     /// <returns>The result of conversion.</returns>
@@ -459,7 +470,8 @@ namespace Xtensive.Orm.Configuration.Elements
         FullTextChangeTrackingMode = ParseEnum<FullTextChangeTrackingMode>(FullTextChangeTrackingMode),
         VersioningConvention = VersioningConvention.ToNative(),
         TagsLocation = (TagsLocation) Enum.Parse(typeof(TagsLocation), TagsLocation, true),
-        TaggingBehavior = (TaggingBehavior) Enum.Parse(typeof(TaggingBehavior), TaggingBehavior, true)
+        TaggingBehavior = (TaggingBehavior) Enum.Parse(typeof(TaggingBehavior), TaggingBehavior, true),
+        MaxNumberOfConditions = MaxNumberOfConditions,
       };
 
       foreach (var element in Types)

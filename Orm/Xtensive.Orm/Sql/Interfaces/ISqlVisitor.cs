@@ -322,11 +322,6 @@ namespace Xtensive.Sql
     /// </summary>
     /// <param name="node">Statement to visit.</param>
     void Visit(SqlDropView node);
-
-    /// <summary>
-    /// Visits <see cref="SqlTruncateTable"/> statement.
-    /// </summary>
-    /// <param name="node">Statement to visit.</param>
     void Visit(SqlTruncateTable node);
 
     /// <summary>
@@ -448,6 +443,12 @@ namespace Xtensive.Sql
     /// </summary>
     /// <param name="node">Node to visit.</param>
     void Visit(SqlNativeHint node);
+    
+    /// <summary>
+    /// Visits <see cref="SqlIndexHint"/> node.
+    /// </summary>
+    /// <param name="node">Node to visit.</param>
+    void Visit(SqlIndexHint node);
 
     /// <summary>
     /// Visits <see cref="SqlNextValue"/> expression.

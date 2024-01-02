@@ -19,7 +19,6 @@ namespace Xtensive.Sql.Compiler
     private volatile int lastResultLength;
 
     private readonly TypeIdRegistry typeIdRegistry;
-    private readonly IReadOnlyDictionary<string, string> schemaMapping;
 
     /// <inheritdoc/>
     public override string ToString()
@@ -75,8 +74,7 @@ namespace Xtensive.Sql.Compiler
 
     internal SqlCompilationResult(IReadOnlyList<Node> result,
       IReadOnlyDictionary<object, string> parameterNames,
-      TypeIdRegistry typeIdRegistry,
-      IReadOnlyDictionary<string, string> schemaMapping
+      TypeIdRegistry typeIdRegistry
       )
     {
       switch (result.Count) {
@@ -92,7 +90,6 @@ namespace Xtensive.Sql.Compiler
       }
       this.parameterNames = parameterNames.Count > 0 ? parameterNames : null;
       this.typeIdRegistry = typeIdRegistry;
-      this.schemaMapping = schemaMapping;
     }
   }
 }

@@ -38,16 +38,38 @@
     <DoIsIdeBuild Condition="$(BuildingInsideVisualStudio) == 'true'">true</DoIsIdeBuild>
 
     <!-- Disable "BinaryFormatter is obsolete" warnings for test projects -->
-    <NoWarn>$(NoWarn);CS0618;CS1570;CS1572;CS1573;CS1574;CS1587;CS1734;</NoWarn>
+    <NoWarn>$(NoWarn);CS0618;CS0672;CS1570;CS1572;CS1573;CS1574;CS1587;CS1734;SYSLIB0050;SYSLIB0051;</NoWarn>
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
+    <!-- Enable Usage of BinaryFormatter in test projects -->
+    <EnableUnsafeBinaryFormatterSerialization
+      Condition="'$(TargetFramework)'=='net8.0' AND $(MSBuildProjectName.Contains('Tests')) == 'true'">true</EnableUnsafeBinaryFormatterSerialization>
+  </PropertyGroup>
+
+  <!-- Debug-NET8, Release-NET8 are mostly for development convenience -->
+  <PropertyGroup Condition = "$(Configuration.Contains('NET8')) == 'true'">
+    <!-- hard binding to net8, no property and env variable allowed-->
+    <TargetFrameworks>net8.0</TargetFrameworks>
+  </PropertyGroup>
+  
+  <!-- Debug-NET7, Release-NET7 are mostly for development convenience -->
+  <PropertyGroup Condition = "$(Configuration.Contains('NET7')) == 'true'">
+    <!-- hard binding to net7, no property and env variable allowed-->
+    <TargetFrameworks>net7.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <!-- Debug-NET6, Release-NET6 are mostly for development convenience -->
+  <PropertyGroup Condition = "$(Configuration.Contains('NET6')) == 'true'">
+    <!-- hard binding to net6, no property and env variable allowed -->
+    <TargetFrameworks>net6.0</TargetFrameworks>
   </PropertyGroup>
 
   <!--Release and Debug are for final builds, builds on build server, etc. Target frameworks are configurable here -->
-  <PropertyGroup Label="Defaults" Condition="$(Configuration.Contains('NET5')) == 'false' AND $(Configuration.Contains('NET6')) == 'false'">
+  <PropertyGroup Label="Defaults"
+      Condition="$(Configuration.Contains('NET8')) == 'false' AND $(Configuration.Contains('NET7')) == 'false' AND $(Configuration.Contains('NET6')) == 'false'">
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>  <!-- the property -->
     <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net7.0</TargetFrameworks> <!-- fallback to default -->
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net8.0</TargetFrameworks> <!-- fallback to default -->
   </PropertyGroup>
 
   <PropertyGroup Condition = "$(Configuration.Contains('Debug')) == 'true'">
@@ -65,8 +87,8 @@
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks> <!-- the property -->
     <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net7.0</TargetFrameworks> <!-- fallback to default -->
-    <LangVersion>9.0</LangVersion>
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net8.0</TargetFrameworks> <!-- fallback to default -->
+    <LangVersion>10.0</LangVersion> <!-- version assigned to net6.0 -->
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -107,8 +129,6 @@
 
   <ItemGroup>
     <SourceRoot Include="$(SolutionDir)"/>
-    <PackageReference Condition="$(DoGeneratePackage) == 'true'"
-                      Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
     <None Include="$(DoPackageIcon)" Visible="false" >
       <PackagePath>.</PackagePath>
       <Pack>true</Pack>
@@ -122,5 +142,6 @@
     <DefineConstants Condition="'$(Configuration)'=='Debug'">$(DefineConstants);DEBUG</DefineConstants>
 
     <DefineConstants Condition="'$(DO_SAFE_COLLECTION_WRAPPER)'=='true'">$(DefineConstants);DO_SAFE_COLLECTION_WRAPPER</DefineConstants>
+    <DefineConstants Condition="'$(DO_CONFIGURE_AWAIT_FALSE)'=='true'">$(DefineConstants);DO_CONFIGURE_AWAIT_FALSE</DefineConstants>
   </PropertyGroup>
 </Project>

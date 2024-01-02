@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -361,7 +362,6 @@ namespace Xtensive.Linq
         Write(c.Value.ToString());
         Write("\")");
       }
-#if NET6_0_OR_GREATER
       else if (type == WellKnownTypes.DateOnly) {
         Write("DateOnly.Parse(\"");
         Write(c.Value.ToString());
@@ -372,7 +372,6 @@ namespace Xtensive.Linq
         Write(c.Value.ToString());
         Write("\")");
       }
-#endif
       else if (c.Value is Type typeValue) {
         Write("typeof(");
         Write(GetTypeName(typeValue));
@@ -445,8 +444,8 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override System.Collections.ObjectModel.ReadOnlyCollection<Expression> VisitExpressionList(
-      System.Collections.ObjectModel.ReadOnlyCollection<Expression> expressions)
+    protected override IReadOnlyList<Expression> VisitExpressionList(
+      IReadOnlyList<Expression> expressions)
     {
       for (int i = 0, n = expressions.Count; i < n; i++) {
         Visit(expressions[i]);

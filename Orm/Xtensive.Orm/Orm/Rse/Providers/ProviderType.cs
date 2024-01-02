@@ -40,5 +40,6 @@ namespace Xtensive.Orm.Rse.Providers
     Paging,
     Tag,
     Void,
+    IndexHint,
   }
 }

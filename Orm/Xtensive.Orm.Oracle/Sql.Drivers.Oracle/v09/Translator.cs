@@ -29,14 +29,12 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'\)";
-#if NET6_0_OR_GREATER
 
     /// <inheritdoc/>
     public override string DateOnlyFormatString => @"'(DATE '\'yyyy\-MM\-dd\'\)";
 
     /// <inheritdoc/>
     public override string TimeOnlyFormatString => @"'(INTERVAL '\'0 HH\:mm\:ss\.fffffff\'\ DAY(0) TO SECOND(7))";
-#endif
 
     /// <inheritdoc/>
     public override string TimeSpanFormatString => "(INTERVAL '{0}{1} {2}:{3}:{4}.{5:000}' DAY(6) TO SECOND(3))";
@@ -325,19 +323,12 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     /// <inheritdoc/>
     public override string Translate(SqlValueType type)
     {
-#if NET6_0_OR_GREATER
       // we need to explicitly specify maximum interval precision
       return type.Type == SqlType.Interval
         ? "INTERVAL DAY(6) TO SECOND(3)"
         : type.Type == SqlType.Time
           ? "INTERVAL DAY(0) TO SECOND(7)"
           : base.Translate(type);
-#else
-      // we need to explicitly specify maximum interval precision
-      return type.Type == SqlType.Interval
-        ? "INTERVAL DAY(6) TO SECOND(3)"
-        : base.Translate(type);
-#endif
     }
 
     /// <inheritdoc/>
@@ -355,7 +346,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
           break;
       }
     }
-#if NET6_0_OR_GREATER
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDatePart datePart)
@@ -380,7 +370,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         base.Translate(output, timePart);
       }
     }
-#endif
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlIntervalPart part)
@@ -417,9 +406,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       switch (type) {
         case SqlNodeType.DateTimeOffsetPlusInterval:
         case SqlNodeType.DateTimePlusInterval:
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval:
-#endif
           _ = output.Append("+"); break;
         case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
         case SqlNodeType.DateTimeOffsetMinusInterval:

@@ -101,7 +101,7 @@ namespace Xtensive.Linq
     /// </summary>
     /// <param name="expressions">The expression list.</param>
     /// <returns>Visit result.</returns>
-    protected virtual IReadOnlyList<TResult> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
+    protected virtual IReadOnlyList<TResult> VisitExpressionList(IReadOnlyList<Expression> expressions)
     {
       var n = expressions.Count;
       var results = new TResult[n];

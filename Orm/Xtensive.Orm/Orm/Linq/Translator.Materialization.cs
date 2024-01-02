@@ -152,23 +152,32 @@ namespace Xtensive.Orm.Linq
       return new Materializer(projectorExpression.CachingCompile());
     }
 
-    private List<Expression> VisitNewExpressionArguments(NewExpression n)
+    private IReadOnlyList<Expression> VisitNewExpressionArguments(NewExpression n)
     {
-      var arguments = new List<Expression>();
-      foreach (var argument in n.Arguments) {
+      var origArguments = n.Arguments;
+      int count = origArguments.Count;
+      var arguments = new Expression[count];
+      for (int i = 0; i < count; i++) {
+        var argument = origArguments[i];
+
         Expression body;
         using (CreateScope(new TranslatorState(State) { CalculateExpressions = false })) {
           body = Visit(argument);
+          if (argument.IsQuery()) {
+            context.RegisterPossibleQueryReuse(n.Members[i]);
+          }
         }
-        body = body.StripMarkers().IsProjection()
+        arguments[i] = body.StripMarkers().IsProjection()
           ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
           : ProcessProjectionElement(body);
-        arguments.Add(body);
       }
       var constructorParameters = n.GetConstructorParameters();
-      for (int i = 0; i < arguments.Count; i++) {
-        if (arguments[i].Type != constructorParameters[i].ParameterType)
-          arguments[i] = Expression.Convert(arguments[i], constructorParameters[i].ParameterType);
+      for (int i = 0; i < count; i++) {
+        var parameterType = constructorParameters[i].ParameterType;
+        ref var argument = ref arguments[i];
+        if (argument.Type != parameterType) {
+          argument = Expression.Convert(argument, parameterType);
+        }
       }
       return arguments;
     }

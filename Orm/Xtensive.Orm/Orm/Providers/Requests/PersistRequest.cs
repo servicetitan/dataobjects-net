@@ -28,8 +28,6 @@ namespace Xtensive.Orm.Providers
 
     public IReadOnlyCollection<PersistParameterBinding> ParameterBindings { get; }
 
-    internal NodeConfiguration NodeConfiguration { get; }
-
     public SqlCompilationResult GetCompiledStatement() =>
       compiledStatement ?? throw new InvalidOperationException(Strings.ExRequestIsNotPrepared);
 
@@ -46,12 +44,6 @@ namespace Xtensive.Orm.Providers
 
     public PersistRequest(
       StorageDriver driver, SqlStatement statement, IEnumerable<PersistParameterBinding> parameterBindings)
-      : this(driver, statement, parameterBindings, null)
-    {
-    }
-
-    public PersistRequest(
-      StorageDriver driver, SqlStatement statement, IEnumerable<PersistParameterBinding> parameterBindings, NodeConfiguration nodeConfiguration)
     {
       ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
       ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
@@ -63,7 +55,6 @@ namespace Xtensive.Orm.Providers
       Statement = statement;
       CompileUnit = compileUnit;
       ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);
-      NodeConfiguration = nodeConfiguration;
     }
   }
 }

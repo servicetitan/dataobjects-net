@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -15,6 +15,7 @@ using Xtensive.Sql.Model;
 using Index = Xtensive.Sql.Model.Index;
 using System.Linq;
 using Xtensive.Core;
+using System.Collections.Generic;
 
 namespace Xtensive.Orm.Tests.Sql.SqlServer
 {
@@ -40,6 +41,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     private DbCommand sqlCommand;
 
     protected virtual bool PerformanceCheck => false;
+
+    protected override bool InMemory => true;
 
     protected virtual int RunsPerGroup => 50;
 
@@ -2703,9 +2706,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var unitMeasure = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["UnitMeasure"]);
       var insert = SqlDml.Insert(unitMeasure);
-      insert.Values.SetValueByColumn(unitMeasure[0], "F2");
-      insert.Values.SetValueByColumn(unitMeasure[1], "Square Feet");
-      insert.Values.SetValueByColumn(unitMeasure[2], SqlDml.CurrentDate());
+      insert.AddValueRow(
+        (unitMeasure[0], "F2"),
+        (unitMeasure[1], "Square Feet"),
+        (unitMeasure[2], SqlDml.CurrentDate())
+      );
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, insert));
     }
@@ -4024,6 +4029,26 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       delete.Where = SqlDml.Not(SqlDml.Exists(select));
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, delete));
+    }
+    
+    [Test]
+    public void Test208()
+    {
+      var nativeSql =
+        "SELECT c.Name SubcategoryName " +
+        "FROM Production.ProductSubcategory c WITH (INDEX=[IndexName])";
+
+      var subcategories = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductSubcategory"], "c");
+
+      var categoryName = subcategories.Columns["Name"];
+
+      var outerSelect = SqlDml.Select(subcategories);
+      outerSelect.Columns.Add(categoryName, "SubcategoryName");
+
+      outerSelect.Lock = SqlLockType.Exclusive;
+      outerSelect.Hints.Add(new SqlIndexHint("IndexName", subcategories));
+
+      Assert.IsTrue(CompareExecuteDataReader(nativeSql, outerSelect));
     }
 
     [Test]

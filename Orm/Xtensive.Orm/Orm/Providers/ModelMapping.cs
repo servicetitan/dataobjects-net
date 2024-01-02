@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.23
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -18,8 +19,8 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed class ModelMapping : LockableBase
   {
-    private readonly Dictionary<TypeInfo, Table> tableMap = new Dictionary<TypeInfo, Table>();
-    private readonly Dictionary<SequenceInfo, SchemaNode> sequenceMap = new Dictionary<SequenceInfo, SchemaNode>();
+    private Table[] tableMap = new Table[1];      // Indexed by TypeInfo.SharedId
+    private readonly Dictionary<SequenceInfo, SchemaNode> sequenceMap = new();
 
     private string temporaryTableDatabase;
     private string temporaryTableSchema;
@@ -27,9 +28,8 @@ namespace Xtensive.Orm.Providers
 
     public string TemporaryTableDatabase
     {
-      get { return temporaryTableDatabase; }
-      set
-      {
+      get => temporaryTableDatabase;
+      set {
         EnsureNotLocked();
         temporaryTableDatabase = value;
       }
@@ -37,9 +37,8 @@ namespace Xtensive.Orm.Providers
 
     public string TemporaryTableSchema
     {
-      get { return temporaryTableSchema; }
-      set
-      {
+      get => temporaryTableSchema;
+      set {
         EnsureNotLocked();
         temporaryTableSchema = value;
       }
@@ -47,38 +46,22 @@ namespace Xtensive.Orm.Providers
 
     public string TemporaryTableCollation
     {
-      get { return temporaryTableCollation; }
-      set
-      {
+      get => temporaryTableCollation;
+      set {
         EnsureNotLocked();
         temporaryTableCollation = value;
       }
     }
 
-    public Table this[TypeInfo typeInfo]
-    {
-      get
-      {
-        Table result;
-        tableMap.TryGetValue(typeInfo, out result);
-        return result;
-      }
-    }
+    public Table this[TypeInfo typeInfo] => typeInfo.SharedId < tableMap.Length ? tableMap[typeInfo.SharedId] : null;
 
-    public SchemaNode this[SequenceInfo sequenceInfo]
-    {
-      get
-      {
-        SchemaNode result;
-        sequenceMap.TryGetValue(sequenceInfo, out result);
-        return result;
-      }
-    }
+    public SchemaNode this[SequenceInfo sequenceInfo] => sequenceMap.GetValueOrDefault(sequenceInfo);
 
     public void Register(TypeInfo typeInfo, Table table)
     {
       EnsureNotLocked();
-      tableMap[typeInfo] = table;
+      Array.Resize(ref tableMap, Math.Max(tableMap.Length, typeInfo.SharedId + 10));
+      tableMap[typeInfo.SharedId] = table;
     }
 
     public void Register(SequenceInfo sequenceInfo, SchemaNode sequence)
@@ -87,15 +70,7 @@ namespace Xtensive.Orm.Providers
       sequenceMap[sequenceInfo] = sequence;
     }
 
-    internal IList<SchemaNode> GetAllSchemaNodes()
-    {
-      return tableMap.Values.Union(sequenceMap.Values).ToList();
-    }
-
-    // Constructors
-
-    internal ModelMapping()
-    {
-    }
+    internal IEnumerable<SchemaNode> GetAllSchemaNodes() =>
+      tableMap.Where(static o => o != null).Union(sequenceMap.Values);
   }
 }

@@ -165,6 +165,9 @@ namespace Xtensive.Orm
       return GetFieldValue(TypeInfo.Fields[fieldName]);
     }
 
+    protected internal T GetFieldValue<T>(int fieldIndex) =>
+      GetNormalizedFieldValue<T>(TypeInfo.PersistentFields[fieldIndex]);
+
     /// <summary>
     /// Gets the field value.
     /// Field value type must be specified precisely.
@@ -173,11 +176,12 @@ namespace Xtensive.Orm
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
-    protected internal T GetFieldValue<T>(FieldInfo field)
+    protected internal T GetFieldValue<T>(FieldInfo field) =>
+      GetNormalizedFieldValue<T>(field.ReflectedType.IsInterface ? TypeInfo.FieldMap[field] : field);
+
+    protected internal T GetNormalizedFieldValue<T>(FieldInfo field)
     {
-      if (field.ReflectedType.IsInterface)
-        field = TypeInfo.FieldMap[field];
-      var fieldAccessor = GetFieldAccessor<T>(field);
+      var fieldAccessor = GetNormalizedFieldAccessor<T>(field);
       T result = default(T);
       try {
         SystemBeforeGetValue(field);
@@ -198,11 +202,13 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
-    protected internal object GetFieldValue(FieldInfo field)
+    protected internal object GetFieldValue(FieldInfo field) =>
+      (field.ReflectedType.IsInterface ? TypeInfo.FieldMap[field] : field) switch {
+        var f => GetNormalizedFieldValue(f, GetNormalizedFieldAccessor(f))
+      };
+
+    private object GetNormalizedFieldValue(FieldInfo field, FieldAccessor fieldAccessor)
     {
-      if (field.ReflectedType.IsInterface)
-        field = TypeInfo.FieldMap[field];
-      var fieldAccessor = GetFieldAccessor(field);
       object result = fieldAccessor.DefaultUntypedValue;
       try {
         SystemBeforeGetValue(field);
@@ -356,6 +362,9 @@ namespace Xtensive.Orm
       SetFieldValue(TypeInfo.Fields[fieldName], value);
     }
 
+    protected internal void SetFieldValue<T>(int fieldIndex, T value) =>
+      SetNormalizedFieldValue(TypeInfo.PersistentFields[fieldIndex], value, null, null);
+
     /// <summary>
     /// Sets the field value.
     /// Field value type must be specified precisely.
@@ -364,12 +373,8 @@ namespace Xtensive.Orm
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
-    protected internal void SetFieldValue<T>(FieldInfo field, T value)
-    {
-      if (field.ReflectedType.IsInterface)
-        field = TypeInfo.FieldMap[field];
+    protected internal void SetFieldValue<T>(FieldInfo field, T value) =>
       SetFieldValue(field, (object) value);
-    }
 
     /// <summary>
     /// Sets the field value.
@@ -383,13 +388,14 @@ namespace Xtensive.Orm
       SetFieldValue(field, value, null, null);
     }
 
-    internal void SetFieldValue(FieldInfo field, object value, SyncContext syncContext, RemovalContext removalContext)
+    internal void SetFieldValue(FieldInfo field, object value, SyncContext syncContext, RemovalContext removalContext) =>
+      SetNormalizedFieldValue(field.ReflectedType.IsInterface ? TypeInfo.FieldMap[field] : field, value, syncContext, removalContext);
+
+    internal void SetNormalizedFieldValue(FieldInfo field, object value, SyncContext syncContext, RemovalContext removalContext)
     {
-      if (field.ReflectedType.IsInterface)
-        field = TypeInfo.FieldMap[field];
       SystemSetValueAttempt(field, value);
-      var fieldAccessor = GetFieldAccessor(field);
-      object oldValue = GetFieldValue(field);
+      var fieldAccessor = GetNormalizedFieldAccessor(field);
+      object oldValue = GetNormalizedFieldValue(field, fieldAccessor);
 
       // Handling 'OldValue != NewValue' problem for structures
       var o = oldValue as Structure;
@@ -775,19 +781,17 @@ namespace Xtensive.Orm
       return Session.Domain.Model.Types[GetType()];
     }
 
-    internal FieldAccessor GetFieldAccessor(FieldInfo field)
-    {
-      if (field.ReflectedType.IsInterface)
-        field = TypeInfo.FieldMap[field];
-      return field.ReflectedType.Accessors.GetFieldAccessor(field);
-    }
+    internal FieldAccessor GetNormalizedFieldAccessor(FieldInfo field) =>
+      field.ReflectedType.Accessors.GetFieldAccessor(field);
 
-    internal FieldAccessor<T> GetFieldAccessor<T>(FieldInfo field)
-    {
-      if (field.ReflectedType.IsInterface)
-        field = TypeInfo.FieldMap[field];
-      return (FieldAccessor<T>) field.ReflectedType.Accessors.GetFieldAccessor(field);
-    }
+    internal FieldAccessor GetFieldAccessor(FieldInfo field) =>
+      GetNormalizedFieldAccessor(field.ReflectedType.IsInterface ? TypeInfo.FieldMap[field] : field);
+
+    private FieldAccessor<T> GetNormalizedFieldAccessor<T>(FieldInfo field) =>
+      (FieldAccessor<T>) field.ReflectedType.Accessors.GetFieldAccessor(field);
+
+    internal FieldAccessor<T> GetFieldAccessor<T>(FieldInfo field) =>
+      GetNormalizedFieldAccessor<T>(field.ReflectedType.IsInterface ? TypeInfo.FieldMap[field] : field);
 
     internal PersistentFieldState GetFieldState(string fieldName)
     {

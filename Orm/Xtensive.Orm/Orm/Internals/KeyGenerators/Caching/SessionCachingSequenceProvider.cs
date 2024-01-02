@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -15,13 +15,11 @@ namespace Xtensive.Orm.Internals.KeyGenerators
   {
     private sealed class CachingSequenceCollection
     {
-      private readonly Dictionary<SequenceInfo, CachingSequence<TValue>> sequences
-        = new Dictionary<SequenceInfo, CachingSequence<TValue>>();
+      private readonly Dictionary<SequenceInfo, CachingSequence<TValue>> sequences = new();
 
       public CachingSequence<TValue> GetSequence(SequenceInfo sequenceInfo, IStorageSequenceAccessor accessor)
       {
-        CachingSequence<TValue> result;
-        if (!sequences.TryGetValue(sequenceInfo, out result)) {
+        if (!sequences.TryGetValue(sequenceInfo, out var result)) {
           result = new CachingSequence<TValue>(accessor, false);
           sequences.Add(sequenceInfo, result);
         }

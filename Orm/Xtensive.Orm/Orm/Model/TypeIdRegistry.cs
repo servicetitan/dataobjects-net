@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Model
@@ -16,18 +17,27 @@ namespace Xtensive.Orm.Model
   [Serializable]
   public sealed class TypeIdRegistry : LockableBase
   {
-    private readonly Dictionary<TypeInfo, int> mapping = new();
-    private readonly Dictionary<int, TypeInfo> reverseMapping = new();
+    private readonly IReadOnlyList<TypeInfo> sharedIdToTypeInfo;
+
+    // Typical case: TypeId is small integer
+    private UInt16[] typeIdToSharedId;
+    private UInt16[] sharedIdToTypeId;
+
+    // For backward compatibility: TypeId may be >= 65536 because of some DB manipulations
+    private Dictionary<TypeInfo, int> mapping;
+    private Dictionary<int, TypeInfo> reverseMapping;
 
     /// <summary>
     /// Gets collection of registered types.
     /// </summary>
-    public IEnumerable<TypeInfo> Types => mapping.Keys;
+    public IEnumerable<TypeInfo> Types =>
+      mapping?.Keys ?? typeIdToSharedId.Select(o => sharedIdToTypeInfo[o]).OfType<TypeInfo>();
 
     /// <summary>
     /// Gets collection of registered type identifiers.
     /// </summary>
-    public IEnumerable<int> TypeIdentifiers => reverseMapping.Keys;
+    public IEnumerable<int> TypeIdentifiers =>
+      reverseMapping?.Keys ?? sharedIdToTypeId.Where(o => o != TypeInfo.NoTypeId).Select(o => (int)o);
 
     /// <summary>
     /// Gets type identifier for the specified <paramref name="type"/>.
@@ -38,7 +48,10 @@ namespace Xtensive.Orm.Model
     {
       get {
         ArgumentValidator.EnsureArgumentNotNull(type, "type");
-        return !mapping.TryGetValue(type, out var result)
+
+        int result = mapping is null ? sharedIdToTypeId[type.SharedId]
+          : mapping.TryGetValue(type, out var r) ? r : 0;
+        return result == 0
           ? throw new KeyNotFoundException(string.Format(Strings.ExTypeXIsNotRegistered, type.Name))
           : result;
       }
@@ -50,9 +63,9 @@ namespace Xtensive.Orm.Model
     /// <param name="typeId">Type identifier to get type for.</param>
     /// <returns>Type for the specified <paramref name="typeId"/>.</returns>
     public TypeInfo this[int typeId] =>
-      !reverseMapping.TryGetValue(typeId, out var result)
-        ? throw new KeyNotFoundException(string.Format(Strings.ExTypeIdXIsNotRegistered, typeId))
-        : result;
+        (mapping is null
+          ? sharedIdToTypeInfo[typeIdToSharedId[typeId]]
+          : reverseMapping.TryGetValue(typeId, out var result) ? result : null) ?? throw new KeyNotFoundException(string.Format(Strings.ExTypeIdXIsNotRegistered, typeId));
 
     /// <summary>
     /// Checks if specified <paramref name="type"/> is registered.
@@ -63,7 +76,7 @@ namespace Xtensive.Orm.Model
     public bool Contains(TypeInfo type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      return mapping.ContainsKey(type);
+      return mapping?.ContainsKey(type) ?? sharedIdToTypeId[type.SharedId] != TypeInfo.NoTypeId;
     }
 
     /// <summary>
@@ -78,7 +91,9 @@ namespace Xtensive.Orm.Model
     public int GetTypeId(TypeInfo type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      return !mapping.TryGetValue(type, out var result) ? TypeInfo.NoTypeId : result;
+      return mapping is null
+        ? sharedIdToTypeId[type.SharedId]
+        : mapping.TryGetValue(type, out var result) ? result : TypeInfo.NoTypeId;
     }
 
     /// <summary>
@@ -88,8 +103,9 @@ namespace Xtensive.Orm.Model
     {
       EnsureNotLocked();
 
-      mapping.Clear();
-      reverseMapping.Clear();
+      sharedIdToTypeId = typeIdToSharedId = null;
+      mapping = null;
+      reverseMapping = null;
     }
 
     /// <summary>
@@ -103,8 +119,35 @@ namespace Xtensive.Orm.Model
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       EnsureNotLocked();
 
+      if (mapping is null) {
+        if ((uint)typeId <= UInt16.MaxValue && type.SharedId <= UInt16.MaxValue) {
+          sharedIdToTypeId ??= new UInt16[1];
+          typeIdToSharedId ??= new UInt16[1];
+          Array.Resize(ref sharedIdToTypeId, Math.Max(type.SharedId + 10, Math.Max(sharedIdToTypeInfo.Count, sharedIdToTypeId.Length)));
+          sharedIdToTypeId[type.SharedId] = (UInt16)typeId;
+          Array.Resize(ref typeIdToSharedId, Math.Max(typeIdToSharedId.Length, typeId + 10));
+          typeIdToSharedId[typeId] = (UInt16) type.SharedId;
+          return;
+        }
+        mapping = new();
+        reverseMapping = new();
+        if (typeIdToSharedId is not null) {
+          for (var sharedId = 1; sharedId < sharedIdToTypeId.Length; ++sharedId) {
+            var tid = sharedIdToTypeId[sharedId];
+            if (tid != 0) {
+              mapping[reverseMapping[tid] = sharedIdToTypeInfo[sharedId]] = tid;
+            }
+          }
+          sharedIdToTypeId = typeIdToSharedId = null;
+        }
+      }
       mapping[type] = typeId;
       reverseMapping[typeId] = type;
+    }
+
+    public TypeIdRegistry(IReadOnlyList<TypeInfo> sharedIdToTypeInfo)
+    {
+      this.sharedIdToTypeInfo = sharedIdToTypeInfo;
     }
   }
 }

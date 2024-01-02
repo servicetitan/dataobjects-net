@@ -68,10 +68,18 @@ namespace Xtensive.Orm.Linq
       return Expression.Call(null, queryAll);
     }
 
-    public static bool IsDirectEntitySetQuery(Expression entitySet) =>
-      ((entitySet as MemberExpression)?.Expression as MemberExpression)?.Expression is Expression wrapper
-      && wrapper.NodeType == ExpressionType.Constant
-      && wrapper.Type.IsGenericType(ownerWrapperType);
+    public static bool IsDirectEntitySetQuery(Expression entitySet)
+    {
+      if (entitySet.NodeType!=ExpressionType.MemberAccess)
+        return false;
+      var owner = ((MemberExpression) entitySet).Expression;
+      if (owner.NodeType!=ExpressionType.MemberAccess)
+        return false;
+      var wrapper = ((MemberExpression) owner).Expression;
+      return wrapper.NodeType == ExpressionType.Constant
+        && wrapper.Type.IsGenericType
+        && wrapper.Type.GetGenericTypeDefinition() == typeof(OwnerWrapper<>);
+    }
 
     public static Expression CreateDirectEntitySetQuery(EntitySetBase entitySet)
     {
@@ -186,7 +194,13 @@ namespace Xtensive.Orm.Linq
     public static Type GetSequenceElementType(Type type)
     {
       var sequenceType = type.GetGenericInterface(WellKnownInterfaces.EnumerableOfT);
-      return sequenceType!=null ? sequenceType.GetGenericArguments()[0] : null;
+      return sequenceType?.GetGenericArguments()[0];
+    }
+
+    public static bool TryGetSequenceElementType(Type type, out Type sequenceElementType)
+    {
+      sequenceElementType = GetSequenceElementType(type);
+      return sequenceElementType != null;
     }
 
     private static Expression BuildExpressionForFieldRecursivly(FieldInfo field, Expression parameter)

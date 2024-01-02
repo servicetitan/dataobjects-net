@@ -26,13 +26,13 @@ namespace Xtensive.Orm.Rse.Transformation
       private readonly ApplyProviderCorrectorRewriter owner;
       private bool isDisposed;
 
-      public 
-        Dictionary<ApplyParameter, List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>>> 
+      public
+        Dictionary<ApplyParameter, List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>>>
         Predicates { get; set; }
 
       public Dictionary<ApplyParameter, bool> SelfConvertibleApplyProviders { get; set; }
 
-      public Dictionary<ApplyParameter, List<Pair<CalculateProvider, ColumnCollection>>> 
+      public Dictionary<ApplyParameter, List<Pair<CalculateProvider, ColumnCollection>>>
         CalculateProviders { get; set; }
 
       public Dictionary<CalculateProvider, List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>>>
@@ -48,9 +48,9 @@ namespace Xtensive.Orm.Rse.Transformation
       public CorrectorState(ApplyProviderCorrectorRewriter owner)
       {
         this.owner = owner;
-        Predicates = 
+        Predicates =
           new Dictionary<ApplyParameter, List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>>>();
-        CalculateProviders = 
+        CalculateProviders =
             new Dictionary<ApplyParameter, List<Pair<CalculateProvider, ColumnCollection>>>();
         CalculateFilters =
           new Dictionary<CalculateProvider, List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>>>();
@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Rse.Transformation
         return ProcesSelfConvertibleApply(provider, left, right);
       }
 
-      CompilableProvider convertedApply = !State.Predicates.ContainsKey(provider.ApplyParameter) 
+      CompilableProvider convertedApply = !State.Predicates.ContainsKey(provider.ApplyParameter)
         ? new PredicateJoinProvider(left, right,(tLeft, tRight) => true, provider.ApplyType)
         : ConvertGenericApply(provider, left, right);
       return InsertCalculateProviders(provider, convertedApply);
@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Rse.Transformation
       if (calculateProviderCollector.TryAddFilter(provider))
         return source;
 
-      var newProvider = source!=provider.Source 
+      var newProvider = source!=provider.Source
         ? new FilterProvider(source, provider.Predicate) : provider;
 
       if (predicateCollector.TryAdd(newProvider))
@@ -179,7 +179,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return newProvider;
     }
 
-    protected override AliasProvider VisitAlias(AliasProvider provider)
+    protected override CompilableProvider VisitAlias(AliasProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       var newProvider = source!=provider.Source ? new AliasProvider(source, provider.Alias) : provider;
@@ -188,7 +188,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return newProvider;
     }
 
-    protected override CompilableProvider VisitSelect(SelectProvider provider)
+    protected override SelectProvider VisitSelect(SelectProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       var newProvider = provider;
@@ -199,7 +199,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return newProvider;
     }
 
-    protected override CompilableProvider VisitJoin(JoinProvider provider)
+    protected override JoinProvider VisitJoin(JoinProvider provider)
     {
       CompilableProvider left;
       CompilableProvider right;
@@ -213,7 +213,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return provider;
     }
 
-    protected override CompilableProvider VisitPredicateJoin(PredicateJoinProvider provider)
+    protected override PredicateJoinProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
       CompilableProvider left;
       CompilableProvider right;
@@ -227,7 +227,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return provider;
     }
 
-    protected override CompilableProvider VisitIntersect(IntersectProvider provider)
+    protected override IntersectProvider VisitIntersect(IntersectProvider provider)
     {
       CompilableProvider left;
       CompilableProvider right;
@@ -237,7 +237,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return provider;
     }
 
-    protected override CompilableProvider VisitExcept(ExceptProvider provider)
+    protected override ExceptProvider VisitExcept(ExceptProvider provider)
     {
       CompilableProvider left;
       CompilableProvider right;
@@ -247,17 +247,15 @@ namespace Xtensive.Orm.Rse.Transformation
       return provider;
     }
 
-    protected override ConcatProvider VisitConcat(ConcatProvider provider)
+    protected override CompilableProvider VisitConcat(ConcatProvider provider)
     {
-      CompilableProvider left;
-      CompilableProvider right;
-      VisitBinaryProvider(provider, out left, out right);
-      if (left != provider.Left || right != provider.Right)
-        return new ConcatProvider(left, right);
-      return provider;
+      VisitBinaryProvider(provider, out var left, out var right);
+      return left == provider.Left && right == provider.Right
+        ? provider
+        : new ConcatProvider(left, right);
     }
 
-    protected override CompilableProvider VisitUnion(UnionProvider provider)
+    protected override UnionProvider VisitUnion(UnionProvider provider)
     {
       CompilableProvider left;
       CompilableProvider right;
@@ -286,7 +284,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return calculateProviderCollector.TryAdd(newProvider) ? source : newProvider;
     }
 
-    protected override CompilableProvider VisitTake(TakeProvider provider)
+    protected override TakeProvider VisitTake(TakeProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       EnsureAbsenceOfApplyProviderRequiringConversion();
@@ -295,7 +293,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return provider;
     }
 
-    protected override CompilableProvider VisitSkip(SkipProvider provider)
+    protected override SkipProvider VisitSkip(SkipProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       EnsureAbsenceOfApplyProviderRequiringConversion();

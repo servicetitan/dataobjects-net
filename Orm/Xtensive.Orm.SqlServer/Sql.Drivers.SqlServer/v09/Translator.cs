@@ -3,6 +3,7 @@
 // See the License.txt file in the project root for more information.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -20,10 +21,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   internal class Translator : SqlTranslator
   {
     public override string DateTimeFormatString => @"'cast ('\'yyyy\-MM\-ddTHH\:mm\:ss\.fff\'' as datetime)'";
-#if NET6_0_OR_GREATER
     public override string DateOnlyFormatString => @"'cast ('\'yyyy\-MM\-dd\'' as date)'";
     public override string TimeOnlyFormatString => @"'cast ('\'HH\:mm\:ss\.fff\'' as time)'";
-#endif
     public override string TimeSpanFormatString => string.Empty;
 
     public override void Initialize()
@@ -478,14 +477,47 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         return;
       }
 
-      var select = context.GetTraversalPath()
+      ICollection<SqlIndexHint> indexHints = null;
+
+      var select = context
+        .GetTraversalPath()
         .OfType<SqlSelect>()
-        .Where(s => s.Lock != SqlLockType.Empty)
-        .FirstOrDefault();
-      if (select != null) {
-        _ = context.Output.Append(" WITH (");
+        .FirstOrDefault(s => (s.Lock != SqlLockType.Empty) | TryGetIndexHints(s, out indexHints));
+
+      if (select == null) {
+        return;
+      }
+
+      var withClauseBodyStarted = false;
+      
+      _ = context.Output.Append(" WITH (");
+      
+      if (select.Lock != SqlLockType.Empty) {
         Translate(context.Output, select.Lock);
-        _ = context.Output.Append(")");
+        withClauseBodyStarted = true;
+      }
+
+      foreach (var indexHint in indexHints ?? Enumerable.Empty<SqlIndexHint>()) {
+        if(withClauseBodyStarted) {
+          context.Output.Append(", ");
+        }
+          
+        context.Output.Append($"INDEX=[{indexHint.IndexName}]");
+        withClauseBodyStarted = true;
+      }
+
+      _ = context.Output.Append(")");
+
+      bool TryGetIndexHints(SqlQueryStatement sqlSelect, out ICollection<SqlIndexHint> hints)
+      {
+        hints = sqlSelect.Hints
+          .Where(x => x is SqlIndexHint)
+          .Cast<SqlIndexHint>()
+          .Where(x => x.From.DataTable == node.DataTable)
+          .DistinctBy(x => x.IndexName)
+          .ToList();
+        
+        return hints.Any();
       }
     }
 
@@ -562,13 +594,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case long v:
           _ = output.Append($"CAST({v} as BIGINT)");
           break;
-#if NET6_0_OR_GREATER
         case DateOnly dateOnly:
           var dateOnlyRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
           var newDateOnly = ValueRangeValidator.Correct(dateOnly.ToDateTime(TimeOnly.MinValue), dateOnlyRange).Date;
           output.Append(newDateOnly.ToString(DateOnlyFormatString, DateTimeFormat));
           break;
-#endif
         default:
           base.Translate(context, literalValue);
           break;

@@ -18,6 +18,8 @@ namespace Xtensive.Orm
 {
   public partial class Session
   {
+    private static readonly IDisposable EmptyDisposable = new Disposable(b => { return; });
+
     private bool disableAutoSaveChanges;
     private KeyRemapper remapper;
     private bool persistingIsFailed;
@@ -81,10 +83,10 @@ namespace Xtensive.Orm
     public async Task SaveChangesAsync(CancellationToken token = default)
     {
       if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
-        await SaveLocalChangesAsync(token).ConfigureAwait(false);
+        await SaveLocalChangesAsync(token).ConfigureAwaitFalse();
       }
       else {
-        await PersistAsync(PersistReason.Manual, token).ConfigureAwait(false);
+        await PersistAsync(PersistReason.Manual, token).ConfigureAwaitFalse();
       }
     }
 
@@ -95,6 +97,9 @@ namespace Xtensive.Orm
     /// <exception cref="NotSupportedException">Unable to cancel changes for non-disconnected session. Use transaction boundaries to control the state.</exception>
     public void CancelChanges()
     {
+      if (IsDisposed) {
+        return;
+      }
       SystemEvents.NotifyChangesCanceling();
       Events.NotifyChangesCanceling();
 
@@ -109,7 +114,7 @@ namespace Xtensive.Orm
     internal void Persist(PersistReason reason) => Persist(reason, false).GetAwaiter().GetResult();
 
     internal async Task PersistAsync(PersistReason reason, CancellationToken token = default) =>
-      await Persist(reason, true, token).ConfigureAwait(false);
+      await Persist(reason, true, token).ConfigureAwaitFalse();
 
     private async ValueTask Persist(PersistReason reason, bool isAsync, CancellationToken token = default)
     {
@@ -155,14 +160,14 @@ namespace Xtensive.Orm
           }
 
           if (LazyKeyGenerationIsEnabled) {
-            await RemapEntityKeys(remapper.Remap(itemsToPersist), isAsync, token).ConfigureAwait(false);
+            await RemapEntityKeys(remapper.Remap(itemsToPersist), isAsync, token).ConfigureAwaitFalse();
           }
 
           ApplyEntitySetsChanges();
           var persistIsSuccessful = false;
           try {
             if (isAsync) {
-              await Handler.PersistAsync(itemsToPersist, reason == PersistReason.Query, token).ConfigureAwait(false);
+              await Handler.PersistAsync(itemsToPersist, reason == PersistReason.Query, token).ConfigureAwaitFalse();
             }
             else {
               Handler.Persist(itemsToPersist, reason == PersistReason.Query);
@@ -215,7 +220,7 @@ namespace Xtensive.Orm
       finally {
         IsPersisting = false;
         if (isAsync) {
-          await ts.DisposeAsync().ConfigureAwait(false);
+          await ts.DisposeAsync().ConfigureAwaitFalse();
         }
         else {
           ts.Dispose();
@@ -224,7 +229,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Temporarily disables all save changes operations (both explicit ant automatic) 
+    /// Temporarily disables all save changes operations (both explicit ant automatic)
     /// for specified <paramref name="target"/>.
     /// Such entity is prevented from being persisted to the database,
     /// when <see cref="SaveChanges"/> is called or query is executed.
@@ -234,16 +239,20 @@ namespace Xtensive.Orm
     /// all entities that reference <paramref name="target"/> are also pinned automatically.
     /// </summary>
     /// <param name="target">The entity to disable persisting.</param>
-    /// <returns>A special object that controls lifetime of such behavior if <paramref name="target"/> was not previously processed by the method,
-    /// otherwise <see langword="null"/>.</returns>
+    /// <returns>
+    /// A special object that controls lifetime of such behavior if <paramref name="target"/> was not previously processed by the method
+    /// and automatic saving of changes is enabled (<see cref="SessionOptions.AutoSaveChanges"/>),
+    /// otherwise <see langword="null"/>.
+    /// </returns>
     public IDisposable DisableSaveChanges(IEntity target)
     {
       EnsureNotDisposed();
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      if (!Configuration.Supports(SessionOptions.AutoSaveChanges))
+        return null; // No need to pin in this case
+
       var targetEntity = (Entity) target;
       targetEntity.EnsureNotRemoved();
-      if (!Configuration.Supports(SessionOptions.AutoSaveChanges))
-        return new Disposable(b => {return;}); // No need to pin in this case
       return pinner.RegisterRoot(targetEntity.State);
     }
 
@@ -252,15 +261,15 @@ namespace Xtensive.Orm
     /// Explicit call of <see cref="SaveChanges"/> will lead to flush changes anyway.
     /// If save changes is to be performed due to starting a nested transaction or committing a transaction,
     /// active disabling save changes scope will lead to failure.
-    /// <returns>A special object that controls lifetime of such behavior if there is no active scope,
+    /// <returns>A special object that controls lifetime of such behavior if there is no active scope
+    /// and automatic saving of changes is enabled (<see cref="SessionOptions.AutoSaveChanges"/>),
     /// otherwise <see langword="null"/>.</returns>
     /// </summary>
     public IDisposable DisableSaveChanges()
     {
-      if (!Configuration.Supports(SessionOptions.AutoSaveChanges))
-        return new Disposable(b => { return; }); // No need to pin in this case
-      if (disableAutoSaveChanges)
-        return null;
+      if (!Configuration.Supports(SessionOptions.AutoSaveChanges) || disableAutoSaveChanges) {
+        return null; // No need to pin in these cases
+      }
 
       disableAutoSaveChanges = true;
       return new Disposable(_ => {
@@ -301,9 +310,9 @@ namespace Xtensive.Orm
     {
       Validate();
       var transaction = OpenTransaction(TransactionOpenMode.New);
-      await using (transaction.ConfigureAwait(false)) {
+      await using (transaction.ConfigureAwaitFalse()) {
         try {
-          await PersistAsync(PersistReason.Manual, token).ConfigureAwait(false);
+          await PersistAsync(PersistReason.Manual, token).ConfigureAwaitFalse();
         }
         finally {
           transaction.Complete();
@@ -317,7 +326,7 @@ namespace Xtensive.Orm
         newEntity.Update(null);
         newEntity.PersistenceState = PersistenceState.Removed;
       }
-      
+
       foreach (var modifiedEntity in EntityChangeRegistry.GetItems(PersistenceState.Modified)) {
         modifiedEntity.RollbackDifference();
         modifiedEntity.PersistenceState = PersistenceState.Synchronized;
@@ -357,9 +366,10 @@ namespace Xtensive.Orm
 
     private void ProcessChangesOfEntitySets(Action<EntitySetState> action)
     {
-      var itemsToProcess = EntitySetChangeRegistry.GetItems();
-      foreach (var entitySet in itemsToProcess)
-        action.Invoke(entitySet);
+      if (EntitySetChangeRegistry is not null) {
+        foreach (var entitySet in EntitySetChangeRegistry.GetItems())
+          action.Invoke(entitySet);
+      }
     }
   }
 }

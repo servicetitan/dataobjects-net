@@ -5,9 +5,11 @@
 // Created:    2008.11.07
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Providers;
@@ -20,7 +22,8 @@ namespace Xtensive.Orm
   {
     private const string SavepointNameFormat = "s{0}";
 
-    private readonly StateLifetimeToken sessionLifetimeToken = new StateLifetimeToken();
+    private readonly StateLifetimeToken sessionLifetimeToken;
+    private readonly List<StateLifetimeToken> promotedLifetimeTokens;
     private int nextSavepoint;
 
     /// <summary>
@@ -167,7 +170,7 @@ namespace Xtensive.Orm
 
           return
             isAsync
-              ? await CreateOutermostTransactionAsync(isolationLevel, isAutomatic, token).ConfigureAwait(false)
+              ? await CreateOutermostTransactionAsync(isolationLevel, isAutomatic, token).ConfigureAwaitFalse()
               : CreateOutermostTransaction(isolationLevel, isAutomatic);
         case TransactionOpenMode.New:
           if (isolationLevel == IsolationLevel.Unspecified) {
@@ -177,8 +180,8 @@ namespace Xtensive.Orm
           return
             isAsync
               ? transaction != null
-                ? await CreateNestedTransactionAsync(isolationLevel, isAutomatic, token).ConfigureAwait(false)
-                : await CreateOutermostTransactionAsync(isolationLevel, isAutomatic, token).ConfigureAwait(false)
+                ? await CreateNestedTransactionAsync(isolationLevel, isAutomatic, token).ConfigureAwaitFalse()
+                : await CreateOutermostTransactionAsync(isolationLevel, isAutomatic, token).ConfigureAwaitFalse()
               : transaction != null
                 ? CreateNestedTransaction(isolationLevel, isAutomatic)
                 : CreateOutermostTransaction(isolationLevel, isAutomatic);
@@ -231,11 +234,11 @@ namespace Xtensive.Orm
     internal async Task BeginTransactionAsync(Transaction transaction, CancellationToken token)
     {
       if (transaction.IsNested) {
-        await PersistAsync(PersistReason.NestedTransaction, token).ConfigureAwait(false);
-        await Handler.CreateSavepointAsync(transaction, token).ConfigureAwait(false);
+        await PersistAsync(PersistReason.NestedTransaction, token).ConfigureAwaitFalse();
+        await Handler.CreateSavepointAsync(transaction, token).ConfigureAwaitFalse();
       }
       else {
-        await Handler.BeginTransactionAsync(transaction, token).ConfigureAwait(false);
+        await Handler.BeginTransactionAsync(transaction, token).ConfigureAwaitFalse();
       }
     }
 
@@ -249,7 +252,7 @@ namespace Xtensive.Orm
       Events.NotifyTransactionPrecommitting(transaction);
 
       if (isAsync) {
-        await PersistAsync(PersistReason.Commit).ConfigureAwait(false);
+        await PersistAsync(PersistReason.Commit).ConfigureAwaitFalse();
       }
       else {
         Persist(PersistReason.Commit);
@@ -263,7 +266,7 @@ namespace Xtensive.Orm
       Handler.CompletingTransaction(transaction);
       if (transaction.IsNested) {
         if (isAsync) {
-          await Handler.ReleaseSavepointAsync(transaction).ConfigureAwait(false);
+          await Handler.ReleaseSavepointAsync(transaction).ConfigureAwaitFalse();
         }
         else {
           Handler.ReleaseSavepoint(transaction);
@@ -271,7 +274,7 @@ namespace Xtensive.Orm
       }
       else {
         if (isAsync) {
-          await Handler.CommitTransactionAsync(transaction).ConfigureAwait(false);
+          await Handler.CommitTransactionAsync(transaction).ConfigureAwaitFalse();
         }
         else {
           Handler.CommitTransaction(transaction);
@@ -296,11 +299,11 @@ namespace Xtensive.Orm
         finally {
           try {
             if (Configuration.Supports(SessionOptions.SuppressRollbackExceptions)) {
-              await RollbackWithSuppression(transaction, isAsync).ConfigureAwait(false);
+              await RollbackWithSuppression(transaction, isAsync).ConfigureAwaitFalse();
             }
             else {
               if (isAsync) {
-                await RollbackAsync(transaction).ConfigureAwait(false);
+                await RollbackAsync(transaction).ConfigureAwaitFalse();
               }
               else {
                 Rollback(transaction);
@@ -311,8 +314,8 @@ namespace Xtensive.Orm
             if(!persistingIsFailed || !Configuration.Supports(SessionOptions.NonTransactionalReads)) {
               CancelEntitySetsChanges();
               ClearChangeRegistry();
-              NonPairedReferencesRegistry.Clear();
-              EntitySetChangeRegistry.Clear();
+              NonPairedReferencesRegistry?.Clear();
+              EntitySetChangeRegistry?.Clear();
             }
             persistingIsFailed = false;
           }
@@ -324,7 +327,7 @@ namespace Xtensive.Orm
     {
       try {
         if (isAsync) {
-          await RollbackAsync(transaction).ConfigureAwait(false);
+          await RollbackAsync(transaction).ConfigureAwaitFalse();
         }
         else {
           Rollback(transaction);
@@ -348,16 +351,16 @@ namespace Xtensive.Orm
     private async ValueTask RollbackAsync(Transaction transaction)
     {
       if (transaction.IsNested) {
-        await Handler.RollbackToSavepointAsync(transaction).ConfigureAwait(false);
+        await Handler.RollbackToSavepointAsync(transaction).ConfigureAwaitFalse();
       }
       else {
-        await Handler.RollbackTransactionAsync(transaction).ConfigureAwait(false);
+        await Handler.RollbackTransactionAsync(transaction).ConfigureAwaitFalse();
       }
     }
 
     internal void CompleteTransaction(Transaction transaction)
     {
-      userDefinedQueryTasks.Clear();
+      userDefinedQueryTasks?.Clear();
       pinner.ClearRoots();
       ValidationContext.Reset();
 
@@ -407,19 +410,22 @@ namespace Xtensive.Orm
       throw new InvalidOperationException(Strings.ExCanNotReuseOpenedTransactionRequestedIsolationLevelIsDifferent);
     }
 
-    private string GetNextSavepointName()
-    {
-      return string.Format(SavepointNameFormat, nextSavepoint++);
-    }
+    private string GetNextSavepointName() => $"s{nextSavepoint++}";
 
     private void ClearChangeRegistry()
     {
-      foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New))
+      if (EntityChangeRegistry is null) {
+        return;
+      }
+      foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.New)) {
         item.PersistenceState = PersistenceState.Synchronized;
-      foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Modified))
+      }
+      foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Modified)) {
         item.PersistenceState = PersistenceState.Synchronized;
-      foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed))
+      }
+      foreach (var item in EntityChangeRegistry.GetItems(PersistenceState.Removed)) {
         item.PersistenceState = PersistenceState.Synchronized;
+      }
       EntityChangeRegistry.Clear();
     }
 
@@ -461,7 +467,7 @@ namespace Xtensive.Orm
 
       Transaction = transaction;
       if (isAsync) {
-        await transaction.BeginAsync(token).ConfigureAwait(false);
+        await transaction.BeginAsync(token).ConfigureAwaitFalse();
       }
       else {
         transaction.Begin();
@@ -491,6 +497,15 @@ namespace Xtensive.Orm
       if (Configuration.Supports(SessionOptions.NonTransactionalReads))
         return sessionLifetimeToken;
       throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt);
+    }
+
+    internal bool TryPromoteTokens(IEnumerable<StateLifetimeToken> tokens)
+    {
+      if (promotedLifetimeTokens is null) {
+        return false;
+      }
+      promotedLifetimeTokens.AddRange(tokens);
+      return true;
     }
   }
 }

@@ -305,7 +305,7 @@ namespace Xtensive.Orm.Providers
       if (node.Into != null) {
         Visit(node.Into);
       }
-      foreach (var value in node.Values.Columns.SelectMany(column => node.Values.ValuesByColumn(column))) {
+      foreach (var value in node.ValueRows.SelectMany(row => row)) {
         Visit(value);
       }
     }
@@ -346,6 +346,10 @@ namespace Xtensive.Orm.Providers
     }
 
     public void Visit(SqlNativeHint node)
+    {
+    }
+    
+    public void Visit(SqlIndexHint node)
     {
     }
 
@@ -537,13 +541,6 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    public void VisitNullable(SqlExpression sqlExpression)
-    {
-      if (sqlExpression is not null) {
-        Visit(sqlExpression);
-      }
-    }
-
     public void Visit(SqlStatement sqlStatement)
     {
       sqlStatement.AcceptVisitor(this);
@@ -552,6 +549,13 @@ namespace Xtensive.Orm.Providers
     public void Visit(SqlTable sqlTable)
     {
       sqlTable.AcceptVisitor(this);
+    }
+
+    private void VisitNullable(SqlExpression sqlExpression)
+    {
+      if (sqlExpression is not null) {
+        Visit(sqlExpression);
+      }
     }
 
     private void Visit(ISqlQueryExpression queryExpression)

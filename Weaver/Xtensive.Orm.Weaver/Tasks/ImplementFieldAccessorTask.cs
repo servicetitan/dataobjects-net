@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Weaver.Tasks
   {
     private readonly TypeDefinition type;
     private readonly PropertyDefinition property;
-    private readonly string persistentName;
+    private readonly int persistentIndex;
     private readonly AccessorKind kind;
 
     public override ActionResult Execute(ProcessorContext context)
@@ -42,8 +42,9 @@ namespace Xtensive.Orm.Weaver.Tasks
       body.Instructions.Clear();
       var il = body.GetILProcessor();
       il.Emit(OpCodes.Ldarg_0);
-      il.Emit(OpCodes.Ldstr, persistentName);
+      il.Emit(OpCodes.Ldc_I4, persistentIndex);
       il.Emit(OpCodes.Ldarg_1);
+      il.Emit(OpCodes.Tail);
       il.Emit(OpCodes.Call, accessor);
       il.Emit(OpCodes.Ret);
     }
@@ -56,7 +57,8 @@ namespace Xtensive.Orm.Weaver.Tasks
       body.Instructions.Clear();
       var il = body.GetILProcessor();
       il.Emit(OpCodes.Ldarg_0);
-      il.Emit(OpCodes.Ldstr, persistentName);
+      il.Emit(OpCodes.Ldc_I4, persistentIndex);
+      il.Emit(OpCodes.Tail);
       il.Emit(OpCodes.Call, accessor);
       il.Emit(OpCodes.Ret);
     }
@@ -75,14 +77,14 @@ namespace Xtensive.Orm.Weaver.Tasks
       return result;
     }
 
-    public ImplementFieldAccessorTask(AccessorKind kind, TypeDefinition type, PropertyDefinition property, string persistentName)
+    public ImplementFieldAccessorTask(AccessorKind kind, TypeDefinition type, PropertyDefinition property, int persistentIndex)
     {
       ArgumentNullException.ThrowIfNull(type);
       ArgumentNullException.ThrowIfNull(property);
       this.kind = kind;
       this.type = type;
       this.property = property;
-      this.persistentName = persistentName;
+      this.persistentIndex = persistentIndex;
     }
   }
 }

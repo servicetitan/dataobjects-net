@@ -25,6 +25,7 @@ namespace Xtensive.Core
     /// <param name="item">An item to be looked for.</param>
     /// <returns>A zero based index of the specified <paramref name="item"/> if found;
     /// otherwise <c>-1</c>.</returns>
+    [Obsolete("Don't use Xtensive.Core for IndexOf()")]
     public static int IndexOf<T>(this IReadOnlyList<T> list, T item)
     {
       var comparer = EqualityComparer<T>.Default;

@@ -22,12 +22,10 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
   internal class Translator : SqlTranslator
   {
     public override string DateTimeFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss\.ffffff\'";
-#if NET6_0_OR_GREATER
 
     public override string DateOnlyFormatString => @"\'yyyy\-MM\-dd\'";
 
     public override string TimeOnlyFormatString => @"\'HH\:mm\:ss\.ffffff\'";
-#endif
 
     public override string TimeSpanFormatString => string.Empty;
 
@@ -104,13 +102,11 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SqlFunctionType.DateTimeAddYears:
         case SqlFunctionType.DateTimeAddMonths:
         case SqlFunctionType.DateTimeConstruct:
-#if NET6_0_OR_GREATER
         case SqlFunctionType.DateAddYears:
         case SqlFunctionType.DateAddMonths:
         case SqlFunctionType.DateAddDays:
         case SqlFunctionType.DateConstruct:
         case SqlFunctionType.TimeConstruct:
-#endif
         case SqlFunctionType.IntervalToMilliseconds:
           return;
         //string
@@ -164,16 +160,12 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
        switch (type) {
         case SqlNodeType.Concat: _ = output.Append(","); break;
         case SqlNodeType.DateTimePlusInterval:
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval:
-#endif
           _ = output.Append("+");
           break;
         case SqlNodeType.DateTimeMinusInterval:
         case SqlNodeType.DateTimeMinusDateTime:
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimeMinusTime:
-#endif
           _ = output.Append("-"); break;
         case SqlNodeType.Equals: _ = output.Append("="); break;
         case SqlNodeType.NotEquals: _ = output.Append("<>"); break;
@@ -521,7 +513,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         default: base.Translate(output, dateTimePart); break;
       }
     }
-#if NET6_0_OR_GREATER
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDatePart datePart)
@@ -544,7 +535,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         default: base.Translate(output, dateTimePart); break;
       }
     }
-#endif
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlLockType lockType)

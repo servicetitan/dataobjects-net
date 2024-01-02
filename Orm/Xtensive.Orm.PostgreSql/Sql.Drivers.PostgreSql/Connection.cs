@@ -10,6 +10,7 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Drivers.PostgreSql
 {
@@ -46,7 +47,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       activeTransaction = underlyingConnection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
     }
 
-    public override void Commit()
+    public override void Commit(bool rollbackOnFail = false)
     {
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
@@ -56,13 +57,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql
           ActiveTransaction.Commit();
         }
       }
+      catch when (rollbackOnFail) {
+        ActiveTransaction.Rollback();
+        throw;
+      }
       finally {
         ActiveTransaction.Dispose();
         ClearActiveTransaction();
       }
     }
 
-    public override async Task CommitAsync(CancellationToken token = default)
+    public override async Task CommitAsync(bool rollbackOnFail = false, CancellationToken token = default)
     {
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
@@ -70,6 +75,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         if (!IsTransactionCompleted()) {
           await ActiveTransaction.CommitAsync(token).ConfigureAwait(false);
         }
+      }
+      catch when (rollbackOnFail) {
+        await ActiveTransaction.RollbackAsync(token).ConfigureAwaitFalse();;
+        throw;
       }
       finally {
         await ActiveTransaction.DisposeAsync().ConfigureAwait(false);

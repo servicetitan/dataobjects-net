@@ -12,17 +12,18 @@ namespace Xtensive.Orm
   /// <summary>
   /// Table mapping attribute.
   /// </summary>
+  [Obsolete("Deprecated due to problems with Model Upgrade. Create new Entity class instead and copy data to it by Upgrade Handler or Content Upgrade")]
   [Serializable]
-  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property, 
+  [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property,
     AllowMultiple = false, Inherited = false)]
   public sealed class TableMappingAttribute : StorageAttribute
   {
     /// <summary>
-    /// Gets the base part of the field's related column name 
+    /// Gets the base part of the field's related column name
     /// or the base part of the class' related table name.
     /// </summary>
     /// <remarks>
-    /// You can use the following characters in <see cref="Name"/>s: [_A-Za-z0-9-.]. 
+    /// You can use the following characters in <see cref="Name"/>s: [_A-Za-z0-9-.].
     /// <see cref="Name"/> can't be an empty string or <see langword="null"/>.
     /// </remarks>
     public string Name { get; private set; }

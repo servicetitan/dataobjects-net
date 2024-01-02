@@ -228,7 +228,7 @@ namespace Xtensive.Orm.Tests.Linq
         var depth = 1;
         XmlNode itemNode = document.CreateElement("Item" + itemIndex);
 
-        if (value == null || !value.GetType().IsGenericType || (value.GetType().IsGenericType && value.GetType().CachedGetGenericTypeDefinition() != typeof(Grouping<,>))) {
+        if (value == null || !value.GetType().IsGenericType || (value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() != typeof(Grouping<,>))) {
           itemNode = document.CreateElement("Item" + itemIndex);
           itemIndex++;
           parentNode.AppendChild(itemNode);
@@ -299,8 +299,8 @@ namespace Xtensive.Orm.Tests.Linq
 
       else {
         if (property.PropertyType.IsGenericType &&
-          (property.PropertyType.CachedGetGenericTypeDefinition() == typeof(IQueryable<>)
-            || (property.PropertyType.CachedGetGenericTypeDefinition() == typeof(IEnumerable<>)))) {
+          (property.PropertyType.GetGenericTypeDefinition() == typeof(IQueryable<>)
+            || (property.PropertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>)))) {
           var enumerable = (IEnumerable) property.GetValue(value, property.GetIndexParameters());
           var list = new List<object>();
           foreach (var o in enumerable)
@@ -559,7 +559,7 @@ namespace Xtensive.Orm.Tests.Linq
         if (o != null) {
           var type = o.GetType();
           if (type.IsGenericType) {
-            var genericTypeDefinition = type.CachedGetGenericTypeDefinition();
+            var genericTypeDefinition = type.GetGenericTypeDefinition();
             if (genericTypeDefinition == typeof(IQueryable<>)
                 || genericTypeDefinition == typeof(IEnumerable<>)
                 || genericTypeDefinition == typeof(SubQuery<>)
