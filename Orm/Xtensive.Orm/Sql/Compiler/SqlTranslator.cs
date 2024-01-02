@@ -1571,20 +1571,8 @@ namespace Xtensive.Sql.Compiler
     public virtual void Translate(SqlCompilerContext context, SqlOpenCursor node) =>
       context.Output.Append("OPEN ").Append(node.Cursor.Name);
 
-    /// <summary>
-    /// Translates <see cref="SqlOrder"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Node to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlOrder node, NodeSection section)
-    {
-      switch (section) {
-        case NodeSection.Exit:
-          TranslateSortOrder(context.Output, node.Ascending);
-          break;
-      }
-    }
+    public virtual void OrderExit(SqlCompilerContext context, SqlOrder node) =>
+      TranslateSortOrder(context.Output, node.Ascending);
 
     /// <summary>
     /// Translates <see cref="SqlQueryExpression"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.

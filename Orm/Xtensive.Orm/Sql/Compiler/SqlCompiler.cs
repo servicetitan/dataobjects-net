@@ -1406,7 +1406,6 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
         AppendSpaceIfNecessary();
-        translator.Translate(context, node, NodeSection.Entry);
         if (node.Expression is not null) {
           node.Expression.AcceptVisitor(this);
         }
@@ -1414,7 +1413,7 @@ namespace Xtensive.Sql.Compiler
           _ = context.Output.Append(node.Position.ToString());
         }
         AppendSpace();
-        translator.Translate(context, node, NodeSection.Exit);
+        translator.OrderExit(context, node);
       }
     }
 
