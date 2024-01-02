@@ -1390,45 +1390,40 @@ namespace Xtensive.Sql.Compiler
     public virtual void IfExit(SqlCompilerContext context) =>
       context.Output.AppendSpaceIfNecessary().Append("END");
 
-    /// <summary>
-    /// Translates <see cref="SqlInsert"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Statement to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlInsert node, InsertSection section)
+    public virtual void InsertEntry(SqlCompilerContext context) =>
+      context.Output.Append("INSERT INTO");
+
+    public virtual void InsertColumnsEntry(SqlCompilerContext context, SqlInsert node)
     {
-      var output = context.Output;
-      switch (section) {
-        case InsertSection.Entry:
-          _ = output.Append("INSERT INTO");
-          break;
-        case InsertSection.ColumnsEntry when node.ValueRows.Count > 0:
-          _ = output.AppendOpeningPunctuation("(");
-          break;
-        case InsertSection.ColumnsExit when node.ValueRows.Count > 0:
-          _ = output.Append(")");
-          break;
-        case InsertSection.From:
-          _ = output.Append("FROM");
-          break;
-        case InsertSection.ValuesEntry when node.ValueRows.Count == 0:
-          _ = output.AppendOpeningPunctuation("VALUES (");
-          break;
-        case InsertSection.ValuesEntry when node.ValueRows.Count > 0:
-          _ = output.AppendOpeningPunctuation("VALUES ");
-          break;
-        case InsertSection.ValuesExit when node.ValueRows.Count == 0:
-          _ = output.Append(")");
-          break;
-        case InsertSection.DefaultValues:
-          _ = output.Append("DEFAULT VALUES");
-          break;
-        case InsertSection.NewRow:
-          _ = output.Append("), (");
-          break;
+      context.Output.AppendSpaceIfNecessary();
+      if (node.ValueRows.Count > 0) {
+        context.Output.Append("(");
       }
     }
+
+    public virtual void InsertColumnsExit(SqlCompilerContext context, SqlInsert node)
+    {
+      context.Output.AppendSpaceIfNecessary();
+      if (node.ValueRows.Count > 0) {
+        context.Output.Append(")");
+      }
+    }
+
+    public virtual void InsertValuesEntry(SqlCompilerContext context, SqlInsert node) =>
+      context.Output.AppendSpaceIfNecessary().AppendOpeningPunctuation(node.ValueRows.Count == 0 ? "VALUES (" : "VALUES ");
+
+    public virtual void InsertValuesExit(SqlCompilerContext context, SqlInsert node)
+    {
+      context.Output.AppendSpaceIfNecessary();
+      if (node.ValueRows.Count == 0) {
+        context.Output.Append(")");
+      }
+    }
+
+    public virtual void InsertDefaultValues(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().AppendOpeningPunctuation("DEFAULT VALUES");
+
+    public virtual void InsertExit(SqlCompilerContext context) { }
 
     /// <summary>
     /// Translates <see cref="SqlJoinExpression"/> node and writes result to to <see cref="SqlCompilerContext.Output"/>.

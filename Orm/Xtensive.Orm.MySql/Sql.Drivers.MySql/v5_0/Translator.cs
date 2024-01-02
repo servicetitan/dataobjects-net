@@ -348,16 +348,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlInsert node, InsertSection section)
-    {
-      if (section == InsertSection.DefaultValues) {
-        _ = context.Output.Append("() VALUES ()");
-      }
-      else {
-        base.Translate(context, node, section);
-      }
-    }
+    public override void InsertDefaultValues(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().AppendOpeningPunctuation("() VALUES ()");
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlBreak node)

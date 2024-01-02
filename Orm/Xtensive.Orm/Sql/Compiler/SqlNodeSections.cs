@@ -144,19 +144,6 @@ namespace Xtensive.Sql.Compiler
     AlterMinValue = 7,
   }
 
-  public enum InsertSection
-  {
-    Entry = 0,
-    Exit = 1,
-    ColumnsEntry = 2,
-    ColumnsExit = 4,
-    ValuesEntry = 3,
-    ValuesExit = 5,
-    DefaultValues = 6,
-    From = 7,
-    NewRow = 8,
-  }
-
   public enum JoinSection
   {
     Entry = 0,
