@@ -188,15 +188,6 @@ namespace Xtensive.Sql.Compiler
     EmptyArray = 2,
   }
 
-  public enum UpdateSection
-  {
-    Exit = 1,
-    Set = 2,
-    From = 3,
-    Where = 4,
-    Limit = 5,
-  }
-
   public enum QueryExpressionSection
   {
     Entry = 0,

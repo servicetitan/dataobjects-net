@@ -237,18 +237,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     public override void SelectOffset(SqlCompilerContext context, SqlSelect node) =>
       context.Output.AppendSpacePrefixed("SKIP ");
 
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
-    {
-      switch (section) {
-        case UpdateSection.Limit:
-          _ = context.Output.Append("ROWS");
-          break;
-        default:
-          base.Translate(context, node, section);
-          break;
-      }
-    }
+    public override void UpdateLimit(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("ROWS").AppendSpaceIfNecessary();
 
     /// <inheritdoc />
     public override void Translate(SqlCompilerContext context, SqlDelete node, DeleteSection section)

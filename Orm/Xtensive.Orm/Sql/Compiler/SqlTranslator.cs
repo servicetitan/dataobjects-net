@@ -1821,22 +1821,17 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    /// <summary>
-    /// Translates <see cref="SqlUpdate"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Statement to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
-    {
-      _ = context.Output.Append(section switch {
-        UpdateSection.Set => "SET",
-        UpdateSection.From => "FROM",
-        UpdateSection.Where => (node.Where is SqlCursor) ? "WHERE CURRENT OF" : "WHERE",
-        UpdateSection.Limit => "LIMIT",
-        _ => string.Empty
-      });
-    }
+    public virtual void UpdateSet(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("SET").AppendSpaceIfNecessary();
+
+    public virtual void UpdateFrom(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("FROM").AppendSpaceIfNecessary();
+
+    public virtual void UpdateWhere(SqlCompilerContext context, SqlUpdate node) =>
+      context.Output.AppendSpaceIfNecessary().Append((node.Where is SqlCursor) ? "WHERE CURRENT OF" : "WHERE").AppendSpaceIfNecessary();
+
+    public virtual void UpdateLimit(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("LIMIT").AppendSpaceIfNecessary();
 
     public virtual void UpdateEntry(SqlCompilerContext context, SqlUpdate node) =>
       context.Output.Append("UPDATE ");

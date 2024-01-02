@@ -358,17 +358,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
     }
 
-    public override void Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
-    {
-      switch (section) {
-        case UpdateSection.Limit:
-          _ = context.Output.Append("TOP");
-          break;
-        default:
-          base.Translate(context, node, section);
-          break;
-      }
-    }
+    public override void UpdateLimit(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("TOP").AppendSpaceIfNecessary();
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlDelete node, DeleteSection section)

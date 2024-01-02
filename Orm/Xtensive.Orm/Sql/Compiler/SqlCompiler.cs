@@ -1898,7 +1898,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     protected virtual void VisitUpdateSet(SqlUpdate node)
     {
-      AppendTranslated(node, UpdateSection.Set);
+      translator.UpdateSet(context);
 
       using (context.EnterCollectionScope()) {
         foreach (var item in node.Values.Keys) {
@@ -1921,7 +1921,7 @@ namespace Xtensive.Sql.Compiler
     protected virtual void VisitUpdateFrom(SqlUpdate node)
     {
       if (Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateFrom) && node.From != null) {
-        AppendTranslated(node, UpdateSection.From);
+        translator.UpdateFrom(context);
         node.From.AcceptVisitor(this);
       }
     }
@@ -1933,7 +1933,7 @@ namespace Xtensive.Sql.Compiler
     protected virtual void VisitUpdateWhere(SqlUpdate node)
     {
       if (node.Where is not null) {
-        AppendTranslated(node, UpdateSection.Where);
+        translator.UpdateWhere(context, node);
         node.Where.AcceptVisitor(this);
       }
     }
@@ -1949,7 +1949,7 @@ namespace Xtensive.Sql.Compiler
           throw new NotSupportedException(Strings.ExStorageIsNotSupportedLimitationOfRowCountToUpdate);
         }
 
-        AppendTranslated(node, UpdateSection.Limit);
+        translator.UpdateLimit(context);
         node.Limit.AcceptVisitor(this);
       }
     }
@@ -1958,7 +1958,9 @@ namespace Xtensive.Sql.Compiler
     /// Visits end part of <see cref="SqlUpdate"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    protected virtual void VisitUpdateExit(SqlUpdate node) => AppendTranslatedExit(node);
+    protected virtual void VisitUpdateExit(SqlUpdate node)
+    {
+    }
 
     /// <summary>
     /// Visits <see cref="SqlPlaceholder"/> expression.
@@ -2690,16 +2692,6 @@ namespace Xtensive.Sql.Compiler
 
     protected void AppendTranslated(SqlUnary node, NodeSection section) =>
       translator.Translate(context, node, section);
-
-    protected void AppendTranslated(SqlUpdate node, UpdateSection section)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslatedExit(SqlUpdate node) =>
-      translator.Translate(context, node, UpdateSection.Exit);
 
     protected void AppendTranslatedEntry(SqlUserColumn node)
     {
