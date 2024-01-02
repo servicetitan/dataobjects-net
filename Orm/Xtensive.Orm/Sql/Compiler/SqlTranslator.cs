@@ -1257,27 +1257,14 @@ namespace Xtensive.Sql.Compiler
       _ = context.Output.Append(node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
-    /// <summary>
-    /// Translates <see cref="SqlFetch"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Statement to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
+    public virtual void FetchEntry(SqlCompilerContext context, SqlFetch node) =>
+      context.Output.Append("FETCH ").Append(node.Option.ToString());
+
+    public virtual void FetchTarget(SqlCompilerContext context, SqlFetch node)
     {
-      var output = context.Output;
-      switch (section) {
-        case FetchSection.Entry:
-          _ = context.Output.Append("FETCH ")
-            .Append(node.Option.ToString());
-          break;
-        case FetchSection.Targets:
-          _ = context.Output.Append("FROM ")
-            .Append(node.Cursor.Name);
-          if (node.Targets.Count != 0) {
-            _ = context.Output.Append(" INTO");
-          }
-          break;
+      _ = context.Output.AppendSpaceIfNecessary().Append("FROM ").Append(node.Cursor.Name);
+      if (node.Targets.Count != 0) {
+        _ = context.Output.Append(" INTO");
       }
     }
 

@@ -1162,15 +1162,14 @@ namespace Xtensive.Sql.Compiler
     public virtual void Visit(SqlFetch node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslatedEntry(node);
+        translator.FetchEntry(context, node);
         if (node.RowCount is not null) {
           node.RowCount.AcceptVisitor(this);
         }
-        AppendTranslated(node, FetchSection.Targets);
+        translator.FetchTarget(context, node);
         foreach (var item in node.Targets) {
           item.AcceptVisitor(this);
         }
-        AppendTranslatedExit(node);
       }
     }
 
@@ -2565,18 +2564,6 @@ namespace Xtensive.Sql.Compiler
       translator.Translate(context, node);
       AppendSpaceIfNecessary();
     }
-
-    protected void AppendTranslated(SqlFetch node, FetchSection section)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-    }
-
-    protected void AppendTranslatedEntry(SqlFetch node) =>
-      translator.Translate(context, node, FetchSection.Entry);
-
-    protected void AppendTranslatedExit(SqlFetch node) =>
-      translator.Translate(context, node, FetchSection.Exit);
 
     protected void AppendTranslated(SqlFunctionCall node, FunctionCallSection section, int position)
     {

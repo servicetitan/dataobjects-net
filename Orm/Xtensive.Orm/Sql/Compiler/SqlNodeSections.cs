@@ -108,13 +108,6 @@ namespace Xtensive.Sql.Compiler
     Limit = 4,
   }
 
-  public enum FetchSection
-  {
-    Entry = 0,
-    Exit = 1,
-    Targets = 2,
-  }
-  
   public enum FunctionCallSection
   {
     Entry = 0,
