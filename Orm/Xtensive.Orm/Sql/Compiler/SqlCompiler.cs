@@ -2034,11 +2034,11 @@ namespace Xtensive.Sql.Compiler
     public virtual void Visit(SqlWhile node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, WhileSection.Entry);
+        translator.WhileEntry(context);
         node.Condition.AcceptVisitor(this);
-        AppendTranslated(node, WhileSection.Statement);
+        translator.WhileStatement(context);
         node.Statement.AcceptVisitor(this);
-        AppendTranslated(node, WhileSection.Exit);
+        translator.WhileExit(context);
       }
     }
 
@@ -2715,13 +2715,6 @@ namespace Xtensive.Sql.Compiler
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node);
-    }
-
-    protected void AppendTranslated(SqlWhile node, WhileSection section)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlExtract extract, ExtractSection section)

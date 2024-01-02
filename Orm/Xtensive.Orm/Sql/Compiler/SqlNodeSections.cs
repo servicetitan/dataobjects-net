@@ -197,13 +197,6 @@ namespace Xtensive.Sql.Compiler
     Limit = 5,
   }
 
-  public enum WhileSection
-  {
-    Entry = 0,
-    Exit = 1,
-    Statement = 2,
-  }
-
   public enum QueryExpressionSection
   {
     Entry = 0,

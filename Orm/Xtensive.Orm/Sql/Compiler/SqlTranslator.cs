@@ -1892,26 +1892,20 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Expression to translate.</param>
     public virtual void Translate(SqlCompilerContext context, SqlVariable node) => context.Output.Append("@").Append(node.Name);
 
-    /// <summary>
-    /// Translates <see cref="SqlWhile"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Statement to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlWhile node, WhileSection section)
-    {
-      switch (section) {
-        case WhileSection.Entry:
-          _ = context.Output.AppendOpeningPunctuation("WHILE (");
-          break;
-        case WhileSection.Statement:
-          _ = context.Output.AppendClosingPunctuation(") BEGIN");
-          break;
-        case WhileSection.Exit:
-          _ = context.Output.Append("END");
-          break;
-      }
-    }
+    public virtual void WhileEntry(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary()
+        .AppendOpeningPunctuation("WHILE (")
+        .AppendSpaceIfNecessary();
+
+    public virtual void WhileStatement(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary()
+        .AppendClosingPunctuation(") BEGIN")
+        .AppendSpaceIfNecessary();
+
+    public virtual void WhileExit(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary()
+        .AppendClosingPunctuation("END")
+        .AppendSpaceIfNecessary();
 
     /// <summary>
     /// Translates <see cref="SqlCommand"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
