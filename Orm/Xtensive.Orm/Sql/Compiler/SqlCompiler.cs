@@ -308,13 +308,11 @@ namespace Xtensive.Sql.Compiler
     public virtual void Visit(SqlBetween node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslatedEntry(node);
         node.Expression.AcceptVisitor(this);
-        AppendTranslated(node, BetweenSection.Between);
+        translator.BetweenBetween(context, node);
         node.Left.AcceptVisitor(this);
-        AppendTranslated(node, BetweenSection.And);
+        translator.BetweenAnd(context, node);
         node.Right.AcceptVisitor(this);
-        AppendTranslatedExit(node);
       }
     }
 
@@ -2295,22 +2293,6 @@ namespace Xtensive.Sql.Compiler
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
     }
-
-    protected void AppendTranslated(SqlBetween node, BetweenSection section)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslatedEntry(SqlBetween node)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, BetweenSection.Entry);
-    }
-
-    protected void AppendTranslatedExit(SqlBetween node) =>
-      translator.Translate(context, node, BetweenSection.Exit);
 
     protected void AppendTranslatedEntry(SqlBinary node)
     {

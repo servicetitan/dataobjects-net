@@ -45,14 +45,6 @@ namespace Xtensive.Sql.Compiler
     ReferencedColumns = 6,
   }
   
-  public enum BetweenSection
-  {
-    Entry = 0,
-    Exit = 1,
-    Between = 2,
-    And = 3,
-  }
-
   public enum CaseSection
   {
     Entry = 0,

@@ -386,23 +386,17 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    /// <summary>
-    /// Translates <see cref="SqlBetween"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Expression to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlBetween node, BetweenSection section)
+    public virtual void BetweenBetween(SqlCompilerContext context, SqlBetween node)
     {
-      switch (section) {
-        case BetweenSection.Between:
-          Translate(context.Output, node.NodeType);
-          break;
-        case BetweenSection.And:
-          _ = context.Output.Append("AND");
-          break;
-      }
+      context.Output.AppendSpaceIfNecessary();
+      Translate(context.Output, node.NodeType);
+      context.Output.AppendSpaceIfNecessary();
     }
+
+    public virtual void BetweenAnd(SqlCompilerContext context, SqlBetween node) =>
+      context.Output.AppendSpaceIfNecessary()
+        .Append("AND")
+        .AppendSpaceIfNecessary();
 
     /// <summary>
     /// Translates <see cref="SqlBinary"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
