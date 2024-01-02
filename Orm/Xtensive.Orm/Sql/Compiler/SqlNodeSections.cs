@@ -151,14 +151,6 @@ namespace Xtensive.Sql.Compiler
     Specification = 2,
   }
 
-  public enum LikeSection
-  {
-    Entry = 0,
-    Exit = 1,
-    Like = 2,
-    Escape = 3,
-  }
-
   public enum MatchSection
   {
     Entry = 0,

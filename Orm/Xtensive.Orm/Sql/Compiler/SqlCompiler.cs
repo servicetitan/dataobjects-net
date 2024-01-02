@@ -1345,15 +1345,15 @@ namespace Xtensive.Sql.Compiler
     public virtual void Visit(SqlLike node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslatedEntry(node);
+        translator.LikeEntry(context);
         node.Expression.AcceptVisitor(this);
-        AppendTranslated(node, LikeSection.Like);
+        translator.LikeLike(context, node);
         node.Pattern.AcceptVisitor(this);
         if (node.Escape is not null) {
-          AppendTranslated(node, LikeSection.Escape);
+          translator.LikeEscape(context);
           node.Escape.AcceptVisitor(this);
         }
-        AppendTranslatedExit(node);
+        translator.LikeExit(context);
       }
     }
 
@@ -2631,22 +2631,6 @@ namespace Xtensive.Sql.Compiler
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
     }
-
-    protected void AppendTranslated(SqlLike node, LikeSection section)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslatedEntry(SqlLike node)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, LikeSection.Entry);
-    }
-
-    protected void AppendTranslatedExit(SqlLike node) =>
-      translator.Translate(context, node, LikeSection.Exit);
 
     protected void AppendTranslated(SqlMatch node, MatchSection section)
     {

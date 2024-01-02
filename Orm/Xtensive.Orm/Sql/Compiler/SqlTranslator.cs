@@ -1461,30 +1461,21 @@ namespace Xtensive.Sql.Compiler
     public virtual void JoinCondition(SqlCompilerContext context, SqlJoinExpression node) =>
       context.Output.AppendSpacePrefixed(node.JoinType == SqlJoinType.UsingJoin ? "USING " : "ON ");
 
-    /// <summary>
-    /// Translates <see cref="SqlLike"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Statement to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlLike node, LikeSection section)
-    {
-      var output = context.Output;
-      switch (section) {
-        case LikeSection.Entry:
-          _ = output.Append("(");
-          break;
-        case LikeSection.Exit:
-          _ = output.AppendClosingPunctuation(")");
-          break;
-        case LikeSection.Like:
-          _ = output.Append(node.Not ? "NOT LIKE" : "LIKE");
-          break;
-        case LikeSection.Escape:
-          _ = output.Append("ESCAPE");
-          break;
-      }
-    }
+    public virtual void LikeEntry(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("(");
+
+    public virtual void LikeExit(SqlCompilerContext context) =>
+      context.Output.AppendClosingPunctuation(")");
+
+    public virtual void LikeLike(SqlCompilerContext context, SqlLike node) =>
+      context.Output.AppendSpaceIfNecessary()
+        .Append(node.Not ? "NOT LIKE" : "LIKE")
+        .AppendSpaceIfNecessary();
+
+    public virtual void LikeEscape(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary()
+        .Append("ESCAPE")
+        .AppendSpaceIfNecessary();
 
     /// <summary>
     /// Translates literal values like numbers, string, char, TimeSpan, DateTime values, etc.
