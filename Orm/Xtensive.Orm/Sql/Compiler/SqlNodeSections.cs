@@ -144,14 +144,6 @@ namespace Xtensive.Sql.Compiler
     AlterMinValue = 7,
   }
 
-  public enum IfSection
-  {
-    Entry = 0,
-    Exit = 1,
-    True = 2,
-    False = 3,
-  }
-
   public enum InsertSection
   {
     Entry = 0,

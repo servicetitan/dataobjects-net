@@ -1233,19 +1233,19 @@ namespace Xtensive.Sql.Compiler
     public virtual void Visit(SqlIf node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, IfSection.Entry);
+        translator.IfEntry(context);
 
         node.Condition.AcceptVisitor(this);
 
-        AppendTranslated(node, IfSection.True);
+        translator.IfTrue(context);
         node.True.AcceptVisitor(this);
 
         if (node.False != null) {
-          AppendTranslated(node, IfSection.False);
+          translator.IfFalse(context);
           node.False.AcceptVisitor(this);
         }
 
-        AppendTranslated(node, IfSection.Exit);
+        translator.IfExit(context);
       }
     }
 
@@ -2624,12 +2624,6 @@ namespace Xtensive.Sql.Compiler
 
     protected void AppendTranslatedExit(SqlUserFunctionCall node) =>
       translator.Translate(context, node, FunctionCallSection.Exit, -1);
-
-    protected void AppendTranslated(SqlIf node, IfSection section)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-    }
 
     protected void AppendTranslated(SqlInsert node, InsertSection section)
     {

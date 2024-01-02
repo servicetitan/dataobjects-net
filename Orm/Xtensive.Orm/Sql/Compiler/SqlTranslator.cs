@@ -1378,22 +1378,17 @@ namespace Xtensive.Sql.Compiler
       });
     }
 
-    /// <summary>
-    /// Translates <see cref="SqlIf"/> expression and writes result to to <see cref="SqlCompilerContext.Output"/>.
-    /// </summary>
-    /// <param name="context">The compiler context.</param>
-    /// <param name="node">Expression to translate.</param>
-    /// <param name="section">Particular section to translate.</param>
-    public virtual void Translate(SqlCompilerContext context, SqlIf node, IfSection section)
-    {
-      _ = context.Output.Append(section switch {
-        IfSection.Entry => "IF",
-        IfSection.True => "BEGIN",
-        IfSection.False => "END BEGIN",
-        IfSection.Exit => "END",
-        _ => string.Empty
-      });
-    }
+    public virtual void IfEntry(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("IF");
+
+    public virtual void IfTrue(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("BEGIN");
+
+    public virtual void IfFalse(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("END BEGIN");
+
+    public virtual void IfExit(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("END");
 
     /// <summary>
     /// Translates <see cref="SqlInsert"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
