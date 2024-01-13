@@ -49,7 +49,7 @@ namespace Xtensive.Linq
       if (constantValues != null)
         throw new InvalidOperationException();
       constantValues = new List<object>();
-      var parameters = EnumerableUtils.One(ConstantParameter).Concat(lambda.Parameters).ToArray();
+      var parameters = lambda.Parameters.Prepend(ConstantParameter).ToArray();
       var body = Visit(lambda.Body);
       // Preserve original delegate type because it may differ from types of parameters / return value
       return FastExpression.Lambda(FixDelegateType(lambda.Type), body, parameters);
@@ -68,11 +68,11 @@ namespace Xtensive.Linq
 
     #region Private / internal method
 
-    private Type FixDelegateType(Type delegateType)
-    {
-      var signature = DelegateHelper.GetDelegateSignature(delegateType);
-      return DelegateHelper.MakeDelegateType(signature.First, signature.Second.Prepend(ConstantParameter.Type));
-    }
+    private static Type FixDelegateType(Type delegateType) =>
+      Memoizer.Get(delegateType, static t =>
+        DelegateHelper.GetDelegateSignature(t) switch {
+          var signature => DelegateHelper.MakeDelegateType(signature.First, signature.Second.Prepend(ConstantParameter.Type))
+        });
 
     private static bool DefaultConstantFilter(ConstantExpression constant)
     {
