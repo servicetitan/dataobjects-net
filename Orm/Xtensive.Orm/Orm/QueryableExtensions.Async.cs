@@ -34,13 +34,16 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains true
     /// if every element of the source sequence passes the test in the specified predicate;
     /// otherwise, false. </returns>
-    public static Task<bool> AllAsync<TSource>(this IQueryable<TSource> source,
+    public static async Task<bool> AllAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.All, source, predicate, cancellationToken);
+      if (source.Provider is not QueryProvider) {
+        return source.All(predicate);
+      }
+      return await ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.All, source, predicate, cancellationToken);
     }
 
     /// <summary>
@@ -54,12 +57,15 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains true
     /// if the source sequence contains any elements; otherwise, false.</returns>
-    public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
+    public static async Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.Any, source, cancellationToken);
+      if (source.Provider is not QueryProvider) {
+        return source.Any();
+      }
+      return await ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.Any, source, cancellationToken);
     }
 
     /// <summary>
@@ -75,13 +81,16 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains true
     /// if any elements in the source sequence pass the test in the specified predicate;
     /// otherwise, false.</returns>
-    public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
+    public static async Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteScalarAsync<TSource, bool>(
+      if (source.Provider is not QueryProvider) {
+        return source.Any(predicate);
+      }
+      return await ExecuteScalarAsync<TSource, bool>(
         WellKnownMembers.Queryable.AnyWithPredicate, source, predicate, cancellationToken);
     }
 
@@ -561,12 +570,15 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// number of elements in the input sequence.</returns>
-    public static Task<int> CountAsync<TSource>(this IQueryable<TSource> source,
+    public static async Task<int> CountAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.Count, source, cancellationToken);
+      if (source.Provider is not QueryProvider) {
+        return source.Count();
+      }
+      return await ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.Count, source, cancellationToken);
     }
 
     /// <summary>
@@ -581,13 +593,16 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// number of elements in the sequence that satisfy the condition in the predicate function.</returns>
-    public static Task<int> CountAsync<TSource>(this IQueryable<TSource> source,
+    public static async Task<int> CountAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.CountWithPredicate,
+      if (source.Provider is not QueryProvider) {
+        return source.Count(predicate);
+      }
+      return await ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.CountWithPredicate,
         source, predicate, cancellationToken);
     }
 
