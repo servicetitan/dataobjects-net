@@ -1673,8 +1673,7 @@ namespace Xtensive.Orm
       CancellationToken cancellationToken = default)
     {
       if (operation.IsGenericMethod) {
-        operation
-          = operation.GetGenericArguments().Length == 2
+        operation = operation.GetGenericArguments().Length == 2
             ? operation.CachedMakeGenericMethod(typeof(TSource), typeof(TResult))
             : operation.CachedMakeGenericMethod(typeof(TSource));
       }
