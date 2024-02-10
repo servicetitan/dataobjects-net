@@ -1459,6 +1459,9 @@ namespace Xtensive.Orm
     public static async Task<List<TSource>> ToListAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
+      if (source is not IAsyncEnumerable<TSource>) {
+        return source.ToList();
+      }
       var list = new List<TSource>();
       var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwaitFalse();
       await foreach (var element in asyncSource) {
