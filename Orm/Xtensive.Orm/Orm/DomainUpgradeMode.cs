@@ -67,6 +67,12 @@ namespace Xtensive.Orm
     /// from the expected one.
     /// </summary>
     LegacyValidate = 6,
+    
+    /// <summary>
+    /// Missing non-clustered indexes will be added,
+    /// unmapped non-clustered indexes will be removed, 
+    /// </summary>
+    SyncIndexes = 7,
 
     /// <summary>
     /// Default upgrade mode.
