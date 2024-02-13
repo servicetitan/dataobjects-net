@@ -15,6 +15,7 @@ using Comparer = Xtensive.Modelling.Comparison.Comparer;
 
 namespace Xtensive.Extensions
 {
+  [TestFixture]
   public class ActionSequenceExtensionsTests
   {
     [Test]
