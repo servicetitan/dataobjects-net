@@ -19,6 +19,15 @@ namespace Xtensive.Sql.Drivers.SqlServer
   {
     private const string DefaultCheckConnectionQuery = "SELECT TOP(0) 0;";
 
+    private static readonly SqlRetryLogicOption retryLogicOption = new() {
+      NumberOfTries = 2,
+      DeltaTime = TimeSpan.FromSeconds(1),
+      MaxTimeInterval = TimeSpan.FromSeconds(10),
+      TransientErrors = new[] {  // Explained in InternalHelpers.cs
+            49920, 49919, 49918, 41839, 41325, 41305, 41302, 41301, 40613, 40501, 40197, 10929, 10928, 10060, 10054, 10053, 1205, 233, 121, 64, 20
+      }
+    };
+
     private readonly bool checkConnectionIsAlive;
 
     private SqlServerConnection underlyingConnection;
@@ -261,38 +270,25 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
     private async Task OpenWithCheckFastAsync(string checkQueryString, CancellationToken cancellationToken)
     {
-      var connectionChecked = false;
-      var restoreTriggered = false;
-
-      while (!connectionChecked) {
+      for (bool restoreTriggered = false; ; restoreTriggered = true) {
         cancellationToken.ThrowIfCancellationRequested();
+        underlyingConnection.RetryLogicProvider = SqlConfigurableRetryFactory.CreateExponentialRetryProvider(retryLogicOption);
         await underlyingConnection.OpenAsync(cancellationToken).ConfigureAwaitFalse();
         try {
           var command = underlyingConnection.CreateCommand();
-          await using (command.ConfigureAwaitFalse()) {
-            command.CommandText = checkQueryString;
-            _ = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwaitFalse();
-          }
-          connectionChecked = true;
+          await using var __ = command.ConfigureAwaitFalse();
+          command.CommandText = checkQueryString;
+          _ = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwaitFalse();
+          break;
         }
-        catch (Exception exception) {
-          if (InternalHelpers.ShouldRetryOn(exception)) {
-            if (restoreTriggered) {
-              throw;
-            }
-            var newConnection = new SqlServerConnection(underlyingConnection.ConnectionString);
-            try {
-              underlyingConnection.Close();
-              underlyingConnection.Dispose();
-            }
-            catch { }
-
-            underlyingConnection = newConnection;
-            restoreTriggered = true;
-            continue;
+        catch (TimeoutException exception) when (!restoreTriggered) {
+          var newConnection = new SqlServerConnection(underlyingConnection.ConnectionString);
+          try {
+            underlyingConnection.Close();
+            underlyingConnection.Dispose();
           }
-
-          throw;
+          catch { }
+          underlyingConnection = newConnection;
         }
       }
     }
