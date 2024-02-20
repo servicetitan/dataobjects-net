@@ -53,14 +53,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"\'yyyyMMdd HHmmss.ffffff\''::timestamp(6)'";
-#if NET6_0_OR_GREATER
 
     /// <inheritdoc/>
     public override string DateOnlyFormatString => @"\'yyyyMMdd\''::date'";
 
     /// <inheritdoc/>
     public override string TimeOnlyFormatString => @"\'HH:mm:ss.ffffff\''::time'";
-#endif
 
     /// <inheritdoc/>
     public override string TimeSpanFormatString => "'{0}{1} days {0}{2}:{3}:{4}.{5:000}'::interval";
@@ -205,14 +203,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case SqlNodeType.Modulo: _ = output.Append("%"); break;
         case SqlNodeType.Overlaps: _ = output.Append("OVERLAPS"); break;
         case SqlNodeType.DateTimePlusInterval: _ = output.Append("+"); break;
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval: _ = output.Append("+"); break;
-#endif
         case SqlNodeType.DateTimeMinusInterval:
         case SqlNodeType.DateTimeMinusDateTime:
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimeMinusTime:
-#endif
           _ = output.Append("-"); break;
         default: base.Translate(output, type); break;
       };
@@ -459,23 +453,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
     }
 
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
-    {
-      switch (section) {
-        case FetchSection.Entry:
-          _ = context.Output.Append("FETCH ").Append(node.Option.ToString().ToUpper());
-          return;
-        case FetchSection.Targets:
-          var output = context.Output;
-          _ = output.Append("FROM ");
-          TranslateIdentifier(output, node.Cursor.Name);
-          return;
-        case FetchSection.Exit:
-          break;
-      }
-      base.Translate(context, node, section);
-    }
+    public override void FetchEntry(SqlCompilerContext context, SqlFetch node) =>
+      context.Output.Append("FETCH ").Append(node.Option.ToString().ToUpper());
+
+    public override void FetchTarget(SqlCompilerContext context, SqlFetch node) =>
+      TranslateIdentifier(context.Output.AppendSpaceIfNecessary().Append("FROM "), node.Cursor.Name);
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlOpenCursor node)
@@ -858,7 +840,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         default: base.Translate(output, part); break;
       }
     }
-#if NET6_0_OR_GREATER
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDatePart part)
@@ -880,7 +861,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         base.Translate(output, part);
       }
     }
-#endif
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlLockType lockType)

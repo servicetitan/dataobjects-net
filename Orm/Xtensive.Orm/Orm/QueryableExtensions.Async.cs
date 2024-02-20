@@ -34,13 +34,13 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains true
     /// if every element of the source sequence passes the test in the specified predicate;
     /// otherwise, false. </returns>
-    public static Task<bool> AllAsync<TSource>(this IQueryable<TSource> source,
+    public static async Task<bool> AllAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.All, source, predicate, cancellationToken);
+      return await ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.All, source, predicate, cancellationToken);
     }
 
     /// <summary>
@@ -54,12 +54,12 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains true
     /// if the source sequence contains any elements; otherwise, false.</returns>
-    public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
+    public static async Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.Any, source, cancellationToken);
+      return await ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.Any, source, cancellationToken);
     }
 
     /// <summary>
@@ -75,13 +75,13 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains true
     /// if any elements in the source sequence pass the test in the specified predicate;
     /// otherwise, false.</returns>
-    public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
+    public static async Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteScalarAsync<TSource, bool>(
+      return await ExecuteScalarAsync<TSource, bool>(
         WellKnownMembers.Queryable.AnyWithPredicate, source, predicate, cancellationToken);
     }
 
@@ -561,12 +561,12 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// number of elements in the input sequence.</returns>
-    public static Task<int> CountAsync<TSource>(this IQueryable<TSource> source,
+    public static async Task<int> CountAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.Count, source, cancellationToken);
+      return await ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.Count, source, cancellationToken);
     }
 
     /// <summary>
@@ -581,13 +581,13 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// number of elements in the sequence that satisfy the condition in the predicate function.</returns>
-    public static Task<int> CountAsync<TSource>(this IQueryable<TSource> source,
+    public static async Task<int> CountAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.CountWithPredicate,
+      return await ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.CountWithPredicate,
         source, predicate, cancellationToken);
     }
 
@@ -1459,6 +1459,9 @@ namespace Xtensive.Orm
     public static async Task<List<TSource>> ToListAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
+      if (source is not IAsyncEnumerable<TSource>) {
+        return source.ToList();
+      }
       var list = new List<TSource>();
       var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwaitFalse();
       await foreach (var element in asyncSource) {
@@ -1667,24 +1670,21 @@ namespace Xtensive.Orm
       IQueryable<TSource> source, CancellationToken cancellationToken) =>
       ExecuteScalarAsync<TSource, TResult>(operation, source, null, cancellationToken);
 
-    private static Task<TResult> ExecuteScalarAsync<TSource, TResult>(MethodInfo operation,
+    private static async Task<TResult> ExecuteScalarAsync<TSource, TResult>(MethodInfo operation,
       IQueryable<TSource> source,
       Expression expression,
       CancellationToken cancellationToken = default)
     {
-      if (source.Provider is QueryProvider provider) {
-        if (operation.IsGenericMethod) {
-          operation
-            = operation.GetGenericArguments().Length == 2
-              ? operation.CachedMakeGenericMethod(typeof(TSource), typeof(TResult))
-              : operation.CachedMakeGenericMethod(typeof(TSource));
-        }
-
-        var arguments = expression == null ? new[] {source.Expression} : new[] {source.Expression, expression};
-        return provider.ExecuteScalarAsync<TResult>(Expression.Call(null, operation, arguments), cancellationToken);
+      if (operation.IsGenericMethod) {
+        operation = operation.GetGenericArguments().Length == 2
+            ? operation.CachedMakeGenericMethod(typeof(TSource), typeof(TResult))
+            : operation.CachedMakeGenericMethod(typeof(TSource));
       }
-
-      throw new InvalidOperationException("QueryProvider doesn't support async operations.");
+      if (source.Provider is QueryProvider provider) {
+        var arguments = expression == null ? new[] {source.Expression} : new[] {source.Expression, expression};
+        return await provider.ExecuteScalarAsync<TResult>(Expression.Call(null, operation, arguments), cancellationToken);
+      }
+      return (TResult) operation.Invoke(0, expression == null ? new object[] { source } : new object[] { source, expression });
     }
   }
 }

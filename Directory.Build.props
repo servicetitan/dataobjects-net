@@ -6,7 +6,25 @@
   <!-- Compute intermediate values. To avoid conflicts name all custom variables with Do prefix. -->
   <PropertyGroup>
     <DoBuildYear>$([System.DateTime]::Today.Year)</DoBuildYear>
-    <DoProductName>DataObjects.Net</DoProductName>
+    <DoProductName>DataObjects.Net</DoProductName><<<<<<< net8
+44
+ 
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+45
+ 
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+46
+ 
+  </PropertyGroup>
+47
+ 
+​
+48
+ 
+=======
+49
+ 
+
     <DoProductAuthors>Xtensive LLC and contributors</DoProductAuthors>
     <DoProductCopyright>2003-$(DoBuildYear) $(DoProductAuthors)</DoProductCopyright>
 
@@ -40,10 +58,31 @@
     <!-- Disable "BinaryFormatter is obsolete" warnings for test projects -->
     <NoWarn>$(NoWarn);CS0618;CS0672;CS1570;CS1572;CS1573;CS1574;CS1587;CS1734;SYSLIB0050;SYSLIB0051;</NoWarn>
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
-    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
-    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- Enable Usage of BinaryFormatter in test projects -->
+    <EnableUnsafeBinaryFormatterSerialization
+      Condition="'$(TargetFramework)'=='net8.0' AND $(MSBuildProjectName.Contains('Tests')) == 'true'">true</EnableUnsafeBinaryFormatterSerialization>
+     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
+  <!-- Debug-NET8, Release-NET8 are mostly for development convenience -->
+  <PropertyGroup Condition = "$(Configuration.Contains('NET8')) == 'true'">
+    <!-- hard binding to net8, no property and env variable allowed-->
+    <TargetFrameworks>net8.0</TargetFrameworks>
+  </PropertyGroup>
+  
+  <!-- Debug-NET7, Release-NET7 are mostly for development convenience -->
+  <PropertyGroup Condition = "$(Configuration.Contains('NET7')) == 'true'">
+    <!-- hard binding to net7, no property and env variable allowed-->
+    <TargetFrameworks>net7.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <!-- Debug-NET6, Release-NET6 are mostly for development convenience -->
+  <PropertyGroup Condition = "$(Configuration.Contains('NET6')) == 'true'">
+    <!-- hard binding to net6, no property and env variable allowed -->
+    <TargetFrameworks>net6.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <!--Release and Debug are for final builds, builds on build server, etc. Target frameworks are configurable here -->
   <PropertyGroup Label="Defaults"
       Condition="$(Configuration.Contains('NET8')) == 'false' AND $(Configuration.Contains('NET7')) == 'false' AND $(Configuration.Contains('NET6')) == 'false'">
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
@@ -82,7 +121,7 @@
     <ProjectAssetsCacheFile>$(MSBuildProjectExtensionsPath)$(TargetFramework)\$(MSBuildProjectName).assets.cache</ProjectAssetsCacheFile>
     <OrmKeyFile>$(SolutionDir)Orm\Orm.snk</OrmKeyFile>
   </PropertyGroup>
-  <!-- Populate standard properties. -->
+  
   <PropertyGroup>
     <Product>$(DoProductName)</Product>
     <Company>$(DoProductAuthors)</Company>
@@ -106,8 +145,6 @@
 
   <ItemGroup>
     <SourceRoot Include="$(SolutionDir)"/>
-    <PackageReference Condition="$(DoGeneratePackage) == 'true'"
-                      Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     <None Include="$(DoPackageIcon)" Visible="false" >
       <PackagePath>.</PackagePath>
       <Pack>true</Pack>

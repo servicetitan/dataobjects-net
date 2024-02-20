@@ -21,10 +21,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   internal class Translator : SqlTranslator
   {
     public override string DateTimeFormatString => @"'cast ('\'yyyy\-MM\-ddTHH\:mm\:ss\.fff\'' as datetime)'";
-#if NET6_0_OR_GREATER
     public override string DateOnlyFormatString => @"'cast ('\'yyyy\-MM\-dd\'' as date)'";
     public override string TimeOnlyFormatString => @"'cast ('\'HH\:mm\:ss\.fff\'' as time)'";
-#endif
     public override string TimeSpanFormatString => string.Empty;
 
     public override void Initialize()
@@ -320,45 +318,32 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       };
     }
 
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
+    public override void SelectLimit(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("TOP ");
+
+    public override void SelectOffset(SqlCompilerContext context, SqlSelect node) => throw new NotSupportedException();
+
+    public override void SelectExit(SqlCompilerContext context, SqlSelect node)
     {
       var output = context.Output;
-      switch (section) {
-        case SelectSection.Entry:
-          base.Translate(context, node, section);
-          break;
-        case SelectSection.Limit:
-          _ = output.Append("TOP");
-          break;
-        case SelectSection.Offset:
-          throw new NotSupportedException();
-        case SelectSection.Exit:
-          var hasHints = false;
-          foreach (var hint in node.Hints) {
-            switch (hint) {
-              case SqlForceJoinOrderHint:
-                AppendHint(output, "FORCE ORDER", ref hasHints);
-                break;
-              case SqlFastFirstRowsHint sqlFastFirstRowsHint:
-                AppendHint(output, "FAST ", ref hasHints);
-                _ = output.Append(sqlFastFirstRowsHint.Amount);
-                break;
-              case SqlNativeHint sqlNativeHint:
-                AppendHint(output, sqlNativeHint.HintText, ref hasHints);
-                break;
-            }
-          }
-          if (hasHints) {
-            _ = output.Append(")");
-          }
-          break;
-        default:
-          base.Translate(context, node, section);
-          break;
+      var hasHints = false;
+      foreach (var hint in node.Hints) {
+        switch (hint) {
+          case SqlForceJoinOrderHint:
+            AppendHint(output, "FORCE ORDER", ref hasHints);
+            break;
+          case SqlFastFirstRowsHint sqlFastFirstRowsHint:
+            AppendHint(output, "FAST ", ref hasHints);
+            _ = output.Append(sqlFastFirstRowsHint.Amount);
+            break;
+          case SqlNativeHint sqlNativeHint:
+            AppendHint(output, sqlNativeHint.HintText, ref hasHints);
+            break;
+        }
       }
-
-    /// <inheritdoc/>
+      if (hasHints) {
+        _ = output.Append(")");
+      }
 
       static void AppendHint(IOutput output, string hint, ref bool hasHints)
       {
@@ -373,17 +358,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
     }
 
-    public override void Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
-    {
-      switch (section) {
-        case UpdateSection.Limit:
-          _ = context.Output.Append("TOP");
-          break;
-        default:
-          base.Translate(context, node, section);
-          break;
-      }
-    }
+    public override void UpdateLimit(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("TOP").AppendSpaceIfNecessary();
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlDelete node, DeleteSection section)
@@ -609,13 +585,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case long v:
           _ = output.Append($"CAST({v} as BIGINT)");
           break;
-#if NET6_0_OR_GREATER
         case DateOnly dateOnly:
           var dateOnlyRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
           var newDateOnly = ValueRangeValidator.Correct(dateOnly.ToDateTime(TimeOnly.MinValue), dateOnlyRange).Date;
           output.Append(newDateOnly.ToString(DateOnlyFormatString, DateTimeFormat));
           break;
-#endif
         default:
           base.Translate(context, literalValue);
           break;

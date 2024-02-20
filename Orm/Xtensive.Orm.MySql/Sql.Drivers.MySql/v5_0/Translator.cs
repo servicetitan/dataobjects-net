@@ -22,12 +22,10 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
   internal class Translator : SqlTranslator
   {
     public override string DateTimeFormatString => @"\'yyyy\-MM\-dd HH\:mm\:ss\.ffffff\'";
-#if NET6_0_OR_GREATER
 
     public override string DateOnlyFormatString => @"\'yyyy\-MM\-dd\'";
 
     public override string TimeOnlyFormatString => @"\'HH\:mm\:ss\.ffffff\'";
-#endif
 
     public override string TimeSpanFormatString => string.Empty;
 
@@ -65,33 +63,25 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
+    public override void SelectHintsEntry(SqlCompilerContext context, SqlSelect node) { }
+
+    public override void SelectHintsExit(SqlCompilerContext context, SqlSelect node)
     {
-      switch (section) {
-        case SelectSection.HintsEntry:
-          break;
-        case SelectSection.HintsExit:
-          if (node.Hints.Count == 0) {
-            break;
+      if (node.Hints.Count != 0) {
+        var hints = new List<string>(node.Hints.Count);
+        foreach (var hint in node.Hints) {
+          if (hint is SqlNativeHint sqlNativeHint) {
+            hints.Add(QuoteIdentifier(sqlNativeHint.HintText));
           }
-          var hints = new List<string>(node.Hints.Count);
-          foreach (var hint in node.Hints) {
-            if (hint is SqlNativeHint sqlNativeHint) {
-              hints.Add(QuoteIdentifier(sqlNativeHint.HintText));
-            }
-          }
-          if (hints.Count > 0) {
-            _ = context.Output.Append("USE INDEX (")
-              .Append(string.Join(", ", hints))
-              .Append(")");
-          }
-          break;
-        default:
-          base.Translate(context, node, section);
-          break;
+        }
+        if (hints.Count > 0) {
+          _ = context.Output.Append("USE INDEX (")
+            .Append(string.Join(", ", hints))
+            .Append(")");
+        }
       }
     }
+
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlFunctionType type)
@@ -112,13 +102,11 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SqlFunctionType.DateTimeAddYears:
         case SqlFunctionType.DateTimeAddMonths:
         case SqlFunctionType.DateTimeConstruct:
-#if NET6_0_OR_GREATER
         case SqlFunctionType.DateAddYears:
         case SqlFunctionType.DateAddMonths:
         case SqlFunctionType.DateAddDays:
         case SqlFunctionType.DateConstruct:
         case SqlFunctionType.TimeConstruct:
-#endif
         case SqlFunctionType.IntervalToMilliseconds:
           return;
         //string
@@ -172,16 +160,12 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
        switch (type) {
         case SqlNodeType.Concat: _ = output.Append(","); break;
         case SqlNodeType.DateTimePlusInterval:
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimePlusInterval:
-#endif
           _ = output.Append("+");
           break;
         case SqlNodeType.DateTimeMinusInterval:
         case SqlNodeType.DateTimeMinusDateTime:
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimeMinusTime:
-#endif
           _ = output.Append("-"); break;
         case SqlNodeType.Equals: _ = output.Append("="); break;
         case SqlNodeType.NotEquals: _ = output.Append("<>"); break;
@@ -364,16 +348,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlInsert node, InsertSection section)
-    {
-      if (section == InsertSection.DefaultValues) {
-        _ = context.Output.Append("() VALUES ()");
-      }
-      else {
-        base.Translate(context, node, section);
-      }
-    }
+    public override void InsertDefaultValues(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().AppendOpeningPunctuation("() VALUES ()");
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlBreak node)
@@ -529,7 +505,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         default: base.Translate(output, dateTimePart); break;
       }
     }
-#if NET6_0_OR_GREATER
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDatePart datePart)
@@ -552,7 +527,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         default: base.Translate(output, dateTimePart); break;
       }
     }
-#endif
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlLockType lockType)

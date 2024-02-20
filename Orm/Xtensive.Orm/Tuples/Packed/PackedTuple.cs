@@ -95,10 +95,24 @@ namespace Xtensive.Tuples.Packed
       return descriptor.GetAccessor().GetUntypedValue(this, descriptor, out fieldState);
     }
 
+    public override T GetValue<T>(int fieldIndex, out TupleFieldState fieldState)
+    {
+      var isNullable = null == default(T); // Is nullable value type or class
+      ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
+      return descriptor.GetAccessor().GetValue<T>(this, descriptor, isNullable, out fieldState);
+    }
+
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
       descriptor.GetAccessor().SetUntypedValue(this, descriptor, fieldValue);
+    }
+
+    public override void SetValue<T>(int fieldIndex, T fieldValue)
+    {
+      var isNullable = null==default(T); // Is nullable value type or class
+      ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
+      descriptor.GetAccessor().SetValue(this, descriptor, isNullable, fieldValue);
     }
 
     public void SetFieldState(in PackedFieldDescriptor d, TupleFieldState fieldState)

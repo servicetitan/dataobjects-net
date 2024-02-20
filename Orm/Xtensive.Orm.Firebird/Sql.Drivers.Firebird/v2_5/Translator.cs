@@ -21,11 +21,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
   {
     public override string DateTimeFormatString => Constants.DateTimeFormatString;
 
-#if NET6_0_OR_GREATER
     public override string DateOnlyFormatString => Constants.DateFormatString;
 
     public override string TimeOnlyFormatString => Constants.TimeFormatString;
-#endif
 
     public override string TimeSpanFormatString => string.Empty;
 
@@ -123,9 +121,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         case SqlNodeType.Modulo:
           _ = output.Append("MOD"); break;
         case SqlNodeType.DateTimeMinusDateTime:
-#if NET6_0_OR_GREATER
         case SqlNodeType.TimeMinusTime:
-#endif
           _ = output.Append("-"); break;
         case SqlNodeType.Except:
         case SqlNodeType.Intersect:
@@ -224,7 +220,6 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         default: base.Translate(output, dateTimePart); break;
       }
     }
-#if NET6_0_OR_GREATER //DO_DATEONLY
 
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlDatePart datePart)
@@ -235,36 +230,15 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         default: base.Translate(output, datePart); break;
       }
     }
-#endif
 
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
-    {
-      switch (section) {
-        case SelectSection.Limit:
-          _ = context.Output.Append("FIRST");
-          break;
-        case SelectSection.Offset:
-          _ = context.Output.Append("SKIP");
-          break;
-        default:
-          base.Translate(context, node, section);
-          break;
-      }
-    }
+    public override void SelectLimit(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("FIRST ");
 
-    /// <inheritdoc/>
-    public override void Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
-    {
-      switch (section) {
-        case UpdateSection.Limit:
-          _ = context.Output.Append("ROWS");
-          break;
-        default:
-          base.Translate(context, node, section);
-          break;
-      }
-    }
+    public override void SelectOffset(SqlCompilerContext context, SqlSelect node) =>
+      context.Output.AppendSpacePrefixed("SKIP ");
+
+    public override void UpdateLimit(SqlCompilerContext context) =>
+      context.Output.AppendSpaceIfNecessary().Append("ROWS").AppendSpaceIfNecessary();
 
     /// <inheritdoc />
     public override void Translate(SqlCompilerContext context, SqlDelete node, DeleteSection section)

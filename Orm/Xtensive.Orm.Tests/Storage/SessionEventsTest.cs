@@ -55,8 +55,8 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
     public EntityFieldValueEventArgs EntityFieldValueSettingArgs;
     public EntityFieldValueSetEventArgs EntityFieldValueSetArgs;
 
-    public QueryEventArgs? QueryExecuting;
-    public QueryEventArgs? QueryExecuted;
+    public QueryEventArgs QueryExecuting;
+    public QueryEventArgs QueryExecuted;
 
     public DbCommandEventArgs? DbCommandExecuting;
     public DbCommandEventArgs? DbCommandExecuted;
