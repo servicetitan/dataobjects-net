@@ -103,7 +103,7 @@
     <ProjectAssetsCacheFile>$(MSBuildProjectExtensionsPath)$(TargetFramework)\$(MSBuildProjectName).assets.cache</ProjectAssetsCacheFile>
     <OrmKeyFile>$(SolutionDir)Orm\Orm.snk</OrmKeyFile>
   </PropertyGroup>
-  
+  <!-- Populate standard properties. -->
   <PropertyGroup>
     <Product>$(DoProductName)</Product>
     <Company>$(DoProductAuthors)</Company>
