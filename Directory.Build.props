@@ -41,14 +41,15 @@
     <NoWarn>$(NoWarn);CS0618;CS0672;CS1570;CS1572;CS1573;CS1574;CS1587;CS1734;SYSLIB0050;SYSLIB0051;</NoWarn>
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
-  <!--Release and Debug are for final builds, builds on build server, etc. Target frameworks are configurable here -->
-  <PropertyGroup Label="Defaults" Condition="$(Configuration.Contains('NET5')) == 'false' AND $(Configuration.Contains('NET6')) == 'false'">
+  <PropertyGroup Label="Defaults"
+      Condition="$(Configuration.Contains('NET8')) == 'false' AND $(Configuration.Contains('NET7')) == 'false' AND $(Configuration.Contains('NET6')) == 'false'">
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>  <!-- the property -->
     <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net7.0</TargetFrameworks> <!-- fallback to default -->
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net8.0</TargetFrameworks> <!-- fallback to default -->
   </PropertyGroup>
 
   <PropertyGroup Condition = "$(Configuration.Contains('Debug')) == 'true'">
@@ -64,10 +65,7 @@
   <PropertyGroup>
     <NoLogo>true</NoLogo>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks> <!-- the property -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net8.0</TargetFrameworks> <!-- fallback to default -->
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -109,7 +107,7 @@
   <ItemGroup>
     <SourceRoot Include="$(SolutionDir)"/>
     <PackageReference Condition="$(DoGeneratePackage) == 'true'"
-                      Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+                      Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     <None Include="$(DoPackageIcon)" Visible="false" >
       <PackagePath>.</PackagePath>
       <Pack>true</Pack>

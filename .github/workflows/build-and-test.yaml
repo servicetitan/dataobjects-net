@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [ master-servicetitan ]
 env:
-  DO_TargetFrameworks: net7.0;net8.0
+  DO_TargetFrameworks: net8.0
 jobs:
   build-and-test:
     name: build-and-test

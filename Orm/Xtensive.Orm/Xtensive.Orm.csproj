@@ -46,17 +46,9 @@
       <Visible>false</Visible>
     </Content>
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net6.0'">
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.1" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net7.0'">
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
-  </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="BitFaster.Caching" Version="2.3.2" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" />
+    <PackageReference Include="BitFaster.Caching" />
   </ItemGroup>
   <ItemGroup Label="T4 templates">
     <None Include="Arithmetic\Internal\PrimitiveArithmetics.tt">
