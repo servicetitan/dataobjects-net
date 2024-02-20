@@ -6,25 +6,12 @@
   <!-- Compute intermediate values. To avoid conflicts name all custom variables with Do prefix. -->
   <PropertyGroup>
     <DoBuildYear>$([System.DateTime]::Today.Year)</DoBuildYear>
-    <DoProductName>DataObjects.Net</DoProductName><<<<<<< net8
-44
- 
+    <DoProductName>DataObjects.Net</DoProductName>
     <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
-45
- 
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-46
- 
   </PropertyGroup>
-47
- 
-​
-48
- 
-=======
-49
- 
 
+  <PropertyGroup>
     <DoProductAuthors>Xtensive LLC and contributors</DoProductAuthors>
     <DoProductCopyright>2003-$(DoBuildYear) $(DoProductAuthors)</DoProductCopyright>
 
