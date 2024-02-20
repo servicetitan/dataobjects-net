@@ -7,9 +7,6 @@
   <PropertyGroup>
     <DoBuildYear>$([System.DateTime]::Today.Year)</DoBuildYear>
     <DoProductName>DataObjects.Net</DoProductName>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <DoProductAuthors>Xtensive LLC and contributors</DoProductAuthors>
     <DoProductCopyright>2003-$(DoBuildYear) $(DoProductAuthors)</DoProductCopyright>
 
