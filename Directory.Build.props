@@ -7,8 +7,6 @@
   <PropertyGroup>
     <DoBuildYear>$([System.DateTime]::Today.Year)</DoBuildYear>
     <DoProductName>DataObjects.Net</DoProductName>
-    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
-    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
   <PropertyGroup>
