@@ -43,6 +43,7 @@
     <!-- Enable Usage of BinaryFormatter in test projects -->
     <EnableUnsafeBinaryFormatterSerialization
       Condition="'$(TargetFramework)'=='net8.0' AND $(MSBuildProjectName.Contains('Tests')) == 'true'">true</EnableUnsafeBinaryFormatterSerialization>
+     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
   <!-- Debug-NET8, Release-NET8 are mostly for development convenience -->
@@ -85,10 +86,7 @@
   <PropertyGroup>
     <NoLogo>true</NoLogo>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks> <!-- the property -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net8.0</TargetFrameworks> <!-- fallback to default -->
-    <LangVersion>10.0</LangVersion> <!-- version assigned to net6.0 -->
+    <LangVersion>10.0</LangVersion>
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
