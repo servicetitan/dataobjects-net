@@ -8,6 +8,8 @@ namespace Xtensive.Modelling.Actions.Extensions
 {
   public static class ActionSequenceExtensions
   {
+    private static readonly Type[] ModificationActions = new[] { typeof(CreateNodeAction), typeof(RemoveNodeAction) };
+
     /// <summary>
     /// Checks if all actions within the <see cref="IActionSequence"/> exclusively involve modifications of the specified subject type.
     /// </summary>
@@ -15,7 +17,7 @@ namespace Xtensive.Modelling.Actions.Extensions
     /// <param name="actionSequence">The sequence of actions to check.</param>
     /// <returns>True if the sequence contains only actions related to the creation or removal of nodes of the specified target type; otherwise, false.</returns>
     public static bool ContainsOnlyModificationOf<TSubjectType>(this IActionSequence actionSequence) =>
-      ContainsActionsOfType<TSubjectType>(actionSequence, new[] { typeof(CreateNodeAction), typeof(RemoveNodeAction) });
+      ContainsActionsOfType<TSubjectType>(actionSequence, ModificationActions);
     
     /// <summary>
     /// Checks if all actions within the <see cref="IActionSequence"/> are allowed for differences of the specified type.
@@ -40,7 +42,7 @@ namespace Xtensive.Modelling.Actions.Extensions
         return false;
       }
 
-      var isNodeActionOfType = types.Any(type => nodeAction.GetType() == type);
+      var isNodeActionOfType = types.Contains(nodeAction.GetType());
 
       return nodeAction.Difference.IsAllowedForSubject<TSubjectType>(isNodeActionOfType,
                static difference => difference?.Target) ||
