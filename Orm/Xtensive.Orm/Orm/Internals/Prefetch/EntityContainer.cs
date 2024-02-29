@@ -36,8 +36,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public void AddColumns(IEnumerable<ColumnInfo> candidateColumns)
     {
-      if (columns == null)
-        columns = new SortedDictionary<int, ColumnInfo>();
+      columns ??= new SortedDictionary<int, ColumnInfo>();
       if (PrefetchHelper.AddColumns(candidateColumns, columns, Type) && ColumnIndexesToBeLoaded != null)
         ColumnIndexesToBeLoaded = null;
     }
