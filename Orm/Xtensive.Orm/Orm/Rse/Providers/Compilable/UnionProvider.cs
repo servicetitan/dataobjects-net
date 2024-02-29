@@ -23,9 +23,9 @@ namespace Xtensive.Orm.Rse.Providers
     protected override RecordSetHeader BuildHeader()
     {
       EnsureUnionIsPossible();
-      var mappedColumnIndexes = new List<int>();
+      var mappedColumnIndexes = new List<short>();
       var columns = new List<Column>();
-      for (int i = 0; i < Left.Header.Columns.Count; i++) {
+      for (short i = 0; i < Left.Header.Columns.Count; i++) {
         var leftColumn = Left.Header.Columns[i];
         var rightColumn = Right.Header.Columns[i];
         if (leftColumn is MappedColumn && rightColumn is MappedColumn) {

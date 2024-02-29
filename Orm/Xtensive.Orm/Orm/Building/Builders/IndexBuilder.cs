@@ -804,15 +804,16 @@ namespace Xtensive.Orm.Building.Builders
     {
       var reflectedType = index.ReflectedType;
       var keyColumns = index.IsPrimary
-        ? Enumerable.Range(0, index.KeyColumns.Count).ToList(index.KeyColumns.Count)
+        ? Enumerable.Range(0, index.KeyColumns.Count).Select(i => (short)i).ToList(index.KeyColumns.Count)
         : index.KeyColumns
             .Select(static pair => pair.Key)
             .Concat(index.ValueColumns)
-            .Select(static (c, i) => (c, i))
+            .Select(static (c, i) => (c, (short)i))
             .Where(static arg => arg.c.IsPrimaryKey)
-            .Select(static arg => arg.i)
+            .Select(static arg => arg.Item2)
             .ToList();
-      var columns = Enumerable.Range(0, index.KeyColumns.Count + index.ValueColumns.Count).ToList(index.KeyColumns.Count + index.ValueColumns.Count);
+      var columns = Enumerable.Range(0, index.KeyColumns.Count + index.ValueColumns.Count).ToList(index.KeyColumns.Count + index.ValueColumns.Count)
+        .Select(i => (short)i);
       return new ColumnGroup(reflectedType, keyColumns, columns);
     }
 

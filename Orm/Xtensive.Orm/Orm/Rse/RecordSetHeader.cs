@@ -147,13 +147,13 @@ namespace Xtensive.Orm.Rse
       var groups = new List<ColumnGroup>(columnGroupCount + joined.ColumnGroups.Count);
       groups.AddRange(ColumnGroups);
       foreach (var g in joined.ColumnGroups) {
-        var keys = new List<int>(g.Keys.Count);
+        var keys = new List<short>(g.Keys.Count);
         foreach (var i in g.Keys) {
-          keys.Add(columnCount + i);
+          keys.Add((short)(columnCount + i));
         }
-        var columns = new List<int>(g.Columns.Count);
+        var columns = new List<short>(g.Columns.Count);
         foreach (var i in g.Columns) {
-          columns.Add(columnCount + i);
+          columns.Add((short)(columnCount + i));
         }
         groups.Add(new ColumnGroup(g.TypeInfoRef, keys, columns));
       }
@@ -174,8 +174,8 @@ namespace Xtensive.Orm.Rse
     public RecordSetHeader Select(IEnumerable<int> selectedColumns)
     {
       var columns = new List<int>(selectedColumns);
-      var columnsMap = new List<int>(Enumerable.Repeat(-1, Columns.Count));
-      for (int newIndex = 0; newIndex < columns.Count; newIndex++) {
+      var columnsMap = new List<short>(Enumerable.Repeat((short)-1, Columns.Count));
+      for (short newIndex = 0; newIndex < columns.Count; newIndex++) {
         var oldIndex = columns[newIndex];
         columnsMap[oldIndex] = newIndex;
       }

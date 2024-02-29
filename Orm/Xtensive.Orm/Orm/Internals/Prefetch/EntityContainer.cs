@@ -30,19 +30,19 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public EntityGroupTask Task { get; protected set; }
 
-    protected List<int> ColumnIndexesToBeLoaded { get; set; }
+    protected IReadOnlyList<int> ColumnIndexesToBeLoaded { get; set; }
 
     public abstract EntityGroupTask GetTask();
 
     public void AddColumns(IEnumerable<ColumnInfo> candidateColumns)
     {
       columns ??= new SortedDictionary<int, ColumnInfo>();
-      if (PrefetchHelper.AddColumns(candidateColumns, columns, Type) && ColumnIndexesToBeLoaded != null)
+      if (PrefetchHelper.AddColumns(candidateColumns, columns, Type))
         ColumnIndexesToBeLoaded = null;
     }
 
     public void SetColumnCollections(SortedDictionary<int, ColumnInfo> forcedColumns,
-      List<int> forcedColumnsToBeLoaded)
+      IReadOnlyList<int> forcedColumnsToBeLoaded)
     {
       if (columns != null)
         throw new InvalidOperationException();
@@ -59,20 +59,20 @@ namespace Xtensive.Orm.Internals.Prefetch
       var tuple = state == null ? null : state.Tuple;
       if (tuple == null && ColumnIndexesToBeLoaded != null)
         return true;
-      if (ColumnIndexesToBeLoaded != null)
-        ColumnIndexesToBeLoaded = null;
+      List<int> columnIndexesToBeLoaded = null;
       var needToFetchSystemColumns = false;
-      foreach (var pair in columns)
+      foreach (var pair in columns) {
         if (tuple == null || !tuple.GetFieldState(pair.Key).IsAvailable())
           if (pair.Value.IsPrimaryKey || pair.Value.IsSystem)
             needToFetchSystemColumns = ExactType && tuple == null;
           else {
-            if (ColumnIndexesToBeLoaded == null)
-              ColumnIndexesToBeLoaded = CreateColumnIndexCollection();
-            ColumnIndexesToBeLoaded.Add(pair.Key);
+            (columnIndexesToBeLoaded ??= CreateColumnIndexCollection()).Add(pair.Key);
           }
-      if (needToFetchSystemColumns && ColumnIndexesToBeLoaded == null)
-        ColumnIndexesToBeLoaded = CreateColumnIndexCollection();
+      }
+      ColumnIndexesToBeLoaded = columnIndexesToBeLoaded;
+      if (needToFetchSystemColumns) {
+        ColumnIndexesToBeLoaded ??= CreateColumnIndexCollection();
+      }
       return ColumnIndexesToBeLoaded != null;
     }
 
