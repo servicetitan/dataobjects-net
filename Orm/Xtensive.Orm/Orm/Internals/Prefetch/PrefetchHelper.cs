@@ -34,10 +34,10 @@ namespace Xtensive.Orm.Internals.Prefetch
     public static bool? TryGetExactKeyType(Key key, PrefetchManager manager, out TypeInfo type)
     {
       type = null;
-      if (!key.TypeReference.Type.IsLeaf) {
+      var keyTypeReferenceType = key.TypeReference.Type;
+      if (!keyTypeReferenceType.IsLeaf) {
         var cachedKey = key;
-        EntityState state;
-        if (!manager.TryGetTupleOfNonRemovedEntity(ref cachedKey, out state))
+        if (!manager.TryGetTupleOfNonRemovedEntity(ref cachedKey, out var state))
           return null;
         if (cachedKey.HasExactType) {
           type = cachedKey.TypeReference.Type;
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         }
         return false;
       }
-      type = key.TypeReference.Type;
+      type = keyTypeReferenceType;
       return true;
     }
 
@@ -61,12 +61,17 @@ namespace Xtensive.Orm.Internals.Prefetch
       SortedDictionary<int, ColumnInfo> columns, TypeInfo type)
     {
       var result = false;
+      var typeIsInterface = type.IsInterface;
+      var typeFields = type.Fields;
+      var typeFieldMap = type.FieldMap;
       foreach (var column in candidateColumns) {
         result = true;
-        if (type.IsInterface == column.Field.DeclaringType.IsInterface)
-          columns[type.Fields[column.Field.Name].MappingInfo.Offset] = column;
-        else if (column.Field.DeclaringType.IsInterface)
-          columns[type.FieldMap[column.Field].MappingInfo.Offset] = column;
+        var columnField = column.Field;
+        var columnIsInterface = columnField.DeclaringType.IsInterface;
+        if (typeIsInterface == columnIsInterface)
+          columns[typeFields[columnField.Name].MappingInfo.Offset] = column;
+        else if (columnIsInterface)
+          columns[typeFieldMap[columnField].MappingInfo.Offset] = column;
         else
           throw new InvalidOperationException();
       }

@@ -34,16 +34,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         return Equals(other.type, type) && Equals(other.descriptors, descriptors);
       }
 
-      public override bool Equals(object obj)
-      {
-        if (obj is null) {
-          return false;
-        }
-        if (obj.GetType() != typeof (RootContainerCacheKey)) {
-          return false;
-        }
-        return Equals((RootContainerCacheKey) obj);
-      }
+      public override bool Equals(object obj) => obj is RootContainerCacheKey other && Equals(other);
 
       public override int GetHashCode() => hashCode;
 
@@ -126,20 +117,21 @@ namespace Xtensive.Orm.Internals.Prefetch
 
         var selectedFields = descriptors;
         var currentType = type;
+        var currentKeyTypeReferenceType = currentKey.TypeReference.Type;
         var isKeyTypeExact = currentKey.HasExactType
-          || currentKey.TypeReference.Type.IsLeaf
-          || currentKey.TypeReference.Type == type;
+          || currentKeyTypeReferenceType.IsLeaf
+          || currentKeyTypeReferenceType == type;
         if (isKeyTypeExact) {
-          currentType = currentKey.TypeReference.Type;
+          currentType = currentKeyTypeReferenceType;
           EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
         }
         else {
           ArgumentValidator.EnsureArgumentNotNull(currentType, "type");
           EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
-          _ = SetUpContainers(currentKey, currentKey.TypeReference.Type,
-            PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, currentKey.TypeReference.Type),
+          _ = SetUpContainers(currentKey, currentKeyTypeReferenceType,
+            PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, currentKeyTypeReferenceType),
             true, ownerState, true);
-          var hierarchyRoot = currentKey.TypeReference.Type;
+          var hierarchyRoot = currentKeyTypeReferenceType;
           selectedFields = descriptors
             .Where(descriptor => descriptor.Field.DeclaringType != hierarchyRoot)
             .ToList();
@@ -215,16 +207,15 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var result = GetGraphContainer(key, type, exactType);
       var areAnyColumns = false;
-      var haveColumnsBeenSet = canUseCache
-        ? TrySetCachedColumnIndexes(result, descriptors, state)
-        : false;
+      var haveColumnsBeenSet = canUseCache && TrySetCachedColumnIndexes(result, descriptors, state);
 
       foreach (var descriptor in descriptors) {
-        if (descriptor.Field.IsEntity && descriptor.FetchFieldsOfReferencedEntity && !type.IsAuxiliary) {
+        var descriptorField = descriptor.Field;
+        if (descriptorField.IsEntity && descriptor.FetchFieldsOfReferencedEntity && !type.IsAuxiliary) {
           areAnyColumns = true;
           result.RegisterReferencedEntityContainer(state, descriptor);
         }
-        else if (descriptor.Field.IsEntitySet) {
+        else if (descriptorField.IsEntitySet) {
           result.RegisterEntitySetTask(state, descriptor);
         }
         else {
@@ -281,21 +272,18 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private static void EnsureKeyTypeCorrespondsToSpecifiedType(Key key, TypeInfo type)
     {
-      if (type == null || key.TypeReference.Type == type) {
+      var keyTypeReferenceType = key.TypeReference.Type;
+      if (type == null || keyTypeReferenceType == type) {
         return;
       }
 
-      if (!key.TypeReference.Type.IsInterface && !type.IsInterface) {
-        if (key.TypeReference.Type.Hierarchy == type.Hierarchy) {
+      if (!keyTypeReferenceType.IsInterface && !type.IsInterface) {
+        if (keyTypeReferenceType.Hierarchy == type.Hierarchy) {
           return;
         }
-        else {
-          throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
-        }
       }
-
-      if (type.AllInterfaces.Contains(key.TypeReference.Type)
-        || key.TypeReference.Type.AllInterfaces.Contains(type)) {
+      else if (type.AllInterfaces.Contains(keyTypeReferenceType)
+               || keyTypeReferenceType.AllInterfaces.Contains(type)) {
         return;
       }
 
@@ -304,9 +292,10 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private static void EnsureAllFieldsBelongToSpecifiedType(IReadOnlyList<PrefetchFieldDescriptor> descriptors, TypeInfo type)
     {
-      for (var i = 0; i < descriptors.Count; i++) {
+      var typeUnderlyingType = type.UnderlyingType;
+      for (int i = 0, count = descriptors.Count; i < count; i++) {
         var declaringType = descriptors[i].Field.DeclaringType;
-        if (type != declaringType && !declaringType.UnderlyingType.IsAssignableFrom(type.UnderlyingType)) {
+        if (type != declaringType && !declaringType.UnderlyingType.IsAssignableFrom(typeUnderlyingType)) {
           throw new InvalidOperationException(
             string.Format(Strings.ExFieldXIsNotDeclaredInTypeYOrInOneOfItsAncestors, descriptors[i].Field, type));
         }
@@ -317,17 +306,13 @@ namespace Xtensive.Orm.Internals.Prefetch
       graphContainers.GetValueOrDefault((key, type))
         ?? (graphContainers[(key, type)] = new GraphContainer(key, type, exactType, this));
 
-    private static IEnumerable<ColumnInfo> ExtractColumns(IEnumerable<PrefetchFieldDescriptor> descriptors)
-    {
-      foreach (var descriptor in descriptors) {
-        var columns = descriptor.Field.IsStructure && !descriptor.FetchLazyFields
-          ? descriptor.Field.Columns.Where(column => !column.Field.IsLazyLoad)
-          : descriptor.Field.Columns;
-        foreach (var column in columns) {
-          yield return column;
-        }
-      }
-    }
+    private static IEnumerable<ColumnInfo> ExtractColumns(IEnumerable<PrefetchFieldDescriptor> descriptors) =>
+      descriptors.SelectMany(static descriptor => {
+        var descriptorField = descriptor.Field;
+        return descriptorField.IsStructure && !descriptor.FetchLazyFields
+          ? descriptorField.Columns.Where(static column => !column.Field.IsLazyLoad)
+          : descriptorField.Columns;
+      });
 
     private bool TrySetCachedColumnIndexes(
       GraphContainer container, IEnumerable<PrefetchFieldDescriptor> descriptors, EntityState state)
