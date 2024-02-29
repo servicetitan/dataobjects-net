@@ -15,14 +15,14 @@ namespace Xtensive.Orm.Linq.Expressions
   internal abstract class PersistentFieldExpression : ParameterizedExpression,
     IMappedExpression
   {
-    internal Segment<int> Mapping;
+    internal Segment<ColNum> Mapping;
 
     public string Name { get; private set; }
     public PropertyInfo UnderlyingProperty { get; private set; }
     public abstract Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions);
     public abstract Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions);
-    public abstract Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions);
-    public abstract Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions);
+    public abstract Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions);
+    public abstract Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions);
 
     public override string ToString()
     {
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Linq.Expressions
       ExtendedExpressionType expressionType, 
       string name, 
       Type type, 
-      in Segment<int> segment,
+      in Segment<ColNum> segment,
       PropertyInfo underlyingProperty,
       ParameterExpression parameterExpression,
       bool defaultIfEmpty)

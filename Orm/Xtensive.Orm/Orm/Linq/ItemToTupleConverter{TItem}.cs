@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Linq
           var structure = (Structure) item;
           var typeInfo = structureExpression.PersistentType;
           var tupleDescriptor = typeInfo.TupleDescriptor;
-          var tupleSegment = new Segment<int>(0, tupleDescriptor.Count);
+          var tupleSegment = new Segment<ColNum>(0, tupleDescriptor.Count);
           var structureTuple = structure.Tuple.GetSegment(tupleSegment);
           structureTuple.CopyTo(tuple, 0, structureExpression.Mapping.Offset, structureTuple.Count);
           break;
@@ -157,7 +157,7 @@ namespace Xtensive.Orm.Linq
     }
 
     private LocalCollectionExpression BuildLocalCollectionExpression(Type type,
-      HashSet<Type> processedTypes, ref int columnIndex, MemberInfo parentMember, TupleTypeCollection types, Expression sourceExpression)
+      HashSet<Type> processedTypes, ref ColNum columnIndex, MemberInfo parentMember, TupleTypeCollection types, Expression sourceExpression)
     {
       if (type.IsAssignableFrom(WellKnownOrmTypes.Key))
         throw new InvalidOperationException(string.Format(Strings.ExUnableToStoreUntypedKeyToStorage, RefOfTType.GetShortName()));
@@ -192,7 +192,7 @@ namespace Xtensive.Orm.Linq
     }
 
 
-    private IMappedExpression BuildField(Type type, ref int index, TupleTypeCollection types)
+    private IMappedExpression BuildField(Type type, ref ColNum index, TupleTypeCollection types)
     {
 //      if (type.IsOfGenericType(typeof (Ref<>))) {
 //        var entityType = type.GetGenericType(typeof (Ref<>)).GetGenericArguments()[0];
@@ -217,7 +217,7 @@ namespace Xtensive.Orm.Linq
           entityExpression.IsNullable = true;
           expression = entityExpression;
         }
-        index += keyTupleDescriptor.Count;
+        index += (ColNum)keyTupleDescriptor.Count;
         types.AddRange(keyTupleDescriptor);
         return expression;
       }
@@ -225,9 +225,9 @@ namespace Xtensive.Orm.Linq
       if (type.IsSubclassOf(WellKnownOrmTypes.Structure)) {
         var typeInfo = model.Types[type];
         var tupleDescriptor = typeInfo.TupleDescriptor;
-        var tupleSegment = new Segment<int>(index, tupleDescriptor.Count);
+        var tupleSegment = new Segment<ColNum>(index, tupleDescriptor.Count);
         var structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, tupleSegment);
-        index += tupleDescriptor.Count;
+        index += (ColNum)tupleDescriptor.Count;
         types.AddRange(tupleDescriptor);
         return structureExpression;
       }
@@ -245,7 +245,7 @@ namespace Xtensive.Orm.Linq
     private void BuildConverter(Expression sourceExpression)
     {
       var itemType = isKeyConverter ? entityTypestoredInKey : typeof (TItem);
-      var index = 0;
+      ColNum index = 0;
       var types = new TupleTypeCollection();
       if (IsPersistableType(itemType)) {
         Expression = (Expression) BuildField(itemType, ref index, types);

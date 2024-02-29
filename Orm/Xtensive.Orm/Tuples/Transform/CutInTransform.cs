@@ -68,7 +68,7 @@ namespace Xtensive.Tuples.Transform
       this.index = index;
       int totalLength = sources.Sum(s => s.Count);
       Type[] types = new Type[totalLength];
-      Pair<int, int>[] map = new Pair<int, int>[totalLength];
+      Pair<ColNum, ColNum>[] map = new Pair<ColNum, ColNum>[totalLength];
       TupleDescriptor sourceDescriptor = sources[0];
       TupleDescriptor cutInDescriptor = sources[1];
       int sourceCount = sourceDescriptor.Count;
@@ -84,13 +84,13 @@ namespace Xtensive.Tuples.Transform
       }
       else if (index < 0 || index > sourceCount)
         throw new ArgumentOutOfRangeException("index");
-      for (int i = 0; i < sourceCount; i++)
+      for (ColNum i = 0; i < sourceCount; i++)
       {
         if ((i == index) && !isIndex) {
-          for (int j = 0; j < cutInCount; j++)
+          for (ColNum j = 0; j < cutInCount; j++)
           {
             types[ind] = cutInDescriptor[j];
-            map[ind++] = new Pair<int, int>(1, j);
+            map[ind++] = new Pair<ColNum, ColNum>(1, j);
           }
           if (!isEndOfTuple) {
             i--;
@@ -99,7 +99,7 @@ namespace Xtensive.Tuples.Transform
         }
         else {
           types[ind] = sourceDescriptor[i];
-          map[ind++] = new Pair<int, int>(0, i);
+          map[ind++] = new Pair<ColNum, ColNum>(0, i);
         }
       }
       this.sources = sources;

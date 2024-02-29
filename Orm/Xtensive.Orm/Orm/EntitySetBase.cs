@@ -940,7 +940,7 @@ namespace Xtensive.Orm
             .Where(ci => ci.IsPrimaryKey)
             .Select(ci => ci.Field.MappingInfo.Offset)
             .ToList()
-        : Enumerable.Range(0, targetDescriptor.Count).ToList();
+        : Enumerable.Range(0, targetDescriptor.Count).Select(i => (ColNum)i).ToList();
 
       var keyFieldCount = ownerDescriptor.Count + itemColumnOffsets.Count;
       var keyFieldTypes = ownerDescriptor
@@ -949,8 +949,8 @@ namespace Xtensive.Orm
       var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
 
       var map = Enumerable.Range(0, ownerDescriptor.Count)
-        .Select(i => new Pair<int, int>(0, i))
-        .Concat(itemColumnOffsets.Select(i => new Pair<int, int>(1, i)))
+        .Select(i => new Pair<ColNum, ColNum>(0, (ColNum) i))
+        .Concat(itemColumnOffsets.Select(i => new Pair<ColNum, ColNum>(1, i)))
         .ToArray(keyFieldCount);
       var seekTransform = new MapTransform(true, keyDescriptor, map);
 

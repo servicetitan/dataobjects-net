@@ -26,8 +26,8 @@ namespace Xtensive.Orm.Tests.Core.Collections
     [Test]
     public void RangeToListTest()
     {
-      Assert.That(CollectionUtils.RangeToList(1, 10).SequenceEqual(Enumerable.Range(1, 10)));
-      Assert.That(CollectionUtils.RangeToList(-1, 10).SequenceEqual(Enumerable.Range(-1, 10)));
+      Assert.That(CollectionUtils.RangeToList(1, 10).SequenceEqual(Enumerable.Range(1, 10).Select(i => (ColNum)i)));
+      Assert.That(CollectionUtils.RangeToList(-1, 10).SequenceEqual(Enumerable.Range(-1, 10).Select(i => (ColNum) i)));
       _ = Assert.Throws<ArgumentOutOfRangeException>(() => CollectionUtils.RangeToList(1, -10));
     }
 

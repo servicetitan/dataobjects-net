@@ -28,12 +28,12 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the indexes of key columns.
     /// </summary>
-    public IReadOnlyList<short> Keys { get; }
+    public IReadOnlyList<ColNum> Keys { get; }
 
     /// <summary>
     /// Gets the indexes of all columns.
     /// </summary>
-    public IReadOnlyList<short> Columns { get; }
+    public IReadOnlyList<ColNum> Columns { get; }
 
 
     // Constructors
@@ -44,8 +44,8 @@ namespace Xtensive.Orm.Model
     /// <param name="type">The type.</param>
     /// <param name="keys">The keys.</param>
     /// <param name="columns">The columns.</param>
-    public ColumnGroup(TypeInfoRef type, IEnumerable<short> keys, IEnumerable<short> columns)
-      : this(type, new List<short>(keys), new List<short>(columns))
+    public ColumnGroup(TypeInfoRef type, IEnumerable<ColNum> keys, IEnumerable<short> columns)
+      : this(type, new List<ColNum>(keys), new List<ColNum>(columns))
     {
     }
 
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Model
     /// <param name="type">The type.</param>
     /// <param name="keys">The keys.</param>
     /// <param name="columns">The columns.</param>
-    public ColumnGroup(TypeInfoRef type, IReadOnlyList<short> keys, IReadOnlyList<short> columns)
+    public ColumnGroup(TypeInfoRef type, IReadOnlyList<ColNum> keys, IReadOnlyList<ColNum> columns)
     {
       TypeInfoRef = type;
       Keys = keys;

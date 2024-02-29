@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Linq.Expressions
       }
     }
 
-    public override Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap) {
         return this;
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return value;
       }
 
-      var newMapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
+      var newMapping = new Segment<ColNum>((ColNum) (Mapping.Offset + offset), Mapping.Length);
       var result = new StructureFieldExpression(PersistentType, Field, newMapping, OuterParameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
       var processedFields = new List<PersistentFieldExpression>(fields.Count);
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap) {
         return this;
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
       var result = new StructureFieldExpression(PersistentType, Field, default, OuterParameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
-      var offset = int.MaxValue;
+      var offset = ColNum.MaxValue;
       var processedFields = new List<PersistentFieldExpression>(fields.Count);
       foreach (var field in fields) {
         var mappedField = (PersistentFieldExpression) field.Remap(map, processedExpressions);
@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return null;
       }
 
-      result.Mapping = new Segment<int>(offset, processedFields.Count);
+      result.Mapping = new Segment<ColNum>(offset, (ColNum) processedFields.Count);
       if (Owner == null) {
         result.fields = processedFields;
         return result;
@@ -169,7 +169,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public static StructureFieldExpression CreateStructure(FieldInfo structureField, int offset)
+    public static StructureFieldExpression CreateStructure(FieldInfo structureField, ColNum offset)
     {
       if (!structureField.IsStructure) {
         throw new ArgumentException(string.Format(Strings.ExFieldIsNotStructure, structureField.Name));
@@ -177,12 +177,12 @@ namespace Xtensive.Orm.Linq.Expressions
 
       var persistentType = structureField.ReflectedType.Model.Types[structureField.ValueType];
       var fieldMappingInfo = structureField.MappingInfo;
-      var mapping = new Segment<int>(offset + fieldMappingInfo.Offset, fieldMappingInfo.Length);
+      var mapping = new Segment<ColNum>((ColNum)(offset + fieldMappingInfo.Offset), fieldMappingInfo.Length);
       var result = new StructureFieldExpression(persistentType, structureField, mapping, null, false);
       var processedFields = new List<PersistentFieldExpression>(persistentType.Fields.Count);
       foreach (var field in persistentType.Fields) {
         // Do not convert to LINQ. We want to avoid a closure creation here.
-        processedFields.Add(BuildNestedFieldExpression(field, offset + fieldMappingInfo.Offset));
+        processedFields.Add(BuildNestedFieldExpression(field, (ColNum) (offset + fieldMappingInfo.Offset)));
       }
 
       result.Fields = processedFields;
@@ -190,7 +190,7 @@ namespace Xtensive.Orm.Linq.Expressions
     }
 
 // ReSharper disable RedundantNameQualifier
-    private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, int offset)
+    private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, ColNum offset)
     {
       if (nestedField.IsPrimitive) {
         return FieldExpression.CreateField(nestedField, offset);
@@ -214,7 +214,7 @@ namespace Xtensive.Orm.Linq.Expressions
     private StructureFieldExpression(
       TypeInfo persistentType, 
       FieldInfo structureField, 
-      in Segment<int> mapping,
+      in Segment<ColNum> mapping,
       ParameterExpression parameterExpression, 
       bool defaultIfEmpty)
       : base(ExtendedExpressionType.StructureField, structureField, mapping, parameterExpression, defaultIfEmpty)

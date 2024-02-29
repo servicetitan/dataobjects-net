@@ -19,12 +19,12 @@ namespace Xtensive.Tuples.Transform
   /// </summary>
   public sealed class CutOutTransform : MapTransform
   {
-    private Segment<int> segment;
+    private Segment<ColNum> segment;
 
     /// <summary>
     /// Gets the segment this transform cuts out.
     /// </summary>
-    public Segment<int> Segment
+    public Segment<ColNum> Segment
     {
       [DebuggerStepThrough]
       get { return segment; }
@@ -52,16 +52,16 @@ namespace Xtensive.Tuples.Transform
     /// <param name="isReadOnly"><see cref="MapTransform.IsReadOnly"/> property value.</param>
     /// <param name="sourceDescriptor">Source tuple descriptor.</param>
     /// <param name="segment">The segment to cut out.</param>
-    public CutOutTransform(bool isReadOnly, TupleDescriptor sourceDescriptor, in Segment<int> segment)
+    public CutOutTransform(bool isReadOnly, TupleDescriptor sourceDescriptor, in Segment<ColNum> segment)
       : base(isReadOnly)
     {
       this.segment = segment;
       Type[] fields = new Type[sourceDescriptor.Count - segment.Length];
-      int[] map = new int[sourceDescriptor.Count - segment.Length];
-      int j = segment.Offset;
+      ColNum[] map = new ColNum[sourceDescriptor.Count - segment.Length];
+      ColNum j = segment.Offset;
       bool flag = false;
       if (sourceDescriptor.Count >= j + segment.Length)
-      for (int i = 0; i < sourceDescriptor.Count - segment.Length; i++) {
+      for (ColNum i = 0; i < sourceDescriptor.Count - segment.Length; i++) {
         if ((i < j)) {
           fields[i] = sourceDescriptor[i];
           map[i] = i;

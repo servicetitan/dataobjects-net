@@ -53,15 +53,15 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       public readonly RootContainerCacheKey Key;
 
-      public readonly SortedDictionary<int, ColumnInfo> Columns;
+      public readonly SortedDictionary<ColNum, ColumnInfo> Columns;
 
-      public readonly IReadOnlyList<int> ColumnsToBeLoaded;
+      public readonly IReadOnlyList<ColNum> ColumnsToBeLoaded;
 
 
       // Constructors
 
-      public RootContainerCacheEntry(in RootContainerCacheKey key, SortedDictionary<int, ColumnInfo> columns,
-        IReadOnlyList<int> columnsToBeLoaded)
+      public RootContainerCacheEntry(in RootContainerCacheKey key, SortedDictionary<ColNum, ColumnInfo> columns,
+        IReadOnlyList<ColNum> columnsToBeLoaded)
       {
         Key = key;
         Columns = columns;
@@ -252,8 +252,8 @@ namespace Xtensive.Orm.Internals.Prefetch
     }
 
     public void GetCachedColumnIndexes(TypeInfo type,
-      IEnumerable<PrefetchFieldDescriptor> descriptors, out SortedDictionary<int, ColumnInfo> columns,
-      out IReadOnlyList<int> columnsToBeLoaded)
+      IEnumerable<PrefetchFieldDescriptor> descriptors, out SortedDictionary<ColNum, ColumnInfo> columns,
+      out IReadOnlyList<ColNum> columnsToBeLoaded)
     {
       var cacheKey = new RootContainerCacheKey(type, descriptors);
       var cacheEntry = columnsCache[cacheKey, true];

@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Rse
           ResetState(state);
 
           // Select Id, TypeId, Title
-          CompilableProvider rsTitle = rsMain.Select(new[] { 0, 1, 2 });
+          CompilableProvider rsTitle = rsMain.Select(new ColNum[] { 0, 1, 2 });
           UpdateCache(session, rsTitle.GetRecordSetReader(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Rse
           ResetState(state);
 
           // Select Id, TypeId, Text
-          CompilableProvider rsText = rsMain.Select(new[] { 0, 1, 3 });
+          CompilableProvider rsText = rsMain.Select(new ColNum[] { 0, 1, 3 });
           UpdateCache(session, rsText.GetRecordSetReader(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Tests.Rse
           ResetState(state);
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
-          CompilableProvider rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1, 1));
+          CompilableProvider rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<ColNum>(0, 0), new Pair<ColNum>(1, 1));
           UpdateCache(session, rsJoin.GetRecordSetReader(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);

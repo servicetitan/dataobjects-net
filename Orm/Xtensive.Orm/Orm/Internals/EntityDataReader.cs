@@ -22,10 +22,10 @@ namespace Xtensive.Orm.Internals
     private readonly struct RecordPartMapping
     {
       public int TypeIdColumnIndex { get; }
-      public IReadOnlyList<Pair<int>> Columns { get; }
+      public IReadOnlyList<Pair<ColNum>> Columns { get; }
       public TypeInfo ApproximateType { get; }
 
-      public RecordPartMapping(int typeIdColumnIndex, IReadOnlyList<Pair<int>> columns, TypeInfo approximateType)
+      public RecordPartMapping(int typeIdColumnIndex, IReadOnlyList<Pair<ColNum>> columns, TypeInfo approximateType)
       {
         TypeIdColumnIndex = typeIdColumnIndex;
         Columns = columns;
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Internals
         for (int i = 0; i < recordPartCount; i++) {
           var columnGroup = columnGroups[i];
           var approximateType = columnGroup.TypeInfoRef.Resolve(model);
-          var columnMapping = new List<Pair<int>>(columnGroup.Columns.Count);
+          var columnMapping = new List<Pair<ColNum>>(columnGroup.Columns.Count);
           var typeIdColumnIndex = -1;
           foreach (var columnIndex in columnGroup.Columns) {
             var column = (MappedColumn) columns[columnIndex];
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Internals
               if (columnInfo.Name == typeIdColumnName) {
                 typeIdColumnIndex = column.Index;
               }
-              columnMapping.Add(new Pair<int>(targetColumnIndex, columnIndex));
+              columnMapping.Add(new Pair<ColNum>(targetColumnIndex, columnIndex));
             }
           }
           mappings[i] = new RecordPartMapping(typeIdColumnIndex, columnMapping, approximateType);

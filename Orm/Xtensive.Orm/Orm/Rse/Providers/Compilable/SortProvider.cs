@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="order">The <see cref="OrderProviderBase.Order"/> property value.</param>
-    public SortProvider(CompilableProvider source, DirectionCollection<int> order)
+    public SortProvider(CompilableProvider source, DirectionCollection<ColNum> order)
       : base(ProviderType.Sort, source, order)
     {
       Initialize();

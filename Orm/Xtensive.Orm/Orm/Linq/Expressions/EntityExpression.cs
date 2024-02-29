@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public bool IsNullable { get; set; }
 
-    public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
+    public Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap) {
         return this;
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
+    public Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap) {
         return this;
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public static void Fill(EntityExpression entityExpression, int offset)
+    public static void Fill(EntityExpression entityExpression, ColNum offset)
     {
       using (new RemapScope()) {
         _ = entityExpression.Remap(offset, new Dictionary<Expression, Expression>());
@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Linq.Expressions
       }
     }
 
-    public static EntityExpression Create(TypeInfo typeInfo, int offset, bool keyFieldsOnly)
+    public static EntityExpression Create(TypeInfo typeInfo, ColNum offset, bool keyFieldsOnly)
     {
       if (!typeInfo.IsEntity && !typeInfo.IsInterface) {
         throw new ArgumentException(
@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public static EntityExpression Create(EntityFieldExpression entityFieldExpression, int offset)
+    public static EntityExpression Create(EntityFieldExpression entityFieldExpression, ColNum offset)
     {
       var typeInfo = entityFieldExpression.PersistentType;
       var keyExpression = KeyExpression.Create(typeInfo, offset);
@@ -197,7 +197,7 @@ namespace Xtensive.Orm.Linq.Expressions
           entityFieldExpression.OuterParameter, new Dictionary<Expression, Expression>());
     }
 
-    private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, int offset)
+    private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, ColNum offset)
     {
       if (nestedField.IsPrimitive) {
         return FieldExpression.CreateField(nestedField, offset);

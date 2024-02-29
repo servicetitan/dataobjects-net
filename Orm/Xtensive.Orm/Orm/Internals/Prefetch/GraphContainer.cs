@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     }
 
     public void CreateRootEntityContainer(
-      SortedDictionary<int, ColumnInfo> forcedColumns, IReadOnlyList<int> forcedColumnsToBeLoaded)
+      SortedDictionary<ColNum, ColumnInfo> forcedColumns, IReadOnlyList<ColNum> forcedColumnsToBeLoaded)
     {
       RootEntityContainer = new RootEntityContainer(Key, Type, exactType, Manager);
       RootEntityContainer.SetColumnCollections(forcedColumns, forcedColumnsToBeLoaded);

@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Rse.Providers
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
-      var columnIndexes = (int[])OnRecursionExit(provider);
+      var columnIndexes = (ColNum[])OnRecursionExit(provider);
       return source == provider.Source
         ? provider
         : new SelectProvider(source, columnIndexes ?? provider.ColumnIndexes);
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Rse.Providers
       var order = OnRecursionExit(provider);
       return source == provider.Source
         ? provider
-        : new SortProvider(source, (order == null) ? provider.Order : (DirectionCollection<int>)order);
+        : new SortProvider(source, (order == null) ? provider.Order : (DirectionCollection<ColNum>)order);
     }
 
     /// <inheritdoc/>
@@ -124,7 +124,7 @@ namespace Xtensive.Orm.Rse.Providers
       return left == provider.Left && right == provider.Right
         ? provider
         : new JoinProvider(left, right, provider.JoinType,
-            equalIndexes != null ? (Pair<int>[])equalIndexes : provider.EqualIndexes);
+            equalIndexes != null ? (Pair<ColNum>[])equalIndexes : provider.EqualIndexes);
     }
 
     /// <inheritdoc/>
@@ -200,7 +200,7 @@ namespace Xtensive.Orm.Rse.Providers
         acd.AddRange(provider.AggregateColumns.Select(ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType)));
         return new AggregateProvider(source, provider.GroupColumnIndexes, acd.ToArray());
       }
-      var result = (Pair<int[], AggregateColumnDescriptor[]>) resultParameters;
+      var result = (Pair<ColNum[], AggregateColumnDescriptor[]>) resultParameters;
       return new AggregateProvider(source, result.First, result.Second);
     }
 

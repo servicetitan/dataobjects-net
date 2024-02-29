@@ -804,7 +804,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       var reflectedType = index.ReflectedType;
       var keyColumns = index.IsPrimary
-        ? Enumerable.Range(0, index.KeyColumns.Count).Select(i => (short)i).ToList(index.KeyColumns.Count)
+        ? Enumerable.Range(0, index.KeyColumns.Count).Select(i => (ColNum) i).ToList(index.KeyColumns.Count)
         : index.KeyColumns
             .Select(static pair => pair.Key)
             .Concat(index.ValueColumns)

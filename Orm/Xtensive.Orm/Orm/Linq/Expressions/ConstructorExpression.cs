@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
+    public Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       Func<IMappedExpression, Expression> remapper = delegate(IMappedExpression mapped) {
         var parametrizedExpression = mapped as ParameterizedExpression;
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    public Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
+    public Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       Func<IMappedExpression, Expression> remapper = delegate(IMappedExpression mapped) {
         var parametrizedExpression = mapped as ParameterizedExpression;

@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Rse
     /// <summary>
     /// Gets the source column index.
     /// </summary>
-    public int SourceIndex { get; private set; }
+    public ColNum SourceIndex { get; }
 
     /// <summary>
     /// Gets column descriptor.
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <inheritdoc/>
-    public override Column Clone(int newIndex)
+    public override Column Clone(ColNum newIndex)
     {
       return new AggregateColumn(this, newIndex);
     }
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="descriptor"><see cref="AggregateColumnDescriptor"/> property value.</param>
     /// <param name="index"><see cref="SourceIndex"/> property value.</param>
     /// <param name="type"><see cref="Column.Type"/> property value.</param>
-    public AggregateColumn(AggregateColumnDescriptor descriptor, int index, Type type)
+    public AggregateColumn(AggregateColumnDescriptor descriptor, ColNum index, Type type)
       : base(descriptor.Name, index, type, null)
     {
       AggregateType = descriptor.AggregateType;
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Rse
       SourceIndex = column.SourceIndex;
     }
 
-    private AggregateColumn(AggregateColumn column, int newIndex)
+    private AggregateColumn(AggregateColumn column, ColNum newIndex)
       : base(column.Name, newIndex, column.Type, column)
     {
       AggregateType = column.AggregateType;

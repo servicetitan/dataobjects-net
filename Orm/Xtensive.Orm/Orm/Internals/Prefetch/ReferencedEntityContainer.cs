@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var descriptors = PrefetchHelper
         .GetCachedDescriptorsForFieldsLoadedByDefault(Manager.Owner.Session.Domain, Type);
-      SortedDictionary<int, ColumnInfo> columns;
+      SortedDictionary<ColNum, ColumnInfo> columns;
       Manager.GetCachedColumnIndexes(Type, descriptors, out columns, out var columnsToBeLoaded);
       SetColumnCollections(columns, columnsToBeLoaded);
     }

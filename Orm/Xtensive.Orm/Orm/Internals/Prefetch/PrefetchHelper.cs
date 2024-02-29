@@ -49,16 +49,16 @@ namespace Xtensive.Orm.Internals.Prefetch
       return true;
     }
 
-    public static SortedDictionary<int, ColumnInfo> GetColumns(IEnumerable<ColumnInfo> candidateColumns,
+    public static SortedDictionary<ColNum, ColumnInfo> GetColumns(IEnumerable<ColumnInfo> candidateColumns,
       TypeInfo type)
     {
-      var columns = new SortedDictionary<int, ColumnInfo>();
+      var columns = new SortedDictionary<ColNum, ColumnInfo>();
       AddColumns(candidateColumns, columns, type);
       return columns;
     }
 
     public static bool AddColumns(IEnumerable<ColumnInfo> candidateColumns,
-      SortedDictionary<int, ColumnInfo> columns, TypeInfo type)
+      SortedDictionary<ColNum, ColumnInfo> columns, TypeInfo type)
     {
       var result = false;
       var typeIsInterface = type.IsInterface;
@@ -68,20 +68,17 @@ namespace Xtensive.Orm.Internals.Prefetch
         result = true;
         var columnField = column.Field;
         var columnIsInterface = columnField.DeclaringType.IsInterface;
-        if (typeIsInterface == columnIsInterface)
-          columns[typeFields[columnField.Name].MappingInfo.Offset] = column;
-        else if (columnIsInterface)
-          columns[typeFieldMap[columnField].MappingInfo.Offset] = column;
-        else
-          throw new InvalidOperationException();
+        var fieldInfo = typeIsInterface == columnIsInterface ? typeFields[columnField.Name]
+          : columnIsInterface ? typeFieldMap[columnField] : throw new InvalidOperationException();
+        columns[(short) fieldInfo.MappingInfo.Offset] = column;          
       }
       return result;
     }
 
-    public static List<int> GetColumnsToBeLoaded(SortedDictionary<int, ColumnInfo> userColumnIndexes,
+    public static List<ColNum> GetColumnsToBeLoaded(SortedDictionary<ColNum, ColumnInfo> userColumnIndexes,
       TypeInfo type)
     {
-      var result = new List<int>(userColumnIndexes.Count);
+      var result = new List<ColNum>(userColumnIndexes.Count);
       result.AddRange(type.Indexes.PrimaryIndex.ColumnIndexMap.System);
       result.AddRange(userColumnIndexes.Where(pair => !pair.Value.IsPrimaryKey
         && !pair.Value.IsSystem).Select(pair => pair.Key));

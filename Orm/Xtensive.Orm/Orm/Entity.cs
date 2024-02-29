@@ -70,7 +70,7 @@ namespace Xtensive.Orm
       session.Compile(t.typeInfo.Indexes.PrimaryIndex.GetQuery()
         .Seek(context => context.GetValue(keyParameter))
         .Lock(() => t.lockMode, () => t.lockBehavior)
-        .Select(Array.Empty<int>()));
+        .Select(Array.Empty<short>()));
 
     private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     private readonly bool changeVersionOnSetAttempt;

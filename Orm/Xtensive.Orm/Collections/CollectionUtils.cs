@@ -41,11 +41,11 @@ namespace Xtensive.Collections
     /// <exception cref="T:System.ArgumentOutOfRangeException">
     /// <paramref name="count"/> is less than 0.-or-
     /// <paramref name="start"/> + <paramref name="count"/> -1 is larger than <see cref="F:System.Int32.MaxValue"/>.</exception>
-    public static List<int> RangeToList(int start, int count)
+    public static List<ColNum> RangeToList(ColNum start, ColNum count)
     {
       ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(count, 0, "count");
-      var result = new List<int>(count);
-      result.AddRange(Enumerable.Range(start, count));
+      var result = new List<ColNum>(count);
+      result.AddRange(Enumerable.Range(start, count).Select(i => (ColNum) i));
       return result;
     }
 

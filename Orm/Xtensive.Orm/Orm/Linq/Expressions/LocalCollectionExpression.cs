@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Linq.Expressions
           : ((LocalCollectionExpression) field.Value).Columns.Cast<IMappedExpression>())
         .Cast<ColumnExpression>();
 
-    public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
+    public Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
+    public Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;

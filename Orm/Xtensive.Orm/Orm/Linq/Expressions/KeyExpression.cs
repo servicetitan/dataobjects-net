@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Linq.Expressions
     public TypeInfo EntityType { get; }
     public IReadOnlyList<FieldExpression> KeyFields { get; }
 
-    public override Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap) {
         return this;
@@ -33,9 +33,9 @@ namespace Xtensive.Orm.Linq.Expressions
 
     // Having this code as a separate method helps to avoid closure allocation during Remap call
     // in case processedExpressions dictionary already contains a result.
-    private Expression RemapWithNoCheck(int offset, Dictionary<Expression, Expression> processedExpressions)
+    private Expression RemapWithNoCheck(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
-      var newMapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
+      var newMapping = new Segment<ColNum>((ColNum)(Mapping.Offset + offset), Mapping.Length);
 
       FieldExpression Remap(FieldExpression f) => (FieldExpression) f.Remap(offset, processedExpressions);
 
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap) {
         return this;
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return value;
       }
 
-      var segment = new Segment<int>(map.IndexOf(Mapping.Offset), Mapping.Length);
+      var segment = new Segment<ColNum>((ColNum)map.IndexOf(Mapping.Offset), Mapping.Length);
       var fields = new FieldExpression[KeyFields.Count];
       using (new SkipOwnerCheckScope()) {
         for (var index = 0; index < fields.Length; index++) {
@@ -126,9 +126,9 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public static KeyExpression Create(TypeInfo entityType, int offset)
+    public static KeyExpression Create(TypeInfo entityType, ColNum offset)
     {
-      var mapping = new Segment<int>(offset, entityType.Key.TupleDescriptor.Count);
+      var mapping = new Segment<ColNum>(offset, entityType.Key.TupleDescriptor.Count);
 
       FieldExpression CreateField(ColumnInfo c) => FieldExpression.CreateField(c.Field, offset);
 
@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Linq.Expressions
     private KeyExpression(
       TypeInfo entityType, 
       IReadOnlyList<FieldExpression> keyFields,
-      in Segment<int> segment,
+      in Segment<ColNum> segment,
       PropertyInfo underlyingProperty, 
       ParameterExpression parameterExpression, 
       bool defaultIfEmpty)

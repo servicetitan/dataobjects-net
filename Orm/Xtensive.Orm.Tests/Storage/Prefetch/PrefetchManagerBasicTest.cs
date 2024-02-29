@@ -373,7 +373,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var parameterContext = new ParameterContext();
         var orderPrimaryIndex = OrderType.Indexes.PrimaryIndex;
         var selectedColumns = orderPrimaryIndex.ColumnIndexMap.System
-          .Concat(EmployeeField.Columns.Select(column => orderPrimaryIndex.Columns.IndexOf(column))).ToArray();
+          .Concat(EmployeeField.Columns.Select(column => (ColNum) orderPrimaryIndex.Columns.IndexOf(column))).ToArray();
         var orderQuery = OrderType.Indexes.PrimaryIndex.GetQuery()
           .Filter(t => t.GetValue<int>(0)==orderKey.Value.GetValue<int>(0)).Select(selectedColumns);
         orderQuery.GetRecordSetReader(session, parameterContext).ToEntities(0).Single();

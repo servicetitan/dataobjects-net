@@ -18,12 +18,12 @@ namespace Xtensive.Tuples.Transform
   /// </summary>
   public sealed class SegmentTransform : MapTransform
   {
-    private Segment<int> segment;
+    private Segment<ColNum> segment;
 
     /// <summary>
     /// Gets the segment this transform extracts.
     /// </summary>
-    public Segment<int> Segment
+    public Segment<ColNum> Segment
     {
       [DebuggerStepThrough]
       get { return segment; }
@@ -51,13 +51,13 @@ namespace Xtensive.Tuples.Transform
     /// <param name="isReadOnly"><see cref="MapTransform.IsReadOnly"/> property value.</param>
     /// <param name="sourceDescriptor">Source tuple descriptor.</param>
     /// <param name="segment">The segment to extract.</param>
-    public SegmentTransform(bool isReadOnly, TupleDescriptor sourceDescriptor, in Segment<int> segment)
+    public SegmentTransform(bool isReadOnly, TupleDescriptor sourceDescriptor, in Segment<ColNum> segment)
       : base(isReadOnly)
     {
       this.segment = segment;
       Type[] fields = new Type[segment.Length];
-      int[] map = new int[segment.Length];
-      for (int i = 0, j = segment.Offset; i < segment.Length; i++, j++) {
+      ColNum[] map = new ColNum[segment.Length];
+      for (ColNum i = 0, j = segment.Offset; i < segment.Length; i++, j++) {
         fields[i] = sourceDescriptor[j];
         map[i] = j;
       }

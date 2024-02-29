@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <inheritdoc/>
-    public override Column Clone(int newIndex)
+    public override Column Clone(ColNum newIndex)
     {
       return new CalculatedColumn(this, newIndex);
     }
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="descriptor"><see cref="CalculatedColumnDescriptor"/> property value.</param>
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
-    public CalculatedColumn(CalculatedColumnDescriptor descriptor, int index)
+    public CalculatedColumn(CalculatedColumnDescriptor descriptor, ColNum index)
       : base(descriptor.Name, index, descriptor.Type, null)
     {
       Expression = descriptor.Expression;
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Rse
       Expression = column.Expression;
     }
  
-    private CalculatedColumn(CalculatedColumn column, int newIndex)
+    private CalculatedColumn(CalculatedColumn column, ColNum newIndex)
       : base(column.Name, newIndex, column.Type, column)
     {
       Expression = column.Expression;

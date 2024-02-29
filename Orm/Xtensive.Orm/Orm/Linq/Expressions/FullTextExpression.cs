@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return new FullTextExpression(FullTextIndex, entityExpression, rankExpression, null);
     }
 
-    public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
+    public Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return new FullTextExpression(FullTextIndex, remappedEntityExpression, remappedRankExpression, OuterParameter);
     }
 
-    public Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
+    public Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;

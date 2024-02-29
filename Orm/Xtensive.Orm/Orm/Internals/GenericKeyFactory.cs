@@ -16,14 +16,14 @@ namespace Xtensive.Orm.Internals
   {
     public readonly Type Type;
     public readonly Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, Key> DefaultConstructor;
-    public readonly Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, IReadOnlyList<int>, Key> KeyIndexBasedConstructor;
+    public readonly Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, IReadOnlyList<ColNum>, Key> KeyIndexBasedConstructor;
 
 
     // Constructors
 
     public GenericKeyFactory(Type type,
       Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, Key> defaultConstructor,
-      Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, IReadOnlyList<int>, Key> keyIndexBasedConstructor)
+      Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, IReadOnlyList<ColNum>, Key> keyIndexBasedConstructor)
     {
       Type = type;
       DefaultConstructor = defaultConstructor;

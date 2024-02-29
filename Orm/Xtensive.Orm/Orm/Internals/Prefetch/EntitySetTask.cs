@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private static readonly Func<ItemsQueryCacheKey, CompilableProvider> CreateRecordSetLoadingItems = cachingKey => {
       var association = cachingKey.ReferencingField.Associations.Last();
       var primaryTargetIndex = association.TargetType.Indexes.PrimaryIndex;
-      var resultColumns = new List<int>(primaryTargetIndex.Columns.Count);
+      var resultColumns = new List<ColNum>(primaryTargetIndex.Columns.Count);
       var result = association.AuxiliaryType == null
         ? CreateQueryForDirectAssociation(cachingKey, primaryTargetIndex, resultColumns)
         : CreateQueryForAssociationViaAuxType(cachingKey, primaryTargetIndex, resultColumns);
@@ -189,14 +189,14 @@ namespace Xtensive.Orm.Internals.Prefetch
       return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
     }
 
-    private static CompilableProvider CreateQueryForAssociationViaAuxType(in ItemsQueryCacheKey cachingKey, IndexInfo primaryTargetIndex, List<int> resultColumns)
+    private static CompilableProvider CreateQueryForAssociationViaAuxType(in ItemsQueryCacheKey cachingKey, IndexInfo primaryTargetIndex, List<ColNum> resultColumns)
     {
       var association = cachingKey.ReferencingField.Associations.Last();
       var associationIndex = association.UnderlyingIndex;
       var joiningColumns = GetJoiningColumnIndexes(primaryTargetIndex, associationIndex,
         association.AuxiliaryType != null);
       AddResultColumnIndexes(resultColumns, associationIndex, 0);
-      AddResultColumnIndexes(resultColumns, primaryTargetIndex, resultColumns.Count);
+      AddResultColumnIndexes(resultColumns, primaryTargetIndex, (ColNum) resultColumns.Count);
       var firstKeyColumnIndex = associationIndex.Columns.IndexOf(associationIndex.KeyColumns[0].Key);
       var keyColumnTypes = associationIndex
         .Columns
@@ -210,7 +210,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         .Join(primaryTargetIndex.GetQuery(), joiningColumns);
     }
 
-    private static CompilableProvider CreateQueryForDirectAssociation(in ItemsQueryCacheKey cachingKey, IndexInfo primaryTargetIndex, List<int> resultColumns)
+    private static CompilableProvider CreateQueryForDirectAssociation(in ItemsQueryCacheKey cachingKey, IndexInfo primaryTargetIndex, List<ColNum> resultColumns)
     {
       AddResultColumnIndexes(resultColumns, primaryTargetIndex, 0);
       var association = cachingKey.ReferencingField.Associations.Last();
@@ -221,31 +221,31 @@ namespace Xtensive.Orm.Internals.Prefetch
         .Filter(QueryHelper.BuildFilterLambda(field.MappingInfo.Offset, keyColumnTypes, ownerParameter));
     }
 
-    private static void AddResultColumnIndexes(ICollection<int> indexes, IndexInfo index,
-      int columnIndexOffset)
+    private static void AddResultColumnIndexes(ICollection<ColNum> indexes, IndexInfo index,
+      short columnIndexOffset)
     {
-      for (var i = 0; i < index.Columns.Count; i++) {
+      for (ColNum i = 0; i < index.Columns.Count; i++) {
         var column = index.Columns[i];
         if (PrefetchHelper.IsFieldToBeLoadedByDefault(column.Field)) {
-          indexes.Add(i + columnIndexOffset);
+          indexes.Add((ColNum) (i + columnIndexOffset));
         }
       }
     }
 
-    private static Pair<int>[] GetJoiningColumnIndexes(IndexInfo primaryIndex, IndexInfo associationIndex, bool hasAuxType)
+    private static Pair<ColNum>[] GetJoiningColumnIndexes(IndexInfo primaryIndex, IndexInfo associationIndex, bool hasAuxType)
     {
-      var joiningColumns = new Pair<int>[primaryIndex.KeyColumns.Count];
-      var firstColumnIndex = primaryIndex.Columns.IndexOf(primaryIndex.KeyColumns[0].Key);
-      for (var i = 0; i < joiningColumns.Length; i++) {
+      var joiningColumns = new Pair<ColNum>[primaryIndex.KeyColumns.Count];
+      ColNum firstColumnIndex = (ColNum) primaryIndex.Columns.IndexOf(primaryIndex.KeyColumns[0].Key);
+      for (ColNum i = 0; i < joiningColumns.Length; i++) {
         if (hasAuxType) {
           joiningColumns[i] =
-            new Pair<int>(associationIndex.Columns.IndexOf(associationIndex.ValueColumns[i]),
-              firstColumnIndex + i);
+            new Pair<ColNum>((ColNum) associationIndex.Columns.IndexOf(associationIndex.ValueColumns[i]),
+              (ColNum) (firstColumnIndex + i));
         }
         else {
           joiningColumns[i] =
-            new Pair<int>(associationIndex.Columns.IndexOf(primaryIndex.KeyColumns[i].Key),
-              firstColumnIndex + i);
+            new Pair<ColNum>((ColNum) associationIndex.Columns.IndexOf(primaryIndex.KeyColumns[i].Key),
+              (ColNum) (firstColumnIndex + i));
         }
       }
 
