@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Sort order of the index.
     /// </summary>
-    public DirectionCollection<short> Order { get; private set; }
+    public DirectionCollection<ColNum> Order { get; private set; }
 
     /// <summary>
     /// Gets the key extractor transform.

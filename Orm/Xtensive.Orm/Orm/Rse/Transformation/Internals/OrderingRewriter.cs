@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Rse.Transformation
   internal sealed class OrderingRewriter : CompilableProviderVisitor
   {
     private readonly Func<CompilableProvider, ProviderOrderingDescriptor> descriptorResolver;
-    private DirectionCollection<short> sortOrder;
+    private DirectionCollection<ColNum> sortOrder;
     private ProviderOrderingDescriptor descriptor;
     private ProviderOrderingDescriptor consumerDescriptor;
 

@@ -30,12 +30,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets the aggregate columns.
     /// </summary>
-    public AggregateColumn[] AggregateColumns { get; private set; }
+    public AggregateColumn[] AggregateColumns { get; }
 
     /// <summary>
     /// Gets column indexes to group by.
     /// </summary>
-    public short[] GroupColumnIndexes { get; private set; }
+    public ColNum[] GroupColumnIndexes { get; }
 
     /// <summary>
     /// Gets header resize transform.
@@ -196,7 +196,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="AggregateColumns"/>.</param>
     /// <param name="groupIndexes">The column indexes to group by.</param>
-    public AggregateProvider(CompilableProvider source, short[] groupIndexes, params AggregateColumnDescriptor[] columnDescriptors)
+    public AggregateProvider(CompilableProvider source, ColNum[] groupIndexes, params AggregateColumnDescriptor[] columnDescriptors)
       : base(ProviderType.Aggregate, source)
     {
       groupIndexes = groupIndexes ?? Array.Empty<ColNum>();

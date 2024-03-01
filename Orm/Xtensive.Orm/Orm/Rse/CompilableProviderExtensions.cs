@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Rse
     }
 
     public static CompilableProvider Aggregate(this CompilableProvider recordQuery,
-      short[] groupIndexes, params AggregateColumnDescriptor[] descriptors)
+      ColNum[] groupIndexes, params AggregateColumnDescriptor[] descriptors)
     {
       return new AggregateProvider(recordQuery, groupIndexes, descriptors);
     }

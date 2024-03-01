@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return ordered.ToList();
     }
     
-    public static IEnumerable<short> GetColumns(Expression expression, ColumnExtractionModes columnExtractionModes)
+    public static IEnumerable<ColNum> GetColumns(Expression expression, ColumnExtractionModes columnExtractionModes)
     {
       var gatherer = new ColumnGatherer(columnExtractionModes);
       gatherer.Visit(expression);
@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
       Visit(subQueryExpression.ProjectionExpression.ItemProjector.Item);
       var visitor = new ApplyParameterAccessVisitor(topSubquery.ApplyParameter, (mc, index) => {
-        columns.Add(new Pair<short, Expression>(index, mc));
+        columns.Add(new Pair<ColNum, Expression>(index, mc));
         return mc;
       });
       var providerVisitor = new CompilableProviderVisitor((provider, expression) => visitor.Visit(expression));

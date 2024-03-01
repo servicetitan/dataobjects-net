@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Model
     /// <param name="type">The type.</param>
     /// <param name="keys">The keys.</param>
     /// <param name="columns">The columns.</param>
-    public ColumnGroup(TypeInfoRef type, IEnumerable<ColNum> keys, IEnumerable<short> columns)
+    public ColumnGroup(TypeInfoRef type, IEnumerable<ColNum> keys, IEnumerable<ColNum> columns)
       : this(type, new List<ColNum>(keys), new List<ColNum>(columns))
     {
     }

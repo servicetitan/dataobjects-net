@@ -457,7 +457,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return (leftMapping, rightMapping);
     }
 
-    private void RegisterOuterMapping(ApplyParameter parameter, short value)
+    private void RegisterOuterMapping(ApplyParameter parameter, ColNum value)
     {
       if (outerColumnUsages.TryGetValue(parameter, out var map) && !map.Contains(value)) {
         map.Add(value);

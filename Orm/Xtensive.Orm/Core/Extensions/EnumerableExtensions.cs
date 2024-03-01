@@ -403,8 +403,8 @@ namespace Xtensive.Core
     public static IEnumerable<int> GetItems(this in Segment<int> segment) =>
       Enumerable.Range(segment.Offset, segment.Length);
 
-    public static IEnumerable<ColNum> GetItems(this in Segment<ColNum> segment) =>
-      Enumerable.Range(segment.Offset, segment.Length).Select(i => (ColNum) i);
+    public static IEnumerable<short> GetItems(this in Segment<short> segment) =>
+      Enumerable.Range(segment.Offset, segment.Length).Select(i => (short) i);
 
     /// <summary>
     /// Splits the specified <see cref="IEnumerable{T}"/> into batches.

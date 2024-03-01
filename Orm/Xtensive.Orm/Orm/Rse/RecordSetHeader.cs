@@ -169,7 +169,7 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="selectedColumns">The indexes of columns to select.</param>
     /// <returns>A new header containing only specified columns.</returns>
-    public RecordSetHeader Select(IEnumerable<short> selectedColumns)
+    public RecordSetHeader Select(IEnumerable<ColNum> selectedColumns)
     {
       var columns = new List<ColNum>(selectedColumns);
       var columnsMap = new List<ColNum>(Enumerable.Repeat((ColNum)(-1), Columns.Count));
