@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Rse.Transformation
       var indexColumns = new List<ColNum>(provider.ColumnIndexes.Count);
       var newMappings = new List<ColNum>(provider.ColumnIndexes.Count);
 
-      short currentItemIndex = 0;
+      ColNum currentItemIndex = 0;
       foreach(var item in provider.ColumnIndexes) {
         var indexInMap = (ColNum) sourceMap.IndexOf(item);
         if (indexInMap >= 0) {
