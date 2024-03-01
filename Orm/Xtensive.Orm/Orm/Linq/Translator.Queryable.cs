@@ -447,7 +447,7 @@ namespace Xtensive.Orm.Linq
       //        offset = recordSet.Header.Columns.Count;
       //        var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
       //        var keyPairs = keySegment
-      //          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+      //          .Select((leftIndex, rightIndex) => new Pair<ColNum>(leftIndex, rightIndex))
       //          .ToArray();
       //        recordSet = recordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
       //      }

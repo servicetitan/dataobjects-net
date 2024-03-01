@@ -359,7 +359,7 @@ namespace Xtensive.Orm.Linq.Materialization
         .OfType<FieldExpression>()
         .Where(f => f.ExtendedType==ExtendedExpressionType.Field)
         .OrderBy(f => f.Field.MappingInfo.Offset)
-        .Select(f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
+        .Select(f => new Pair<ColNum>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
         .Distinct()
         .ToArray();
 
