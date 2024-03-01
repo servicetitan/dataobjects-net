@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     }
 
     private static void AddResultColumnIndexes(ICollection<ColNum> indexes, IndexInfo index,
-      short columnIndexOffset)
+      ColNum columnIndexOffset)
     {
       for (ColNum i = 0; i < index.Columns.Count; i++) {
         var column = index.Columns[i];

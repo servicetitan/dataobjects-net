@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Rse
       foreach (var g in joined.ColumnGroups) {
         var keys = new List<ColNum>(g.Keys.Count);
         foreach (var i in g.Keys) {
-          keys.Add((short)(columnCount + i));
+          keys.Add((ColNum) (columnCount + i));
         }
         var columns = new List<ColNum>(g.Columns.Count);
         foreach (var i in g.Columns) {
@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Rse
     {
       var columns = new List<ColNum>(selectedColumns);
       var columnsMap = new List<ColNum>(Enumerable.Repeat((ColNum)(-1), Columns.Count));
-      for (short newIndex = 0; newIndex < columns.Count; newIndex++) {
+      for (ColNum newIndex = 0; newIndex < columns.Count; newIndex++) {
         var oldIndex = columns[newIndex];
         columnsMap[oldIndex] = newIndex;
       }

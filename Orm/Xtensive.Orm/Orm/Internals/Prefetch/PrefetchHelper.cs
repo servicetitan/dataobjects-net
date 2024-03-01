@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         var columnIsInterface = columnField.DeclaringType.IsInterface;
         var fieldInfo = typeIsInterface == columnIsInterface ? typeFields[columnField.Name]
           : columnIsInterface ? typeFieldMap[columnField] : throw new InvalidOperationException();
-        columns[(short) fieldInfo.MappingInfo.Offset] = column;          
+        columns[fieldInfo.MappingInfo.Offset] = column;
       }
       return result;
     }

@@ -106,12 +106,12 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="expression">An expression describing an access to tuple element.</param>
     /// <returns></returns>
-    public static short GetTupleAccessArgument(this Expression expression)
+    public static ColNum GetTupleAccessArgument(this Expression expression)
     {
       var mc = expression.AsTupleAccess();
       if (mc==null)
         throw new ArgumentException(string.Format(Strings.ExParameterXIsNotATupleAccessExpression, "expression"));
-      return Evaluate<short>(mc.Arguments[0]);
+      return Evaluate<ColNum>(mc.Arguments[0]);
     }
 
     /// <summary>

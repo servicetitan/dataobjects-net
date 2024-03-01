@@ -82,7 +82,7 @@ namespace Xtensive.Tuples.Transform
       sourceCount = 1;
     }
 
-    protected void SetMap(Pair<short, short>[] map)
+    protected void SetMap(Pair<ColNum, ColNum>[] map)
     {
       ArgumentValidator.EnsureArgumentNotNull(map, nameof(map));
       ColNum[] newFirstSourceMap = new ColNum[map.Length];

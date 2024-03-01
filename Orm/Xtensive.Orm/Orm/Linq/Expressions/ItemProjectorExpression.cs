@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Linq.Expressions
       }
     }
 
-    public IEnumerable<short> GetColumns(ColumnExtractionModes columnExtractionModes) =>
+    public IEnumerable<ColNum> GetColumns(ColumnExtractionModes columnExtractionModes) =>
       ColumnGatherer.GetColumns(Item, columnExtractionModes);
 
     public List<Pair<ColNum, Expression>> GetColumnsAndExpressions(ColumnExtractionModes columnExtractionModes) =>

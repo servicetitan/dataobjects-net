@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Rse.Transformation
   public class TupleAccessGatherer : ExpressionVisitor
   {
     private ParameterExpression tupleParameter;
-    protected readonly Action<ApplyParameter, short> registerOuterColumn;
+    protected readonly Action<ApplyParameter, ColNum> registerOuterColumn;
     protected List<ColNum> mappings;
 
     /// <inheritdoc/>
@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    private static void DefaultRegisterOuterColumn(ApplyParameter parameter, short columnIndex)
+    private static void DefaultRegisterOuterColumn(ApplyParameter parameter, ColNum columnIndex)
     {
     }
 
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Rse.Transformation
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="registerOuterColumn">A <see langword="delegate"/> invoked on each outer column usage.</param>
-    public TupleAccessGatherer(Action<ApplyParameter, short> registerOuterColumn)
+    public TupleAccessGatherer(Action<ApplyParameter, ColNum> registerOuterColumn)
     {
       this.registerOuterColumn = registerOuterColumn ?? DefaultRegisterOuterColumn;
     }

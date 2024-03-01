@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Linq.Expressions
     {
       if (!CanRemap)
         return this;
-      var newMapping = new Segment<ColNum>((short)map.IndexOf(Mapping.Offset), 1);
+      var newMapping = new Segment<ColNum>((ColNum) map.IndexOf(Mapping.Offset), 1);
       return new ColumnExpression(Type, newMapping, OuterParameter, DefaultIfEmpty);
     }
 

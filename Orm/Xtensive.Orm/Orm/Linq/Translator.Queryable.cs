@@ -370,7 +370,7 @@ namespace Xtensive.Orm.Linq
 
       var targetTypeInfo = context.Model.Types[targetType];
 
-      short currentIndex = 0;
+      ColNum currentIndex = 0;
       var indexes = new List<ColNum>(targetTypeInfo.Indexes.PrimaryIndex.Columns.Count);
       foreach (var indexColumn in targetTypeInfo.Indexes.PrimaryIndex.Columns) {
         if (targetTypeInfo.Columns.Contains(indexColumn)) {

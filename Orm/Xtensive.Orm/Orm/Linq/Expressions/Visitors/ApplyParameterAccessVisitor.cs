@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
   internal class ApplyParameterAccessVisitor : ExpressionVisitor
   {
     private readonly ApplyParameter applyParameter;
-    private readonly Func<MethodCallExpression, short, Expression> processor;
+    private readonly Func<MethodCallExpression, ColNum, Expression> processor;
 
     protected override Expression VisitUnknown(Expression e)
     {
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    public ApplyParameterAccessVisitor(ApplyParameter applyParameter, Func<MethodCallExpression, short, Expression> processor)
+    public ApplyParameterAccessVisitor(ApplyParameter applyParameter, Func<MethodCallExpression, ColNum, Expression> processor)
     {
       this.processor = processor;
       this.applyParameter = applyParameter;

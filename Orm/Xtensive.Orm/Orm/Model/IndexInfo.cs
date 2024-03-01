@@ -316,8 +316,8 @@ namespace Xtensive.Orm.Model
 
       ColumnIndexMap = new ColumnIndexMap(
         system,
-        (regular.Count == 0) ? Array.Empty<short>() : regular,
-        (lazy.Count == 0) ? Array.Empty<short>() : lazy);
+        (regular.Count == 0) ? Array.Empty<ColNum>() : regular,
+        (lazy.Count == 0) ? Array.Empty<ColNum>() : lazy);
     }
 
     /// <inheritdoc/>

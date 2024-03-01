@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Providers
           var index = association.OwnerType.Indexes.PrimaryIndex;
           var nonLazyColumnsSelector = index
             .Columns
-            .Select((column, i) => (Column: column, Index: (short)i))
+            .Select((column, i) => (Column: column, Index: (ColNum)i))
             .Where(a=>!a.Column.IsLazyLoad)
             .Select(a=>a.Index)
             .ToArray();
@@ -120,7 +120,7 @@ namespace Xtensive.Orm.Providers
             .Columns
             .Select((column, i) => (Column: column, Index: i))
             .Where(a=>!a.Column.IsLazyLoad)
-            .Select(a=>(short)(targetIndex.Columns.Count + a.Index))
+            .Select(a => (ColNum) (targetIndex.Columns.Count + a.Index))
             .ToArray();
           provider = targetIndex.GetQuery()
             .Filter(QueryHelper.BuildFilterLambda(0,
