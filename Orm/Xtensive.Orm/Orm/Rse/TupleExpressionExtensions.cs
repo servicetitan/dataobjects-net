@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Rse
       var mc = expression.AsTupleAccess();
       if (mc==null)
         throw new ArgumentException(string.Format(Strings.ExParameterXIsNotATupleAccessExpression, "expression"));
-      return Evaluate<ColNum>(mc.Arguments[0]);
+      return (ColNum)Evaluate<int>(mc.Arguments[0]);
     }
 
     /// <summary>
