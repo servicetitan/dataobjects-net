@@ -808,12 +808,12 @@ namespace Xtensive.Orm.Building.Builders
         : index.KeyColumns
             .Select(static pair => pair.Key)
             .Concat(index.ValueColumns)
-            .Select(static (c, i) => (c, (short)i))
+            .Select(static (c, i) => (c, i: (ColNum)i))
             .Where(static arg => arg.c.IsPrimaryKey)
-            .Select(static arg => arg.Item2)
+            .Select(static arg => arg.i)
             .ToList();
       var columns = Enumerable.Range(0, index.KeyColumns.Count + index.ValueColumns.Count).ToList(index.KeyColumns.Count + index.ValueColumns.Count)
-        .Select(i => (short)i);
+        .Select(i => (ColNum) i);
       return new ColumnGroup(reflectedType, keyColumns, columns);
     }
 
