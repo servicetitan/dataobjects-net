@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public static T GetDefault<T>() => default;
 
-    public static bool IsNull(Tuple tuple, int[] columns) =>
+    public static bool IsNull(Tuple tuple, ColNum[] columns) =>
       columns.All(column => tuple.GetFieldState(column).IsNull());
 
     public static object ThrowEmptySequenceException() =>
