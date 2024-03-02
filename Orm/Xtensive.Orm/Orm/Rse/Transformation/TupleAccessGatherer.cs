@@ -18,8 +18,8 @@ namespace Xtensive.Orm.Rse.Transformation
   public class TupleAccessGatherer : ExpressionVisitor
   {
     private ParameterExpression tupleParameter;
-    protected readonly Action<ApplyParameter, int> registerOuterColumn;
-    protected List<int> mappings;
+    protected readonly Action<ApplyParameter, ColNum> registerOuterColumn;
+    protected List<ColNum> mappings;
 
     /// <inheritdoc/>
     protected override Expression VisitUnknown(Expression e)
@@ -47,9 +47,9 @@ namespace Xtensive.Orm.Rse.Transformation
     /// </summary>
     /// <param name="expression">The predicate.</param>
     /// <returns>List containing all used columns (order and uniqueness are not guaranteed).</returns>
-    public virtual List<int> Gather(Expression expression)
+    public virtual List<ColNum> Gather(Expression expression)
     {
-      mappings = new List<int>();
+      mappings = new List<ColNum>();
       Visit(expression);
       var result = mappings;
       mappings = null;
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Rse.Transformation
     /// <param name="expression">The predicate.</param>
     /// <param name="parameter">The tuple parameter to be considered.</param>
     /// <returns>List containing all used columns (order and uniqueness are not guaranteed).</returns>
-    public List<int> Gather(Expression expression, ParameterExpression parameter)
+    public List<ColNum> Gather(Expression expression, ParameterExpression parameter)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentNotNull(parameter, "parameter");
@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    private static void DefaultRegisterOuterColumn(ApplyParameter parameter, int columnIndex)
+    private static void DefaultRegisterOuterColumn(ApplyParameter parameter, ColNum columnIndex)
     {
     }
 
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Rse.Transformation
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="registerOuterColumn">A <see langword="delegate"/> invoked on each outer column usage.</param>
-    public TupleAccessGatherer(Action<ApplyParameter, int> registerOuterColumn)
+    public TupleAccessGatherer(Action<ApplyParameter, ColNum> registerOuterColumn)
     {
       this.registerOuterColumn = registerOuterColumn ?? DefaultRegisterOuterColumn;
     }

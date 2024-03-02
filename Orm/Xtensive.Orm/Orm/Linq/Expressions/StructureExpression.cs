@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Linq.Expressions
     private List<PersistentFieldExpression> fields;
     private bool isNullable;
 
-    internal Segment<int> Mapping;
+    internal Segment<ColNum> Mapping;
     public TypeInfo PersistentType { get; }
 
     public bool IsNullable => isNullable;
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Linq.Expressions
       }
     }
 
-    public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
+    public Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap) {
         return this;
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return value;
       }
 
-      var mapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
+      var mapping = new Segment<ColNum>((ColNum) (Mapping.Offset + offset), Mapping.Length);
       var result = new StructureExpression(PersistentType, mapping);
       processedExpressions.Add(this, result);
       var processedFields = new List<PersistentFieldExpression>(fields.Count);
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Linq.Expressions
     }
 
     
-    public Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
+    public Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap) {
         return this;
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Linq.Expressions
       var result = new StructureExpression(PersistentType, default);
       processedExpressions.Add(this, result);
       var processedFields = new List<PersistentFieldExpression>(fields.Count);
-      var offset = int.MaxValue;
+      var offset = ColNum.MaxValue;
       foreach (var field in fields) {
         var mappedField = (PersistentFieldExpression) field.Remap(map, processedExpressions);
         if (mappedField == null) {
@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return null;
       }
 
-      result.Mapping = new Segment<int>(offset, processedFields.Count);
+      result.Mapping = new Segment<ColNum>(offset, (ColNum) processedFields.Count);
       result.Fields = processedFields;
       result.isNullable = isNullable;
       return result;
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public static StructureExpression CreateLocalCollectionStructure(TypeInfo typeInfo, in Segment<int> mapping)
+    public static StructureExpression CreateLocalCollectionStructure(TypeInfo typeInfo, in Segment<ColNum> mapping)
     {
       if (!typeInfo.IsStructure) {
         throw new ArgumentException(string.Format(Strings.ExTypeXIsNotStructure, typeInfo.Name));
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, int offset)
+    private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, ColNum offset)
     {
       if (nestedField.IsPrimitive) {
         return FieldExpression.CreateField(nestedField, offset);
@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     private StructureExpression(
       TypeInfo persistentType, 
-      in Segment<int> mapping)
+      in Segment<ColNum> mapping)
       : base(ExtendedExpressionType.Structure, persistentType.UnderlyingType, null, false)
     {
       Mapping = mapping;

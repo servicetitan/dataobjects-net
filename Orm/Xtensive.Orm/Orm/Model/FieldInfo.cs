@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Model
     private int fieldId;
     private int? cachedHashCode;
 
-    private Segment<int> mappingInfo;
+    private Segment<ColNum> mappingInfo;
 
     #region IsXxx properties
 
@@ -443,7 +443,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets <see cref="MappingInfo"/> for current field.
     /// </summary>
-    public ref Segment<int> MappingInfo => ref mappingInfo;
+    public ref Segment<ColNum> MappingInfo => ref mappingInfo;
 
     /// <summary>
     /// Gets the underlying system property.
@@ -693,23 +693,23 @@ namespace Xtensive.Orm.Model
     {
       if (column != null) {
         if (reflectedType.IsStructure)
-          mappingInfo = new Segment<int>(reflectedType.Columns.IndexOf(column), 1);
+          mappingInfo = new Segment<ColNum>((ColNum) reflectedType.Columns.IndexOf(column), 1);
         else {
           var primaryIndex = reflectedType.Indexes.PrimaryIndex;
           var indexColumn = primaryIndex.Columns.Where(c => c.Name == column.Name).FirstOrDefault();
           if (indexColumn == null)
             throw new InvalidOperationException();
-          mappingInfo = new Segment<int>(primaryIndex.Columns.IndexOf(indexColumn), 1);
+          mappingInfo = new Segment<ColNum>((ColNum) primaryIndex.Columns.IndexOf(indexColumn), 1);
         }
       }
       else if (Fields.Count > 0) {
-        mappingInfo = new Segment<int>(
-          Fields[0].mappingInfo.Offset, Fields.Sum(f => f.IsPrimitive ? f.mappingInfo.Length : 0));
+        mappingInfo = new Segment<ColNum>(
+          Fields[0].mappingInfo.Offset, (ColNum)Fields.Sum(f => f.IsPrimitive ? f.mappingInfo.Length : 0));
       }
 
       if (IsEntity || IsStructure) {
         valueExtractor = new SegmentTransform(
-          false, reflectedType.TupleDescriptor, new Segment<int>(mappingInfo.Offset, mappingInfo.Length));
+          false, reflectedType.TupleDescriptor, new Segment<ColNum>(mappingInfo.Offset, mappingInfo.Length));
       }
     }
 

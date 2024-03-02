@@ -30,9 +30,7 @@ namespace Xtensive.Orm.Rse
     /// <summary>
     /// Gets the length of this instance.
     /// </summary>
-    public int Length {
-      get { return Columns.Count; }
-    }
+    public ColNum Length => Columns.Count;
 
     /// <summary>
     /// Gets the <see cref="Provider"/> keys.
@@ -53,7 +51,7 @@ namespace Xtensive.Orm.Rse
     /// <summary>
     /// Gets the indexes of columns <see cref="Provider"/> is ordered by.
     /// </summary>
-    public DirectionCollection<int> Order { get; }
+    public DirectionCollection<ColNum> Order { get; }
 
     /// <summary>
     /// Gets the tuple descriptor describing
@@ -135,7 +133,7 @@ namespace Xtensive.Orm.Rse
       var newColumns = new List<Column>(columnCount + joined.Columns.Count);
       newColumns.AddRange(Columns);
       foreach (var c in joined.Columns) {
-        newColumns.Add(c.Clone(columnCount + c.Index));
+        newColumns.Add(c.Clone((ColNum) (columnCount + c.Index)));
       }
 
       var newFieldTypes = new Type[newColumns.Count];
@@ -147,13 +145,13 @@ namespace Xtensive.Orm.Rse
       var groups = new List<ColumnGroup>(columnGroupCount + joined.ColumnGroups.Count);
       groups.AddRange(ColumnGroups);
       foreach (var g in joined.ColumnGroups) {
-        var keys = new List<int>(g.Keys.Count);
+        var keys = new List<ColNum>(g.Keys.Count);
         foreach (var i in g.Keys) {
-          keys.Add(columnCount + i);
+          keys.Add((ColNum) (columnCount + i));
         }
-        var columns = new List<int>(g.Columns.Count);
+        var columns = new List<ColNum>(g.Columns.Count);
         foreach (var i in g.Columns) {
-          columns.Add(columnCount + i);
+          columns.Add((ColNum) (columnCount + i));
         }
         groups.Add(new ColumnGroup(g.TypeInfoRef, keys, columns));
       }
@@ -171,23 +169,23 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="selectedColumns">The indexes of columns to select.</param>
     /// <returns>A new header containing only specified columns.</returns>
-    public RecordSetHeader Select(IEnumerable<int> selectedColumns)
+    public RecordSetHeader Select(IEnumerable<ColNum> selectedColumns)
     {
-      var columns = new List<int>(selectedColumns);
-      var columnsMap = new List<int>(Enumerable.Repeat(-1, Columns.Count));
-      for (int newIndex = 0; newIndex < columns.Count; newIndex++) {
+      var columns = new List<ColNum>(selectedColumns);
+      var columnsMap = new List<ColNum>(Enumerable.Repeat((ColNum)(-1), Columns.Count));
+      for (ColNum newIndex = 0; newIndex < columns.Count; newIndex++) {
         var oldIndex = columns[newIndex];
         columnsMap[oldIndex] = newIndex;
       }
 
       var fieldTypes = columns.Select(i => TupleDescriptor[i]).ToArray(columns.Count);
       var resultTupleDescriptor = Xtensive.Tuples.TupleDescriptor.Create(fieldTypes);
-      var resultOrder = new DirectionCollection<int>(
+      var resultOrder = new DirectionCollection<ColNum>(
         Order
-          .Select(o => new KeyValuePair<int, Direction>(columnsMap[o.Key], o.Value))
+          .Select(o => new KeyValuePair<ColNum, Direction>(columnsMap[o.Key], o.Value))
           .TakeWhile(o => o.Key >= 0));
 
-      var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone(newIndex)).ToArray(columns.Count);
+      var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum)newIndex)).ToArray(columns.Count);
 
       var resultGroups = ColumnGroups
         .Where(g => g.Keys.All(k => columnsMap[k]>=0))
@@ -211,7 +209,7 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="sortOrder">Order to sort this header in.</param>
     /// <returns>A new sorted header.</returns>
-    public RecordSetHeader Sort(DirectionCollection<int> sortOrder)
+    public RecordSetHeader Sort(DirectionCollection<ColNum> sortOrder)
     {
       return new RecordSetHeader(
         TupleDescriptor,
@@ -240,24 +238,24 @@ namespace Xtensive.Orm.Rse
       var resultFieldTypes = indexInfoColumns.Select(columnInfo => columnInfo.ValueType).ToArray(indexInfoColumns.Count);
       var resultTupleDescriptor = TupleDescriptor.Create(resultFieldTypes);
 
-      var keyOrder = new List<KeyValuePair<int, Direction>>(
-        indexInfoKeyColumns.Select((p, i) => new KeyValuePair<int, Direction>(i, p.Value)));
+      var keyOrder = new List<KeyValuePair<ColNum, Direction>>(
+        indexInfoKeyColumns.Select((p, i) => new KeyValuePair<ColNum, Direction>((ColNum) i, p.Value)));
       if (!indexInfo.IsPrimary) {
         var pkKeys = indexInfo.ReflectedType.Indexes.PrimaryIndex.KeyColumns;
         keyOrder.AddRange(
           indexInfo.ValueColumns
-            .Select((c, i) => new Pair<ColumnInfo, int>(c, i + indexInfoKeyColumns.Count))
+            .Select((c, i) => new Pair<ColumnInfo, ColNum>(c, (ColNum) (i + indexInfoKeyColumns.Count)))
             .Where(pair => pair.First.IsPrimaryKey)
-            .Select(pair => new KeyValuePair<int, Direction>(pair.Second, pkKeys[pair.First])));
+            .Select(pair => new KeyValuePair<ColNum, Direction>(pair.Second, pkKeys[pair.First])));
       }
-      var order = new DirectionCollection<int>(keyOrder);
+      var order = new DirectionCollection<ColNum>(keyOrder);
 
       var keyFieldTypes = indexInfoKeyColumns
         .Select(columnInfo => columnInfo.Key.ValueType)
         .ToArray(indexInfoKeyColumns.Count);
       var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
 
-      var resultColumns = indexInfoColumns.Select((c,i) => (Column) new MappedColumn(new ColumnInfoRef(c), i,c.ValueType)).ToArray(indexInfoColumns.Count);
+      var resultColumns = indexInfoColumns.Select((c,i) => (Column) new MappedColumn(new ColumnInfoRef(c), (ColNum)i, c.ValueType)).ToArray(indexInfoColumns.Count);
       var resultGroups = new[]{indexInfo.Group};
 
       return new RecordSetHeader(
@@ -314,7 +312,7 @@ namespace Xtensive.Orm.Rse
       TupleDescriptor tupleDescriptor,
       IReadOnlyList<Column> columns,
       TupleDescriptor orderKeyDescriptor,
-      DirectionCollection<int> order)
+      DirectionCollection<ColNum> order)
       : this(tupleDescriptor, columns, null, orderKeyDescriptor, order)
     {
     }
@@ -333,7 +331,7 @@ namespace Xtensive.Orm.Rse
       IReadOnlyList<Column> columns,
       IReadOnlyList<ColumnGroup> columnGroups,
       TupleDescriptor? orderKeyDescriptor,
-      DirectionCollection<int> order)
+      DirectionCollection<ColNum> order)
     {
       ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
       ArgumentValidator.EnsureArgumentNotNull(columns, "columns");
@@ -351,7 +349,7 @@ namespace Xtensive.Orm.Rse
 
       orderTupleDescriptor = orderKeyDescriptor ?? TupleDescriptor.Empty;
       hasOrderTupleDescriptor = true;
-      Order = order ?? new DirectionCollection<int>();
+      Order = order ?? new DirectionCollection<ColNum>();
       Order.Lock(true);
     }
   }

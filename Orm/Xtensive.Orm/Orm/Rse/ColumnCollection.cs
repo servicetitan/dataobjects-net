@@ -65,7 +65,9 @@ namespace Xtensive.Orm.Rse
     /// <summary>
     /// Gets the number of <see href="Column"/>s in the collection.
     /// </summary>
-    public int Count => columns.Count;
+    public ColNum Count => (ColNum)columns.Count;
+
+    int IReadOnlyCollection<Column>.Count => columns.Count;
 
     /// <summary>
     /// Gets a <see href="Column"/> instance by its index.

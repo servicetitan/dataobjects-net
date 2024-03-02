@@ -18,11 +18,11 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
   {
     public sealed class MappingEntry
     {
-      public int ColumnIndex { get; private set; }
+      public ColNum ColumnIndex { get; }
 
-      public LambdaExpression CalculatedColumn { get; private set; }
+      public LambdaExpression CalculatedColumn { get; }
 
-      public MappingEntry(int columnIndex)
+      public MappingEntry(ColNum columnIndex)
       {
         ColumnIndex = columnIndex;
       }

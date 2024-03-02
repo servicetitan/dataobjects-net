@@ -94,7 +94,7 @@ namespace Xtensive.Tuples
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="map">Target-to-source field index map.
     /// Negative value in this map means "skip this element".</param>
-    public static void CopyTo(this Tuple source, Tuple target, IReadOnlyList<int> map)
+    public static void CopyTo(this Tuple source, Tuple target, IReadOnlyList<ColNum> map)
     {
       if (source is PackedTuple packedSource && target is PackedTuple packedTarget) {
         CopyTupleWithMappingFast(packedSource, packedTarget, map);
@@ -113,7 +113,7 @@ namespace Xtensive.Tuples
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="map">Target-to-source field index map.
     /// Negative value in this map means "skip this element".</param>
-    public static void CopyTo(this Tuple[] sources, Tuple target, Pair<int, int>[] map)
+    public static void CopyTo(this Tuple[] sources, Tuple target, Pair<ColNum, ColNum>[] map)
     {
       var haveSlowSource = false;
       var packedSources = new PackedTuple[sources.Length];
@@ -145,7 +145,7 @@ namespace Xtensive.Tuples
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="map">Target-to-source field index map.
     /// Negative value in this map means "skip this element".</param>
-    public static void CopyTo(this FixedList3<Tuple> sources, Tuple target, Pair<int, int>[] map)
+    public static void CopyTo(this FixedList3<Tuple> sources, Tuple target, Pair<ColNum, ColNum>[] map)
     {
       var haveSlowSource = false;
       var packedSources = new FixedList3<PackedTuple>();
@@ -190,13 +190,13 @@ namespace Xtensive.Tuples
     /// <param name="tuple">The <see cref="Tuple"/> to get segment from.</param>
     /// <param name="segment">The <see cref="Segment{T}"/> to cut off.</param>
     /// <returns></returns>
-    public static Tuple GetSegment(this Tuple tuple, in Segment<int> segment)
+    public static Tuple GetSegment(this Tuple tuple, in Segment<ColNum> segment)
     {
       var length = segment.Length;
-      var map = new int[length];
+      var map = new ColNum[length];
       var fieldTypes = new Type[length];
       for (var index = 0; index < map.Length; index++) {
-        var sourceIndex = segment.Offset + index;
+        ColNum sourceIndex = (ColNum)(segment.Offset + index);
         map[index] = sourceIndex;
         fieldTypes[index] = tuple.Descriptor[sourceIndex];
       }
@@ -467,7 +467,7 @@ namespace Xtensive.Tuples
         CopyPackedValue(source, sourceStartIndex + i, target, targetStartIndex + i);
     }
 
-    private static void CopyTupleWithMappingSlow(Tuple source, Tuple target, IReadOnlyList<int> map)
+    private static void CopyTupleWithMappingSlow(Tuple source, Tuple target, IReadOnlyList<ColNum> map)
     {
       for (int targetIndex = 0, count = map.Count; targetIndex < count; targetIndex++) {
         var sourceIndex = map[targetIndex];
@@ -476,7 +476,7 @@ namespace Xtensive.Tuples
       }
     }
 
-    private static void CopyTupleWithMappingFast(PackedTuple source, PackedTuple target, IReadOnlyList<int> map)
+    private static void CopyTupleWithMappingFast(PackedTuple source, PackedTuple target, IReadOnlyList<ColNum> map)
     {
       for (int targetIndex = 0, count = map.Count; targetIndex < count; targetIndex++) {
         var sourceIndex = map[targetIndex];
@@ -485,7 +485,7 @@ namespace Xtensive.Tuples
       }
     }
 
-    private static void CopyTupleArrayWithMappingSlow(Tuple[] sources, Tuple target, Pair<int, int>[] map)
+    private static void CopyTupleArrayWithMappingSlow(Tuple[] sources, Tuple target, Pair<ColNum, ColNum>[] map)
     {
       for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];
@@ -496,7 +496,7 @@ namespace Xtensive.Tuples
       }
     }
 
-    private static void CopyTupleArrayWithMappingFast(PackedTuple[] sources, PackedTuple target, Pair<int, int>[] map)
+    private static void CopyTupleArrayWithMappingFast(PackedTuple[] sources, PackedTuple target, Pair<ColNum, ColNum>[] map)
     {
       for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];
@@ -507,7 +507,7 @@ namespace Xtensive.Tuples
       }
     }
 
-    private static void Copy3TuplesWithMappingSlow(FixedList3<Tuple> sources, Tuple target, Pair<int, int>[] map)
+    private static void Copy3TuplesWithMappingSlow(FixedList3<Tuple> sources, Tuple target, Pair<ColNum, ColNum>[] map)
     {
       for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];
@@ -518,7 +518,7 @@ namespace Xtensive.Tuples
       }
     }
 
-    private static void Copy3TuplesWithMappingFast(FixedList3<PackedTuple> sources, PackedTuple target, Pair<int, int>[] map)
+    private static void Copy3TuplesWithMappingFast(FixedList3<PackedTuple> sources, PackedTuple target, Pair<ColNum, ColNum>[] map)
     {
       for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];

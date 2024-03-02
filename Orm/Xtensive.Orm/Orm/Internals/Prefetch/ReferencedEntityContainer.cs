@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       FillColumnCollection();
       if (!SelectColumnsToBeLoaded())
         return null;
-      Task = new EntityGroupTask(Type, ColumnIndexesToBeLoaded.ToArray(), Manager);
+      Task = new EntityGroupTask(Type, ColumnIndexesToBeLoaded, Manager);
       return Task;
     }
 
@@ -108,9 +108,8 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var descriptors = PrefetchHelper
         .GetCachedDescriptorsForFieldsLoadedByDefault(Manager.Owner.Session.Domain, Type);
-      SortedDictionary<int, ColumnInfo> columns;
-      List<int> columnsToBeLoaded;
-      Manager.GetCachedColumnIndexes(Type, descriptors, out columns, out columnsToBeLoaded);
+      SortedDictionary<ColNum, ColumnInfo> columns;
+      Manager.GetCachedColumnIndexes(Type, descriptors, out columns, out var columnsToBeLoaded);
       SetColumnCollections(columns, columnsToBeLoaded);
     }
 

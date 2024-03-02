@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Rse.Transformation
         && methodInfo.GetParameters()[1].ParameterType.CachedGetGenericTypeDefinition() == WellKnownTypes.FuncOfTArgTResultType)
       .CachedMakeGenericMethod(WellKnownOrmTypes.Tuple, WellKnownOrmTypes.Tuple);
 
-    protected override (CompilableProvider, List<int>) OverrideRightApplySource(ApplyProvider applyProvider, CompilableProvider provider, List<int> requestedMapping)
+    protected override (CompilableProvider, List<ColNum>) OverrideRightApplySource(ApplyProvider applyProvider, CompilableProvider provider, List<ColNum> requestedMapping)
     {
       var currentMapping = mappings[applyProvider.Right];
       if (currentMapping.SequenceEqual(requestedMapping))
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Rse.Transformation
     protected override RawProvider VisitRaw(RawProvider provider)
     {
       var mapping = mappings[provider];
-      if (mapping.SequenceEqual(Enumerable.Range(0, provider.Header.Length)))
+      if (mapping.SequenceEqual(Enumerable.Range(0, provider.Header.Length).Select(i => (ColNum) i)))
         return provider;
       var mappingTransform = new MapTransform(true, provider.Header.TupleDescriptor, mapping.ToArray());
       var newExpression = RemapRawProviderSource(provider.Source, mappingTransform);

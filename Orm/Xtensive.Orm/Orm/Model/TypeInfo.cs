@@ -848,7 +848,7 @@ namespace Xtensive.Orm.Model
     {
       // Building nullable map
       var nullabilityMap = new BitArray(TupleDescriptor.Count);
-      int i = 0;
+      ColNum i = 0;
       foreach (var column in Columns)
         nullabilityMap[i++] = column.IsNullable;
 
@@ -887,10 +887,10 @@ namespace Xtensive.Orm.Model
 
         // Building primary key injector
         var fieldCount = TupleDescriptor.Count;
-        var keyFieldCount = Key.TupleDescriptor.Count;
-        var keyFieldMap = new Pair<int, int>[fieldCount];
+        ColNum keyFieldCount = (ColNum) Key.TupleDescriptor.Count;
+        var keyFieldMap = new Pair<ColNum, ColNum>[fieldCount];
         for (i = 0; i < fieldCount; i++)
-          keyFieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);
+          keyFieldMap[i] = new Pair<ColNum, ColNum>((ColNum) ((i < keyFieldCount) ? 0 : 1), i);
         primaryKeyInjector = new MapTransform(false, TupleDescriptor, keyFieldMap);
       }
       TuplePrototype = IsEntity ? tuple.ToFastReadOnly() : tuple;

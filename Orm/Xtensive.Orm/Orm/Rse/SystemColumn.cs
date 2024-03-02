@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Rse
   public class SystemColumn : Column
   {
     /// <inheritdoc/>
-    public override Column Clone(int newIndex)
+    public override Column Clone(ColNum newIndex)
     {
       return new SystemColumn(this, newIndex);
     }
@@ -33,14 +33,14 @@ namespace Xtensive.Orm.Rse
     /// <param name="name"><see cref="Column.Name"/> property value.</param>
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
     /// <param name="type"><see cref="Column.Type"/> property value.</param>
-    public SystemColumn(string name, int index, Type type)
+    public SystemColumn(string name, ColNum index, Type type)
       : base(name, index, type, null)
     {
     }
 
     #region Clone constructors
 
-    private SystemColumn(SystemColumn column, int newIndex)
+    private SystemColumn(SystemColumn column, ColNum newIndex)
       : base(column.Name, newIndex, column.Type, column)
     {
     }

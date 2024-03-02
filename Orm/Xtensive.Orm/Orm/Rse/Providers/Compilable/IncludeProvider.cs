@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets the filtered columns.
     /// </summary>
-    public IReadOnlyList<int> FilteredColumns { [DebuggerStepThrough] get; }
+    public IReadOnlyList<ColNum> FilteredColumns { [DebuggerStepThrough] get; }
 
     /// <summary>
     /// Gets filter data.
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="resultColumnName">A value for <see cref="ResultColumnName"/>.</param>
     /// <param name="filteredColumns">A value for <see cref="FilteredColumns"/>.</param>
     public IncludeProvider(CompilableProvider source, IncludeAlgorithm algorithm, bool isInlined,
-      Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource, string resultColumnName, IReadOnlyList<int> filteredColumns)
+      Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource, string resultColumnName, IReadOnlyList<ColNum> filteredColumns)
       : base(ProviderType.Include, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(filterDataSource, "filterDataSource");
@@ -98,10 +98,10 @@ namespace Xtensive.Orm.Rse.Providers
       ResultColumnName = resultColumnName;
 
       switch (filteredColumns) {
-        case int[] columnArray:
+        case ColNum[] columnArray:
           FilteredColumns = Array.AsReadOnly(columnArray);
           break;
-        case List<int> columnList:
+        case List<ColNum> columnList:
           FilteredColumns = columnList.AsReadOnly();
           break;
         default:

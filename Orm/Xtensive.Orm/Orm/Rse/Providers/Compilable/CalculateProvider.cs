@@ -51,8 +51,8 @@ namespace Xtensive.Orm.Rse.Providers
     protected override void Initialize()
     {
       base.Initialize();
-      var columnIndexes = new int[Header.Length];
-      for (int i = 0; i < columnIndexes.Length; i++)
+      var columnIndexes = new ColNum[Header.Length];
+      for (ColNum i = 0; i < columnIndexes.Length; i++)
         columnIndexes[i] = (i < Source.Header.Length) ? i : MapTransform.NoMapping;
       ResizeTransform = new MapTransform(false, Header.TupleDescriptor, columnIndexes);
     }
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Rse.Providers
       IsInlined = isInlined;
       var columns = new CalculatedColumn[columnDescriptors.Length];
       for (int i = 0; i < columnDescriptors.Length; i++) {
-        var col = new CalculatedColumn(columnDescriptors[i], Source.Header.Length + i);
+        var col = new CalculatedColumn(columnDescriptors[i], (ColNum) (Source.Header.Length + i));
         columns.SetValue(col, i);
       }
       CalculatedColumns = columns;

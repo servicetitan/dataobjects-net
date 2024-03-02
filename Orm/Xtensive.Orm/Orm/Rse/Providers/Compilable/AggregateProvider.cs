@@ -30,12 +30,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets the aggregate columns.
     /// </summary>
-    public AggregateColumn[] AggregateColumns { get; private set; }
+    public AggregateColumn[] AggregateColumns { get; }
 
     /// <summary>
     /// Gets column indexes to group by.
     /// </summary>
-    public int[] GroupColumnIndexes { get; private set; }
+    public ColNum[] GroupColumnIndexes { get; }
 
     /// <summary>
     /// Gets header resize transform.
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Rse.Providers
     {
       base.Initialize();
       var fieldTypes = new Type[GroupColumnIndexes.Length];
-      var columnIndexes = new int[GroupColumnIndexes.Length];
+      var columnIndexes = new ColNum[GroupColumnIndexes.Length];
       var i = 0;
       foreach (var index in GroupColumnIndexes) {
         fieldTypes[i] = Source.Header.Columns[index].Type;
@@ -196,15 +196,15 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="AggregateColumns"/>.</param>
     /// <param name="groupIndexes">The column indexes to group by.</param>
-    public AggregateProvider(CompilableProvider source, int[] groupIndexes, params AggregateColumnDescriptor[] columnDescriptors)
+    public AggregateProvider(CompilableProvider source, ColNum[] groupIndexes, params AggregateColumnDescriptor[] columnDescriptors)
       : base(ProviderType.Aggregate, source)
     {
-      groupIndexes = groupIndexes ?? Array.Empty<int>();
+      groupIndexes = groupIndexes ?? Array.Empty<ColNum>();
       var columns = new AggregateColumn[columnDescriptors.Length];
       for (int i = 0; i < columnDescriptors.Length; i++) {
         AggregateColumnDescriptor descriptor = columnDescriptors[i];
         var type = GetAggregateColumnType(Source.Header.Columns[descriptor.SourceIndex].Type, descriptor.AggregateType);
-        columns[i] = new AggregateColumn(descriptor, groupIndexes.Length + i, type);
+        columns[i] = new AggregateColumn(descriptor, (ColNum)(groupIndexes.Length + i), type);
       }
       AggregateColumns = columns;
       GroupColumnIndexes = groupIndexes;

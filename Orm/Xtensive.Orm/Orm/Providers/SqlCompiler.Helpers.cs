@@ -194,9 +194,9 @@ namespace Xtensive.Orm.Providers
         return false;
       }
 
-      var columnIndex = 0;
+      ColNum columnIndex = 0;
       var rowNumberIsUsed = false;
-      var calculatedColumnIndexes = new List<int>(8);
+      var calculatedColumnIndexes = new List<ColNum>(8);
       foreach (var column in sourceSelect.Columns) {
         if (IsCalculatedColumn(column)) {
           calculatedColumnIndexes.Add(columnIndex);
@@ -229,7 +229,7 @@ namespace Xtensive.Orm.Providers
         case ProviderType.Calculate: {
           var calculateProvider = (CalculateProvider) origin;
           var columnGatherer = new TupleAccessGatherer();
-          var usedColumnIndexes = new List<int>();
+          var usedColumnIndexes = new List<ColNum>();
           foreach (var column in calculateProvider.CalculatedColumns) {
             usedColumnIndexes.AddRange(
               columnGatherer.Gather(column.Expression.Body, column.Expression.Parameters[0]));

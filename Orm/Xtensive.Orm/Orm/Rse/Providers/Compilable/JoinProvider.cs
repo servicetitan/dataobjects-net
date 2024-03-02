@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Pairs of equal column indexes.
     /// </summary>
-    public Pair<int>[] EqualIndexes { get; private set; }
+    public Pair<ColNum>[] EqualIndexes { get; }
 
     /// <summary>
     /// Pairs of equal columns.
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="joinType">The join operation type.</param>
     /// <param name="equalIndexes">The <see cref="EqualIndexes"/> property value.</param>
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
-    public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType, params Pair<int>[] equalIndexes)
+    public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType, params Pair<ColNum>[] equalIndexes)
       : base(ProviderType.Join, left, right)
     {
       if (equalIndexes==null || equalIndexes.Length==0)
@@ -88,15 +88,15 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="joinType">The join operation type.</param>
     /// <param name="equalIndexes">Transformed to the <see cref="EqualIndexes"/> property value.</param>
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
-    public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType, params int[] equalIndexes)
+    public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType, params ColNum[] equalIndexes)
       : base(ProviderType.Join, left, right)
     {
       if (equalIndexes==null || equalIndexes.Length<2)
         throw new ArgumentException(
           Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, "equalIndexes");
-      var ei = new Pair<int>[equalIndexes.Length / 2];
+      var ei = new Pair<ColNum>[equalIndexes.Length / 2];
       for (int i = 0, j = 0; i < ei.Length; i++)
-        ei[i] = new Pair<int>(equalIndexes[j++], equalIndexes[j++]);
+        ei[i] = new Pair<ColNum>(equalIndexes[j++], equalIndexes[j++]);
       JoinType = joinType;
       EqualIndexes = ei;
       Initialize();

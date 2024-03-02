@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Sort order of the index.
     /// </summary>
-    public DirectionCollection<int> Order { get; private set; }
+    public DirectionCollection<ColNum> Order { get; private set; }
 
     /// <summary>
     /// Gets the key extractor transform.
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Rse.Providers
       }
 
       var fieldTypes = new Type[Order.Count];
-      var map = new int[Order.Count];
+      var map = new ColNum[Order.Count];
       for (var i = 0; i < Order.Count; i++) {
         var p = Order[i];
         fieldTypes[i] = Header.Columns[p.Key].Type;
@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="providerType">Provider type.</param>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="order">The <see cref="Order"/> property value.</param>
-    protected OrderProviderBase(ProviderType providerType, CompilableProvider source, DirectionCollection<int> order)
+    protected OrderProviderBase(ProviderType providerType, CompilableProvider source, DirectionCollection<ColNum> order)
       : base(providerType, source)
     {
       Order = order;

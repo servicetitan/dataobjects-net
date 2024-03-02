@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <inheritdoc/>
-    public override Column Clone(int newIndex)
+    public override Column Clone(ColNum newIndex)
     {
       return new MappedColumn(ColumnInfoRef, Name, newIndex, Type);
     }
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="name"><see cref="Column.Name"/> property value.</param>
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
     /// <param name="type"><see cref="Column.Type"/> property value.</param>
-    public MappedColumn(string name, int index, Type type)
+    public MappedColumn(string name, ColNum index, Type type)
       : this(default, name, index, type)
     {
     }
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="columnInfoRef"><see cref="ColumnInfoRef"/> property value.</param>
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
     /// <param name="type"><see cref="Column.Type"/> property value.</param>
-    public MappedColumn(in ColumnInfoRef columnInfoRef, int index, Type type)
+    public MappedColumn(in ColumnInfoRef columnInfoRef, ColNum index, Type type)
       : this(columnInfoRef, columnInfoRef.ColumnName, index, type)
     {
     }
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="name"><see cref="Column.Name"/> property value.</param>
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
     /// <param name="type"><see cref="Column.Type"/> property value.</param>
-    public MappedColumn(in ColumnInfoRef columnInfoRef, string name, int index, Type type)
+    public MappedColumn(in ColumnInfoRef columnInfoRef, string name, ColNum index, Type type)
       : base(name, index, type, null)
     {
       columnInfo = columnInfoRef;
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Rse
       columnInfo = column.ColumnInfoRef;
     }
 
-    private MappedColumn(MappedColumn column, int newIndex)
+    private MappedColumn(MappedColumn column, ColNum newIndex)
       : base(column.Name, newIndex, column.Type, column)
     {
       columnInfo = column.ColumnInfoRef;

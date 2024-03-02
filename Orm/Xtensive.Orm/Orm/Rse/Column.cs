@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Rse
     /// <summary>
     /// Gets the column index.
     /// </summary>
-    public int Index { get; private set; }
+    public ColNum Index { get; }
 
     /// <summary>
     /// Gets the column type.
@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="newIndex">The new index value.</param>
     /// <returns>Clone of the column, but with another <see cref="Index"/>.</returns>
-    public abstract Column Clone(int newIndex);
+    public abstract Column Clone(ColNum newIndex);
 
     /// <summary>
     /// Creates clone of the column, but with another <see cref="Name"/>.
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="index"><see cref="Index"/> property value.</param>
     /// <param name="type"><see cref="Type"/> property value.</param>
     /// <param name="originalColumn">Original column.</param>
-    protected Column(string name, int index, Type type, Column originalColumn)
+    protected Column(string name, ColNum index, Type type, Column originalColumn)
     {
       Name = name;
       Index = index;

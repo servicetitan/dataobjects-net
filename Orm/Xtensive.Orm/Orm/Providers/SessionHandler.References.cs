@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Providers
           var index = association.OwnerType.Indexes.PrimaryIndex;
           var nonLazyColumnsSelector = index
             .Columns
-            .Select((column, i) => (Column: column, Index: i))
+            .Select((column, i) => (Column: column, Index: (ColNum)i))
             .Where(a=>!a.Column.IsLazyLoad)
             .Select(a=>a.Index)
             .ToArray();
@@ -120,7 +120,7 @@ namespace Xtensive.Orm.Providers
             .Columns
             .Select((column, i) => (Column: column, Index: i))
             .Where(a=>!a.Column.IsLazyLoad)
-            .Select(a=>targetIndex.Columns.Count + a.Index)
+            .Select(a => (ColNum) (targetIndex.Columns.Count + a.Index))
             .ToArray();
           provider = targetIndex.GetQuery()
             .Filter(QueryHelper.BuildFilterLambda(0,
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Providers
               index.GetQuery(),
               association.Reversed.OwnerField.MappingInfo
                 .GetItems()
-                .Select((l,r) => new Pair<int>(l,r))
+                .Select((l,r) => new Pair<ColNum>(l, (ColNum) r))
                 .ToArray())
             .Select(nonLazyColumnsSelector);
           break;
@@ -150,7 +150,7 @@ namespace Xtensive.Orm.Providers
             .Columns
             .Select((column, i) => (Column: column, Index: i))
             .Where(a=>!a.Column.IsLazyLoad)
-            .Select(a=>targetIndex.Columns.Count + a.Index)
+            .Select(a => (ColNum) (targetIndex.Columns.Count + a.Index))
             .ToArray();
           var referencingField = association.IsMaster
             ? association.AuxiliaryType.Fields[WellKnown.SlaveFieldName]
@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Providers
               index.GetQuery(),
               referencedField.MappingInfo
                 .GetItems()
-                .Select((l, r) => new Pair<int>(l, r))
+                .Select((l, r) => new Pair<ColNum>(l, (ColNum) r))
                 .ToArray())
             .Select(nonLazyColumnsSelector);
           break;

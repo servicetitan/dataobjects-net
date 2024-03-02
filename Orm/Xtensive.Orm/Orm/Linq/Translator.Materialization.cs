@@ -186,7 +186,7 @@ namespace Xtensive.Orm.Linq
     {
       if (le.Parameters.Count == 2) {
         var indexDataSource = sequence.ItemProjector.DataSource.RowNumber(context.GetNextColumnAlias());
-        var columnExpression = ColumnExpression.Create(WellKnownTypes.Int64, indexDataSource.Header.Columns.Count - 1);
+        var columnExpression = ColumnExpression.Create(WellKnownTypes.Int64, (ColNum) (indexDataSource.Header.Columns.Count - 1));
         var indexExpression = Expression.Subtract(columnExpression, Expression.Constant(1L));
         var itemExpression = Expression.Convert(indexExpression, WellKnownTypes.Int32);
         var indexItemProjector = new ItemProjectorExpression(itemExpression, indexDataSource, context);

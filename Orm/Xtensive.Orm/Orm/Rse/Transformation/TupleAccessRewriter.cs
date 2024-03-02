@@ -19,11 +19,11 @@ namespace Xtensive.Orm.Rse.Transformation
   {
     private ParameterExpression tupleParameter;
     private bool ignoreMissing;
-    protected readonly Func<ApplyParameter, int, int> resolveOuterColumn;
-    protected readonly IList<int> mappings;
+    protected readonly Func<ApplyParameter, ColNum, ColNum> resolveOuterColumn;
+    protected readonly IList<ColNum> mappings;
 
 
-    public IList<int> Mappings
+    public IList<ColNum> Mappings
     {
       get { return mappings; }
     }
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return Visit(expression);
     }
     
-    private static int DefaultResolveOuterColumn(ApplyParameter parameter, int columnIndex)
+    private static ColNum DefaultResolveOuterColumn(ApplyParameter parameter, ColNum columnIndex)
     {
       throw new NotSupportedException();
     }
@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Rse.Transformation
     /// <param name="ignoreMissing">Indicates if the newly created <see cref="TupleAccessRewriter"/>
     /// should ignore rewriting accessors missing in the <paramref name="mappings"/> collection
     /// or not resolvable by <paramref name="resolveOuterColumn"/> delegate.</param>
-    public TupleAccessRewriter(IList<int> mappings, Func<ApplyParameter, int, int> resolveOuterColumn, bool ignoreMissing)
+    public TupleAccessRewriter(IList<ColNum> mappings, Func<ApplyParameter, ColNum, ColNum> resolveOuterColumn, bool ignoreMissing)
     {
       this.ignoreMissing = ignoreMissing;
       this.mappings = mappings;

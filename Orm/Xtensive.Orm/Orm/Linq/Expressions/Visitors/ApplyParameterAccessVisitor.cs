@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
   internal class ApplyParameterAccessVisitor : ExpressionVisitor
   {
     private readonly ApplyParameter applyParameter;
-    private readonly Func<MethodCallExpression, int, Expression> processor;
+    private readonly Func<MethodCallExpression, ColNum, Expression> processor;
 
     protected override Expression VisitUnknown(Expression e)
     {
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         && memberExpression.Member==WellKnownMembers.ApplyParameterValue
         && memberExpression.Expression.NodeType==ExpressionType.Constant
         && ((ConstantExpression) memberExpression.Expression).Value==applyParameter) {
-        var index = (int) ((ConstantExpression) tupleAccess.Arguments[0]).Value;
+        ColNum index = (ColNum) (int) ((ConstantExpression) tupleAccess.Arguments[0]).Value;
         return processor.Invoke(mc, index);
       }
       return base.VisitMethodCall(mc);
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    public ApplyParameterAccessVisitor(ApplyParameter applyParameter, Func<MethodCallExpression, int, Expression> processor)
+    public ApplyParameterAccessVisitor(ApplyParameter applyParameter, Func<MethodCallExpression, ColNum, Expression> processor)
     {
       this.processor = processor;
       this.applyParameter = applyParameter;

@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Rse.Transformation
         && mc.Object.Type == WellKnownOrmTypes.Tuple) {
         var sourceIndex = visited.GetTupleAccessArgument();
         var name = sourceColumns.Single(column => column.Index == sourceIndex).Name;
-        var currentIndex = targetColumns[name].Index;
+        int currentIndex = targetColumns[name].Index;
         return Expression.Call(visited.Object, visited.Method, Expression.Constant(currentIndex));
       }
       return visited;

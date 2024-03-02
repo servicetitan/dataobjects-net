@@ -298,7 +298,7 @@ namespace Xtensive.Orm.Providers
       var query = source.ShallowClone();
       var parameterBindings = new List<QueryParameterBinding>();
       var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
-      Func<KeyValuePair<int, Direction>, bool> filterNonTypeId =
+      Func<KeyValuePair<ColNum, Direction>, bool> filterNonTypeId =
         pair => ((MappedColumn) provider.Header.Columns[pair.Key]).ColumnInfoRef.ColumnName!=typeIdColumnName;
       var keyColumns = provider.Header.Order
         .Where(filterNonTypeId)
@@ -538,7 +538,7 @@ namespace Xtensive.Orm.Providers
     {
       var directionCollection = provider.Header.Order;
       if (directionCollection.Count == 0)
-        directionCollection = new DirectionCollection<int>(1);
+        directionCollection = new(1);
       var source = Compile(provider.Source);
 
       var query = ExtractSqlSelect(provider, source);

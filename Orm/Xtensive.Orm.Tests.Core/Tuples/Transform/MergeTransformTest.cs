@@ -120,7 +120,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
       AdvancedComparerStruct<Xtensive.Tuples.Tuple> comparer = AdvancedComparerStruct<Xtensive.Tuples.Tuple>.Default;
       Xtensive.Tuples.Tuple t   = Xtensive.Tuples.Tuple.Create(1);
       CombineTransform mt = new CombineTransform(false, t.Descriptor, t.Descriptor, t.Descriptor, t.Descriptor);
-      SegmentTransform st = new SegmentTransform(false, mt.Descriptor, new Segment<int>(1,2));
+      SegmentTransform st = new SegmentTransform(false, mt.Descriptor, new Segment<ColNum>(1,2));
       Xtensive.Tuples.Tuple wt1 = st.Apply(TupleTransformType.TransformedTuple, mt.Apply(TupleTransformType.TransformedTuple, t, t, t, t));
       Xtensive.Tuples.Tuple wt2 = st.Apply(TupleTransformType.TransformedTuple, mt.Apply(TupleTransformType.TransformedTuple, t, t, t, t));
       Xtensive.Tuples.Tuple ct1 = st.Apply(TupleTransformType.Tuple, mt.Apply(TupleTransformType.Tuple, t, t, t, t));

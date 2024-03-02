@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Linq.Expressions
       throw Exceptions.InternalError(Strings.ExUnableToRemoveOwnerFromEntitySetExpression, OrmLog.Instance);
     }
 
-    public override Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Linq.Expressions
       FieldInfo field,
       ParameterExpression parameterExpression,
       bool defaultIfEmpty)
-      : base(ExtendedExpressionType.EntitySet, field, default(Segment<int>), parameterExpression, defaultIfEmpty)
+      : base(ExtendedExpressionType.EntitySet, field, default(Segment<ColNum>), parameterExpression, defaultIfEmpty)
     {
     }
   }
