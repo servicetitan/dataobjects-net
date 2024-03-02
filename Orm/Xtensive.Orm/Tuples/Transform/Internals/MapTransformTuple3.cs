@@ -48,7 +48,7 @@ namespace Xtensive.Tuples.Transform.Internals
     /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
-      Pair<int, int> indexes = TypedTransform.map[fieldIndex];
+      Pair<ColNum, ColNum> indexes = TypedTransform.map[fieldIndex];
       return tuples[indexes.First].GetValue(indexes.Second, out fieldState);
     }
 
@@ -57,7 +57,7 @@ namespace Xtensive.Tuples.Transform.Internals
     {
       if (Transform.IsReadOnly)
         throw Exceptions.ObjectIsReadOnly(null);
-      Pair<int, int> indexes = TypedTransform.map[fieldIndex];
+      Pair<ColNum, ColNum> indexes = TypedTransform.map[fieldIndex];
       tuples[indexes.First].SetValue(indexes.Second, fieldValue);
     }
 

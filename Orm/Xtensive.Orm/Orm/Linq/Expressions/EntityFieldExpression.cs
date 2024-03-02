@@ -24,13 +24,13 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public bool IsNullable => (Owner != null && Owner.IsNullable) || Field.IsNullable;
 
-    public void RegisterEntityExpression(int offset)
+    public void RegisterEntityExpression(ColNum offset)
     {
       Entity = EntityExpression.Create(this, offset);
       Entity.IsNullable = IsNullable;
     }
 
-    public override Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap) {
         return this;
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap) {
         return this;
@@ -156,7 +156,7 @@ namespace Xtensive.Orm.Linq.Expressions
     public override FieldExpression RemoveOwner() =>
       new EntityFieldExpression(PersistentType, Field, Fields, Mapping, Key, Entity, OuterParameter, DefaultIfEmpty);
 
-    public static EntityFieldExpression CreateEntityField(FieldInfo entityField, int offset)
+    public static EntityFieldExpression CreateEntityField(FieldInfo entityField, ColNum offset)
     {
       if (!entityField.IsEntity) {
         throw new ArgumentException(string.Format(Strings.ExFieldXIsNotEntity, entityField.Name), nameof(entityField));
@@ -166,19 +166,19 @@ namespace Xtensive.Orm.Linq.Expressions
       var persistentType = entityField.ReflectedType.Model.Types[entityType];
 
       var mappingInfo = entityField.MappingInfo;
-      var mapping = new Segment<int>(mappingInfo.Offset + offset, mappingInfo.Length);
+      var mapping = new Segment<ColNum>((ColNum) (mappingInfo.Offset + offset), mappingInfo.Length);
       var keyFields = persistentType.Key.Fields;
-      var keyExpression = KeyExpression.Create(persistentType, offset + mappingInfo.Offset);
+      var keyExpression = KeyExpression.Create(persistentType, (ColNum) (offset + mappingInfo.Offset));
       var fields = new List<PersistentFieldExpression>(keyFields.Count + 1) { keyExpression };
       foreach (var field in keyFields) {
         // Do not convert to LINQ. We want to avoid a closure creation here.
-        fields.Add(BuildNestedFieldExpression(field, offset + mappingInfo.Offset));
+        fields.Add(BuildNestedFieldExpression(field, (ColNum) (offset + mappingInfo.Offset)));
       }
 
       return new EntityFieldExpression(persistentType, entityField, fields, mapping, keyExpression, null, null, false);
     }
 
-    private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, int offset)
+    private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, ColNum offset)
     {
       if (nestedField.IsPrimitive) {
         return CreateField(nestedField, offset);
@@ -198,7 +198,7 @@ namespace Xtensive.Orm.Linq.Expressions
       TypeInfo persistentType,
       FieldInfo field,
       List<PersistentFieldExpression> fields,
-      in Segment<int> mapping,
+      in Segment<ColNum> mapping,
       KeyExpression key,
       EntityExpression entity,
       ParameterExpression parameterExpression,

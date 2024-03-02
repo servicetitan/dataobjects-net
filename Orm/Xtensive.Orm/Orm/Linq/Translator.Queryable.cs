@@ -370,8 +370,8 @@ namespace Xtensive.Orm.Linq
 
       var targetTypeInfo = context.Model.Types[targetType];
 
-      var currentIndex = 0;
-      var indexes = new List<int>(targetTypeInfo.Indexes.PrimaryIndex.Columns.Count);
+      ColNum currentIndex = 0;
+      var indexes = new List<ColNum>(targetTypeInfo.Indexes.PrimaryIndex.Columns.Count);
       foreach (var indexColumn in targetTypeInfo.Indexes.PrimaryIndex.Columns) {
         if (targetTypeInfo.Columns.Contains(indexColumn)) {
           indexes.Add(currentIndex);
@@ -382,7 +382,7 @@ namespace Xtensive.Orm.Linq
       var recordSet = targetTypeInfo.Indexes.PrimaryIndex.GetQuery().Alias(context.GetNextAlias()).Select(indexes);
       var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
       var keyPairs = keySegment
-        .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+        .Select((leftIndex, rightIndex) => new Pair<ColNum>(leftIndex, (ColNum)rightIndex))
         .ToArray();
 
       var dataSource = visitedSource.ItemProjector.DataSource;
@@ -413,8 +413,8 @@ namespace Xtensive.Orm.Linq
       var recordSet = projection.ItemProjector.DataSource;
       var targetTypeInfo = context.Model.Types[targetType];
       var sourceTypeInfo = context.Model.Types[sourceType];
-      var map = Enumerable.Repeat(-1, recordSet.Header.Columns.Count).ToArray();
-      var targetFieldIndex = 0;
+      var map = Enumerable.Repeat((ColNum)(-1), recordSet.Header.Columns.Count).ToArray();
+      ColNum targetFieldIndex = 0;
       var targetFields = targetTypeInfo.Fields.Where(f => f.IsPrimitive);
       foreach (var targetField in targetFields) {
         var sourceFieldInfo = targetType.IsInterface && sourceType.IsClass
@@ -447,7 +447,7 @@ namespace Xtensive.Orm.Linq
       //        offset = recordSet.Header.Columns.Count;
       //        var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
       //        var keyPairs = keySegment
-      //          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+      //          .Select((leftIndex, rightIndex) => new Pair<ColNum>(leftIndex, rightIndex))
       //          .ToArray();
       //        recordSet = recordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
       //      }
@@ -834,7 +834,7 @@ namespace Xtensive.Orm.Linq
               }
             }
 
-            var resultColumn = ColumnExpression.Create(columnType, resultDataSource.Header.Length - 1);
+            var resultColumn = ColumnExpression.Create(columnType, (ColNum) (resultDataSource.Header.Length - 1));
             if (isSubqueryParameter) {
               resultColumn = (ColumnExpression) resultColumn.BindParameter(groupingParameter);
             }
@@ -883,7 +883,7 @@ namespace Xtensive.Orm.Linq
         if (aggregateDescriptor.SourceIndex >= source.Header.Length) {
           aggregateDescriptor = new AggregateColumnDescriptor(
             aggregateDescriptor.Name,
-            aggregateDescriptor.SourceIndex + leftCalculateProvider.CalculatedColumns.Length,
+            (ColNum) (aggregateDescriptor.SourceIndex + leftCalculateProvider.CalculatedColumns.Length),
             aggregateDescriptor.AggregateType);
         }
 
@@ -894,7 +894,7 @@ namespace Xtensive.Orm.Linq
       return null;
     }
 
-    private Pair<ProjectionExpression, int> VisitAggregateSource(Expression source, LambdaExpression aggregateParameter,
+    private Pair<ProjectionExpression, ColNum> VisitAggregateSource(Expression source, LambdaExpression aggregateParameter,
       AggregateType aggregateType, Expression visitedExpression)
     {
       // Process any selectors or filters specified via parameter to aggregating method.
@@ -905,15 +905,15 @@ namespace Xtensive.Orm.Linq
       // to which aggregate function should be applied.
 
       ProjectionExpression sourceProjection;
-      int aggregatedColumnIndex;
+      ColNum aggregatedColumnIndex;
 
       if (aggregateType == AggregateType.Count) {
         aggregatedColumnIndex = 0;
         sourceProjection = aggregateParameter != null ? VisitWhere(source, aggregateParameter) : VisitSequence(source);
-        return new Pair<ProjectionExpression, int>(sourceProjection, aggregatedColumnIndex);
+        return new Pair<ProjectionExpression, ColNum>(sourceProjection, aggregatedColumnIndex);
       }
 
-      List<int> columnList = null;
+      List<ColNum> columnList = null;
       sourceProjection = VisitSequence(source);
       if (aggregateParameter == null) {
         if (sourceProjection.ItemProjector.IsPrimitive) {
@@ -947,7 +947,7 @@ namespace Xtensive.Orm.Linq
       }
 
       aggregatedColumnIndex = columnList[0];
-      return new Pair<ProjectionExpression, int>(sourceProjection, aggregatedColumnIndex);
+      return new Pair<ProjectionExpression, ColNum>(sourceProjection, aggregatedColumnIndex);
     }
 
     private static void EnsureAggregateIsPossible(Type type, AggregateType aggregateType, Expression visitedExpression)
@@ -1162,7 +1162,7 @@ namespace Xtensive.Orm.Linq
         projection = VisitSequence(extractor.BaseExpression);
       }
 
-      var sortColumns = new DirectionCollection<int>();
+      var sortColumns = new DirectionCollection<ColNum>();
 
       foreach (var item in extractor.SortExpressions) {
         var sortExpression = item.Key;
@@ -1222,7 +1222,7 @@ namespace Xtensive.Orm.Linq
           innerColumnKeyExpression.EnsureKeyExpressionCompatible(outerColumnKeyExpression, expressionPart);
         }
 
-        var keyPairs = outerColumns.Zip(innerColumns, (o, i) => new Pair<int>(o.First, i.First)).ToArray();
+        var keyPairs = outerColumns.Zip(innerColumns, (o, i) => new Pair<ColNum>(o.First, i.First)).ToArray();
 
         var outer = context.Bindings[outerParameter];
         var inner = context.Bindings[innerParameter];
@@ -1540,7 +1540,7 @@ namespace Xtensive.Orm.Linq
           predicateLambda.Body, predicateLambda.Parameters[0], filteredTuple, filterColumnCount);
 
         // Mapping from filter data column to filtered column
-        var filteredColumns = new int[filterColumnCount];
+        var filteredColumns = new ColNum[filterColumnCount];
         for (var i = 0; i < filterColumnCount; i++) {
           var mapping = filteredColumnMappings[i];
           if (mapping.ColumnIndex >= 0) {
@@ -1656,7 +1656,7 @@ namespace Xtensive.Orm.Linq
       return new ProjectionExpression(outer.Type, itemProjector, tupleParameterBindings);
     }
 
-    private bool ShouldWrapDataSourceWithSelect(ItemProjectorExpression expression, IReadOnlyList<int> columns) =>
+    private bool ShouldWrapDataSourceWithSelect(ItemProjectorExpression expression, IReadOnlyList<ColNum> columns) =>
       expression.DataSource.Type != ProviderType.Select
       || expression.DataSource.Header.Length != columns.Count
       || columns.Select((c, i) => (c, i)).Any(x => x.c != x.i);
@@ -1799,7 +1799,7 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    private static ICollection<int> GetNullableGroupingExpressions(List<Pair<int, Expression>> keyFieldsRaw)
+    private static ICollection<int> GetNullableGroupingExpressions(List<Pair<ColNum, Expression>> keyFieldsRaw)
     {
       var nullableFields = new HashSet<int>();
 

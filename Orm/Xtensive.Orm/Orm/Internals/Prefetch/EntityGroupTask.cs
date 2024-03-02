@@ -17,28 +17,12 @@ namespace Xtensive.Orm.Internals.Prefetch
 {
   internal readonly struct RecordSetCacheKey : IEquatable<RecordSetCacheKey>
   {
-    public readonly int[] ColumnIndexes;
+    public readonly IReadOnlyList<ColNum> ColumnIndexes;
     public readonly TypeInfo Type;
     private readonly int cachedHashCode;
 
-    public bool Equals(RecordSetCacheKey other)
-    {
-      if (!Type.Equals(other.Type)) {
-        return false;
-      }
-
-      if (ColumnIndexes.Length != other.ColumnIndexes.Length) {
-        return false;
-      }
-
-      for (var i = ColumnIndexes.Length - 1; i >= 0; i--) {
-        if (ColumnIndexes[i] != other.ColumnIndexes[i]) {
-          return false;
-        }
-      }
-
-      return true;
-    }
+    public bool Equals(RecordSetCacheKey other) =>
+      Type.Equals(other.Type) && ColumnIndexes.SequenceEqual(other.ColumnIndexes);
 
     public override bool Equals(object obj) =>
       obj is RecordSetCacheKey other && Equals(other);
@@ -48,7 +32,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     // Constructors
 
-    public RecordSetCacheKey(int[] columnIndexes, TypeInfo type, int cachedHashCode)
+    public RecordSetCacheKey(IReadOnlyList<ColNum> columnIndexes, TypeInfo type, int cachedHashCode)
     {
       ColumnIndexes = columnIndexes;
       Type = type;
@@ -67,8 +51,8 @@ namespace Xtensive.Orm.Internals.Prefetch
       var selectedColumnIndexes = cachingKey.ColumnIndexes;
       var primaryIndex = cachingKey.Type.Indexes.PrimaryIndex;
       var keyColumnsCount = primaryIndex.KeyColumns.Count;
-      var keyColumnIndexes = new int[keyColumnsCount];
-      foreach (var index in Enumerable.Range(0, keyColumnsCount)) {
+      var keyColumnIndexes = new ColNum[keyColumnsCount];
+      foreach (var index in Enumerable.Range(0, keyColumnsCount).Select(i => (ColNum) i)) {
         keyColumnIndexes[index] = index;
       }
 
@@ -201,11 +185,11 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     // Constructors
 
-    public EntityGroupTask(TypeInfo type, int[] columnIndexes, PrefetchManager manager)
+    public EntityGroupTask(TypeInfo type, IReadOnlyList<ColNum> columnIndexes, PrefetchManager manager)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
       ArgumentValidator.EnsureArgumentNotNull(columnIndexes, nameof(columnIndexes));
-      ArgumentValidator.EnsureArgumentIsGreaterThan(columnIndexes.Length, 0, "columnIndexes.Length");
+      ArgumentValidator.EnsureArgumentIsGreaterThan(columnIndexes.Count, 0, "columnIndexes.Length");
       ArgumentValidator.EnsureArgumentNotNull(manager, nameof(manager));
 
       this.type = type;

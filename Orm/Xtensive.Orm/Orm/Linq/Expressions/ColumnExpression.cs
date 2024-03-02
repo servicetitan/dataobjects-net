@@ -14,21 +14,21 @@ namespace Xtensive.Orm.Linq.Expressions
   internal class ColumnExpression : ParameterizedExpression,
     IMappedExpression
   {
-    internal readonly Segment<int> Mapping;
+    internal readonly Segment<ColNum> Mapping;
 
-    public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
+    public Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
-      var newMapping = new Segment<int>(Mapping.Offset + offset, 1);
+      var newMapping = new Segment<ColNum>((ColNum) (Mapping.Offset + offset), 1);
       return new ColumnExpression(Type, newMapping, OuterParameter, DefaultIfEmpty);
     }
 
-    public Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
+    public Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
-      var newMapping = new Segment<int>(map.IndexOf(Mapping.Offset), 1);
+      var newMapping = new Segment<ColNum>((ColNum) map.IndexOf(Mapping.Offset), 1);
       return new ColumnExpression(Type, newMapping, OuterParameter, DefaultIfEmpty);
     }
 
@@ -47,9 +47,9 @@ namespace Xtensive.Orm.Linq.Expressions
       return new ColumnExpression(Type, Mapping, null, DefaultIfEmpty);
     }
 
-    public static ColumnExpression Create(Type type, int columnIndex)
+    public static ColumnExpression Create(Type type, ColNum columnIndex)
     {
-      var mapping = new Segment<int>(columnIndex, 1);
+      var mapping = new Segment<ColNum>(columnIndex, 1);
       return new ColumnExpression(type, mapping, null, false);
     }
 
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     protected ColumnExpression(
       Type type,
-      in Segment<int> mapping,
+      in Segment<ColNum> mapping,
       ParameterExpression parameterExpression,
       bool defaultIfEmpty)
       : base(ExtendedExpressionType.Column, type, parameterExpression, defaultIfEmpty)

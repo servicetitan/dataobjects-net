@@ -43,9 +43,9 @@ namespace Xtensive.Orm.Linq.Materialization
     public static readonly MethodInfo PrefetchEntitySetMethodInfo = typeof(MaterializationHelper)
         .GetMethod(nameof(PrefetechEntitySet), BindingFlags.Public | BindingFlags.Static);
 
-    public static int[] CreateSingleSourceMap(int targetLength, IReadOnlyList<Pair<int>> remappedColumns)
+    public static ColNum[] CreateSingleSourceMap(int targetLength, IReadOnlyList<Pair<ColNum>> remappedColumns)
     {
-      var map = new int[targetLength];
+      var map = new ColNum[targetLength];
       Array.Fill(map, MapTransform.NoMapping);
 
       for (var i = 0; i < remappedColumns.Count; i++) {
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public static T GetDefault<T>() => default;
 
-    public static bool IsNull(Tuple tuple, int[] columns) =>
+    public static bool IsNull(Tuple tuple, ColNum[] columns) =>
       columns.All(column => tuple.GetFieldState(column).IsNull());
 
     public static object ThrowEmptySequenceException() =>

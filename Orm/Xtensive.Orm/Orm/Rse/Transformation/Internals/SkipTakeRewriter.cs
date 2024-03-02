@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Rse.Transformation
         if (requiresRowNumber)
           visitedProvider = new SelectProvider(
             visitedProvider,
-            Enumerable.Range(0, visitedProvider.Header.Length - 1).ToArray());
+            Enumerable.Range(0, visitedProvider.Header.Length - 1).Select(i => (ColNum) i).ToArray());
 
         return visitedProvider;
       }

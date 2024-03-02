@@ -42,30 +42,30 @@ namespace Xtensive.Orm.Rse
     }
 
     public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right,
-      params Pair<int>[] joinedColumnIndexes)
+      params Pair<ColNum>[] joinedColumnIndexes)
     {
       return new JoinProvider(left, right, JoinType.Inner, joinedColumnIndexes);
     }
 
     public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right,
-      params int[] joinedColumnIndexes)
+      params ColNum[] joinedColumnIndexes)
     {
       return new JoinProvider(left, right, JoinType.Inner, joinedColumnIndexes);
     }
 
     public static CompilableProvider LeftJoin(this CompilableProvider left, CompilableProvider right,
-      params Pair<int>[] joinedColumnIndexes)
+      params Pair<ColNum>[] joinedColumnIndexes)
     {
       return new JoinProvider(left, right, JoinType.LeftOuter, joinedColumnIndexes);
     }
 
     public static CompilableProvider LeftJoin(this CompilableProvider left, CompilableProvider right,
-      params int[] joinedColumnIndexes)
+      params ColNum[] joinedColumnIndexes)
     {
       return new JoinProvider(left, right, JoinType.LeftOuter, joinedColumnIndexes);
     }
 
-    public static CompilableProvider OrderBy(this CompilableProvider source, DirectionCollection<int> columnIndexes)
+    public static CompilableProvider OrderBy(this CompilableProvider source, DirectionCollection<ColNum> columnIndexes)
     {
       return new SortProvider(source, columnIndexes);
     }
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Rse
       return new FilterProvider(source, predicate);
     }
 
-    public static CompilableProvider Select(this CompilableProvider source, IReadOnlyList<int> columnIndexes)
+    public static CompilableProvider Select(this CompilableProvider source, IReadOnlyList<ColNum> columnIndexes)
     {
       ArgumentValidator.EnsureArgumentNotNull(columnIndexes, "columnIndexes");
       return new SelectProvider(source, columnIndexes);
@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Rse
     }
 
     public static CompilableProvider Aggregate(this CompilableProvider recordQuery,
-      int[] groupIndexes, params AggregateColumnDescriptor[] descriptors)
+      ColNum[] groupIndexes, params AggregateColumnDescriptor[] descriptors)
     {
       return new AggregateProvider(recordQuery, groupIndexes, descriptors);
     }
@@ -157,7 +157,7 @@ namespace Xtensive.Orm.Rse
     }
 
     public static CompilableProvider Include(this CompilableProvider source,
-      Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource, string resultColumnName, int[] filteredColumns)
+      Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource, string resultColumnName, ColNum[] filteredColumns)
     {
       return new IncludeProvider(
         source, IncludeAlgorithm.Auto, false, filterDataSource, resultColumnName, filteredColumns);
@@ -165,14 +165,14 @@ namespace Xtensive.Orm.Rse
 
     public static CompilableProvider Include(this CompilableProvider source,
       IncludeAlgorithm algorithm, Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource,
-      string resultColumnName, int[] filteredColumns)
+      string resultColumnName, ColNum[] filteredColumns)
     {
       return new IncludeProvider(source, algorithm, false, filterDataSource, resultColumnName, filteredColumns);
     }
 
     public static CompilableProvider Include(this CompilableProvider source,
       IncludeAlgorithm algorithm, bool isInlined, Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource,
-      string resultColumnName, int[] filteredColumns)
+      string resultColumnName, ColNum[] filteredColumns)
     {
       return new IncludeProvider(source, algorithm, isInlined, filterDataSource, resultColumnName, filteredColumns);
     }

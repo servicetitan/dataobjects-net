@@ -400,10 +400,11 @@ namespace Xtensive.Core
     /// Gets the items from the segment.
     /// </summary>
     /// <param name="segment">The segment.</param>
-    public static IEnumerable<int> GetItems(this in Segment<int> segment)
-    {
-      return Enumerable.Range(segment.Offset, segment.Length);
-    }
+    public static IEnumerable<int> GetItems(this in Segment<int> segment) =>
+      Enumerable.Range(segment.Offset, segment.Length);
+
+    public static IEnumerable<short> GetItems(this in Segment<short> segment) =>
+      Enumerable.Range(segment.Offset, segment.Length).Select(i => (short) i);
 
     /// <summary>
     /// Splits the specified <see cref="IEnumerable{T}"/> into batches.

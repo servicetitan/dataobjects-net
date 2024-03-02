@@ -14,13 +14,13 @@ namespace Xtensive.Orm.Internals
   {
     public readonly TypeInfo Type;
     public readonly MapTransform KeyTransform;
-    public readonly IReadOnlyList<int> KeyIndexes;
+    public readonly IReadOnlyList<ColNum> KeyIndexes;
     public readonly MapTransform Transform;
 
 
     // Constructors
 
-    public TypeMapping(TypeInfo type, MapTransform keyTransform, MapTransform transform, IReadOnlyList<int> keyIndexes)
+    public TypeMapping(TypeInfo type, MapTransform keyTransform, MapTransform transform, IReadOnlyList<ColNum> keyIndexes)
     {
       Type = type;
       KeyTransform = keyTransform;

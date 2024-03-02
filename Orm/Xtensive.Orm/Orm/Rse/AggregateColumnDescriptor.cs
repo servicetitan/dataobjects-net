@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Rse
     /// <summary>
     /// Gets the column index.
     /// </summary>
-    public int SourceIndex { get; private set; }
+    public ColNum SourceIndex { get; private set; }
 
     /// <summary>
     /// Gets the column type.
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="name"><see cref="Name"/> property value.</param>
     /// <param name="index"><see cref="SourceIndex"/> property value.</param>
     /// <param name="aggregateType">The <see cref="AggregateType"/> property value.</param>
-    public AggregateColumnDescriptor(string name, int index, AggregateType aggregateType)
+    public AggregateColumnDescriptor(string name, ColNum index, AggregateType aggregateType)
     {
       Name = name;
       SourceIndex = index;

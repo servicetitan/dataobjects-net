@@ -5,9 +5,10 @@
 // Created:    2020.04.10
 
 using System;
+using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Data.SqlTypes;
-using Xtensive.Core;
+using System.Diagnostics.Metrics;
 
 namespace Xtensive.Sql.Drivers.SqlServer
 {
@@ -26,6 +27,9 @@ namespace Xtensive.Sql.Drivers.SqlServer
       1000000000
     };
 
+    internal static readonly Meter meter = new("DataObjects");
+    private static readonly Counter<int> sqlErrorCounter = meter.CreateCounter<int>("dataobjects.sql_error");
+
     /// <summary>
     ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
     ///     directly from your code. This API may change or be removed in future releases.
@@ -34,6 +38,10 @@ namespace Xtensive.Sql.Drivers.SqlServer
     {
       ArgumentNullException.ThrowIfNull(ex);
       if (ex is SqlException sqlException) {
+        foreach (SqlError err in sqlException.Errors) {
+          sqlErrorCounter.Add(1, KeyValuePair.Create("Code", (object)err.Number));
+        }
+
         foreach (SqlError err in sqlException.Errors) {
           switch (err.Number) {
             // SQL Error Code: 49920
@@ -133,6 +141,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
         return false;
       }
 
+      sqlErrorCounter.Add(1, KeyValuePair.Create("Code", (object)ex.GetType().Name));
       return ex is TimeoutException;
     }
 

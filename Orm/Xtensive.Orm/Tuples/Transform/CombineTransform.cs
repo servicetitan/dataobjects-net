@@ -63,14 +63,14 @@ namespace Xtensive.Tuples.Transform
     {
       int totalLength = sources.Sum(s => s.Count);
       var types = new Type[totalLength];
-      var map = new Pair<int, int>[totalLength];
+      var map = new Pair<ColNum, ColNum>[totalLength];
       int index = 0;
-      for (int i = 0; i<sources.Length; i++) {
+      for (ColNum i = 0; i<sources.Length; i++) {
         TupleDescriptor currentDescriptor = sources[i];
         int currentCount = currentDescriptor.Count;
-        for (int j = 0; j<currentCount; j++) {
+        for (ColNum j = 0; j<currentCount; j++) {
           types[index] = currentDescriptor[j];
-          map[index++] = new Pair<int, int>(i, j);
+          map[index++] = new Pair<ColNum, ColNum>(i, j);
         }
       }
       this.sources = sources;

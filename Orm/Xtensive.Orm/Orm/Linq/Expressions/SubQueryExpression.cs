@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return this;
     }
 
-    public virtual Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
+    public virtual Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       // Don't check CanRemap - Remap always.
 
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public virtual Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
+    public virtual Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       // Don't check CanRemap - Remap always.
 

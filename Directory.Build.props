@@ -43,6 +43,7 @@
     <!-- Enable Usage of BinaryFormatter in test projects -->
     <EnableUnsafeBinaryFormatterSerialization
       Condition="'$(TargetFramework)'=='net8.0' AND $(MSBuildProjectName.Contains('Tests')) == 'true'">true</EnableUnsafeBinaryFormatterSerialization>
+     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
   <!-- Debug-NET8, Release-NET8 are mostly for development convenience -->
@@ -50,7 +51,7 @@
     <!-- hard binding to net8, no property and env variable allowed-->
     <TargetFrameworks>net8.0</TargetFrameworks>
   </PropertyGroup>
-  
+
   <!-- Debug-NET7, Release-NET7 are mostly for development convenience -->
   <PropertyGroup Condition = "$(Configuration.Contains('NET7')) == 'true'">
     <!-- hard binding to net7, no property and env variable allowed-->
@@ -85,10 +86,7 @@
   <PropertyGroup>
     <NoLogo>true</NoLogo>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks> <!-- the property -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net8.0</TargetFrameworks> <!-- fallback to default -->
-    <LangVersion>10.0</LangVersion> <!-- version assigned to net6.0 -->
+    <LangVersion>12.0</LangVersion>
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -133,6 +131,8 @@
       <PackagePath>.</PackagePath>
       <Pack>true</Pack>
     </None>
+
+    <Using Include="System.Int16" Alias="ColNum" />
   </ItemGroup>
 
   <Import Condition="Exists('User.Directory.Build.props')" Project="User.Directory.Build.props" />

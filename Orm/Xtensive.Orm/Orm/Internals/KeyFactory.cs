@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Internals
     }
 
     public static Key Materialize(Domain domain, string nodeId,
-      TypeInfo type, Tuple value, TypeReferenceAccuracy accuracy, bool canCache, IReadOnlyList<int> keyIndexes)
+      TypeInfo type, Tuple value, TypeReferenceAccuracy accuracy, bool canCache, IReadOnlyList<ColNum> keyIndexes)
     {
       var hierarchy = type.Hierarchy;
       var keyInfo = type.Key;
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Internals
       return true;
     }
 
-    public static bool IsValidKeyTuple(Tuple tuple, IReadOnlyList<int> keyIndexes)
+    public static bool IsValidKeyTuple(Tuple tuple, IReadOnlyList<ColNum> keyIndexes)
     {
       if (keyIndexes==null)
         return IsValidKeyTuple(tuple);
@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Internals
       return true;
     }
 
-    private static Key CreateGenericKey(Domain domain, string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, Tuple tuple, IReadOnlyList<int> keyIndexes)
+    private static Key CreateGenericKey(Domain domain, string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, Tuple tuple, IReadOnlyList<ColNum> keyIndexes)
     {
       var keyTypeInfo = domain.GenericKeyFactories.GetOrAdd(type, BuildGenericKeyFactory);
       if (keyIndexes==null)
@@ -158,7 +158,7 @@ namespace Xtensive.Orm.Internals
       keyType = keyType.MakeGenericType(descriptor.ToArray(descriptor.Count));
       var defaultConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, Key>>(
         null, keyType, "Create", Array.Empty<Type>());
-      var keyIndexBasedConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, IReadOnlyList<int>, Key>>(
+      var keyIndexBasedConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, IReadOnlyList<ColNum>, Key>>(
         null, keyType, "Create", Array.Empty<Type>());
       return new GenericKeyFactory(keyType, defaultConstructor, keyIndexBasedConstructor);
     }

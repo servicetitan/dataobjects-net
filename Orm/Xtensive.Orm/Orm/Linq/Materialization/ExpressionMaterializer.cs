@@ -245,7 +245,7 @@ namespace Xtensive.Orm.Linq.Materialization
           .OfType<FieldExpression>()
           .Where(f => f.ExtendedType==ExtendedExpressionType.Field)
           .OrderBy(f => f.Field.MappingInfo.Offset)
-          .Select(f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
+          .Select(f => new Pair<ColNum>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
           .Distinct()
           .ToArray();
 
@@ -294,7 +294,7 @@ namespace Xtensive.Orm.Linq.Materialization
         .OfType<FieldExpression>()
         .Where(f => f.ExtendedType==ExtendedExpressionType.Field)
         .OrderBy(f => f.Field.MappingInfo.Offset)
-        .Select(f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
+        .Select(f => new Pair<ColNum>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
         .Distinct()
         .ToArray();
 
@@ -359,7 +359,7 @@ namespace Xtensive.Orm.Linq.Materialization
         .OfType<FieldExpression>()
         .Where(f => f.ExtendedType==ExtendedExpressionType.Field)
         .OrderBy(f => f.Field.MappingInfo.Offset)
-        .Select(f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
+        .Select(f => new Pair<ColNum>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
         .Distinct()
         .ToArray();
 
@@ -537,14 +537,14 @@ namespace Xtensive.Orm.Linq.Materialization
       return TupleParameter;
     }
 
-    private static Tuple BuildPersistentTuple(Tuple tuple, Tuple tuplePrototype, int[] mapping)
+    private static Tuple BuildPersistentTuple(Tuple tuple, Tuple tuplePrototype, ColNum[] mapping)
     {
       var result = tuplePrototype.CreateNew();
       tuple.CopyTo(result, mapping);
       return result;
     }
 
-    private static Tuple GetTupleSegment(Tuple tuple, in Segment<int> segment) => tuple.GetSegment(segment).ToRegular();
+    private static Tuple GetTupleSegment(Tuple tuple, in Segment<ColNum> segment) => tuple.GetSegment(segment).ToRegular();
 
     #endregion
 

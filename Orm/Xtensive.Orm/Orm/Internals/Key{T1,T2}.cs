@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Internals
     }
 
     [UsedImplicitly]
-    public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, IReadOnlyList<int> keyIndexes)
+    public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, IReadOnlyList<ColNum> keyIndexes)
     {
       return new Key<T1, T2>(nodeId, type, accuracy,
         tuple.GetValueOrDefault<T1>(keyIndexes[0]),

@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Rse.Transformation
   internal sealed class OrderingRewriter : CompilableProviderVisitor
   {
     private readonly Func<CompilableProvider, ProviderOrderingDescriptor> descriptorResolver;
-    private DirectionCollection<int> sortOrder;
+    private DirectionCollection<ColNum> sortOrder;
     private ProviderOrderingDescriptor descriptor;
     private ProviderOrderingDescriptor consumerDescriptor;
 
@@ -70,10 +70,10 @@ namespace Xtensive.Orm.Rse.Transformation
         result = new SelectProvider(source, provider.ColumnIndexes);
 
       if (sortOrder.Count > 0) {
-        var selectOrdering = new DirectionCollection<int>();
+        var selectOrdering = new DirectionCollection<ColNum>();
         var columnIndexes = result.ColumnIndexes;
         foreach (var pair in sortOrder) {
-          var columnIndex = columnIndexes.IndexOf(pair.Key);
+          var columnIndex = (ColNum)columnIndexes.IndexOf(pair.Key);
           if (columnIndex < 0) {
             if (selectOrdering.Count > 0)
               selectOrdering.Clear();
@@ -103,9 +103,9 @@ namespace Xtensive.Orm.Rse.Transformation
         result = new AggregateProvider(source, provider.GroupColumnIndexes, acds.ToArray());
       }
       if (sortOrder.Count > 0) {
-        var selectOrdering = new DirectionCollection<int>();
+        var selectOrdering = new DirectionCollection<ColNum>();
         foreach (var pair in sortOrder) {
-          var columnIndex = result.GroupColumnIndexes.IndexOf(pair.Key);
+          ColNum columnIndex = (ColNum)result.GroupColumnIndexes.IndexOf(pair.Key);
           if (columnIndex < 0) {
             if (selectOrdering.Count > 0)
               selectOrdering.Clear();
@@ -121,31 +121,31 @@ namespace Xtensive.Orm.Rse.Transformation
 
     protected override CompilableProvider VisitIndex(IndexProvider provider)
     {
-      sortOrder = new DirectionCollection<int>();
+      sortOrder = new();
       return provider;
     }
 
     protected override CompilableProvider VisitFreeText(FreeTextProvider provider)
     {
-      sortOrder = new DirectionCollection<int>();
+      sortOrder = new();
       return provider;
     }
 
     protected override CompilableProvider VisitContainsTable(ContainsTableProvider provider)
     {
-      sortOrder = new DirectionCollection<int>();
+      sortOrder = new();
       return provider;
     }
 
     protected override RawProvider VisitRaw(RawProvider provider)
     {
-      sortOrder = new DirectionCollection<int>();
+      sortOrder = new();
       return provider;
     }
 
     protected override CompilableProvider VisitStore(StoreProvider provider)
     {
-      sortOrder = new DirectionCollection<int>();
+      sortOrder = new();
       return provider;
     }
 
@@ -204,7 +204,7 @@ namespace Xtensive.Orm.Rse.Transformation
         if (descriptor.IsSorter)
           return result;
         if (descriptor.BreaksOrder) {
-          sortOrder = new DirectionCollection<int>();
+          sortOrder = new();
           return result;
         }
         if (consumerDescriptor.IsOrderSensitive && !descriptor.IsOrderSensitive)
@@ -213,13 +213,13 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    private static DirectionCollection<int> ComputeBinaryOrder(BinaryProvider provider, DirectionCollection<int> leftOrder, DirectionCollection<int> rightOrder)
+    private static DirectionCollection<ColNum> ComputeBinaryOrder(BinaryProvider provider, DirectionCollection<ColNum> leftOrder, DirectionCollection<ColNum> rightOrder)
     {
       if (leftOrder.Count > 0)
-        return new DirectionCollection<int>(
+        return new DirectionCollection<ColNum>(
           leftOrder.Concat(
-            rightOrder.Select(p => new KeyValuePair<int, Direction>(p.Key + provider.Left.Header.Length, p.Value))));
-      return new DirectionCollection<int>();
+            rightOrder.Select(p => new KeyValuePair<ColNum, Direction>((ColNum) (p.Key + provider.Left.Header.Length), p.Value))));
+      return new();
     }
 
     #endregion
@@ -230,7 +230,7 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       ArgumentValidator.EnsureArgumentNotNull(orderingDescriptorResolver, "orderingDescriptorResolver");
       descriptorResolver = orderingDescriptorResolver;
-      sortOrder = new DirectionCollection<int>();
+      sortOrder = new();
     }
   }
 }

@@ -36,7 +36,7 @@ namespace Xtensive.Tuples
     [field: NonSerialized]
     private Type[] FieldTypes { get; }
 
-    private int FieldCount => FieldTypes.Length;
+    private ColNum FieldCount => (ColNum)FieldTypes.Length;
 
     /// <summary>
     /// Gets the empty tuple descriptor.
@@ -58,11 +58,13 @@ namespace Xtensive.Tuples
     }
 
     /// <inheritdoc/>
-    public int Count
+    public ColNum Count
     {
       [DebuggerStepThrough]
       get => FieldCount;
     }
+
+    int IReadOnlyCollection<Type>.Count => FieldCount;
 
     /// <inheritdoc/>
     public IEnumerator<Type> GetEnumerator()

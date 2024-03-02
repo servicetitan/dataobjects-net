@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Linq.Materialization
     /// </summary>
     public Queue<Action> MaterializationQueue { get; set; }
 
-    public TypeMapping GetTypeMapping(int entityIndex, TypeInfo approximateType, int typeId, IReadOnlyList<Pair<int>> columns)
+    public TypeMapping GetTypeMapping(int entityIndex, TypeInfo approximateType, int typeId, IReadOnlyList<Pair<ColNum>> columns)
     {
       TypeMapping result;
       ref var cache = ref entityMappings[entityIndex];
@@ -78,20 +78,20 @@ namespace Xtensive.Orm.Linq.Materialization
       var typeColumnMap = columns;
       if (approximateType.IsInterface) {
         // fixup target index
-        var newColumns = new Pair<int>[columns.Count];
+        var newColumns = new Pair<ColNum>[columns.Count];
         for (int i = columns.Count; i-- > 0;) {
           var pair = columns[i];
           var approxTargetIndex = pair.First;
           var interfaceField = approximateType.Columns[approxTargetIndex].Field;
           var field = type.FieldMap[interfaceField];
           var targetIndex = field.MappingInfo.Offset;
-          newColumns[i] = new Pair<int>(targetIndex, pair.Second);
+          newColumns[i] = new Pair<ColNum>(targetIndex, pair.Second);
         }
         typeColumnMap = newColumns;
       }
 
-      ArraySegment<int> allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
-      ArraySegment<int> keyIndexes = allIndexes.Slice(0, keyInfo.TupleDescriptor.Count);
+      ArraySegment<ColNum> allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
+      ArraySegment<ColNum> keyIndexes = allIndexes.Slice(0, keyInfo.TupleDescriptor.Count);
 
       var transform    = new MapTransform(true, descriptor, allIndexes);
       var keyTransform = new MapTransform(true, keyInfo.TupleDescriptor, keyIndexes);

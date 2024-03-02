@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
   internal sealed class ColumnGatherer : PersistentExpressionVisitor
   {
     private readonly ColumnExtractionModes columnExtractionModes;
-    private readonly List<Pair<int, Expression>> columns = new List<Pair<int, Expression>>();
+    private readonly List<Pair<ColNum, Expression>> columns = new();
     private SubQueryExpression topSubquery;
 
     private bool TreatEntityAsKey
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       get { return (columnExtractionModes & ColumnExtractionModes.OmitLazyLoad)!=ColumnExtractionModes.Default; }
     }
 
-    public static List<Pair<int, Expression>> GetColumnsAndExpressions(Expression expression, ColumnExtractionModes columnExtractionModes)
+    public static List<Pair<ColNum, Expression>> GetColumnsAndExpressions(Expression expression, ColumnExtractionModes columnExtractionModes)
     {
       var gatherer = new ColumnGatherer(columnExtractionModes);
       gatherer.Visit(expression);
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return ordered.ToList();
     }
     
-    public static IEnumerable<int> GetColumns(Expression expression, ColumnExtractionModes columnExtractionModes)
+    public static IEnumerable<ColNum> GetColumns(Expression expression, ColumnExtractionModes columnExtractionModes)
     {
       var gatherer = new ColumnGatherer(columnExtractionModes);
       gatherer.Visit(expression);
@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
       Visit(subQueryExpression.ProjectionExpression.ItemProjector.Item);
       var visitor = new ApplyParameterAccessVisitor(topSubquery.ApplyParameter, (mc, index) => {
-        columns.Add(new Pair<int, Expression>(index, mc));
+        columns.Add(new Pair<ColNum, Expression>(index, mc));
         return mc;
       });
       var providerVisitor = new CompilableProviderVisitor((provider, expression) => visitor.Visit(expression));
@@ -219,13 +219,13 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
             .Offset));
     }
 
-    private void AddColumns(ParameterizedExpression parameterizedExpression, IEnumerable<int> expressionColumns)
+    private void AddColumns(ParameterizedExpression parameterizedExpression, IEnumerable<ColNum> expressionColumns)
     {
       var isSubqueryParameter = topSubquery!=null && parameterizedExpression.OuterParameter==topSubquery.OuterParameter;
       var isNotParametrized = topSubquery==null && parameterizedExpression.OuterParameter==null;
 
       if (isSubqueryParameter || isNotParametrized)
-        columns.AddRange(expressionColumns.Select(i=>new Pair<int, Expression>(i, parameterizedExpression)));
+        columns.AddRange(expressionColumns.Select(i=>new Pair<ColNum, Expression>(i, parameterizedExpression)));
     }
 
     protected override Expression VisitFullTextExpression(FullTextExpression expression)

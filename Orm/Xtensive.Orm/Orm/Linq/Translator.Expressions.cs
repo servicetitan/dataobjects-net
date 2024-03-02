@@ -592,7 +592,7 @@ namespace Xtensive.Orm.Linq
       else
         dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, rankColumnAlias, fullFeatured);
 
-      rankExpression = ColumnExpression.Create(WellKnownTypes.Double, dataSource.Header.Columns.Count - 1);
+      rankExpression = ColumnExpression.Create(WellKnownTypes.Double, (ColNum) (dataSource.Header.Columns.Count - 1));
       freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
       return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.CachedMakeGenericType(elementType), itemProjector, EmptyTupleParameterBindings);
@@ -657,7 +657,7 @@ namespace Xtensive.Orm.Linq
       else
         dataSource = new ContainsTableProvider(fullTextIndex, compiledParameter, rankColumnAlias, searchableColumns, fullFeatured);
 
-      rankExpression = ColumnExpression.Create(WellKnownTypes.Double, dataSource.Header.Columns.Count - 1);
+      rankExpression = ColumnExpression.Create(WellKnownTypes.Double, (ColNum) (dataSource.Header.Columns.Count - 1));
       freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
       return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.CachedMakeGenericType(elementType), itemProjector, EmptyTupleParameterBindings);
@@ -973,7 +973,7 @@ namespace Xtensive.Orm.Linq
           return entityExpression.Fields.First(field => field.Name == evaluatedArgument);
         }
         if (typeInfo.IsStructure) {
-          var structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, new Segment<int>(0, typeInfo.TupleDescriptor.Count));
+          var structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, new Segment<ColNum>(0, typeInfo.TupleDescriptor.Count));
           return structureExpression.Fields.First(field => field.Name == evaluatedArgument);
         }
       }
@@ -1221,7 +1221,7 @@ namespace Xtensive.Orm.Linq
       var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
       context.Bindings.ReplaceBound(sourceParameter, newResult);
 
-      var result = ColumnExpression.Create(originalColumnType, dataSource.Header.Length - 1);
+      var result = ColumnExpression.Create(originalColumnType, (ColNum) (dataSource.Header.Length - 1));
       ModifyStateAllowCalculableColumnCombine(true);
 
       return result;
@@ -1553,14 +1553,14 @@ namespace Xtensive.Orm.Linq
       // Replace original recordset. New recordset is left join with old recordset
       ProjectionExpression originalResultExpression = context.Bindings[parameter];
       var originalQuery = originalResultExpression.ItemProjector.DataSource;
-      int offset = originalQuery.Header.Columns.Count;
+      ColNum offset = originalQuery.Header.Columns.Count;
 
       // Join primary index of target type
       IndexInfo indexToJoin = targetTypeInfo.Indexes.PrimaryIndex;
       var queryToJoin = indexToJoin.GetQuery().Alias(context.GetNextAlias());
       var keySegment = entityExpression.Key.Mapping.GetItems();
       var keyPairs = keySegment
-        .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+        .Select((leftIndex, rightIndex) => new Pair<ColNum>(leftIndex, (ColNum)rightIndex))
         .ToArray();
 
       // Replace recordset.
@@ -1595,11 +1595,11 @@ namespace Xtensive.Orm.Linq
         return; // All fields are already joined
       IndexInfo joinedIndex = typeInfo.Indexes.PrimaryIndex;
       var joinedRs = joinedIndex.GetQuery().Alias(itemProjector.Context.GetNextAlias());
-      Segment<int> keySegment = entityExpression.Key.Mapping;
-      Pair<int>[] keyPairs = keySegment.GetItems()
-        .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+      Segment<ColNum> keySegment = entityExpression.Key.Mapping;
+      Pair<ColNum>[] keyPairs = keySegment.GetItems()
+        .Select((leftIndex, rightIndex) => new Pair<ColNum>(leftIndex, (ColNum)rightIndex))
         .ToArray();
-      int offset = itemProjector.DataSource.Header.Length;
+      ColNum offset = itemProjector.DataSource.Header.Length;
       var oldDataSource = itemProjector.DataSource;
       var newDataSource = entityExpression.IsNullable
         ? itemProjector.DataSource.LeftJoin(joinedRs, keyPairs)
@@ -1616,14 +1616,14 @@ namespace Xtensive.Orm.Linq
       TypeInfo typeInfo = entityFieldExpression.PersistentType;
       IndexInfo joinedIndex = typeInfo.Indexes.PrimaryIndex;
       var joinedRs = joinedIndex.GetQuery().Alias(context.GetNextAlias());
-      Segment<int> keySegment = entityFieldExpression.Mapping;
-      Pair<int>[] keyPairs = keySegment.GetItems()
-        .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+      Segment<ColNum> keySegment = entityFieldExpression.Mapping;
+      Pair<ColNum>[] keyPairs = keySegment.GetItems()
+        .Select((leftIndex, rightIndex) => new Pair<ColNum>(leftIndex, (ColNum)rightIndex))
         .ToArray();
       ItemProjectorExpression originalItemProjector = entityFieldExpression.OuterParameter == null
         ? context.Bindings[State.Parameters[0]].ItemProjector
         : context.Bindings[entityFieldExpression.OuterParameter].ItemProjector;
-      int offset = originalItemProjector.DataSource.Header.Length;
+      ColNum offset = originalItemProjector.DataSource.Header.Length;
       var oldDataSource = originalItemProjector.DataSource;
       bool shouldUseLeftJoin = false;
       var filterProvider = oldDataSource as FilterProvider;

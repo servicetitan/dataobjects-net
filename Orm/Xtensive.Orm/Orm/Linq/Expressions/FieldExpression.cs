@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Linq.Expressions
       }
     }
 
-    public override Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap) {
         return this;
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return result;
       }
 
-      var newMapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
+      var newMapping = new Segment<ColNum>((ColNum)(Mapping.Offset + offset), Mapping.Length);
       result = new FieldExpression(ExtendedExpressionType.Field, Field, newMapping, OuterParameter, DefaultIfEmpty);
       if (owner == null) {
         return result;
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap) {
         return this;
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return result;
       }
 
-      var offset = map.IndexOf(Mapping.Offset);
+      var offset = (ColNum)map.IndexOf(Mapping.Offset);
       if (offset < 0) {
         if (owner == null && !SkipOwnerCheckScope.IsActive) {
           throw new InvalidOperationException(Strings.ExUnableToRemapFieldExpression);
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
         return null;
       }
-      var newMapping = new Segment<int>(offset, Mapping.Length);
+      var newMapping = new Segment<ColNum>(offset, Mapping.Length);
       result = new FieldExpression(ExtendedExpressionType.Field, Field, newMapping, OuterParameter, DefaultIfEmpty);
       if (owner == null) {
         return result;
@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Linq.Expressions
       }
 
       var mappingInfo = field.MappingInfo;
-      var mapping = new Segment<int>(mappingInfo.Offset + offset, mappingInfo.Length);
+      var mapping = new Segment<ColNum>((ColNum)(mappingInfo.Offset + offset), mappingInfo.Length);
       return new FieldExpression(ExtendedExpressionType.Field, field, mapping, null, false);
     }
 
@@ -136,7 +136,7 @@ namespace Xtensive.Orm.Linq.Expressions
     protected FieldExpression(
       ExtendedExpressionType expressionType,
       FieldInfo field,
-      in Segment<int> mapping,
+      in Segment<ColNum> mapping,
       ParameterExpression parameterExpression,
       bool defaultIfEmpty)
       : base(expressionType, field.Name, field.ValueType, mapping, field.UnderlyingProperty, parameterExpression, defaultIfEmpty)

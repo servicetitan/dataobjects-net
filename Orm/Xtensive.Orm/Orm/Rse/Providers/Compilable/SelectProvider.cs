@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Indexes of columns that should be selected from the <see cref="UnaryProvider.Source"/>.
     /// </summary>
-    public IReadOnlyList<int> ColumnIndexes { [DebuggerStepThrough] get; }
+    public IReadOnlyList<ColNum> ColumnIndexes { [DebuggerStepThrough] get; }
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     ///   Initializes a new instance of this class.
     /// </summary>
-    public SelectProvider(CompilableProvider provider, IReadOnlyList<int> columnIndexes)
+    public SelectProvider(CompilableProvider provider, IReadOnlyList<ColNum> columnIndexes)
       : base(ProviderType.Select, provider)
     {
       ColumnIndexes = columnIndexes.AsSafeWrapper();

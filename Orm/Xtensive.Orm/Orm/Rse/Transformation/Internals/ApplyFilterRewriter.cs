@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Rse.Transformation
         if (mc.GetApplyParameter() != null)
           return Expression.Call(LeftTupleParameter, mc.Method, mc.Arguments[0]);
         var name = sourceColumns.Single(column => column.Index == sourceIndex).Name;
-        var currentIndex = targetColumns[name].Index;
+        int currentIndex = targetColumns[name].Index;
         return Expression.Call(mc.Object, mc.Method, Expression.Constant(currentIndex));
       }
       return base.VisitMethodCall(mc);

@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       if (Task == null) {
         if (!SelectColumnsToBeLoaded())
           return null;
-        Task = new EntityGroupTask(Type, ColumnIndexesToBeLoaded.ToArray(), Manager);
+        Task = new EntityGroupTask(Type, ColumnIndexesToBeLoaded, Manager);
       }
       return Task;
     }

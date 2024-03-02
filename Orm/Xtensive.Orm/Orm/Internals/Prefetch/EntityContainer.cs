@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Internals.Prefetch
   {
     private static readonly Parameter<Tuple> seekParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
 
-    private SortedDictionary<int, ColumnInfo> columns;
+    private SortedDictionary<ColNum, ColumnInfo> columns;
 
     protected readonly PrefetchManager Manager;
 
@@ -30,20 +30,19 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public EntityGroupTask Task { get; protected set; }
 
-    protected List<int> ColumnIndexesToBeLoaded { get; set; }
+    protected IReadOnlyList<ColNum> ColumnIndexesToBeLoaded { get; set; }
 
     public abstract EntityGroupTask GetTask();
 
     public void AddColumns(IEnumerable<ColumnInfo> candidateColumns)
     {
-      if (columns == null)
-        columns = new SortedDictionary<int, ColumnInfo>();
-      if (PrefetchHelper.AddColumns(candidateColumns, columns, Type) && ColumnIndexesToBeLoaded != null)
+      columns ??= new SortedDictionary<ColNum, ColumnInfo>();
+      if (PrefetchHelper.AddColumns(candidateColumns, columns, Type))
         ColumnIndexesToBeLoaded = null;
     }
 
-    public void SetColumnCollections(SortedDictionary<int, ColumnInfo> forcedColumns,
-      List<int> forcedColumnsToBeLoaded)
+    public void SetColumnCollections(SortedDictionary<ColNum, ColumnInfo> forcedColumns,
+      IReadOnlyList<ColNum> forcedColumnsToBeLoaded)
     {
       if (columns != null)
         throw new InvalidOperationException();
@@ -60,26 +59,26 @@ namespace Xtensive.Orm.Internals.Prefetch
       var tuple = state == null ? null : state.Tuple;
       if (tuple == null && ColumnIndexesToBeLoaded != null)
         return true;
-      if (ColumnIndexesToBeLoaded != null)
-        ColumnIndexesToBeLoaded = null;
+      List<ColNum> columnIndexesToBeLoaded = null;
       var needToFetchSystemColumns = false;
-      foreach (var pair in columns)
+      foreach (var pair in columns) {
         if (tuple == null || !tuple.GetFieldState(pair.Key).IsAvailable())
           if (pair.Value.IsPrimaryKey || pair.Value.IsSystem)
             needToFetchSystemColumns = ExactType && tuple == null;
           else {
-            if (ColumnIndexesToBeLoaded == null)
-              ColumnIndexesToBeLoaded = CreateColumnIndexCollection();
-            ColumnIndexesToBeLoaded.Add(pair.Key);
+            (columnIndexesToBeLoaded ??= CreateColumnIndexCollection()).Add(pair.Key);
           }
-      if (needToFetchSystemColumns && ColumnIndexesToBeLoaded == null)
-        ColumnIndexesToBeLoaded = CreateColumnIndexCollection();
+      }
+      ColumnIndexesToBeLoaded = columnIndexesToBeLoaded;
+      if (needToFetchSystemColumns) {
+        ColumnIndexesToBeLoaded ??= CreateColumnIndexCollection();
+      }
       return ColumnIndexesToBeLoaded != null;
     }
 
-    private List<int> CreateColumnIndexCollection()
+    private List<ColNum> CreateColumnIndexCollection()
     {
-      var result = new List<int>(columns.Count);
+      var result = new List<ColNum>(columns.Count);
       result.AddRange(Type.Indexes.PrimaryIndex.ColumnIndexMap.System);
       return result;
     }

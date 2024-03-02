@@ -23,9 +23,9 @@ namespace Xtensive.Orm.Rse.Providers
     protected override RecordSetHeader BuildHeader()
     {
       EnsureConcatIsPossible();
-      var mappedColumnIndexes = new List<int>();
+      var mappedColumnIndexes = new List<ColNum>();
       var columns = new List<Column>();
-      for (int i = 0; i < Left.Header.Columns.Count; i++) {
+      for (ColNum i = 0; i < Left.Header.Columns.Count; i++) {
         var leftColumn = Left.Header.Columns[i];
         var rightColumn = Right.Header.Columns[i];
         if (leftColumn is MappedColumn leftMappedColumn && rightColumn is MappedColumn rightMappedColumn) {

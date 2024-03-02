@@ -70,14 +70,14 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       var remappedSubquery = (SubQueryExpression) base.Remap(map, processedExpressions);
       var remappedKeyExpression = GenericExpressionVisitor<IMappedExpression>.Process(KeyExpression, mapped => mapped.Remap(map, processedExpressions));
       return new GroupingExpression(remappedSubquery.Type, remappedSubquery.OuterParameter, DefaultIfEmpty, remappedSubquery.ProjectionExpression, remappedSubquery.ApplyParameter, remappedKeyExpression, SelectManyInfo);
     }
 
-    public override Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       var remappedSubquery = (SubQueryExpression) base.Remap(offset, processedExpressions);
       var remappedKeyExpression = GenericExpressionVisitor<IMappedExpression>.Process(KeyExpression, mapped => mapped.Remap(offset, processedExpressions));

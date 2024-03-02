@@ -201,13 +201,14 @@ namespace Xtensive.Orm.Providers
 
     private object GetParameterValue(SqlPersistTask task, PersistParameterBinding binding)
     {
+      var fieldIndex = binding.FieldIndex;
       switch (binding.BindingType) {
-        case PersistParameterBindingType.Regular when task.Tuple != null:
-          return task.Tuple.GetValueOrDefault(binding.FieldIndex);
-        case PersistParameterBindingType.Regular when task.Tuples != null:
-          return task.Tuples[binding.RowIndex].GetValueOrDefault(binding.FieldIndex);
+        case PersistParameterBindingType.Regular when task.Tuple is { } tuple:
+          return tuple.GetValueOrDefault(fieldIndex);
+        case PersistParameterBindingType.Regular when task.Tuples is { } tuples:
+          return tuples[binding.RowIndex].GetValueOrDefault(fieldIndex);
         case PersistParameterBindingType.VersionFilter:
-          return task.OriginalTuple.GetValueOrDefault(binding.FieldIndex);
+          return task.OriginalTuple.GetValueOrDefault(fieldIndex);
         default:
           throw new ArgumentOutOfRangeException("binding.Source");
       }

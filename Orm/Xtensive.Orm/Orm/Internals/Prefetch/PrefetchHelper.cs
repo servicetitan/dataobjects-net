@@ -34,10 +34,10 @@ namespace Xtensive.Orm.Internals.Prefetch
     public static bool? TryGetExactKeyType(Key key, PrefetchManager manager, out TypeInfo type)
     {
       type = null;
-      if (!key.TypeReference.Type.IsLeaf) {
+      var keyTypeReferenceType = key.TypeReference.Type;
+      if (!keyTypeReferenceType.IsLeaf) {
         var cachedKey = key;
-        EntityState state;
-        if (!manager.TryGetTupleOfNonRemovedEntity(ref cachedKey, out state))
+        if (!manager.TryGetTupleOfNonRemovedEntity(ref cachedKey, out var state))
           return null;
         if (cachedKey.HasExactType) {
           type = cachedKey.TypeReference.Type;
@@ -45,38 +45,40 @@ namespace Xtensive.Orm.Internals.Prefetch
         }
         return false;
       }
-      type = key.TypeReference.Type;
+      type = keyTypeReferenceType;
       return true;
     }
 
-    public static SortedDictionary<int, ColumnInfo> GetColumns(IEnumerable<ColumnInfo> candidateColumns,
+    public static SortedDictionary<ColNum, ColumnInfo> GetColumns(IEnumerable<ColumnInfo> candidateColumns,
       TypeInfo type)
     {
-      var columns = new SortedDictionary<int, ColumnInfo>();
+      var columns = new SortedDictionary<ColNum, ColumnInfo>();
       AddColumns(candidateColumns, columns, type);
       return columns;
     }
 
     public static bool AddColumns(IEnumerable<ColumnInfo> candidateColumns,
-      SortedDictionary<int, ColumnInfo> columns, TypeInfo type)
+      SortedDictionary<ColNum, ColumnInfo> columns, TypeInfo type)
     {
       var result = false;
+      var typeIsInterface = type.IsInterface;
+      var typeFields = type.Fields;
+      var typeFieldMap = type.FieldMap;
       foreach (var column in candidateColumns) {
         result = true;
-        if (type.IsInterface == column.Field.DeclaringType.IsInterface)
-          columns[type.Fields[column.Field.Name].MappingInfo.Offset] = column;
-        else if (column.Field.DeclaringType.IsInterface)
-          columns[type.FieldMap[column.Field].MappingInfo.Offset] = column;
-        else
-          throw new InvalidOperationException();
+        var columnField = column.Field;
+        var columnIsInterface = columnField.DeclaringType.IsInterface;
+        var fieldInfo = typeIsInterface == columnIsInterface ? typeFields[columnField.Name]
+          : columnIsInterface ? typeFieldMap[columnField] : throw new InvalidOperationException();
+        columns[fieldInfo.MappingInfo.Offset] = column;
       }
       return result;
     }
 
-    public static List<int> GetColumnsToBeLoaded(SortedDictionary<int, ColumnInfo> userColumnIndexes,
+    public static List<ColNum> GetColumnsToBeLoaded(SortedDictionary<ColNum, ColumnInfo> userColumnIndexes,
       TypeInfo type)
     {
-      var result = new List<int>(userColumnIndexes.Count);
+      var result = new List<ColNum>(userColumnIndexes.Count);
       result.AddRange(type.Indexes.PrimaryIndex.ColumnIndexMap.System);
       result.AddRange(userColumnIndexes.Where(pair => !pair.Value.IsPrimaryKey
         && !pair.Value.IsSystem).Select(pair => pair.Key));

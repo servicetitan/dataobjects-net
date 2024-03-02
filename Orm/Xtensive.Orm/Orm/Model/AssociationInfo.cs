@@ -219,7 +219,7 @@ namespace Xtensive.Orm.Model
             UnderlyingIndex = Reversed.AuxiliaryType.Indexes.Where(indexInfo => indexInfo.IsSecondary).Skip(1).First();
 
           if (!OwnerType.IsInterface) {
-            var foreignKeySegment = new Segment<int>(OwnerType.Columns.Count(c => c.IsPrimaryKey), TargetType.Columns.Count(c => c.IsPrimaryKey));
+            var foreignKeySegment = new Segment<ColNum>((ColNum) OwnerType.Columns.Count(c => c.IsPrimaryKey), (ColNum) TargetType.Columns.Count(c => c.IsPrimaryKey));
             foreignKeyExtractor = new SegmentTransform(true, UnderlyingIndex.TupleDescriptor, foreignKeySegment);
           }
           break;

@@ -26,8 +26,8 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
       Xtensive.Tuples.Tuple t  = Xtensive.Tuples.Tuple.Create(1, "2", 3, 4.0);
       TestLog.Info("Original: {0}", t);
 
-      SegmentTransform st   = new SegmentTransform(false, t.Descriptor, new Segment<int>(1,2));
-      SegmentTransform stro = new SegmentTransform(true,  t.Descriptor, new Segment<int>(1,2));
+      SegmentTransform st   = new SegmentTransform(false, t.Descriptor, new Segment<ColNum>(1,2));
+      SegmentTransform stro = new SegmentTransform(true,  t.Descriptor, new Segment<ColNum>(1,2));
 
       Xtensive.Tuples.Tuple wt1 = st.Apply(TupleTransformType.TransformedTuple, t);
       TestLog.Info("Wrapper:  {0}", wt1);
@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
     {
       AdvancedComparerStruct<Xtensive.Tuples.Tuple> comparer = AdvancedComparerStruct<Xtensive.Tuples.Tuple>.Default;
       Xtensive.Tuples.Tuple t   = Xtensive.Tuples.Tuple.Create(1, 2, 3, 4);
-      SegmentTransform st = new SegmentTransform(false, t.Descriptor, new Segment<int>(1,2));
+      SegmentTransform st = new SegmentTransform(false, t.Descriptor, new Segment<ColNum>(1,2));
       Xtensive.Tuples.Tuple wt1 = st.Apply(TupleTransformType.TransformedTuple, t);
       Xtensive.Tuples.Tuple wt2 = st.Apply(TupleTransformType.TransformedTuple, t);
       Xtensive.Tuples.Tuple ct1 = st.Apply(TupleTransformType.Tuple, t);

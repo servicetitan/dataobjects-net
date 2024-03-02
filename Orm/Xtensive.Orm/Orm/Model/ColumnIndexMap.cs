@@ -20,17 +20,17 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets positions of system columns within <see cref="IndexInfo"/>.
     /// </summary>
-    public IReadOnlyList<int> System { get; }
+    public IReadOnlyList<ColNum> System { get; }
 
     /// <summary>
     /// Gets or sets positions of lazy load columns within <see cref="IndexInfo"/>.
     /// </summary>
-    public IReadOnlyList<int> LazyLoad { get; }
+    public IReadOnlyList<ColNum> LazyLoad { get; }
 
     /// <summary>
     /// Gets or sets positions of regular columns (not system and not lazy load) within <see cref="IndexInfo"/>.
     /// </summary>
-    public IReadOnlyList<int> Regular { get; }
+    public IReadOnlyList<ColNum> Regular { get; }
 
 
     // Constructors
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Model
     /// <param name="system">The system columns.</param>
     /// <param name="lazyLoad">The regular columns.</param>
     /// <param name="regular">The lazy load columns.</param>
-    public ColumnIndexMap(IReadOnlyList<int> system, IReadOnlyList<int> regular, IReadOnlyList<int> lazyLoad)
+    public ColumnIndexMap(IReadOnlyList<ColNum> system, IReadOnlyList<ColNum> regular, IReadOnlyList<ColNum> lazyLoad)
     {
       System = system;
       LazyLoad = lazyLoad;

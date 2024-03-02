@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Rse.Transformation
       select parameter).Distinct().ToList();
     }
 
-    private bool TryAddCalculateFilter(FilterProvider filterProvider, List<int> tupleAccesses)
+    private bool TryAddCalculateFilter(FilterProvider filterProvider, List<ColNum> tupleAccesses)
     {
       var result = false;
       foreach (var key in owner.State.Predicates.Keys) {
@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    private static bool ContainsAccessToTupleField(IEnumerable<int> tupleAccesses,
+    private static bool ContainsAccessToTupleField(IEnumerable<ColNum> tupleAccesses,
       CalculateProvider calculateProvider, FilterProvider provider)
     {
       return tupleAccesses.Any(i => calculateProvider.Header.Columns.Contains(provider.Header.Columns[i]));
