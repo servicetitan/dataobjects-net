@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm;
@@ -53,9 +54,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
         // add select removing RowNumber column
         if (requiresRowNumber)
-          visitedProvider = new SelectProvider(
-            visitedProvider,
-            Enumerable.Range(0, visitedProvider.Header.Length - 1).Select(i => (ColNum) i).ToArray());
+          visitedProvider = new SelectProvider(visitedProvider, CollectionUtils.ZeroBasedColNumRange(visitedProvider.Header.Length));
 
         return visitedProvider;
       }

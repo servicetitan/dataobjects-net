@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
@@ -51,10 +52,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var selectedColumnIndexes = cachingKey.ColumnIndexes;
       var primaryIndex = cachingKey.Type.Indexes.PrimaryIndex;
       var keyColumnsCount = primaryIndex.KeyColumns.Count;
-      var keyColumnIndexes = new ColNum[keyColumnsCount];
-      foreach (var index in Enumerable.Range(0, keyColumnsCount).Select(i => (ColNum) i)) {
-        keyColumnIndexes[index] = index;
-      }
+      var keyColumnIndexes = CollectionUtils.ZeroBasedColNumRange(keyColumnsCount);
 
       var columnCollectionLength = primaryIndex.Columns.Count;
       return primaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,

@@ -4,7 +4,6 @@
 // Created by: Denis Kudelin
 // Created:    2019.03.21
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,6 +48,11 @@ namespace Xtensive.Collections
       return result;
     }
 
+    private static readonly IReadOnlyList<ColNum>[] preallocatedRanges = Enumerable.Range(0, 100).Select(len => (IReadOnlyList<ColNum>)Enumerable.Range(0, len).Select(i => (ColNum)i).ToArray()).ToArray();
+
+    public static IReadOnlyList<ColNum> ZeroBasedColNumRange(int count) =>
+      count < preallocatedRanges.Length ? preallocatedRanges[count] : Enumerable.Range(0, count).Select(i => (ColNum)i).ToArray();
+
     /// <summary>Generates an array that contains one repeated value.</summary>
     /// <param name="element">The value to be repeated.</param>
     /// <param name="count">The number of times to repeat the value in the generated sequence.</param>
@@ -80,5 +84,5 @@ namespace Xtensive.Collections
         result.Add(element);
       return result;
     }
-  }
+ }
 }

@@ -44,10 +44,10 @@ namespace Xtensive.Orm.Linq.Expressions
       }
     }
 
-    public IEnumerable<ColNum> GetColumns(ColumnExtractionModes columnExtractionModes) =>
+    public IReadOnlyList<ColNum> GetColumns(ColumnExtractionModes columnExtractionModes) =>
       ColumnGatherer.GetColumns(Item, columnExtractionModes);
 
-    public List<Pair<ColNum, Expression>> GetColumnsAndExpressions(ColumnExtractionModes columnExtractionModes) =>
+    public IReadOnlyList<Pair<ColNum, Expression>> GetColumnsAndExpressions(ColumnExtractionModes columnExtractionModes) =>
       ColumnGatherer.GetColumnsAndExpressions(Item, columnExtractionModes);
 
     public ItemProjectorExpression Remap(CompilableProvider dataSource, ColNum offset)

@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Linq.Materialization
       var map = new ColNum[targetLength];
       Array.Fill(map, MapTransform.NoMapping);
 
-      for (var i = 0; i < remappedColumns.Count; i++) {
+      for (int i = 0, count = remappedColumns.Count; i < count; i++) {
         var remappedColumn = remappedColumns[i];
         var targetIndex = remappedColumn.First;
         var sourceIndex = remappedColumn.Second;
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public static T GetDefault<T>() => default;
 
-    public static bool IsNull(Tuple tuple, ColNum[] columns) =>
+    public static bool IsNull(Tuple tuple, IReadOnlyList<ColNum> columns) =>
       columns.All(column => tuple.GetFieldState(column).IsNull());
 
     public static object ThrowEmptySequenceException() =>

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Internals;
@@ -27,19 +28,19 @@ namespace Xtensive.Orm.Rse.Transformation
         && methodInfo.GetParameters()[1].ParameterType.CachedGetGenericTypeDefinition() == WellKnownTypes.FuncOfTArgTResultType)
       .CachedMakeGenericMethod(WellKnownOrmTypes.Tuple, WellKnownOrmTypes.Tuple);
 
-    protected override (CompilableProvider, List<ColNum>) OverrideRightApplySource(ApplyProvider applyProvider, CompilableProvider provider, List<ColNum> requestedMapping)
+    protected override (CompilableProvider, IReadOnlyList<ColNum>) OverrideRightApplySource(ApplyProvider applyProvider, CompilableProvider provider, IReadOnlyList<ColNum> requestedMapping)
     {
       var currentMapping = mappings[applyProvider.Right];
       if (currentMapping.SequenceEqual(requestedMapping))
         return base.OverrideRightApplySource(applyProvider, provider, requestedMapping);
-      var selectProvider = new SelectProvider(provider, requestedMapping.ToArray());
+      var selectProvider = new SelectProvider(provider, requestedMapping);
       return (selectProvider, requestedMapping);
     }
 
     protected override RawProvider VisitRaw(RawProvider provider)
     {
       var mapping = mappings[provider];
-      if (mapping.SequenceEqual(Enumerable.Range(0, provider.Header.Length).Select(i => (ColNum) i)))
+      if (mapping.SequenceEqual(CollectionUtils.ZeroBasedColNumRange(provider.Header.Length)))
         return provider;
       var mappingTransform = new MapTransform(true, provider.Header.TupleDescriptor, mapping.ToArray());
       var newExpression = RemapRawProviderSource(provider.Source, mappingTransform);
