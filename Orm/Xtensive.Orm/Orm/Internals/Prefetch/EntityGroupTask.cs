@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var selectedColumnIndexes = cachingKey.ColumnIndexes;
       var primaryIndex = cachingKey.Type.Indexes.PrimaryIndex;
       var keyColumnsCount = primaryIndex.KeyColumns.Count;
-      var keyColumnIndexes = CollectionUtils.ZeroBasedColNumRange(keyColumnsCount);
+      var keyColumnIndexes = CollectionUtils.ColNumRange(keyColumnsCount);
 
       var columnCollectionLength = primaryIndex.Columns.Count;
       return primaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,

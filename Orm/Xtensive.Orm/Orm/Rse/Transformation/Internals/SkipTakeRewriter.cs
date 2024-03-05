@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
         // add select removing RowNumber column
         if (requiresRowNumber)
-          visitedProvider = new SelectProvider(visitedProvider, CollectionUtils.ZeroBasedColNumRange(visitedProvider.Header.Length));
+          visitedProvider = new SelectProvider(visitedProvider, CollectionUtils.ColNumRange(visitedProvider.Header.Length));
 
         return visitedProvider;
       }

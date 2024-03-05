@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Rse.Transformation
     protected override RawProvider VisitRaw(RawProvider provider)
     {
       var mapping = mappings[provider];
-      if (mapping.SequenceEqual(CollectionUtils.ZeroBasedColNumRange(provider.Header.Length)))
+      if (mapping.SequenceEqual(CollectionUtils.ColNumRange(provider.Header.Length)))
         return provider;
       var mappingTransform = new MapTransform(true, provider.Header.TupleDescriptor, mapping.ToArray());
       var newExpression = RemapRawProviderSource(provider.Source, mappingTransform);

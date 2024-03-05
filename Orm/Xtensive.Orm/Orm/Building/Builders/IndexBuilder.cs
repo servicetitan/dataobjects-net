@@ -624,7 +624,7 @@ namespace Xtensive.Orm.Building.Builders
       var valueColumnMapping = new List<Pair<ColNum, List<ColNum>>>();
       foreach(var item in orderedIndexes) {
         if (valueColumnMapping.Count == 0)
-          item.columns.InsertRange(0, CollectionUtils.ZeroBasedColNumRange(result.IncludedColumns.Count));
+          item.columns.InsertRange(0, CollectionUtils.ColNumRange(result.IncludedColumns.Count));
         foreach (var columnIndex in item.columns) {
           var column = item.index.ValueColumns[columnIndex];
           columnsToAdd.Add(column);
@@ -750,7 +750,7 @@ namespace Xtensive.Orm.Building.Builders
         .ToChainedBuffer();
       valueColumns.Clear();
       columnMap.Clear();
-      columnMap.AddRange(CollectionUtils.ZeroBasedColNumRange(keyLength));
+      columnMap.AddRange(CollectionUtils.ColNumRange(keyLength));
       foreach (var columnMapping in actualColumnMapping) {
         valueColumns.Add(columnMapping.column);
         columnMap.Add(columnMapping.sourceIndex);
@@ -804,7 +804,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       var reflectedType = index.ReflectedType;
       IReadOnlyList<ColNum> keyColumns = index.IsPrimary
-        ? CollectionUtils.ZeroBasedColNumRange(index.KeyColumns.Count)
+        ? CollectionUtils.ColNumRange(index.KeyColumns.Count)
         : index.KeyColumns
             .Select(static pair => pair.Key)
             .Concat(index.ValueColumns)
@@ -812,7 +812,7 @@ namespace Xtensive.Orm.Building.Builders
             .Where(static arg => arg.c.IsPrimaryKey)
             .Select(static arg => arg.i)
             .ToList();
-      return new ColumnGroup(reflectedType, keyColumns, CollectionUtils.ZeroBasedColNumRange(index.KeyColumns.Count + index.ValueColumns.Count));
+      return new ColumnGroup(reflectedType, keyColumns, CollectionUtils.ColNumRange(index.KeyColumns.Count + index.ValueColumns.Count));
     }
 
     private void CleanupTypedIndexes()
