@@ -15,8 +15,7 @@ using Xtensive.Reflection;
 namespace Xtensive.Orm.Linq.Expressions
 {
   [Serializable]
-  internal class FullTextExpression : ParameterizedExpression,
-    IMappedExpression
+  internal class FullTextExpression : ParameterizedExpression
   {
     public FullTextIndexInfo FullTextIndex { get; private set; }
 
@@ -24,7 +23,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public EntityExpression EntityExpression { get; private set; }
 
-    public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       Expression result;
       if (processedExpressions.TryGetValue(this, out result))
@@ -35,7 +34,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return new FullTextExpression(FullTextIndex, entityExpression, rankExpression, parameter);
     }
 
-    public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
+    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
       Expression result;
       if (processedExpressions.TryGetValue(this, out result))
@@ -46,7 +45,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return new FullTextExpression(FullTextIndex, entityExpression, rankExpression, null);
     }
 
-    public Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
@@ -55,12 +54,12 @@ namespace Xtensive.Orm.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out result))
         return result;
 
-      var remappedEntityExpression = (EntityExpression) EntityExpression.Remap(offset, processedExpressions);
-      var remappedRankExpression = (ColumnExpression) RankExpression.Remap(offset, processedExpressions);
+      var remappedEntityExpression = EntityExpression.Remap(offset, processedExpressions);
+      var remappedRankExpression = RankExpression.Remap(offset, processedExpressions);
       return new FullTextExpression(FullTextIndex, remappedEntityExpression, remappedRankExpression, OuterParameter);
     }
 
-    public Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
@@ -69,8 +68,8 @@ namespace Xtensive.Orm.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out result))
         return result;
 
-      var remappedEntityExpression = (EntityExpression) EntityExpression.Remap(map, processedExpressions);
-      var remappedRankExpression = (ColumnExpression) RankExpression.Remap(map, processedExpressions);
+      var remappedEntityExpression = EntityExpression.Remap(map, processedExpressions);
+      var remappedRankExpression = RankExpression.Remap(map, processedExpressions);
       return new FullTextExpression(FullTextIndex, remappedEntityExpression, remappedRankExpression, OuterParameter);
     }
 

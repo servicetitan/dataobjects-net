@@ -16,24 +16,23 @@ using Xtensive.Collections;
 namespace Xtensive.Orm.Linq.Expressions
 {
   [Serializable]
-  internal class SubQueryExpression : ParameterizedExpression,
-    IMappedExpression
+  internal class SubQueryExpression : ParameterizedExpression
   {
     public ProjectionExpression ProjectionExpression { get; }
 
     public ApplyParameter ApplyParameter { get; }
 
-    public virtual Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       return this;
     }
 
-    public virtual Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
+    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
       return this;
     }
 
-    public virtual Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
+    public override SubQueryExpression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       // Don't check CanRemap - Remap always.
 
@@ -67,7 +66,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public virtual Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override SubQueryExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       // Don't check CanRemap - Remap always.
 

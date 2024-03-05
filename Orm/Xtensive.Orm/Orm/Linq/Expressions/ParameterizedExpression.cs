@@ -5,11 +5,12 @@
 // Created:    2009.05.18
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  internal abstract class ParameterizedExpression : ExtendedExpression
+  internal abstract class ParameterizedExpression : ExtendedExpression, IMappedExpression
   {
     public ParameterExpression OuterParameter { get; private set; }
     public bool DefaultIfEmpty { get; set; }
@@ -33,6 +34,27 @@ namespace Xtensive.Orm.Linq.Expressions
           : OuterParameter==context.SubqueryParameterExpression;
       }
     }
+
+    protected bool TryProcessed<T>(Dictionary<Expression, Expression> processedExpressions, out T result) where T : ParameterizedExpression
+    {
+      if (!CanRemap) {
+        result = (T)this;
+        return true;
+      }
+
+      if (processedExpressions.TryGetValue(this, out var value)) {
+        result = (T)value;
+        return true;
+      }
+
+      result = null;
+      return false;
+    }
+
+    public abstract Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions);
+    public abstract Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions);
+    public abstract Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions);
+    public abstract Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions);
 
     // Constructors
 

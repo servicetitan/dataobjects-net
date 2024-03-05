@@ -12,17 +12,13 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  internal abstract class PersistentFieldExpression : ParameterizedExpression,
-    IMappedExpression
+  internal abstract class PersistentFieldExpression : ParameterizedExpression
   {
     internal Segment<ColNum> Mapping;
 
     public string Name { get; private set; }
     public PropertyInfo UnderlyingProperty { get; private set; }
-    public abstract Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions);
-    public abstract Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions);
-    public abstract Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions);
-    public abstract Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions);
+    public override PersistentFieldExpression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions) => throw new NotImplementedException();
 
     public override string ToString()
     {

@@ -20,24 +20,20 @@ namespace Xtensive.Orm.Linq.Expressions
     public TypeInfo EntityType { get; }
     public IReadOnlyList<FieldExpression> KeyFields { get; }
 
-    public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
+    public override KeyExpression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap) {
-        return this;
-      }
-
-      return processedExpressions.TryGetValue(this, out var value)
-        ? value
-        : RemapWithNoCheck(offset, processedExpressions);
+      if (TryProcessed<KeyExpression>(processedExpressions, out var value))
+        return value;
+      return RemapWithNoCheck(offset, processedExpressions);
     }
 
     // Having this code as a separate method helps to avoid closure allocation during Remap call
     // in case processedExpressions dictionary already contains a result.
-    private Expression RemapWithNoCheck(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
+    private KeyExpression RemapWithNoCheck(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       var newMapping = new Segment<ColNum>((ColNum)(Mapping.Offset + offset), Mapping.Length);
 
-      FieldExpression Remap(FieldExpression f) => (FieldExpression) f.Remap(offset, processedExpressions);
+      FieldExpression Remap(FieldExpression f) => f.Remap(offset, processedExpressions);
 
       var fields = KeyFields.Select(Remap).ToArray(KeyFields.Count);
       var result = new KeyExpression(EntityType, fields, newMapping, UnderlyingProperty, OuterParameter, DefaultIfEmpty);
@@ -46,21 +42,16 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override KeyExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap) {
-        return this;
-      }
-
-      if (processedExpressions.TryGetValue(this, out var value)) {
+      if (TryProcessed<KeyExpression>(processedExpressions, out var value))
         return value;
-      }
 
       var segment = new Segment<ColNum>((ColNum)map.IndexOf(Mapping.Offset), Mapping.Length);
       var fields = new FieldExpression[KeyFields.Count];
       using (new SkipOwnerCheckScope()) {
         for (var index = 0; index < fields.Length; index++) {
-          var field = (FieldExpression)KeyFields[index].Remap(map, processedExpressions);
+          var field = KeyFields[index].Remap(map, processedExpressions);
           if (field == null) {
             if (SkipOwnerCheckScope.IsActive) {
               processedExpressions.Add(this, null);
@@ -78,11 +69,11 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression BindParameter(
+    public override KeyExpression BindParameter(
       ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       if (processedExpressions.TryGetValue(this, out var value)) {
-        return value;
+        return (KeyExpression)value;
       }
 
       return BindParameterWithNoCheck(parameter, processedExpressions);
@@ -90,11 +81,11 @@ namespace Xtensive.Orm.Linq.Expressions
 
     // Having this code as a separate method helps to avoid closure allocation during BindParameter call
     // in case processedExpressions dictionary already contains a result.
-    private Expression BindParameterWithNoCheck(
+    private KeyExpression BindParameterWithNoCheck(
       ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       FieldExpression BindParameter(FieldExpression f)
-        => (FieldExpression) f.BindParameter(parameter, processedExpressions);
+        => f.BindParameter(parameter, processedExpressions);
 
       var fields = KeyFields.Select(BindParameter).ToArray(KeyFields.Count);
       var result = new KeyExpression(EntityType, fields, Mapping, UnderlyingProperty, parameter, DefaultIfEmpty);

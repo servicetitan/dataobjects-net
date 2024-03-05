@@ -44,15 +44,14 @@ namespace Xtensive.Orm.Linq.Expressions
       throw Exceptions.InternalError(Strings.ExUnableToRemoveOwnerFromEntitySetExpression, OrmLog.Instance);
     }
 
-    public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
+    public override FieldExpression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
 
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
-        return result;
-      result = new EntitySetExpression(Field, null, DefaultIfEmpty);
+      if (processedExpressions.TryGetValue(this, out var r))
+        return (FieldExpression)r;
+      var result = new EntitySetExpression(Field, null, DefaultIfEmpty);
       if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);
@@ -60,15 +59,14 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override EntitySetExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
 
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
-        return result;
-      result = new EntitySetExpression(Field, null, DefaultIfEmpty);
+      if (processedExpressions.TryGetValue(this, out var r))
+        return (EntitySetExpression)r;
+      var result = new EntitySetExpression(Field, null, DefaultIfEmpty);
       if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);
@@ -76,12 +74,11 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override EntitySetExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
-        return result;
-      result = new EntitySetExpression(Field, parameter, DefaultIfEmpty);
+      if (processedExpressions.TryGetValue(this, out var r))
+        return (EntitySetExpression)r;
+      var result = new EntitySetExpression(Field, parameter, DefaultIfEmpty);
       if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);

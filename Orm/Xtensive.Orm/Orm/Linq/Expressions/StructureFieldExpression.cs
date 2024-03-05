@@ -32,15 +32,10 @@ namespace Xtensive.Orm.Linq.Expressions
       }
     }
 
-    public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
+    public override StructureFieldExpression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap) {
-        return this;
-      }
-
-      if (processedExpressions.TryGetValue(this, out var value)) {
+      if (TryProcessed<StructureFieldExpression>(processedExpressions, out var value))
         return value;
-      }
 
       var newMapping = new Segment<ColNum>((ColNum) (Mapping.Offset + offset), Mapping.Length);
       var result = new StructureFieldExpression(PersistentType, Field, newMapping, OuterParameter, DefaultIfEmpty);
@@ -48,7 +43,7 @@ namespace Xtensive.Orm.Linq.Expressions
       var processedFields = new List<PersistentFieldExpression>(fields.Count);
       foreach (var field in fields) {
         // Do not convert to LINQ. We want to avoid a closure creation here.
-        processedFields.Add((PersistentFieldExpression) field.Remap(offset, processedExpressions));
+        processedFields.Add(field.Remap(offset, processedExpressions));
       }
 
       if (Owner == null) {
@@ -61,15 +56,10 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override StructureFieldExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap) {
-        return this;
-      }
-
-      if (processedExpressions.TryGetValue(this, out var value)) {
+      if (TryProcessed<StructureFieldExpression>(processedExpressions, out var value))
         return value;
-      }
 
       var result = new StructureFieldExpression(PersistentType, Field, default, OuterParameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
@@ -105,10 +95,10 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override StructureFieldExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       if (processedExpressions.TryGetValue(this, out var value)) {
-        return value;
+        return (StructureFieldExpression)value;
       }
 
       var result = new StructureFieldExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);

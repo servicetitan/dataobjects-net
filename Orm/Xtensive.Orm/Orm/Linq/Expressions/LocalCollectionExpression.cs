@@ -15,8 +15,7 @@ using Xtensive.Core;
 namespace Xtensive.Orm.Linq.Expressions
 {
   [Serializable]
-  internal class LocalCollectionExpression : ParameterizedExpression,
-    IMappedExpression
+  internal class LocalCollectionExpression : ParameterizedExpression
   {
     // just to have good error
     private readonly string expressionAsString;
@@ -32,11 +31,9 @@ namespace Xtensive.Orm.Linq.Expressions
           : ((LocalCollectionExpression) field.Value).Columns.Cast<IMappedExpression>())
         .Cast<ColumnExpression>();
 
-    public Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
+    public override LocalCollectionExpression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap)
-        return this;
-      if (processedExpressions.TryGetValue(this, out var value))
+      if (TryProcessed<LocalCollectionExpression>(processedExpressions, out var value))
         return value;
 
       var result = new LocalCollectionExpression(Type, MemberInfo, expressionAsString);
@@ -45,11 +42,9 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap)
-        return this;
-      if (processedExpressions.TryGetValue(this, out var value))
+      if (TryProcessed<LocalCollectionExpression>(processedExpressions, out var value))
         return value;
 
       var result = new LocalCollectionExpression(Type, MemberInfo, expressionAsString);
@@ -58,7 +53,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       if (processedExpressions.TryGetValue(this, out var value))
         return value;
@@ -69,7 +64,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
+    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
       if (processedExpressions.TryGetValue(this, out var value))
         return value;

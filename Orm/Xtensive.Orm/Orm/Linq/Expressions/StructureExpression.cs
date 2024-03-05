@@ -13,8 +13,7 @@ using System.Linq;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  internal sealed class StructureExpression : ParameterizedExpression,
-    IPersistentExpression
+  internal sealed class StructureExpression : ParameterizedExpression, IPersistentExpression
   {
     private List<PersistentFieldExpression> fields;
     private bool isNullable;
@@ -35,15 +34,10 @@ namespace Xtensive.Orm.Linq.Expressions
       }
     }
 
-    public Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap) {
-        return this;
-      }
-
-      if (processedExpressions.TryGetValue(this, out var value)) {
+      if (TryProcessed<StructureExpression>(processedExpressions, out var value))
         return value;
-      }
 
       var mapping = new Segment<ColNum>((ColNum) (Mapping.Offset + offset), Mapping.Length);
       var result = new StructureExpression(PersistentType, mapping);
@@ -51,7 +45,7 @@ namespace Xtensive.Orm.Linq.Expressions
       var processedFields = new List<PersistentFieldExpression>(fields.Count);
       foreach (var field in fields) {
         // Do not convert to LINQ. We intentionally avoiding closure creation here
-        processedFields.Add((PersistentFieldExpression) field.Remap(offset, processedExpressions));
+        processedFields.Add(field.Remap(offset, processedExpressions));
       }
 
       result.Fields = processedFields;
@@ -60,15 +54,10 @@ namespace Xtensive.Orm.Linq.Expressions
     }
 
     
-    public Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap) {
-        return this;
-      }
-
-      if (processedExpressions.TryGetValue(this, out var value)) {
+      if (TryProcessed<StructureExpression>(processedExpressions, out var value))
         return value;
-      }
 
       var result = new StructureExpression(PersistentType, default);
       processedExpressions.Add(this, result);
@@ -99,7 +88,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       if (processedExpressions.TryGetValue(this, out var value)) {
         return value;
@@ -117,7 +106,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
+    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
       if (processedExpressions.TryGetValue(this, out var value)) {
         return value;

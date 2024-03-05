@@ -30,25 +30,20 @@ namespace Xtensive.Orm.Linq.Expressions
       Entity.IsNullable = IsNullable;
     }
 
-    public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
+    public override EntityFieldExpression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap) {
-        return this;
-      }
-
-      if (processedExpressions.TryGetValue(this, out var result)) {
-        return result;
-      }
+      if (TryProcessed<EntityFieldExpression>(processedExpressions, out var value))
+        return value;
 
       var newFields = new List<PersistentFieldExpression>(fields.Count);
       foreach (var field in fields) {
         // Do not convert to LINQ. We want to avoid a closure creation here.
-        newFields.Add((PersistentFieldExpression) field.Remap(offset, processedExpressions));
+        newFields.Add(field.Remap(offset, processedExpressions));
       }
 
-      var keyExpression = (KeyExpression) Key.Remap(offset, processedExpressions);
-      var entity = (EntityExpression) Entity?.Remap(offset, processedExpressions);
-      result = new EntityFieldExpression(
+      var keyExpression = Key.Remap(offset, processedExpressions);
+      var entity = Entity?.Remap(offset, processedExpressions);
+      var result = new EntityFieldExpression(
         PersistentType, Field, newFields, keyExpression.Mapping, keyExpression, entity, OuterParameter, DefaultIfEmpty);
       if (Owner == null) {
         return result;
@@ -59,15 +54,10 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override EntityFieldExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap) {
-        return this;
-      }
-
-      if (processedExpressions.TryGetValue(this, out var result)) {
-        return result;
-      }
+      if (TryProcessed<EntityFieldExpression>(processedExpressions, out var value))
+        return value;
 
       var newFields = new List<PersistentFieldExpression>(fields.Count);
       using (new SkipOwnerCheckScope()) {
@@ -87,13 +77,13 @@ namespace Xtensive.Orm.Linq.Expressions
         return null;
       }
 
-      var keyExpression = (KeyExpression) Key.Remap(map, processedExpressions);
+      var keyExpression = Key.Remap(map, processedExpressions);
       EntityExpression entity;
       using (new SkipOwnerCheckScope()) {
-        entity = (EntityExpression) Entity?.Remap(map, processedExpressions);
+        entity = Entity?.Remap(map, processedExpressions);
       }
 
-      result = new EntityFieldExpression(
+      var result = new EntityFieldExpression(
         PersistentType, Field, newFields, keyExpression.Mapping, keyExpression, entity, OuterParameter, DefaultIfEmpty);
       if (Owner == null) {
         return result;
@@ -104,11 +94,11 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression BindParameter(
+    public override EntityFieldExpression BindParameter(
       ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (processedExpressions.TryGetValue(this, out var result)) {
-        return result;
+      if (processedExpressions.TryGetValue(this, out var r)) {
+        return (EntityFieldExpression)r;
       }
 
       var newFields = new List<PersistentFieldExpression>(fields.Count);
@@ -118,7 +108,7 @@ namespace Xtensive.Orm.Linq.Expressions
       }
       var keyExpression = (KeyExpression) Key.BindParameter(parameter, processedExpressions);
       var entity = (EntityExpression) Entity?.BindParameter(parameter, processedExpressions);
-      result = new EntityFieldExpression(
+      var result = new EntityFieldExpression(
         PersistentType, Field, newFields, Mapping, keyExpression, entity, parameter, DefaultIfEmpty);
       if (Owner == null) {
         return result;
