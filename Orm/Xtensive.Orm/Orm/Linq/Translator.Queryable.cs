@@ -326,14 +326,14 @@ namespace Xtensive.Orm.Linq
       else {
         visitedSource = (ProjectionExpression) visitedSourceRaw;
       }
-      
+
       var elementType = expression.Method.GetGenericArguments().Last();
       if (!context.Model.Types.TryGetValue(elementType, out var type)
           && !(QueryHelper.TryGetSequenceElementType(elementType, out var sequenceElementType)
                && context.Model.Types.TryGetValue(sequenceElementType, out type))) {
         throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
       }
-      
+
       var indexName = (string) ((ConstantExpression) expression.Arguments[1]).Value;
       var indexInfo = type.Indexes
         .Find(IndexAttributes.Real)
@@ -999,7 +999,7 @@ namespace Xtensive.Orm.Linq
             string.Format(Strings.ExAggregateMethodXIsNotSupported, aggregateCall, methodName));
       }
     }
-    
+
     private ProjectionExpression VisitGroupBy(Type returnType, Expression source, LambdaExpression keySelector,
       LambdaExpression elementSelector, LambdaExpression resultSelector)
     {
