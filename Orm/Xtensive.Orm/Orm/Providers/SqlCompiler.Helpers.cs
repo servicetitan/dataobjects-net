@@ -325,7 +325,7 @@ namespace Xtensive.Orm.Providers
     private SqlExpression GetJoinExpression(SqlExpression leftExpression, SqlExpression rightExpression,
       JoinProvider provider, int index)
     {
-      if (provider.EqualColumns.Length > index) {
+      if (provider.EqualColumns.Count > index) {
         Pair<Column> columnPair;
         if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation)) {
           columnPair = provider.EqualColumns[index];

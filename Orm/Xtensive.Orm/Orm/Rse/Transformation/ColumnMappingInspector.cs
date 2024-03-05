@@ -137,7 +137,7 @@ namespace Xtensive.Orm.Rse.Transformation
         return provider;
       }
 
-      var newIndexes = new List<Pair<ColNum>>(provider.EqualIndexes.Length);
+      var newIndexes = new List<Pair<ColNum>>(provider.EqualIndexes.Count);
       foreach (var pair in provider.EqualIndexes) {
         var newLeftIndex = (ColNum) leftMapping.IndexOf(pair.First);
         var newRightIndex = (ColNum) rightMapping.IndexOf(pair.Second);
