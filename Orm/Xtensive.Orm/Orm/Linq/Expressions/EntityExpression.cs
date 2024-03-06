@@ -12,8 +12,7 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  internal class EntityExpression : ParameterizedExpression,
-    IEntityExpression
+  internal class EntityExpression : ParameterizedExpression, IEntityExpression
   {
     private List<PersistentFieldExpression> fields;
 
@@ -34,41 +33,31 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public bool IsNullable { get; set; }
 
-    public Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
+    public override EntityExpression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap) {
-        return this;
-      }
-
-      if (processedExpressions.TryGetValue(this, out var value)) {
+      if (TryProcessed<EntityExpression>(processedExpressions, out var value))
         return value;
-      }
 
-      var keyExpression = (KeyExpression) Key.Remap(offset, processedExpressions);
+      var keyExpression = Key.Remap(offset, processedExpressions);
       var result = new EntityExpression(PersistentType, keyExpression, OuterParameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
       result.IsNullable = IsNullable;
       var processedFields = new List<PersistentFieldExpression>(fields.Count);
       foreach (var field in fields) {
         // Do not convert to LINQ. We want to avoid a closure creation here.
-        processedFields.Add((PersistentFieldExpression) field.Remap(offset, processedExpressions));
+        processedFields.Add(field.Remap(offset, processedExpressions));
       }
 
       result.Fields = processedFields;
       return result;
     }
 
-    public Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override EntityExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap) {
-        return this;
-      }
-
-      if (processedExpressions.TryGetValue(this, out var value)) {
+      if (TryProcessed<EntityExpression>(processedExpressions, out var value))
         return value;
-      }
 
-      var keyExpression = (KeyExpression) Key.Remap(map, processedExpressions);
+      var keyExpression = Key.Remap(map, processedExpressions);
       if (keyExpression == null) {
         return null;
       }
@@ -91,7 +80,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       if (processedExpressions.TryGetValue(this, out var value)) {
         return value;
@@ -111,7 +100,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
+    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
       if (processedExpressions.TryGetValue(this, out var value)) {
         return value;

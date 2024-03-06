@@ -30,18 +30,13 @@ namespace Xtensive.Orm.Linq.Expressions
       }
     }
 
-    public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
+    public override FieldExpression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap) {
-        return this;
-      }
-
-      if (processedExpressions.TryGetValue(this, out var result)) {
-        return result;
-      }
+      if (TryProcessed<FieldExpression>(processedExpressions, out var value))
+        return value;
 
       var newMapping = new Segment<ColNum>((ColNum)(Mapping.Offset + offset), Mapping.Length);
-      result = new FieldExpression(ExtendedExpressionType.Field, Field, newMapping, OuterParameter, DefaultIfEmpty);
+      var result = new FieldExpression(ExtendedExpressionType.Field, Field, newMapping, OuterParameter, DefaultIfEmpty);
       if (owner == null) {
         return result;
       }
@@ -51,15 +46,10 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override FieldExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap) {
-        return this;
-      }
-
-      if (processedExpressions.TryGetValue(this, out var result)) {
-        return result;
-      }
+      if (TryProcessed<FieldExpression>(processedExpressions, out var value))
+        return value;
 
       var offset = (ColNum)map.IndexOf(Mapping.Offset);
       if (offset < 0) {
@@ -75,7 +65,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return null;
       }
       var newMapping = new Segment<ColNum>(offset, Mapping.Length);
-      result = new FieldExpression(ExtendedExpressionType.Field, Field, newMapping, OuterParameter, DefaultIfEmpty);
+      var result = new FieldExpression(ExtendedExpressionType.Field, Field, newMapping, OuterParameter, DefaultIfEmpty);
       if (owner == null) {
         return result;
       }
@@ -85,13 +75,13 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override FieldExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (processedExpressions.TryGetValue(this, out var result)) {
-        return result;
+      if (processedExpressions.TryGetValue(this, out var r)) {
+        return (FieldExpression)r;
       }
 
-      result = new FieldExpression(ExtendedExpressionType.Field, Field, Mapping, parameter, DefaultIfEmpty);
+      var result = new FieldExpression(ExtendedExpressionType.Field, Field, Mapping, parameter, DefaultIfEmpty);
       if (owner == null) {
         return result;
       }

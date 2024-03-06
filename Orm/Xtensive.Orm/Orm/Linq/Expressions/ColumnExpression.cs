@@ -11,12 +11,11 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  internal class ColumnExpression : ParameterizedExpression,
-    IMappedExpression
+  internal class ColumnExpression : ParameterizedExpression
   {
     internal readonly Segment<ColNum> Mapping;
 
-    public Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
+    public override ColumnExpression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
@@ -24,7 +23,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return new ColumnExpression(Type, newMapping, OuterParameter, DefaultIfEmpty);
     }
 
-    public Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override ColumnExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
@@ -37,12 +36,12 @@ namespace Xtensive.Orm.Linq.Expressions
       return BindParameter(parameter, new Dictionary<Expression, Expression>());
     }
 
-    public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override ColumnExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       return new ColumnExpression(Type, Mapping, parameter, DefaultIfEmpty);
     }
 
-    public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
+    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
       return new ColumnExpression(Type, Mapping, null, DefaultIfEmpty);
     }

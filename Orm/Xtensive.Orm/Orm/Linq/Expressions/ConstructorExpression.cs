@@ -18,8 +18,7 @@ using System.Linq;
 namespace Xtensive.Orm.Linq
 {
   [Serializable]
-  internal class ConstructorExpression : ParameterizedExpression,
-    IMappedExpression
+  internal class ConstructorExpression : ParameterizedExpression
   {
     public Dictionary<MemberInfo, Expression> Bindings { get; }
 
@@ -29,7 +28,7 @@ namespace Xtensive.Orm.Linq
 
     public IReadOnlyList<Expression> ConstructorArguments { get; }
 
-    public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       Func<Expression, Expression> genericBinder =
         e => GenericExpressionVisitor<IMappedExpression>.Process(e, mapped => mapped.BindParameter(parameter, processedExpressions));
@@ -41,7 +40,7 @@ namespace Xtensive.Orm.Linq
         ConstructorArguments.Select(genericBinder).ToList());
     }
 
-    public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
+    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
       Func<Expression, Expression> genericRemover =
         e => GenericExpressionVisitor<IMappedExpression>.Process(e, mapped => mapped.RemoveOuterParameter(processedExpressions));
@@ -54,7 +53,7 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    public Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
     {
       Func<IMappedExpression, Expression> remapper = delegate(IMappedExpression mapped) {
         var parametrizedExpression = mapped as ParameterizedExpression;
@@ -75,7 +74,7 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    public Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
     {
       Func<IMappedExpression, Expression> remapper = delegate(IMappedExpression mapped) {
         var parametrizedExpression = mapped as ParameterizedExpression;
