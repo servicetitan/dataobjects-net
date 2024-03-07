@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Upgrade
       case DomainUpgradeMode.Perform:
       case DomainUpgradeMode.PerformSafely:
       case DomainUpgradeMode.Recreate:
-      case DomainUpgradeMode.SyncIndexes:
+      case DomainUpgradeMode.SyncIndexesSafely:
         return true;
       default:
         return false;
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Upgrade
       case DomainUpgradeMode.LegacySkip:
       case DomainUpgradeMode.LegacyValidate:
         // TODO: check
-      case DomainUpgradeMode.SyncIndexes:
+      case DomainUpgradeMode.SyncIndexesSafely:
         return SqlWorkerTask.ExtractSchema;
       default:
         throw new ArgumentOutOfRangeException("upgradeMode");
@@ -96,8 +96,8 @@ namespace Xtensive.Orm.Upgrade
         return SchemaUpgradeMode.PerformSafely;
       case DomainUpgradeMode.Perform:
         return SchemaUpgradeMode.Perform;
-      case DomainUpgradeMode.SyncIndexes:
-        return SchemaUpgradeMode.SyncIndexes;
+      case DomainUpgradeMode.SyncIndexesSafely:
+        return SchemaUpgradeMode.SyncIndexesSafely;
       default:
         throw new ArgumentOutOfRangeException("upgradeMode");
       }
@@ -121,8 +121,8 @@ namespace Xtensive.Orm.Upgrade
         // there may be some recycled columns/tables.
         // Perform will wipe them out.
         return SchemaUpgradeMode.Perform;
-      case DomainUpgradeMode.SyncIndexes:
-        return SchemaUpgradeMode.SyncIndexes;
+      case DomainUpgradeMode.SyncIndexesSafely:
+        return SchemaUpgradeMode.SyncIndexesSafely;
       default:
         throw new ArgumentOutOfRangeException("upgradeMode");
       }

@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SyncIndexes
     }
     
     private static void CreateDomain(Type sampleType) => BuildDomain(DomainUpgradeMode.Recreate, sampleType);
-    private static void SyncIndexes(Type sampleType) => BuildDomain(DomainUpgradeMode.SyncIndexes, sampleType);
+    private static void SyncIndexes(Type sampleType) => BuildDomain(DomainUpgradeMode.SyncIndexesSafely, sampleType);
 
     private static void BuildDomain(DomainUpgradeMode upgradeMode, Type sampleType)
     {

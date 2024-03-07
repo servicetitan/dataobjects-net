@@ -72,7 +72,7 @@ namespace Xtensive.Orm
     /// Missing non-clustered indexes will be added,
     /// unmapped non-clustered indexes will be removed, 
     /// </summary>
-    SyncIndexes = 7,
+    SyncIndexesSafely = 7,
 
     /// <summary>
     /// Default upgrade mode.

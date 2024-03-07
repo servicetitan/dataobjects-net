@@ -50,6 +50,6 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Update only non-clustered indexes.
     /// </summary>
-    SyncIndexes,
+    SyncIndexesSafely,
   }
 }

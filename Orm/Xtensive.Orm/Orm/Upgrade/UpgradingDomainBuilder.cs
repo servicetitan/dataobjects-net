@@ -620,11 +620,10 @@ namespace Xtensive.Orm.Upgrade
             if (result.IsCompatibleInLegacyMode!=true)
               throw new SchemaSynchronizationException(result);
             break;
-          case SchemaUpgradeMode.SyncIndexes:
-            if (result.HasUnsafeActions ||
-                !result.UpgradeActions.ContainsOnlyModificationOf<SecondaryIndexInfo>()) 
+          case SchemaUpgradeMode.SyncIndexesSafely:
+            if (!result.UpgradeActions.ContainsOnlyModificationOf<SecondaryIndexInfo>()) 
               throw new SchemaSynchronizationException(result);
-            goto case SchemaUpgradeMode.Perform;
+            goto case SchemaUpgradeMode.PerformSafely;
           default:
             throw new ArgumentOutOfRangeException("schemaUpgradeMode");
         }
@@ -712,11 +711,10 @@ namespace Xtensive.Orm.Upgrade
             if (result.IsCompatibleInLegacyMode!=true)
               throw new SchemaSynchronizationException(result);
             break;
-          case SchemaUpgradeMode.SyncIndexes:
-            if (result.HasUnsafeActions ||
-                !result.UpgradeActions.ContainsOnlyModificationOf<SecondaryIndexInfo>())
+          case SchemaUpgradeMode.SyncIndexesSafely:
+            if (!result.UpgradeActions.ContainsOnlyModificationOf<SecondaryIndexInfo>())
               throw new SchemaSynchronizationException(result);
-            goto case SchemaUpgradeMode.Perform;
+            goto case SchemaUpgradeMode.PerformSafely;
           default:
             throw new ArgumentOutOfRangeException(nameof(schemaUpgradeMode));
         }
