@@ -46,5 +46,10 @@ namespace Xtensive.Orm.Upgrade
     /// Skip schema upgrade.
     /// </summary>
     Skip,
+    
+    /// <summary>
+    /// Update only non-clustered indexes.
+    /// </summary>
+    SyncIndexesSafely,
   }
 }

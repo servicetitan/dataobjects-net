@@ -13,6 +13,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.IoC;
+using Xtensive.Modelling.Actions;
+using Xtensive.Modelling.Actions.Extensions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Building.Builders;
@@ -618,6 +620,10 @@ namespace Xtensive.Orm.Upgrade
             if (result.IsCompatibleInLegacyMode!=true)
               throw new SchemaSynchronizationException(result);
             break;
+          case SchemaUpgradeMode.SyncIndexesSafely:
+            if (!result.UpgradeActions.ContainsOnlyModificationOf<SecondaryIndexInfo>()) 
+              throw new SchemaSynchronizationException(result);
+            goto case SchemaUpgradeMode.PerformSafely;
           default:
             throw new ArgumentOutOfRangeException("schemaUpgradeMode");
         }
@@ -705,6 +711,10 @@ namespace Xtensive.Orm.Upgrade
             if (result.IsCompatibleInLegacyMode!=true)
               throw new SchemaSynchronizationException(result);
             break;
+          case SchemaUpgradeMode.SyncIndexesSafely:
+            if (!result.UpgradeActions.ContainsOnlyModificationOf<SecondaryIndexInfo>())
+              throw new SchemaSynchronizationException(result);
+            goto case SchemaUpgradeMode.PerformSafely;
           default:
             throw new ArgumentOutOfRangeException(nameof(schemaUpgradeMode));
         }
