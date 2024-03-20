@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers
 {
@@ -97,7 +98,7 @@ namespace Xtensive.Orm.Providers
       DefaultDatabase = defaultDatabase;
       DefaultSchema = defaultSchema;
 
-      SupportedTypes = new ReadOnlyHashSet<Type>(new HashSet<Type>(supportedTypes));
+      SupportedTypes = new HashSet<Type>(supportedTypes).AsSafeWrapper();
       MaxQueryParameterCount = maxQueryParameterCount;
     }
   }

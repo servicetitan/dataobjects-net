@@ -9,6 +9,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Xtensive.Collections;
 
 namespace Xtensive.Core
 {
@@ -143,6 +144,14 @@ namespace Xtensive.Core
       Array.AsReadOnly(array);
 #else
       array;
+#endif
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IReadOnlySet<T> AsSafeWrapper<T>(this IReadOnlySet<T> set) =>
+#if DO_SAFE_COLLECTION_WRAPPER
+      new ReadOnlyHashSet<T>((HashSet<T>) set);
+#else
+    set;
 #endif
   }
 }
