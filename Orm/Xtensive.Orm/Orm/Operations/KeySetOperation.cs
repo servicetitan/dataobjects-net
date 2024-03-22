@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Operations
     /// <param name="keys">The sequence of keys.</param>
     public KeySetOperation(IEnumerable<Key> keys)
     {
-      Keys = new ReadOnlyHashSet<Key>(new HashSet<Key>(keys));
+      Keys = new HashSet<Key>(keys).AsSafeWrapper();
     }
 
     // Serialization
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Operations
 //        key.TypeReference = new TypeReference(key.TypeReference.Type, TypeReferenceAccuracy.ExactType);
         keys.Add(key);
       }
-      Keys = new ReadOnlyHashSet<Key>(keys);
+      Keys = keys.AsSafeWrapper();
     }
 
     [SecurityCritical]

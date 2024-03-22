@@ -83,11 +83,11 @@ namespace Xtensive.Orm.Model
     private TypeInfo ancestor;
     private IReadOnlySet<TypeInfo> ancestors;
 
-    private ISet<TypeInfo> directDescendants;
+    private IReadOnlySet<TypeInfo> directDescendants;
     private IReadOnlySet<TypeInfo> allDescendants;
-    private ISet<TypeInfo> directInterfaces;
+    private IReadOnlySet<TypeInfo> directInterfaces;
     private IReadOnlySet<TypeInfo> allInterfaces;
-    private ISet<TypeInfo> directImplementors;
+    private IReadOnlySet<TypeInfo> directImplementors;
     private IReadOnlySet<TypeInfo> allImplementors;
     private IReadOnlySet<TypeInfo> typeWithAncestorsAndInterfaces;
 
@@ -133,13 +133,12 @@ namespace Xtensive.Orm.Model
     /// </summary>
     /// <returns>The ancestor</returns>
     public IReadOnlySet<TypeInfo> Ancestors =>
-      ancestors ??= new Collections.ReadOnlyHashSet<TypeInfo>(AncestorChain.Reverse().ToHashSet());
+      ancestors ??= AncestorChain.Reverse().ToHashSet().AsSafeWrapper();
 
     /// <summary>
     /// Gets direct descendants of this instance.
     /// </summary>
-    public IReadOnlySet<TypeInfo> DirectDescendants =>
-      (IReadOnlySet<TypeInfo>) directDescendants ?? EmptyTypes;
+    public IReadOnlySet<TypeInfo> DirectDescendants => directDescendants ?? EmptyTypes;
 
 
     /// <summary>
@@ -165,22 +164,20 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the persistent interfaces this instance implements directly.
     /// </summary>
-    public IReadOnlySet<TypeInfo> DirectInterfaces =>
-      (IReadOnlySet<TypeInfo>) directInterfaces ?? EmptyTypes;
+    public IReadOnlySet<TypeInfo> DirectInterfaces => directInterfaces ?? EmptyTypes;
 
     /// <summary>
     /// Gets all the persistent interfaces (both direct and non-direct) this instance implements.
     /// </summary>
     public IReadOnlySet<TypeInfo> AllInterfaces =>
-      allInterfaces ??= (IsInterface
+      allInterfaces ??= IsInterface
         ? DirectInterfaces
-        : new Collections.ReadOnlyHashSet<TypeInfo>(DirectInterfaces.Concat(AncestorChain.SelectMany(static o => o.DirectInterfaces)).ToHashSet()));
+        : DirectInterfaces.Concat(AncestorChain.SelectMany(static o => o.DirectInterfaces)).ToHashSet().AsSafeWrapper();
 
     /// <summary>
     /// Gets the direct implementors of this instance.
     /// </summary>
-    public IReadOnlySet<TypeInfo> DirectImplementors =>
-      (IReadOnlySet<TypeInfo>) directImplementors ?? EmptyTypes;
+    public IReadOnlySet<TypeInfo> DirectImplementors => directImplementors ?? EmptyTypes;
 
     /// <summary>
     /// Gets both direct and non-direct implementors of this instance.
@@ -201,7 +198,7 @@ namespace Xtensive.Orm.Model
                   _ = allSet.Add(descendant);
               }
             }
-            allImplementors = new Collections.ReadOnlyHashSet<TypeInfo>(allSet);
+            allImplementors = allSet.AsSafeWrapper();
           }
         }
         return allImplementors;
@@ -799,15 +796,9 @@ namespace Xtensive.Orm.Model
       if (!recursive)
         return;
 
-      directDescendants = directDescendants != null
-        ? new Collections.ReadOnlyHashSet<TypeInfo>((HashSet<TypeInfo>) directDescendants)
-        : EmptyTypes;
-      directInterfaces = directInterfaces != null
-        ? new Collections.ReadOnlyHashSet<TypeInfo>((HashSet<TypeInfo>) directInterfaces)
-        : EmptyTypes;
-      directImplementors = directImplementors!=null
-        ? new Collections.ReadOnlyHashSet<TypeInfo>((HashSet<TypeInfo>) directImplementors)
-        : EmptyTypes;
+      directDescendants = directDescendants?.AsSafeWrapper() ?? EmptyTypes;
+      directInterfaces = directInterfaces?.AsSafeWrapper() ?? EmptyTypes;
+      directImplementors = directImplementors?.AsSafeWrapper() ?? EmptyTypes;
 
       affectedIndexes.Lock(true);
       indexes.Lock(true);
@@ -819,13 +810,13 @@ namespace Xtensive.Orm.Model
     #region Private / internal methods
 
     internal void AddDescendant(TypeInfo descendant) =>
-      (directDescendants ??= new HashSet<TypeInfo>()).Add(descendant);
+      ((ISet<TypeInfo>) (directDescendants ??= new HashSet<TypeInfo>())).Add(descendant);
 
     internal void AddInterface(TypeInfo iface) =>
-      (directInterfaces ??= new HashSet<TypeInfo>()).Add(iface);
+      ((ISet<TypeInfo>) (directInterfaces ??= new HashSet<TypeInfo>())).Add(iface);
 
     internal void AddImplementor(TypeInfo implementor) =>
-      (directImplementors ??= new HashSet<TypeInfo>()).Add(implementor);
+      ((ISet<TypeInfo>) (directImplementors ??= new HashSet<TypeInfo>())).Add(implementor);
 
     private KeyInfo GetKey() =>
       Hierarchy != null ? Hierarchy.Key
