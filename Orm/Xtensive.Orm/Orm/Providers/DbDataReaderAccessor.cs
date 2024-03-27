@@ -16,16 +16,16 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// Provider-level <see cref="DbDataReader"/> accessor.
   /// </summary>
-  public sealed class DbDataReaderAccessor
+  public readonly struct DbDataReaderAccessor
   {
     private readonly TypeMapping[] mappings;
 
-    public TupleDescriptor Descriptor { get; private set; }
+    public TupleDescriptor Descriptor { get; }
 
     public Tuple Read(DbDataReader source)
     {
       var target = Tuple.Create(Descriptor);
-      for (int i = 0; i < mappings.Length; i++) {
+      for (int i = 0, n = mappings.Length; i < n; i++) {
         var value = !source.IsDBNull(i)
           ? mappings[i].ReadValue(source, i)
           : null;

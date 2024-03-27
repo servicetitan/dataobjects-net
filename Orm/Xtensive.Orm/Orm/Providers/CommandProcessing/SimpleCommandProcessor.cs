@@ -66,11 +66,9 @@ namespace Xtensive.Orm.Providers
           var loadTask = context.ActiveTasks.FirstOrDefault();
           if (loadTask != null) {
             context.ActiveCommand.ExecuteReader();
-            var enumerator = context.ActiveCommand.CreateReader(loadTask.Request.GetAccessor());
-            using (enumerator) {
-              while (enumerator.MoveNext()) {
-                loadTask.Output.Add(enumerator.Current);
-              }
+            using var enumerator = context.ActiveCommand.CreateReader(loadTask.Request.GetAccessor());
+            while (enumerator.MoveNext()) {
+              loadTask.Output.Add(enumerator.Current);
             }
           }
         }
