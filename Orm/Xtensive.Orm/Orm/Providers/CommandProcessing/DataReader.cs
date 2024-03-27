@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Providers
 
     public async ValueTask DisposeAsync() => await ((IAsyncEnumerator<Tuple>) source).DisposeAsync().ConfigureAwaitFalse();
 
-    public async ValueTask<bool> MoveNextAsync() => MoveNext();
+    public ValueTask<bool> MoveNextAsync() => ValueTask.FromResult(MoveNext());
   }
 
   internal sealed class CommandDataReader(Command command, DbDataReaderAccessor accessor, CancellationToken token) : DataReader
