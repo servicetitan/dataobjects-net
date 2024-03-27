@@ -140,6 +140,7 @@ namespace Xtensive.Orm.Rse
         context.SetValue(provider, enumerationMarker, true);
       }
 
+      bool bSuccess = false;
       try {
         dataReader = executeAsync
           ? await provider.OnEnumerateAsync(context, token).ConfigureAwaitFalse()
@@ -163,10 +164,12 @@ namespace Xtensive.Orm.Rse
           }
           dataReader = new InMemoryDataReader(tuples);
         }
+        bSuccess = true;
       }
-      catch {
-        FinishEnumeration(true);
-        throw;
+      finally {
+        if (!bSuccess) {
+          FinishEnumeration(true);
+        }
       }
       state = State.Prepared;
     }
