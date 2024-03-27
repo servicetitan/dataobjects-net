@@ -25,11 +25,11 @@ namespace Xtensive.Orm.Providers
     public Tuple Read(DbDataReader source)
     {
       var target = Tuple.Create(Descriptor);
-      for (int i = 0, n = mappings.Length; i < n; i++) {
-        var value = !source.IsDBNull(i)
-          ? mappings[i].ReadValue(source, i)
-          : null;
+      int i = 0;
+      foreach (var mapping in mappings) {
+        var value = source.IsDBNull(i) ? null : mapping.ReadValue(source, i);
         target.SetValue(i, value);
+        i++;
       }
       return target;
     }
