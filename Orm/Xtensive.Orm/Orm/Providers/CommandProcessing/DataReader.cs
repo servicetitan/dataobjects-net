@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Providers
 
   internal sealed class InMemoryDataReader(IEnumerable<Tuple> tuples) : DataReader
   {
-    private readonly IEnumerator<Tuple> source;
+    private readonly IEnumerator<Tuple> source = tuples.GetEnumerator();
 
     public bool IsInMemory => true;
 
