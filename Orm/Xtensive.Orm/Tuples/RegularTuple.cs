@@ -5,7 +5,6 @@
 // Created:    2008.01.24
 
 using System;
-using System.Data.Common;
 using System.Runtime.Serialization;
 using Xtensive.Sql;
 
