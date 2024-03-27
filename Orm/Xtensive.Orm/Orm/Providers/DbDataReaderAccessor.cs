@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.30
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public readonly struct DbDataReaderAccessor
   {
-    private readonly TypeMapping[] mappings;
+    private readonly Func<DbDataReader, int, object>[] readers;
 
     public TupleDescriptor Descriptor { get; }
 
@@ -26,8 +27,8 @@ namespace Xtensive.Orm.Providers
     {
       var target = Tuple.Create(Descriptor);
       int i = 0;
-      foreach (var mapping in mappings) {
-        var value = source.IsDBNull(i) ? null : mapping.ReadValue(source, i);
+      foreach (var reader in readers) {
+        var value = source.IsDBNull(i) ? null : reader(source, i);
         target.SetValue(i, value);
         i++;
       }
@@ -36,10 +37,10 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    internal DbDataReaderAccessor(in TupleDescriptor descriptor, IEnumerable<TypeMapping> mappings)
+    internal DbDataReaderAccessor(in TupleDescriptor descriptor, IEnumerable<Func<DbDataReader, int, object>> readers)
     {
       Descriptor = descriptor;
-      this.mappings = mappings.ToArray();
+      this.readers = readers.ToArray();
     }
   }
 }

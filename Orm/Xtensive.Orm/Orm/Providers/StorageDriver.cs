@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Providers
 
     public DbDataReaderAccessor GetDataReaderAccessor(in TupleDescriptor descriptor)
     {
-      return new DbDataReaderAccessor(descriptor, descriptor.Select(GetTypeMapping));
+      return new DbDataReaderAccessor(descriptor, descriptor.Select(o => GetTypeMapping(o).ValueReader));
     }
 
     public StorageDriver CreateNew(Domain domain)
