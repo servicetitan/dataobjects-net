@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Reflection;
 
 namespace Xtensive.Sql
@@ -17,20 +17,13 @@ namespace Xtensive.Sql
   /// </summary>
   public sealed class TypeMappingRegistry
   {
-    public IReadOnlyDictionary<Type, TypeMapping> Mappings { get; private set; }
-    public IReadOnlyDictionary<SqlType, Type> ReverseMappings { get; private set; }
+    public IReadOnlyDictionary<Type, TypeMapping> Mappings { get; }
+    public IReadOnlyDictionary<SqlType, Type> ReverseMappings { get; }
 
     public TypeMapping this[Type type] { get { return GetMapping(type); } }
     
-    public TypeMapping TryGetMapping(Type type)
-    {
-      if (type.IsEnum)
-        type = Enum.GetUnderlyingType(type);
-
-      TypeMapping result;
-      Mappings.TryGetValue(type, out result);
-      return result;
-    }
+    public TypeMapping TryGetMapping(Type type) =>
+      Mappings.GetValueOrDefault(type.IsEnum ? Enum.GetUnderlyingType(type) : type);
 
     public TypeMapping GetMapping(Type type)
     {
@@ -59,8 +52,8 @@ namespace Xtensive.Sql
 
     public TypeMappingRegistry(IEnumerable<TypeMapping> mappings, IEnumerable<KeyValuePair<SqlType, Type>> reverseMappings)
     {
-      Mappings = new ReadOnlyDictionary<Type, TypeMapping>(mappings.ToDictionary(m => m.Type));
-      ReverseMappings = new ReadOnlyDictionary<SqlType, Type>(reverseMappings.ToDictionary(r => r.Key, r => r.Value));
+      Mappings = mappings.ToDictionary(m => m.Type).AsSafeWrapper();
+      ReverseMappings = reverseMappings.ToDictionary(r => r.Key, r => r.Value).AsSafeWrapper();
     }
   }
 }
