@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
     {
       builder.Add(typeof (DateTimeOffset),
-        builder.Mapper.ReadDateTimeOffset,
+        builder.Mapper.ReadBoxedDateTimeOffset,
         builder.Mapper.BindDateTimeOffset,
         builder.Mapper.MapDateTimeOffset);
     }

@@ -59,21 +59,21 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       return base.MapShort(length, precision, scale);
     }
 
-    public override object ReadGuid(DbDataReader reader, int index)
+    public override Guid ReadGuid(DbDataReader reader, int index)
     {
       string s = reader.GetString(index);
       if (string.IsNullOrEmpty(s))
-        return null;
+        return default;
       return SqlHelper.GuidFromString(s);
     }
 
-    public override object ReadChar(DbDataReader reader, int index)
+    public override char ReadChar(DbDataReader reader, int index)
     {
       char c = (char) base.ReadChar(reader, index);
       if (char.IsControl(c) || char.IsPunctuation(c))
         return c;
       if (char.IsWhiteSpace(c))
-        return null;
+        return '\0';
       return c;
     }
 
@@ -88,7 +88,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       parameter.Value = _char==default(char) ? string.Empty : _char.ToString();
     }
 
-    public override object ReadString(DbDataReader reader, int index)
+    public override string ReadString(DbDataReader reader, int index)
     {
       string s = (string) base.ReadString(reader, index);
       if (s!=null)

@@ -405,26 +405,26 @@ namespace Xtensive.Sql
     {
       var mapper = builder.Mapper;
 
-      builder.Add(WellKnownTypes.Bool, mapper.ReadBoolean, mapper.BindBoolean, mapper.MapBoolean);
-      builder.Add(WellKnownTypes.Char, mapper.ReadChar, mapper.BindChar, mapper.MapChar);
+      builder.Add(WellKnownTypes.Bool, mapper.ReadBoxedBoolean, mapper.BindBoolean, mapper.MapBoolean);
+      builder.Add(WellKnownTypes.Char, mapper.ReadBoxedChar, mapper.BindChar, mapper.MapChar);
       builder.Add(WellKnownTypes.String, mapper.ReadString, mapper.BindString, mapper.MapString);
-      builder.Add(WellKnownTypes.Byte, mapper.ReadByte, mapper.BindByte, mapper.MapByte);
-      builder.Add(WellKnownTypes.SByte, mapper.ReadSByte, mapper.BindSByte, mapper.MapSByte);
-      builder.Add(WellKnownTypes.Int16, mapper.ReadShort, mapper.BindShort, mapper.MapShort);
-      builder.Add(WellKnownTypes.UInt16, mapper.ReadUShort, mapper.BindUShort, mapper.MapUShort);
-      builder.Add(WellKnownTypes.Int32, mapper.ReadInt, mapper.BindInt, mapper.MapInt);
-      builder.Add(WellKnownTypes.UInt32, mapper.ReadUInt, mapper.BindUInt, mapper.MapUInt);
-      builder.Add(WellKnownTypes.Int64, mapper.ReadLong, mapper.BindLong, mapper.MapLong);
-      builder.Add(WellKnownTypes.UInt64, mapper.ReadULong, mapper.BindULong, mapper.MapULong);
-      builder.Add(WellKnownTypes.Single, mapper.ReadFloat, mapper.BindFloat, mapper.MapFloat);
-      builder.Add(WellKnownTypes.Double, mapper.ReadDouble, mapper.BindDouble, mapper.MapDouble);
-      builder.Add(WellKnownTypes.Decimal, mapper.ReadDecimal, mapper.BindDecimal, mapper.MapDecimal);
-      builder.Add(WellKnownTypes.DateTime, mapper.ReadDateTime, mapper.BindDateTime, mapper.MapDateTime);
-      builder.Add(WellKnownTypes.TimeSpan, mapper.ReadTimeSpan, mapper.BindTimeSpan, mapper.MapTimeSpan);
-      builder.Add(WellKnownTypes.Guid, mapper.ReadGuid, mapper.BindGuid, mapper.MapGuid);
+      builder.Add(WellKnownTypes.Byte, mapper.ReadBoxedByte, mapper.BindByte, mapper.MapByte);
+      builder.Add(WellKnownTypes.SByte, mapper.ReadBoxedSByte, mapper.BindSByte, mapper.MapSByte);
+      builder.Add(WellKnownTypes.Int16, mapper.ReadBoxedShort, mapper.BindShort, mapper.MapShort);
+      builder.Add(WellKnownTypes.UInt16, mapper.ReadBoxedUShort, mapper.BindUShort, mapper.MapUShort);
+      builder.Add(WellKnownTypes.Int32, mapper.ReadBoxedInt, mapper.BindInt, mapper.MapInt);
+      builder.Add(WellKnownTypes.UInt32, mapper.ReadBoxedUInt, mapper.BindUInt, mapper.MapUInt);
+      builder.Add(WellKnownTypes.Int64, mapper.ReadBoxedLong, mapper.BindLong, mapper.MapLong);
+      builder.Add(WellKnownTypes.UInt64, mapper.ReadBoxedULong, mapper.BindULong, mapper.MapULong);
+      builder.Add(WellKnownTypes.Single, mapper.ReadBoxedFloat, mapper.BindFloat, mapper.MapFloat);
+      builder.Add(WellKnownTypes.Double, mapper.ReadBoxedDouble, mapper.BindDouble, mapper.MapDouble);
+      builder.Add(WellKnownTypes.Decimal, mapper.ReadBoxedDecimal, mapper.BindDecimal, mapper.MapDecimal);
+      builder.Add(WellKnownTypes.DateTime, mapper.ReadBoxedDateTime, mapper.BindDateTime, mapper.MapDateTime);
+      builder.Add(WellKnownTypes.TimeSpan, mapper.ReadBoxedTimeSpan, mapper.BindTimeSpan, mapper.MapTimeSpan);
+      builder.Add(WellKnownTypes.Guid, mapper.ReadBoxedGuid, mapper.BindGuid, mapper.MapGuid);
       builder.Add(WellKnownTypes.ByteArray, mapper.ReadByteArray, mapper.BindByteArray, mapper.MapByteArray);
-      builder.Add(WellKnownTypes.DateOnly, mapper.ReadDateOnly, mapper.BindDateOnly, mapper.MapDateOnly);
-      builder.Add(WellKnownTypes.TimeOnly, mapper.ReadTimeOnly, mapper.BindTimeOnly, mapper.MapTimeOnly);
+      builder.Add(WellKnownTypes.DateOnly, mapper.ReadBoxedDateOnly, mapper.BindDateOnly, mapper.MapDateOnly);
+      builder.Add(WellKnownTypes.TimeOnly, mapper.ReadBoxedTimeOnly, mapper.BindTimeOnly, mapper.MapTimeOnly);
     }
 
     private static void RegisterStandardReverseMappings(TypeMappingRegistryBuilder builder)

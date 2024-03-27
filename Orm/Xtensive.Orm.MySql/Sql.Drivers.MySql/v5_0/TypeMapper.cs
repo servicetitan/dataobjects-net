@@ -112,13 +112,13 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     }
 
     /// <inheritdoc/>
-    public override object ReadByte(DbDataReader reader, int index)
+    public override byte ReadByte(DbDataReader reader, int index)
     {
       return Convert.ToByte(reader[index]);
     }
 
     /// <inheritdoc/>
-    public override object ReadGuid(DbDataReader reader, int index)
+    public override Guid ReadGuid(DbDataReader reader, int index)
     {
       return SqlHelper.GuidFromString(reader.GetString(index));
     }

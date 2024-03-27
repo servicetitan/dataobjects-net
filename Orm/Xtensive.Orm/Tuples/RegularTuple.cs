@@ -5,8 +5,9 @@
 // Created:    2008.01.24
 
 using System;
+using System.Data.Common;
 using System.Runtime.Serialization;
-
+using Xtensive.Sql;
 
 namespace Xtensive.Tuples
 {
@@ -17,6 +18,8 @@ namespace Xtensive.Tuples
   [Serializable]
   public abstract class RegularTuple : Tuple
   {
+    public abstract void SetValueFromDataReader(int fieldIndex, DbDataReader reader, TypeMapper mapper);
+
     // Constructors
 
     /// <summary>
