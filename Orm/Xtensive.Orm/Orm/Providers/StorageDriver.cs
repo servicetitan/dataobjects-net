@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -94,7 +95,11 @@ namespace Xtensive.Orm.Providers
 
     public DbDataReaderAccessor GetDataReaderAccessor(in TupleDescriptor descriptor)
     {
-      return new DbDataReaderAccessor(descriptor, allMappings.Mapper);
+      var readers = new Func<DbDataReader, int, object>[descriptor.Count];
+      for (int i = 0, n = descriptor.Count; i < n; ++i) {
+        readers[i] = GetTypeMapping(descriptor[i]).ValueReader;
+      }
+      return new DbDataReaderAccessor(descriptor, allMappings.Mapper, readers);
     }
 
     public StorageDriver CreateNew(Domain domain)

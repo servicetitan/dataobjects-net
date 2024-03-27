@@ -376,4 +376,11 @@ namespace Xtensive.Sql
       Driver = driver;
     }
   }
+
+  public readonly record struct MapperReader(
+    TypeMapper Mapper,
+    Func<DbDataReader, int, object> Reader,
+    DbDataReader DbDataReader,
+    int FieldIndex
+  );
 }

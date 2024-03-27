@@ -117,14 +117,14 @@ namespace Xtensive.Tuples.Packed
       descriptor.GetAccessor().SetValue(this, descriptor, isNullable, fieldValue);
     }
 
-    public override void SetValueFromDataReader(int fieldIndex, DbDataReader reader, TypeMapper mapper)
+    public override void SetValueFromDataReader(in MapperReader mr)
     {
-      if (reader.IsDBNull(fieldIndex)) {
-        SetValue(fieldIndex, null);
+      if (mr.DbDataReader.IsDBNull(mr.FieldIndex)) {
+        SetValue(mr.FieldIndex, null);
       }
       else {
-        ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
-        descriptor.GetAccessor().SetValue(this, descriptor, fieldIndex, mapper, reader);
+        ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[mr.FieldIndex];
+        descriptor.GetAccessor().SetValue(this, descriptor, mr);
       }
     }
 

@@ -14,7 +14,7 @@ namespace Xtensive.Sql
   /// </summary>
   public sealed class TypeMapping
   {
-    private readonly Func<DbDataReader, int, object> valueReader;
+    public Func<DbDataReader, int, object> ValueReader { get; }
     private readonly Action<DbParameter, object> valueBinder;
     private readonly Func<int?, int?, int?, SqlValueType> mapper;
 
@@ -23,7 +23,7 @@ namespace Xtensive.Sql
 
     public object ReadValue(DbDataReader reader, int index)
     {
-      return valueReader.Invoke(reader, index);
+      return ValueReader.Invoke(reader, index);
     }
 
     public void BindValue(DbParameter parameter, object value)
@@ -52,7 +52,7 @@ namespace Xtensive.Sql
     {
       Type = type;
 
-      this.valueReader = valueReader;
+      ValueReader = valueReader;
       this.valueBinder = valueBinder;
       this.mapper = mapper;
 

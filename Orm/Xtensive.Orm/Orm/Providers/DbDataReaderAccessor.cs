@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.30
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace Xtensive.Orm.Providers
   public sealed class DbDataReaderAccessor
   {
     private readonly TypeMapper mapper;
+    private readonly Func<DbDataReader, int, object>[] readers;
 
     public TupleDescriptor Descriptor { get; private set; }
 
@@ -26,17 +28,18 @@ namespace Xtensive.Orm.Providers
     {
       var target = Tuple.Create(Descriptor);
       for (int i = 0, n = Descriptor.Count; i < n; ++i) {
-        target.SetValueFromDataReader(i, source, mapper);
+        target.SetValueFromDataReader(new(mapper, readers[i], source, i));
       }
       return target;
     }
 
     // Constructors
 
-    internal DbDataReaderAccessor(in TupleDescriptor descriptor, TypeMapper mapper)
+    internal DbDataReaderAccessor(in TupleDescriptor descriptor, TypeMapper mapper, Func<DbDataReader, int, object>[] readers)
     {
       Descriptor = descriptor;
       this.mapper = mapper;
+      this.readers = readers;
     }
   }
 }

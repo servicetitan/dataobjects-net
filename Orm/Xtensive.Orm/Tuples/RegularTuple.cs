@@ -18,7 +18,7 @@ namespace Xtensive.Tuples
   [Serializable]
   public abstract class RegularTuple : Tuple
   {
-    public abstract void SetValueFromDataReader(int fieldIndex, DbDataReader reader, TypeMapper mapper);
+    public abstract void SetValueFromDataReader(in MapperReader mr);
 
     // Constructors
 
