@@ -15,7 +15,7 @@ namespace Xtensive.Sql
   /// <summary>
   /// A collection of <see cref="TypeMapping"/> objects.
   /// </summary>
-  public sealed class TypeMappingRegistry
+  public readonly struct TypeMappingRegistry
   {
     public IReadOnlyDictionary<Type, TypeMapping> Mappings { get; }
     public IReadOnlyDictionary<SqlType, Type> ReverseMappings { get; }
