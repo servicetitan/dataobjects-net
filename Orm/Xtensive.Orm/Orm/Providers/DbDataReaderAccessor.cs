@@ -26,11 +26,9 @@ namespace Xtensive.Orm.Providers
     public Tuple Read(DbDataReader source)
     {
       var target = Tuple.Create(Descriptor);
-      int i = 0;
-      foreach (var reader in readers) {
-        var value = source.IsDBNull(i) ? null : reader(source, i);
+      for (int i = 0, n = readers.Length; i < n; ++i) {
+        var value = source.IsDBNull(i) ? null : readers[i](source, i);
         target.SetValue(i, value);
-        i++;
       }
       return target;
     }
