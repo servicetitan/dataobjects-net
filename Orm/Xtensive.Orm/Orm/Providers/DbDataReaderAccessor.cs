@@ -35,10 +35,10 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    internal DbDataReaderAccessor(in TupleDescriptor descriptor, IEnumerable<Func<DbDataReader, int, object>> readers)
+    internal DbDataReaderAccessor(in TupleDescriptor descriptor, Func<DbDataReader, int, object>[] readers)
     {
       Descriptor = descriptor;
-      this.readers = readers.ToArray();
+      this.readers = readers;
     }
   }
 }
