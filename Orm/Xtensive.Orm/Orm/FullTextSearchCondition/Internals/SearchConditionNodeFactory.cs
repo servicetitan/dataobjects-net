@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
+// Copyright (C) 2003-2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Internals
       return new CustomProximityTerm(source, terms, maximumDistance, matchOrder);
     }
 
-    public static WeightedTerm CreateWeightedTerm(IOperator source, IDictionary<IWeighableTerm, float?> weightedTerms)
+    public static WeightedTerm CreateWeightedTerm(IOperator source, IReadOnlyDictionary<IWeighableTerm, float?> weightedTerms)
     {
       return new WeightedTerm(source, weightedTerms);
     }

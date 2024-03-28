@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
+// Copyright (C) 2003-2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -17,7 +17,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Interfaces
     /// <summary>
     /// Constructed operands.
     /// </summary>
-    IDictionary<IWeighableTerm, float?> WeightedOperands { get; }
+    IReadOnlyDictionary<IWeighableTerm, float?> WeightedOperands { get; }
 
     /// <summary>
     /// Adds <see cref="ISimpleTerm"/> to collection of operands with no specified weight.

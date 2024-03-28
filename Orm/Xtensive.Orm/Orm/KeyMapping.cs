@@ -70,9 +70,9 @@ namespace Xtensive.Orm
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    public KeyMapping(IDictionary<Key,Key> map)
+    public KeyMapping(IReadOnlyDictionary<Key,Key> map)
     {
-      Map = new ReadOnlyDictionary<Key, Key>(map);
+      Map = map;
     }
 
     // Serialization
@@ -100,7 +100,7 @@ namespace Xtensive.Orm
       var map = new Dictionary<Key, Key>();
       foreach (var pair in serializedMapping)
         map.Add(pair.Key, pair.Value);
-      Map = new ReadOnlyDictionary<Key, Key>(map);
+      Map = map.AsSafeWrapper();
     }
   }
 }

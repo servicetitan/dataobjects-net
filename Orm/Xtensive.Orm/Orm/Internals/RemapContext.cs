@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -18,9 +18,7 @@ namespace Xtensive.Orm.Internals
     /// <summary>
     /// Gets maps from local key to actual(storage) key.
     /// </summary>
-    public KeyMapping KeyMapping {
-      get { return new KeyMapping(keyMap); }
-    }
+    public KeyMapping KeyMapping => new KeyMapping(keyMap.AsSafeWrapper());
 
     /// <summary>
     /// Gets entities which need to be remap.
