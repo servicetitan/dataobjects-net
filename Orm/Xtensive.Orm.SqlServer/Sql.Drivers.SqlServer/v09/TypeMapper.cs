@@ -112,7 +112,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return new SqlValueType(SqlType.Decimal, 20, 0);
     }
 
-    public override object ReadDecimal(DbDataReader reader, int index)
+    public override decimal ReadDecimal(DbDataReader reader, int index)
     {
       var nativeReader = (SqlDataReader) reader;
       var sqlDecimal = nativeReader.GetSqlDecimal(index);
@@ -125,15 +125,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return InternalHelpers.TruncateToNetDecimal(sqlDecimal);
     }
 
-    public override object ReadDateTimeOffset(DbDataReader reader, int index)
-    {
-      return ((SqlDataReader) reader).GetDateTimeOffset(index);
-    }
+    public override DateTimeOffset ReadDateTimeOffset(DbDataReader reader, int index) =>
+      ((SqlDataReader) reader).GetDateTimeOffset(index);
 
-    public override object ReadDateOnly(DbDataReader reader, int index) =>
+    public override DateOnly ReadDateOnly(DbDataReader reader, int index) =>
       reader.GetFieldValue<DateOnly>(index);
 
-    public override object ReadTimeOnly(DbDataReader reader, int index) =>
+    public override TimeOnly ReadTimeOnly(DbDataReader reader, int index) =>
       reader.GetFieldValue<TimeOnly>(index);
 
     public override void Initialize()

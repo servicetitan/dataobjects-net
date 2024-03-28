@@ -167,31 +167,31 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return new SqlValueType(SqlType.Interval);
     }
 
-    public override object ReadByte(DbDataReader reader, int index)
+    public override byte ReadByte(DbDataReader reader, int index)
     {
       return Convert.ToByte(reader[index]);
     }
 
-    public override object ReadGuid(DbDataReader reader, int index)
+    public override Guid ReadGuid(DbDataReader reader, int index)
     {
       return SqlHelper.GuidFromString(reader.GetString(index));
     }
 
     [SecuritySafeCritical]
-    public override object ReadTimeSpan(DbDataReader reader, int index)
+    public override TimeSpan ReadTimeSpan(DbDataReader reader, int index)
     {
       var nativeReader = (NpgsqlDataReader) reader;
       return (TimeSpan) nativeReader.GetInterval(index);
     }
 
-    public override object ReadDecimal(DbDataReader reader, int index)
+    public override decimal ReadDecimal(DbDataReader reader, int index)
     {
       var nativeReader = (NpgsqlDataReader) reader;
       return nativeReader.GetDecimal(index);
     }
 
     [SecuritySafeCritical]
-    public override object ReadDateTimeOffset(DbDataReader reader, int index)
+    public override DateTimeOffset ReadDateTimeOffset(DbDataReader reader, int index)
     {
       var nativeReader = (NpgsqlDataReader) reader;
       var value = nativeReader.GetFieldValue<DateTimeOffset>(index);

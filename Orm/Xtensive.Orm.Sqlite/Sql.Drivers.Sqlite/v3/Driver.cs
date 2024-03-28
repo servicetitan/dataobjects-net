@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
     {
       builder.Add(typeof (DateTimeOffset),
-        builder.Mapper.ReadDateTimeOffset,
+        builder.Mapper.ReadBoxedDateTimeOffset,
         builder.Mapper.BindDateTimeOffset,
         builder.Mapper.MapDateTimeOffset);
     }

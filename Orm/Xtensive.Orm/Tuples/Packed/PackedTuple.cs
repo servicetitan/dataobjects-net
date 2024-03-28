@@ -5,6 +5,8 @@
 // Created:    2012.12.29
 
 using System;
+using System.Data.Common;
+using Xtensive.Sql;
 
 namespace Xtensive.Tuples.Packed
 {
@@ -113,6 +115,17 @@ namespace Xtensive.Tuples.Packed
       var isNullable = null==default(T); // Is nullable value type or class
       ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
       descriptor.GetAccessor().SetValue(this, descriptor, isNullable, fieldValue);
+    }
+
+    public override void SetValueFromDataReader(in MapperReader mr)
+    {
+      if (mr.DbDataReader.IsDBNull(mr.FieldIndex)) {
+        SetValue(mr.FieldIndex, null);
+      }
+      else {
+        ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[mr.FieldIndex];
+        descriptor.GetAccessor().SetValue(this, descriptor, mr);
+      }
     }
 
     public void SetFieldState(in PackedFieldDescriptor d, TupleFieldState fieldState)

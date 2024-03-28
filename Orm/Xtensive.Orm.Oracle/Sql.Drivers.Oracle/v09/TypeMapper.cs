@@ -138,89 +138,89 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       nativeParameter.Value = value ?? DBNull.Value;
     }
 
-    public override object ReadBoolean(DbDataReader reader, int index)
+    public override bool ReadBoolean(DbDataReader reader, int index)
     {
       //return reader.GetDecimal(index)!=0.0m;
       return Math.Abs(ReadDecimalSafely(reader, index, BooleanPrecision, 0)) > 0.3m;
     }
 
-    public override object ReadByte(DbDataReader reader, int index)
+    public override byte ReadByte(DbDataReader reader, int index)
     {
       //return (byte) reader.GetDecimal(index);
       return (byte) ReadDecimalSafely(reader, index, BytePrecision, 0);
     }
 
-    public override object ReadSByte(DbDataReader reader, int index)
+    public override sbyte ReadSByte(DbDataReader reader, int index)
     {
       //return (sbyte) reader.GetDecimal(index);
       return (sbyte) ReadDecimalSafely(reader, index, BytePrecision, 0);
     }
 
-    public override object ReadShort(DbDataReader reader, int index)
+    public override short ReadShort(DbDataReader reader, int index)
     {
       //return (short) reader.GetDecimal(index);
       return (short) ReadDecimalSafely(reader, index, ShortPrecision, 0);
     }
 
-    public override object ReadUShort(DbDataReader reader, int index)
+    public override ushort ReadUShort(DbDataReader reader, int index)
     {
       //return (ushort) reader.GetDecimal(index);
       return (ushort) ReadDecimalSafely(reader, index, ShortPrecision, 0);
     }
 
-    public override object ReadInt(DbDataReader reader, int index)
+    public override int ReadInt(DbDataReader reader, int index)
     {
       //return (int) reader.GetDecimal(index);
       return (int) ReadDecimalSafely(reader, index, IntPrecision, 0);
     }
 
-    public override object ReadUInt(DbDataReader reader, int index)
+    public override uint ReadUInt(DbDataReader reader, int index)
     {
       //return (uint) reader.GetDecimal(index);
       return (uint) ReadDecimalSafely(reader, index, IntPrecision, 0);
     }
 
-    public override object ReadLong(DbDataReader reader, int index)
+    public override long ReadLong(DbDataReader reader, int index)
     {
       //return (long) reader.GetDecimal(index);
       return (long) ReadDecimalSafely(reader, index, LongPrecision, 0);
     }
 
-    public override object ReadULong(DbDataReader reader, int index)
+    public override ulong ReadULong(DbDataReader reader, int index)
     {
       //return (ulong) reader.GetDecimal(index);
       return (ulong) ReadDecimalSafely(reader, index, LongPrecision, 0);
     }
 
-    public override object ReadDecimal(DbDataReader reader, int index)
+    public override decimal ReadDecimal(DbDataReader reader, int index)
     {
       return ReadDecimalSafely(reader, index, MaxDecimalPrecision.Value, MaxDecimalPrecision.Value / 2);
     }
 
-    public override object ReadFloat(DbDataReader reader, int index)
+    public override float ReadFloat(DbDataReader reader, int index)
     {
       return Convert.ToSingle(reader[index]);
     }
 
-    public override object ReadDouble(DbDataReader reader, int index)
+    public override double ReadDouble(DbDataReader reader, int index)
     {
       return Convert.ToDouble(reader[index]);
     }
 
-    public override object ReadDateTimeOffset(DbDataReader reader, int index)
+    public override DateTimeOffset ReadDateTimeOffset(DbDataReader reader, int index)
     {
       var nativeReader = (OracleDataReader) reader;
       var timeStampTZ = nativeReader.GetOracleTimeStampTZ(index);
       return new DateTimeOffset(timeStampTZ.Value, timeStampTZ.GetTimeZoneOffset());
     }
 
-    public override object ReadTimeSpan(DbDataReader reader, int index)
+    public override TimeSpan ReadTimeSpan(DbDataReader reader, int index)
     {
       var nativeReader = (OracleDataReader) reader;
       return (TimeSpan) nativeReader.GetOracleIntervalDS(index);
     }
     
-    public override object ReadGuid(DbDataReader reader, int index)
+    public override Guid ReadGuid(DbDataReader reader, int index)
     {
       return SqlHelper.GuidFromString(reader.GetString(index));
     }

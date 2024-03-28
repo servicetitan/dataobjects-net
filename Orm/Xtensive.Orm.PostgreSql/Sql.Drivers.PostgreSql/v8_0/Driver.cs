@@ -33,7 +33,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       builder.Add(new PolygonMapper());
       builder.Add(new CircleMapper());
       builder.Add(WellKnownTypes.DateTimeOffsetType,
-        builder.Mapper.ReadDateTimeOffset,
+        builder.Mapper.ReadBoxedDateTimeOffset,
         builder.Mapper.BindDateTimeOffset,
         builder.Mapper.MapDateTimeOffset);
     }
