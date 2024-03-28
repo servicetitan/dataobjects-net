@@ -17,31 +17,37 @@ namespace Xtensive.Orm.Providers
   /// over either regular <see cref="IEnumerable{T}"/> of <see cref="Tuple"/>s
   /// or over the running <see cref="Command"/> instance.
   /// </summary>
-  public interface DataReader : IEnumerator<Tuple>, IAsyncEnumerator<Tuple>
+  public abstract class DataReader : IEnumerator<Tuple>, IAsyncEnumerator<Tuple>
   {
-    bool IsInMemory { get; }
-    Tuple Current { get; }
+    public abstract bool MoveNext();
+    public abstract ValueTask<bool> MoveNextAsync();
+    public abstract void Reset();
+    public abstract void Dispose();
+    public abstract ValueTask DisposeAsync();
+
+    public abstract Tuple Current { get; }
+    object IEnumerator.Current => Current;
+
+    public abstract bool IsInMemory { get; }
   }
 
   internal sealed class InMemoryDataReader(IEnumerable<Tuple> tuples) : DataReader
   {
     private readonly IEnumerator<Tuple> source = tuples.GetEnumerator();
 
-    public bool IsInMemory => true;
+    public override bool IsInMemory => true;
 
-    public Tuple Current => source.Current;
+    public override Tuple Current => source.Current;
 
-    object IEnumerator.Current => Current;
+    public override bool MoveNext() => source.MoveNext();
 
-    public bool MoveNext() => source.MoveNext();
+    public override void Reset() => source.Reset();
 
-    public void Reset() => source.Reset();
+    public override void Dispose() => source.Dispose();
 
-    public void Dispose() => source.Dispose();
+    public override async ValueTask DisposeAsync() => await ((IAsyncEnumerator<Tuple>) source).DisposeAsync().ConfigureAwaitFalse();
 
-    public async ValueTask DisposeAsync() => await ((IAsyncEnumerator<Tuple>) source).DisposeAsync().ConfigureAwaitFalse();
-
-    public ValueTask<bool> MoveNextAsync() => ValueTask.FromResult(MoveNext());
+    public override ValueTask<bool> MoveNextAsync() => ValueTask.FromResult(MoveNext());
   }
 
   internal sealed class CommandDataReader(Command command, DbDataReaderAccessor accessor, CancellationToken token) : DataReader
@@ -50,16 +56,13 @@ namespace Xtensive.Orm.Providers
     /// Indicates current <see cref="DataReader"/> is built
     /// over <see cref="IEnumerable{T}"/> of <see cref="Tuple"/>s data source.
     /// </summary>
-    public bool IsInMemory => false;
+    public override bool IsInMemory => false;
 
     /// <inheritdoc cref="IEnumerator{T}.Current"/>
-    public Tuple Current => command.ReadTupleWith(accessor);
+    public override Tuple Current => command.ReadTupleWith(accessor);
 
     /// <inheritdoc/>
-    object IEnumerator.Current => Current;
-
-    /// <inheritdoc/>
-    public bool MoveNext()
+    public override bool MoveNext()
     {
       if (command.NextRow()) {
         return true;
@@ -71,7 +74,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public async ValueTask<bool> MoveNextAsync()
+    public override async ValueTask<bool> MoveNextAsync()
     {
       if (await command.NextRowAsync(token).ConfigureAwaitFalse()) {
         return true;
@@ -83,12 +86,12 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public void Reset() => throw new NotSupportedException("Multiple enumeration is not supported.");
+    public override void Reset() => throw new NotSupportedException("Multiple enumeration is not supported.");
 
     /// <inheritdoc/>
-    public void Dispose() => command.Dispose();
+    public override void Dispose() => command.Dispose();
 
     /// <inheritdoc/>
-    public async ValueTask DisposeAsync() => await command.DisposeAsync().ConfigureAwaitFalse();
+    public override async ValueTask DisposeAsync() => await command.DisposeAsync().ConfigureAwaitFalse();
   }
 }

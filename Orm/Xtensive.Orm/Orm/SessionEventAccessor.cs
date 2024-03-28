@@ -12,6 +12,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm
 {
@@ -243,6 +244,16 @@ namespace Xtensive.Orm
     /// Occurs when <see cref="Transaction"/> is rolled back.
     /// </summary>
     public event EventHandler<TransactionEventArgs> TransactionRollbacked;
+
+    /// <summary>
+    /// Occurs when Recordset enumeration begins
+    /// </summary>
+    public event EventHandler<EnumerationContext> RecordsetEnumerating;
+
+    /// <summary>
+    /// Occurs when Recordset enumeration ends
+    /// </summary>
+    public event EventHandler<EnumerationContext> RecordsetEnumerated;
 
     #endregion
 
@@ -495,6 +506,21 @@ namespace Xtensive.Orm
     {
       if (TransactionRollbacked!=null && AreNotificationsEnabled())
         TransactionRollbacked(this, new TransactionEventArgs(transaction));
+    }
+
+    internal bool NotifyRecordsetEnumerating(EnumerationContext context)
+    {
+      if (RecordsetEnumerating != null && AreNotificationsEnabled()) {
+        RecordsetEnumerating(this, context);
+        return true;
+      }
+      return false;
+    }
+
+    internal void NotifyRecordsetEnumerated(EnumerationContext context)
+    {
+      if (RecordsetEnumerated != null && AreNotificationsEnabled())
+        RecordsetEnumerated(this, context);
     }
 
     #endregion

@@ -19,11 +19,9 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed class EnumerationContext : Rse.Providers.EnumerationContext
   {
-    private class EnumerationFinalizer : ICompletableScope
+    private class EnumerationFinalizer(EnumerationContext context, Queue<Action> finalizationQueue, TransactionScope transactionScope, SessionEventAccessor events)
+      : ICompletableScope
     {
-      private readonly Queue<Action> finalizationQueue;
-      private readonly TransactionScope transactionScope;
-
       public void Complete()
       {
         if (IsCompleted)
@@ -36,16 +34,11 @@ namespace Xtensive.Orm.Providers
 
       public void Dispose()
       {
-        while (finalizationQueue.TryDequeue(out var materializeSelf)) {
+        while (finalizationQueue?.TryDequeue(out var materializeSelf) == true) {
           materializeSelf.Invoke();
         }
-        transactionScope.DisposeSafely();
-      }
-
-      public EnumerationFinalizer(Queue<Action> finalizationQueue, TransactionScope transactionScope)
-      {
-        this.finalizationQueue = finalizationQueue;
-        this.transactionScope = transactionScope;
+        transactionScope?.Dispose();
+        events.NotifyRecordsetEnumerated(context);
       }
     }
 
@@ -56,7 +49,7 @@ namespace Xtensive.Orm.Providers
     /// Gets the session handler.
     /// </summary>
     /// <value>The session handler.</value>
-    public Session Session { get; private set; }
+    public Session Session { get; }
 
     /// <inheritdoc/>
     protected override EnumerationContextOptions Options { get { return options; } }
@@ -71,9 +64,10 @@ namespace Xtensive.Orm.Providers
       var tx = Session.OpenAutoTransaction();
       if (!Session.Configuration.Supports(SessionOptions.NonTransactionalReads))
         Session.DemandTransaction();
-      if (MaterializationContext!=null && MaterializationContext.MaterializationQueue!=null)
-        return new EnumerationFinalizer(MaterializationContext.MaterializationQueue, tx);
-      return tx;
+      var events = Session.Events;
+      return events.NotifyRecordsetEnumerating(this) || MaterializationContext?.MaterializationQueue != null
+        ? new EnumerationFinalizer(this, MaterializationContext?.MaterializationQueue, tx, events)
+        : tx;
     }
 
     // Constructors
