@@ -17,12 +17,12 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// Provider-level <see cref="DbDataReader"/> accessor.
   /// </summary>
-  public sealed class DbDataReaderAccessor
+  public readonly struct DbDataReaderAccessor
   {
     private readonly TypeMapper mapper;
     private readonly Func<DbDataReader, int, object>[] readers;
 
-    public TupleDescriptor Descriptor { get; private set; }
+    public TupleDescriptor Descriptor { get; }
 
     public Tuple Read(DbDataReader source)
     {

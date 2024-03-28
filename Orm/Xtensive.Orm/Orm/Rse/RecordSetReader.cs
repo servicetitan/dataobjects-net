@@ -140,6 +140,7 @@ namespace Xtensive.Orm.Rse
         context.SetValue(provider, enumerationMarker, true);
       }
 
+      bool bSuccess = false;
       try {
         dataReader = executeAsync
           ? await provider.OnEnumerateAsync(context, token).ConfigureAwaitFalse()
@@ -161,12 +162,14 @@ namespace Xtensive.Orm.Rse
               }
             }
           }
-          dataReader = new DataReader(tuples);
+          dataReader = new InMemoryDataReader(tuples);
         }
+        bSuccess = true;
       }
-      catch {
-        FinishEnumeration(true);
-        throw;
+      finally {
+        if (!bSuccess) {
+          FinishEnumeration(true);
+        }
       }
       state = State.Prepared;
     }
@@ -252,6 +255,6 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="tuples">A tuple sequence to be wrapped.</param>
     /// <returns><see cref="RecordSetReader"/> instance ready for enumeration.</returns>
-    public static RecordSetReader Create(IEnumerable<Tuple> tuples) => new RecordSetReader(new DataReader(tuples));
+    public static RecordSetReader Create(IEnumerable<Tuple> tuples) => new RecordSetReader(new InMemoryDataReader(tuples));
   }
 }

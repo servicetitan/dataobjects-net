@@ -17,22 +17,43 @@ namespace Xtensive.Orm.Providers
   /// over either regular <see cref="IEnumerable{T}"/> of <see cref="Tuple"/>s
   /// or over the running <see cref="Command"/> instance.
   /// </summary>
-  public readonly struct DataReader: IEnumerator<Tuple>, IAsyncEnumerator<Tuple>
+  public interface DataReader : IEnumerator<Tuple>, IAsyncEnumerator<Tuple>
   {
-    private readonly object source;
-    private readonly CancellationToken token;
-    private readonly DbDataReaderAccessor accessor;
+    bool IsInMemory { get; }
+    Tuple Current { get; }
+  }
 
+  internal sealed class InMemoryDataReader(IEnumerable<Tuple> tuples) : DataReader
+  {
+    private readonly IEnumerator<Tuple> source = tuples.GetEnumerator();
+
+    public bool IsInMemory => true;
+
+    public Tuple Current => source.Current;
+
+    object IEnumerator.Current => Current;
+
+    public bool MoveNext() => source.MoveNext();
+
+    public void Reset() => source.Reset();
+
+    public void Dispose() => source.Dispose();
+
+    public async ValueTask DisposeAsync() => await ((IAsyncEnumerator<Tuple>) source).DisposeAsync().ConfigureAwaitFalse();
+
+    public ValueTask<bool> MoveNextAsync() => ValueTask.FromResult(MoveNext());
+  }
+
+  internal sealed class CommandDataReader(Command command, DbDataReaderAccessor accessor, CancellationToken token) : DataReader
+  {
     /// <summary>
     /// Indicates current <see cref="DataReader"/> is built
     /// over <see cref="IEnumerable{T}"/> of <see cref="Tuple"/>s data source.
     /// </summary>
-    public bool IsInMemory => !(source is Command);
+    public bool IsInMemory => false;
 
     /// <inheritdoc cref="IEnumerator{T}.Current"/>
-    public Tuple Current => source is Command command
-      ? command.ReadTupleWith(accessor)
-      : ((IEnumerator<Tuple>)source).Current;
+    public Tuple Current => command.ReadTupleWith(accessor);
 
     /// <inheritdoc/>
     object IEnumerator.Current => Current;
@@ -40,10 +61,6 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public bool MoveNext()
     {
-      if (!(source is Command command)) {
-        return ((IEnumerator<Tuple>) source).MoveNext();
-      }
-
       if (command.NextRow()) {
         return true;
       }
@@ -56,10 +73,6 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public async ValueTask<bool> MoveNextAsync()
     {
-      if (!(source is Command command)) {
-        return ((IEnumerator<Tuple>) source).MoveNext();
-      }
-
       if (await command.NextRowAsync(token).ConfigureAwaitFalse()) {
         return true;
       }
@@ -70,59 +83,12 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public void Reset()
-    {
-      if (source is Command) {
-        throw new NotSupportedException("Multiple enumeration is not supported.");
-      }
-      ((IEnumerator)source).Reset();
-    }
+    public void Reset() => throw new NotSupportedException("Multiple enumeration is not supported.");
 
     /// <inheritdoc/>
-    public void Dispose()
-    {
-      if (source is Command command) {
-        command.Dispose();
-      }
-      else {
-        ((IEnumerator<Tuple>) source).Dispose();
-      }
-    }
+    public void Dispose() => command.Dispose();
 
     /// <inheritdoc/>
-    public async ValueTask DisposeAsync()
-    {
-      if (source is Command command) {
-        await command.DisposeAsync().ConfigureAwaitFalse();
-      }
-      else {
-        await ((IAsyncEnumerator<Tuple>) source).DisposeAsync().ConfigureAwaitFalse();
-      }
-    }
-
-    /// <summary>
-    /// Creates <see cref="DataReader"/> wrapping enumerable collection of <see cref="Tuple"/>s.
-    /// </summary>
-    /// <param name="tuples">Collection of <see cref="Tuple"/>s to read from.</param>
-    public DataReader(IEnumerable<Tuple> tuples)
-    {
-      source = tuples.GetEnumerator();
-      accessor = null;
-      token = CancellationToken.None;
-    }
-
-    /// <summary>
-    /// Creates <see cref="DataReader"/> wrapping active <see cref="Command"/> instance.
-    /// </summary>
-    /// <param name="command"><see cref="Command"/> instance to read data from.</param>
-    /// <param name="accessor"><see cref="DbDataReaderAccessor"/> instance
-    /// transforming raw database records to <see cref="Tuple"/>s.</param>
-    /// <param name="token"><see cref="CancellationToken"/> to terminate operation if necessary.</param>
-    public DataReader(Command command, DbDataReaderAccessor accessor, CancellationToken token)
-    {
-      source = command;
-      this.accessor = accessor;
-      this.token = token;
-    }
+    public async ValueTask DisposeAsync() => await command.DisposeAsync().ConfigureAwaitFalse();
   }
 }

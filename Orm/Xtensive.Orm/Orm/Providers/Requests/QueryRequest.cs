@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Providers
   {
     private readonly StorageDriver driver;
 
-    private DbDataReaderAccessor accessor;
+    private DbDataReaderAccessor? accessor;
     private SqlCompilationResult compiledStatement;
 
     public SqlSelect Statement { get; private set; }
@@ -54,12 +54,8 @@ namespace Xtensive.Orm.Providers
       return compiledStatement;
     }
 
-    public DbDataReaderAccessor GetAccessor()
-    {
-      if (accessor==null)
-        throw new InvalidOperationException(Strings.ExRequestIsNotPrepared);
-      return accessor;
-    }
+    public DbDataReaderAccessor GetAccessor() =>
+      accessor ?? throw new InvalidOperationException(Strings.ExRequestIsNotPrepared);
 
     // Constructors
 

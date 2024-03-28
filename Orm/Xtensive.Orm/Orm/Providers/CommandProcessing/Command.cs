@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Providers
     internal Tuple ReadTupleWith(DbDataReaderAccessor accessor) => accessor.Read(reader);
 
     public DataReader CreateReader(DbDataReaderAccessor accessor, CancellationToken token = default) =>
-      new DataReader(this, accessor, token);
+      new CommandDataReader(this, accessor, token);
 
     public DbCommand Prepare()
     {

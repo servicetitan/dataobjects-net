@@ -8,6 +8,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using Xtensive.Collections;
 
@@ -152,6 +153,14 @@ namespace Xtensive.Core
       new ReadOnlyHashSet<T>((HashSet<T>) set);
 #else
     set;
+#endif
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static IReadOnlyDictionary<K, V> AsSafeWrapper<K, V>(this Dictionary<K, V> dict) =>
+#if DO_SAFE_COLLECTION_WRAPPER
+      new ReadOnlyDictionary<K, V>(dict);
+#else
+    dict;
 #endif
   }
 }
