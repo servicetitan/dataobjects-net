@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed class EnumerationContext : Rse.Providers.EnumerationContext
   {
-    private class EnumerationFinalizer(Queue<Action> finalizationQueue, TransactionScope transactionScope, SessionEventAccessor events)
+    private class EnumerationFinalizer(EnumerationContext context, Queue<Action> finalizationQueue, TransactionScope transactionScope, SessionEventAccessor events)
       : ICompletableScope
     {
       public void Complete()
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Providers
           materializeSelf.Invoke();
         }
         transactionScope?.Dispose();
-        events.NotifyRecordsetEnumerated();
+        events.NotifyRecordsetEnumerated(context);
       }
     }
 
@@ -65,8 +65,8 @@ namespace Xtensive.Orm.Providers
       if (!Session.Configuration.Supports(SessionOptions.NonTransactionalReads))
         Session.DemandTransaction();
       var events = Session.Events;
-      return events.NotifyRecordsetEnumerating() || MaterializationContext?.MaterializationQueue != null
-        ? new EnumerationFinalizer(MaterializationContext?.MaterializationQueue, tx, events)
+      return events.NotifyRecordsetEnumerating(this) || MaterializationContext?.MaterializationQueue != null
+        ? new EnumerationFinalizer(this, MaterializationContext?.MaterializationQueue, tx, events)
         : tx;
     }
 
