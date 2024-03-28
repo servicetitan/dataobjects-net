@@ -244,6 +244,16 @@ namespace Xtensive.Orm
     /// </summary>
     public event EventHandler<TransactionEventArgs> TransactionRollbacked;
 
+    /// <summary>
+    /// Occurs when Recordset enumeration begins
+    /// </summary>
+    public event EventHandler RecordsetEnumerating;
+
+    /// <summary>
+    /// Occurs when Recordset enumeration ends
+    /// </summary>
+    public event EventHandler RecordsetEnumerated;
+
     #endregion
 
     #region NotifyXxx methods
@@ -495,6 +505,21 @@ namespace Xtensive.Orm
     {
       if (TransactionRollbacked!=null && AreNotificationsEnabled())
         TransactionRollbacked(this, new TransactionEventArgs(transaction));
+    }
+
+    internal bool NotifyRecordsetEnumerating()
+    {
+      if (RecordsetEnumerating != null && AreNotificationsEnabled()) {
+        RecordsetEnumerating(this, EventArgs.Empty);
+        return true;
+      }
+      return false;
+    }
+
+    internal void NotifyRecordsetEnumerated()
+    {
+      if (RecordsetEnumerated != null && AreNotificationsEnabled())
+        RecordsetEnumerated(this, EventArgs.Empty);
     }
 
     #endregion
