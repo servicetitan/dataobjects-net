@@ -177,61 +177,60 @@ namespace Xtensive.Sql
 
     #region ReadXxx methods
 
-    public virtual object ReadBoolean(DbDataReader reader, int index) =>
-      reader.GetBoolean(index);
+    public virtual bool ReadBoolean(DbDataReader reader, int index) => reader.GetBoolean(index);
+    public object ReadBoxedBoolean(DbDataReader reader, int index) => ReadBoolean(reader, index);
 
-    public virtual object ReadChar(DbDataReader reader, int index) =>
-      reader.GetString(index).SingleOrDefault();
+    public virtual char ReadChar(DbDataReader reader, int index) => reader.GetString(index).SingleOrDefault();
+    public object ReadBoxedChar(DbDataReader reader, int index) => ReadChar(reader, index);
 
-    public virtual object ReadString(DbDataReader reader, int index) =>
-      reader.GetString(index);
+    public virtual string ReadString(DbDataReader reader, int index) => reader.GetString(index);
 
-    public virtual object ReadByte(DbDataReader reader, int index) =>
-      reader.GetByte(index);
+    public virtual byte ReadByte(DbDataReader reader, int index) => reader.GetByte(index);
+    public object ReadBoxedByte(DbDataReader reader, int index) => ReadByte(reader, index);
 
-    public virtual object ReadSByte(DbDataReader reader, int index) =>
-      Convert.ToSByte(reader[index]);
+    public virtual sbyte ReadSByte(DbDataReader reader, int index) => Convert.ToSByte(reader[index]);
+    public object ReadBoxedSByte(DbDataReader reader, int index) => ReadSByte(reader, index);
 
-    public virtual object ReadShort(DbDataReader reader, int index) =>
-      reader.GetInt16(index);
+    public virtual short ReadShort(DbDataReader reader, int index) => reader.GetInt16(index);
+    public object ReadBoxedShort(DbDataReader reader, int index) => ReadShort(reader, index);
 
-    public virtual object ReadUShort(DbDataReader reader, int index) =>
-      Convert.ToUInt16(reader[index]);
+    public virtual ushort ReadUShort(DbDataReader reader, int index) => Convert.ToUInt16(reader[index]);
+    public object ReadBoxedUShort(DbDataReader reader, int index) => ReadUShort(reader, index);
 
-    public virtual object ReadInt(DbDataReader reader, int index) =>
-      reader.GetInt32(index);
+    public virtual int ReadInt(DbDataReader reader, int index) => reader.GetInt32(index);
+    public object ReadBoxedInt(DbDataReader reader, int index) => ReadInt(reader, index);
 
-    public virtual object ReadUInt(DbDataReader reader, int index) =>
-      Convert.ToUInt32(reader[index]);
+    public virtual uint ReadUInt(DbDataReader reader, int index) => Convert.ToUInt32(reader[index]);
+    public object ReadBoxedUInt(DbDataReader reader, int index) => ReadUInt(reader, index);
 
-    public virtual object ReadLong(DbDataReader reader, int index) =>
-      reader.GetInt64(index);
+    public virtual long ReadLong(DbDataReader reader, int index) => reader.GetInt64(index);
+    public object ReadBoxedLong(DbDataReader reader, int index) => ReadLong(reader, index);
 
-    public virtual object ReadULong(DbDataReader reader, int index) =>
-      Convert.ToUInt64(reader[index]);
+    public virtual ulong ReadULong(DbDataReader reader, int index) => Convert.ToUInt64(reader[index]);
+    public object ReadBoxedULong(DbDataReader reader, int index) => ReadULong(reader, index);
 
-    public virtual object ReadFloat(DbDataReader reader, int index) =>
-      reader.GetFloat(index);
+    public virtual float ReadFloat(DbDataReader reader, int index) => reader.GetFloat(index);
+    public object ReadBoxedFloat(DbDataReader reader, int index) => ReadFloat(reader, index);
 
-    public virtual object ReadDouble(DbDataReader reader, int index) =>
-      reader.GetDouble(index);
+    public virtual double ReadDouble(DbDataReader reader, int index) => reader.GetDouble(index);
+    public object ReadBoxedDouble(DbDataReader reader, int index) => ReadDouble(reader, index);
 
-    public virtual object ReadDecimal(DbDataReader reader, int index) =>
-      reader.GetDecimal(index);
+    public virtual decimal ReadDecimal(DbDataReader reader, int index) => reader.GetDecimal(index);
+    public object ReadBoxedDecimal(DbDataReader reader, int index) => ReadDecimal(reader, index);
 
-    public virtual object ReadDateTime(DbDataReader reader, int index) =>
-      reader.GetDateTime(index);
+    public virtual DateTime ReadDateTime(DbDataReader reader, int index) => reader.GetDateTime(index);
+    public object ReadBoxedDateTime(DbDataReader reader, int index) => ReadDateTime(reader, index);
 
-    public virtual object ReadDateOnly(DbDataReader reader, int index) =>
-        DateOnly.FromDateTime(reader.GetFieldValue<DateTime>(index));
+    public virtual DateOnly ReadDateOnly(DbDataReader reader, int index) => DateOnly.FromDateTime(reader.GetFieldValue<DateTime>(index));
+    public object ReadBoxedDateOnly(DbDataReader reader, int index) => ReadDateOnly(reader, index);
 
-    public virtual object ReadTimeOnly(DbDataReader reader, int index) =>
-      TimeOnly.FromTimeSpan(reader.GetFieldValue<TimeSpan>(index));
+    public virtual TimeOnly ReadTimeOnly(DbDataReader reader, int index) => TimeOnly.FromTimeSpan(reader.GetFieldValue<TimeSpan>(index));
+    public object ReadBoxedTimeOnly(DbDataReader reader, int index) => ReadTimeOnly(reader, index);
 
-    public virtual object ReadDateTimeOffset(DbDataReader reader, int index) =>
-      (DateTimeOffset) reader.GetValue(index);
+    public virtual DateTimeOffset ReadDateTimeOffset(DbDataReader reader, int index) => (DateTimeOffset) reader.GetValue(index);
+    public object ReadBoxedDateTimeOffset(DbDataReader reader, int index) => ReadDateTimeOffset(reader, index);
 
-    public virtual object ReadTimeSpan(DbDataReader reader, int index)
+    public virtual TimeSpan ReadTimeSpan(DbDataReader reader, int index)
     {
       long value;
       try {
@@ -242,17 +241,17 @@ namespace Xtensive.Sql
       }
       return TimeSpan.FromTicks(value / 100);
     }
+    public object ReadBoxedTimeSpan(DbDataReader reader, int index) => ReadTimeSpan(reader, index);
 
-    public virtual object ReadGuid(DbDataReader reader, int index) =>
-      reader.GetGuid(index);
+    public virtual Guid ReadGuid(DbDataReader reader, int index) => reader.GetGuid(index);
+    public object ReadBoxedGuid(DbDataReader reader, int index) => ReadGuid(reader, index);
 
-    public virtual object ReadByteArray(DbDataReader reader, int index)
-    {
-      var value = reader[index];
-      if (value == null || value is byte[])
-        return value;
-
-      throw new NotSupportedException("There is no support of SqlGeometry, SqlGeography, or other complex SQL types to the moment");
+    public virtual byte[] ReadByteArray(DbDataReader reader, int index) =>
+      reader[index] switch {
+        null => null,
+        byte[] bytes => bytes,
+        _ => throw new NotSupportedException("There is no support of SqlGeometry, SqlGeography, or other complex SQL types to the moment")
+      };
       // As far as SqlGeometry and SqlGeography have no support in .Net 5
       // we don't need to provide a functionality reading those data as byte arrays
 
@@ -260,7 +259,6 @@ namespace Xtensive.Sql
       // var stream = new MemoryStream();
       // formatter.Serialize(stream, value);
       // return stream.ToArray();
-    }
 
     #endregion
 
@@ -378,4 +376,11 @@ namespace Xtensive.Sql
       Driver = driver;
     }
   }
+
+  public readonly record struct MapperReader(
+    TypeMapper Mapper,
+    Func<DbDataReader, int, object> Reader,
+    DbDataReader DbDataReader,
+    int FieldIndex
+  );
 }

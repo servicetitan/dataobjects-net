@@ -19,6 +19,7 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public readonly struct DbDataReaderAccessor
   {
+    private readonly TypeMapper mapper;
     private readonly Func<DbDataReader, int, object>[] readers;
 
     public TupleDescriptor Descriptor { get; }
@@ -26,18 +27,18 @@ namespace Xtensive.Orm.Providers
     public Tuple Read(DbDataReader source)
     {
       var target = Tuple.Create(Descriptor);
-      for (int i = 0, n = readers.Length; i < n; ++i) {
-        var value = source.IsDBNull(i) ? null : readers[i](source, i);
-        target.SetValue(i, value);
+      for (int i = 0, n = Descriptor.Count; i < n; ++i) {
+        target.SetValueFromDataReader(new(mapper, readers[i], source, i));
       }
       return target;
     }
 
     // Constructors
 
-    internal DbDataReaderAccessor(in TupleDescriptor descriptor, Func<DbDataReader, int, object>[] readers)
+    internal DbDataReaderAccessor(in TupleDescriptor descriptor, TypeMapper mapper, Func<DbDataReader, int, object>[] readers)
     {
       Descriptor = descriptor;
+      this.mapper = mapper;
       this.readers = readers;
     }
   }

@@ -6,7 +6,7 @@
 
 using System;
 using System.Runtime.Serialization;
-
+using Xtensive.Sql;
 
 namespace Xtensive.Tuples
 {
@@ -17,6 +17,8 @@ namespace Xtensive.Tuples
   [Serializable]
   public abstract class RegularTuple : Tuple
   {
+    public abstract void SetValueFromDataReader(in MapperReader mr);
+
     // Constructors
 
     /// <summary>

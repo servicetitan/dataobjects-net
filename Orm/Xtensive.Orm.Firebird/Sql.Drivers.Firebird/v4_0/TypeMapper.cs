@@ -29,7 +29,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
     private static readonly BigInteger MaxDoubleAsBigInteger = new(double.MaxValue);
     private static readonly BigInteger MinDoubleAsBigInteger = new(double.MinValue);
 
-    public override object ReadInt(DbDataReader reader, int index)
+    public override int ReadInt(DbDataReader reader, int index)
     {
       var typeOfValue = reader.GetFieldType(index);
       if (typeOfValue == BigIntegerType) {
@@ -41,7 +41,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
       return base.ReadInt(reader, index);
     }
 
-    public override object ReadUInt(DbDataReader reader, int index)
+    public override uint ReadUInt(DbDataReader reader, int index)
     {
       var typeOfValue = reader.GetFieldType(index);
       if (typeOfValue == BigIntegerType) {
@@ -53,7 +53,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
       return base.ReadUInt(reader, index);
     }
 
-    public override object ReadLong(DbDataReader reader, int index)
+    public override long ReadLong(DbDataReader reader, int index)
     {
       var typeOfValue = reader.GetFieldType(index);
       if(typeOfValue == BigIntegerType) {
@@ -65,7 +65,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
       return base.ReadLong(reader, index);
     }
 
-    public override object ReadULong(DbDataReader reader, int index)
+    public override ulong ReadULong(DbDataReader reader, int index)
     {
       var typeOfValue = reader.GetFieldType(index);
       if (typeOfValue == BigIntegerType) {
@@ -77,7 +77,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
       return base.ReadULong(reader, index);
     }
 
-    public override object ReadDouble(DbDataReader reader, int index)
+    public override double ReadDouble(DbDataReader reader, int index)
     {
       var typeOfValue = reader.GetFieldType(index);
       if (typeOfValue == BigIntegerType) {

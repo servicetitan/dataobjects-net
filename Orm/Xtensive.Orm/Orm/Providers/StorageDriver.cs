@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Providers
       for (int i = 0, n = descriptor.Count; i < n; ++i) {
         readers[i] = GetTypeMapping(descriptor[i]).ValueReader;
       }
-      return new DbDataReaderAccessor(descriptor, readers);
+      return new DbDataReaderAccessor(descriptor, allMappings.Mapper, readers);
     }
 
     public StorageDriver CreateNew(Domain domain)

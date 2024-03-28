@@ -26,25 +26,25 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private const string DateFormat = "yyyy-MM-dd";
     private const string TimeFormat = "HH:mm:ss.fffffff";
 
-    public override object ReadBoolean(DbDataReader reader, int index)
+    public override bool ReadBoolean(DbDataReader reader, int index)
     {
       var value = reader.GetDecimal(index);
       return SQLiteConvert.ToBoolean(value);
     }
 
-    public override object ReadDateOnly(DbDataReader reader, int index)
+    public override DateOnly ReadDateOnly(DbDataReader reader, int index)
     {
       var value = reader.GetString(index);
       return DateOnly.ParseExact(value, DateFormat, CultureInfo.InvariantCulture);
     }
 
-    public override object ReadTimeOnly(DbDataReader reader, int index)
+    public override TimeOnly ReadTimeOnly(DbDataReader reader, int index)
     {
       var value = reader.GetString(index);
       return TimeOnly.ParseExact(value, TimeFormat, CultureInfo.InvariantCulture);
     }
 
-    public override object ReadDateTimeOffset(DbDataReader reader, int index)
+    public override DateTimeOffset ReadDateTimeOffset(DbDataReader reader, int index)
     {
       var value = reader.GetString(index);
       return DateTimeOffset.ParseExact(value, DateTimeOffsetFormat, CultureInfo.InvariantCulture);

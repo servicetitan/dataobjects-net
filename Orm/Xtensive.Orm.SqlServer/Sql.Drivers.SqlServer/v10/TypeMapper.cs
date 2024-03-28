@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public override object ReadDateTime(DbDataReader reader, int index)
+    public override DateTime ReadDateTime(DbDataReader reader, int index)
     {
       string type = reader.GetDataTypeName(index);
       if (type=="time") {
