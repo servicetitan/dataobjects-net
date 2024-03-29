@@ -128,7 +128,7 @@ namespace Xtensive.Tuples.Packed
       }
     }
 
-    public void SetFieldState(in PackedFieldDescriptor d, TupleFieldState fieldState)
+    public void SetFieldState(PackedFieldDescriptor d, TupleFieldState fieldState)
     {
       var bits = (long) fieldState;
       ref var block = ref Values[d.GetStateIndex()];
@@ -140,7 +140,7 @@ namespace Xtensive.Tuples.Packed
       }
     }
 
-    public TupleFieldState GetFieldState(in PackedFieldDescriptor d)
+    public TupleFieldState GetFieldState(PackedFieldDescriptor d)
     {
       int stateIndex = d.GetStateIndex(), stateBitOffset = d.GetStateBitOffset();
       return (TupleFieldState) ((Values[stateIndex] >> stateBitOffset) & 3);

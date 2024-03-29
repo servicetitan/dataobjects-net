@@ -40,7 +40,7 @@ namespace Xtensive.Tuples.Packed
     protected readonly long ValueBitMask;
     public readonly byte Index;
 
-    public void SetValue<T>(PackedTuple tuple, in PackedFieldDescriptor descriptor, bool isNullable, T value)
+    public void SetValue<T>(PackedTuple tuple, PackedFieldDescriptor descriptor, bool isNullable, T value)
     {
       if ((isNullable ? NullableSetter : Setter) is SetValueDelegate<T> setter) {
         setter.Invoke(tuple, descriptor, value);
@@ -50,10 +50,10 @@ namespace Xtensive.Tuples.Packed
       }
     }
 
-    public virtual void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public virtual void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       throw new NotSupportedException($"{this} does not support reading from DbDataReader");
 
-    public T GetValue<T>(PackedTuple tuple, in PackedFieldDescriptor descriptor, bool isNullable, out TupleFieldState fieldState)
+    public T GetValue<T>(PackedTuple tuple, PackedFieldDescriptor descriptor, bool isNullable, out TupleFieldState fieldState)
     {
       if ((isNullable ? NullableGetter : Getter) is GetValueDelegate<T> getter) {
         return getter.Invoke(tuple, descriptor, out fieldState);
@@ -70,17 +70,17 @@ namespace Xtensive.Tuples.Packed
       return (T) GetUntypedValue(tuple, descriptor, out fieldState);
     }
 
-    public abstract object GetUntypedValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, out TupleFieldState fieldState);
+    public abstract object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState);
 
-    public abstract void SetUntypedValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, object value);
+    public abstract void SetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, object value);
 
-    public abstract void CopyValue(PackedTuple source, in PackedFieldDescriptor sourceDescriptor,
-      PackedTuple target, in PackedFieldDescriptor targetDescriptor);
+    public abstract void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
+      PackedTuple target, PackedFieldDescriptor targetDescriptor);
 
-    public abstract bool ValueEquals(PackedTuple left, in PackedFieldDescriptor leftDescriptor,
-      PackedTuple right, in PackedFieldDescriptor rightDescriptor);
+    public abstract bool ValueEquals(PackedTuple left, PackedFieldDescriptor leftDescriptor,
+      PackedTuple right, PackedFieldDescriptor rightDescriptor);
 
-    public abstract int GetValueHashCode(PackedTuple tuple, in PackedFieldDescriptor descriptor);
+    public abstract int GetValueHashCode(PackedTuple tuple, PackedFieldDescriptor descriptor);
 
     protected PackedFieldAccessor(int rank, byte index)
     {
@@ -109,35 +109,35 @@ namespace Xtensive.Tuples.Packed
 
   internal sealed class ObjectFieldAccessor : PackedFieldAccessor
   {
-    public override object GetUntypedValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
+    public override object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
       var state = tuple.GetFieldState(descriptor);
       fieldState = state;
       return state == TupleFieldState.Available ? tuple.Objects[descriptor.GetObjectIndex()] : null;
     }
 
-    public override void SetUntypedValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, object value)
+    public override void SetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, object value)
     {
       tuple.Objects[descriptor.GetObjectIndex()] = value;
       tuple.SetFieldState(descriptor, value != null ? TupleFieldState.Available : (TupleFieldState.Available | TupleFieldState.Null));
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetUntypedValue(tuple, descriptor, mr.Reader(mr.DbDataReader, mr.FieldIndex));
 
-    public override void CopyValue(PackedTuple source, in PackedFieldDescriptor sourceDescriptor,
-      PackedTuple target, in PackedFieldDescriptor targetDescriptor)
+    public override void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
+      PackedTuple target, PackedFieldDescriptor targetDescriptor)
     {
       target.Objects[targetDescriptor.GetObjectIndex()] = source.Objects[sourceDescriptor.GetObjectIndex()];
     }
 
-    public override bool ValueEquals(PackedTuple left, in PackedFieldDescriptor leftDescriptor,
-      PackedTuple right, in PackedFieldDescriptor rightDescriptor)
+    public override bool ValueEquals(PackedTuple left, PackedFieldDescriptor leftDescriptor,
+      PackedTuple right, PackedFieldDescriptor rightDescriptor)
     {
       return Equals(left.Objects[leftDescriptor.GetObjectIndex()], right.Objects[rightDescriptor.GetObjectIndex()]);
     }
 
-    public override int GetValueHashCode(PackedTuple tuple, in PackedFieldDescriptor descriptor)
+    public override int GetValueHashCode(PackedTuple tuple, PackedFieldDescriptor descriptor)
     {
       return tuple.Objects[descriptor.GetObjectIndex()]?.GetHashCode() ?? 0;
     }
@@ -169,13 +169,13 @@ namespace Xtensive.Tuples.Packed
 
     protected virtual T Decode(long value) => throw new NotSupportedException();
 
-    public override object GetUntypedValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
+    public override object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
       fieldState = tuple.GetFieldState(descriptor);
       return fieldState == TupleFieldState.Available ? (object) Load(tuple, descriptor) : null;
     }
 
-    public override void SetUntypedValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, object value)
+    public override void SetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, object value)
     {
       if (value != null) {
         Store(tuple, descriptor, (T) value);
@@ -186,39 +186,39 @@ namespace Xtensive.Tuples.Packed
       }
     }
 
-    public override void CopyValue(PackedTuple source, in PackedFieldDescriptor sourceDescriptor,
-      PackedTuple target, in PackedFieldDescriptor targetDescriptor)
+    public override void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
+      PackedTuple target, PackedFieldDescriptor targetDescriptor)
     {
       Store(target, targetDescriptor, Load(source, sourceDescriptor));
     }
 
-    public override bool ValueEquals(PackedTuple left, in PackedFieldDescriptor leftDescriptor, PackedTuple right, in PackedFieldDescriptor rightDescriptor) =>
+    public override bool ValueEquals(PackedTuple left, PackedFieldDescriptor leftDescriptor, PackedTuple right, PackedFieldDescriptor rightDescriptor) =>
       Load(left, leftDescriptor).Equals(Load(right, rightDescriptor));
 
-    public override int GetValueHashCode(PackedTuple tuple, in PackedFieldDescriptor descriptor)
+    public override int GetValueHashCode(PackedTuple tuple, PackedFieldDescriptor descriptor)
     {
       return Load(tuple, descriptor).GetHashCode();
     }
 
-    private T GetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
+    private T GetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
       fieldState = tuple.GetFieldState(descriptor);
       return fieldState == TupleFieldState.Available ? Load(tuple, descriptor) : DefaultValue;
     }
 
-    private T? GetNullableValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
+    private T? GetNullableValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
       fieldState = tuple.GetFieldState(descriptor);
       return fieldState == TupleFieldState.Available ? Load(tuple, descriptor) : NullValue;
     }
 
-    protected void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, T value)
+    protected void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, T value)
     {
       Store(tuple, descriptor, value);
       tuple.SetFieldState(descriptor, TupleFieldState.Available);
     }
 
-    private void SetNullableValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, T? value)
+    private void SetNullableValue(PackedTuple tuple, PackedFieldDescriptor descriptor, T? value)
     {
       if (value != null) {
         Store(tuple, descriptor, value.Value);
@@ -229,7 +229,7 @@ namespace Xtensive.Tuples.Packed
       }
     }
 
-    protected virtual void Store(PackedTuple tuple, in PackedFieldDescriptor d, T value)
+    protected virtual void Store(PackedTuple tuple, PackedFieldDescriptor d, T value)
     {
       var encoded = Encode(value);
       ref var block = ref tuple.Values[d.GetValueIndex()];
@@ -238,7 +238,7 @@ namespace Xtensive.Tuples.Packed
       block = (block & ~mask) | ((encoded << valueBitOffset) & mask);
     }
 
-    protected virtual T Load(PackedTuple tuple, in PackedFieldDescriptor d) =>
+    protected virtual T Load(PackedTuple tuple, PackedFieldDescriptor d) =>
       Decode((tuple.Values[d.GetValueIndex()] >> d.GetValueBitOffset()) & ValueBitMask);
 
     protected ValueFieldAccessor(int bits, byte index)
@@ -265,7 +265,7 @@ namespace Xtensive.Tuples.Packed
       return value != 0;
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadBoolean(mr.DbDataReader, mr.FieldIndex));
 
     public BooleanFieldAccessor()
@@ -291,7 +291,7 @@ namespace Xtensive.Tuples.Packed
       }
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadFloat(mr.DbDataReader, mr.FieldIndex));
 
     public FloatFieldAccessor()
@@ -312,7 +312,7 @@ namespace Xtensive.Tuples.Packed
       return BitConverter.Int64BitsToDouble(value);
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadDouble(mr.DbDataReader, mr.FieldIndex));
 
     public DoubleFieldAccessor()
@@ -333,7 +333,7 @@ namespace Xtensive.Tuples.Packed
       return TimeSpan.FromTicks(value);
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadTimeSpan(mr.DbDataReader, mr.FieldIndex));
 
     public TimeSpanFieldAccessor()
@@ -354,7 +354,7 @@ namespace Xtensive.Tuples.Packed
       return DateTime.FromBinary(value);
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadDateTime(mr.DbDataReader, mr.FieldIndex));
 
     public DateTimeFieldAccessor()
@@ -375,7 +375,7 @@ namespace Xtensive.Tuples.Packed
       return unchecked((byte) value);
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadByte(mr.DbDataReader, mr.FieldIndex));
 
     public ByteFieldAccessor()
@@ -396,7 +396,7 @@ namespace Xtensive.Tuples.Packed
       return unchecked((sbyte) value);
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadSByte(mr.DbDataReader, mr.FieldIndex));
 
     public SByteFieldAccessor()
@@ -417,7 +417,7 @@ namespace Xtensive.Tuples.Packed
       return unchecked((short) value);
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadShort(mr.DbDataReader, mr.FieldIndex));
 
     public ShortFieldAccessor()
@@ -438,7 +438,7 @@ namespace Xtensive.Tuples.Packed
       return unchecked((ushort) value);
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadUShort(mr.DbDataReader, mr.FieldIndex));
 
     public UShortFieldAccessor()
@@ -459,7 +459,7 @@ namespace Xtensive.Tuples.Packed
       return unchecked((int) value);
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadInt(mr.DbDataReader, mr.FieldIndex));
 
     public IntFieldAccessor()
@@ -480,7 +480,7 @@ namespace Xtensive.Tuples.Packed
       return unchecked((uint) value);
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadUInt(mr.DbDataReader, mr.FieldIndex));
 
     public UIntFieldAccessor()
@@ -501,7 +501,7 @@ namespace Xtensive.Tuples.Packed
       return value;
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadLong(mr.DbDataReader, mr.FieldIndex));
 
     public LongFieldAccessor()
@@ -522,7 +522,7 @@ namespace Xtensive.Tuples.Packed
       return unchecked((ulong) value);
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadULong(mr.DbDataReader, mr.FieldIndex));
 
     public ULongFieldAccessor()
@@ -533,7 +533,7 @@ namespace Xtensive.Tuples.Packed
 
   internal sealed class GuidFieldAccessor : ValueFieldAccessor<Guid>
   {
-    protected override Guid Load(PackedTuple tuple, in PackedFieldDescriptor d)
+    protected override Guid Load(PackedTuple tuple, PackedFieldDescriptor d)
     {
       unsafe {
         fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
@@ -541,7 +541,7 @@ namespace Xtensive.Tuples.Packed
       }
     }
 
-    protected override void Store(PackedTuple tuple, in PackedFieldDescriptor d, Guid value)
+    protected override void Store(PackedTuple tuple, PackedFieldDescriptor d, Guid value)
     {
       unsafe {
         fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
@@ -554,7 +554,7 @@ namespace Xtensive.Tuples.Packed
       return sizeof(Guid);
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadGuid(mr.DbDataReader, mr.FieldIndex));
 
     public GuidFieldAccessor()
@@ -565,7 +565,7 @@ namespace Xtensive.Tuples.Packed
 
   internal sealed class DecimalFieldAccessor : ValueFieldAccessor<decimal>
   {
-    protected override decimal Load(PackedTuple tuple, in PackedFieldDescriptor d)
+    protected override decimal Load(PackedTuple tuple, PackedFieldDescriptor d)
     {
       unsafe {
         fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
@@ -573,7 +573,7 @@ namespace Xtensive.Tuples.Packed
       }
     }
 
-    protected override void Store(PackedTuple tuple, in PackedFieldDescriptor d, decimal value)
+    protected override void Store(PackedTuple tuple, PackedFieldDescriptor d, decimal value)
     {
       unsafe {
         fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
@@ -581,7 +581,7 @@ namespace Xtensive.Tuples.Packed
       }
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadDecimal(mr.DbDataReader, mr.FieldIndex));
 
     public DecimalFieldAccessor()
@@ -592,7 +592,7 @@ namespace Xtensive.Tuples.Packed
 
   internal sealed class DateTimeOffsetFieldAccessor : ValueFieldAccessor<DateTimeOffset>
   {
-    protected override DateTimeOffset Load(PackedTuple tuple, in PackedFieldDescriptor d)
+    protected override DateTimeOffset Load(PackedTuple tuple, PackedFieldDescriptor d)
     {
       unsafe {
         fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
@@ -600,7 +600,7 @@ namespace Xtensive.Tuples.Packed
       }
     }
 
-    protected override void Store(PackedTuple tuple, in PackedFieldDescriptor d, DateTimeOffset value)
+    protected override void Store(PackedTuple tuple, PackedFieldDescriptor d, DateTimeOffset value)
     {
       unsafe {
         fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
@@ -617,7 +617,7 @@ namespace Xtensive.Tuples.Packed
       return sizeof(long) * 2;
     }
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadDateTimeOffset(mr.DbDataReader, mr.FieldIndex));
 
     public DateTimeOffsetFieldAccessor()
@@ -633,7 +633,7 @@ namespace Xtensive.Tuples.Packed
     protected override long Encode(DateOnly value) =>
       value.DayNumber;
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadDateOnly(mr.DbDataReader, mr.FieldIndex));
 
     public DateOnlyFieldAccessor()
@@ -649,7 +649,7 @@ namespace Xtensive.Tuples.Packed
     protected override long Encode(TimeOnly value) =>
       value.Ticks;
 
-    public override void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, MapperReader mr) =>
+    public override void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       SetValue(tuple, descriptor, mr.Mapper.ReadTimeOnly(mr.DbDataReader, mr.FieldIndex));
 
     public TimeOnlyFieldAccessor()
