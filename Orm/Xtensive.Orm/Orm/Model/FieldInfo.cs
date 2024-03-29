@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
 using Xtensive.Reflection;
 using Xtensive.Sorting;
@@ -79,6 +80,8 @@ namespace Xtensive.Orm.Model
         fieldId = value;
       }
     }
+
+    internal FieldAccessor Accessor { get; set; }
 
     /// <summary>
     /// Gets a value indicating whether this property is system.
