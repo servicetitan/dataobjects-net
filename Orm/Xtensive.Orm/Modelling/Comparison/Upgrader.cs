@@ -177,7 +177,7 @@ namespace Xtensive.Modelling.Comparison
             throw new InvalidOperationException(Strings.ExUpgradeSequenceValidationFailure);
           }
 
-          return new ReadOnlyCollection<NodeAction>(actions.Actions.ToArray());
+          return actions.Actions.ToArray().AsSafeWrapper();
         }
         finally {
           currentAsync.Value = previous;

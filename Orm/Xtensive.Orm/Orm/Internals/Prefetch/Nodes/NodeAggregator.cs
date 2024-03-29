@@ -19,8 +19,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var result = source
         .GroupBy(ken => ken.Path, (path, @group) => 
           (Node) @group.First().ReplaceNestedNodes(
-            new ReadOnlyCollection<BaseFieldNode>(
-              @group.SelectMany(ken => ken.NestedNodes).ToList())))
+              @group.SelectMany(ken => ken.NestedNodes).ToList().AsSafeWrapper()))
         .Select(aggregator.Visit)
         .Cast<KeyExtractorNode<T>>()
         .ToList();

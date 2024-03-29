@@ -47,13 +47,13 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
-    protected DataHint(string sourceTablePath,  IList<IdentityPair> identities)
+    protected DataHint(string sourceTablePath,  IReadOnlyList<IdentityPair> identities)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourceTablePath, "sourceTablePath");
       ArgumentValidator.EnsureArgumentNotNull(identities, "pairs");
       
       SourceTablePath = sourceTablePath;
-      Identities = new ReadOnlyCollection<IdentityPair>(identities);
+      Identities = identities.AsSafeWrapper();
     }
   }
 }
