@@ -186,7 +186,7 @@ namespace Xtensive.Orm
       }
       if (Owner == null) 
         return;
-      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, field)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[(Field, field)];
       Owner.SystemBeforeGetValue(ownerField);
     }
 
@@ -201,7 +201,7 @@ namespace Xtensive.Orm
       }
       if (Owner == null)
         return;
-      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, field)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[(Field, field)];
       Owner.SystemGetValue(ownerField, value);
     }
 
@@ -209,7 +209,7 @@ namespace Xtensive.Orm
     {
       if (Owner == null)
         return;
-      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, field)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[(Field, field)];
       Owner.SystemGetValueCompleted(ownerField, value, exception);
     }
 
@@ -225,7 +225,7 @@ namespace Xtensive.Orm
       }
       if (Owner == null)
         return;
-      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, field)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[(Field, field)];
       Owner.SystemSetValueAttempt(ownerField, value);
     }
 
@@ -240,7 +240,7 @@ namespace Xtensive.Orm
       }
       if (Owner == null)
         return;
-      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, field)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[(Field, field)];
       Owner.SystemBeforeSetValue(ownerField, value);
     }
 
@@ -273,7 +273,7 @@ namespace Xtensive.Orm
       }
       if (Owner == null)
         return;
-      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, field)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[(Field, field)];
       Owner.SystemSetValue(ownerField, oldValue, newValue);
     }
 
@@ -281,7 +281,7 @@ namespace Xtensive.Orm
     {
       if (Owner == null)
         return;
-      var ownerField = Owner.TypeInfo.StructureFieldMapping[new Pair<FieldInfo>(Field, field)];
+      var ownerField = Owner.TypeInfo.StructureFieldMapping[(Field, field)];
       Owner.SystemSetValueCompleted(ownerField, oldValue, newValue, exception);
     }
 

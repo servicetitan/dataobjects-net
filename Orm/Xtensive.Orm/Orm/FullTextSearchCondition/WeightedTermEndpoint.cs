@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
+// Copyright (C) 2003-2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -10,18 +10,17 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;
 using Xtensive.Orm.FullTextSearchCondition.Internals;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.FullTextSearchCondition
 {
   public sealed class WeightedTermEndpoint : IWeightedTermConstructionFlow
   {
-    private readonly IDictionary<IWeighableTerm, float?> weightedOperands;
+    private readonly Dictionary<IWeighableTerm, float?> weightedOperands;
     private readonly IOperator rootOperator;
 
-    IDictionary<IWeighableTerm, float?> IWeightedTermConstructionFlow.WeightedOperands
-    {
-      get { return new ReadOnlyDictionary<IWeighableTerm, float?>(weightedOperands); }
-    }
+    IReadOnlyDictionary<IWeighableTerm, float?> IWeightedTermConstructionFlow.WeightedOperands =>
+      weightedOperands.AsSafeWrapper();
 
     public IWeightedTermConstructionFlow SimpleTerm(string term)
     {

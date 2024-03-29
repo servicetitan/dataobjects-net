@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Model
     private bool isInboundOnly;
     private KeyInfo key;
     private bool hasVersionRoots;
-    private IDictionary<Pair<FieldInfo>, FieldInfo> structureFieldMapping;
+    private IReadOnlyDictionary<(FieldInfo, FieldInfo), FieldInfo> structureFieldMapping;
     private List<AssociationInfo> overridenAssociations;
     private FieldInfo typeIdField;
 
@@ -522,12 +522,8 @@ namespace Xtensive.Orm.Model
     /// Gets the structure field mapping.
     /// </summary>
     /// <value>The structure field mapping.</value>
-    public IDictionary<Pair<FieldInfo>, FieldInfo> StructureFieldMapping
-    {
-      get {
-        return structureFieldMapping ?? BuildStructureFieldMapping();
-      }
-    }
+    public IReadOnlyDictionary<(FieldInfo, FieldInfo), FieldInfo> StructureFieldMapping =>
+        structureFieldMapping ?? BuildStructureFieldMapping();
 
     /// <summary>
     /// Gets <see cref="IObjectValidator"/> instances
@@ -903,16 +899,16 @@ namespace Xtensive.Orm.Model
       VersionExtractor = new MapTransform(true, versionTupleDescriptor, map);
     }
 
-    private IDictionary<Pair<FieldInfo>, FieldInfo> BuildStructureFieldMapping()
+    private IReadOnlyDictionary<(FieldInfo, FieldInfo), FieldInfo> BuildStructureFieldMapping()
     {
-      var result = new Dictionary<Pair<FieldInfo>, FieldInfo>();
+      var result = new Dictionary<(FieldInfo, FieldInfo), FieldInfo>();
       var structureFields = Fields.Where(f => f.IsStructure && f.Parent == null);
       foreach (var structureField in structureFields) {
         var structureTypeInfo = Model.Types[structureField.ValueType];
         foreach (var pair in structureTypeInfo.Fields.Zip(structureField.Fields, (first, second) => (first, second)))
-          result.Add(new Pair<FieldInfo>(structureField, pair.first), pair.second);
+          result.Add((structureField, pair.first), pair.second);
       }
-      return new ReadOnlyDictionary<Pair<FieldInfo>, FieldInfo>(result);
+      return result.AsSafeWrapper();
     }
 
     private static IEnumerable<FieldInfo> GetBaseFields(Type type, IEnumerable<FieldInfo> fields, bool bRoot)
