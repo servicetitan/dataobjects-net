@@ -40,6 +40,9 @@ namespace Xtensive.Tuples.Packed
     protected readonly long ValueBitMask;
     public readonly byte Index;
 
+    public TupleLayout.CounterIncrementer CounterIncrementer;
+    public TupleLayout.PositionUpdater PositionUpdater;
+
     public void SetValue<T>(PackedTuple tuple, PackedFieldDescriptor descriptor, bool isNullable, T value)
     {
       if ((isNullable ? NullableSetter : Setter) is SetValueDelegate<T> setter) {
