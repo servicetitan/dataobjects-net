@@ -21,7 +21,7 @@ namespace Xtensive.Tuples.Packed
       get => bitFields & 0x7FF;
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      set => bitFields =  bitFields & ~0x7FF | value;
+      set => bitFields = bitFields & ~0x7FF | value;
     }
 
     internal int StateIndex
@@ -39,7 +39,7 @@ namespace Xtensive.Tuples.Packed
       get => (bitFields >> 16) & 0x3F;
 
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      set => bitFields = bitFields & ~0x3F00 | (value << 16);
+      set => bitFields = bitFields & ~0x3F0000 | (value << 16);
     }
 
     internal int StateBitOffset
