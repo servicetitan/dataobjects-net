@@ -120,26 +120,22 @@ namespace Xtensive.Tuples.Packed
 
       CounterIncrementer = Rank switch {
         0 => (ref Counters counters) => counters.Val001Counter++,
-        1 => (ref Counters counters) => throw new NotSupportedException(),
-        2 => (ref Counters counters) => throw new NotSupportedException(),
         3 => (ref Counters counters) => counters.Val008Counter++,
         4 => (ref Counters counters) => counters.Val016Counter++,
         5 => (ref Counters counters) => counters.Val032Counter++,
         6 => (ref Counters counters) => counters.Val064Counter++,
         7 => (ref Counters counters) => counters.Val128Counter++,
-        _ => null
+        _ => (ref Counters counters) => throw new NotSupportedException(),
       };
 
       PositionUpdater = Rank switch {
         0 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val001Counter),
-        1 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => throw new NotSupportedException(),
-        2 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => throw new NotSupportedException(),
         3 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val008Counter),
         4 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val016Counter),
         5 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val032Counter),
         6 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val064Counter),
         7 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val128Counter),
-        _ => null
+        _ => (ref PackedFieldDescriptor descriptor, ref Counters counters) => throw new NotSupportedException()
       };
     }
   }
