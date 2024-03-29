@@ -226,13 +226,6 @@ namespace Xtensive.Tuples.Packed
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void UpdateDescriptorPosition(ref PackedFieldDescriptor descriptor, ref int bitCounter, int valueBitCount)
-    {
-      descriptor.DataPosition = bitCounter;
-      bitCounter += valueBitCount;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ConfigureFieldPhase1(ref PackedFieldDescriptor descriptor, ref Counters counters,
       Type[] fieldTypes, int fieldIndex)
     {
@@ -248,37 +241,6 @@ namespace Xtensive.Tuples.Packed
 
       descriptor.AccessorIndex = ObjectAccessor.Index;
       descriptor.DataPosition = counters.ObjectCounter++;
-    }
-
-    static TupleLayout()
-    {
-      var incrementerByRank = new CounterIncrementer[] {
-        (ref Counters counters) => counters.Val001Counter++,
-        (ref Counters counters) => throw new NotSupportedException(),
-        (ref Counters counters) => throw new NotSupportedException(),
-        (ref Counters counters) => counters.Val008Counter++,
-        (ref Counters counters) => counters.Val016Counter++,
-        (ref Counters counters) => counters.Val032Counter++,
-        (ref Counters counters) => counters.Val064Counter++,
-        (ref Counters counters) => counters.Val128Counter++
-      };
-
-      foreach (var accessor in PackedFieldAccessor.All) {
-        accessor.CounterIncrementer = incrementerByRank[accessor.Rank];
-
-        int valueBitCount = accessor.ValueBitCount;
-        accessor.PositionUpdater = accessor.Rank switch {
-          0 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val001Counter, valueBitCount),
-          1 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => throw new NotSupportedException(),
-          2 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => throw new NotSupportedException(),
-          3 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val008Counter, valueBitCount),
-          4 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val016Counter, valueBitCount),
-          5 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val032Counter, valueBitCount),
-          6 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val064Counter, valueBitCount),
-          7 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val128Counter, valueBitCount),
-          _ => null
-        };
-      }
     }
   }
 }

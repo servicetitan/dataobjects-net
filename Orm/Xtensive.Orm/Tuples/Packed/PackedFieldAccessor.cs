@@ -6,8 +6,11 @@
 
 using System;
 using System.Numerics;
-using System.Data.Common;
+using System.Runtime.CompilerServices;
 using Xtensive.Sql;
+using Counters = Xtensive.Tuples.Packed.TupleLayout.Counters;
+using CounterIncrementer = Xtensive.Tuples.Packed.TupleLayout.CounterIncrementer;
+using PositionUpdater = Xtensive.Tuples.Packed.TupleLayout.PositionUpdater;
 
 namespace Xtensive.Tuples.Packed
 {
@@ -40,8 +43,8 @@ namespace Xtensive.Tuples.Packed
     protected readonly long ValueBitMask;
     public readonly byte Index;
 
-    public TupleLayout.CounterIncrementer CounterIncrementer;
-    public TupleLayout.PositionUpdater PositionUpdater;
+    public readonly CounterIncrementer CounterIncrementer;
+    public readonly PositionUpdater PositionUpdater;
 
     public void SetValue<T>(PackedTuple tuple, PackedFieldDescriptor descriptor, bool isNullable, T value)
     {
@@ -85,6 +88,13 @@ namespace Xtensive.Tuples.Packed
 
     public abstract int GetValueHashCode(PackedTuple tuple, PackedFieldDescriptor descriptor);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void UpdateDescriptorPosition(ref PackedFieldDescriptor descriptor, ref int bitCounter)
+    {
+      descriptor.DataPosition = bitCounter;
+      bitCounter += ValueBitCount;
+    }
+
     protected PackedFieldAccessor(int rank, byte index)
     {
       Rank = rank;
@@ -107,6 +117,32 @@ namespace Xtensive.Tuples.Packed
       // and then
       // 1000_0000 << 1 = 0000_0000
       ValueBitMask = (1L << (ValueBitCount - 1) << 1) - 1;
+
+      if (Rank != -1) {
+        CounterIncrementer = Rank switch {
+          0 => (ref Counters counters) => counters.Val001Counter++,
+          1 => (ref Counters counters) => throw new NotSupportedException(),
+          2 => (ref Counters counters) => throw new NotSupportedException(),
+          3 => (ref Counters counters) => counters.Val008Counter++,
+          4 => (ref Counters counters) => counters.Val016Counter++,
+          5 => (ref Counters counters) => counters.Val032Counter++,
+          6 => (ref Counters counters) => counters.Val064Counter++,
+          7 => (ref Counters counters) => counters.Val128Counter++,
+          _ => null
+        };
+
+        PositionUpdater = Rank switch {
+          0 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val001Counter),
+          1 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => throw new NotSupportedException(),
+          2 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => throw new NotSupportedException(),
+          3 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val008Counter),
+          4 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val016Counter),
+          5 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val032Counter),
+          6 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val064Counter),
+          7 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val128Counter),
+          _ => null
+        };
+      }
     }
   }
 
