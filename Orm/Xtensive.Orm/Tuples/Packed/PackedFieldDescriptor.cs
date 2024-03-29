@@ -5,6 +5,7 @@
 // Created:    2012.12.29
 
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Xtensive.Tuples.Packed
 {
@@ -19,6 +20,7 @@ namespace Xtensive.Tuples.Packed
 
     internal int DataPosition
     {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       set {
         Index = (ushort) (value >> 6);
         ValueBitOffset = (byte) (value & 0x3F);
@@ -27,13 +29,23 @@ namespace Xtensive.Tuples.Packed
 
     internal int StatePosition
     {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
       set {
         StateIndex = (ushort) (value >> 6);
         StateBitOffset = (byte) (value & 0x3F);
       }
     }
 
-    internal PackedFieldAccessor Accessor => PackedFieldAccessor.All[AccessorIndex];
-    internal bool IsObjectField => Accessor.Rank < 0;
+    internal PackedFieldAccessor Accessor
+    {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      get => PackedFieldAccessor.All[AccessorIndex];
+    }
+
+    internal bool IsObjectField
+    {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      get => Accessor.Rank < 0;
+    }
   }
 }
