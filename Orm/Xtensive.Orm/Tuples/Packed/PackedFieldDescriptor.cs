@@ -11,10 +11,30 @@ namespace Xtensive.Tuples.Packed
   [Serializable]
   internal struct PackedFieldDescriptor
   {
-    internal int DataPosition;
-    internal ushort StatePosition;
+    internal ushort Index;
+    internal ushort StateIndex;
 
-    [NonSerialized]
+    internal byte ValueBitOffset;
+    internal byte StateBitOffset;
     internal byte AccessorIndex;
+
+    internal int DataPosition
+    {
+      set {
+        Index = (ushort) (value >> 6);
+        ValueBitOffset = (byte) (value & 0x3F);
+      }
+    }
+
+    internal int StatePosition
+    {
+      set {
+        StateIndex = (ushort) (value >> 6);
+        StateBitOffset = (byte) (value & 0x3F);
+      }
+    }
+
+    internal PackedFieldAccessor Accessor => PackedFieldAccessor.All[AccessorIndex];
+    internal bool IsObjectField => Accessor.Rank < 0;
   }
 }

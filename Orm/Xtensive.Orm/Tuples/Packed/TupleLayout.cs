@@ -22,7 +22,7 @@ namespace Xtensive.Tuples.Packed
 
     private ref struct Counters
     {
-      public int ObjectCounter;
+      public ushort ObjectCounter;
 
       public int Val001Counter;
       public int Val008Counter;
@@ -152,21 +152,21 @@ namespace Xtensive.Tuples.Packed
           valuesLength = 1;
           return;
         case 1: {
-          if (descriptor1.IsObjectField()) {
+          if (descriptor1.IsObjectField) {
             descriptor2.DataPosition = Val064BitCount;
-            val1BitCount = descriptor2.GetAccessor().ValueBitCount;
+            val1BitCount = descriptor2.Accessor.ValueBitCount;
           }
           else {
             descriptor1.DataPosition = Val064BitCount;
-            val1BitCount = descriptor1.GetAccessor().ValueBitCount;
+            val1BitCount = descriptor1.Accessor.ValueBitCount;
           }
           valuesLength = (val1BitCount  + ((Val064BitCount * 2) - 1)) >> Val064Rank;
           return;
         }
       }
       // Both descriptors are value descriptors
-      val1BitCount = descriptor1.GetAccessor().ValueBitCount;
-      val2BitCount = descriptor2.GetAccessor().ValueBitCount;
+      val1BitCount = descriptor1.Accessor.ValueBitCount;
+      val2BitCount = descriptor2.Accessor.ValueBitCount;
       if (val2BitCount > val1BitCount) {
         descriptor2.DataPosition = Val064BitCount;
         descriptor1.DataPosition = Val064BitCount + val2BitCount;
@@ -218,11 +218,11 @@ namespace Xtensive.Tuples.Packed
 
       for (var fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
         ref var descriptor = ref fieldDescriptors[fieldIndex];
-        if (descriptor.IsObjectField()) {
+        if (descriptor.IsObjectField) {
           continue;
         }
 
-        PositionUpdaterByRank[descriptor.GetAccessor().Rank].Invoke(ref descriptor, ref counters);
+        PositionUpdaterByRank[descriptor.Accessor.Rank].Invoke(ref descriptor, ref counters);
       }
 
       valuesLength = (totalBitCount + (Val064BitCount - 1)) >> Val064Rank;
@@ -233,7 +233,7 @@ namespace Xtensive.Tuples.Packed
     private static void UpdateDescriptorPosition(ref PackedFieldDescriptor descriptor, ref int bitCounter)
     {
       descriptor.DataPosition = bitCounter;
-      bitCounter += descriptor.GetAccessor().ValueBitCount;
+      bitCounter += descriptor.Accessor.ValueBitCount;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -254,7 +254,7 @@ namespace Xtensive.Tuples.Packed
       }
 
       descriptor.AccessorIndex = ObjectAccessor.Index;
-      descriptor.DataPosition = counters.ObjectCounter++;
+      descriptor.Index = counters.ObjectCounter++;
     }
 
     static TupleLayout()

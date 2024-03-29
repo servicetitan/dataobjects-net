@@ -55,7 +55,7 @@ namespace Xtensive.Tuples.Packed
           return false;
         }
         if (thisState == TupleFieldState.Available &&
-            !descriptor.GetAccessor().ValueEquals(this, descriptor, packedOther, descriptor)) {
+            !descriptor.Accessor.ValueEquals(this, descriptor, packedOther, descriptor)) {
           return false;
         }
       }
@@ -72,7 +72,7 @@ namespace Xtensive.Tuples.Packed
         ref readonly var descriptor = ref fieldDescriptors[i];
         var state = GetFieldState(descriptor);
         var fieldHash = state == TupleFieldState.Available
-          ? descriptor.GetAccessor().GetValueHashCode(this, descriptor)
+          ? descriptor.Accessor.GetValueHashCode(this, descriptor)
           : 0;
         result = HashCodeMultiplier * result ^ fieldHash;
       }
@@ -94,27 +94,27 @@ namespace Xtensive.Tuples.Packed
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
-      return descriptor.GetAccessor().GetUntypedValue(this, descriptor, out fieldState);
+      return descriptor.Accessor.GetUntypedValue(this, descriptor, out fieldState);
     }
 
     public override T GetValue<T>(int fieldIndex, out TupleFieldState fieldState)
     {
       var isNullable = null == default(T); // Is nullable value type or class
       ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
-      return descriptor.GetAccessor().GetValue<T>(this, descriptor, isNullable, out fieldState);
+      return descriptor.Accessor.GetValue<T>(this, descriptor, isNullable, out fieldState);
     }
 
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
-      descriptor.GetAccessor().SetUntypedValue(this, descriptor, fieldValue);
+      descriptor.Accessor.SetUntypedValue(this, descriptor, fieldValue);
     }
 
     public override void SetValue<T>(int fieldIndex, T fieldValue)
     {
       var isNullable = null==default(T); // Is nullable value type or class
       ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
-      descriptor.GetAccessor().SetValue(this, descriptor, isNullable, fieldValue);
+      descriptor.Accessor.SetValue(this, descriptor, isNullable, fieldValue);
     }
 
     public override void SetValueFromDataReader(in MapperReader mr)
@@ -124,27 +124,24 @@ namespace Xtensive.Tuples.Packed
       }
       else {
         ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[mr.FieldIndex];
-        descriptor.GetAccessor().SetValue(this, descriptor, mr);
+        descriptor.Accessor.SetValue(this, descriptor, mr);
       }
     }
 
     public void SetFieldState(PackedFieldDescriptor d, TupleFieldState fieldState)
     {
       var bits = (long) fieldState;
-      ref var block = ref Values[d.GetStateIndex()];
-      var stateBitOffset = d.GetStateBitOffset();
+      ref var block = ref Values[d.StateIndex];
+      var stateBitOffset = d.StateBitOffset;
       block = (block & ~(3L << stateBitOffset)) | (bits << stateBitOffset);
 
-      if (fieldState != TupleFieldState.Available && d.IsObjectField()) {
-        Objects[d.GetObjectIndex()] = null;
+      if (fieldState != TupleFieldState.Available && d.IsObjectField) {
+        Objects[d.Index] = null;
       }
     }
 
-    public TupleFieldState GetFieldState(PackedFieldDescriptor d)
-    {
-      int stateIndex = d.GetStateIndex(), stateBitOffset = d.GetStateBitOffset();
-      return (TupleFieldState) ((Values[stateIndex] >> stateBitOffset) & 3);
-    }
+    public TupleFieldState GetFieldState(PackedFieldDescriptor d) =>
+      (TupleFieldState) ((Values[d.StateIndex] >> d.StateBitOffset) & 3);
 
     public PackedTuple(in TupleDescriptor descriptor)
     {

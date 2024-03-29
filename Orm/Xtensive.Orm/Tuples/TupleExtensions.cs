@@ -452,7 +452,7 @@ namespace Xtensive.Tuples
       }
 
       target.SetFieldState(targetIndex, TupleFieldState.Available);
-      sourceDescriptor.GetAccessor().CopyValue(source, sourceDescriptor, target, targetDescriptor);
+      sourceDescriptor.Accessor.CopyValue(source, sourceDescriptor, target, targetDescriptor);
     }
 
     private static void PartiallyCopyTupleSlow(Tuple source, Tuple target, int sourceStartIndex, int targetStartIndex, int length)
