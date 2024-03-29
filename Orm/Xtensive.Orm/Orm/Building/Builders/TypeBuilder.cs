@@ -303,7 +303,7 @@ namespace Xtensive.Orm.Building.Builders
           currentIndex.Fields.AddRange(structureFullTextIndex.Fields
             .Select(f => (
               fieldInfo.DeclaringType
-                .StructureFieldMapping[new Pair<FieldInfo>(fieldInfo, structureTypeInfo.Fields[f.Name])].Name,
+                .StructureFieldMapping[(fieldInfo, structureTypeInfo.Fields[f.Name])].Name,
               f.IsAnalyzed,
               f.Configuration,
               f.TypeFieldName

@@ -15,14 +15,14 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
   public sealed class WeightedTerm : Operand, IWeightedTerm
   {
     /// <inheritdoc/>
-    public IDictionary<IWeighableTerm, float?> WeighedTerms { get; private set; }
+    public IReadOnlyDictionary<IWeighableTerm, float?> WeighedTerms { get; }
 
     protected override void AcceptVisitorInternal(ISearchConditionNodeVisitor visitor)
     {
       visitor.Visit(this);
     }
 
-    internal WeightedTerm(IOperator source, IDictionary<IWeighableTerm, float?> weightedTerms)
+    internal WeightedTerm(IOperator source, IReadOnlyDictionary<IWeighableTerm, float?> weightedTerms)
       : base(SearchConditionNodeType.WeightedTerm, source)
     {
       WeighedTerms = weightedTerms;

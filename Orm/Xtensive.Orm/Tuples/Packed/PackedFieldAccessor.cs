@@ -167,11 +167,7 @@ namespace Xtensive.Tuples.Packed
 
     protected virtual long Encode(T value) => throw new NotSupportedException();
 
-    protected virtual void Encode(T value, long[] values, int offset) => throw new NotSupportedException();
-
     protected virtual T Decode(long value) => throw new NotSupportedException();
-
-    protected virtual T Decode(long[] values, int offset) => throw new NotSupportedException();
 
     public override object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
@@ -233,31 +229,17 @@ namespace Xtensive.Tuples.Packed
       }
     }
 
-    private void Store(PackedTuple tuple, PackedFieldDescriptor d, T value)
+    protected virtual void Store(PackedTuple tuple, PackedFieldDescriptor d, T value)
     {
-      var valueIndex = d.GetValueIndex();
-      if (Rank > 6) {
-        Encode(value, tuple.Values, valueIndex);
-        return;
-      }
-
       var encoded = Encode(value);
-      ref var block = ref tuple.Values[valueIndex];
+      ref var block = ref tuple.Values[d.GetValueIndex()];
       var valueBitOffset = d.GetValueBitOffset();
       var mask = ValueBitMask << valueBitOffset;
       block = (block & ~mask) | ((encoded << valueBitOffset) & mask);
     }
 
-    private T Load(PackedTuple tuple, PackedFieldDescriptor d)
-    {
-      var valueIndex = d.GetValueIndex();
-      if (Rank > 6) {
-        return Decode(tuple.Values, valueIndex);
-      }
-
-      var encoded = (tuple.Values[valueIndex] >> d.GetValueBitOffset()) & ValueBitMask;
-      return Decode(encoded);
-    }
+    protected virtual T Load(PackedTuple tuple, PackedFieldDescriptor d) =>
+      Decode((tuple.Values[d.GetValueIndex()] >> d.GetValueBitOffset()) & ValueBitMask);
 
     protected ValueFieldAccessor(int bits, byte index)
       : base(bits, index)
@@ -551,18 +533,18 @@ namespace Xtensive.Tuples.Packed
 
   internal sealed class GuidFieldAccessor : ValueFieldAccessor<Guid>
   {
-    protected override Guid Decode(long[] values, int offset)
+    protected override Guid Load(PackedTuple tuple, PackedFieldDescriptor d)
     {
       unsafe {
-        fixed (long* valuePtr = &values[offset])
+        fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
           return *(Guid*) valuePtr;
       }
     }
 
-    protected override void Encode(Guid value, long[] values, int offset)
+    protected override void Store(PackedTuple tuple, PackedFieldDescriptor d, Guid value)
     {
       unsafe {
-        fixed (long* valuePtr = &values[offset])
+        fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
           *(Guid*) valuePtr = value;
       }
     }
@@ -583,18 +565,18 @@ namespace Xtensive.Tuples.Packed
 
   internal sealed class DecimalFieldAccessor : ValueFieldAccessor<decimal>
   {
-    protected override decimal Decode(long[] values, int offset)
+    protected override decimal Load(PackedTuple tuple, PackedFieldDescriptor d)
     {
       unsafe {
-        fixed (long* valuePtr = &values[offset])
+        fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
           return *(decimal*) valuePtr;
       }
     }
 
-    protected override void Encode(decimal value, long[] values, int offset)
+    protected override void Store(PackedTuple tuple, PackedFieldDescriptor d, decimal value)
     {
       unsafe {
-        fixed (long* valuePtr = &values[offset])
+        fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
           *(decimal*) valuePtr = value;
       }
     }
@@ -610,18 +592,18 @@ namespace Xtensive.Tuples.Packed
 
   internal sealed class DateTimeOffsetFieldAccessor : ValueFieldAccessor<DateTimeOffset>
   {
-    protected override DateTimeOffset Decode(long[] values, int offset)
+    protected override DateTimeOffset Load(PackedTuple tuple, PackedFieldDescriptor d)
     {
       unsafe {
-        fixed (long* valuePtr = &values[offset])
+        fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
           return *(DateTimeOffset*) valuePtr;
       }
     }
 
-    protected override void Encode(DateTimeOffset value, long[] values, int offset)
+    protected override void Store(PackedTuple tuple, PackedFieldDescriptor d, DateTimeOffset value)
     {
       unsafe {
-        fixed (long* valuePtr = &values[offset])
+        fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
           *(DateTimeOffset*) valuePtr = value;
       }
     }

@@ -422,8 +422,7 @@ namespace Xtensive.Orm
             var currentField = field;
             var structure = persistent as Structure;
             while (structure != null && structure.Owner != null) {
-              var pair = new Pair<FieldInfo>(structure.Field, currentField);
-              currentField = structure.Owner.TypeInfo.StructureFieldMapping[pair];
+              currentField = structure.Owner.TypeInfo.StructureFieldMapping[(structure.Field, currentField)];
               persistent = structure.Owner;
               structure = persistent as Structure;
             }
