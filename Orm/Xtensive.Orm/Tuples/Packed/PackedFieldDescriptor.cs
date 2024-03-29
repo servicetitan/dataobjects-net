@@ -13,7 +13,6 @@ namespace Xtensive.Tuples.Packed
   {
     internal ushort Index;
     internal ushort StateIndex;
-
     internal byte ValueBitOffset;
     internal byte StateBitOffset;
     internal byte AccessorIndex;
