@@ -540,8 +540,6 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public bool HasValidators { get; private set; }
 
-    internal FieldAccessorProvider Accessors { get; private set; }
-
     /// <summary>
     /// Creates the tuple prototype with specified <paramref name="primaryKey"/>.
     /// </summary>
@@ -790,8 +788,11 @@ namespace Xtensive.Orm.Model
       isLeaf = GetIsLeaf();
       key = GetKey();
 
-      if (IsEntity || IsStructure)
-        Accessors = new FieldAccessorProvider(this);
+      if (IsEntity || IsStructure) {
+        foreach (var field in Fields.Where(f => f.FieldId != FieldInfo.NoFieldId)) {
+          field.Accessor = FieldAccessorProvider.CreateFieldAccessor(field);
+        }
+      }
 
       if (!recursive)
         return;

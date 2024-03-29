@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Internals
 {
   internal sealed class FieldAccessorProvider
   {
-    private readonly FieldAccessor[] fieldAccessors;
     private static readonly Type EntityFieldAccessorType = typeof(EntityFieldAccessor<>);
     private static readonly Type EntitySetFieldAccessorType = typeof(EntitySetFieldAccessor<>);
     private static readonly Type StructureFieldAccessorType = typeof(StructureFieldAccessor<>);
@@ -25,9 +24,7 @@ namespace Xtensive.Orm.Internals
     private static readonly Type KeyFieldAccessorType = typeof(KeyFieldAccessor<>);
     private static readonly Type DefaultFieldAccessorType = typeof(DefaultFieldAccessor<>);
 
-    public FieldAccessor GetFieldAccessor(FieldInfo field) => fieldAccessors[field.FieldId];
-
-    private static FieldAccessor CreateFieldAccessor(FieldInfo field)
+    internal static FieldAccessor CreateFieldAccessor(FieldInfo field)
     {
       if (field.IsEntity) {
         return CreateFieldAccessor(EntityFieldAccessorType, field);
@@ -61,20 +58,6 @@ namespace Xtensive.Orm.Internals
           null, Array.Empty<object>(), null);
       accessor.Field = field;
       return accessor;
-    }
-
-
-    // Constructors
-
-    public FieldAccessorProvider(TypeInfo typeInfo)
-    {
-      var fields = typeInfo.Fields;
-      fieldAccessors = new FieldAccessor[fields.Count == 0 ? 0 : (fields.Max(field => field.FieldId) + 1)];
-      foreach (var field in fields) {
-        if (field.FieldId != FieldInfo.NoFieldId) {
-          fieldAccessors[field.FieldId] = CreateFieldAccessor(field);
-        }
-      }
     }
   }
 }

@@ -781,14 +781,12 @@ namespace Xtensive.Orm
       return Session.Domain.Model.Types[GetType()];
     }
 
-    internal FieldAccessor GetNormalizedFieldAccessor(FieldInfo field) =>
-      field.ReflectedType.Accessors.GetFieldAccessor(field);
+    internal FieldAccessor GetNormalizedFieldAccessor(FieldInfo field) => field.Accessor;
 
     internal FieldAccessor GetFieldAccessor(FieldInfo field) =>
       GetNormalizedFieldAccessor(field.ReflectedType.IsInterface ? TypeInfo.FieldMap[field] : field);
 
-    private FieldAccessor<T> GetNormalizedFieldAccessor<T>(FieldInfo field) =>
-      (FieldAccessor<T>) field.ReflectedType.Accessors.GetFieldAccessor(field);
+    private FieldAccessor<T> GetNormalizedFieldAccessor<T>(FieldInfo field) => (FieldAccessor<T>) field.Accessor;
 
     internal FieldAccessor<T> GetFieldAccessor<T>(FieldInfo field) =>
       GetNormalizedFieldAccessor<T>(field.ReflectedType.IsInterface ? TypeInfo.FieldMap[field] : field);
