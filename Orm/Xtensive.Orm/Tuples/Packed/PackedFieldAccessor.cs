@@ -118,31 +118,29 @@ namespace Xtensive.Tuples.Packed
       // 1000_0000 << 1 = 0000_0000
       ValueBitMask = (1L << (ValueBitCount - 1) << 1) - 1;
 
-      if (Rank != -1) {
-        CounterIncrementer = Rank switch {
-          0 => (ref Counters counters) => counters.Val001Counter++,
-          1 => (ref Counters counters) => throw new NotSupportedException(),
-          2 => (ref Counters counters) => throw new NotSupportedException(),
-          3 => (ref Counters counters) => counters.Val008Counter++,
-          4 => (ref Counters counters) => counters.Val016Counter++,
-          5 => (ref Counters counters) => counters.Val032Counter++,
-          6 => (ref Counters counters) => counters.Val064Counter++,
-          7 => (ref Counters counters) => counters.Val128Counter++,
-          _ => null
-        };
+      CounterIncrementer = Rank switch {
+        0 => (ref Counters counters) => counters.Val001Counter++,
+        1 => (ref Counters counters) => throw new NotSupportedException(),
+        2 => (ref Counters counters) => throw new NotSupportedException(),
+        3 => (ref Counters counters) => counters.Val008Counter++,
+        4 => (ref Counters counters) => counters.Val016Counter++,
+        5 => (ref Counters counters) => counters.Val032Counter++,
+        6 => (ref Counters counters) => counters.Val064Counter++,
+        7 => (ref Counters counters) => counters.Val128Counter++,
+        _ => null
+      };
 
-        PositionUpdater = Rank switch {
-          0 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val001Counter),
-          1 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => throw new NotSupportedException(),
-          2 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => throw new NotSupportedException(),
-          3 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val008Counter),
-          4 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val016Counter),
-          5 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val032Counter),
-          6 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val064Counter),
-          7 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val128Counter),
-          _ => null
-        };
-      }
+      PositionUpdater = Rank switch {
+        0 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val001Counter),
+        1 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => throw new NotSupportedException(),
+        2 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => throw new NotSupportedException(),
+        3 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val008Counter),
+        4 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val016Counter),
+        5 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val032Counter),
+        6 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val064Counter),
+        7 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val128Counter),
+        _ => null
+      };
     }
   }
 
