@@ -5,6 +5,7 @@
 // Created:    2009.04.16
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
 
 using Xtensive.Modelling.Actions;
@@ -92,7 +93,7 @@ namespace Xtensive.Modelling.Comparison
     public GroupingNodeAction GetMergeActions()
     {
       if (PreConditions!=null && PreConditions.Actions.Count!=0) {
-        Actions.Actions.Insert(0, PreConditions);
+        ((List<NodeAction>)Actions.Actions).Insert(0, PreConditions);
         PreConditions = null;
       }
       if (Renames!=null && Renames.Actions.Count!=0) {

@@ -195,12 +195,12 @@ namespace Xtensive.Orm.Model
     /// <param name="columns">The key columns.</param>
     /// <param name="tupleDescriptor">Key tuple descriptor.</param>
     /// <param name="typeIdColumnIndex">Index of the type id column.</param>
-    public KeyInfo(string name, IList<FieldInfo> fields, IList<ColumnInfo> columns,
+    public KeyInfo(string name, IReadOnlyList<FieldInfo> fields, IReadOnlyList<ColumnInfo> columns,
       TupleDescriptor tupleDescriptor, int typeIdColumnIndex)
       : base(name)
     {
-      Fields = new ReadOnlyCollection<FieldInfo>(fields);
-      Columns = new ReadOnlyCollection<ColumnInfo>(columns);
+      Fields = fields.AsSafeWrapper();
+      Columns = columns.AsSafeWrapper();
 
       TupleDescriptor = tupleDescriptor;
       TypeIdColumnIndex = typeIdColumnIndex;

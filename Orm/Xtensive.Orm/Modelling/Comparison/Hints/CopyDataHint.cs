@@ -61,14 +61,12 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
-    public CopyDataHint(string sourceTablePath,  IList<IdentityPair> identities, 
-      IList<Pair<string>> copiedColumns)
+    public CopyDataHint(string sourceTablePath,  IReadOnlyList<IdentityPair> identities,
+      IReadOnlyList<Pair<string>> copiedColumns)
       : base(sourceTablePath, identities)
     {
       ArgumentValidator.EnsureArgumentNotNull(copiedColumns, "copiedColumns");
-      CopiedColumns = new ReadOnlyCollection<Pair<string>>(copiedColumns);
+      CopiedColumns = copiedColumns.AsSafeWrapper();
     }
-
-    
   }
 }

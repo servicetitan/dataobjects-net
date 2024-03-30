@@ -75,7 +75,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
-    public DeleteDataHint(string sourceTablePath,  IList<IdentityPair> identities)
+    public DeleteDataHint(string sourceTablePath,  IReadOnlyList<IdentityPair> identities)
       : base(sourceTablePath, identities)
     {
     }
@@ -86,7 +86,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <param name="sourceTablePath">Source table path.</param>
     /// <param name="identities">Identities for data operation.</param>
     /// <param name="postCopy"><see cref="IsPostCopyCleanup"/> property value.</param>
-    public DeleteDataHint(string sourceTablePath,  IList<IdentityPair> identities, bool postCopy)
+    public DeleteDataHint(string sourceTablePath,  IReadOnlyList<IdentityPair> identities, bool postCopy)
       : base(sourceTablePath, identities)
     {
       if (postCopy) {
@@ -102,7 +102,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <param name="postCopy"><see cref="IsPostCopyCleanup"/> property value.</param>
     /// <param name="dueToOnwerChange"><see langword="true"/> if reason of deletion is the table <paramref name="sourceTablePath"/>
     /// has changed assigned type.</param>
-    public DeleteDataHint(string sourceTablePath, IList<IdentityPair> identities, bool postCopy, bool dueToOnwerChange)
+    public DeleteDataHint(string sourceTablePath, IReadOnlyList<IdentityPair> identities, bool postCopy, bool dueToOnwerChange)
       : base(sourceTablePath, identities)
     {
       if (postCopy) {
@@ -119,7 +119,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <param name="sourceTablePath">Source table path.</param>
     /// <param name="identities">Identities for data operation.</param>
     /// <param name="state">Hint state.</param>
-    internal DeleteDataHint(string sourceTablePath, IList<IdentityPair> identities, DeleteDataHintState state)
+    internal DeleteDataHint(string sourceTablePath, IReadOnlyList<IdentityPair> identities, DeleteDataHintState state)
       : base(sourceTablePath, identities)
     {
       this.state = state;

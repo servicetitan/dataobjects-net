@@ -56,13 +56,12 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// </summary>
     public UpdateDataHint(
       string sourceTablePath,  
-      IList<IdentityPair> identities,
-      IList<Pair<string, object>> updateParameters)
+      IReadOnlyList<IdentityPair> identities,
+      IReadOnlyList<Pair<string, object>> updateParameters)
       : base(sourceTablePath, identities)
     {
       ArgumentValidator.EnsureArgumentNotNull(updateParameters, "updateParameters");
-      UpdateParameter = new ReadOnlyCollection<Pair<string, object>>(updateParameters);
+      UpdateParameter = updateParameters.AsSafeWrapper();
     }
-
   }
 }

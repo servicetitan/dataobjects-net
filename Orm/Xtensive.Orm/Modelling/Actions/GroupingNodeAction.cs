@@ -19,7 +19,7 @@ namespace Xtensive.Modelling.Actions
   public class GroupingNodeAction : NodeAction
   {
     private string comment;
-    private IList<NodeAction> actions = new List<NodeAction>();
+    private IReadOnlyList<NodeAction> actions = new List<NodeAction>();
 
     /// <summary>
     /// Gets or sets the comment.
@@ -35,9 +35,7 @@ namespace Xtensive.Modelling.Actions
     /// <summary>
     /// Gets the list of nested actions.
     /// </summary>
-    public IList<NodeAction> Actions {
-      get { return actions; }
-    }
+    public IReadOnlyList<NodeAction> Actions => actions;
 
     /// <summary>
     /// Adds the specified action to the <see cref="Actions"/> sequence.
@@ -57,10 +55,10 @@ namespace Xtensive.Modelling.Actions
           foreach (var pair in last.Properties) {
             _ = ca.Properties.TryAdd(pair.Key, pair.Value);
           }
-          actions.RemoveAt(lastIndex);
+          ((List<NodeAction>)actions).RemoveAt(lastIndex);
         }
       }
-      actions.Add(action);
+      ((List<NodeAction>)actions).Add(action);
     }
 
     /// <summary>
@@ -107,7 +105,7 @@ namespace Xtensive.Modelling.Actions
       if (recursive)
         foreach (var action in actions)
           action.Lock(true);
-      actions = new ReadOnlyCollection<NodeAction>(actions.ToArray());
+      actions = actions.ToArray().AsSafeWrapper();
     }
   }
 }
