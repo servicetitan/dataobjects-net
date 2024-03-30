@@ -146,12 +146,12 @@ namespace Xtensive.Tuples.Packed
     {
       var state = tuple.GetFieldState(descriptor);
       fieldState = state;
-      return state == TupleFieldState.Available ? tuple.Objects[descriptor.GetObjectIndex()] : null;
+      return state == TupleFieldState.Available ? tuple.Objects[descriptor.Index] : null;
     }
 
     public override void SetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, object value)
     {
-      tuple.Objects[descriptor.GetObjectIndex()] = value;
+      tuple.Objects[descriptor.Index] = value;
       tuple.SetFieldState(descriptor, value != null ? TupleFieldState.Available : (TupleFieldState.Available | TupleFieldState.Null));
     }
 
@@ -161,18 +161,18 @@ namespace Xtensive.Tuples.Packed
     public override void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
       PackedTuple target, PackedFieldDescriptor targetDescriptor)
     {
-      target.Objects[targetDescriptor.GetObjectIndex()] = source.Objects[sourceDescriptor.GetObjectIndex()];
+      target.Objects[targetDescriptor.Index] = source.Objects[sourceDescriptor.Index];
     }
 
     public override bool ValueEquals(PackedTuple left, PackedFieldDescriptor leftDescriptor,
       PackedTuple right, PackedFieldDescriptor rightDescriptor)
     {
-      return Equals(left.Objects[leftDescriptor.GetObjectIndex()], right.Objects[rightDescriptor.GetObjectIndex()]);
+      return Equals(left.Objects[leftDescriptor.Index], right.Objects[rightDescriptor.Index]);
     }
 
     public override int GetValueHashCode(PackedTuple tuple, PackedFieldDescriptor descriptor)
     {
-      return tuple.Objects[descriptor.GetObjectIndex()]?.GetHashCode() ?? 0;
+      return tuple.Objects[descriptor.Index]?.GetHashCode() ?? 0;
     }
 
     public ObjectFieldAccessor()
@@ -265,14 +265,14 @@ namespace Xtensive.Tuples.Packed
     protected virtual void Store(PackedTuple tuple, PackedFieldDescriptor d, T value)
     {
       var encoded = Encode(value);
-      ref var block = ref tuple.Values[d.GetValueIndex()];
-      var valueBitOffset = d.GetValueBitOffset();
+      ref var block = ref tuple.Values[d.Index];
+      var valueBitOffset = d.ValueBitOffset;
       var mask = ValueBitMask << valueBitOffset;
       block = (block & ~mask) | ((encoded << valueBitOffset) & mask);
     }
 
     protected virtual T Load(PackedTuple tuple, PackedFieldDescriptor d) =>
-      Decode((tuple.Values[d.GetValueIndex()] >> d.GetValueBitOffset()) & ValueBitMask);
+      Decode((tuple.Values[d.Index] >> d.ValueBitOffset) & ValueBitMask);
 
     protected ValueFieldAccessor(int bits, byte index)
       : base(bits, index)
@@ -569,7 +569,7 @@ namespace Xtensive.Tuples.Packed
     protected override Guid Load(PackedTuple tuple, PackedFieldDescriptor d)
     {
       unsafe {
-        fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
+        fixed (long* valuePtr = &tuple.Values[d.Index])
           return *(Guid*) valuePtr;
       }
     }
@@ -577,7 +577,7 @@ namespace Xtensive.Tuples.Packed
     protected override void Store(PackedTuple tuple, PackedFieldDescriptor d, Guid value)
     {
       unsafe {
-        fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
+        fixed (long* valuePtr = &tuple.Values[d.Index])
           *(Guid*) valuePtr = value;
       }
     }
@@ -601,7 +601,7 @@ namespace Xtensive.Tuples.Packed
     protected override decimal Load(PackedTuple tuple, PackedFieldDescriptor d)
     {
       unsafe {
-        fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
+        fixed (long* valuePtr = &tuple.Values[d.Index])
           return *(decimal*) valuePtr;
       }
     }
@@ -609,7 +609,7 @@ namespace Xtensive.Tuples.Packed
     protected override void Store(PackedTuple tuple, PackedFieldDescriptor d, decimal value)
     {
       unsafe {
-        fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
+        fixed (long* valuePtr = &tuple.Values[d.Index])
           *(decimal*) valuePtr = value;
       }
     }
@@ -628,7 +628,7 @@ namespace Xtensive.Tuples.Packed
     protected override DateTimeOffset Load(PackedTuple tuple, PackedFieldDescriptor d)
     {
       unsafe {
-        fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
+        fixed (long* valuePtr = &tuple.Values[d.Index])
           return *(DateTimeOffset*) valuePtr;
       }
     }
@@ -636,7 +636,7 @@ namespace Xtensive.Tuples.Packed
     protected override void Store(PackedTuple tuple, PackedFieldDescriptor d, DateTimeOffset value)
     {
       unsafe {
-        fixed (long* valuePtr = &tuple.Values[d.GetValueIndex()])
+        fixed (long* valuePtr = &tuple.Values[d.Index])
           *(DateTimeOffset*) valuePtr = value;
       }
     }

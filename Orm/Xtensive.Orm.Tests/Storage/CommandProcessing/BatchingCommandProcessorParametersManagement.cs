@@ -729,7 +729,9 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
       }
     }
 
+#if !DO_MAX_1000_COLUMNS
     [Test]
+#endif
     public void InsertTest08()
     {
       using (var session = Domain.OpenSession())
