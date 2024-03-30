@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets the recycled definitions.
     /// </summary>
-    public ICollection<RecycledDefinition> RecycledDefinitions { get; private set; }
+    public List<RecycledDefinition> RecycledDefinitions { get; private set; }
 
     /// <summary>
     /// Gets the schema upgrade hints.

@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;
@@ -20,7 +21,7 @@ namespace Xtensive.Orm.Building.Builders
     private UpgradeStage stage;
     private IModelFilter modelFilter;
     private object upgradeContextCookie;
-    private ICollection<RecycledDefinition> recycledDefinitions;
+    private IReadOnlyList<RecycledDefinition> recycledDefinitions;
     private DefaultSchemaInfo defaultSchemaInfo;
 
     /// <summary>
@@ -79,7 +80,7 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    internal ICollection<RecycledDefinition> RecycledDefinitions
+    internal IReadOnlyList<RecycledDefinition> RecycledDefinitions
     {
       get { return recycledDefinitions; }
       set
@@ -103,7 +104,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       base.Lock(recursive);
       if (recycledDefinitions!=null)
-        recycledDefinitions = new ReadOnlyCollection<RecycledDefinition>(recycledDefinitions.ToArray());
+        recycledDefinitions = recycledDefinitions.ToArray().AsSafeWrapper();
     }
 
     // Constructors
