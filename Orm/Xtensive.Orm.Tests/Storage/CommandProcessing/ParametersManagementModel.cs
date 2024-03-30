@@ -162,10 +162,15 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
       var originalCount = context.Domain.Handlers.ProviderInfo.MaxQueryParameterCount;
       var maxcount = originalCount;
 
+#if DO_MAX_1000_COLUMNS
+      if (maxcount > 989) {
+        maxcount = 989;
+      }
+#else
       if (maxcount > 1024) {
         maxcount = 1000;
       }
-
+#endif
       var validFieldCount = maxcount - 1;
       var invalidFieldCount = validFieldCount + 10;
       var t = model.Types[typeof(ALotOfFieldsEntityValid)];
@@ -220,6 +225,9 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
       indexToWrite = 0;
       currentFieldCount = 0;
       var fieldsCount = 2100;
+#if DO_MAX_1000_COLUMNS
+      fieldsCount = 990;
+#endif
       foreach (var fieldName in GetFieldNames(fieldsCount)) {
         _ = types[indexToWrite].DefineField(fieldName, typeof(int));
         currentFieldCount++;
