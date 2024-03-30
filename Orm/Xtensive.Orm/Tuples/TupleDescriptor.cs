@@ -281,7 +281,7 @@ namespace Xtensive.Tuples
           break;
 #if DO_MAX_1000_COLUMNS
         case > 1000:
-          throw new NotSupportedException("This DataObject configuration does not support Recordsets with more than 1000 columns");
+          throw new NotSupportedException("This DataObjects.NET configuration does not support Recordsets with more than 1000 columns");
 #endif
         default:
           TupleLayout.Configure(FieldTypes, FieldDescriptors, out ValuesLength, out ObjectsLength);
