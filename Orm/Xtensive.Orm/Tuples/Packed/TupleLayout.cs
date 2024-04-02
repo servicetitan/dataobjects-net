@@ -132,7 +132,7 @@ namespace Xtensive.Tuples.Packed
         return;
       }
 
-      descriptor.AccessorIndex = ObjectAccessor.Index;
+      descriptor.AccessorIndex = ObjectFieldAccessor.FixedIndex;
       valuesLength = 1;
       objectsLength = 1;
     }
@@ -150,7 +150,7 @@ namespace Xtensive.Tuples.Packed
           valuesLength = 1;
           return;
         case 1: {
-          if (descriptor1.IsObjectField) {
+          if (descriptor1.Accessor.IsObjectAccessor) {
             descriptor2.DataPosition = Val064BitCount;
             val1BitCount = descriptor2.Accessor.ValueBitCount;
           }
@@ -216,8 +216,9 @@ namespace Xtensive.Tuples.Packed
 
       for (var fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
         ref var descriptor = ref fieldDescriptors[fieldIndex];
-        if (!descriptor.IsObjectField) {
-          descriptor.Accessor.PositionUpdater(ref descriptor, ref counters);
+        var accessor = descriptor.Accessor;
+        if (!accessor.IsObjectAccessor) {
+          accessor.PositionUpdater(ref descriptor, ref counters);
         }
       }
 
@@ -239,7 +240,7 @@ namespace Xtensive.Tuples.Packed
         return;
       }
 
-      descriptor.AccessorIndex = ObjectAccessor.Index;
+      descriptor.AccessorIndex = ObjectFieldAccessor.FixedIndex;
       descriptor.Index = counters.ObjectCounter++;
     }
   }
