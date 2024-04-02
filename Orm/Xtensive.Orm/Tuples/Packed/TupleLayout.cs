@@ -53,6 +53,8 @@ namespace Xtensive.Tuples.Packed
       private static readonly ValueFieldAccessor GuidAccessor = new GuidFieldAccessor();
       private static readonly ValueFieldAccessor DateTimeOffsetAccessor = new DateTimeOffsetFieldAccessor();
 
+      private static readonly ObjectFieldAccessor ObjectAccessor = new ObjectFieldAccessor();
+
       private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
 
       public static ValueFieldAccessor GetValue(Type probeType)
@@ -111,11 +113,9 @@ namespace Xtensive.Tuples.Packed
 
     internal delegate void PositionUpdater(ref PackedFieldDescriptor descriptor, ref Counters counters);
 
-    private static readonly ObjectFieldAccessor ObjectAccessor = new ObjectFieldAccessor();
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ConfigureFieldAccessor(ref PackedFieldDescriptor descriptor, Type fieldType) =>
-      descriptor.AccessorIndex = ((PackedFieldAccessor)ValueFieldAccessorResolver.GetValue(fieldType) ?? ObjectAccessor).Index;
+      descriptor.AccessorIndex = ((PackedFieldAccessor)ValueFieldAccessorResolver.GetValue(fieldType))?.Index ?? ObjectFieldAccessor.FixedIndex;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ConfigureLen1(ref Type fieldType, ref PackedFieldDescriptor descriptor, out int valuesLength,
