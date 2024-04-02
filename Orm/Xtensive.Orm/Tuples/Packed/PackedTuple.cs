@@ -135,7 +135,7 @@ namespace Xtensive.Tuples.Packed
       var stateBitOffset = d.StateBitOffset;
       block = (block & ~(3L << stateBitOffset)) | (bits << stateBitOffset);
 
-      if (fieldState != TupleFieldState.Available && d.IsObjectField) {
+      if (fieldState != TupleFieldState.Available && d.Accessor.IsObjectAccessor) {
         Objects[d.Index] = null;
       }
     }

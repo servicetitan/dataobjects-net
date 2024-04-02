@@ -91,11 +91,5 @@ namespace Xtensive.Tuples.Packed
       [MethodImpl(MethodImplOptions.AggressiveInlining)]
       get => PackedFieldAccessor.All[AccessorIndex];
     }
-
-    internal bool IsObjectField
-    {
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      get => Accessor.Rank < 0;
-    }
   }
 }

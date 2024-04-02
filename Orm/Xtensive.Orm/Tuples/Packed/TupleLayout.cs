@@ -53,6 +53,8 @@ namespace Xtensive.Tuples.Packed
       private static readonly ValueFieldAccessor GuidAccessor = new GuidFieldAccessor();
       private static readonly ValueFieldAccessor DateTimeOffsetAccessor = new DateTimeOffsetFieldAccessor();
 
+      private static readonly ObjectFieldAccessor ObjectAccessor = new ObjectFieldAccessor();
+
       private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
 
       public static ValueFieldAccessor GetValue(Type probeType)
@@ -111,11 +113,9 @@ namespace Xtensive.Tuples.Packed
 
     internal delegate void PositionUpdater(ref PackedFieldDescriptor descriptor, ref Counters counters);
 
-    private static readonly ObjectFieldAccessor ObjectAccessor = new ObjectFieldAccessor();
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ConfigureFieldAccessor(ref PackedFieldDescriptor descriptor, Type fieldType) =>
-      descriptor.AccessorIndex = ((PackedFieldAccessor)ValueFieldAccessorResolver.GetValue(fieldType) ?? ObjectAccessor).Index;
+      descriptor.AccessorIndex = ((PackedFieldAccessor)ValueFieldAccessorResolver.GetValue(fieldType))?.Index ?? ObjectFieldAccessor.FixedIndex;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ConfigureLen1(ref Type fieldType, ref PackedFieldDescriptor descriptor, out int valuesLength,
@@ -132,7 +132,7 @@ namespace Xtensive.Tuples.Packed
         return;
       }
 
-      descriptor.AccessorIndex = ObjectAccessor.Index;
+      descriptor.AccessorIndex = ObjectFieldAccessor.FixedIndex;
       valuesLength = 1;
       objectsLength = 1;
     }
@@ -150,13 +150,14 @@ namespace Xtensive.Tuples.Packed
           valuesLength = 1;
           return;
         case 1: {
-          if (descriptor1.IsObjectField) {
+          var accessor1 = descriptor1.Accessor;
+          if (accessor1.IsObjectAccessor) {
             descriptor2.DataPosition = Val064BitCount;
             val1BitCount = descriptor2.Accessor.ValueBitCount;
           }
           else {
             descriptor1.DataPosition = Val064BitCount;
-            val1BitCount = descriptor1.Accessor.ValueBitCount;
+            val1BitCount = accessor1.ValueBitCount;
           }
           valuesLength = (val1BitCount  + ((Val064BitCount * 2) - 1)) >> Val064Rank;
           return;
@@ -216,8 +217,9 @@ namespace Xtensive.Tuples.Packed
 
       for (var fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
         ref var descriptor = ref fieldDescriptors[fieldIndex];
-        if (!descriptor.IsObjectField) {
-          descriptor.Accessor.PositionUpdater(ref descriptor, ref counters);
+        var accessor = descriptor.Accessor;
+        if (!accessor.IsObjectAccessor) {
+          accessor.PositionUpdater(ref descriptor, ref counters);
         }
       }
 
@@ -239,7 +241,7 @@ namespace Xtensive.Tuples.Packed
         return;
       }
 
-      descriptor.AccessorIndex = ObjectAccessor.Index;
+      descriptor.AccessorIndex = ObjectFieldAccessor.FixedIndex;
       descriptor.Index = counters.ObjectCounter++;
     }
   }

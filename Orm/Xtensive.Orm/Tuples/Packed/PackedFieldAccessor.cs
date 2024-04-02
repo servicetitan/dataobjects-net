@@ -43,6 +43,12 @@ namespace Xtensive.Tuples.Packed
     protected readonly long ValueBitMask;
     public readonly byte Index;
 
+    public bool IsObjectAccessor
+    {
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      get => Rank < 0;
+    }
+
     public readonly CounterIncrementer CounterIncrementer;
     public readonly PositionUpdater PositionUpdater;
 
@@ -142,6 +148,8 @@ namespace Xtensive.Tuples.Packed
 
   internal sealed class ObjectFieldAccessor : PackedFieldAccessor
   {
+    public const int FixedIndex = 1;
+
     public override object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
       var state = tuple.GetFieldState(descriptor);
@@ -176,7 +184,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public ObjectFieldAccessor()
-      : base(-1, 1)
+      : base(-1, FixedIndex)
     { }
   }
 
