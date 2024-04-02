@@ -150,13 +150,14 @@ namespace Xtensive.Tuples.Packed
           valuesLength = 1;
           return;
         case 1: {
-          if (descriptor1.Accessor.IsObjectAccessor) {
+          var accessor1 = descriptor1.Accessor;
+          if (accessor1.IsObjectAccessor) {
             descriptor2.DataPosition = Val064BitCount;
             val1BitCount = descriptor2.Accessor.ValueBitCount;
           }
           else {
             descriptor1.DataPosition = Val064BitCount;
-            val1BitCount = descriptor1.Accessor.ValueBitCount;
+            val1BitCount = accessor1.ValueBitCount;
           }
           valuesLength = (val1BitCount  + ((Val064BitCount * 2) - 1)) >> Val064Rank;
           return;
