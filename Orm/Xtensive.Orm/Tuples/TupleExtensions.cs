@@ -431,8 +431,8 @@ namespace Xtensive.Tuples
 
     private static void CopyPackedValue(PackedTuple source, int sourceIndex, PackedTuple target, int targetIndex)
     {
-      ref readonly var sourceDescriptor = ref source.PackedDescriptor.FieldDescriptors[sourceIndex];
-      ref readonly var targetDescriptor = ref target.PackedDescriptor.FieldDescriptors[targetIndex];
+      var sourceDescriptor = source.PackedDescriptor.FieldDescriptors[sourceIndex];
+      var targetDescriptor = target.PackedDescriptor.FieldDescriptors[targetIndex];
 
       var fieldState = source.GetFieldState(sourceDescriptor);
       if (!fieldState.IsAvailable()) {
