@@ -48,7 +48,7 @@ namespace Xtensive.Tuples.Packed
       var fieldDescriptors = PackedDescriptor.FieldDescriptors;
       var count = Count;
       for (int i = 0; i < count; i++) {
-        ref readonly var descriptor = ref fieldDescriptors[i];
+        var descriptor = fieldDescriptors[i];
         var thisState = GetFieldState(descriptor);
         var otherState = packedOther.GetFieldState(descriptor);
         if (thisState != otherState) {
@@ -69,7 +69,7 @@ namespace Xtensive.Tuples.Packed
       var fieldDescriptors = PackedDescriptor.FieldDescriptors;
       int result = 0;
       for (int i = 0; i < count; i++) {
-        ref readonly var descriptor = ref fieldDescriptors[i];
+        var descriptor = fieldDescriptors[i];
         var state = GetFieldState(descriptor);
         var fieldHash = state == TupleFieldState.Available
           ? descriptor.Accessor.GetValueHashCode(this, descriptor)
@@ -93,27 +93,27 @@ namespace Xtensive.Tuples.Packed
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
-      ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
+      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
       return descriptor.Accessor.GetUntypedValue(this, descriptor, out fieldState);
     }
 
     public override T GetValue<T>(int fieldIndex, out TupleFieldState fieldState)
     {
       var isNullable = null == default(T); // Is nullable value type or class
-      ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
+      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
       return descriptor.Accessor.GetValue<T>(this, descriptor, isNullable, out fieldState);
     }
 
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
+      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
       descriptor.Accessor.SetUntypedValue(this, descriptor, fieldValue);
     }
 
     public override void SetValue<T>(int fieldIndex, T fieldValue)
     {
       var isNullable = null==default(T); // Is nullable value type or class
-      ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
+      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
       descriptor.Accessor.SetValue(this, descriptor, isNullable, fieldValue);
     }
 
@@ -123,7 +123,7 @@ namespace Xtensive.Tuples.Packed
         SetValue(mr.FieldIndex, null);
       }
       else {
-        ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[mr.FieldIndex];
+        var descriptor = PackedDescriptor.FieldDescriptors[mr.FieldIndex];
         descriptor.Accessor.SetValue(this, descriptor, mr);
       }
     }
