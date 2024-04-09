@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Rse.Transformation
     /// </summary>
     /// <param name="expression">The predicate.</param>
     /// <returns>List containing all used columns (order and uniqueness are not guaranteed).</returns>
-    public virtual List<ColNum> Gather(Expression expression)
+    public virtual IReadOnlyList<ColNum> Gather(Expression expression)
     {
       mappings = new List<ColNum>();
       Visit(expression);
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Rse.Transformation
     /// <param name="expression">The predicate.</param>
     /// <param name="parameter">The tuple parameter to be considered.</param>
     /// <returns>List containing all used columns (order and uniqueness are not guaranteed).</returns>
-    public List<ColNum> Gather(Expression expression, ParameterExpression parameter)
+    public IReadOnlyList<ColNum> Gather(Expression expression, ParameterExpression parameter)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       ArgumentValidator.EnsureArgumentNotNull(parameter, "parameter");

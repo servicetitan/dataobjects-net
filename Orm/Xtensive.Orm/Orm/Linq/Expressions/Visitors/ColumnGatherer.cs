@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       get { return (columnExtractionModes & ColumnExtractionModes.OmitLazyLoad)!=ColumnExtractionModes.Default; }
     }
 
-    public static List<Pair<ColNum, Expression>> GetColumnsAndExpressions(Expression expression, ColumnExtractionModes columnExtractionModes)
+    public static IReadOnlyList<Pair<ColNum, Expression>> GetColumnsAndExpressions(Expression expression, ColumnExtractionModes columnExtractionModes)
     {
       var gatherer = new ColumnGatherer(columnExtractionModes);
       gatherer.Visit(expression);
@@ -54,10 +54,10 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       var ordered = gatherer.OrderedValues
         ? distinct.OrderBy(i => i)
         : distinct;
-      return ordered.ToList();
+      return ordered.ToArray();
     }
     
-    public static IEnumerable<ColNum> GetColumns(Expression expression, ColumnExtractionModes columnExtractionModes)
+    public static IReadOnlyList<ColNum> GetColumns(Expression expression, ColumnExtractionModes columnExtractionModes)
     {
       var gatherer = new ColumnGatherer(columnExtractionModes);
       gatherer.Visit(expression);
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       var ordered = gatherer.OrderedValues
         ? distinct.OrderBy(i => i)
         : distinct;
-      return ordered;
+      return ordered.ToArray();
     }
 
     protected override Expression VisitMarker(MarkerExpression expression)

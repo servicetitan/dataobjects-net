@@ -935,12 +935,12 @@ namespace Xtensive.Orm
       var ownerDescriptor = association.OwnerType.Key.TupleDescriptor;
       var targetDescriptor = association.TargetType.Key.TupleDescriptor;
 
-      var itemColumnOffsets = association.AuxiliaryType == null
+      IReadOnlyList<ColNum> itemColumnOffsets = association.AuxiliaryType == null
         ? association.UnderlyingIndex.ValueColumns
             .Where(ci => ci.IsPrimaryKey)
             .Select(ci => ci.Field.MappingInfo.Offset)
             .ToList()
-        : Enumerable.Range(0, targetDescriptor.Count).Select(i => (ColNum)i).ToList();
+        : CollectionUtils.ColNumRange(targetDescriptor.Count);
 
       var keyFieldCount = ownerDescriptor.Count + itemColumnOffsets.Count;
       var keyFieldTypes = ownerDescriptor

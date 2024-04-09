@@ -29,6 +29,8 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator : QueryableVisitor
   {
+    private static readonly IReadOnlySet<int> EmptyIntSet = new HashSet<int>();
+
     private static readonly Type IEnumerableOfKeyType = typeof(IEnumerable<Key>);
     private static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
     private static readonly ParameterExpression ParameterContextContextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
@@ -324,14 +326,14 @@ namespace Xtensive.Orm.Linq
       else {
         visitedSource = (ProjectionExpression) visitedSourceRaw;
       }
-      
+
       var elementType = expression.Method.GetGenericArguments().Last();
       if (!context.Model.Types.TryGetValue(elementType, out var type)
           && !(QueryHelper.TryGetSequenceElementType(elementType, out var sequenceElementType)
                && context.Model.Types.TryGetValue(sequenceElementType, out type))) {
         throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
       }
-      
+
       var indexName = (string) ((ConstantExpression) expression.Arguments[1]).Value;
       var indexInfo = type.Indexes
         .Find(IndexAttributes.Real)
@@ -754,9 +756,7 @@ namespace Xtensive.Orm.Linq
       }
 
       var itemProjector = result.ItemProjector.RemoveOwner();
-      var columnIndexes = itemProjector
-        .GetColumns(ColumnExtractionModes.KeepSegment)
-        .ToArray();
+      var columnIndexes = itemProjector.GetColumns(ColumnExtractionModes.KeepSegment);
       var rs = itemProjector.DataSource
         .Select(columnIndexes)
         .Distinct();
@@ -913,11 +913,11 @@ namespace Xtensive.Orm.Linq
         return new Pair<ProjectionExpression, ColNum>(sourceProjection, aggregatedColumnIndex);
       }
 
-      List<ColNum> columnList = null;
+      IReadOnlyList<ColNum> columnList = null;
       sourceProjection = VisitSequence(source);
       if (aggregateParameter == null) {
         if (sourceProjection.ItemProjector.IsPrimitive) {
-          columnList = sourceProjection.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey).ToList();
+          columnList = sourceProjection.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
         }
         else {
           var lambdaType = sourceProjection.ItemProjector.Item.Type;
@@ -936,7 +936,7 @@ namespace Xtensive.Orm.Linq
               string.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
           }
 
-          columnList = result.GetColumns(ColumnExtractionModes.TreatEntityAsKey).ToList();
+          columnList = result.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
           sourceProjection = context.Bindings[aggregateParameter.Parameters[0]];
         }
       }
@@ -1023,9 +1023,9 @@ namespace Xtensive.Orm.Linq
 
       var nullableKeyColumns = (!State.SkipNullableColumnsDetectionInGroupBy)
         ? GetNullableGroupingExpressions(keyFieldsRaw)
-        : Array.Empty<int>();
+        : EmptyIntSet;
 
-      var keyColumns = keyFieldsRaw.SelectToArray(pair => pair.First);
+      var keyColumns = keyFieldsRaw.Select(pair => pair.First).ToArray();
       var keyDataSource = groupingSourceProjection.ItemProjector.DataSource.Aggregate(keyColumns);
       var remappedKeyItemProjector =
         groupingSourceProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, keyColumns);
@@ -1620,8 +1620,8 @@ namespace Xtensive.Orm.Linq
 
       var outerItemProjector = outer.ItemProjector.RemoveOwner();
       var innerItemProjector = inner.ItemProjector.RemoveOwner();
-      var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToList();
-      var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToList();
+      var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
+      var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
       if (!outerColumnList.Except(innerColumnList).Any() && outerColumnList.Count == innerColumnList.Count) {
         outerColumnList = outerColumnList.OrderBy(i => i).ToList();
         innerColumnList = innerColumnList.OrderBy(i => i).ToList();
@@ -1799,7 +1799,7 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    private static ICollection<int> GetNullableGroupingExpressions(List<Pair<ColNum, Expression>> keyFieldsRaw)
+    private static IReadOnlySet<int> GetNullableGroupingExpressions(IReadOnlyList<Pair<ColNum, Expression>> keyFieldsRaw)
     {
       var nullableFields = new HashSet<int>();
 

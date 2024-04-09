@@ -587,10 +587,10 @@ namespace Xtensive.Orm.Building.Builders
         _ = types.Add(t);
       }
 
-      var valueColumnMap = new List<List<int>>();
+      var valueColumnMap = new List<List<ColNum>>();
       foreach (var index in indexesToJoin) {
-        var columnMap = new List<int>();
-        int columnIndex = -1;
+        var columnMap = new List<ColNum>();
+        ColNum columnIndex = -1;
         foreach (var column in index.ValueColumns) {
           columnIndex++;
           if (columnIndex < result.IncludedColumns.Count)
@@ -617,19 +617,19 @@ namespace Xtensive.Orm.Building.Builders
         valueColumnMap.Add(columnMap);
       }
       var orderedIndexes = indexesToJoin
-        .Select((index, i) => (index, columns: valueColumnMap[i], i))
+        .Select((index, i) => (index, columns: valueColumnMap[i], i: (ColNum) i))
         .OrderBy(a => typeOrder[a.index.ValueColumns.First().Field.ReflectedType]);
 
       var columnsToAdd = new List<ColumnInfo>();
-      var valueColumnMapping = new List<Pair<int, List<int>>>();
+      var valueColumnMapping = new List<Pair<ColNum, List<ColNum>>>();
       foreach(var item in orderedIndexes) {
         if (valueColumnMapping.Count == 0)
-          item.columns.InsertRange(0, Enumerable.Range(0, result.IncludedColumns.Count));
+          item.columns.InsertRange(0, CollectionUtils.ColNumRange(result.IncludedColumns.Count));
         foreach (var columnIndex in item.columns) {
           var column = item.index.ValueColumns[columnIndex];
           columnsToAdd.Add(column);
         }
-        valueColumnMapping.Add(new Pair<int, List<int>>(item.i, item.columns));
+        valueColumnMapping.Add(new Pair<ColNum, List<ColNum>>(item.i, item.columns));
       }
 
       result.ValueColumnsMap = valueColumnMapping;
@@ -703,10 +703,10 @@ namespace Xtensive.Orm.Building.Builders
         : Enumerable.Empty<TypeInfo>()).ToHashSet();
 
       var indexReflectedType = indexToApplyView.ReflectedType;
-      var keyLength = indexToApplyView.KeyColumns.Count;
-      var columnMap = new List<int>();
+      ColNum keyLength = (ColNum) indexToApplyView.KeyColumns.Count;
+      var columnMap = new List<ColNum>();
       var valueColumns = new List<ColumnInfo>(reflectedType.Columns.Count);
-      for (int i = 0; i < indexToApplyView.ValueColumns.Count; i++) {
+      for (ColNum i = 0; i < indexToApplyView.ValueColumns.Count; i++) {
         var column = indexToApplyView.ValueColumns[i];
         var columnField = column.Field;
         var declaringType = columnField.DeclaringType;
@@ -742,7 +742,7 @@ namespace Xtensive.Orm.Building.Builders
           var field = reflectedType.Fields[columnField.Name];
           valueColumns.Add(field.Column);
         }
-        columnMap.Add(keyLength + i);
+        columnMap.Add((ColNum) (keyLength + i));
       }
       var actualColumnMapping = valueColumns
         .Zip(columnMap, static (column, sourceIndex) => (column, sourceIndex))
@@ -750,7 +750,7 @@ namespace Xtensive.Orm.Building.Builders
         .ToChainedBuffer();
       valueColumns.Clear();
       columnMap.Clear();
-      columnMap.AddRange(Enumerable.Range(0, keyLength));
+      columnMap.AddRange(CollectionUtils.ColNumRange(keyLength));
       foreach (var columnMapping in actualColumnMapping) {
         valueColumns.Add(columnMapping.column);
         columnMap.Add(columnMapping.sourceIndex);
@@ -803,8 +803,8 @@ namespace Xtensive.Orm.Building.Builders
     private ColumnGroup BuildColumnGroup(IndexInfo index)
     {
       var reflectedType = index.ReflectedType;
-      var keyColumns = index.IsPrimary
-        ? Enumerable.Range(0, index.KeyColumns.Count).Select(i => (ColNum) i).ToList(index.KeyColumns.Count)
+      IReadOnlyList<ColNum> keyColumns = index.IsPrimary
+        ? CollectionUtils.ColNumRange(index.KeyColumns.Count)
         : index.KeyColumns
             .Select(static pair => pair.Key)
             .Concat(index.ValueColumns)
@@ -812,9 +812,7 @@ namespace Xtensive.Orm.Building.Builders
             .Where(static arg => arg.c.IsPrimaryKey)
             .Select(static arg => arg.i)
             .ToList();
-      var columns = Enumerable.Range(0, index.KeyColumns.Count + index.ValueColumns.Count).ToList(index.KeyColumns.Count + index.ValueColumns.Count)
-        .Select(i => (ColNum) i);
-      return new ColumnGroup(reflectedType, keyColumns, columns);
+      return new ColumnGroup(reflectedType, keyColumns, CollectionUtils.ColNumRange(index.KeyColumns.Count + index.ValueColumns.Count));
     }
 
     private void CleanupTypedIndexes()
