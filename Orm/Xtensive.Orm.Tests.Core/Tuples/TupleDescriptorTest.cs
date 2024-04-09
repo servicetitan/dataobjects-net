@@ -120,9 +120,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     private TupleDescriptor TestDescriptor(TupleDescriptor theSame, Type[] types)
     {
       var d1 = TupleDescriptor.Create(types);
-      var fds1 = d1.FieldDescriptors;
       var d2 = TupleDescriptor.Create(types);
-      var fds2 = d2.FieldDescriptors;
       Assert.IsNotNull(d1);
       Assert.IsNotNull(d2);
       Assert.AreEqual(d1, d2);

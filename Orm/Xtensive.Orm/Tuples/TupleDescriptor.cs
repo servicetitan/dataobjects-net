@@ -320,6 +320,12 @@ namespace Xtensive.Tuples
     private TupleDescriptor(Type[] fieldTypes)
     {
       FieldTypes = fieldTypes;
+      for (int i = 0, n = fieldTypes.Length; i < n; ++i) {
+        ref var fieldType = ref fieldTypes[i];
+        if (TupleLayout.ValueFieldAccessorResolver.GetValue(fieldType) is { } valueAccessor) {
+          fieldType = valueAccessor.FieldType;
+        }
+      }
     }
 
     public TupleDescriptor(SerializationInfo info, StreamingContext context)
