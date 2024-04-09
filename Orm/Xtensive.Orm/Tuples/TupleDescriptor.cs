@@ -23,15 +23,69 @@ namespace Xtensive.Tuples
   /// Provides information about <see cref="Tuple"/> structure.
   /// </summary>
   [Serializable]
-  public readonly struct TupleDescriptor : IEquatable<TupleDescriptor>, IReadOnlyList<Type>, ISerializable
+  public class TupleDescriptor : IEquatable<TupleDescriptor>, IReadOnlyList<Type>, ISerializable
   {
     private static readonly TupleDescriptor EmptyDescriptor = new TupleDescriptor(Array.Empty<Type>());
 
-    internal readonly int ValuesLength;
-    internal readonly int ObjectsLength;
+    private class LazyData
+    {
+      public int ValuesLength;
+      public int ObjectsLength;
+      public PackedFieldDescriptor[] FieldDescriptors;
+
+      public LazyData(Type[] fieldTypes)
+      {
+        var fieldCount = fieldTypes.Length;
+        FieldDescriptors = new PackedFieldDescriptor[fieldCount];
+
+        switch (fieldCount) {
+          case 0:
+            ValuesLength = 0;
+            ObjectsLength = 0;
+            return;
+          case 1:
+            TupleLayout.ConfigureLen1(ref fieldTypes[0],
+              ref FieldDescriptors[0],
+              out ValuesLength, out ObjectsLength);
+            break;
+          case 2:
+            TupleLayout.ConfigureLen2(fieldTypes,
+              ref FieldDescriptors[0], ref FieldDescriptors[1],
+              out ValuesLength, out ObjectsLength);
+            break;
+#if DO_MAX_1000_COLUMNS
+        case > 1000:
+          throw new NotSupportedException("This DataObjects.NET configuration does not support Recordsets with more than 1000 columns");
+#endif
+          default:
+            TupleLayout.Configure(fieldTypes, FieldDescriptors, out ValuesLength, out ObjectsLength);
+            break;
+        }
+      }
+
+      public LazyData(Type[] fieldTypes, SerializationInfo info)
+      {
+        ValuesLength = info.GetInt32("ValuesLength");
+        ObjectsLength = info.GetInt32("ObjectsLength");
+
+        var typeNames = (string[]) info.GetValue("FieldTypes", typeof(string[]));
+        FieldDescriptors = (PackedFieldDescriptor[]) info.GetValue(
+          "FieldDescriptors", typeof(PackedFieldDescriptor[]));
+
+        for (var i = 0; i < typeNames.Length; i++) {
+          TupleLayout.ConfigureFieldAccessor(ref FieldDescriptors[i], fieldTypes[i]);
+        }
+      }
+    }
 
     [NonSerialized]
-    internal readonly PackedFieldDescriptor[] FieldDescriptors;
+    private LazyData data;
+
+    private LazyData Data => data ??= new LazyData(FieldTypes);
+
+    internal int ValuesLength => Data.ValuesLength;
+    internal int ObjectsLength => Data.ObjectsLength;
+    internal PackedFieldDescriptor[] FieldDescriptors => Data.FieldDescriptors;
 
     [field: NonSerialized]
     private Type[] FieldTypes { get; }
@@ -260,49 +314,17 @@ namespace Xtensive.Tuples
 
     private TupleDescriptor(Type[] fieldTypes)
     {
-      var fieldCount = fieldTypes.Length;
       FieldTypes = fieldTypes;
-      FieldDescriptors = new PackedFieldDescriptor[fieldCount];
-
-      switch (fieldCount) {
-        case 0:
-          ValuesLength = 0;
-          ObjectsLength = 0;
-          return;
-        case 1:
-          TupleLayout.ConfigureLen1(ref FieldTypes[0],
-            ref FieldDescriptors[0],
-            out ValuesLength, out ObjectsLength);
-          break;
-        case 2:
-          TupleLayout.ConfigureLen2(FieldTypes,
-            ref FieldDescriptors[0], ref FieldDescriptors[1],
-            out ValuesLength, out ObjectsLength);
-          break;
-#if DO_MAX_1000_COLUMNS
-        case > 1000:
-          throw new NotSupportedException("This DataObjects.NET configuration does not support Recordsets with more than 1000 columns");
-#endif
-        default:
-          TupleLayout.Configure(FieldTypes, FieldDescriptors, out ValuesLength, out ObjectsLength);
-          break;
-      }
     }
 
     public TupleDescriptor(SerializationInfo info, StreamingContext context)
     {
-      ValuesLength = info.GetInt32("ValuesLength");
-      ObjectsLength = info.GetInt32("ObjectsLength");
-
       var typeNames = (string[]) info.GetValue("FieldTypes", typeof(string[]));
-      FieldDescriptors = (PackedFieldDescriptor[])info.GetValue(
-        "FieldDescriptors", typeof(PackedFieldDescriptor[]));
-
       FieldTypes = new Type[typeNames.Length];
       for (var i = 0; i < typeNames.Length; i++) {
         FieldTypes[i] = typeNames[i].GetTypeFromSerializableForm();
-        TupleLayout.ConfigureFieldAccessor(ref FieldDescriptors[i], FieldTypes[i]);
       }
+      data = new LazyData(FieldTypes, info);
     }
   }
 }

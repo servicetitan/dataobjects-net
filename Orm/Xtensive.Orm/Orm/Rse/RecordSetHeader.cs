@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Rse
     /// Gets the tuple descriptor describing
     /// a set of <see cref="Order"/> columns.
     /// </summary>
-    public TupleDescriptor? OrderTupleDescriptor {
+    public TupleDescriptor OrderTupleDescriptor {
       get {
         if (Order.Count==0) {
           return null;
@@ -330,7 +330,7 @@ namespace Xtensive.Orm.Rse
       TupleDescriptor tupleDescriptor,
       IReadOnlyList<Column> columns,
       IReadOnlyList<ColumnGroup> columnGroups,
-      TupleDescriptor? orderKeyDescriptor,
+      TupleDescriptor orderKeyDescriptor,
       DirectionCollection<ColNum> order)
     {
       ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
