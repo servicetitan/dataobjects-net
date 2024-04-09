@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers
           : sqlSelect.Columns[i].Name).ToList();
       sqlSelect.Columns.Clear();
 
-      for (int i = 0; i < provider.GroupColumnIndexes.Length; i++) {
+      for (int i = 0; i < provider.GroupColumnIndexes.Count; i++) {
         var columnIndex = provider.GroupColumnIndexes[i];
         var column = columns[columnIndex];
         sqlSelect.GroupBy.Add(column);

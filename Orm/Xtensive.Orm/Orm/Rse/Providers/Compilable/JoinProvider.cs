@@ -31,12 +31,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Pairs of equal column indexes.
     /// </summary>
-    public Pair<ColNum>[] EqualIndexes { get; }
+    public IReadOnlyList<Pair<ColNum>> EqualIndexes { get; }
 
     /// <summary>
     /// Pairs of equal columns.
     /// </summary>
-    public Pair<Column>[] EqualColumns { get; private set; }
+    public IReadOnlyList<Pair<Column>> EqualColumns { get; private set; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -50,12 +50,13 @@ namespace Xtensive.Orm.Rse.Providers
     protected override void Initialize()
     {
       base.Initialize();
-      EqualColumns = new Pair<Column>[EqualIndexes.Length];
-      for (int i = 0; i < EqualIndexes.Length; i++)
-        EqualColumns[i] = new Pair<Column>(
+      var equalColumns = new Pair<Column>[EqualIndexes.Count];
+      for (int i = 0; i < EqualIndexes.Count; i++)
+        equalColumns[i] = new Pair<Column>(
           Left.Header.Columns[EqualIndexes[i].First],
           Right.Header.Columns[EqualIndexes[i].Second]
           );
+      EqualColumns = equalColumns;
     }
 
 
@@ -69,10 +70,10 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="joinType">The join operation type.</param>
     /// <param name="equalIndexes">The <see cref="EqualIndexes"/> property value.</param>
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
-    public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType, params Pair<ColNum>[] equalIndexes)
+    public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType, IReadOnlyList<Pair<ColNum>> equalIndexes)
       : base(ProviderType.Join, left, right)
     {
-      if (equalIndexes==null || equalIndexes.Length==0)
+      if (equalIndexes==null || equalIndexes.Count==0)
         throw new ArgumentException(
           Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, "equalIndexes");
       JoinType = joinType;

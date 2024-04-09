@@ -176,7 +176,7 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="selectedColumns">The indexes of columns to select.</param>
     /// <returns>A new header containing only specified columns.</returns>
-    public RecordSetHeader Select(IEnumerable<ColNum> selectedColumns)
+    public RecordSetHeader Select(IReadOnlyList<ColNum> columns)
     {
       var columns = selectedColumns.ToArray();
       var columnsMap = new ColNum[Columns.Count];

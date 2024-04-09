@@ -19,31 +19,18 @@ namespace Xtensive.Orm.Internals
 {
   internal class EntityDataReader : DomainBound
   {
-    private readonly struct RecordPartMapping
-    {
-      public int TypeIdColumnIndex { get; }
-      public IReadOnlyList<Pair<ColNum>> Columns { get; }
-      public TypeInfo ApproximateType { get; }
+    private readonly record struct RecordPartMapping
+    (
+      int TypeIdColumnIndex,
+      IReadOnlyList<Pair<ColNum>> Columns,
+      TypeInfo ApproximateType
+    );
 
-      public RecordPartMapping(int typeIdColumnIndex, IReadOnlyList<Pair<ColNum>> columns, TypeInfo approximateType)
-      {
-        TypeIdColumnIndex = typeIdColumnIndex;
-        Columns = columns;
-        ApproximateType = approximateType;
-      }
-    }
-
-    private readonly struct CacheItem
-    {
-      public RecordSetHeader Header { get; }
-      public RecordPartMapping[] Mappings { get; }
-
-      public CacheItem(RecordSetHeader header, RecordPartMapping[] mappings)
-      {
-        Header = header;
-        Mappings = mappings;
-      }
-    }
+    private readonly record struct CacheItem
+    (
+      RecordSetHeader Header,
+      IReadOnlyList<RecordPartMapping> Mappings
+    );
 
     private readonly ICache<RecordSetHeader, CacheItem> cache;
 
@@ -81,8 +68,8 @@ namespace Xtensive.Orm.Internals
       return source.Select(tuple => ParseRow(tuple, context, cacheItem.Mappings));
     }
 
-    private Record ParseRow(Tuple tuple, MaterializationContext context, RecordPartMapping[] recordPartMappings) =>
-      recordPartMappings.Length == 1
+    private Record ParseRow(Tuple tuple, MaterializationContext context, IReadOnlyList<RecordPartMapping> recordPartMappings) =>
+      recordPartMappings.Count == 1
         ? new Record(tuple, ParseColumnGroup(tuple, context, 0, recordPartMappings[0]))
         : new Record(tuple, recordPartMappings.Select(
             (recordPartMapping, i) => ParseColumnGroup(tuple, context, i, recordPartMapping))

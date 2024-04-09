@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Linq.Materialization
       if (expression.MarkerType!=MarkerType.None && (expression.MarkerType & MarkerType.Default)==MarkerType.None) {
         if (itemMaterializationContextParameter==null)
           return processedTarget;
-        var columns = ColumnGatherer.GetColumns(target, ColumnExtractionModes.Distinct | ColumnExtractionModes.Ordered).ToArray();
+        IReadOnlyList<ColNum> columns = ColumnGatherer.GetColumns(target, ColumnExtractionModes.Distinct | ColumnExtractionModes.Ordered);
         var sequenceCheck = Expression.Call(MaterializationHelper.IsNullMethodInfo, TupleParameter, Expression.Constant(columns));
         var throwException = Expression.Convert(Expression.Call(MaterializationHelper.ThrowEmptySequenceExceptionMethodInfo), target.Type);
         return Expression.Condition(sequenceCheck, throwException, processedTarget);
@@ -537,7 +537,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return TupleParameter;
     }
 
-    private static Tuple BuildPersistentTuple(Tuple tuple, Tuple tuplePrototype, ColNum[] mapping)
+    private static Tuple BuildPersistentTuple(Tuple tuple, Tuple tuplePrototype, IReadOnlyList<ColNum> mapping)
     {
       var result = tuplePrototype.CreateNew();
       tuple.CopyTo(result, mapping);

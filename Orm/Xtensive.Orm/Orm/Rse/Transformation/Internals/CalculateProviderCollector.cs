@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Rse.Transformation
       select parameter).Distinct().ToList();
     }
 
-    private bool TryAddCalculateFilter(FilterProvider filterProvider, List<ColNum> tupleAccesses)
+    private bool TryAddCalculateFilter(FilterProvider filterProvider, IReadOnlyList<ColNum> tupleAccesses)
     {
       var result = false;
       foreach (var key in owner.State.Predicates.Keys) {

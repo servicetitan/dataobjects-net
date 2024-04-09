@@ -20,13 +20,8 @@ namespace Xtensive.Orm.Rse.Transformation
     private ParameterExpression tupleParameter;
     private bool ignoreMissing;
     protected readonly Func<ApplyParameter, ColNum, ColNum> resolveOuterColumn;
-    protected readonly IList<ColNum> mappings;
 
-
-    public IList<ColNum> Mappings
-    {
-      get { return mappings; }
-    }
+    public IReadOnlyList<ColNum> Mappings;
 
     /// <inheritdoc/>
     protected override Expression VisitUnknown(Expression e)
@@ -42,7 +37,7 @@ namespace Xtensive.Orm.Rse.Transformation
         var outerParameter = mc.GetApplyParameter();
         int newIndex = outerParameter != null
           ? resolveOuterColumn(outerParameter, columnIndex)
-          : mappings.IndexOf(columnIndex);
+          : Mappings.IndexOf(columnIndex);
         if ((newIndex < 0 && ignoreMissing) || newIndex == columnIndex)
           return mc;
         return Expression.Call(mc.Object, mc.Method, Expression.Constant(newIndex));
@@ -89,10 +84,10 @@ namespace Xtensive.Orm.Rse.Transformation
     /// <param name="ignoreMissing">Indicates if the newly created <see cref="TupleAccessRewriter"/>
     /// should ignore rewriting accessors missing in the <paramref name="mappings"/> collection
     /// or not resolvable by <paramref name="resolveOuterColumn"/> delegate.</param>
-    public TupleAccessRewriter(IList<ColNum> mappings, Func<ApplyParameter, ColNum, ColNum> resolveOuterColumn, bool ignoreMissing)
+    public TupleAccessRewriter(IReadOnlyList<ColNum> mappings, Func<ApplyParameter, ColNum, ColNum> resolveOuterColumn, bool ignoreMissing)
     {
       this.ignoreMissing = ignoreMissing;
-      this.mappings = mappings;
+      Mappings = mappings;
       this.resolveOuterColumn = resolveOuterColumn ?? DefaultResolveOuterColumn;
     }
   }
