@@ -804,17 +804,17 @@ namespace Xtensive.Orm.Building.Builders
     {
       var reflectedType = index.ReflectedType;
       var keyColumns = index.IsPrimary
-        ? Enumerable.Range(0, index.KeyColumns.Count).Select(i => (ColNum) i).ToList(index.KeyColumns.Count)
+        ? Enumerable.Range(0, index.KeyColumns.Count).Select(i => (ColNum) i).ToArray(index.KeyColumns.Count)
         : index.KeyColumns
             .Select(static pair => pair.Key)
             .Concat(index.ValueColumns)
             .Select(static (c, i) => (c, i: (ColNum)i))
             .Where(static arg => arg.c.IsPrimaryKey)
             .Select(static arg => arg.i)
-            .ToList();
+            .ToArray();
       var columns = Enumerable.Range(0, index.KeyColumns.Count + index.ValueColumns.Count).ToList(index.KeyColumns.Count + index.ValueColumns.Count)
         .Select(i => (ColNum) i);
-      return new ColumnGroup(reflectedType, keyColumns, columns);
+      return new ColumnGroup(reflectedType, keyColumns, columns.ToArray());
     }
 
     private void CleanupTypedIndexes()

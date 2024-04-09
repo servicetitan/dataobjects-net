@@ -179,30 +179,31 @@ namespace Xtensive.Orm.Rse
     /// <returns>A new header containing only specified columns.</returns>
     public RecordSetHeader Select(IEnumerable<ColNum> selectedColumns)
     {
-      var columns = new List<ColNum>(selectedColumns);
-      var columnsMap = new List<ColNum>(Enumerable.Repeat((ColNum)(-1), Columns.Count));
-      for (ColNum newIndex = 0; newIndex < columns.Count; newIndex++) {
+      var columns = selectedColumns.ToArray();
+      var columnsMap = new ColNum[Columns.Count];
+      Array.Fill(columnsMap, (ColNum)(-1));
+      for (ColNum newIndex = 0, n = (ColNum)columns.Length; newIndex < n; newIndex++) {
         var oldIndex = columns[newIndex];
         columnsMap[oldIndex] = newIndex;
       }
 
-      var fieldTypes = columns.Select(i => TupleDescriptor[i]).ToArray(columns.Count);
+      var fieldTypes = columns.Select(i => TupleDescriptor[i]).ToArray(columns.Length);
       var resultTupleDescriptor = Xtensive.Tuples.TupleDescriptor.Create(fieldTypes);
       var resultOrder = new DirectionCollection<ColNum>(
         Order
           .Select(o => new KeyValuePair<ColNum, Direction>(columnsMap[o.Key], o.Value))
           .TakeWhile(o => o.Key >= 0));
 
-      var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum)newIndex)).ToArray(columns.Count);
+      var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum)newIndex)).ToArray(columns.Length);
 
       var resultGroups = ColumnGroups
         .Where(g => g.Keys.All(k => columnsMap[k]>=0))
         .Select(g => new ColumnGroup(
             g.TypeInfoRef,
-            g.Keys.Select(k => columnsMap[k]),
+            g.Keys.Select(k => columnsMap[k]).ToArray(),
             g.Columns
               .Select(c => columnsMap[c])
-              .Where(c => c >= 0)));
+              .Where(c => c >= 0).ToList()));
 
       return new RecordSetHeader(
         resultTupleDescriptor,
