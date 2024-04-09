@@ -142,6 +142,9 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public bool Equals(TupleDescriptor other)
     {
+      if (other is null) {
+         return false;
+      }
       if (FieldTypes == null) {
         return other.FieldTypes == null;
       }
@@ -170,7 +173,7 @@ namespace Xtensive.Tuples
       return result;
     }
 
-    public static bool operator ==(in TupleDescriptor left, in TupleDescriptor right) => left.Equals(right);
+    public static bool operator ==(in TupleDescriptor left, in TupleDescriptor right) => left?.Equals(right) == true;
     public static bool operator !=(in TupleDescriptor left, in TupleDescriptor right) => !(left == right);
 
     #endregion
