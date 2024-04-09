@@ -178,22 +178,21 @@ namespace Xtensive.Orm.Rse
     /// <returns>A new header containing only specified columns.</returns>
     public RecordSetHeader Select(IReadOnlyList<ColNum> columns)
     {
-      var columns = selectedColumns.ToArray();
       var columnsMap = new ColNum[Columns.Count];
       Array.Fill(columnsMap, (ColNum)(-1));
-      for (ColNum newIndex = 0, n = (ColNum)columns.Length; newIndex < n; newIndex++) {
+      for (ColNum newIndex = 0, n = (ColNum)columns.Count; newIndex < n; newIndex++) {
         var oldIndex = columns[newIndex];
         columnsMap[oldIndex] = newIndex;
       }
 
-      var fieldTypes = columns.Select(i => TupleDescriptor[i]).ToArray(columns.Length);
+      var fieldTypes = columns.Select(i => TupleDescriptor[i]).ToArray(columns.Count);
       var resultTupleDescriptor = Xtensive.Tuples.TupleDescriptor.Create(fieldTypes);
       var resultOrder = new DirectionCollection<ColNum>(
         Order
           .Select(o => new KeyValuePair<ColNum, Direction>(columnsMap[o.Key], o.Value))
           .TakeWhile(o => o.Key >= 0));
 
-      var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum)newIndex)).ToArray(columns.Length);
+      var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum)newIndex)).ToArray(columns.Count);
 
       var resultGroups = ColumnGroups
         .Where(g => g.Keys.All(k => columnsMap[k]>=0))
