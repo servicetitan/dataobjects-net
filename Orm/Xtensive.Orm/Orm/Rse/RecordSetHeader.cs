@@ -130,30 +130,38 @@ namespace Xtensive.Orm.Rse
     public RecordSetHeader Join(RecordSetHeader joined)
     {
       var columnCount = Columns.Count;
-      var newColumns = new List<Column>(columnCount + joined.Columns.Count);
-      newColumns.AddRange(Columns);
+      var newColumns = new Column[columnCount + joined.Columns.Count];
+      int j = 0;
+      foreach (var c in Columns) {
+        newColumns[j++] = c;
+      }
       foreach (var c in joined.Columns) {
-        newColumns.Add(c.Clone((ColNum) (columnCount + c.Index)));
+        newColumns[j++] = c.Clone((ColNum) (columnCount + c.Index));
       }
 
-      var newFieldTypes = new Type[newColumns.Count];
-      for (var i = 0; i < newColumns.Count; i++)
+      var newFieldTypes = new Type[newColumns.Length];
+      for (var i = 0; i < newColumns.Length; i++)
         newFieldTypes[i] = newColumns[i].Type;
       var newTupleDescriptor = TupleDescriptor.Create(newFieldTypes);
 
       var columnGroupCount = ColumnGroups.Count;
-      var groups = new List<ColumnGroup>(columnGroupCount + joined.ColumnGroups.Count);
-      groups.AddRange(ColumnGroups);
+      var groups = new ColumnGroup[columnGroupCount + joined.ColumnGroups.Count];
+      j = 0;
+      foreach (var g in ColumnGroups) {
+        groups[j++] = g;
+      }
       foreach (var g in joined.ColumnGroups) {
-        var keys = new List<ColNum>(g.Keys.Count);
+        var keys = new ColNum[g.Keys.Count];
+        int k = 0;
         foreach (var i in g.Keys) {
-          keys.Add((ColNum) (columnCount + i));
+          keys[k++] = (ColNum) (columnCount + i);
         }
-        var columns = new List<ColNum>(g.Columns.Count);
+        var columns = new ColNum[g.Columns.Count];
+        k = 0;
         foreach (var i in g.Columns) {
-          columns.Add((ColNum) (columnCount + i));
+          columns[k++] = (ColNum) (columnCount + i);
         }
-        groups.Add(new ColumnGroup(g.TypeInfoRef, keys, columns));
+        groups[j++] = new ColumnGroup(g.TypeInfoRef, keys, columns);
       }
 
       return new RecordSetHeader(
