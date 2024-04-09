@@ -106,11 +106,10 @@ namespace Xtensive.Orm.Rse
     /// <returns>The constructed header.</returns>
     public RecordSetHeader Add(IEnumerable<Column> columns)
     {
-      var newColumns = new List<Column>(Columns);
-      newColumns.AddRange(columns);
+      var newColumns = Columns.Concat(columns).ToArray();
 
-      var newFieldTypes = new Type[newColumns.Count];
-      for (var i = 0; i < newColumns.Count; i++)
+      var newFieldTypes = new Type[newColumns.Length];
+      for (int i = 0, n = newColumns.Length; i < n; i++)
         newFieldTypes[i] = newColumns[i].Type;
       var newTupleDescriptor = TupleDescriptor.Create(newFieldTypes);
 
