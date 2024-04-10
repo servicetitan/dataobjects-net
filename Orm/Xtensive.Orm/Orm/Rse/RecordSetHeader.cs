@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Rse
     /// <returns>The constructed header.</returns>
     public RecordSetHeader Add(Column column)
     {
-      return Add(EnumerableUtils.One(column));
+      return Add([column]);
     }
 
     /// <summary>
@@ -105,17 +105,17 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="columns">The columns to add.</param>
     /// <returns>The constructed header.</returns>
-    public RecordSetHeader Add(IEnumerable<Column> columns)
+    public RecordSetHeader Add(IReadOnlyList<Column> columns)
     {
-      var newColumns = Columns.Concat(columns).ToArray();
+      var n = Columns.Count + columns.Count;
+      var newColumns = Columns.Concat(columns).ToArray(n);
 
-      var newFieldTypes = new Type[newColumns.Length];
-      for (int i = 0, n = newColumns.Length; i < n; i++)
+      var newFieldTypes = new Type[n];
+      for (int i = n; i-- > 0;)
         newFieldTypes[i] = newColumns[i].Type;
-      var newTupleDescriptor = TupleDescriptor.Create(newFieldTypes);
 
       return new RecordSetHeader(
-        newTupleDescriptor,
+        TupleDescriptor.Create(newFieldTypes),
         newColumns,
         ColumnGroups,
         OrderTupleDescriptor,
