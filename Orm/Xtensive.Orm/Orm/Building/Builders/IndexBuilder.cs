@@ -811,7 +811,7 @@ namespace Xtensive.Orm.Building.Builders
             .Select(static (c, i) => (c, i: (ColNum)i))
             .Where(static arg => arg.c.IsPrimaryKey)
             .Select(static arg => arg.i)
-            .ToList();
+            .ToArray();
       return new ColumnGroup(reflectedType, keyColumns, CollectionUtils.ColNumRange(index.KeyColumns.Count + index.ValueColumns.Count));
     }
 

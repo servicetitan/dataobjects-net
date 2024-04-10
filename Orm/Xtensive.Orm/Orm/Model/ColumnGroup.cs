@@ -39,17 +39,6 @@ namespace Xtensive.Orm.Model
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="type">The type.</param>
-    /// <param name="keys">The keys.</param>
-    /// <param name="columns">The columns.</param>
-    public ColumnGroup(TypeInfoRef type, IEnumerable<ColNum> keys, IEnumerable<ColNum> columns)
-      : this(type, new List<ColNum>(keys), new List<ColNum>(columns))
-    {
-    }
-
-    /// <summary>
     ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">The type.</param>

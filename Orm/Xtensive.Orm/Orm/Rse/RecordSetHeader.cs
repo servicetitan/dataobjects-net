@@ -5,6 +5,7 @@
 // Created:    2007.09.13
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -96,7 +97,7 @@ namespace Xtensive.Orm.Rse
     /// <returns>The constructed header.</returns>
     public RecordSetHeader Add(Column column)
     {
-      return Add(EnumerableUtils.One(column));
+      return Add([column]);
     }
 
     /// <summary>
@@ -104,18 +105,17 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="columns">The columns to add.</param>
     /// <returns>The constructed header.</returns>
-    public RecordSetHeader Add(IEnumerable<Column> columns)
+    public RecordSetHeader Add(IReadOnlyList<Column> columns)
     {
-      var newColumns = new List<Column>(Columns);
-      newColumns.AddRange(columns);
+      var n = Columns.Count + columns.Count;
+      var newColumns = Columns.Concat(columns).ToArray(n);
 
-      var newFieldTypes = new Type[newColumns.Count];
-      for (var i = 0; i < newColumns.Count; i++)
+      var newFieldTypes = new Type[n];
+      for (int i = n; i-- > 0;)
         newFieldTypes[i] = newColumns[i].Type;
-      var newTupleDescriptor = TupleDescriptor.Create(newFieldTypes);
 
       return new RecordSetHeader(
-        newTupleDescriptor,
+        TupleDescriptor.Create(newFieldTypes),
         newColumns,
         ColumnGroups,
         OrderTupleDescriptor,
@@ -130,30 +130,38 @@ namespace Xtensive.Orm.Rse
     public RecordSetHeader Join(RecordSetHeader joined)
     {
       var columnCount = Columns.Count;
-      var newColumns = new List<Column>(columnCount + joined.Columns.Count);
-      newColumns.AddRange(Columns);
+      var newColumns = new Column[columnCount + joined.Columns.Count];
+      int j = 0;
+      foreach (var c in Columns) {
+        newColumns[j++] = c;
+      }
       foreach (var c in joined.Columns) {
-        newColumns.Add(c.Clone((ColNum) (columnCount + c.Index)));
+        newColumns[j++] = c.Clone((ColNum) (columnCount + c.Index));
       }
 
-      var newFieldTypes = new Type[newColumns.Count];
-      for (var i = 0; i < newColumns.Count; i++)
+      var newFieldTypes = new Type[newColumns.Length];
+      for (var i = 0; i < newColumns.Length; i++)
         newFieldTypes[i] = newColumns[i].Type;
       var newTupleDescriptor = TupleDescriptor.Create(newFieldTypes);
 
       var columnGroupCount = ColumnGroups.Count;
-      var groups = new List<ColumnGroup>(columnGroupCount + joined.ColumnGroups.Count);
-      groups.AddRange(ColumnGroups);
+      var groups = new ColumnGroup[columnGroupCount + joined.ColumnGroups.Count];
+      j = 0;
+      foreach (var g in ColumnGroups) {
+        groups[j++] = g;
+      }
       foreach (var g in joined.ColumnGroups) {
-        var keys = new List<ColNum>(g.Keys.Count);
+        var keys = new ColNum[g.Keys.Count];
+        int k = 0;
         foreach (var i in g.Keys) {
-          keys.Add((ColNum) (columnCount + i));
+          keys[k++] = (ColNum) (columnCount + i);
         }
-        var columns = new List<ColNum>(g.Columns.Count);
+        var columns = new ColNum[g.Columns.Count];
+        k = 0;
         foreach (var i in g.Columns) {
-          columns.Add((ColNum) (columnCount + i));
+          columns[k++] = (ColNum) (columnCount + i);
         }
-        groups.Add(new ColumnGroup(g.TypeInfoRef, keys, columns));
+        groups[j++] = new ColumnGroup(g.TypeInfoRef, keys, columns);
       }
 
       return new RecordSetHeader(
@@ -171,36 +179,42 @@ namespace Xtensive.Orm.Rse
     /// <returns>A new header containing only specified columns.</returns>
     public RecordSetHeader Select(IReadOnlyList<ColNum> columns)
     {
-      var columnsMap = new List<ColNum>(Enumerable.Repeat((ColNum)(-1), Columns.Count));
-      for (ColNum newIndex = 0; newIndex < columns.Count; newIndex++) {
-        var oldIndex = columns[newIndex];
-        columnsMap[oldIndex] = newIndex;
-      }
+      var columnsMap = ArrayPool<ColNum>.Shared.Rent(Columns.Count);
+      try {
+        Array.Fill(columnsMap, (ColNum) (-1));
+        for (ColNum newIndex = 0, n = (ColNum) columns.Count; newIndex < n; newIndex++) {
+          var oldIndex = columns[newIndex];
+          columnsMap[oldIndex] = newIndex;
+        }
 
-      var fieldTypes = columns.Select(i => TupleDescriptor[i]).ToArray(columns.Count);
-      var resultTupleDescriptor = Xtensive.Tuples.TupleDescriptor.Create(fieldTypes);
-      var resultOrder = new DirectionCollection<ColNum>(
-        Order
-          .Select(o => new KeyValuePair<ColNum, Direction>(columnsMap[o.Key], o.Value))
-          .TakeWhile(o => o.Key >= 0));
+        var fieldTypes = columns.Select(i => TupleDescriptor[i]).ToArray(columns.Count);
+        var resultTupleDescriptor = Xtensive.Tuples.TupleDescriptor.Create(fieldTypes);
+        var resultOrder = new DirectionCollection<ColNum>(
+          Order
+            .Select(o => new KeyValuePair<ColNum, Direction>(columnsMap[o.Key], o.Value))
+            .TakeWhile(o => o.Key >= 0));
 
-      var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum)newIndex)).ToArray(columns.Count);
+        var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum) newIndex)).ToArray(columns.Count);
 
-      var resultGroups = ColumnGroups
-        .Where(g => g.Keys.All(k => columnsMap[k]>=0))
-        .Select(g => new ColumnGroup(
+        var resultGroups = ColumnGroups
+          .Where(g => g.Keys.All(k => columnsMap[k] >= 0))
+          .Select(g => new ColumnGroup(
             g.TypeInfoRef,
-            g.Keys.Select(k => columnsMap[k]),
+            g.Keys.Select(k => columnsMap[k]).ToArray(),
             g.Columns
               .Select(c => columnsMap[c])
-              .Where(c => c >= 0)));
+              .Where(c => c >= 0).ToList()));
 
-      return new RecordSetHeader(
-        resultTupleDescriptor,
-        resultColumns,
-        resultGroups.ToList(),
-        null,
-        resultOrder);
+        return new RecordSetHeader(
+          resultTupleDescriptor,
+          resultColumns,
+          resultGroups.ToList(),
+          null,
+          resultOrder);
+      }
+      finally {
+        ArrayPool<ColNum>.Shared.Return(columnsMap);
+      }
     }
 
     /// <summary>
