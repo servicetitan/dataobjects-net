@@ -85,8 +85,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug
         if (ns.EndsWith(oldVersionSuffix)) {
           string newNs = ns.Substring(0, ns.Length - oldVersionSuffix.Length) + newVersionSuffix;
           string newFullName = newNs + "." + name;
-          Type newType = upgradeContext.Configuration.Types.SingleOrDefault(t => t.FullName==newFullName);
-          if (newType!=null)
+          Type newType = upgradeContext.Configuration.Types.SingleOrDefault(t => t.FullName == newFullName);
+          if (newType != null)
             hints.Add(new RenameTypeHint(fullName, newType));
         }
       }
@@ -96,9 +96,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug
     public override bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)
     {
       string suffix = ".Version" + runningVersion;
-      var originalNamespace = type.Namespace;
-      var nameSpace = originalNamespace.TryCutSuffix(suffix);
-      return nameSpace!=originalNamespace 
+      return type.Namespace.EndsWith(suffix)
         && base.IsTypeAvailable(type, upgradeStage);
     }
   }

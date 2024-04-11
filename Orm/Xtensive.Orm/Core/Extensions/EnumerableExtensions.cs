@@ -5,16 +5,13 @@
 // Created:    2008.05.16
 
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Collections;
 using Xtensive.Collections.Graphs;
-using Xtensive.Orm;
 
 
 namespace Xtensive.Core
@@ -420,31 +417,39 @@ namespace Xtensive.Core
     public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source, int firstFastCount,
       int initialBatchSize, int maximalBatchSize)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(initialBatchSize, 0, int.MaxValue, "initialBatchSize");
-      ArgumentValidator.EnsureArgumentIsInRange(maximalBatchSize, 0, int.MaxValue, "maximalBatchSize");
-      if(maximalBatchSize < initialBatchSize)
-        throw new ArgumentException(String.Format(Strings.ExArgumentXIsLessThanArgumentY,
+      ArgumentValidator.EnsureArgumentIsInRange(initialBatchSize, 0, int.MaxValue, nameof(initialBatchSize));
+      ArgumentValidator.EnsureArgumentIsInRange(maximalBatchSize, 0, int.MaxValue, nameof(maximalBatchSize));
+      if(maximalBatchSize < initialBatchSize) {
+        throw new ArgumentException(string.Format(Strings.ExArgumentXIsLessThanArgumentY,
           "maximalBatchSize", "initialBatchSize"));
+      }
+
       var currentCount = 0;
       var currentBatchSize = initialBatchSize;
-      using (var enumerator = source.GetEnumerator()) {
-        while (currentCount < firstFastCount && enumerator.MoveNext()) {
-          currentCount++;
-          yield return EnumerableUtils.One(enumerator.Current);
-        }
-        while (enumerator.MoveNext()) {
-          currentCount = 0;
-          var batch = new List<T>(currentBatchSize);
+      using var enumerator = source.GetEnumerator();
+      while (currentCount < firstFastCount && enumerator.MoveNext()) {
+        currentCount++;
+        yield return EnumerableUtils.One(enumerator.Current);
+      }
+      while (enumerator.MoveNext()) {
+        currentCount = 0;
+        var buffer = ArrayPool<T>.Shared.Rent(currentBatchSize);
+        try {
           do {
-            batch.Add(enumerator.Current);
-            currentCount++;
+            buffer[currentCount++] = enumerator.Current;
           } while (currentCount < currentBatchSize && enumerator.MoveNext());
+
           if (currentBatchSize < maximalBatchSize) {
             currentBatchSize *= 2;
-            if(currentBatchSize > maximalBatchSize)
+            if (currentBatchSize > maximalBatchSize) {
               currentBatchSize = maximalBatchSize;
+            }
           }
-          yield return batch;
+
+          yield return buffer.Take(currentCount);
+        }
+        finally {
+          ArrayPool<T>.Shared.Return(buffer);
         }
       }
     }

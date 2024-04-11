@@ -21,7 +21,6 @@ namespace Xtensive.Orm.Rse.Providers
   public abstract class Provider
   {
     private const string ToString_ProviderTypeSuffix = "Provider";
-    private const string ToString_Parameters = " ({0})";
     private const int    ToString_IndentSize = 2;
 
     private RecordSetHeader header;
@@ -102,15 +101,9 @@ namespace Xtensive.Orm.Rse.Providers
 
     private string TitleToString()
     {
-      var sb = new StringBuilder();
       var type = GetType();
-      var providerName = (type.IsGenericType ? type.GetShortName() : type.Name).TryCutSuffix(ToString_ProviderTypeSuffix);
-      var parameters = ParametersToString();
-
-      sb.Append(providerName);
-      if (!parameters.IsNullOrEmpty())
-        sb.AppendFormat(ToString_Parameters, parameters);
-      return sb.ToString();
+      var providerName = (type.IsGenericType ? type.GetShortName() : type.Name).AsSpan().TryCutSuffix(ToString_ProviderTypeSuffix);
+      return $"{providerName}({ParametersToString()})";
     }
 
     /// <summary>

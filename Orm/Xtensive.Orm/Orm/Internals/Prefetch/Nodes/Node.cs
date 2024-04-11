@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     protected virtual string GetDescription()
     {
-      var nodeName = GetType().Name.TryCutSuffix(typeof (Node).Name);
+      var nodeName = GetType().Name.AsSpan().TryCutSuffix(nameof(Node));
       return $"{nodeName}({Path})";
     }
 
