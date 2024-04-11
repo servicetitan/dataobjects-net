@@ -427,7 +427,7 @@ namespace Xtensive.Orm.Upgrade
       var session = await domain.OpenSessionAsync(SessionType.System, token).ConfigureAwaitFalse();
       await using (session.ConfigureAwaitFalse()) {
         using (session.Activate()) {
-          var transaction = session.OpenTransaction();
+          var transaction = await session.OpenTransactionAsync(token).ConfigureAwaitFalse();
           await using (transaction.ConfigureAwaitFalse()) {
             var upgrader = new SchemaUpgrader(context, session);
             var extractor = new SchemaExtractor(context, session);

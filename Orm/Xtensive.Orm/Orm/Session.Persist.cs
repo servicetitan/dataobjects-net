@@ -309,7 +309,7 @@ namespace Xtensive.Orm
     private async Task SaveLocalChangesAsync(CancellationToken token = default)
     {
       Validate();
-      var transaction = OpenTransaction(TransactionOpenMode.New);
+      var transaction = await OpenTransactionAsync(TransactionOpenMode.New, token).ConfigureAwaitFalse();
       await using (transaction.ConfigureAwaitFalse()) {
         try {
           await PersistAsync(PersistReason.Manual, token).ConfigureAwaitFalse();

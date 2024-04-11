@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Manual.Prefetch
     public async Task MainAsyncTest()
     {
       await using (var session = await Domain.OpenSessionAsync())
-      using (var transactionScope = session.OpenTransaction()) {
+      using (var transactionScope = await session.OpenTransactionAsync()) {
         var employee = new Person(session) { Name = "Employee", Photo = new byte[] { 8, 0 } };
         var manager = new Person(session) { Name = "Manager", Photo = new byte[] { 8, 0 } };
         _ = manager.Employees.Add(employee);
@@ -150,7 +150,7 @@ namespace Xtensive.Orm.Manual.Prefetch
       }
 
       await using (var session = await Domain.OpenSessionAsync())
-      using (var transactionScope = session.OpenTransaction()) {
+      using (var transactionScope = await session.OpenTransactionAsync()) {
         var people = session.Query.All<Person>()
           .Prefetch(p => p.Photo) // Lazy load field
           .Prefetch(p => p.Employees // EntitySet Employees
@@ -164,7 +164,7 @@ namespace Xtensive.Orm.Manual.Prefetch
       }
 
       await using (var session = await Domain.OpenSessionAsync())
-      using (var transactionScope = session.OpenTransaction()) {
+      using (var transactionScope = await session.OpenTransactionAsync()) {
         var personIds = session.Query.All<Person>().Select(p => p.Id);
         var prefetchedPeople = session.Query.Many<Person, int>(personIds)
           .Prefetch(p => new { p.Photo, p.Manager }) // Lazy load field and Referenced entity
@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Manual.Prefetch
       }
 
       await using (var session = await Domain.OpenSessionAsync())
-      using (var transactionScope = session.OpenTransaction()) {
+      using (var transactionScope = await session.OpenTransactionAsync()) {
         var people = session.Query.All<Person>()
           .Prefetch(p => p.Photo) // Lazy load field
           .Prefetch(p => p.Employees.Prefetch(e => e.Photo)) // EntitySet Employees and lazy load field of each of its items with the limit on number of items to be loaded
@@ -250,12 +250,12 @@ namespace Xtensive.Orm.Manual.Prefetch
       var count = 1000;
 
       await using (var session = await Domain.OpenSessionAsync())
-      using (var transactionScope = session.OpenTransaction()) {
+      using (var transactionScope = await session.OpenTransactionAsync()) {
         var people = new Person[count];
         for (var i = 0; i < count; i++) {
           people[i] = new Person(session) { Name = i.ToString(), Photo = new[] { (byte) (i % 256) } };
         }
-        session.SaveChanges();
+        await session.SaveChangesAsync();
 
         var random = new Random(10);
         for (var i = 0; i < count; i++) {
@@ -268,7 +268,7 @@ namespace Xtensive.Orm.Manual.Prefetch
       }
 
       await using (var session = await Domain.OpenSessionAsync())
-      using (var transactionScope = session.OpenTransaction()) {
+      using (var transactionScope = await session.OpenTransactionAsync()) {
         var prefetchedPeople = (
           from person in session.Query.All<Person>()
           orderby person.Name
@@ -339,7 +339,7 @@ namespace Xtensive.Orm.Manual.Prefetch
     public async Task DelayedQueryAsyncTest()
     {
       await using (var session = await Domain.OpenSessionAsync())
-      using (var transactionScope = session.OpenTransaction()) {
+      using (var transactionScope = await session.OpenTransactionAsync()) {
         var employee = new Person(session) { Name = "Employee", Photo = new byte[] { 8, 0 } };
         var manager = new Person(session) { Name = "Manager", Photo = new byte[] { 8, 0 } };
         _ = manager.Employees.Add(employee);
@@ -347,7 +347,7 @@ namespace Xtensive.Orm.Manual.Prefetch
       }
 
       await using (var session = await Domain.OpenSessionAsync())// no session activation!
-      using (var transactionScope = session.OpenTransaction()) {
+      using (var transactionScope = await session.OpenTransactionAsync()) {
         var people = session.Query.CreateDelayedQuery(q => q.All<Person>())
           .Prefetch(p => p.Photo) // Lazy load field
           .Prefetch(p => p.Employees // EntitySet Employees
@@ -360,7 +360,7 @@ namespace Xtensive.Orm.Manual.Prefetch
       }
 
       await using (var session = await Domain.OpenSessionAsync())// no session activation!
-      using (var transactionScope = session.OpenTransaction()) {
+      using (var transactionScope = await session.OpenTransactionAsync()) {
         var people = session.Query.CreateDelayedQuery(q => q.All<Person>())
           .Prefetch(p => p.Photo) // Lazy load field
           .Prefetch(p => p.Employees.Prefetch(e => e.Photo)) // EntitySet Employees and lazy load field of each of its items with the limit on number of items to be loaded
@@ -409,7 +409,7 @@ namespace Xtensive.Orm.Manual.Prefetch
     public async Task DelayedQueryAsyncShouldMaterializeAsyncTest()
     {
       await using (var session = await Domain.OpenSessionAsync()) {
-        using (var transactionScope = session.OpenTransaction()) {
+        using (var transactionScope = await session.OpenTransactionAsync()) {
           var employee = new Person(session) { Name = "Employee", Photo = new byte[] { 8, 0 } };
           var manager = new Person(session) { Name = "Manager", Photo = new byte[] { 8, 0 } };
           _ = manager.Employees.Add(employee);
@@ -425,7 +425,7 @@ namespace Xtensive.Orm.Manual.Prefetch
         var moq = new QueryCounterSessionHandlerMoq(handler);
         using (sessionAccessor.ChangeSessionHandler(moq))
 
-        using (var transactionScope = session.OpenTransaction()) {
+        using (var transactionScope = await session.OpenTransactionAsync()) {
           var people = session.Query.CreateDelayedQuery(q => q.All<Person>())
             .Prefetch(p => p.Photo) // Lazy load field
             .Prefetch(p => p.Employees // EntitySet Employees
@@ -448,7 +448,7 @@ namespace Xtensive.Orm.Manual.Prefetch
         var moq = new QueryCounterSessionHandlerMoq(handler);
         using (sessionAccessor.ChangeSessionHandler(moq))
 
-        using (var transactionScope = session.OpenTransaction()) {
+        using (var transactionScope = await session.OpenTransactionAsync()) {
           var people = session.Query.CreateDelayedQuery(q => q.All<Person>())
             .Prefetch(p => p.Photo) // Lazy load field
             .Prefetch(p => p.Employees.Prefetch(e => e.Photo)) // EntitySet Employees and lazy load field of each of its items with the limit on number of items to be loaded
@@ -519,7 +519,7 @@ namespace Xtensive.Orm.Manual.Prefetch
     public async Task CachedQueryAsyncTest()
     {
       await using (var session = await Domain.OpenSessionAsync())
-      using (var transactionScope = session.OpenTransaction()) {
+      using (var transactionScope = await session.OpenTransactionAsync()) {
         var employee = new Person(session) { Name = "Employee", Photo = new byte[] { 8, 0 } };
         var manager = new Person(session) { Name = "Manager", Photo = new byte[] { 8, 0 } };
         _ = manager.Employees.Add(employee);
@@ -527,7 +527,7 @@ namespace Xtensive.Orm.Manual.Prefetch
       }
 
       await using (var session = await Domain.OpenSessionAsync())// no session activation!
-      using (var transactionScope = session.OpenTransaction()) {
+      using (var transactionScope = await session.OpenTransactionAsync()) {
         var people = (await session.Query.ExecuteAsync(q => q.All<Person>()))
           .Prefetch(p => p.Photo) // Lazy load field
           .Prefetch(p => p.Employees // EntitySet Employees
@@ -540,7 +540,7 @@ namespace Xtensive.Orm.Manual.Prefetch
       }
 
       await using (var session = await Domain.OpenSessionAsync())// no session activation!
-      using (var transactionScope = session.OpenTransaction()) {
+      using (var transactionScope = await session.OpenTransactionAsync()) {
         var people = (await session.Query.ExecuteAsync(q => q.All<Person>()))
           .Prefetch(p => p.Photo) // Lazy load field
           .Prefetch(p => p.Employees.Prefetch(e => e.Photo)) // EntitySet Employees and lazy load field of each of its items with the limit on number of items to be loaded
