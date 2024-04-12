@@ -449,7 +449,7 @@ namespace Xtensive.Core
           yield return buffer.Take(currentCount);
         }
         finally {
-          ArrayPool<T>.Shared.Return(buffer);
+          ArrayPool<T>.Shared.Return(buffer, true);
         }
       }
     }
