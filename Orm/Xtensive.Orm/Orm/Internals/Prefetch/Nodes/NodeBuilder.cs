@@ -15,7 +15,7 @@ using ObjectModel = System.Collections.ObjectModel;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  internal sealed class NodeBuilder
+  internal readonly struct NodeBuilder
   {
     private readonly DomainModel model;
     private readonly Expression root;
@@ -39,12 +39,12 @@ namespace Xtensive.Orm.Internals.Prefetch
       return target => new[] {((IEntity) target).Key};
     }
 
-    private IEnumerable<BaseFieldNode> VisitRoot()
+    private IReadOnlyList<BaseFieldNode> VisitRoot()
     {
       return Visit(root);
     }
 
-    private IEnumerable<BaseFieldNode> Visit(Expression expression)
+    private IReadOnlyList<BaseFieldNode> Visit(Expression expression)
     {
       switch (expression.NodeType) {
         case ExpressionType.Parameter:
@@ -60,23 +60,23 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
     }
 
-    private IEnumerable<BaseFieldNode> VisitLambda(LambdaExpression expression)
+    private IReadOnlyList<BaseFieldNode> VisitLambda(LambdaExpression expression)
     {
       var nestedParameter = expression.Parameters.First();
       return CreateNestedBuilder(nestedParameter).VisitRoot();
     }
 
-    private IEnumerable<BaseFieldNode> VisitParameter(ParameterExpression expression)
+    private IReadOnlyList<BaseFieldNode> VisitParameter(ParameterExpression expression)
     {
       return VisitChildren(expression);
     }
 
-    private IEnumerable<BaseFieldNode> VisitNew(NewExpression expression)
+    private IReadOnlyList<BaseFieldNode> VisitNew(NewExpression expression)
     {
       return VisitChildren(expression);
     }
 
-    private IEnumerable<BaseFieldNode> VisitMemberAccess(MemberExpression access)
+    private IReadOnlyList<BaseFieldNode> VisitMemberAccess(MemberExpression access)
     {
       var currentType = access.Expression.Type;
 
@@ -117,15 +117,15 @@ namespace Xtensive.Orm.Internals.Prefetch
         result = new FieldNode(path, field);
       }
 
-      return EnumerableUtils.One(result);
+      return [result];
     }
 
-    private static IReadOnlyList<BaseFieldNode> WrapNodes(IEnumerable<BaseFieldNode> nodes)
+    private static IReadOnlyList<BaseFieldNode> WrapNodes(IReadOnlyList<BaseFieldNode> nodes)
     {
-      return nodes.ToList().AsSafeWrapper();
+      return nodes.AsSafeWrapper();
     }
 
-    private IEnumerable<BaseFieldNode> VisitChildren(Expression expression)
+    private IReadOnlyList<BaseFieldNode> VisitChildren(Expression expression)
     {
       var result = new List<BaseFieldNode>();
       foreach (var child in map.GetChildren(expression))
