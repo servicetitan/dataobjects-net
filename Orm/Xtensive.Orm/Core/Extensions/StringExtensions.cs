@@ -6,8 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Xtensive.Core
@@ -26,8 +24,10 @@ namespace Xtensive.Core
     /// otherwise, original <paramref name="value"/>.</returns>
     public static string TryCutSuffix(this string value, string suffix)
     {
-      if (!value.EndsWith(suffix, StringComparison.Ordinal))
+      if (!value.EndsWith(suffix, StringComparison.Ordinal)) {
         return value;
+      }
+
       return value.Substring(0, value.Length - suffix.Length);
     }
 
@@ -38,10 +38,12 @@ namespace Xtensive.Core
     /// <param name="suffix">The suffix to cut.</param>
     /// <returns>Span without <paramref name="suffix"/> if it was found;
     /// otherwise, original <paramref name="value"/>.</returns>
-    public static ReadOnlySpan<char>TryCutSuffix(this in ReadOnlySpan<char> value, in ReadOnlySpan<char> suffix)
+    public static ReadOnlySpan<char> TryCutSuffix(this in ReadOnlySpan<char> value, in ReadOnlySpan<char> suffix)
     {
-      if (!value.EndsWith(suffix, StringComparison.Ordinal))
+      if (!value.EndsWith(suffix, StringComparison.Ordinal)) {
         return value;
+      }
+
       return value.Slice(0, value.Length - suffix.Length);
     }
 
@@ -54,8 +56,10 @@ namespace Xtensive.Core
     /// otherwise, original <paramref name="value"/>.</returns>
     public static string TryCutPrefix(this string value, string prefix)
     {
-      if (!value.StartsWith(prefix, StringComparison.Ordinal))
+      if (!value.StartsWith(prefix, StringComparison.Ordinal)) {
         return value;
+      }
+
       return value.Substring(prefix.Length);
     }
 
@@ -68,8 +72,10 @@ namespace Xtensive.Core
     /// otherwise, original <paramref name="value"/>.</returns>
     public static ReadOnlySpan<char> TryCutPrefix(this in ReadOnlySpan<char> value, in ReadOnlySpan<char> prefix)
     {
-      if (!value.StartsWith(prefix, StringComparison.Ordinal))
+      if (!value.StartsWith(prefix, StringComparison.Ordinal)) {
         return value;
+      }
+
       return value.Slice(prefix.Length);
     }
 
@@ -94,21 +100,33 @@ namespace Xtensive.Core
     /// <returns>Indented <paramref name="value"/>.</returns>
     public static string Indent(this string value, int indentSize, bool indentFirstLine)
     {
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
-      var indent = new string(' ', indentSize);
-      var sb = new ValueStringBuilder(stackalloc char[4096]);
-      if (indentFirstLine)
-        sb.Append(indent);
-      int start = 0;
-      int next;
-      while ((next = value.IndexOf('\n', start)) >= 0) {
-        next++;
-        sb.Append(value.Substring(start, next - start));
-        sb.Append(indent);
-        start = next;
+      ArgumentValidator.EnsureArgumentNotNull(value, nameof(value));
+
+      var lineCount = value.AsSpan().TrimEnd('\n').Count('\n');
+
+      return string.Create(value.Length + (indentSize * (indentFirstLine ? lineCount + 1 : lineCount)), (value, lineCount, indentSize, indentFirstLine), IndentSpanAction);
+    }
+
+    private static void IndentSpanAction(Span<char> span, (string value, int lineCount, int indentSize, bool indentFirstLine) state)
+    {
+      Span<char> indent = stackalloc char[state.indentSize];
+      indent.Fill(' ');
+      var valueSpan = state.value.AsSpan();
+
+      if (state.indentFirstLine) {
+        indent.CopyTo(span);
+        span = span.Slice(indent.Length);
       }
-      sb.Append(value.Substring(start, value.Length - start));
-      return sb.ToString();
+      int next;
+      while ((next = valueSpan.IndexOf('\n')) >= 0) {
+        next++;
+        valueSpan.Slice(0, next).CopyTo(span);
+        span = span.Slice(next);
+        indent.CopyTo(span);
+        span = span.Slice(indent.Length);
+        valueSpan = valueSpan.Slice(next);
+      }
+      valueSpan.CopyTo(span);
     }
 
     /// <summary>
@@ -121,12 +139,18 @@ namespace Xtensive.Core
     /// </returns>
     public static bool LessThan(this string x, string y)
     {
-      if (x == y)
+      if (x == y) {
         return false;
-      if (x == null)
+      }
+
+      if (x == null) {
         return true;
-      if (y == null)
+      }
+
+      if (y == null) {
         return false;
+      }
+
       return x.CompareTo(y) < 0;
     }
 
@@ -140,12 +164,18 @@ namespace Xtensive.Core
     /// </returns>
     public static bool LessThanOrEqual(this string x, string y)
     {
-      if (x == y)
+      if (x == y) {
         return true;
-      if (x == null)
+      }
+
+      if (x == null) {
         return true;
-      if (y == null)
+      }
+
+      if (y == null) {
         return false;
+      }
+
       return x.CompareTo(y) <= 0;
     }
 
@@ -159,12 +189,18 @@ namespace Xtensive.Core
     /// </returns>
     public static bool GreaterThan(this string x, string y)
     {
-      if (x == y)
+      if (x == y) {
         return false;
-      if (x == null)
+      }
+
+      if (x == null) {
         return false;
-      if (y == null)
+      }
+
+      if (y == null) {
         return true;
+      }
+
       return x.CompareTo(y) > 0;
     }
 
@@ -178,12 +214,18 @@ namespace Xtensive.Core
     /// </returns>
     public static bool GreaterThanOrEqual(this string x, string y)
     {
-      if (x == y)
+      if (x == y) {
         return true;
-      if (x == null)
+      }
+
+      if (x == null) {
         return false;
-      if (y == null)
+      }
+
+      if (y == null) {
         return true;
+      }
+
       return x.CompareTo(y) >= 0;
     }
 
@@ -202,26 +244,36 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
     public static string RevertibleJoin(this IEnumerable<string> source, char escape, char delimiter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      if (escape==delimiter)
+      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
+      if (escape == delimiter) {
         throw new ArgumentException(
           Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
+      }
 
       var sb = new ValueStringBuilder(stackalloc char[4096]);
       bool needDelimiter = false;
+
       foreach (var part in source) {
-        if (needDelimiter)
+        if (needDelimiter) {
           sb.Append(delimiter);
-        else
-          needDelimiter = true;
-        if (part==null)
-          continue;
-        for (int i = 0; i<part.Length; i++) {
-          char c = part[i];
-          if (c==delimiter || c==escape)
-            sb.Append(escape);
-          sb.Append(c);
         }
+        else {
+          needDelimiter = true;
+        }
+
+        if (part == null) {
+          continue;
+        }
+
+        var span = part.AsSpan();
+        int i;
+        while ((i = span.IndexOfAny(escape, delimiter)) >= 0) {
+          sb.Append(span.Slice(0, i));
+          sb.Append(escape);
+          sb.Append(span[i]);
+          span = span.Slice(i + 1);
+        }
+        sb.Append(span);
       }
       return sb.ToString();
     }
@@ -239,30 +291,30 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
     public static IEnumerable<string> RevertibleSplit(this string source, char escape, char delimiter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      if (escape==delimiter)
+      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
+      if (escape == delimiter) {
         throw new ArgumentException(
           Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
-
-      var sb = new StringBuilder();
-      bool previousCharIsEscape = false;
-      for (int i = 0; i<source.Length; i++) {
-        char c = source[i];
-        if (previousCharIsEscape) {
-          sb.Append(c);
-          previousCharIsEscape = false;
-        }
-        else if (c==escape) {
-          previousCharIsEscape = true;
-        }
-        else if (c==delimiter) {
-          yield return sb.ToString();
-          sb.Length = 0;
-        }
-        else
-          sb.Append(c);
       }
-      yield return sb.ToString();
+
+      var tailMemory = source.AsMemory();
+      (int escapeCount, bool tailDilimiter) splitResult;
+      do {
+        var sourceMemory = tailMemory;
+        splitResult = RevertibleSplitTail(ref tailMemory, escape, delimiter);
+        var sourceLength = sourceMemory.Length - tailMemory.Length - (splitResult.tailDilimiter ? 1 : 0);
+        var resultLength = sourceLength - splitResult.escapeCount;
+        if (resultLength == 0) {
+          yield return string.Empty;
+        }
+        else {
+          yield return string.Create(resultLength, (sourceMemory.Slice(0, sourceLength), escape), RevertibleSplitSpanAction);
+        }
+      } while (!tailMemory.IsEmpty);
+
+      if (splitResult.tailDilimiter) {
+        yield return string.Empty;
+      }
     }
 
     /// <summary>
@@ -278,28 +330,79 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
     public static Pair<string> RevertibleSplitFirstAndTail(this string source, char escape, char delimiter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      if (escape==delimiter)
+      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
+      if (escape == delimiter) {
         throw new ArgumentException(
           Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
-
-      var sb = new ValueStringBuilder(stackalloc char[4096]);
-      bool previousCharIsEscape = false;
-      for (int i = 0; i<source.Length; i++) {
-        char c = source[i];
-        if (previousCharIsEscape) {
-          sb.Append(c);
-          previousCharIsEscape = false;
-        }
-        else if (c==escape) {
-          previousCharIsEscape = true;
-        }
-        else if (c==delimiter)
-          return new Pair<string>(sb.ToString(), source.Substring(i + 1));
-        else
-          sb.Append(c);
       }
-      return new Pair<string>(sb.ToString(), null);
+
+      var tailMemory = source.AsMemory();
+
+      var sourceMemory = tailMemory;
+      var splitResult = RevertibleSplitTail(ref tailMemory, escape, delimiter);
+      var sourceLength = sourceMemory.Length - tailMemory.Length - (splitResult.tailDilimiter ? 1 : 0);
+      var resultLength = sourceLength - splitResult.escapeCount;
+      string secondString;
+      if (tailMemory.IsEmpty) {
+        secondString = splitResult.tailDilimiter ? string.Empty : null;
+      }
+      else {
+        secondString = new string(tailMemory.Span);
+      }
+
+      if (resultLength == 0) {
+        return new Pair<string>(string.Empty, secondString);
+      }
+
+      return new Pair<string>(string.Create(resultLength, (sourceMemory.Slice(0, sourceLength), escape), RevertibleSplitSpanAction), secondString);
+    }
+
+    private static (int escapeCount, bool tailDilimiter) RevertibleSplitTail(ref ReadOnlyMemory<char> source, char escape, char delimiter)
+    {
+      //var searchSpan = source;
+      int escapeCount = 0;
+      ReadOnlySpan<char> span;
+      int i;
+      while (!(span = source.Span).IsEmpty && (i = span.IndexOfAny(delimiter, escape)) >= 0) {
+        if (span[i] == delimiter) {
+          source = source.Slice(i + 1);
+          return (escapeCount, true);
+        }
+        // escape
+        escapeCount++;
+        if (source.Length <= i + 2) {
+          break;
+        }
+
+        source = source.Slice(i + 2);
+      }
+      source = ReadOnlyMemory<char>.Empty;
+      return (escapeCount, false);
+    }
+
+    private static void RevertibleSplitSpanAction(Span<char> span, (ReadOnlyMemory<char> source, char escape) state)
+    {
+      var sourceSpan = state.source.Span;
+      if (sourceSpan.Length <= span.Length) {
+        sourceSpan.CopyTo(span);
+        return;
+      }
+
+      int i;
+      while ((i = sourceSpan.IndexOf(state.escape)) >= 0) {
+        sourceSpan.Slice(0, i).CopyTo(span);
+        if (span.Length == i) {
+          return;
+        }
+
+        span[i] = sourceSpan[i + 1];
+        span = span.Slice(i + 1);
+        sourceSpan = sourceSpan.Slice(i + 2);
+      }
+
+      if (!span.IsEmpty) {
+        sourceSpan.CopyTo(span);
+      }
     }
 
     /// <summary>
@@ -316,10 +419,14 @@ namespace Xtensive.Core
       var sb = new ValueStringBuilder(stackalloc char[4096]);
       foreach (var c in source) {
         var found = false;
-        for (int i = 0; i < chars.Length && !found; i++)
+        for (int i = 0; i < chars.Length && !found; i++) {
           found = chars[i] == c;
-        if (found)
+        }
+
+        if (found) {
           sb.Append(escape);
+        }
+
         sb.Append(c);
       }
       return sb.ToString();
@@ -340,10 +447,12 @@ namespace Xtensive.Core
           sb.Append(c);
           previousCharIsEscape = false;
         }
-        else if (c==escape)
+        else if (c == escape) {
           previousCharIsEscape = true;
-        else
+        }
+        else {
           sb.Append(c);
+        }
       }
       return sb.ToString();
     }
@@ -389,26 +498,31 @@ namespace Xtensive.Core
       ArgumentValidator.EnsureArgumentNotNull(sqlLikePattern, "sqlLikePattern");
       const string regExSpecialChars = @"[]\/^$.|?*+(){}";
 
-      if(char.IsControl(escapeCharacter))
+      if (char.IsControl(escapeCharacter)) {
         throw new ArgumentException(Strings.ExControlCharacterUsedAsEscapeCharacter, "escapeCharacter");
-      if(escapeCharacter=='%' || escapeCharacter== '_')
+      }
+
+      if (escapeCharacter == '%' || escapeCharacter == '_') {
         throw new ArgumentException(string.Format(Strings.ExSpecialCharacterXUsedAsEscapeCharacter, escapeCharacter), "escapeCharacter");
+      }
 
       var escChar = new string(escapeCharacter, 1);
-      if (regExSpecialChars.Contains(escapeCharacter))
+      if (regExSpecialChars.Contains(escapeCharacter)) {
         escChar = @"\" + escChar;
+      }
+
       var pattern = escChar + escChar + "|" + escChar + @"[%_]|[%_]|[^%" + escapeCharacter + "_]+";
 
       var regexPattern = Regex.Replace(sqlLikePattern,
         pattern,
         match => {
-          if (match.Value=="%") {
+          if (match.Value == "%") {
             return ".*";
           }
-          if (match.Value=="_") {
+          if (match.Value == "_") {
             return ".";
           }
-          if(match.Value.StartsWith(escapeCharacter.ToString(), StringComparison.Ordinal)) {
+          if (match.Value.StartsWith(escapeCharacter.ToString(), StringComparison.Ordinal)) {
             return match.Value[1].ToString();
           }
           return Regex.Escape(match.Value);

@@ -59,8 +59,7 @@ namespace Xtensive.Orm.BulkOperations
             else {
               var arguments = ex.Arguments.ToList();
               arguments.Insert(1, Expression.Constant(IncludeAlgorithm.ComplexCondition));
-              ex = Expression.Call(WellKnownMembers.InMethod.MakeGenericMethod(methodInfo.GetGenericArguments()),
-                arguments.ToArray());
+              ex = Expression.Call(WellKnownMembers.InMethod.MakeGenericMethod(methodInfo.GetGenericArguments()), arguments);
             }
           }
 

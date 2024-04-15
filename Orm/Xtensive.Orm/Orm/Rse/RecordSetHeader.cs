@@ -200,7 +200,7 @@ namespace Xtensive.Orm.Rse
           .Where(g => g.Keys.All(k => columnsMap[k] >= 0))
           .Select(g => new ColumnGroup(
             g.TypeInfoRef,
-            g.Keys.Select(k => columnsMap[k]).ToArray(),
+            g.Keys.Select(k => columnsMap[k]).ToArray(g.Keys.Count),
             g.Columns
               .Select(c => columnsMap[c])
               .Where(c => c >= 0).ToList()));

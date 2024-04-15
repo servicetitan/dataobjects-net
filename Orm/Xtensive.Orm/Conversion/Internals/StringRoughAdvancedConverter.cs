@@ -10,8 +10,8 @@ using System.Globalization;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class StringRoughAdvancedConverter :
-    RoughAdvancedConverterBase,
+  internal class StringRoughAdvancedConverter(IAdvancedConverterProvider provider) :
+    RoughAdvancedConverterBase(provider),
     IAdvancedConverter<string, bool>,
     IAdvancedConverter<string, byte>,
     IAdvancedConverter<string, sbyte>,
@@ -28,19 +28,22 @@ namespace Xtensive.Conversion
     IAdvancedConverter<string, TimeSpan>,
     IAdvancedConverter<string, Guid>
   {
-    bool IAdvancedConverter<string, bool>.Convert(string value)
-    {
-      return Boolean.Parse(value);
-    }
+    private const string HexPrefix = "0x";
+    private static readonly string[] DateTimeFormatStrings = ["yyyy/MM/dd hh:mm:ss.fffffff tt K "];
+
+    bool IAdvancedConverter<string, bool>.Convert(string value) =>
+      bool.Parse(value);
 
     byte IAdvancedConverter<string, byte>.Convert(string value)
     {
       try {
-        return Byte.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
+        return byte.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException) {
-        if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return Byte.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        if (value.StartsWith(HexPrefix, StringComparison.OrdinalIgnoreCase)) {
+          return byte.Parse(value.AsSpan(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        }
+
         throw;
       }
     }
@@ -48,11 +51,13 @@ namespace Xtensive.Conversion
     sbyte IAdvancedConverter<string, sbyte>.Convert(string value)
     {
       try {
-        return SByte.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
+        return sbyte.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException) {
-        if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return SByte.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        if (value.StartsWith(HexPrefix, StringComparison.OrdinalIgnoreCase)) {
+          return sbyte.Parse(value.AsSpan(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        }
+
         throw;
       }
     }
@@ -63,8 +68,10 @@ namespace Xtensive.Conversion
         return short.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException) {
-        if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return short.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        if (value.StartsWith(HexPrefix, StringComparison.OrdinalIgnoreCase)) {
+          return short.Parse(value.AsSpan(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        }
+
         throw;
       }
     }
@@ -75,8 +82,10 @@ namespace Xtensive.Conversion
         return ushort.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException) {
-        if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return ushort.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        if (value.StartsWith(HexPrefix, StringComparison.OrdinalIgnoreCase)) {
+          return ushort.Parse(value.AsSpan(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        }
+
         throw;
       }
     }
@@ -87,8 +96,10 @@ namespace Xtensive.Conversion
         return int.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException) {
-        if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return int.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        if (value.StartsWith(HexPrefix, StringComparison.OrdinalIgnoreCase)) {
+          return int.Parse(value.AsSpan(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        }
+
         throw;
       }
     }
@@ -99,8 +110,10 @@ namespace Xtensive.Conversion
         return uint.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException) {
-        if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return uint.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        if (value.StartsWith(HexPrefix, StringComparison.OrdinalIgnoreCase)) {
+          return uint.Parse(value.AsSpan(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        }
+
         throw;
       }
     }
@@ -111,8 +124,10 @@ namespace Xtensive.Conversion
         return long.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException) {
-        if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return long.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        if (value.StartsWith(HexPrefix, StringComparison.OrdinalIgnoreCase)) {
+          return long.Parse(value.AsSpan(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        }
+
         throw;
       }
     }
@@ -123,54 +138,37 @@ namespace Xtensive.Conversion
         return ulong.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
       catch (FormatException) {
-        if (value.Substring(0, 2).ToUpper().Equals("0X"))
-          return ulong.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        if (value.StartsWith(HexPrefix, StringComparison.OrdinalIgnoreCase)) {
+          return ulong.Parse(value.AsSpan(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        }
+
         throw;
       }
     }
 
-    float IAdvancedConverter<string, float>.Convert(string value)
-    {
-      return float.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
-    }
+    float IAdvancedConverter<string, float>.Convert(string value) =>
+      float.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
 
-    double IAdvancedConverter<string, double>.Convert(string value)
-    {
-      return double.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
-    }
+    double IAdvancedConverter<string, double>.Convert(string value) =>
+      double.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
 
-    decimal IAdvancedConverter<string, decimal>.Convert(string value)
-    {
-      return decimal.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
-    }
+    decimal IAdvancedConverter<string, decimal>.Convert(string value) =>
+      decimal.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
 
     DateTime IAdvancedConverter<string, DateTime>.Convert(string value)
     {
-      string[] strings = {"yyyy/MM/dd hh:mm:ss.fffffff tt K "};
       try {
-        return DateTime.ParseExact(value, strings, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+        return DateTime.ParseExact(value, DateTimeFormatStrings, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
       }
       catch (FormatException) {
         return DateTime.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
       }
     }
 
-    TimeSpan IAdvancedConverter<string, TimeSpan>.Convert(string value)
-    {
-      return TimeSpan.Parse(value);
-    }
+    TimeSpan IAdvancedConverter<string, TimeSpan>.Convert(string value) =>
+      TimeSpan.Parse(value);
 
-    Guid IAdvancedConverter<string, Guid>.Convert(string value)
-    {
-      return new Guid(value);
-    }
-
-
-    // Constructors
-
-    public StringRoughAdvancedConverter(IAdvancedConverterProvider provider)
-      : base(provider)
-    {
-    }
+    Guid IAdvancedConverter<string, Guid>.Convert(string value) => 
+      new(value);
   }
 }

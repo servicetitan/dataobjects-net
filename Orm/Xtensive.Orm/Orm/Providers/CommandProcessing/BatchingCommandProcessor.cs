@@ -257,10 +257,10 @@ namespace Xtensive.Orm.Providers
             var queryTask = context.ActiveTasks[currentQueryTask];
             var accessor = queryTask.Request.GetAccessor();
             var result = queryTask.Output;
-            while (command.NextRow()) {
+            while (await command.NextRowAsync(token).ConfigureAwaitFalse()) {
               result.Add(command.ReadTupleWith(accessor));
             }
-            _ = command.NextResult();
+            _ = await command.NextResultAsync(token).ConfigureAwaitFalse();
             currentQueryTask++;
           }
         }

@@ -126,9 +126,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug2
     public override bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)
     {
       string suffix = ".Version" + runningVersion;
-      var originalNamespace = type.Namespace;
-      var nameSpace = originalNamespace.TryCutSuffix(suffix);
-      return nameSpace!=originalNamespace 
+      return type.Namespace.EndsWith(suffix, StringComparison.Ordinal)
         && base.IsTypeAvailable(type, upgradeStage);
     }
   }

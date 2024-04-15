@@ -83,9 +83,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public override bool IsTypeAvailable(Type type, UpgradeStage upgradeStage)
     {
       var suffix = "." + runningVersion;
-      var originalNamespace = type.Namespace;
-      var nameSpace = originalNamespace.TryCutSuffix(suffix);
-      return nameSpace != originalNamespace
+      return type.Namespace.EndsWith(suffix, StringComparison.Ordinal)
         && base.IsTypeAvailable(type, upgradeStage);
     }
   }

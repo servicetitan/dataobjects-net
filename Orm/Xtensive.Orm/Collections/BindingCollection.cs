@@ -37,13 +37,11 @@ namespace Xtensive.Collections
           return;
         }
 
-        if (prevValueExists) {
-          if (!owner.permanentBindings.Contains(key)) {
+        if (!owner.permanentBindings.Contains(key)) {
+          if (prevValueExists) {
             owner.bindings[key] = prevValue;
           }
-        }
-        else {
-          if (!owner.permanentBindings.Contains(key)) {
+          else {
             owner.bindings.Remove(key);
           }
         }

@@ -123,10 +123,10 @@ namespace Xtensive.Orm.Tests.Core.Collections
       const int maximalBatchSize = 32;
       const int fastFirstCount = 10;
       var result = source.Batch(fastFirstCount, initialBatchSize, maximalBatchSize);
-      Assert.AreEqual(fastFirstCount, result.TakeWhile(e => !(e is List<int>)).Count());
+      Assert.AreEqual(fastFirstCount, result.TakeWhile(e => e.Count() == 1).Count());
       var batchSize = initialBatchSize;
       Assert.IsTrue(result.Skip(fastFirstCount).All(e => {
-        var r = ((List<int>) e).Count==batchSize;
+        var r = e.Count()==batchSize;
         if(batchSize < maximalBatchSize)
           batchSize *= 2;
         return r;

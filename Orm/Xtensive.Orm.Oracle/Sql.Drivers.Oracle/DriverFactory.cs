@@ -140,7 +140,7 @@ namespace Xtensive.Sql.Drivers.Oracle
         SqlHelper.ExecuteInitializationSql(connection, configuration);
       }
       else {
-        await connection.OpenAsync().ConfigureAwait(false);
+        await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
         await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, cancellationToken).ConfigureAwait(false);
       }
     }
