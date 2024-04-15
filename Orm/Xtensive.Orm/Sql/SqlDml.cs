@@ -910,7 +910,7 @@ namespace Xtensive.Sql
 
     #region FunctionCall
 
-    public static SqlUserFunctionCall FunctionCall(string name, IEnumerable<SqlExpression> expressions)
+    public static SqlUserFunctionCall FunctionCall(string name, IReadOnlyList<SqlExpression> expressions)
     {
       SqlValidator.EnsureAreSqlRowArguments(expressions);
       return new SqlUserFunctionCall(name, expressions);
@@ -1726,12 +1726,9 @@ namespace Xtensive.Sql
       SqlValidator.EnsureIsCharacterExpression(operand);
       if (length<0)
         throw new ArgumentException(Strings.ExLengthShouldBeNotNegativeValue, "length");
-      var arguments = new List<SqlExpression>(3);
-      arguments.Add(operand);
-      arguments.Add(new SqlLiteral<int>(start));
-      if (length.HasValue)
-        arguments.Add(new SqlLiteral<int>(length.Value));
-      return new SqlFunctionCall(SqlFunctionType.Substring, arguments);
+      return new SqlFunctionCall(SqlFunctionType.Substring, length.HasValue
+        ? [operand, new SqlLiteral<int>(start), new SqlLiteral<int>(length.Value)]
+        : [operand, new SqlLiteral<int>(start)]);
     }
 
     public static SqlFunctionCall Substring(

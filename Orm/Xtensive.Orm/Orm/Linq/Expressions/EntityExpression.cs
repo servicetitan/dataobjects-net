@@ -20,14 +20,12 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public KeyExpression Key { get; }
 
-    public List<PersistentFieldExpression> Fields
-    {
-      get => fields;
-      private set {
-        fields = value;
-        foreach (var fieldExpression in fields.OfType<FieldExpression>()) {
-          fieldExpression.Owner = this;
-        }
+    public IReadOnlyList<PersistentFieldExpression> Fields => fields;
+
+    private void SetFields(List<PersistentFieldExpression> value) {
+      fields = value;
+      foreach (var fieldExpression in fields.OfType<FieldExpression>()) {
+        fieldExpression.Owner = this;
       }
     }
 
@@ -48,7 +46,7 @@ namespace Xtensive.Orm.Linq.Expressions
         processedFields.Add(field.Remap(offset, processedExpressions));
       }
 
-      result.Fields = processedFields;
+      result.SetFields(processedFields);
       return result;
     }
 
@@ -76,7 +74,7 @@ namespace Xtensive.Orm.Linq.Expressions
         processedFields.Add(mappedField);
       }
 
-      result.Fields = processedFields;
+      result.SetFields(processedFields);
       return result;
     }
 
@@ -96,7 +94,7 @@ namespace Xtensive.Orm.Linq.Expressions
         processedFields.Add((PersistentFieldExpression) field.BindParameter(parameter, processedExpressions));
       }
 
-      result.Fields = processedFields;
+      result.SetFields(processedFields);
       return result;
     }
 
@@ -116,7 +114,7 @@ namespace Xtensive.Orm.Linq.Expressions
         processedFields.Add((PersistentFieldExpression) field.RemoveOuterParameter(processedExpressions));
       }
 
-      result.Fields = processedFields;
+      result.SetFields(processedFields);
       return result;
     }
 
@@ -163,7 +161,7 @@ namespace Xtensive.Orm.Linq.Expressions
         }
       }
 
-      result.Fields = fields;
+      result.SetFields(fields);
       return result;
     }
 
@@ -177,9 +175,8 @@ namespace Xtensive.Orm.Linq.Expressions
         fields.Add(BuildNestedFieldExpression(nestedField, offset));
       }
 
-      var result = new EntityExpression(typeInfo, keyExpression, null, entityFieldExpression.DefaultIfEmpty) {
-        Fields = fields
-      };
+      var result = new EntityExpression(typeInfo, keyExpression, null, entityFieldExpression.DefaultIfEmpty);
+      result.SetFields(fields);
       return entityFieldExpression.OuterParameter == null
         ? result
         : (EntityExpression) result.BindParameter(

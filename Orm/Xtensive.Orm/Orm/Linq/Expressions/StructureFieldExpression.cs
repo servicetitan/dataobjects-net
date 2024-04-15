@@ -21,14 +21,13 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public bool IsNullable => Owner != null && Owner.IsNullable;
 
-    public List<PersistentFieldExpression> Fields
+    public IReadOnlyList<PersistentFieldExpression> Fields => fields;
+
+    private void SetFields(List<PersistentFieldExpression> value)
     {
-      get => fields;
-      private set {
-        fields = value;
-        foreach (var fieldExpression in fields.OfType<FieldExpression>()) {
-          fieldExpression.Owner = this;
-        }
+      fields = value;
+      foreach (var fieldExpression in fields.OfType<FieldExpression>()) {
+        fieldExpression.Owner = this;
       }
     }
 
@@ -51,7 +50,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return result;
       }
 
-      result.Fields = processedFields;
+      result.SetFields(processedFields);
       Owner.Remap(offset, processedExpressions);
       return result;
     }
@@ -90,7 +89,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return result;
       }
 
-      result.Fields = processedFields;
+      result.SetFields(processedFields);
       Owner.Remap(map, processedExpressions);
       return result;
     }
@@ -114,7 +113,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return result;
       }
 
-      result.Fields = processedFields;
+      result.SetFields(processedFields);
       Owner.BindParameter(parameter, processedExpressions);
       return result;
     }
@@ -138,7 +137,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return result;
       }
 
-      result.Fields = processedFields;
+      result.SetFields(processedFields);
       Owner.RemoveOuterParameter(processedExpressions);
       return result;
     }
@@ -175,7 +174,7 @@ namespace Xtensive.Orm.Linq.Expressions
         processedFields.Add(BuildNestedFieldExpression(field, (ColNum) (offset + fieldMappingInfo.Offset)));
       }
 
-      result.Fields = processedFields;
+      result.SetFields(processedFields);
       return result;
     }
 

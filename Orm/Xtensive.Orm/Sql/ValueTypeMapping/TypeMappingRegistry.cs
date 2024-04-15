@@ -5,6 +5,7 @@
 // Created:    2009.07.03
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -17,43 +18,35 @@ namespace Xtensive.Sql
   /// </summary>
   public readonly struct TypeMappingRegistry
   {
-    public IReadOnlyDictionary<Type, TypeMapping> Mappings { get; }
+    private readonly ConcurrentDictionary<Type, TypeMapping> mappings;
+    public IReadOnlyDictionary<Type, TypeMapping> Mappings => mappings;
+
     public IReadOnlyDictionary<SqlType, Type> ReverseMappings { get; }
     public TypeMapper Mapper { get; }
 
-    public TypeMapping this[Type type] { get { return GetMapping(type); } }
-    
-    public TypeMapping TryGetMapping(Type type) =>
-      Mappings.GetValueOrDefault(type.IsEnum ? Enum.GetUnderlyingType(type) : type);
+    public TypeMapping this[Type type] => GetMapping(type);
 
-    public TypeMapping GetMapping(Type type)
-    {
-      var result = TryGetMapping(type);
-      if (result==null)
-        throw new NotSupportedException(string.Format(
-          Strings.ExTypeXIsNotSupported, type.GetFullName()));
-      return result;
-    }
+    public TypeMapping TryGetMapping(Type type) =>
+       mappings.GetOrAdd(type, static (t, d) => t.IsEnum ? d.TryGetMapping(Enum.GetUnderlyingType(t)) : null, this);
+
+    public TypeMapping GetMapping(Type type) =>
+      TryGetMapping(type) ?? throw new NotSupportedException(string.Format(Strings.ExTypeXIsNotSupported, type.GetFullName()));
 
     /// <summary>
     /// Converts the specified <see cref="SqlType"/> to corresponding .NET type.
     /// </summary>
     /// <param name="sqlType">The type to convert.</param>
     /// <returns>Converter type.</returns>
-    public Type MapSqlType(SqlType sqlType)
-    {
-      Type type;
-      if (!ReverseMappings.TryGetValue(sqlType, out type))
-        throw new NotSupportedException(string.Format(
-          Strings.ExTypeXIsNotSupported, sqlType.Name));
-      return type;
-    }
+    public Type MapSqlType(SqlType sqlType) =>
+      ReverseMappings.TryGetValue(sqlType, out var type)
+        ? type
+        : throw new NotSupportedException(string.Format(Strings.ExTypeXIsNotSupported, sqlType.Name));
 
     // Constructors
 
     public TypeMappingRegistry(IEnumerable<TypeMapping> mappings, IEnumerable<KeyValuePair<SqlType, Type>> reverseMappings, TypeMapper mapper)
     {
-      Mappings = mappings.ToDictionary(m => m.Type).AsSafeWrapper();
+      this.mappings = new(mappings.Select(m => KeyValuePair.Create(m.Type, m)));
       ReverseMappings = reverseMappings.ToDictionary(r => r.Key, r => r.Value).AsSafeWrapper();
       Mapper = mapper;
     }

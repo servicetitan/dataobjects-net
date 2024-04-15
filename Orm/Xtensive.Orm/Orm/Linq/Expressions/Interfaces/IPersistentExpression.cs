@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Linq.Expressions
   internal interface IPersistentExpression : IMappedExpression
   {
     TypeInfo PersistentType { get; }
-    List<PersistentFieldExpression> Fields { get; }
+    IReadOnlyList<PersistentFieldExpression> Fields { get; }
     bool IsNullable { get; }
   }
 }

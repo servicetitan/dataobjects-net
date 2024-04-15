@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Dml
 
     public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
 
-    public SqlCustomFunctionCall(SqlCustomFunctionType sqlCustomFunctionType, IEnumerable<SqlExpression> arguments)
+    public SqlCustomFunctionCall(SqlCustomFunctionType sqlCustomFunctionType, IReadOnlyList<SqlExpression> arguments)
       : base(SqlNodeType.CustomFunctionCall, arguments)
     {
       FunctionType = sqlCustomFunctionType;

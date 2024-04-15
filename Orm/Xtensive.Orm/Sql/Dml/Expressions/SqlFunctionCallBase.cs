@@ -18,10 +18,10 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     public IReadOnlyList<SqlExpression> Arguments { get; protected set; }
 
-    internal SqlFunctionCallBase(SqlNodeType nodeType, IEnumerable<SqlExpression> arguments)
+    internal SqlFunctionCallBase(SqlNodeType nodeType, IReadOnlyList<SqlExpression> arguments)
       : base(nodeType)
     {
-      Arguments = arguments.ToList();
+      Arguments = arguments;
     }
 
     internal SqlFunctionCallBase(SqlNodeType nodeType, SqlExpression[] arguments)

@@ -33,7 +33,7 @@ namespace Xtensive.Sql.Dml
 
     // Constructors
 
-    internal SqlFunctionCall(SqlFunctionType functionType, IEnumerable<SqlExpression> arguments)
+    internal SqlFunctionCall(SqlFunctionType functionType, IReadOnlyList<SqlExpression> arguments)
       : base(SqlNodeType.FunctionCall, arguments)
     {
       FunctionType = functionType;
