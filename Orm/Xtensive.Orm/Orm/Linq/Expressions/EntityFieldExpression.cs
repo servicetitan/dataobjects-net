@@ -15,10 +15,10 @@ namespace Xtensive.Orm.Linq.Expressions
   internal sealed class EntityFieldExpression : FieldExpression,
     IEntityExpression
   {
-    private readonly List<PersistentFieldExpression> fields;
+    private readonly IReadOnlyList<PersistentFieldExpression> fields;
 
     public TypeInfo PersistentType { get; }
-    public List<PersistentFieldExpression> Fields => fields;
+    public IReadOnlyList<PersistentFieldExpression> Fields => fields;
     public KeyExpression Key { get; }
     public EntityExpression Entity { get; private set; }
 
@@ -35,10 +35,11 @@ namespace Xtensive.Orm.Linq.Expressions
       if (TryProcessed<EntityFieldExpression>(processedExpressions, out var value))
         return value;
 
-      var newFields = new List<PersistentFieldExpression>(fields.Count);
+      var newFields = new PersistentFieldExpression[fields.Count];
+      int i = 0;
       foreach (var field in fields) {
         // Do not convert to LINQ. We want to avoid a closure creation here.
-        newFields.Add(field.Remap(offset, processedExpressions));
+        newFields[i++] = field.Remap(offset, processedExpressions);
       }
 
       var keyExpression = Key.Remap(offset, processedExpressions);
@@ -101,10 +102,11 @@ namespace Xtensive.Orm.Linq.Expressions
         return (EntityFieldExpression)r;
       }
 
-      var newFields = new List<PersistentFieldExpression>(fields.Count);
+      var newFields = new PersistentFieldExpression[fields.Count];
+      int i = 0;
       foreach (var field in fields) {
         // Do not convert to LINQ. We want to avoid a closure creation here.
-        newFields.Add((PersistentFieldExpression) field.BindParameter(parameter, processedExpressions));
+        newFields[i++] = (PersistentFieldExpression) field.BindParameter(parameter, processedExpressions);
       }
       var keyExpression = (KeyExpression) Key.BindParameter(parameter, processedExpressions);
       var entity = (EntityExpression) Entity?.BindParameter(parameter, processedExpressions);
@@ -187,7 +189,7 @@ namespace Xtensive.Orm.Linq.Expressions
     private EntityFieldExpression(
       TypeInfo persistentType,
       FieldInfo field,
-      List<PersistentFieldExpression> fields,
+      IReadOnlyList<PersistentFieldExpression> fields,
       in Segment<ColNum> mapping,
       KeyExpression key,
       EntityExpression entity,

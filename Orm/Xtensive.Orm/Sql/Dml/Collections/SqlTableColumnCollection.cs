@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Dml
   public class SqlTableColumnCollection : IReadOnlyList<SqlTableColumn>
   {
     private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
-    private readonly List<SqlTableColumn> columnList;
+    private readonly IReadOnlyList<SqlTableColumn> columnList;
     private Dictionary<string, SqlTableColumn> columnLookup;
 
     /// <summary>
@@ -29,11 +29,6 @@ namespace Xtensive.Sql.Dml
 
     /// <inheritdoc cref="IEnumerable{T}.GetEnumerator"/>>
     IEnumerator<SqlTableColumn> IEnumerable<SqlTableColumn>.GetEnumerator() => columnList.GetEnumerator();
-
-    /// <summary>
-    /// Returns a <see cref="List{T}.Enumerator"/> that iterates through the <see cref="SqlTableColumnCollection"/>.
-    /// </summary>
-    public List<SqlTableColumn>.Enumerator GetEnumerator() => columnList.GetEnumerator();
 
     /// <summary>
     /// Gets the column at the specified <paramref name="index"/>.
@@ -102,7 +97,7 @@ namespace Xtensive.Sql.Dml
     /// Initializes a new instance of the <see cref="SqlTableColumnCollection"/> class.
     /// This is special version it uses provided list as is.
     /// </summary>
-    internal SqlTableColumnCollection(List<SqlTableColumn> columns)
+    internal SqlTableColumnCollection(IReadOnlyList<SqlTableColumn> columns)
     {
       columnList = columns;
     }

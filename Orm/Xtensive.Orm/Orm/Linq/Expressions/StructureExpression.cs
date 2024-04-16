@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Linq.Expressions
 {
   internal sealed class StructureExpression : ParameterizedExpression, IPersistentExpression
   {
-    private List<PersistentFieldExpression> fields;
+    private IReadOnlyList<PersistentFieldExpression> fields;
     private bool isNullable;
 
     internal Segment<ColNum> Mapping;
@@ -23,14 +23,13 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public bool IsNullable => isNullable;
 
-    public List<PersistentFieldExpression> Fields
+    public IReadOnlyList<PersistentFieldExpression> Fields => fields;
+
+    private void SetFields(List<PersistentFieldExpression> value)
     {
-      get => fields;
-      private set {
-        fields = value;
-        foreach (var fieldExpression in fields.OfType<FieldExpression>()) {
-          fieldExpression.Owner = this;
-        }
+      fields = value;
+      foreach (var fieldExpression in fields.OfType<FieldExpression>()) {
+        fieldExpression.Owner = this;
       }
     }
 
@@ -48,7 +47,7 @@ namespace Xtensive.Orm.Linq.Expressions
         processedFields.Add(field.Remap(offset, processedExpressions));
       }
 
-      result.Fields = processedFields;
+      result.SetFields(processedFields);
       result.isNullable = isNullable;
       return result;
     }
@@ -83,7 +82,7 @@ namespace Xtensive.Orm.Linq.Expressions
       }
 
       result.Mapping = new Segment<ColNum>(offset, (ColNum) processedFields.Count);
-      result.Fields = processedFields;
+      result.SetFields(processedFields);
       result.isNullable = isNullable;
       return result;
     }
@@ -102,7 +101,7 @@ namespace Xtensive.Orm.Linq.Expressions
         processedFields.Add((PersistentFieldExpression) field.BindParameter(parameter, processedExpressions));
       }
 
-      result.Fields = processedFields;
+      result.SetFields(processedFields);
       return result;
     }
 
@@ -120,7 +119,7 @@ namespace Xtensive.Orm.Linq.Expressions
         processedFields.Add((PersistentFieldExpression) field.RemoveOuterParameter(processedExpressions));
       }
 
-      result.Fields = processedFields;
+      result.SetFields(processedFields);
       return result;
     }
 
@@ -132,7 +131,8 @@ namespace Xtensive.Orm.Linq.Expressions
 
       var sourceFields = typeInfo.Fields;
       var destinationFields = new List<PersistentFieldExpression>(sourceFields.Count);
-      var result = new StructureExpression(typeInfo, mapping) {Fields = destinationFields};
+      var result = new StructureExpression(typeInfo, mapping);
+      result.SetFields(destinationFields);
       foreach (var field in sourceFields) {
         // Do not convert to LINQ. We intentionally avoiding closure creation here
         destinationFields.Add(BuildNestedFieldExpression(field, mapping.Offset));

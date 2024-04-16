@@ -26,13 +26,12 @@ namespace Xtensive.Modelling.Comparison.Hints
     public IReadOnlyList<Pair<string, object>> UpdateParameter { get; private set; }
 
     /// <inheritdoc/>
-    public override IEnumerable<HintTarget> GetTargets()
+    public override List<HintTarget> GetTargets()
     {
       var targets = base.GetTargets();
       foreach (var pair in UpdateParameter) {
-        targets = targets.Append(new HintTarget(ModelType.Source, pair.First));
+        targets.Add(new HintTarget(ModelType.Source, pair.First));
       }
-
       return targets;
     }
 

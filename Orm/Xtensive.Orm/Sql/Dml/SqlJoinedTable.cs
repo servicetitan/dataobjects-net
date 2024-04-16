@@ -4,6 +4,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
@@ -58,10 +60,7 @@ namespace Xtensive.Sql.Dml
       var allLeftColumns = joinExpression.Left.Columns;
       var allRightColumns = joinExpression.Right.Columns;
 
-      var joinedColumns = new List<SqlTableColumn>(allLeftColumns.Count + allRightColumns.Count);
-      joinedColumns.AddRange(allLeftColumns);
-      joinedColumns.AddRange(allRightColumns);
-      columns = new SqlTableColumnCollection(joinedColumns);
+      columns = new SqlTableColumnCollection(allLeftColumns.Concat(allRightColumns).ToArray(allLeftColumns.Count + allRightColumns.Count));
 
       var aliasedColumns = new List<SqlColumn>(leftColumns.Count + rightColumns.Count);
       aliasedColumns.AddRange(leftColumns);

@@ -28,11 +28,11 @@ namespace Xtensive.Modelling.Comparison.Hints
     public string TargetPath { get; private set; }
 
     /// <inheritdoc/>
-    public override IEnumerable<HintTarget> GetTargets()
-    {
-      yield return new HintTarget(ModelType.Source, SourcePath);
-      yield return new HintTarget(ModelType.Target, TargetPath);
-    }
+    public override List<HintTarget> GetTargets() =>
+      new() {
+        new HintTarget(ModelType.Source, SourcePath),
+        new HintTarget(ModelType.Target, TargetPath)
+      };
 
     /// <inheritdoc/>
     public override string ToString()

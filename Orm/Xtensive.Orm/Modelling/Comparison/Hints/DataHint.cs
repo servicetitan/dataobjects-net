@@ -29,9 +29,9 @@ namespace Xtensive.Modelling.Comparison.Hints
     public IReadOnlyList<IdentityPair> Identities { get; private set; }
     
     /// <inheritdoc/>
-    public override IEnumerable<HintTarget> GetTargets()
+    public override List<HintTarget> GetTargets()
     {
-      var targets = new List<HintTarget>();
+      var targets = new List<HintTarget>(Identities.Count + 1);
       targets.Add(new HintTarget(ModelType.Source, SourceTablePath));
       foreach (var pair in Identities) {
         targets.Add(new HintTarget(ModelType.Source, pair.Source));

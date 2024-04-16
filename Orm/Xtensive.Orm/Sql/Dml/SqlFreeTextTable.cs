@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Dml
@@ -94,17 +95,13 @@ namespace Xtensive.Sql.Dml
       TopNByRank = topNByRank;
       var targetColumnCount = targetColumnNames.Count;
       if (targetColumnCount == 0) {
-        TargetColumns = new SqlTableColumnCollection(new List<SqlTableColumn>(1) {Asterisk});
+        TargetColumns = new SqlTableColumnCollection([Asterisk]);
       }
       else {
-        var targetColumns = new List<SqlTableColumn>(targetColumnCount);
-        targetColumns.AddRange(targetColumnNames.Select(columnName => SqlDml.TableColumn(this, columnName)));
-        TargetColumns = new SqlTableColumnCollection(targetColumns);
+        TargetColumns = new SqlTableColumnCollection(targetColumnNames.Select(columnName => SqlDml.TableColumn(this, columnName)).ToArray(targetColumnCount));
       }
 
-      var columnList = new List<SqlTableColumn>(columnNames.Count);
-      columnList.AddRange(columnNames.Select(columnName => SqlDml.TableColumn(this, columnName)));
-      columns = new SqlTableColumnCollection(columnList);
+      columns = new SqlTableColumnCollection(columnNames.Select(columnName => SqlDml.TableColumn(this, columnName)).ToArray(columnNames.Count));
     }
   }
 }

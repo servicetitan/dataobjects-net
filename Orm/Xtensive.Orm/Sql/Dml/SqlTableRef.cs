@@ -7,6 +7,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Dml
@@ -38,10 +39,8 @@ namespace Xtensive.Sql.Dml
     {
       var clone = new SqlTableRef {Name = Name, DataTable = DataTable};
       context.NodeMapping[this] = clone;
-      var columnClones = new List<SqlTableColumn>(columns.Count);
-      columnClones.AddRange(columns.Select(column => (SqlTableColumn) column.Clone(context)));
 
-      clone.columns = new SqlTableColumnCollection(columnClones);
+      clone.columns = new SqlTableColumnCollection(columns.Select(column => (SqlTableColumn) column.Clone(context)).ToArray(columns.Count));
 
       return clone;
     }
@@ -65,15 +64,9 @@ namespace Xtensive.Sql.Dml
       : base(name)
     {
       DataTable = dataTable;
-      List<SqlTableColumn> tableColumns;
-      if (columnNames.Length == 0) {
-        tableColumns = new List<SqlTableColumn>(dataTable.Columns.Count);
-        tableColumns.AddRange(dataTable.Columns.Select(column => SqlDml.TableColumn(this, column.Name)));
-      }
-      else {
-        tableColumns = new List<SqlTableColumn>(columnNames.Length);
-        tableColumns.AddRange(columnNames.Select(columnName => SqlDml.TableColumn(this, columnName)));
-      }
+      var  tableColumns = columnNames.Length == 0
+        ? dataTable.Columns.Select(column => SqlDml.TableColumn(this, column.Name)).ToArray(dataTable.Columns.Count)
+        : columnNames.Select(columnName => SqlDml.TableColumn(this, columnName)).ToArray(columnNames.Length);
       columns = new SqlTableColumnCollection(tableColumns);
     }
   }

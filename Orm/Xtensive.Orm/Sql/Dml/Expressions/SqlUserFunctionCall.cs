@@ -29,7 +29,7 @@ namespace Xtensive.Sql.Dml
       context.GetOrAdd(this, static (t, c) =>
         new SqlUserFunctionCall(t.Name, t.Arguments.Select(o => (SqlExpression) o.Clone(c)).ToArray(t.Arguments.Count)));
 
-    internal SqlUserFunctionCall(string name, IEnumerable<SqlExpression> arguments)
+    internal SqlUserFunctionCall(string name, IReadOnlyList<SqlExpression> arguments)
       : base(SqlFunctionType.UserDefined, arguments)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
