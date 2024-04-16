@@ -73,13 +73,11 @@ namespace Xtensive.Modelling.Comparison.Hints
 
       try {
         var targets = hint.GetTargets();
-        var nodes = new List<Node>();
+        var nodes = new List<Node>(targets.Count);
         foreach (var target in targets) {
-          Node node;
-          if (target.Model==ModelType.Source)
-            node = (Node) SourceModel.Resolve(target.Path, true);
-          else
-            node = (Node) TargetModel.Resolve(target.Path, true);
+          Node node = (Node)(target.Model == ModelType.Source
+            ? SourceModel.Resolve(target.Path, true)
+            : TargetModel.Resolve(target.Path, true));
           nodes.Add(node);
 
           var nodeHintMap = GetNodeHints(node);
