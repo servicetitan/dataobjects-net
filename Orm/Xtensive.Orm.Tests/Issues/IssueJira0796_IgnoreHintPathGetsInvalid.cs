@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0796_IgnoreHintPathGetsInvalidModel
   {
     private class KeepCustomIndicesMarkerHint : Hint
     {
-      public override IEnumerable<HintTarget> GetTargets() => Enumerable.Empty<HintTarget>();
+      public override List<HintTarget> GetTargets() => new();
     }
 
     private const string CustomIndexPrefix = "custom_";

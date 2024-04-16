@@ -26,7 +26,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     public IReadOnlyList<Pair<string>> CopiedColumns { get; private set; }
     
     /// <inheritdoc/>
-    public override IEnumerable<HintTarget> GetTargets()
+    public override List<HintTarget> GetTargets()
     {
       var targets = new List<HintTarget>();
       targets.Add(new HintTarget(ModelType.Source, SourceTablePath));

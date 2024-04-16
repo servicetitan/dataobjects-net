@@ -72,7 +72,7 @@ namespace Xtensive.Modelling.Comparison.Hints
         throw new InvalidOperationException(Strings.ExItemAlreadyExists);
 
       try {
-        var targets = hint.GetTargets().ToList();
+        var targets = hint.GetTargets();
         var nodes = new List<Node>();
         foreach (var target in targets) {
           Node node;

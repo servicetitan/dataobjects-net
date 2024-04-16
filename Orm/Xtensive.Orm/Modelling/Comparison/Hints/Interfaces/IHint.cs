@@ -17,6 +17,6 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// Gets the targets of this hint - paths to the nodes affected by it directly.
     /// </summary>
     /// <returns>A sequence of hint targets.</returns>
-    IEnumerable<HintTarget> GetTargets();
+    List<HintTarget> GetTargets();
   }
 }

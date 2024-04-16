@@ -16,6 +16,6 @@ namespace Xtensive.Modelling.Comparison.Hints
   public abstract class Hint : IHint
   {
     /// <inheritdoc/>
-    public abstract IEnumerable<HintTarget> GetTargets();
+    public abstract List<HintTarget> GetTargets();
   }
 }
