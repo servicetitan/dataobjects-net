@@ -13,46 +13,28 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// Hint target reference.
   /// </summary>
   [Serializable]
-  public struct HintTarget : IEquatable<HintTarget>
+  public readonly struct HintTarget : IEquatable<HintTarget>
   {
-    private ModelType model;
-    private string path;
-
     /// <summary>
     /// Gets the model this hint target points to.
     /// </summary>
-    public ModelType Model {
-      get { return model; }
-    }
+    public ModelType Model { get; }
 
     /// <summary>
     /// Gets the node path this hint target points to.
     /// </summary>
-    public string Path {
-      get { return path; }
-    }
+    public string Path { get; }
 
     #region Equality members
 
     /// <inheritdoc/>
-    public bool Equals(HintTarget obj)
-    {
-      return obj.model==model && obj.path==path;
-    }
+    public bool Equals(HintTarget obj) => obj.Model == Model && obj.Path == Path;
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      return obj is HintTarget hintTarget && Equals(hintTarget);
-    }
+    public override bool Equals(object obj) => obj is HintTarget hintTarget && Equals(hintTarget);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        return (model.GetHashCode() * 397) ^ (path!=null ? path.GetHashCode() : 0);
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(Model, Path);
 
     /// <summary>
     /// Checks specified objects for equality.
@@ -60,10 +42,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator ==(HintTarget left, HintTarget right)
-    {
-      return left.Equals(right);
-    }
+    public static bool operator ==(HintTarget left, HintTarget right) => left.Equals(right);
 
     /// <summary>
     /// Checks specified objects for inequality.
@@ -88,8 +67,8 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <param name="path">The path.</param>
     public HintTarget(ModelType model, string path)
     {
-      this.model = model;
-      this.path = path;
+      Model = model;
+      Path = path;
     }
   }
 }
