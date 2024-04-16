@@ -48,13 +48,8 @@ namespace Xtensive.Modelling.Actions
     /// <param name="source">The object to resolve.</param>
     /// <returns>Either original object, or
     /// resolved <see cref="PathNodeReference"/> (<see cref="IPathNode"/>)</returns>
-    public static object Resolve(IModel model, object source)
-    {
-      if (!(source is PathNodeReference))
-        return source;
-      var pnr = (PathNodeReference) source;
-      return model.Resolve(pnr.Path, true);
-    }
+    public static object Resolve(IModel model, object source) =>
+      source is PathNodeReference pnr ? model.Resolve(pnr.Path, true) : source;
 
     #region Equality members
 
