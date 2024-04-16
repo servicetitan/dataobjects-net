@@ -32,7 +32,6 @@ namespace Xtensive.Modelling.Comparison.Hints
       foreach (var pair in UpdateParameter) {
         targets.Add(new HintTarget(ModelType.Source, pair.First));
       }
-
       return targets;
     }
 

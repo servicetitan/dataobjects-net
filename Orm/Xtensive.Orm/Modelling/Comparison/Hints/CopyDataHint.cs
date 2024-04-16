@@ -28,7 +28,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <inheritdoc/>
     public override List<HintTarget> GetTargets()
     {
-      var targets = new List<HintTarget>();
+      var targets = new List<HintTarget>(CopiedColumns.Count * 2 + Identities.Count + 1);
       targets.Add(new HintTarget(ModelType.Source, SourceTablePath));
       foreach (var pair in CopiedColumns) {
         targets.Add(new HintTarget(ModelType.Source, pair.First));
