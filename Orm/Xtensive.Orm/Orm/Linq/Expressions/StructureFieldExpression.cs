@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override StructureFieldExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override StructureFieldExpression Remap(ColumnMap map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (TryProcessed<StructureFieldExpression>(processedExpressions, out var value))
         return value;

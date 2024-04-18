@@ -46,12 +46,12 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override FieldExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override FieldExpression Remap(ColumnMap map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (TryProcessed<FieldExpression>(processedExpressions, out var value))
         return value;
 
-      var offset = (ColNum)map.IndexOf(Mapping.Offset);
+      var offset = (ColNum) map.IndexOf(Mapping.Offset);
       if (offset < 0) {
         if (owner == null && !SkipOwnerCheckScope.IsActive) {
           throw new InvalidOperationException(Strings.ExUnableToRemapFieldExpression);

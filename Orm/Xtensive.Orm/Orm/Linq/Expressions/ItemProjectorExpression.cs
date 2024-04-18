@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return new ItemProjectorExpression(item, dataSource, Context, AggregateType);
     }
 
-    public ItemProjectorExpression Remap(CompilableProvider dataSource, IReadOnlyList<ColNum> columnMap)
+    public ItemProjectorExpression Remap(CompilableProvider dataSource, ColumnMap columnMap)
     {
       var item = GenericExpressionVisitor<IMappedExpression>
         .Process(Item, mapped => mapped.Remap(columnMap, new Dictionary<Expression, Expression>()));

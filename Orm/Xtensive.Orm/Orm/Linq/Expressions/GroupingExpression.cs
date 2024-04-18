@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override GroupingExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override GroupingExpression Remap(ColumnMap map, Dictionary<Expression, Expression> processedExpressions)
     {
       var remappedSubquery = base.Remap(map, processedExpressions);
       var remappedKeyExpression = GenericExpressionVisitor<IMappedExpression>.Process(KeyExpression, mapped => mapped.Remap(map, processedExpressions));
