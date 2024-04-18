@@ -1443,13 +1443,13 @@ namespace Xtensive.Orm.Linq
         var subquery = (SubQueryExpression) original;
         var projectionExpression = subquery.ProjectionExpression;
         var itemProjector = projectionExpression.ItemProjector;
-        var columnIndexes = itemProjector.GetColumns(ColumnExtractionModes.KeepSegment);
+        var columnIndexes = new ColumnMap(itemProjector.GetColumns(ColumnExtractionModes.KeepSegment));
 
         var expReplacer = new ExtendedExpressionReplacer((e) => {
           if (e is GroupingExpression ge && ge.SelectManyInfo.GroupByProjection != null) {
             var geProjectionExpression = ge.ProjectionExpression;
             var geItemProjector = geProjectionExpression.ItemProjector;
-            var columnIndexes = geItemProjector.GetColumns(ColumnExtractionModes.KeepSegment);
+            var columnIndexes = new ColumnMap(geItemProjector.GetColumns(ColumnExtractionModes.KeepSegment));
 
             var newProjectionExpression = new ProjectionExpression(geProjectionExpression.Type,
               geItemProjector.Remap(geItemProjector.DataSource, columnIndexes),
@@ -1457,7 +1457,7 @@ namespace Xtensive.Orm.Linq
 
             var groupByProjection = ge.SelectManyInfo.GroupByProjection;
             var groupByProjector = groupByProjection.ItemProjector;
-            var groupByColumnIndexes = groupByProjector.GetColumns(ColumnExtractionModes.KeepSegment);
+            var groupByColumnIndexes = new ColumnMap(groupByProjector.GetColumns(ColumnExtractionModes.KeepSegment));
 
             var newGroupByProjection = new ProjectionExpression(groupByProjection.Type,
               groupByProjector.Remap(groupByProjector.DataSource, groupByColumnIndexes),

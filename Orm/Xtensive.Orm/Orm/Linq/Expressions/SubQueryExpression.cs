@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override SubQueryExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override SubQueryExpression Remap(ColumnMap map, Dictionary<Expression, Expression> processedExpressions)
     {
       // Don't check CanRemap - Remap always.
 

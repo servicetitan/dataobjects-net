@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Linq.Expressions
     public abstract Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions);
     public abstract Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions);
     public abstract Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions);
-    public abstract Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions);
+    public abstract Expression Remap(ColumnMap map, Dictionary<Expression, Expression> processedExpressions);
 
     // Constructors
 

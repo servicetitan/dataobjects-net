@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override KeyExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override KeyExpression Remap(ColumnMap map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (TryProcessed<KeyExpression>(processedExpressions, out var value))
         return value;

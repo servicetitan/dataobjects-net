@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Linq.Expressions
     }
 
     
-    public override Expression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression Remap(ColumnMap map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (TryProcessed<StructureExpression>(processedExpressions, out var value))
         return value;

@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override EntityFieldExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override EntityFieldExpression Remap(ColumnMap map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (TryProcessed<EntityFieldExpression>(processedExpressions, out var value))
         return value;

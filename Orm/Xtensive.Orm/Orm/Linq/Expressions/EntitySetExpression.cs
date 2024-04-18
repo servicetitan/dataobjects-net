@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override EntitySetExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override EntitySetExpression Remap(ColumnMap map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;

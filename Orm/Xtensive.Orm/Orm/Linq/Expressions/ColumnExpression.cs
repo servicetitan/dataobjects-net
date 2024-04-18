@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return new ColumnExpression(Type, newMapping, OuterParameter, DefaultIfEmpty);
     }
 
-    public override ColumnExpression Remap(IReadOnlyList<ColNum> map, Dictionary<Expression, Expression> processedExpressions)
+    public override ColumnExpression Remap(ColumnMap map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
