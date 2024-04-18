@@ -9,7 +9,7 @@ namespace Xtensive.Orm.Linq.Expressions
     private readonly ColNum[] reverseMap;
 
     public ColNum IndexOf(ColNum column) =>
-      column < 0 || column >= reverseMap.Length
+      (ushort)column >= reverseMap.Length
         ? (ColNum) (-1)
         : reverseMap[column];
 
