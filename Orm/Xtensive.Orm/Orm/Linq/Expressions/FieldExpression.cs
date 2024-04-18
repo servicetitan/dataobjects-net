@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Linq.Expressions
       if (TryProcessed<FieldExpression>(processedExpressions, out var value))
         return value;
 
-      var offset = map.IndexOf(Mapping.Offset);
+      var offset = (ColNum) map.IndexOf(Mapping.Offset);
       if (offset < 0) {
         if (owner == null && !SkipOwnerCheckScope.IsActive) {
           throw new InvalidOperationException(Strings.ExUnableToRemapFieldExpression);

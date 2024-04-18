@@ -9,9 +9,9 @@ namespace Xtensive.Orm.Linq.Expressions
   {
     private readonly ColNum[] reverseMap;
 
-    public ColNum IndexOf(ColNum column) =>
+    public int IndexOf(ColNum column) =>
       (ushort)column >= reverseMap.Length
-        ? (ColNum) (-1)
+        ? -1
         : reverseMap[column];
 
     public void Dispose()
