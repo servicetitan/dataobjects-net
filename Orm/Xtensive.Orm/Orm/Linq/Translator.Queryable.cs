@@ -434,7 +434,8 @@ namespace Xtensive.Orm.Linq
       var targetEntity = EntityExpression.Create(targetTypeInfo, 0, false);
       Expression expression;
       using (new RemapScope()) {
-        expression = targetEntity.Remap(new ColumnMap(map), new Dictionary<Expression, Expression>());
+        using var columnMap = new ColumnMap(map);
+        expression = targetEntity.Remap(columnMap, new Dictionary<Expression, Expression>());
       }
 
       var replacer = new ExtendedExpressionReplacer(e => e == sourceEntity ? expression : null);
@@ -760,7 +761,8 @@ namespace Xtensive.Orm.Linq
       var rs = itemProjector.DataSource
         .Select(columnIndexes)
         .Distinct();
-      itemProjector = itemProjector.Remap(rs, new ColumnMap(columnIndexes));
+      using var columnMap = new ColumnMap(columnIndexes);
+      itemProjector = itemProjector.Remap(rs, columnMap);
       return new ProjectionExpression(result.Type, itemProjector, result.TupleParameterBindings);
     }
 
@@ -1027,8 +1029,8 @@ namespace Xtensive.Orm.Linq
 
       var keyColumns = keyFieldsRaw.Select(pair => pair.First).ToArray();
       var keyDataSource = groupingSourceProjection.ItemProjector.DataSource.Aggregate(keyColumns);
-      var remappedKeyItemProjector =
-        groupingSourceProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, new ColumnMap(keyColumns));
+      using var columnMap = new ColumnMap(keyColumns);
+      var remappedKeyItemProjector = groupingSourceProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, columnMap);
 
       var groupingProjector = new ItemProjectorExpression(remappedKeyItemProjector.Item, keyDataSource, context);
       var groupingProjection = new ProjectionExpression(groupingSourceProjection.Type, groupingProjector,
@@ -1652,7 +1654,8 @@ namespace Xtensive.Orm.Linq
 
       var tupleParameterBindings = outer.TupleParameterBindings.Union(inner.TupleParameterBindings)
         .ToDictionary(pair => pair.Key, pair => pair.Value);
-      var itemProjector = outerItemProjector.Remap(recordSet, new ColumnMap(outerColumnList));
+      using var columnMap = new ColumnMap(outerColumnList);
+      var itemProjector = outerItemProjector.Remap(recordSet, columnMap);
       return new ProjectionExpression(outer.Type, itemProjector, tupleParameterBindings);
     }
 
