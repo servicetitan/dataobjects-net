@@ -10,7 +10,7 @@ namespace Xtensive.Orm.Linq.Expressions
     private readonly ColNum[] reverseMap;
 
     public int IndexOf(ColNum column) =>
-      (ushort)column >= reverseMap.Length
+      (ushort) column >= reverseMap.Length
         ? -1
         : reverseMap[column];
 
@@ -23,14 +23,18 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public ColumnMap(IReadOnlyList<ColNum> map)
     {
-      if (map.Count == 0) {
+      var n = map.Count == 0 ? 0 : map.Max() + 1;
+      if (n == 0) {
         reverseMap = Array.Empty<ColNum>();
       }
       else {
-        reverseMap = ArrayPool<ColNum>.Shared.Rent(map.Max() + 1);
+        reverseMap = ArrayPool<ColNum>.Shared.Rent(n);
         Array.Fill(reverseMap, (ColNum) (-1));
         for (int i = map.Count; i-- > 0;) {
-          reverseMap[map[i]] = (ColNum) i;
+          var colNum = map[i];
+          if (colNum >= 0) {
+            reverseMap[colNum] = (ColNum) i;
+          }
         }
       }
     }
