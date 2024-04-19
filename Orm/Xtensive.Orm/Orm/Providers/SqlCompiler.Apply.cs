@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Providers
       }
       else {
         var calculatedColumnIndexes = sourceSelect.Columns
-          .Select((c, i) => IsCalculatedColumn(c) ? i : -1)
+          .Select((c, i) => AsCalculatedColumn(c) is not null ? i : -1)
           .Where(i => i >= 0)
           .ToList();
         var groupByIsUsed = sourceSelect.GroupBy.Count > 0;
@@ -90,6 +90,7 @@ namespace Xtensive.Orm.Providers
     private SqlSelect ProcessApplyViaSubqueries(ApplyProvider provider, SqlProvider left, SqlProvider right, bool shouldUseQueryReference)
     {
       var rightQuery = right.Request.Statement;
+      var rightQueryColumns = rightQuery.Columns;
       SqlSelect query;
       if (shouldUseQueryReference) {
         var leftTable = left.PermanentReference;
@@ -99,33 +100,33 @@ namespace Xtensive.Orm.Providers
       else {
         query = left.Request.Statement.ShallowClone();
       }
+      var queryColumns = query.Columns;
 
       var isApplyExistence =
         provider.Right.Type==ProviderType.Existence ||
         provider.Right.Type==ProviderType.Select && provider.Right.Sources[0].Type==ProviderType.Existence;
 
       if (isApplyExistence) {
-        for (int i = 0; i < rightQuery.Columns.Count; i++) {
-          var column = rightQuery.Columns[i];
+        for (int i = 0; i < rightQueryColumns.Count; i++) {
+          var column = rightQueryColumns[i];
           if (provider.IsInlined) {
             var columnStub = SqlDml.ColumnStub(column);
             var userColumn = ExtractUserColumn(column);
             stubColumnMap.Add(columnStub, userColumn.Expression);
             column = columnStub;
           }
-          query.Columns.Add(column);
+          queryColumns.Add(column);
         }
       }
       else {
         if (provider.IsInlined) {
-          for (int i = 0; i < rightQuery.Columns.Count; i++) {
+          for (int i = 0; i < rightQueryColumns.Count; i++) {
             var subquery = rightQuery.ShallowClone();
             var sqlColumn = subquery.Columns[i];
-            if (IsColumnStub(sqlColumn)) {
-              var columnStub = ExtractColumnStub(sqlColumn);
+            if (AsColumnStub(sqlColumn) is { } columnStub) {
               subquery.Columns.Clear();
               subquery.Columns.Add(columnStub.Column);
-              query.Columns.Add(subquery, sqlColumn.Name);
+              queryColumns.Add(subquery, sqlColumn.Name);
             }
             else {
               var columnRef = (SqlColumnRef) sqlColumn;
@@ -134,28 +135,27 @@ namespace Xtensive.Orm.Providers
               subquery.Columns.Add(column);
               var columnName = ProcessAliasedName(provider.Right.Header.Columns[i].Name);
               var userColumnRef = SqlDml.ColumnRef(SqlDml.Column(subquery), columnName);
-              var columnStub = SqlDml.ColumnStub(userColumnRef);
+              columnStub = SqlDml.ColumnStub(userColumnRef);
               stubColumnMap.Add(columnStub, subquery);
-              query.Columns.Add(columnStub);
+              queryColumns.Add(columnStub);
             }
           }
         }
         else
-          for (int i = 0; i < rightQuery.Columns.Count; i++) {
+          for (int i = 0; i < rightQueryColumns.Count; i++) {
             var subquery = rightQuery.ShallowClone();
             var column = subquery.Columns[i];
-            if (IsColumnStub(column)) {
-              var columnStub = ExtractColumnStub(column);
+            if (AsColumnStub(column) is { } columnStub) {
               subquery.Columns.Clear();
               subquery.Columns.Add(columnStub.Column);
-              query.Columns.Add(subquery, column.Name);
+              queryColumns.Add(subquery, column.Name);
             }
             else {
               var columnRef = (SqlColumnRef)column;
               var sqlColumn = columnRef.SqlColumn;
               subquery.Columns.Clear();
               subquery.Columns.Add(sqlColumn);
-              query.Columns.Add(subquery, columnRef.Name);
+              queryColumns.Add(subquery, columnRef.Name);
             }
           }
       }
