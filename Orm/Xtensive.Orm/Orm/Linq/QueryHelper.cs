@@ -48,11 +48,11 @@ namespace Xtensive.Orm.Linq
         var tupleParameterFieldAccess = Expression.Call(
           TupleParameter,
           getValueMethod,
-          Expression.Constant(startIndex + i));
+          Expr.Constant(startIndex + i));
         var keyParameterFieldAccess = Expression.Call(
           keyValue,
           getValueMethod,
-          Expression.Constant(i));
+          Expr.Constant(i));
         if (filterExpression==null)
           filterExpression = Expression.Equal(tupleParameterFieldAccess, keyParameterFieldAccess);
         else

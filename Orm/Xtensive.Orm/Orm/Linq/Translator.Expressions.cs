@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Linq
           boolExpression = MakeBooleanExpression(
             boolExpression,
             memberExpression,
-            Expression.Constant(typeId),
+            Expr.Constant(typeId),
             ExpressionType.Equal,
             ExpressionType.OrElse);
         }

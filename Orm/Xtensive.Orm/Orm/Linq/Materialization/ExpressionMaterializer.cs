@@ -366,16 +366,16 @@ namespace Xtensive.Orm.Linq.Materialization
       var isMaterializedExpression = Expression.Call(
         itemMaterializationContextParameter,
         ItemMaterializationContext.IsMaterializedMethodInfo,
-        Expression.Constant(index));
+        Expr.Constant(index));
       var getEntityExpression = Expression.Call(
         itemMaterializationContextParameter,
         ItemMaterializationContext.GetEntityMethodInfo,
-        Expression.Constant(index));
+        Expr.Constant(index));
       var materializeEntityExpression = Expression.Call(
         itemMaterializationContextParameter,
         ItemMaterializationContext.MaterializeMethodInfo,
-        Expression.Constant(index),
-        Expression.Constant(typeIdIndex),
+        Expr.Constant(index),
+        Expr.Constant(typeIdIndex),
         Expression.Constant(expression.PersistentType),
         Expression.Constant(mappingInfo),
         tupleExpression);

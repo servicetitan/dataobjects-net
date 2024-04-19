@@ -139,7 +139,7 @@ namespace Xtensive.Orm.Linq
       Expression<Func<Session, int, MaterializationContext>> materializationContextCtor =
         (s, entityCount) => new MaterializationContext(s, entityCount);
       var materializationContextExpression = materializationContextCtor
-        .BindParameters(Session, Expression.Constant(materializationInfo.EntitiesInRow));
+        .BindParameters(Session, Expr.Constant(materializationInfo.EntitiesInRow));
 
       Expression body = Expression.Call(
         materializeMethod,

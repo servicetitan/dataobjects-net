@@ -38,7 +38,7 @@ namespace Xtensive.Linq
       Expression.Call(
         target,
         valueAccessors.GetOrAdd(accessorType, TupleValueAccessorFactory),
-        Expression.Constant(index)
+        Expr.Constant(index)
       );
 
     /// <summary>

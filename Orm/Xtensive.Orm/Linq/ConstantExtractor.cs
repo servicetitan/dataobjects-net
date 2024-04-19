@@ -61,7 +61,7 @@ namespace Xtensive.Linq
       if (!constantFilter.Invoke(c))
         return c;
       var result = Expression.Convert(
-        Expression.ArrayIndex(ConstantParameter, Expression.Constant(constantValues.Count)), c.Type);
+        Expression.ArrayIndex(ConstantParameter, Expr.Constant(constantValues.Count)), c.Type);
       constantValues.Add(c.Value);
       return result;
     }
