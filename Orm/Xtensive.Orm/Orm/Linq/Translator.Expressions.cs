@@ -35,6 +35,7 @@ namespace Xtensive.Orm.Linq
   {
     private static readonly ParameterExpression ParameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
     private static readonly ConstantExpression
+      NullExpression = Expression.Constant(null),
       NullKeyExpression = Expression.Constant(null, WellKnownOrmTypes.Key),
       FalseExpression = Expression.Constant(false),
       TrueExpression = Expression.Constant(true);
@@ -179,53 +180,52 @@ namespace Xtensive.Orm.Linq
     {
       Expression left;
       Expression right;
-      MemberType memberType = binaryExpression.Left.Type == WellKnownTypes.Object
-        ? binaryExpression.Right.GetMemberType()
-        : binaryExpression.Left.GetMemberType();
+      var (binaryLeft, binaryRight) = (binaryExpression.Left, binaryExpression.Right);
+      MemberType memberType = binaryLeft.Type == WellKnownTypes.Object
+        ? binaryRight.GetMemberType()
+        : binaryLeft.GetMemberType();
       if (memberType == MemberType.EntitySet) {
-        if (context.Evaluator.CanBeEvaluated(binaryExpression.Left)) {
-          left = ExpressionEvaluator.Evaluate(binaryExpression.Left);
+        if (context.Evaluator.CanBeEvaluated(binaryLeft)) {
+          left = ExpressionEvaluator.Evaluate(binaryLeft);
         }
         else {
-          var leftMemberAccess = binaryExpression.Left as MemberExpression;
-          left = leftMemberAccess != null && leftMemberAccess.Member.ReflectedType.IsClosure()
+          left = binaryLeft is MemberExpression leftMemberAccess && leftMemberAccess.Member.ReflectedType.IsClosure()
             ? ExpressionEvaluator.Evaluate(leftMemberAccess)
-            : Visit(binaryExpression.Left);
+            : Visit(binaryLeft);
         }
-        if (context.Evaluator.CanBeEvaluated(binaryExpression.Right)) {
-          right = ExpressionEvaluator.Evaluate(binaryExpression.Right);
+        if (context.Evaluator.CanBeEvaluated(binaryRight)) {
+          right = ExpressionEvaluator.Evaluate(binaryRight);
         }
         else {
-          var rightMemberAccess = binaryExpression.Right as MemberExpression;
-          right = rightMemberAccess != null && rightMemberAccess.Member.ReflectedType.IsClosure()
+          right = binaryRight is MemberExpression rightMemberAccess && rightMemberAccess.Member.ReflectedType.IsClosure()
             ? ExpressionEvaluator.Evaluate(rightMemberAccess)
-            : Visit(binaryExpression.Right);
+            : Visit(binaryRight);
         }
       }
-      else if (memberType == MemberType.Entity || memberType == MemberType.Structure) {
+      else if (memberType is MemberType.Entity or MemberType.Structure) {
         if (binaryExpression.NodeType == ExpressionType.Coalesce) {
-          if ((context.Evaluator.CanBeEvaluated(binaryExpression.Right) && !(binaryExpression.Right is ConstantExpression))
-            || (context.Evaluator.CanBeEvaluated(binaryExpression.Left) && !(binaryExpression.Left is ConstantExpression)))
+          if ((context.Evaluator.CanBeEvaluated(binaryRight) && !(binaryRight is ConstantExpression))
+            || (context.Evaluator.CanBeEvaluated(binaryLeft) && !(binaryLeft is ConstantExpression)))
             throw new NotSupportedException(
               string.Format(Strings.ExXExpressionsWithConstantValuesOfYTypeNotSupported, "Coalesce", memberType.ToString()));
 
           return Visit(Expression.Condition(
-            Expression.NotEqual(binaryExpression.Left, Expression.Constant(null)),
-            binaryExpression.Left,
-            binaryExpression.Right));
+            Expression.NotEqual(binaryLeft, NullExpression),
+            binaryLeft,
+            binaryRight));
         }
         else {
-          left = Visit(binaryExpression.Left);
-          right = Visit(binaryExpression.Right);
+          left = Visit(binaryLeft);
+          right = Visit(binaryRight);
         }
       }
       else if (EnumRewritableOperations(binaryExpression)) {
         // Following two checks for enums are here to improve result query
         // performance because they let not to cast columns to integer.
-        var leftNoCasts = binaryExpression.Left.StripCasts();
+        var leftNoCasts = binaryLeft.StripCasts();
         var leftNoCastsType = leftNoCasts.Type;
         var bareLeftType = leftNoCastsType.StripNullable();
-        var rightNoCasts = binaryExpression.Right.StripCasts();
+        var rightNoCasts = binaryRight.StripCasts();
         var rightNoCastsType = rightNoCasts.Type;
         var bareRightType = rightNoCastsType.StripNullable();
 
@@ -234,23 +234,23 @@ namespace Xtensive.Orm.Linq
             ? bareLeftType.GetEnumUnderlyingType().ToNullable()
             : leftNoCastsType.GetEnumUnderlyingType();
           left = Visit(Expression.Convert(leftNoCasts, typeToCast));
-          right = Visit(Expression.Convert(binaryExpression.Right, typeToCast));
+          right = Visit(Expression.Convert(binaryRight, typeToCast));
         }
         else if (bareRightType.IsEnum && leftNoCasts.NodeType == ExpressionType.Constant) {
           var typeToCast = rightNoCastsType.IsNullable()
             ? bareRightType.GetEnumUnderlyingType().ToNullable()
             : rightNoCastsType.GetEnumUnderlyingType();
           left = Visit(Expression.Convert(rightNoCasts, typeToCast));
-          right = Visit(Expression.Convert(binaryExpression.Left, typeToCast));
+          right = Visit(Expression.Convert(binaryLeft, typeToCast));
         }
         else {
-          left = Visit(binaryExpression.Left);
-          right = Visit(binaryExpression.Right);
+          left = Visit(binaryLeft);
+          right = Visit(binaryRight);
         }
       }
       else {
-        left = Visit(binaryExpression.Left);
-        right = Visit(binaryExpression.Right);
+        left = Visit(binaryLeft);
+        right = Visit(binaryRight);
       }
       var resultBinaryExpression = Expression.MakeBinary(binaryExpression.NodeType,
         left,
@@ -258,14 +258,13 @@ namespace Xtensive.Orm.Linq
         binaryExpression.IsLiftedToNull,
         binaryExpression.Method);
 
-      if (binaryExpression.NodeType == ExpressionType.Equal
-        || binaryExpression.NodeType == ExpressionType.NotEqual)
+      if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual)
         return VisitBinaryRecursive(resultBinaryExpression, binaryExpression);
 
       if (binaryExpression.NodeType == ExpressionType.ArrayIndex) {
-        var newArrayExpression = left.StripCasts() as NewArrayExpression;
-        var indexExpression = right.StripCasts() as ConstantExpression;
-        if (newArrayExpression != null && indexExpression != null && indexExpression.Type == WellKnownTypes.Int32)
+        if (left.StripCasts() is NewArrayExpression newArrayExpression
+            && right.StripCasts() is ConstantExpression indexExpression
+            && indexExpression.Type == WellKnownTypes.Int32)
           return newArrayExpression.Expressions[(int) indexExpression.Value];
 
         throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionXOfTypeXIsNotSupported, binaryExpression.ToString(true), binaryExpression.NodeType));
@@ -275,11 +274,9 @@ namespace Xtensive.Orm.Linq
 
       static bool EnumRewritableOperations(BinaryExpression b)
       {
-        var nt = b.NodeType;
-        return nt == ExpressionType.Equal || nt == ExpressionType.NotEqual
-          || nt == ExpressionType.GreaterThan || nt == ExpressionType.GreaterThanOrEqual
-          || nt == ExpressionType.LessThan || nt == ExpressionType.LessThanOrEqual;
-      }
+        return b.NodeType is ExpressionType.Equal or ExpressionType.NotEqual or ExpressionType.GreaterThan or ExpressionType.GreaterThanOrEqual
+          or ExpressionType.LessThan or ExpressionType.LessThanOrEqual;
+      }        
     }
 
     protected override Expression VisitConditional(ConditionalExpression c)
