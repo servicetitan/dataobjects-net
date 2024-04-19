@@ -124,8 +124,9 @@ namespace Xtensive.Orm.Rse.Transformation
 
       var (leftMapping, rightMapping) = SplitMappings(provider);
 
-      leftMapping = Merge(leftMapping, provider.EqualIndexes.Select(p => p.Left));
-      rightMapping = Merge(rightMapping, provider.EqualIndexes.Select(p => p.Right));
+      var equalIndexes = provider.EqualIndexes;
+      leftMapping = Merge(leftMapping, equalIndexes.Select(p => p.Left));
+      rightMapping = Merge(rightMapping, equalIndexes.Select(p => p.Right));
 
       var newLeftProvider = provider.Left;
       var newRightProvider = provider.Right;
@@ -137,11 +138,12 @@ namespace Xtensive.Orm.Rse.Transformation
         return provider;
       }
 
-      var newIndexes = new List<(ColNum Left, ColNum Right)>(provider.EqualIndexes.Count);
-      foreach (var pair in provider.EqualIndexes) {
-        newIndexes.Add(((ColNum) leftMapping.IndexOf(pair.Left), (ColNum) rightMapping.IndexOf(pair.Right)));
+      var newIndexes = new (ColNum Left, ColNum Right)[equalIndexes.Count];
+      for (int i = equalIndexes.Count; i-- > 0;) {
+        var (left, right) = equalIndexes[i];
+        newIndexes[i] = ((ColNum) leftMapping.IndexOf(left), (ColNum) rightMapping.IndexOf(right));
       }
-      return new JoinProvider(newLeftProvider, newRightProvider, provider.JoinType, newIndexes.ToArray());
+      return new JoinProvider(newLeftProvider, newRightProvider, provider.JoinType, newIndexes);
     }
 
     protected override PredicateJoinProvider VisitPredicateJoin(PredicateJoinProvider provider)
