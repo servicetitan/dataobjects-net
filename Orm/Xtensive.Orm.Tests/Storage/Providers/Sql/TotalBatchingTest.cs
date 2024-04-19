@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       for (int i = 0; i < amount; i++) {
         var rs = Domain.Model.Types[typeof (X)].Indexes.PrimaryIndex.GetQuery()
           .Aggregate(System.Array.Empty<ColNum>(),
-            new AggregateColumnDescriptor("_count_", 0, AggregateType.Count));
+            [new AggregateColumnDescriptor("_count_", 0, AggregateType.Count)]);
         var compiledProvider = session.Compile(rs);
         var task = new QueryTask(compiledProvider, session.GetLifetimeToken(), null);
         tasks.Add(task);

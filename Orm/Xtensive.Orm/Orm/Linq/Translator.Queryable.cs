@@ -776,7 +776,7 @@ namespace Xtensive.Orm.Linq
       var aggregateDescriptor = new AggregateColumnDescriptor(
         context.GetNextColumnAlias(), originColumnIndex, aggregateType);
       var originDataSource = originProjection.ItemProjector.DataSource;
-      var resultDataSource = originDataSource.Aggregate(null, aggregateDescriptor);
+      var resultDataSource = originDataSource.Aggregate(null, [aggregateDescriptor]);
 
       // Some aggregate method change type of the column
       // We should take this into account when translating them
@@ -1027,7 +1027,7 @@ namespace Xtensive.Orm.Linq
         : EmptyIntSet;
 
       var keyColumns = keyFieldsRaw.Select(pair => pair.First).ToArray();
-      var keyDataSource = groupingSourceProjection.ItemProjector.DataSource.Aggregate(keyColumns);
+      var keyDataSource = groupingSourceProjection.ItemProjector.DataSource.Aggregate(keyColumns, Array.Empty<AggregateColumnDescriptor>());
       using var columnMap = new ColumnMap(keyColumns);
       var remappedKeyItemProjector = groupingSourceProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, columnMap);
 

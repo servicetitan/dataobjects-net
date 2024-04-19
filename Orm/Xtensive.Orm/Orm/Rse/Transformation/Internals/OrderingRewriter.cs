@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Rse.Transformation
       if (source != provider.Source) {
         var acds = provider.AggregateColumns
            .Select(ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType));
-        result = new AggregateProvider(source, provider.GroupColumnIndexes, acds.ToArray());
+        result = new AggregateProvider(source, provider.GroupColumnIndexes, acds);
       }
       if (sortOrder.Count > 0) {
         var selectOrdering = new DirectionCollection<ColNum>();

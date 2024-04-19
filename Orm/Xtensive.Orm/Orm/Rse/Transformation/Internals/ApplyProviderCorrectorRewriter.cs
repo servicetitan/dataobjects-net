@@ -388,7 +388,7 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       var acd = provider.AggregateColumns.Select(
         ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType));
-      return new AggregateProvider(source, provider.GroupColumnIndexes, acd.ToArray());
+      return new AggregateProvider(source, provider.GroupColumnIndexes, acd);
     }
 
     private static CalculateProvider RecreateCalculate(CalculateProvider provider,
