@@ -158,16 +158,17 @@ namespace Xtensive.Orm.Linq
 
     protected override MemberAssignment VisitMemberAssignment(MemberAssignment ma)
     {
+      var maExpression = ma.Expression;
       Expression expression;
       using (CreateScope(new TranslatorState(State) { CalculateExpressions = false })) {
-        expression = Visit(ma.Expression);
+        expression = Visit(maExpression);
       }
 
       expression = expression.StripMarkers().IsProjection()
-        ? BuildSubqueryResult((ProjectionExpression) expression, ma.Expression.Type)
+        ? BuildSubqueryResult((ProjectionExpression) expression, maExpression.Type)
         : ProcessProjectionElement(expression);
 
-      if (expression != ma.Expression)
+      if (expression != maExpression)
         return Expression.Bind(ma.Member, expression);
       return ma;
     }
