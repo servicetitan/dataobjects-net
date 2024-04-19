@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public LambdaExpression ToLambda(TranslatorContext context) => ExpressionMaterializer.MakeLambda(Item, context);
 
-    public MaterializationInfo Materialize(TranslatorContext context, IEnumerable<Parameter<Tuple>> tupleParameters) =>
+    public MaterializationInfo Materialize(TranslatorContext context, IReadOnlySet<Parameter<Tuple>> tupleParameters) =>
       ExpressionMaterializer.MakeMaterialization(this, context, tupleParameters);
 
     public ItemProjectorExpression BindOuterParameter(ParameterExpression parameter)
