@@ -880,8 +880,7 @@ namespace Xtensive.Orm.Linq
         var rightCalculateProvider = (CalculateProvider) right;
         var calculatedColumns = leftCalculateProvider.CalculatedColumns
           .Concat(rightCalculateProvider.CalculatedColumns)
-          .Select(c => new CalculatedColumnDescriptor(c.Name, c.Type, c.Expression))
-          .ToArray();
+          .Select(c => new CalculatedColumnDescriptor(c.Name, c.Type, c.Expression));
         if (aggregateDescriptor.SourceIndex >= source.Header.Length) {
           aggregateDescriptor = new AggregateColumnDescriptor(
             aggregateDescriptor.Name,

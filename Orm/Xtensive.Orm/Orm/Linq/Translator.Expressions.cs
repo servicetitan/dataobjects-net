@@ -1212,7 +1212,7 @@ namespace Xtensive.Orm.Linq
         dataSource = calculateProvider.Source;
       }
       columns.Add(descriptor);
-      dataSource = dataSource.Calculate(isInlined, columns.ToArray());
+      dataSource = dataSource.Calculate(isInlined, columns);
 
       if (sortProvider != null)
         dataSource = dataSource.OrderBy(sortProvider.Order);

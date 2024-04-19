@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Rse
     }
 
     public static CompilableProvider Calculate(this CompilableProvider source, bool isInlined,
-      params CalculatedColumnDescriptor[] columns)
+      IEnumerable<CalculatedColumnDescriptor> columns)
     {
       return new CalculateProvider(source, isInlined, columns);
     }

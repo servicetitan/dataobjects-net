@@ -5,6 +5,8 @@
 // Created:    2008.09.09
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 
 using Xtensive.Tuples.Transform;
@@ -65,7 +67,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
-    public CalculateProvider(CompilableProvider source, params CalculatedColumnDescriptor[] columnDescriptors)
+    public CalculateProvider(CompilableProvider source, IEnumerable<CalculatedColumnDescriptor> columnDescriptors)
       : this(source, false, columnDescriptors)
     {
     }
@@ -76,16 +78,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="isInlined">The <see cref="IsInlined"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
-    public CalculateProvider(CompilableProvider source, bool isInlined, params CalculatedColumnDescriptor[] columnDescriptors)
+    public CalculateProvider(CompilableProvider source, bool isInlined, IEnumerable<CalculatedColumnDescriptor> columnDescriptors)
       : base(ProviderType.Calculate, source)
     {
       IsInlined = isInlined;
-      var columns = new CalculatedColumn[columnDescriptors.Length];
-      for (int i = 0; i < columnDescriptors.Length; i++) {
-        var col = new CalculatedColumn(columnDescriptors[i], (ColNum) (Source.Header.Length + i));
-        columns.SetValue(col, i);
-      }
-      CalculatedColumns = columns;
+      var baseIndex = Source.Header.Length;
+      CalculatedColumns = columnDescriptors.Select((desc, i) => new CalculatedColumn(desc, (ColNum) (baseIndex + i))).ToArray();
       Initialize();
     }
   }
