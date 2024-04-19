@@ -124,8 +124,8 @@ namespace Xtensive.Orm.Rse.Transformation
 
       var (leftMapping, rightMapping) = SplitMappings(provider);
 
-      leftMapping = Merge(leftMapping, provider.EqualIndexes.Select(p => p.First));
-      rightMapping = Merge(rightMapping, provider.EqualIndexes.Select(p => p.Second));
+      leftMapping = Merge(leftMapping, provider.EqualIndexes.Select(p => p.Left));
+      rightMapping = Merge(rightMapping, provider.EqualIndexes.Select(p => p.Right));
 
       var newLeftProvider = provider.Left;
       var newRightProvider = provider.Right;
@@ -137,11 +137,9 @@ namespace Xtensive.Orm.Rse.Transformation
         return provider;
       }
 
-      var newIndexes = new List<Pair<ColNum>>(provider.EqualIndexes.Count);
+      var newIndexes = new List<(ColNum Left, ColNum Right)>(provider.EqualIndexes.Count);
       foreach (var pair in provider.EqualIndexes) {
-        var newLeftIndex = (ColNum) leftMapping.IndexOf(pair.First);
-        var newRightIndex = (ColNum) rightMapping.IndexOf(pair.Second);
-        newIndexes.Add(new Pair<ColNum>(newLeftIndex, newRightIndex));
+        newIndexes.Add(((ColNum) leftMapping.IndexOf(pair.Left), (ColNum) rightMapping.IndexOf(pair.Right)));
       }
       return new JoinProvider(newLeftProvider, newRightProvider, provider.JoinType, newIndexes.ToArray());
     }

@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Providers
               index.GetQuery(),
               association.Reversed.OwnerField.MappingInfo
                 .GetItems()
-                .Select((l,r) => new Pair<ColNum>(l, (ColNum) r))
+                .Select((l,r) => (l, (ColNum)r))
                 .ToArray())
             .Select(nonLazyColumnsSelector);
           break;
@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Providers
               index.GetQuery(),
               referencedField.MappingInfo
                 .GetItems()
-                .Select((l, r) => new Pair<ColNum>(l, (ColNum) r))
+                .Select((l, r) => (l, (ColNum)r))
                 .ToArray())
             .Select(nonLazyColumnsSelector);
           break;

@@ -203,8 +203,9 @@ namespace Xtensive.Orm.Providers
 
       SqlExpression joinExpression = null;
       for (var i = 0; i < provider.EqualIndexes.Count(); ++i) {
-        var leftExpression = leftExpressions[provider.EqualIndexes[i].First];
-        var rightExpression = rightExpressions[provider.EqualIndexes[i].Second];
+        var (leftInder, rightIndex) = provider.EqualIndexes[i];
+        var leftExpression = leftExpressions[leftInder];
+        var rightExpression = rightExpressions[rightIndex];
         joinExpression &= GetJoinExpression(leftExpression, rightExpression, provider, i);
       }
 

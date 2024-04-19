@@ -232,19 +232,19 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
     }
 
-    private static Pair<ColNum>[] GetJoiningColumnIndexes(IndexInfo primaryIndex, IndexInfo associationIndex, bool hasAuxType)
+    private static (ColNum Left, ColNum Right)[] GetJoiningColumnIndexes(IndexInfo primaryIndex, IndexInfo associationIndex, bool hasAuxType)
     {
-      var joiningColumns = new Pair<ColNum>[primaryIndex.KeyColumns.Count];
+      var joiningColumns = new (ColNum Left, ColNum Right)[primaryIndex.KeyColumns.Count];
       ColNum firstColumnIndex = (ColNum) primaryIndex.Columns.IndexOf(primaryIndex.KeyColumns[0].Key);
       for (ColNum i = 0; i < joiningColumns.Length; i++) {
         if (hasAuxType) {
           joiningColumns[i] =
-            new Pair<ColNum>((ColNum) associationIndex.Columns.IndexOf(associationIndex.ValueColumns[i]),
+            ((ColNum) associationIndex.Columns.IndexOf(associationIndex.ValueColumns[i]),
               (ColNum) (firstColumnIndex + i));
         }
         else {
           joiningColumns[i] =
-            new Pair<ColNum>((ColNum) associationIndex.Columns.IndexOf(primaryIndex.KeyColumns[i].Key),
+            ((ColNum) associationIndex.Columns.IndexOf(primaryIndex.KeyColumns[i].Key),
               (ColNum) (firstColumnIndex + i));
         }
       }

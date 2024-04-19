@@ -1560,7 +1560,7 @@ namespace Xtensive.Orm.Linq
       var queryToJoin = indexToJoin.GetQuery().Alias(context.GetNextAlias());
       var keySegment = entityExpression.Key.Mapping.GetItems();
       var keyPairs = keySegment
-        .Select((leftIndex, rightIndex) => new Pair<ColNum>(leftIndex, (ColNum)rightIndex))
+        .Select((leftIndex, rightIndex) => (leftIndex, (ColNum)rightIndex))
         .ToArray();
 
       // Replace recordset.
@@ -1596,8 +1596,8 @@ namespace Xtensive.Orm.Linq
       IndexInfo joinedIndex = typeInfo.Indexes.PrimaryIndex;
       var joinedRs = joinedIndex.GetQuery().Alias(itemProjector.Context.GetNextAlias());
       Segment<ColNum> keySegment = entityExpression.Key.Mapping;
-      Pair<ColNum>[] keyPairs = keySegment.GetItems()
-        .Select((leftIndex, rightIndex) => new Pair<ColNum>(leftIndex, (ColNum)rightIndex))
+      var keyPairs = keySegment.GetItems()
+        .Select((leftIndex, rightIndex) => (leftIndex, (ColNum)rightIndex))
         .ToArray();
       ColNum offset = itemProjector.DataSource.Header.Length;
       var oldDataSource = itemProjector.DataSource;
@@ -1617,8 +1617,8 @@ namespace Xtensive.Orm.Linq
       IndexInfo joinedIndex = typeInfo.Indexes.PrimaryIndex;
       var joinedRs = joinedIndex.GetQuery().Alias(context.GetNextAlias());
       Segment<ColNum> keySegment = entityFieldExpression.Mapping;
-      Pair<ColNum>[] keyPairs = keySegment.GetItems()
-        .Select((leftIndex, rightIndex) => new Pair<ColNum>(leftIndex, (ColNum)rightIndex))
+      (ColNum Left, ColNum Right)[] keyPairs = keySegment.GetItems()
+        .Select((leftIndex, rightIndex) => (leftIndex, (ColNum)rightIndex))
         .ToArray();
       ItemProjectorExpression originalItemProjector = entityFieldExpression.OuterParameter == null
         ? context.Bindings[State.Parameters[0]].ItemProjector

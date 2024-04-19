@@ -124,7 +124,7 @@ namespace Xtensive.Orm.Rse.Providers
       return left == provider.Left && right == provider.Right
         ? provider
         : new JoinProvider(left, right, provider.JoinType,
-            equalIndexes != null ? (Pair<ColNum>[])equalIndexes : provider.EqualIndexes);
+            equalIndexes != null ? ((ColNum Left, ColNum Right)[])equalIndexes : provider.EqualIndexes);
     }
 
     /// <inheritdoc/>
