@@ -263,7 +263,7 @@ namespace Xtensive.Orm.Providers
 
           var joinProvider = (JoinProvider) origin;
           var isRight = joinProvider.Right == compiledSource.Origin;
-          var indexes = joinProvider.EqualIndexes.Select(p => isRight ? p.Second : p.First);
+          var indexes = joinProvider.EqualIndexes.Select(p => isRight ? p.Right : p.Left);
           return (joinProvider.JoinType == JoinType.LeftOuter && filterIsUsed && isRight)
             || (containsCalculatedColumns && indexes.Any(calculatedColumnIndexes.Contains));
         }
@@ -326,20 +326,20 @@ namespace Xtensive.Orm.Providers
       JoinProvider provider, int index)
     {
       if (provider.EqualColumns.Count > index) {
-        Pair<Column> columnPair;
+        Column leftColumn, rightColumn; 
         if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation)) {
-          columnPair = provider.EqualColumns[index];
-          leftExpression = CastToDateTimeVariantIfNeeded(leftExpression, columnPair.First.Type);
-          rightExpression = CastToDateTimeVariantIfNeeded(rightExpression, columnPair.Second.Type);
+          (leftColumn, rightColumn) = provider.EqualColumns[index];
+          leftExpression = CastToDateTimeVariantIfNeeded(leftExpression, leftColumn.Type);
+          rightExpression = CastToDateTimeVariantIfNeeded(rightExpression, rightColumn.Type);
         }
 
         if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation)) {
-          columnPair = provider.EqualColumns[index];
-          if (columnPair.First.Type == WellKnownTypes.DateTimeOffset) {
+          (leftColumn, rightColumn) = provider.EqualColumns[index];
+          if (leftColumn.Type == WellKnownTypes.DateTimeOffset) {
             leftExpression = SqlDml.Cast(leftExpression, SqlType.DateTimeOffset);
           }
 
-          if (columnPair.Second.Type == WellKnownTypes.DateTimeOffset) {
+          if (rightColumn.Type == WellKnownTypes.DateTimeOffset) {
             rightExpression = SqlDml.Cast(rightExpression, SqlType.DateTimeOffset);
           }
         }

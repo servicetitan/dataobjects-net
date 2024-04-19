@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Tests.Rse
           ResetState(state);
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
-          CompilableProvider rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<ColNum>(0, 0), new Pair<ColNum>(1, 1));
+          CompilableProvider rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), (0, 0), (1, 1));
           UpdateCache(session, rsJoin.GetRecordSetReader(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);

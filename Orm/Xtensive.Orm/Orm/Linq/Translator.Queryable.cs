@@ -384,7 +384,7 @@ namespace Xtensive.Orm.Linq
       var recordSet = targetTypeInfo.Indexes.PrimaryIndex.GetQuery().Alias(context.GetNextAlias()).Select(indexes);
       var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
       var keyPairs = keySegment
-        .Select((leftIndex, rightIndex) => new Pair<ColNum>(leftIndex, (ColNum)rightIndex))
+        .Select((leftIndex, rightIndex) => (leftIndex, (ColNum)rightIndex))
         .ToArray();
 
       var dataSource = visitedSource.ItemProjector.DataSource;
@@ -1224,7 +1224,7 @@ namespace Xtensive.Orm.Linq
           innerColumnKeyExpression.EnsureKeyExpressionCompatible(outerColumnKeyExpression, expressionPart);
         }
 
-        var keyPairs = outerColumns.Zip(innerColumns, (o, i) => new Pair<ColNum>(o.First, i.First)).ToArray();
+        var keyPairs = outerColumns.Zip(innerColumns, (o, i) => (o.First, i.First)).ToArray();
 
         var outer = context.Bindings[outerParameter];
         var inner = context.Bindings[innerParameter];

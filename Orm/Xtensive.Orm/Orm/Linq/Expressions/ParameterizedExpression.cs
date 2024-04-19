@@ -24,16 +24,7 @@ namespace Xtensive.Orm.Linq.Expressions
     /// Check if <see cref="ParameterizedExpression"/> can be remapped 
     /// according to current <see cref="RemapContext"/>.
     /// </summary>
-    protected bool CanRemap
-    {
-      get
-      {
-        var context = RemapScope.CurrentContext;
-        return context.SubqueryParameterExpression==null 
-          ? OuterParameter==null 
-          : OuterParameter==context.SubqueryParameterExpression;
-      }
-    }
+    protected bool CanRemap => RemapScope.CurrentContext.SubqueryParameterExpression == OuterParameter;
 
     protected bool TryProcessed<T>(Dictionary<Expression, Expression> processedExpressions, out T result) where T : ParameterizedExpression
     {

@@ -139,10 +139,10 @@ namespace Xtensive.Orm.Linq.Expressions
           var joinedIndex = typeInfo.Indexes.PrimaryIndex;
           var joinedRs = joinedIndex.GetQuery().Alias(Context.GetNextAlias());
           var keySegment = entityExpression.Key.Mapping;
-          var keyPairs = new Pair<ColNum>[keySegment.Length];
+          var keyPairs = new (ColNum Left, ColNum Right)[keySegment.Length];
           ColNum rightIndex = 0;
           foreach (var leftIndex in keySegment.GetItems()) {
-            keyPairs[rightIndex] = new Pair<ColNum>(leftIndex, rightIndex);
+            keyPairs[rightIndex] = (leftIndex, rightIndex);
             rightIndex++;
           }
           var offset = dataSource.Header.Length;
@@ -163,10 +163,10 @@ namespace Xtensive.Orm.Linq.Expressions
           var joinedIndex = typeInfo.Indexes.PrimaryIndex;
           var joinedRs = joinedIndex.GetQuery().Alias(Context.GetNextAlias());
           var keySegment = entityFieldExpression.Mapping;
-          var keyPairs = new Pair<ColNum>[keySegment.Length];
+          var keyPairs = new (ColNum Left, ColNum Right)[keySegment.Length];
           ColNum rightIndex = 0;
           foreach (var leftIndex in keySegment.GetItems()) {
-            keyPairs[rightIndex] = new Pair<ColNum>(leftIndex, rightIndex);
+            keyPairs[rightIndex] = (leftIndex, rightIndex);
             rightIndex++;
           }
           var offset = dataSource.Header.Length;

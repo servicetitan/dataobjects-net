@@ -31,31 +31,33 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Pairs of equal column indexes.
     /// </summary>
-    public IReadOnlyList<Pair<ColNum>> EqualIndexes { get; }
+    public IReadOnlyList<(ColNum Left, ColNum Right)> EqualIndexes { get; }
 
     /// <summary>
     /// Pairs of equal columns.
     /// </summary>
-    public IReadOnlyList<Pair<Column>> EqualColumns { get; private set; }
+    public IReadOnlyList<(Column Left, Column Right)> EqualColumns { get; private set; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
     {
       return string.Format(ToStringFormat,
         JoinType,
-        EqualColumns.Select(p => p.First.Name + " == " + p.Second.Name).ToCommaDelimitedString());
+        EqualColumns.Select(p => p.Left.Name + " == " + p.Right.Name).ToCommaDelimitedString());
     }
 
     /// <inheritdoc/>
     protected override void Initialize()
     {
       base.Initialize();
-      var equalColumns = new Pair<Column>[EqualIndexes.Count];
-      for (int i = 0; i < EqualIndexes.Count; i++)
-        equalColumns[i] = new Pair<Column>(
-          Left.Header.Columns[EqualIndexes[i].First],
-          Right.Header.Columns[EqualIndexes[i].Second]
-          );
+      var leftColumns = Left.Header.Columns;
+      var rightColumns = Right.Header.Columns;
+      var n = EqualIndexes.Count;
+      var equalColumns = new (Column Left, Column Right)[n];
+      for (int i = n; i-- > 0;) {
+        var (leftIndex, rightIndex) = EqualIndexes[i];
+        equalColumns[i] = (leftColumns[leftIndex], rightColumns[rightIndex]);
+      }
       EqualColumns = equalColumns;
     }
 
@@ -70,7 +72,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="joinType">The join operation type.</param>
     /// <param name="equalIndexes">The <see cref="EqualIndexes"/> property value.</param>
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
-    public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType, IReadOnlyList<Pair<ColNum>> equalIndexes)
+    public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType, IReadOnlyList<(ColNum Left, ColNum Right)> equalIndexes)
       : base(ProviderType.Join, left, right)
     {
       if (equalIndexes==null || equalIndexes.Count==0)
@@ -95,9 +97,9 @@ namespace Xtensive.Orm.Rse.Providers
       if (equalIndexes==null || equalIndexes.Length<2)
         throw new ArgumentException(
           Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, "equalIndexes");
-      var ei = new Pair<ColNum>[equalIndexes.Length / 2];
+      var ei = new (ColNum Left, ColNum Right)[equalIndexes.Length / 2];
       for (int i = 0, j = 0; i < ei.Length; i++)
-        ei[i] = new Pair<ColNum>(equalIndexes[j++], equalIndexes[j++]);
+        ei[i] = (equalIndexes[j++], equalIndexes[j++]);
       JoinType = joinType;
       EqualIndexes = ei;
       Initialize();

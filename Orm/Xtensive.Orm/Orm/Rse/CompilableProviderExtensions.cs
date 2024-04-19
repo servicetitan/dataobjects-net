@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Rse
     }
 
     public static CompilableProvider Join(this CompilableProvider left, CompilableProvider right,
-      params Pair<ColNum>[] joinedColumnIndexes)
+      params (ColNum Left, ColNum Right)[] joinedColumnIndexes)
     {
       return new JoinProvider(left, right, JoinType.Inner, joinedColumnIndexes);
     }
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Rse
     }
 
     public static CompilableProvider LeftJoin(this CompilableProvider left, CompilableProvider right,
-      params Pair<ColNum>[] joinedColumnIndexes)
+      params (ColNum Left, ColNum Right)[] joinedColumnIndexes)
     {
       return new JoinProvider(left, right, JoinType.LeftOuter, joinedColumnIndexes);
     }
