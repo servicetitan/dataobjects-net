@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       var newLeftProvider = provider.Left;
       var newRightProvider = provider.Right;
-      VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider);
+      VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider, true);
 
       mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
 
@@ -157,7 +157,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       var newLeftProvider = provider.Left;
       var newRightProvider = provider.Right;
-      VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider);
+      VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider, false);
       mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
       var predicate = TranslateJoinPredicate(leftMapping, rightMapping, provider.Predicate);
 
@@ -481,10 +481,12 @@ namespace Xtensive.Orm.Rse.Transformation
     }
 
     private void VisitJoin(ref List<ColNum> leftMapping, ref CompilableProvider left, ref List<ColNum> rightMapping,
-      ref CompilableProvider right)
+      ref CompilableProvider right, bool sourceMappingsAreOrdered)
     {
-      leftMapping = leftMapping.Distinct().OrderBy(i => i).ToList();
-      rightMapping = rightMapping.Distinct().OrderBy(i => i).ToList();
+      if (!sourceMappingsAreOrdered) {
+        leftMapping = leftMapping.Distinct().OrderBy(i => i).ToList();
+        rightMapping = rightMapping.Distinct().OrderBy(i => i).ToList();
+      }
 
       // visit
 
