@@ -423,14 +423,8 @@ namespace Xtensive.Orm.Rse.Transformation
 
     #region Private methods
 
-    private static List<ColNum> Merge(IEnumerable<ColNum> left, IEnumerable<ColNum> right)
-    {
-      return left
-        .Union(right)
-        .Distinct()
-        .OrderBy(i => i)
-        .ToList();
-    }
+    private static List<ColNum> Merge(IEnumerable<ColNum> left, IEnumerable<ColNum> right) =>
+      left.Union(right).OrderBy(i => i).ToList();
 
     private static List<ColNum> MergeMappings(Provider originalLeft, IReadOnlyList<ColNum> leftMap, IReadOnlyList<ColNum> rightMap)
     {
