@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Linq.Expressions.Visitors;
@@ -116,23 +117,7 @@ namespace Xtensive.Orm.Linq.Expressions
         if (e is EntityExpression entityExpression) {
           var typeInfo = entityExpression.PersistentType;
 
-          // Converted from LINQ to get rid of 2 closure allocations 
-          var all = true;
-          foreach (var fieldInfo in typeInfo.Fields) {
-            var isUsedInEntityExpression = false;
-            foreach (var entityField in entityExpression.Fields) {
-              if (string.Equals(entityField.Name, fieldInfo.Name, StringComparison.Ordinal)) {
-                isUsedInEntityExpression = true;
-                break;
-              }
-            }
-            if (!isUsedInEntityExpression) {
-              all = false;
-              break;
-            }
-          }
-
-          if (all) {
+          if (entityExpression.Fields.Select(o => o.Name).ToHashSet(StringComparer.Ordinal).IsSupersetOf(typeInfo.Fields.Select(o => o.Name))) {
             return entityExpression;
           }
 
