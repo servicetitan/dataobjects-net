@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -248,7 +249,7 @@ namespace Xtensive.Orm.Rse.Transformation
       var source = VisitCompilable(provider.Source);
       hasGrouping = false;
 
-      var sourceMap = mappings[provider.Source];
+      using ColumnMap sourceMap = new(mappings[provider.Source]);
       var currentMap = mappings[provider];
 
       mappings[provider] = provider.Header.Columns.Select(c => c.Index).ToList(provider.Header.Columns.Count);
