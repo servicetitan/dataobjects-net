@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Rse.Transformation
         var sourceIndex = visited.GetTupleAccessArgument();
         var name = sourceColumns.Single(column => column.Index == sourceIndex).Name;
         int currentIndex = targetColumns[name].Index;
-        return Expression.Call(visited.Object, visited.Method, Expression.Constant(currentIndex));
+        return Expression.Call(visited.Object, visited.Method, Expr.Constant(currentIndex));
       }
       return visited;
     }

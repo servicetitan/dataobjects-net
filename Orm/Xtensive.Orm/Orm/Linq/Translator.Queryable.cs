@@ -623,8 +623,8 @@ namespace Xtensive.Orm.Linq
         }
 
         compiledParameter = elementAtIndex.CachingCompile();
-        var skipComparison = Expression.LessThan(elementAtIndex.Body, Expression.Constant(0));
-        var condition = Expression.Condition(skipComparison, Expression.Constant(0), Expression.Constant(1));
+        var skipComparison = Expression.LessThan(elementAtIndex.Body, Expr.Constant(0));
+        var condition = Expression.Condition(skipComparison, Expr.Constant(0), Expr.Constant(1));
         var takeParameter = FastExpression.Lambda<Func<ParameterContext, int>>(condition, contextParameter);
         rs = projection.ItemProjector.DataSource.Skip(compiledParameter).Take(takeParameter.CachingCompile());
       }

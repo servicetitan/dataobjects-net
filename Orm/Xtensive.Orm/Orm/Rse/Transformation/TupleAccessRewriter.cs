@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Rse.Transformation
           : Mappings.IndexOf(columnIndex);
         if ((newIndex < 0 && ignoreMissing) || newIndex == columnIndex)
           return mc;
-        return Expression.Call(mc.Object, mc.Method, Expression.Constant(newIndex));
+        return Expression.Call(mc.Object, mc.Method, Expr.Constant(newIndex));
       }
       return base.VisitMethodCall(mc);
     }

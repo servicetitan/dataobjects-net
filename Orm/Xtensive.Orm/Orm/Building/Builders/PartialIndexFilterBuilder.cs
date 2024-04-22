@@ -162,7 +162,7 @@ namespace Xtensive.Orm.Building.Builders
       usedFields.Add(field);
       return Expression.Call(Parameter,
         WellKnownMembers.Tuple.GenericAccessor.CachedMakeGenericMethod(valueType),
-        Expression.Constant(fieldIndex));
+        Expr.Constant(fieldIndex));
     }
 
     private Expression BuildFieldCheck(FieldInfo field, ExpressionType nodeType)
