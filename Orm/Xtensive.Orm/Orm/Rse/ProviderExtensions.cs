@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Rse
       ArgumentValidator.EnsureArgumentNotNull(provider, nameof(provider));
       ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
       using var recordSetReader = provider
-        .Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count))
+        .Aggregate(null, [new AggregateColumnDescriptor("$Count", 0, AggregateType.Count)])
         .GetRecordSetReader(session, new ParameterContext());
       return recordSetReader.MoveNext() && recordSetReader.Current != null
         ? recordSetReader.Current.GetValue<long>(0)

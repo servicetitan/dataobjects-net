@@ -196,18 +196,15 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="AggregateColumns"/>.</param>
     /// <param name="groupIndexes">The column indexes to group by.</param>
-    public AggregateProvider(CompilableProvider source, IReadOnlyList<ColNum> groupIndexes, IReadOnlyList<AggregateColumnDescriptor> columnDescriptors)
+    public AggregateProvider(CompilableProvider source, IReadOnlyList<ColNum> groupIndexes, IEnumerable<AggregateColumnDescriptor> columnDescriptors)
       : base(ProviderType.Aggregate, source)
     {
-      groupIndexes = groupIndexes ?? Array.Empty<ColNum>();
-      var columns = new AggregateColumn[columnDescriptors.Count];
-      for (int i = 0; i < columnDescriptors.Count; i++) {
-        AggregateColumnDescriptor descriptor = columnDescriptors[i];
-        var type = GetAggregateColumnType(Source.Header.Columns[descriptor.SourceIndex].Type, descriptor.AggregateType);
-        columns[i] = new AggregateColumn(descriptor, (ColNum)(groupIndexes.Count + i), type);
-      }
-      AggregateColumns = columns;
-      GroupColumnIndexes = groupIndexes;
+      GroupColumnIndexes = groupIndexes ?? Array.Empty<ColNum>();
+      var baseIndex = GroupColumnIndexes.Count;
+      var columns = Source.Header.Columns;
+      AggregateColumns = columnDescriptors
+        .Select((d, i) => new AggregateColumn(d, (ColNum)(baseIndex + i), GetAggregateColumnType(columns[d.SourceIndex].Type, d.AggregateType)))
+        .ToArray();
       Initialize();
     }
   }

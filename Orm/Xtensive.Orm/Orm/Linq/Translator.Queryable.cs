@@ -776,7 +776,7 @@ namespace Xtensive.Orm.Linq
       var aggregateDescriptor = new AggregateColumnDescriptor(
         context.GetNextColumnAlias(), originColumnIndex, aggregateType);
       var originDataSource = originProjection.ItemProjector.DataSource;
-      var resultDataSource = originDataSource.Aggregate(null, aggregateDescriptor);
+      var resultDataSource = originDataSource.Aggregate(null, [aggregateDescriptor]);
 
       // Some aggregate method change type of the column
       // We should take this into account when translating them
@@ -880,8 +880,7 @@ namespace Xtensive.Orm.Linq
         var rightCalculateProvider = (CalculateProvider) right;
         var calculatedColumns = leftCalculateProvider.CalculatedColumns
           .Concat(rightCalculateProvider.CalculatedColumns)
-          .Select(c => new CalculatedColumnDescriptor(c.Name, c.Type, c.Expression))
-          .ToArray();
+          .Select(c => new CalculatedColumnDescriptor(c.Name, c.Type, c.Expression));
         if (aggregateDescriptor.SourceIndex >= source.Header.Length) {
           aggregateDescriptor = new AggregateColumnDescriptor(
             aggregateDescriptor.Name,
@@ -1028,7 +1027,7 @@ namespace Xtensive.Orm.Linq
         : EmptyIntSet;
 
       var keyColumns = keyFieldsRaw.Select(pair => pair.First).ToArray();
-      var keyDataSource = groupingSourceProjection.ItemProjector.DataSource.Aggregate(keyColumns);
+      var keyDataSource = groupingSourceProjection.ItemProjector.DataSource.Aggregate(keyColumns, Array.Empty<AggregateColumnDescriptor>());
       using var columnMap = new ColumnMap(keyColumns);
       var remappedKeyItemProjector = groupingSourceProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, columnMap);
 

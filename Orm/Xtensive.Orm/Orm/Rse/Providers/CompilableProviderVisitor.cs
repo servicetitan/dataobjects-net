@@ -155,17 +155,17 @@ namespace Xtensive.Orm.Rse.Providers
       var source = VisitCompilable(provider.Source);
       _ = OnRecursionExit(provider);
       var translated = false;
-      var descriptors = new List<CalculatedColumnDescriptor>(provider.CalculatedColumns.Length);
+      var descriptors = new CalculatedColumnDescriptor[provider.CalculatedColumns.Length];
+      int i = 0;
       foreach (var column in provider.CalculatedColumns) {
         var expression = translate(provider, column.Expression);
         if (expression != column.Expression)
           translated = true;
-        var ccd = new CalculatedColumnDescriptor(column.Name, column.Type, (Expression<Func<Tuple, object>>) expression);
-        descriptors.Add(ccd);
+        descriptors[i++] = new CalculatedColumnDescriptor(column.Name, column.Type, (Expression<Func<Tuple, object>>) expression);
       }
       return !translated && source == provider.Source
         ? provider
-        : new CalculateProvider(source, descriptors.ToArray());
+        : new CalculateProvider(source, descriptors);
     }
 
     /// <inheritdoc/>
@@ -196,9 +196,10 @@ namespace Xtensive.Orm.Rse.Providers
       if (source == provider.Source)
         return provider;
       if (resultParameters == null) {
-        var acd = new List<AggregateColumnDescriptor>(provider.AggregateColumns.Length);
-        acd.AddRange(provider.AggregateColumns.Select(ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType)));
-        return new AggregateProvider(source, provider.GroupColumnIndexes, acd);
+        return new AggregateProvider(source,
+          provider.GroupColumnIndexes,
+          provider.AggregateColumns.Select(ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType))
+        );
       }
       var result = (Pair<ColNum[], AggregateColumnDescriptor[]>) resultParameters;
       return new AggregateProvider(source, result.First, result.Second);

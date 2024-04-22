@@ -388,7 +388,7 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       var acd = provider.AggregateColumns.Select(
         ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType));
-      return new AggregateProvider(source, provider.GroupColumnIndexes, acd.ToArray());
+      return new AggregateProvider(source, provider.GroupColumnIndexes, acd);
     }
 
     private static CalculateProvider RecreateCalculate(CalculateProvider provider,
@@ -396,7 +396,7 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       var ccd = provider.CalculatedColumns.Select(
         column => new CalculatedColumnDescriptor(column.Name, column.Type, column.Expression));
-      return new CalculateProvider(source, ccd.ToArray());
+      return new CalculateProvider(source, ccd);
     }
 
     private CalculateProvider RewriteCalculateColumnExpressions(
@@ -410,7 +410,7 @@ namespace Xtensive.Orm.Rse.Transformation
           var currentName = providerPair.Second.Single(c => c.Index==column.Index).Name;
           return new CalculatedColumnDescriptor(currentName, column.Type, newColumnExpression);
         });
-      return new CalculateProvider(source, ccd.ToArray());
+      return new CalculateProvider(source, ccd);
     }
 
     #endregion

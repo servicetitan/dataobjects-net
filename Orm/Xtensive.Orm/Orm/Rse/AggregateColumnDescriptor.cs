@@ -14,46 +14,14 @@ namespace Xtensive.Orm.Rse
   /// Descriptor of the calculated column.
   /// </summary>
   [Serializable]
-  public class AggregateColumnDescriptor
+  public readonly record struct AggregateColumnDescriptor
+  (
+    string Name,
+    ColNum SourceIndex,
+    AggregateType AggregateType
+  )
   {
-    private const string ToStringFormat = "{0} = {1} on ({2})";
-
-    /// <summary>
-    /// Gets the column index.
-    /// </summary>
-    public string Name { get; private set; }
-
-    /// <summary>
-    /// Gets the column index.
-    /// </summary>
-    public ColNum SourceIndex { get; private set; }
-
-    /// <summary>
-    /// Gets the column type.
-    /// </summary>
-    public AggregateType AggregateType { get; private set; }
-
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format(ToStringFormat,
-        base.ToString(), AggregateType, SourceIndex);
-    }
-
-
-    // Constructors
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="name"><see cref="Name"/> property value.</param>
-    /// <param name="index"><see cref="SourceIndex"/> property value.</param>
-    /// <param name="aggregateType">The <see cref="AggregateType"/> property value.</param>
-    public AggregateColumnDescriptor(string name, ColNum index, AggregateType aggregateType)
-    {
-      Name = name;
-      SourceIndex = index;
-      AggregateType = aggregateType;
-    }
+    public override string ToString() => $"{base.ToString()} = {AggregateType} on ({SourceIndex})";
   }
 }

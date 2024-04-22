@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Rse
     }
 
     public static CompilableProvider Calculate(this CompilableProvider source, bool isInlined,
-      params CalculatedColumnDescriptor[] columns)
+      IEnumerable<CalculatedColumnDescriptor> columns)
     {
       return new CalculateProvider(source, isInlined, columns);
     }
@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Rse
     }
 
     public static CompilableProvider Aggregate(this CompilableProvider recordQuery,
-      ColNum[] groupIndexes, params AggregateColumnDescriptor[] descriptors)
+      ColNum[] groupIndexes, IEnumerable<AggregateColumnDescriptor> descriptors)
     {
       return new AggregateProvider(recordQuery, groupIndexes, descriptors);
     }
