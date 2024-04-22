@@ -93,8 +93,8 @@ namespace Xtensive.Orm.Providers
     protected SqlExpression ExtractColumnExpression(SqlColumn column)
     {
       SqlExpression expression;
-      if (IsColumnStub(column)) {
-        expression = stubColumnMap[ExtractColumnStub(column)];
+      if (AsColumnStub(column) is { } columnStub) {
+        expression = stubColumnMap[columnStub];
         if (expression is SqlSubQuery subQuery && subQuery.Query is SqlSelect subSelect && subSelect.From == null) {
           if (subSelect.Columns.Count == 1 && subSelect.Columns[0] is SqlUserColumn userColumn) {
             if (userColumn.Expression is SqlCast cast && cast.Type.Type == SqlType.Boolean) {
@@ -150,35 +150,17 @@ namespace Xtensive.Orm.Providers
       return new QueryRequest(driver, statement, parameterBindings, tupleDescriptor, options);
     }
 
-    private static bool IsCalculatedColumn(SqlColumn column)
-    {
-      if (column is SqlUserColumn) {
-        return true;
-      }
+    private static SqlUserColumn AsCalculatedColumn(SqlColumn column) =>
+      column as SqlUserColumn ?? (column as SqlColumnRef)?.SqlColumn as SqlUserColumn;
 
-      return column is SqlColumnRef columnRef && columnRef.SqlColumn is SqlUserColumn;
-    }
-
-    private static bool IsColumnStub(SqlColumn column)
-    {
-      if (column is SqlColumnStub) {
-        return true;
-      }
-
-      return column is SqlColumnRef columnRef && columnRef.SqlColumn is SqlColumnStub;
-    }
+    private static SqlColumnStub AsColumnStub(SqlColumn column) =>
+      column as SqlColumnStub ?? (column as SqlColumnRef)?.SqlColumn as SqlColumnStub;
 
     private static bool IsTypeIdColumn(SqlColumn column) =>
       column switch {
         SqlUserColumn _ => string.Equals(column.Name, "TypeId", StringComparison.OrdinalIgnoreCase),
         SqlColumnRef cRef => string.Equals(cRef.Name, "TypeId", StringComparison.OrdinalIgnoreCase),
         _ => false
-      };
-
-    private static SqlColumnStub ExtractColumnStub(SqlColumn column) =>
-      column switch {
-        SqlColumnRef columnRef => (SqlColumnStub) columnRef.SqlColumn,
-        _ => (SqlColumnStub) column
       };
 
     private static SqlUserColumn ExtractUserColumn(SqlColumn column) =>
@@ -198,9 +180,9 @@ namespace Xtensive.Orm.Providers
       var rowNumberIsUsed = false;
       var calculatedColumnIndexes = new List<ColNum>(8);
       foreach (var column in sourceSelect.Columns) {
-        if (IsCalculatedColumn(column)) {
+        if (AsCalculatedColumn(column) is { } sqlUserColumn) {
           calculatedColumnIndexes.Add(columnIndex);
-          rowNumberIsUsed = rowNumberIsUsed || ExtractUserColumn(column).Expression is SqlRowNumber;
+          rowNumberIsUsed = rowNumberIsUsed || sqlUserColumn.Expression is SqlRowNumber;
         }
 
         columnIndex++;
