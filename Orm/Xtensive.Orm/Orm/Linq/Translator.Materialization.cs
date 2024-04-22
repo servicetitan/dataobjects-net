@@ -38,11 +38,11 @@ namespace Xtensive.Orm.Linq
     public TranslatedQuery Translate()
     {
       var projection = (ProjectionExpression) Visit(context.Query);
-      return Translate(projection, Array.Empty<Parameter<Tuple>>());
+      return Translate(projection, ExpressionMaterializer.EmptyTupleParameters);
     }
 
     internal TranslatedQuery Translate(ProjectionExpression projection,
-      IEnumerable<Parameter<Tuple>> tupleParameterBindings)
+      IReadOnlySet<Parameter<Tuple>> tupleParameterBindings)
     {
       var result = projection;
       if (context.SessionTags != null && (taggingBehavior == TaggingBehavior.Default || !isAlreadyTagged))
@@ -121,8 +121,7 @@ namespace Xtensive.Orm.Linq
       return currentProjection;
     }
 
-    private Materializer
-      BuildMaterializer(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
+    private Materializer BuildMaterializer(ProjectionExpression projection, IReadOnlySet<Parameter<Tuple>> tupleParameters)
     {
       var itemProjector = projection.ItemProjector;
       var materializationInfo = itemProjector.Materialize(context, tupleParameters);

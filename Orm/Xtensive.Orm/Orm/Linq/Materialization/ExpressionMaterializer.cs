@@ -28,6 +28,8 @@ namespace Xtensive.Orm.Linq.Materialization
   {
     private const string RootQueryTagsPrefix = "Root query tags ->";
 
+    internal static readonly IReadOnlySet<Parameter<Tuple>> EmptyTupleParameters = new HashSet<Parameter<Tuple>>();
+
     private static readonly MethodInfo BuildPersistentTupleMethod = typeof(ExpressionMaterializer).GetMethod(nameof(BuildPersistentTuple), BindingFlags.NonPublic | BindingFlags.Static);
     private static readonly MethodInfo GetTupleSegmentMethod = typeof(ExpressionMaterializer).GetMethod(nameof(GetTupleSegment), BindingFlags.NonPublic | BindingFlags.Static);
     private static readonly MethodInfo GetParameterValueMethod = WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
@@ -49,19 +51,19 @@ namespace Xtensive.Orm.Linq.Materialization
     private readonly TranslatorContext context;
     private readonly ParameterExpression itemMaterializationContextParameter;
     private readonly Dictionary<IEntityExpression, int> entityRegistry = new Dictionary<IEntityExpression, int>();
-    private readonly HashSet<Parameter<Tuple>> tupleParameters;
+    private readonly IReadOnlySet<Parameter<Tuple>> tupleParameters;
 
     #region Public static methods
 
     public static LambdaExpression MakeLambda(Expression expression, TranslatorContext context)
     {
-      var visitor = new ExpressionMaterializer(context, null, Enumerable.Empty<Parameter<Tuple>>());
+      var visitor = new ExpressionMaterializer(context, null, EmptyTupleParameters);
       var processedExpression = OwnerRemover.RemoveOwner(expression);
       return FastExpression.Lambda(visitor.Visit(processedExpression), TupleParameter);
     }
 
     public static MaterializationInfo MakeMaterialization(ItemProjectorExpression projector, TranslatorContext context,
-      IEnumerable<Parameter<Tuple>> tupleParameters)
+      IReadOnlySet<Parameter<Tuple>> tupleParameters)
     {
       var visitor = new ExpressionMaterializer(context, MaterializationContextParameter, tupleParameters);
       var lambda = FastExpression.Lambda(visitor.Visit(projector.Item), TupleParameter, MaterializationContextParameter);
@@ -194,7 +196,9 @@ namespace Xtensive.Orm.Linq.Materialization
       elementType = projectionExpression.ItemProjector.Item.Type;
 
       using (context.DisableSessionTags()) {
-        return context.Translator.Translate(projection, tupleParameters.Append(parameterOfTuple));
+        HashSet<Parameter<Tuple>> clonedTupleParameters = new(tupleParameters); // Constructing from HashSet is faster
+        clonedTupleParameters.Add(parameterOfTuple);
+        return context.Translator.Translate(projection, clonedTupleParameters);
       }
     }
 
@@ -553,11 +557,11 @@ namespace Xtensive.Orm.Linq.Materialization
     private ExpressionMaterializer(
       TranslatorContext context,
       ParameterExpression itemMaterializationContextParameter,
-      IEnumerable<Parameter<Tuple>> tupleParameters)
+      IReadOnlySet<Parameter<Tuple>> tupleParameters)
     {
       this.itemMaterializationContextParameter = itemMaterializationContextParameter;
       this.context = context;
-      this.tupleParameters = new HashSet<Parameter<Tuple>>(tupleParameters);
+      this.tupleParameters = tupleParameters;
     }
   }
 }
