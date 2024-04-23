@@ -531,6 +531,7 @@ namespace Xtensive.Sql
         }
       }
       finally {
+        ReportStatistics();
         UnderlyingConnection.DisposeSafely();
         ClearUnderlyingConnection();
       }
@@ -551,10 +552,13 @@ namespace Xtensive.Sql
         }
       }
       finally {
+        ReportStatistics();
         await UnderlyingConnection.DisposeAsync().ConfigureAwaitFalse();
         ClearUnderlyingConnection();
       }
     }
+
+    protected virtual void ReportStatistics() { }
 
     /// <summary>
     /// Clears the active transaction (i.e. sets <see cref="ActiveTransaction"/> to <see langword="null"/>.
