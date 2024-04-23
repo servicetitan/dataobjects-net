@@ -191,8 +191,8 @@ namespace Xtensive.Sql.Drivers.SqlServer
     {
       if (Metrics.IsEnabled && underlyingConnection?.RetrieveStatistics() is { } stats) {
         Metrics.BuffersReceived.Add((long) stats["BuffersReceived"]);
-        Metrics.SelectRows.Add((long) stats["SelectRows"]);
         Metrics.ServerRoundtrips.Add((long) stats["ServerRoundtrips"]);
+        Metrics.SelectRows.Add((long) stats["SelectRows"]);
         Metrics.Transactions.Add((long) stats["Transactions"]);
       }
     }
