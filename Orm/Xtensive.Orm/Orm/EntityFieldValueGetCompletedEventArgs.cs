@@ -13,27 +13,5 @@ namespace Xtensive.Orm
   /// <summary>
   /// Describes <see cref="Entity"/> field reading completion events.
   /// </summary>
-  public class EntityFieldValueGetCompletedEventArgs : EntityFieldValueEventArgs
-  {
-    /// <summary>
-    /// Gets the exception, if any, that was thrown on getting the field value.
-    /// </summary>
-    public Exception Exception { get; private set; }
-
-
-    // Constructors
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="entity">The entity.</param>
-    /// <param name="field">The field.</param>
-    /// <param name="value">The <see cref="EntityFieldValueEventArgs.Value"/> value.</param>
-    /// <param name="exception">The <see cref="Exception"/> value.</param>
-    public EntityFieldValueGetCompletedEventArgs(Entity entity, FieldInfo field, object value, Exception exception)
-      : base(entity, field, value)
-    {
-      Exception = exception;
-    }
-  }
+  public readonly record struct EntityFieldValueGetCompletedEventArgs(Entity Entity, FieldInfo Field, object Value, Exception Exception);
 }

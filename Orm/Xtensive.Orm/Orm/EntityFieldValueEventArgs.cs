@@ -12,26 +12,5 @@ namespace Xtensive.Orm
   /// <summary>
   /// Describes <see cref="Entity"/> field related events containing field value.
   /// </summary>
-  public class EntityFieldValueEventArgs : EntityFieldEventArgs
-  {
-    /// <summary>
-    /// Gets the field value.
-    /// </summary>
-    public object Value { get; private set; }
-
-
-    // Constructors
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="entity">The entity.</param>
-    /// <param name="field">The field.</param>
-    /// <param name="value">The <see cref="Value"/> property value.</param>
-    public EntityFieldValueEventArgs(Entity entity, FieldInfo field, object value)
-      : base(entity, field)
-    {
-      Value = value;
-    }
-  }
+  public readonly record struct EntityFieldValueEventArgs(Entity Entity, FieldInfo Field, object Value);
 }

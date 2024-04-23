@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
     public EventArgs ChangesCanceledArgs;
 
     public EntityEventArgs EntityCreatedArgs;
-    public EntityEventArgs EntityRemoving;
+    public EntityRemovingEventArgs EntityRemoving;
     public EntityEventArgs EntityRemoved;
 
     public EntityFieldEventArgs EntityFieldGettingArgs;
@@ -77,14 +77,14 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
       ChangesCancelingArgs = null;
       ChangesCanceledArgs = null;
 
-      EntityCreatedArgs = null;
-      EntityRemoving = null;
-      EntityRemoved = null;
+      EntityCreatedArgs = default;
+      EntityRemoving = default;
+      EntityRemoved = default;
 
-      EntityFieldGettingArgs = null;
-      EntityFieldValueGetArgs = null;
-      EntityFieldValueSettingArgs = null;
-      EntityFieldValueSetArgs = null;
+      EntityFieldGettingArgs = default;
+      EntityFieldValueGetArgs = default;
+      EntityFieldValueSettingArgs = default;
+      EntityFieldValueSetArgs = default;
 
       QueryExecuting = null;
       QueryExecuted = null;
@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
     private void OnChangesCanceling(object sender, EventArgs e) => ChangesCancelingArgs = e;
     private void OnChangesCanceled(object sender, EventArgs e) => ChangesCanceledArgs = e;
     private void OnEntityCreated(object sender, EntityEventArgs e) => EntityCreatedArgs = e;
-    private void OnEntityRemoving(object sender, EntityEventArgs e) => EntityRemoving = e;
+    private void OnEntityRemoving(object sender, EntityRemovingEventArgs e) => EntityRemoving = e;
     private void OnEntityRemove(object sender, EntityEventArgs e) => EntityRemoved = e;
     private void OnEntityFieldValueGetting(object sender, EntityFieldEventArgs e) => EntityFieldGettingArgs = e;
     private void OnEntityFieldValueGet(object sender, EntityFieldValueEventArgs e) => EntityFieldValueGetArgs = e;

@@ -6,19 +6,27 @@
 
 using System;
 using System.Diagnostics;
-
+using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm
 {
   /// <summary>
   /// Describes an event related to <see cref="EntitySet{TItem}"/> item action completion.
   /// </summary>
-  public class EntitySetActionCompletedEventArgs : EntitySetEventArgs
+  public class EntitySetActionCompletedEventArgs
   {
+    public Entity Entity { get; }
+    public FieldInfo Field { get; }
+
+    /// <summary>
+    /// Gets the <see cref="EntitySetBase"/> to which this event is related.
+    /// </summary>
+    public EntitySetBase EntitySet { get; }
+
     /// <summary>
     /// Gets the exception, if any, that was thrown on setting the field value.
     /// </summary>
-    public Exception Exception { get; private set; }
+    public Exception Exception { get; }
 
 
     // Cosntructors
@@ -29,8 +37,10 @@ namespace Xtensive.Orm
     /// <param name="entitySet">The entity set.</param>
     /// <param name="exception">The <see cref="Exception"/> property value.</param>
     public EntitySetActionCompletedEventArgs(EntitySetBase entitySet, Exception exception)
-      : base(entitySet)
     {
+      Entity = entitySet.Owner;
+      Field = entitySet.Field;
+      EntitySet = entitySet;
       Exception = exception;
     }
   }
