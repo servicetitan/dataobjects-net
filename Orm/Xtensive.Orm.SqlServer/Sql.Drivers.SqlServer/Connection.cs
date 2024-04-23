@@ -11,6 +11,7 @@ using Microsoft.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
+using Xtensive.Diagnostics;
 using SqlServerConnection = Microsoft.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer
@@ -186,6 +187,16 @@ namespace Xtensive.Sql.Drivers.SqlServer
       // nothing
     }
 
+    protected override void ReportStatistics()
+    {
+      if (Metrics.IsEnabled && underlyingConnection?.RetrieveStatistics() is { } stats) {
+        Metrics.BuffersReceived.Add((long) stats["BuffersReceived"]);
+        Metrics.SelectRows.Add((long) stats["SelectRows"]);
+        Metrics.ServerRoundtrips.Add((long) stats["ServerRoundtrips"]);
+        Metrics.Transactions.Add((long) stats["Transactions"]);
+      }
+    }
+
     protected override void ClearUnderlyingConnection() => underlyingConnection = null;
 
     /// <inheritdoc/>
@@ -210,7 +221,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
               throw;
             }
 
-            var newConnection = new SqlServerConnection(underlyingConnection.ConnectionString);
+            var newConnection = new SqlServerConnection(underlyingConnection.ConnectionString) { StatisticsEnabled = Metrics.IsEnabled };
             try {
               underlyingConnection.Close();
               underlyingConnection.Dispose();
@@ -251,7 +262,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
               throw;
             }
 
-            var newConnection = new SqlServerConnection(underlyingConnection.ConnectionString);
+            var newConnection = new SqlServerConnection(underlyingConnection.ConnectionString) { StatisticsEnabled = Metrics.IsEnabled };
             try {
               underlyingConnection.Close();
               underlyingConnection.Dispose();
@@ -282,7 +293,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
           break;
         }
         catch (TimeoutException exception) when (!restoreTriggered) {
-          var newConnection = new SqlServerConnection(underlyingConnection.ConnectionString);
+          var newConnection = new SqlServerConnection(underlyingConnection.ConnectionString) { StatisticsEnabled = Metrics.IsEnabled };
           try {
             underlyingConnection.Close();
             underlyingConnection.Dispose();
@@ -331,7 +342,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
             if (restoreTriggered) {
               throw;
             }
-            var newConnection = new SqlServerConnection(underlyingConnection.ConnectionString);
+            var newConnection = new SqlServerConnection(underlyingConnection.ConnectionString) { StatisticsEnabled = Metrics.IsEnabled };
             try {
               underlyingConnection.Close();
               underlyingConnection.Dispose();
@@ -358,7 +369,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     public Connection(SqlDriver driver, bool checkConnection)
       : base(driver)
     {
-      underlyingConnection = new SqlServerConnection();
+      underlyingConnection = new SqlServerConnection() { StatisticsEnabled = Metrics.IsEnabled };
       checkConnectionIsAlive = checkConnection;
     }
   }

@@ -11,6 +11,7 @@ using Microsoft.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
+using Xtensive.Diagnostics;
 using Xtensive.Orm;
 using Xtensive.Sql.Info;
 using Xtensive.SqlServer.Resources;
@@ -233,7 +234,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private static SqlServerConnection CreateAndOpenConnection(
       string connectionString, SqlDriverConfiguration configuration)
     {
-      var connection = new SqlServerConnection(connectionString);
+      var connection = new SqlServerConnection(connectionString) { StatisticsEnabled = Metrics.IsEnabled };
       var initScript = configuration.ConnectionInitializationSql;
 
       if (!configuration.EnsureConnectionIsAlive) {
@@ -257,7 +258,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private static async Task<SqlServerConnection> CreateAndOpenConnectionAsync(
       string connectionString, SqlDriverConfiguration configuration, CancellationToken token)
     {
-      var connection = new SqlServerConnection(connectionString);
+      var connection = new SqlServerConnection(connectionString) { StatisticsEnabled = Metrics.IsEnabled };
       var initScript = configuration.ConnectionInitializationSql;
 
       if (!configuration.EnsureConnectionIsAlive) {
@@ -481,7 +482,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private static async Task<(bool isReconnected, SqlServerConnection connection)> TryReconnectFast(
       string connectionString, string query, bool isAsync, CancellationToken token = default)
     {
-      var connection = new SqlServerConnection(connectionString);
+      var connection = new SqlServerConnection(connectionString) { StatisticsEnabled = Metrics.IsEnabled };
       if (!isAsync) {
         try {
           connection.Open();
@@ -521,7 +522,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       string connectionString, string query, IReadOnlyCollection<IDbConnectionAccessor> connectionAccessors,
       bool isAsync, CancellationToken token = default)
     {
-      var connection = new SqlServerConnection(connectionString);
+      var connection = new SqlServerConnection(connectionString) { StatisticsEnabled = Metrics.IsEnabled };
       if (!isAsync) {
         SqlHelper.NotifyConnectionOpening(connectionAccessors, connection, true);
 
