@@ -9,7 +9,7 @@ namespace Xtensive.Tuples.Packed
     public int ValueBitCount;
   }
 
-  internal class PackingOrderInfoComparer : IComparer<PackingOrderInfo>
+  internal sealed class PackingOrderInfoComparer : IComparer<PackingOrderInfo>
   {
     public static readonly PackingOrderInfoComparer Instance =
       new PackingOrderInfoComparer();

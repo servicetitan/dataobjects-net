@@ -13,7 +13,7 @@ using Xtensive.Orm.Rse;
 namespace Xtensive.Orm.Linq.Expressions
 {
   [Serializable]
-  internal class GroupingExpression : SubQueryExpression
+  internal sealed class GroupingExpression : SubQueryExpression
   {
     public class SelectManyGroupingInfo
     {

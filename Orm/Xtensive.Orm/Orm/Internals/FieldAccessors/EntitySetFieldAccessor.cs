@@ -8,7 +8,7 @@ using System;
 
 namespace Xtensive.Orm.Internals.FieldAccessors
 {
-  internal class EntitySetFieldAccessor<T> : CachingFieldAccessor<T> 
+  internal sealed class EntitySetFieldAccessor<T> : CachingFieldAccessor<T>
   {
     /// <inheritdoc/>
     public override bool AreSameValues(object oldValue, object newValue)

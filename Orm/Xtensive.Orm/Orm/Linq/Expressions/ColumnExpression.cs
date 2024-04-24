@@ -11,7 +11,7 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  internal class ColumnExpression : ParameterizedExpression
+  internal sealed class ColumnExpression : ParameterizedExpression
   {
     internal readonly Segment<ColNum> Mapping;
 

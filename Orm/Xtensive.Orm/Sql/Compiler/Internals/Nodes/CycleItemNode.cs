@@ -6,7 +6,7 @@
 
 namespace Xtensive.Sql.Compiler
 {
-  internal class CycleItemNode : Node
+  internal sealed class CycleItemNode : Node
   {
     public readonly int Index;
 

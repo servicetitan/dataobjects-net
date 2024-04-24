@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  internal class MarkerExpression : ExtendedExpression
+  internal sealed class MarkerExpression : ExtendedExpression
   {
     public Expression Target { get; private set; }
     public MarkerType MarkerType { get; private set; }

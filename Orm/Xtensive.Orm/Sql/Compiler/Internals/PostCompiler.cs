@@ -12,7 +12,7 @@ using System.Text;
 
 namespace Xtensive.Sql.Compiler
 {
-  internal class PostCompiler : NodeVisitor
+  internal sealed class PostCompiler : NodeVisitor
   {
     private const int MinimalResultCapacity = 64;
     private const int ResultCapacityMargin = 16;

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Xtensive.Sql.Compiler
 {
-  internal class CycleNode : Node
+  internal sealed class CycleNode : Node
   {
     public readonly object Id;
 

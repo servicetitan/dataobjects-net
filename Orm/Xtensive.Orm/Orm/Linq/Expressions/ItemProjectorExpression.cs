@@ -18,7 +18,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  internal class ItemProjectorExpression : ExtendedExpression
+  internal sealed class ItemProjectorExpression : ExtendedExpression
   {
     public CompilableProvider DataSource { get; set; }
     public TranslatorContext Context { get; }

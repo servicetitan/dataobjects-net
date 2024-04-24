@@ -8,7 +8,7 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  internal class FieldNode : BaseFieldNode
+  internal sealed class FieldNode : BaseFieldNode
   {
     public override Node Accept(NodeVisitor visitor)
     {
