@@ -9,7 +9,7 @@ public class Metrics
 
   public static Meter Meter { get; } = new("DataObjects");
 
-  public static Counter<long> BuffersReceived = Meter.CreateCounter<long>("SqlClient.SelectRows");
+  public static Counter<long> BuffersReceived = Meter.CreateCounter<long>("SqlClient.BuffersReceived");
   public static Counter<long> ServerRoundtrips = Meter.CreateCounter<long>("SqlClient.ServerRoundtrips");
   public static Counter<long> SelectRows = Meter.CreateCounter<long>("SqlClient.SelectRows");
   public static Counter<long> Transactions = Meter.CreateCounter<long>("SqlClient.Transactions");
