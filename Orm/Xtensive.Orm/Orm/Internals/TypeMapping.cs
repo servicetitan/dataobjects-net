@@ -8,24 +8,12 @@ using System.Collections.Generic;
 using Xtensive.Tuples.Transform;
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Orm.Internals
-{
-  internal readonly struct TypeMapping
-  {
-    public readonly TypeInfo Type;
-    public readonly MapTransform KeyTransform;
-    public readonly IReadOnlyList<ColNum> KeyIndexes;
-    public readonly MapTransform Transform;
+namespace Xtensive.Orm.Internals;
 
-
-    // Constructors
-
-    public TypeMapping(TypeInfo type, MapTransform keyTransform, MapTransform transform, IReadOnlyList<ColNum> keyIndexes)
-    {
-      Type = type;
-      KeyTransform = keyTransform;
-      Transform = transform;
-      KeyIndexes = keyIndexes;
-    }
-  }
-}
+internal readonly record struct TypeMapping
+(
+  TypeInfo Type,
+  MapTransform KeyTransform,
+  MapTransform Transform,
+  IReadOnlyList<ColNum> KeyIndexes
+);
