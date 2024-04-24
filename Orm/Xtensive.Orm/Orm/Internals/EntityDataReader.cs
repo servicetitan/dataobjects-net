@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Internals
     private readonly record struct RecordPartMapping
     (
       int TypeIdColumnIndex,
-      IReadOnlyList<Pair<ColNum>> Columns,
+      IEnumerable<(ColNum From, ColNum To)> Columns,
       TypeInfo ApproximateType
     );
 
@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Internals
         for (int i = 0; i < recordPartCount; i++) {
           var columnGroup = columnGroups[i];
           var approximateType = columnGroup.TypeInfoRef.Resolve(model);
-          var columnMapping = new List<Pair<ColNum>>(columnGroup.Columns.Count);
+          var columnMapping = new List<(ColNum From, ColNum To)>(columnGroup.Columns.Count);
           var typeIdColumnIndex = -1;
           foreach (var columnIndex in columnGroup.Columns) {
             var column = (MappedColumn) columns[columnIndex];
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Internals
               if (columnInfo.Name == typeIdColumnName) {
                 typeIdColumnIndex = column.Index;
               }
-              columnMapping.Add(new Pair<ColNum>(targetColumnIndex, columnIndex));
+              columnMapping.Add((targetColumnIndex, columnIndex));
             }
           }
           mappings[i] = new RecordPartMapping(typeIdColumnIndex, columnMapping, approximateType);
