@@ -6,17 +6,6 @@
 
 using System.Linq.Expressions;
 
-namespace Xtensive.Orm.Linq.Materialization
-{
-  internal sealed class MaterializationInfo
-  {
-    public int EntitiesInRow { get; private set; }
-    public LambdaExpression Expression { get; private set; }
+namespace Xtensive.Orm.Linq.Materialization;
 
-    public MaterializationInfo(int entitiesInRow, LambdaExpression expression)
-    {
-      EntitiesInRow = entitiesInRow;
-      Expression = expression;
-    }
-  }
-}
+internal readonly record struct MaterializationInfo(int EntitiesInRow, LambdaExpression Expression);
