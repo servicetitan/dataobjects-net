@@ -13,7 +13,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// Describes an event related to <see cref="EntitySet{TItem}"/> item action completion.
   /// </summary>
-  public class EntitySetActionCompletedEventArgs
+  public readonly struct EntitySetActionCompletedEventArgs
   {
     public Entity Entity { get; }
     public FieldInfo Field { get; }
