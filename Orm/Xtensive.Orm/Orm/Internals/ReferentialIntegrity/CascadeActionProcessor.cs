@@ -9,7 +9,7 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.ReferentialIntegrity
 {
-  internal class CascadeActionProcessor : ActionProcessor
+  internal sealed class CascadeActionProcessor : ActionProcessor
   {
     public override void Process(RemovalContext context, AssociationInfo association, Entity removingObject, Entity target, Entity referencingObject, Entity referencedObject)
     {

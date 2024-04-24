@@ -8,7 +8,7 @@ using Xtensive.Orm.Building.Definitions;
 
 namespace Xtensive.Orm.Building.FixupActions
 {
-  internal class AddTypeIdFieldAction : TypeAction
+  internal sealed class AddTypeIdFieldAction : TypeAction
   {
     public override void Run(FixupActionProcessor processor)
     {

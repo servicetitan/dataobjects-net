@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Linq.Materialization
     }
   }
 
-  internal class AggregateResultMaterializer<TResult> : ItemMaterializer<TResult>
+  internal sealed class AggregateResultMaterializer<TResult> : ItemMaterializer<TResult>
   {
     private readonly AggregateType aggregateType;
 
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Linq.Materialization
     }
   }
 
-  internal class NullableAggregateResultMaterializer<TResult> : ItemMaterializer<TResult?>
+  internal sealed class NullableAggregateResultMaterializer<TResult> : ItemMaterializer<TResult?>
     where TResult: struct
   {
     private readonly AggregateType aggregateType;

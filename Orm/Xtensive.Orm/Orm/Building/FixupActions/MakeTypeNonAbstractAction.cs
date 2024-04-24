@@ -9,7 +9,7 @@ using Xtensive.Orm.Building.Definitions;
 
 namespace Xtensive.Orm.Building.FixupActions
 {
-  internal class MakeTypeNonAbstractAction : TypeAction
+  internal sealed class MakeTypeNonAbstractAction : TypeAction
   {
     public override void Run(FixupActionProcessor processor)
     {

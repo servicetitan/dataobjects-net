@@ -14,7 +14,7 @@ using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  internal class PrefetchQueryEnumerable<TItem> : IEnumerable<TItem>
+  internal sealed class PrefetchQueryEnumerable<TItem> : IEnumerable<TItem>
   {
     private readonly Session session;
     private readonly IEnumerable<TItem> source;

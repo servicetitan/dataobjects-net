@@ -14,7 +14,7 @@ using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
 {
-  internal class PersistentIndexerRewriter : ExpressionVisitor
+  internal sealed class PersistentIndexerRewriter : ExpressionVisitor
   {
     private readonly TranslatorContext context;
 

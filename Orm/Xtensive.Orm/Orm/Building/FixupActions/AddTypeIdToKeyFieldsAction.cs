@@ -8,7 +8,7 @@ using Xtensive.Orm.Building.Definitions;
 
 namespace Xtensive.Orm.Building.FixupActions
 {
-  internal class AddTypeIdToKeyFieldsAction : HierarchyAction
+  internal sealed class AddTypeIdToKeyFieldsAction : HierarchyAction
   {
     public override void Run(FixupActionProcessor processor)
     {

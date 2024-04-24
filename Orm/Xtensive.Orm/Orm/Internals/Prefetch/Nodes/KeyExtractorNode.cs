@@ -11,7 +11,7 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  internal class KeyExtractorNode<T> : Node, IHasNestedNodes
+  internal sealed class KeyExtractorNode<T> : Node, IHasNestedNodes
   {
     public Func<T, IReadOnlyCollection<Key>> KeyExtractor { get; }
 

@@ -10,7 +10,7 @@ using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
 {
-  internal class ParameterRewriter: ExpressionVisitor
+  internal sealed class ParameterRewriter: ExpressionVisitor
   {
     private readonly Dictionary<ParameterExpression, Expression> parameterReplacements = new Dictionary<ParameterExpression, Expression>();
 

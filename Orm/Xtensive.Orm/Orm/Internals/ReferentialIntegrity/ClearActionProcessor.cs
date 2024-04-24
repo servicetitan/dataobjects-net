@@ -10,7 +10,7 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.ReferentialIntegrity
 {
-  internal class ClearActionProcessor : ActionProcessor
+  internal sealed class ClearActionProcessor : ActionProcessor
   {
     public override void Process(RemovalContext context, AssociationInfo association, Entity removingObject, Entity target, Entity referencingObject, Entity referencedObject)
     {

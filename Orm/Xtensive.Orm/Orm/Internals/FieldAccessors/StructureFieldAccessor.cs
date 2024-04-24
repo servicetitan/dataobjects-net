@@ -11,7 +11,7 @@ using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Internals.FieldAccessors
 {
-  internal class StructureFieldAccessor<T> : CachingFieldAccessor<T>
+  internal sealed class StructureFieldAccessor<T> : CachingFieldAccessor<T>
   {
     /// <inheritdoc/>
     public override bool AreSameValues(object oldValue, object newValue)
