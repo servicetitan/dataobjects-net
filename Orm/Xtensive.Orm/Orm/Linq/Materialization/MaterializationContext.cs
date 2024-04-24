@@ -60,11 +60,13 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public TypeMapping GetTypeMapping(int entityIndex, TypeInfo approximateType, int typeId, IReadOnlyList<Pair<ColNum>> columns)
     {
+      TypeMapping result;
       ref var cache = ref entityMappings[entityIndex];
-      if (cache.SingleItem is TypeMapping result) {
-        return typeId == ResolveTypeToNodeSpecificTypeIdentifier(result.Type)
-          ? result
-          : throw new ArgumentOutOfRangeException("typeId");
+      if (cache.SingleItem != null) {
+        if (typeId != ResolveTypeToNodeSpecificTypeIdentifier(cache.SingleItem?.Type)) {
+          throw new ArgumentOutOfRangeException("typeId");
+        }
+        return cache.SingleItem.Value;
       }
       if (cache.Items.TryGetValue(typeId, out result))
         return result;
@@ -88,8 +90,8 @@ namespace Xtensive.Orm.Linq.Materialization
         typeColumnMap = newColumns;
       }
 
-      var allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
-      var keyIndexes = allIndexes.Take(keyInfo.TupleDescriptor.Count).ToArray();
+      ArraySegment<ColNum> allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
+      ArraySegment<ColNum> keyIndexes = allIndexes.Slice(0, keyInfo.TupleDescriptor.Count);
 
       var transform    = new MapTransform(true, descriptor, allIndexes);
       var keyTransform = new MapTransform(true, keyInfo.TupleDescriptor, keyIndexes);

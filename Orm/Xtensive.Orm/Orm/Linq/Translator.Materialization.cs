@@ -127,19 +127,14 @@ namespace Xtensive.Orm.Linq
       var materializationInfo = itemProjector.Materialize(context, tupleParameters);
       var elementType = itemProjector.Item.Type;
       var materializeMethod = MaterializationHelper.MaterializeMethodInfo.CachedMakeGenericMethod(elementType);
-
-#if NET8_0_OR_GREATER
-      var itemMaterializerFactoryMethod = elementType.IsNullable()
-          ? MaterializationHelper.CreateNullableItemMaterializerMethodInfo.CachedMakeGenericMethodInvoker(elementType.GetGenericArguments()[0])
-          : MaterializationHelper.CreateItemMaterializerMethodInfo.CachedMakeGenericMethodInvoker(elementType);
-      var itemMaterializer = itemMaterializerFactoryMethod.Invoke(null, materializationInfo.Expression, itemProjector.AggregateType);
-#else
-      var itemMaterializerFactoryMethod = elementType.IsNullable()
-          ? MaterializationHelper.CreateNullableItemMaterializerMethodInfo.CachedMakeGenericMethod(elementType.GetGenericArguments()[0])
+      var itemMaterializerFactoryMethod =
+        elementType.IsNullable()
+          ? MaterializationHelper.CreateNullableItemMaterializerMethodInfo.CachedMakeGenericMethod(
+            elementType.GetGenericArguments()[0])
           : MaterializationHelper.CreateItemMaterializerMethodInfo.CachedMakeGenericMethod(elementType);
-      var itemMaterializer = itemMaterializerFactoryMethod.Invoke(null, [materializationInfo.Expression, itemProjector.AggregateType]);
-#endif
 
+      var itemMaterializer = itemMaterializerFactoryMethod.Invoke(
+        null, new object[] { materializationInfo.Expression, itemProjector.AggregateType });
       Expression<Func<Session, int, MaterializationContext>> materializationContextCtor =
         (s, entityCount) => new MaterializationContext(s, entityCount);
       var materializationContextExpression = materializationContextCtor

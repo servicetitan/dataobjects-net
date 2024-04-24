@@ -82,22 +82,12 @@ namespace Xtensive.Orm.Linq
         ? applyParameters.Keys.OfType<TagProvider>().Select(p => p.Tag).ToList()
         : Array.Empty<string>();
 
-    internal readonly struct TagsRestorer : IDisposable
+    public IDisposable DisableSessionTags()
     {
-      private readonly TranslatorContext context;
-      private readonly IReadOnlyList<string> originalTags;
-
-      public void Dispose() => context.SessionTags = originalTags;
-
-      internal TagsRestorer(TranslatorContext context)
-      {
-        this.context = context;
-        originalTags = context.SessionTags;
-        context.SessionTags = null;
-      }
+      var originalTags = SessionTags;
+      SessionTags = null;
+      return new Disposable((b) => SessionTags = originalTags);
     }
-
-    public TagsRestorer DisableSessionTags() => new(this);
 
     public void RebindApplyParameter(CompilableProvider old, CompilableProvider @new)
     {
