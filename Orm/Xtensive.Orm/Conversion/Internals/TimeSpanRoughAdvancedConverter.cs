@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class TimeSpanRoughAdvancedConverter :
+  internal sealed class TimeSpanRoughAdvancedConverter :
     RoughAdvancedConverterBase,
     IAdvancedConverter<TimeSpan, float>,
     IAdvancedConverter<TimeSpan, double>

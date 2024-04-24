@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class BooleanAdvancedConverter :
+  internal sealed class BooleanAdvancedConverter :
     StrictAdvancedConverterBase<bool>,
     IAdvancedConverter<bool, byte>,
     IAdvancedConverter<bool, sbyte>,

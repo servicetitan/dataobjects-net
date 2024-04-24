@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class NullableForwardAdvancedConverter<TFrom, TTo> : WrappingAdvancedConverter<TFrom?, TFrom, TTo, TTo>
+  internal sealed class NullableForwardAdvancedConverter<TFrom, TTo> : WrappingAdvancedConverter<TFrom?, TFrom, TTo, TTo>
     where TFrom : struct
   {
     private static readonly bool toIsValueType = typeof (TTo).IsValueType;

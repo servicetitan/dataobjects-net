@@ -10,7 +10,7 @@ using Xtensive.Reflection;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class EnumAdvancedConverter<TFrom, TTo, TUnderlyingFrom, TUnderlyingTo> : AdvancedConverterBase, 
+  internal sealed class EnumAdvancedConverter<TFrom, TTo, TUnderlyingFrom, TUnderlyingTo> : AdvancedConverterBase,
     IAdvancedConverter<TFrom, TTo>
     where TFrom : struct
     where TTo : struct

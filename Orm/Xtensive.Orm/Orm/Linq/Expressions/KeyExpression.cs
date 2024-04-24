@@ -15,7 +15,7 @@ using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  internal class KeyExpression : PersistentFieldExpression
+  internal sealed class KeyExpression : PersistentFieldExpression
   {
     public TypeInfo EntityType { get; }
     public IReadOnlyList<FieldExpression> KeyFields { get; }

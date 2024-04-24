@@ -10,7 +10,7 @@ using System.Globalization;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class Int64AdvancedConverter :
+  internal sealed class Int64AdvancedConverter :
     StrictAdvancedConverterBase<long>,
     IAdvancedConverter<long, byte>,
     IAdvancedConverter<long, sbyte>,

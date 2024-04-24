@@ -10,7 +10,7 @@ using Xtensive.Reflection;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class NullableAdvancedConverterFactory<TFrom> : IAdvancedConverterFactory<TFrom>
+  internal sealed class NullableAdvancedConverterFactory<TFrom> : IAdvancedConverterFactory<TFrom>
   {
     private IAdvancedConverterProvider provider;
 

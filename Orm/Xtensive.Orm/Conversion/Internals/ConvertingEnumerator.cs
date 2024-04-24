@@ -12,7 +12,7 @@ using Xtensive.Core;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class ConvertingEnumerator<T1, T2> : IEnumerator<T2>
+  internal sealed class ConvertingEnumerator<T1, T2> : IEnumerator<T2>
   {
     private IEnumerator<T1> innerEnumerator;
     private readonly Converter<T1, T2> converter;

@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class SingleRoughAdvancedConverter :
+  internal sealed class SingleRoughAdvancedConverter :
     RoughAdvancedConverterBase,
     IAdvancedConverter<float, bool>,
     IAdvancedConverter<float, byte>,

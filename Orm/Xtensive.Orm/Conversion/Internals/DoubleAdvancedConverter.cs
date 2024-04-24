@@ -10,7 +10,7 @@ using System.Globalization;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class DoubleAdvancedConverter :
+  internal sealed class DoubleAdvancedConverter :
     StrictAdvancedConverterBase<double>,
     IAdvancedConverter<double, string>
   {

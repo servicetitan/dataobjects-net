@@ -10,7 +10,7 @@ using System.Globalization;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class DateTimeAdvancedConverter :
+  internal sealed class DateTimeAdvancedConverter :
     StrictAdvancedConverterBase<DateTime>,
     IAdvancedConverter<DateTime, byte>,
     IAdvancedConverter<DateTime, sbyte>,

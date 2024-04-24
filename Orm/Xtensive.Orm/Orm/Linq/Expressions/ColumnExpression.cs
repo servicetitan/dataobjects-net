@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     // Constructors
 
-    protected ColumnExpression(
+    private ColumnExpression(
       Type type,
       in Segment<ColNum> mapping,
       ParameterExpression parameterExpression,
