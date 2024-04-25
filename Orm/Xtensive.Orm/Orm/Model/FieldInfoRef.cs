@@ -98,10 +98,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return unchecked( FieldName.GetHashCode() + 29*TypeRef.GetHashCode() );
-    }
+    public override int GetHashCode() => HashCode.Combine(FieldName, TypeRef);
 
     #endregion
 
