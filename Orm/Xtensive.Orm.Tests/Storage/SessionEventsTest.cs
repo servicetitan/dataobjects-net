@@ -297,8 +297,8 @@ namespace Xtensive.Orm.Tests.Storage
 
           int value = entity.Value;
 
-          Assert.IsNull(eventInfo.EntityFieldValueSettingArgs);
-          Assert.IsNull(eventInfo.EntityFieldValueSetArgs);
+          Assert.IsTrue(eventInfo.EntityFieldValueSettingArgs == default);
+          Assert.IsTrue(eventInfo.EntityFieldValueSetArgs == default);
 
           Assert.IsNotNull(eventInfo.EntityFieldGettingArgs);
           Assert.AreEqual(entity, eventInfo.EntityFieldGettingArgs.Entity);
@@ -309,9 +309,9 @@ namespace Xtensive.Orm.Tests.Storage
           eventInfo.ResetEventArgs();
 
           entity.Remove();
-          Assert.IsNotNull(eventInfo.EntityRemoving);
+          Assert.IsFalse(eventInfo.EntityRemoving == default);
           Assert.AreEqual(entity, eventInfo.EntityRemoving.Entity);
-          Assert.IsNotNull(eventInfo.EntityRemoved);
+          Assert.IsFalse(eventInfo.EntityRemoved == default);
           Assert.AreEqual(entity, eventInfo.EntityRemoved.Entity);
         }
       }
