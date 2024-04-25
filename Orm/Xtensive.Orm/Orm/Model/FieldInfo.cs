@@ -59,7 +59,6 @@ namespace Xtensive.Orm.Model
     private int adapterIndex = -1;
     private ColumnInfoCollection columns;
     private int fieldId;
-    private int? cachedHashCode;
 
     private Segment<ColNum> mappingInfo;
 
@@ -719,47 +718,18 @@ namespace Xtensive.Orm.Model
     #region Equals, GetHashCode methods
 
     /// <inheritdoc/>
-    public bool Equals(FieldInfo obj)
-    {
-      if (obj is null)
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return
-        obj.declaringType == declaringType &&
-        obj.valueType == valueType &&
-        obj.Name == Name;
-    }
+    public bool Equals(FieldInfo other) =>
+      ReferenceEquals(this, other)
+      || other is not null
+          && other.declaringType == declaringType
+          && other.valueType == valueType
+          && other.Name == Name;
 
     /// <inheritdoc/>
-    public override bool Equals(object obj) =>
-      ReferenceEquals(this, obj)
-        || obj is FieldInfo other && Equals(other);
+    public override bool Equals(object obj) => obj is FieldInfo other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      if (cachedHashCode.HasValue)
-        return cachedHashCode.Value;
-      if (!IsLocked)
-        return CalculateHashCode();
-      lock (this) {
-        if (cachedHashCode.HasValue)
-          return cachedHashCode.Value;
-        cachedHashCode = CalculateHashCode();
-        return cachedHashCode.Value;
-      }
-    }
-
-    private int CalculateHashCode()
-    {
-      unchecked {
-        return
-          (declaringType.GetHashCode() * 397) ^
-          (valueType.GetHashCode() * 631) ^
-          Name.GetHashCode();
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(declaringType, valueType, Name);
 
     #endregion
 
