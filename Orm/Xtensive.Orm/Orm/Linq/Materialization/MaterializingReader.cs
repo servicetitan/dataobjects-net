@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Linq.Materialization
     IAsyncEnumerator<TItem> AsAsyncEnumerator();
   }
 
-  internal class MaterializingReader<TItem>: IMaterializingReader<TItem>, IEnumerator<TItem>, IAsyncEnumerator<TItem>
+  internal sealed class MaterializingReader<TItem>: IMaterializingReader<TItem>, IEnumerator<TItem>, IAsyncEnumerator<TItem>
   {
     private readonly RecordSetReader recordSetReader;
     private readonly MaterializationContext context;

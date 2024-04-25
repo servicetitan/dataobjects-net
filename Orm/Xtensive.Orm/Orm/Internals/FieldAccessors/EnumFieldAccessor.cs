@@ -10,7 +10,7 @@ using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Internals.FieldAccessors
 {
-  internal class EnumFieldAccessor<T> : FieldAccessor<T>
+  internal sealed class EnumFieldAccessor<T> : FieldAccessor<T>
   {
     private static readonly Type type = typeof(T);
     private static readonly object @default =

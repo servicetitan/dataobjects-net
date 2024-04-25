@@ -10,7 +10,7 @@ using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
 {
-  internal class NullComparsionRewriter : ExpressionVisitor
+  internal sealed class NullComparsionRewriter : ExpressionVisitor
   {
     protected override Expression VisitUnknown(Expression e)
     {

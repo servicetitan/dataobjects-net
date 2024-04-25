@@ -8,7 +8,7 @@ using Xtensive.Orm.Building.Definitions;
 
 namespace Xtensive.Orm.Building.FixupActions
 {
-  internal class AddPrimaryIndexAction : TypeAction
+  internal sealed class AddPrimaryIndexAction : TypeAction
   {
     public override void Run(FixupActionProcessor processor)
     {

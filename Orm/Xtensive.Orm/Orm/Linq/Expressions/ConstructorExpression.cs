@@ -18,7 +18,7 @@ using System.Linq;
 namespace Xtensive.Orm.Linq
 {
   [Serializable]
-  internal class ConstructorExpression : ParameterizedExpression
+  internal sealed class ConstructorExpression : ParameterizedExpression
   {
     public Dictionary<MemberInfo, Expression> Bindings { get; }
 

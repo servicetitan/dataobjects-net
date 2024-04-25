@@ -24,7 +24,7 @@ using System.Text;
 
 namespace Xtensive.Orm.Building.Builders
 {
-  internal class PartialIndexFilterBuilder : ExpressionVisitor
+  internal sealed class PartialIndexFilterBuilder : ExpressionVisitor
   {
     private static readonly ParameterExpression Parameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
 

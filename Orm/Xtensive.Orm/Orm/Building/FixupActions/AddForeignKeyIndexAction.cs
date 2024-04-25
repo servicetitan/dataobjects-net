@@ -8,7 +8,7 @@ using Xtensive.Orm.Building.Definitions;
 
 namespace Xtensive.Orm.Building.FixupActions
 {
-  internal class AddForeignKeyIndexAction : FieldAction
+  internal sealed class AddForeignKeyIndexAction : FieldAction
   {
     public override void Run(FixupActionProcessor processor)
     {

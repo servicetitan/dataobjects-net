@@ -8,7 +8,7 @@ using Xtensive.Orm.Building.Definitions;
 
 namespace Xtensive.Orm.Building.FixupActions
 {
-  internal class BuildImplementorListAction : TypeAction
+  internal sealed class BuildImplementorListAction : TypeAction
   {
     public override void Run(FixupActionProcessor processor)
     {

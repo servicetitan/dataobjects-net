@@ -10,7 +10,7 @@ using System.Globalization;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class DecimalAdvancedConverter :
+  internal sealed class DecimalAdvancedConverter :
     StrictAdvancedConverterBase<decimal>,
     IAdvancedConverter<decimal, string>
   {

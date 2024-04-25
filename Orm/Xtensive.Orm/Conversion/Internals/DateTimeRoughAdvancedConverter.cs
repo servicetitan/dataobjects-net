@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class DateTimeRoughAdvancedConverter :
+  internal sealed class DateTimeRoughAdvancedConverter :
     RoughAdvancedConverterBase,
     IAdvancedConverter<DateTime, float>,
     IAdvancedConverter<DateTime, double>

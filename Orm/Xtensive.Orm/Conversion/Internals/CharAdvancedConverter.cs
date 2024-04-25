@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class CharAdvancedConverter :
+  internal sealed class CharAdvancedConverter :
     StrictAdvancedConverterBase<char>,
     IAdvancedConverter<char, byte>,
     IAdvancedConverter<char, sbyte>,

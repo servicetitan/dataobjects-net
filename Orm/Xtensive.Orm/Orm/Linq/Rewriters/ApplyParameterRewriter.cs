@@ -12,7 +12,7 @@ using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Linq.Rewriters
 {
-  internal class ApplyParameterRewriter : ExtendedExpressionVisitor
+  internal sealed class ApplyParameterRewriter : ExtendedExpressionVisitor
   {
     private readonly Expression newApplyParameterValueExpression;
     private readonly ApplyParameter oldApplyParameter;

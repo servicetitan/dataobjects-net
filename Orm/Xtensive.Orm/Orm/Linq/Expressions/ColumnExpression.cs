@@ -11,7 +11,7 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  internal class ColumnExpression : ParameterizedExpression
+  internal sealed class ColumnExpression : ParameterizedExpression
   {
     internal readonly Segment<ColNum> Mapping;
 
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     // Constructors
 
-    protected ColumnExpression(
+    private ColumnExpression(
       Type type,
       in Segment<ColNum> mapping,
       ParameterExpression parameterExpression,

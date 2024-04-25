@@ -12,7 +12,7 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  internal class EntityExpression : ParameterizedExpression, IEntityExpression
+  internal sealed class EntityExpression : ParameterizedExpression, IEntityExpression
   {
     private List<PersistentFieldExpression> fields;
 

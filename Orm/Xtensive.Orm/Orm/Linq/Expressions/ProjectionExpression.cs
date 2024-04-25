@@ -11,7 +11,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  internal class ProjectionExpression : ExtendedExpression
+  internal sealed class ProjectionExpression : ExtendedExpression
   {
     public ItemProjectorExpression ItemProjector { get; }
     public ResultAccessMethod ResultAccessMethod { get; }

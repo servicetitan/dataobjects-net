@@ -14,7 +14,7 @@ using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
 {
-  internal class ClosureAccessRewriter : ExpressionVisitor
+  internal sealed class ClosureAccessRewriter : ExpressionVisitor
   {
     private readonly CompiledQueryProcessingScope compiledQueryScope;
 

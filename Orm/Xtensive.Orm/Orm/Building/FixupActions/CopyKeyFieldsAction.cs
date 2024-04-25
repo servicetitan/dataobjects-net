@@ -8,7 +8,7 @@ using Xtensive.Orm.Building.Definitions;
 
 namespace Xtensive.Orm.Building.FixupActions
 {
-  internal class CopyKeyFieldsAction : TypeAction
+  internal sealed class CopyKeyFieldsAction : TypeAction
   {
     public HierarchyDef Source { get; private set; }
 

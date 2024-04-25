@@ -10,7 +10,7 @@ using System.Collections.Generic;
 namespace Xtensive.Orm.Building.DependencyGraph
 {
   [Serializable]
-  internal class Node<TValue>
+  internal sealed class Node<TValue>
   {
     public TValue Value { get; private set; }
 

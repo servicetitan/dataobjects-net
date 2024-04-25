@@ -14,7 +14,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Rewriters
 {
-  internal class ApplyParameterToTupleParameterRewriter : ExtendedExpressionVisitor
+  internal sealed class ApplyParameterToTupleParameterRewriter : ExtendedExpressionVisitor
   {
     private readonly Expression parameterOfTupleExpression;
     private readonly ApplyParameter applyParameter;

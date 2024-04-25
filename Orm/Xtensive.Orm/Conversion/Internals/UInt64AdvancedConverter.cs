@@ -10,7 +10,7 @@ using System.Globalization;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class UInt64AdvancedConverter :
+  internal sealed class UInt64AdvancedConverter :
     StrictAdvancedConverterBase<ulong>,
     IAdvancedConverter<ulong, byte>,
     IAdvancedConverter<ulong, sbyte>,

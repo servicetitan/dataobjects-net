@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Conversion
 {
   [Serializable]
-  internal class NullableReverseAdvancedConverter<TFrom, TTo> : WrappingAdvancedConverter<TFrom, TFrom, TTo?, TTo>
+  internal sealed class NullableReverseAdvancedConverter<TFrom, TTo> : WrappingAdvancedConverter<TFrom, TFrom, TTo?, TTo>
     where TTo : struct
   {
     /// <inheritdoc/>

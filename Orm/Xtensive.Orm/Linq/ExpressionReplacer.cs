@@ -12,7 +12,7 @@ namespace Xtensive.Linq
   /// <summary>
   /// Replaces references to one specific instance of an expression node with another node
   /// </summary>
-  public class ExpressionReplacer : ExpressionVisitor
+  public sealed class ExpressionReplacer : ExpressionVisitor
   {
     private readonly Expression searchFor;
     private readonly Expression replaceWith;

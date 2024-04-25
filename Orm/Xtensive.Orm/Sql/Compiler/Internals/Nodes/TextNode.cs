@@ -7,7 +7,7 @@ using System.Diagnostics;
 namespace Xtensive.Sql.Compiler
 {
   [DebuggerDisplay("Text = {Text}")]
-  internal class TextNode : Node
+  internal sealed class TextNode : Node
   {
     private const string CommaString = ", ";
     private static readonly TextNode CommaNode = new TextNode(CommaString);

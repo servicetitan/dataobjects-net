@@ -15,7 +15,7 @@ using Xtensive.Reflection;
 namespace Xtensive.Orm.Linq.Expressions
 {
   [Serializable]
-  internal class FullTextExpression : ParameterizedExpression
+  internal sealed class FullTextExpression : ParameterizedExpression
   {
     public FullTextIndexInfo FullTextIndex { get; private set; }
 

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Xtensive.Sql.Compiler
 {
-  internal class VariantNode : Node
+  internal sealed class VariantNode : Node
   {
     public readonly object Id;
 

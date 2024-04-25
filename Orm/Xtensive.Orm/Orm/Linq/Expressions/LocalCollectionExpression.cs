@@ -15,7 +15,7 @@ using Xtensive.Core;
 namespace Xtensive.Orm.Linq.Expressions
 {
   [Serializable]
-  internal class LocalCollectionExpression : ParameterizedExpression
+  internal sealed class LocalCollectionExpression : ParameterizedExpression
   {
     // just to have good error
     private readonly string expressionAsString;

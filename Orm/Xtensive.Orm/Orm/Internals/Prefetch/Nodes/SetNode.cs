@@ -12,7 +12,7 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  internal class SetNode : BaseFieldNode, IHasNestedNodes
+  internal sealed class SetNode : BaseFieldNode, IHasNestedNodes
   {
     public IReadOnlyList<BaseFieldNode> NestedNodes { get; }
 

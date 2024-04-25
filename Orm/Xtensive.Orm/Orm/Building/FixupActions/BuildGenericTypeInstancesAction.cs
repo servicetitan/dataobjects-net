@@ -8,7 +8,7 @@ using Xtensive.Orm.Building.Definitions;
 
 namespace Xtensive.Orm.Building.FixupActions
 {
-  internal class BuildGenericTypeInstancesAction : TypeAction
+  internal sealed class BuildGenericTypeInstancesAction : TypeAction
   {
     public override void Run(FixupActionProcessor processor)
     {

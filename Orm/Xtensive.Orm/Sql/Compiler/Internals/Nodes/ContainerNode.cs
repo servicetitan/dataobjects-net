@@ -95,7 +95,7 @@ namespace Xtensive.Sql.Compiler
   /// <summary>
   /// Container node in SQL DOM query model.
   /// </summary>
-  public class ContainerNode : Node, IOutput, IEnumerable<Node>
+  public sealed class ContainerNode : Node, IOutput, IEnumerable<Node>
   {
     private static readonly IFormatProvider invarianCulture = CultureInfo.InvariantCulture;
 

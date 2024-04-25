@@ -11,7 +11,7 @@ using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
 {
-  internal class SelectManySelectorRewriter : ExpressionVisitor
+  internal sealed class SelectManySelectorRewriter : ExpressionVisitor
   {
     private readonly ParameterExpression sourceParameter;
     private readonly ParameterExpression targetParameter;
