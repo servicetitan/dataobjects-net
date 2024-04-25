@@ -735,11 +735,10 @@ namespace Xtensive.Orm.Model
     {
       var h = Volatile.Read(ref cachedHashCode);
       if (h == 0) {
-        var hashCode = HashCode.Combine(declaringType, valueType, Name);
-        if (!IsLocked) {
-          return hashCode;
+        h = (uint)HashCode.Combine(declaringType, valueType, Name);
+        if (IsLocked) {
+          Volatile.Write(ref cachedHashCode, h | (1L << 63)); // Set the highest bit as HasValue flag even when `hashCode == 0`
         }
-        Volatile.Write(ref cachedHashCode, h = (uint)hashCode | (1L << 63));
       }
       return (int)h;
     }
