@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Linq.Materialization
     /// </summary>
     public Queue<Action> MaterializationQueue { get; set; }
 
-    public TypeMapping GetTypeMapping(int entityIndex, TypeInfo approximateType, int typeId, IReadOnlyList<Pair<ColNum>> columns)
+    public TypeMapping GetTypeMapping(int entityIndex, TypeInfo approximateType, int typeId, IEnumerable<(ColNum From, ColNum To)> columns)
     {
       ref var cache = ref entityMappings[entityIndex];
       if (cache.SingleItem is TypeMapping result) {
@@ -73,19 +73,12 @@ namespace Xtensive.Orm.Linq.Materialization
       var keyInfo = type.Key;
       var descriptor = type.TupleDescriptor;
 
-      var typeColumnMap = columns;
+      IEnumerable<(ColNum From, ColNum To)> typeColumnMap = columns;
       if (approximateType.IsInterface) {
         // fixup target index
-        var newColumns = new Pair<ColNum>[columns.Count];
-        for (int i = columns.Count; i-- > 0;) {
-          var pair = columns[i];
-          var approxTargetIndex = pair.First;
-          var interfaceField = approximateType.Columns[approxTargetIndex].Field;
-          var field = type.FieldMap[interfaceField];
-          var targetIndex = field.MappingInfo.Offset;
-          newColumns[i] = new Pair<ColNum>(targetIndex, pair.Second);
-        }
-        typeColumnMap = newColumns;
+        var fieldMap = type.FieldMap;
+        var approximateTypeColumns = approximateType.Columns;
+        typeColumnMap = columns.Select(p => (fieldMap[approximateTypeColumns[p.From].Field].MappingInfo.Offset, p.To));
       }
 
       var allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);

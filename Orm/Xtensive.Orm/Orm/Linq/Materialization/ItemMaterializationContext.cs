@@ -3,6 +3,7 @@
 // See the License.txt file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -34,7 +35,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public TypeInfo GetTypeInfo(int typeId) => typeId == TypeInfo.NoTypeId ? null : typeIdRegistry[typeId];
 
-    public Entity Materialize(int entityIndex, int typeIdIndex, TypeInfo type, Pair<ColNum>[] entityColumns, Tuple tuple)
+    public Entity Materialize(int entityIndex, int typeIdIndex, TypeInfo type, IEnumerable<(ColNum From, ColNum To)> entityColumns, Tuple tuple)
     {
       var result = entities[entityIndex];
       if (result!=null)

@@ -43,18 +43,13 @@ namespace Xtensive.Orm.Linq.Materialization
     public static readonly MethodInfo PrefetchEntitySetMethodInfo = typeof(MaterializationHelper)
         .GetMethod(nameof(PrefetechEntitySet), BindingFlags.Public | BindingFlags.Static);
 
-    public static ColNum[] CreateSingleSourceMap(int targetLength, IReadOnlyList<Pair<ColNum>> remappedColumns)
+    public static ColNum[] CreateSingleSourceMap(int targetLength, IEnumerable<(ColNum From, ColNum To)> remappedColumns)
     {
       var map = new ColNum[targetLength];
       Array.Fill(map, MapTransform.NoMapping);
-
-      for (int i = 0, count = remappedColumns.Count; i < count; i++) {
-        var remappedColumn = remappedColumns[i];
-        var targetIndex = remappedColumn.First;
-        var sourceIndex = remappedColumn.Second;
-        map[targetIndex] = sourceIndex;
+      foreach (var p in remappedColumns) {
+        map[p.From] = p.To;
       }
-
       return map;
     }
 

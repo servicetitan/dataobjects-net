@@ -248,10 +248,7 @@ namespace Xtensive.Orm.Linq.Materialization
         var mappingInfo = expression.Fields
           .OfType<FieldExpression>()
           .Where(f => f.ExtendedType==ExtendedExpressionType.Field)
-          .OrderBy(f => f.Field.MappingInfo.Offset)
-          .Select(f => new Pair<ColNum>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
-          .Distinct()
-          .ToArray();
+          .Select(f => (f.Field.MappingInfo.Offset, f.Mapping.Offset));
 
         var columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
 
@@ -296,11 +293,8 @@ namespace Xtensive.Orm.Linq.Materialization
       var tuplePrototype = typeInfo.TuplePrototype;
       var mappingInfo = expression.Fields
         .OfType<FieldExpression>()
-        .Where(f => f.ExtendedType==ExtendedExpressionType.Field)
-        .OrderBy(f => f.Field.MappingInfo.Offset)
-        .Select(f => new Pair<ColNum>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
-        .Distinct()
-        .ToArray();
+        .Where(f => f.ExtendedType==ExtendedExpressionType.Field)        
+        .Select(f => (f.Field.MappingInfo.Offset, f.Mapping.Offset));
 
       var columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
 
@@ -362,10 +356,8 @@ namespace Xtensive.Orm.Linq.Materialization
       var mappingInfo = expression.Fields
         .OfType<FieldExpression>()
         .Where(f => f.ExtendedType==ExtendedExpressionType.Field)
-        .OrderBy(f => f.Field.MappingInfo.Offset)
-        .Select(f => new Pair<ColNum>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
-        .Distinct()
-        .ToArray();
+        .Select(f => (f.Field.MappingInfo.Offset, f.Mapping.Offset))
+        .ToHashSet();
 
       var isMaterializedExpression = Expression.Call(
         itemMaterializationContextParameter,
