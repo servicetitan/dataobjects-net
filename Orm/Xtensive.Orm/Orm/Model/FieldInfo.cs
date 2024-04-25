@@ -734,7 +734,11 @@ namespace Xtensive.Orm.Model
     public override int GetHashCode()
     {
       if (cachedHashCode == 0) {
-        Volatile.Write(ref cachedHashCode, (uint)HashCode.Combine(declaringType, valueType, Name) | (1L << 63));
+        var hashCode = HashCode.Combine(declaringType, valueType, Name);
+        if (!IsLocked) {
+          return hashCode;
+        }
+        Volatile.Write(ref cachedHashCode, (uint)hashCode | (1L << 63));
       }
       return (int)cachedHashCode;
     }
