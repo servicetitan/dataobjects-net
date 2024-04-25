@@ -42,6 +42,9 @@ namespace Xtensive.Orm
     /// </summary>
     public abstract TypeInfo TypeInfo { get; }
 
+    private FieldInfo[] persistentFields;
+    private FieldInfo[] PersistentFields => persistentFields ??= TypeInfo.PersistentFields;
+
     /// <summary>
     /// Gets the underlying tuple.
     /// </summary>
@@ -166,7 +169,7 @@ namespace Xtensive.Orm
     }
 
     protected internal T GetFieldValue<T>(int fieldIndex) =>
-      GetNormalizedFieldValue<T>(TypeInfo.PersistentFields[fieldIndex]);
+      GetNormalizedFieldValue<T>(PersistentFields[fieldIndex]);
 
     /// <summary>
     /// Gets the field value.
@@ -363,7 +366,7 @@ namespace Xtensive.Orm
     }
 
     protected internal void SetFieldValue<T>(int fieldIndex, T value) =>
-      SetNormalizedFieldValue(TypeInfo.PersistentFields[fieldIndex], value, null, null);
+      SetNormalizedFieldValue(PersistentFields[fieldIndex], value, null, null);
 
     /// <summary>
     /// Sets the field value.
