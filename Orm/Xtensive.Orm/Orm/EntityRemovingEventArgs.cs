@@ -14,18 +14,5 @@ namespace Xtensive.Orm
   /// <summary>
   /// Describes <see cref="Entity"/>-removing related events.
   /// </summary>
-  public class EntityRemovingEventArgs : EntityEventArgs
-  {
-    /// <summary>
-    /// Gets the entity remove reason.
-    /// </summary>
-    public EntityRemoveReason Reason { get; }
-
-    // Constructors
-    public EntityRemovingEventArgs(Entity entity, EntityRemoveReason reason)
-      : base(entity)
-    {
-      Reason = reason;
-    }
-  }
+  public readonly record struct EntityRemovingEventArgs(Entity Entity, EntityRemoveReason Reason);
 }

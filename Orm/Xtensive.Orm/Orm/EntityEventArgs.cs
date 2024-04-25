@@ -12,23 +12,5 @@ namespace Xtensive.Orm
   /// <summary>
   /// Describes <see cref="Entity"/>-related events.
   /// </summary>
-  public class EntityEventArgs : EventArgs
-  {
-    /// <summary>
-    /// Gets the entity to which this event is related.
-    /// </summary>
-    public Entity Entity { get; }
-
-
-    // Constructors
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="entity">The entity.</param>
-    public EntityEventArgs(Entity entity)
-    {
-      Entity = entity;
-    }
-  }
+  public readonly record struct EntityEventArgs(Entity Entity);
 }

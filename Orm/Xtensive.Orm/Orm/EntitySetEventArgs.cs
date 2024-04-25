@@ -4,20 +4,22 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.23
 
-using System;
-
+using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm
 {
   /// <summary>
   /// Describes <see cref="Orm.EntitySet{TItem}"/>-related events.
   /// </summary>
-  public class EntitySetEventArgs : EntityFieldEventArgs
+  public readonly struct EntitySetEventArgs
   {
+    public Entity Entity { get; }
+    public FieldInfo Field { get; }
+
     /// <summary>
     /// Gets the <see cref="EntitySetBase"/> to which this event is related.
     /// </summary>
-    public EntitySetBase EntitySet { get; private set; }
+    public EntitySetBase EntitySet { get; }
 
 
     // Constructors
@@ -27,8 +29,9 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="entitySet">The entity set.</param>
     public EntitySetEventArgs(EntitySetBase entitySet)
-      : base(entitySet.Owner, entitySet.Field)
     {
+      Entity = entitySet.Owner;
+      Field = entitySet.Field;
       EntitySet = entitySet;
     }
   }

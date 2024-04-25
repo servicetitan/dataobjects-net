@@ -12,26 +12,5 @@ namespace Xtensive.Orm
   /// <summary>
   /// Describes <see cref="Entity"/> field-related events.
   /// </summary>
-  public class EntityFieldEventArgs : EntityEventArgs
-  {
-    /// <summary>
-    /// Gets the field to which this event is related.
-    /// </summary>
-    public FieldInfo Field { get; }
-
-
-    // Constructors
-
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="entity">The entity.</param>
-    /// <param name="field">The field.</param>
-    public EntityFieldEventArgs(Entity entity, FieldInfo field)
-      : base(entity)
-    {
-      Field = field;
-    }
-  }
+  public readonly record struct EntityFieldEventArgs(Entity Entity, FieldInfo Field);
 }

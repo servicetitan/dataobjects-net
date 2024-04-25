@@ -11,26 +11,5 @@ namespace Xtensive.Orm
   /// <summary>
   /// Arguments for completing entity remove event.
   /// </summary>
-  public class EntityRemoveCompletedEventArgs : EntityEventArgs
-  {
-    /// <summary>
-    /// Gets the exception.
-    /// </summary>
-    /// <value>The exception.</value>
-    public Exception Exception { get; }
-
-
-    // Constructors
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    /// <param name="entity">The entity.</param>
-    /// <param name="exception">The <see cref="Exception"/> initial value.</param>
-    public EntityRemoveCompletedEventArgs(Entity entity, Exception exception)
-      : base(entity)
-    {
-      Exception = exception;
-    }
-  }
+  public readonly record struct EntityRemoveCompletedEventArgs(Entity Entity, Exception Exception);
 }

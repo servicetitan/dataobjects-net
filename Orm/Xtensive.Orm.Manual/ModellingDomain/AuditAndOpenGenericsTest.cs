@@ -303,10 +303,16 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
       }
     }
 
-    private void EntityEvent(object sender, EntityEventArgs e, bool created)
+    private void EntityEvent(object sender, object e, bool created)
     {
+      var entity = e switch {
+        EntityEventArgs o => o.Entity,
+        EntityRemoveCompletedEventArgs o => o.Entity,
+        EntityFieldValueSetCompletedEventArgs o => o.Entity,
+        EntityVersionInfoChangedEventArgs o => o.Entity,
+        _ => null
+      };
       try {
-        var entity = e.Entity;
         if (entity is AuditRecord)
           return; // Avoding recursion ;)
         if (entity is TransactionInfo)
