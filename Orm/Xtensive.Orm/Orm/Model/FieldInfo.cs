@@ -733,14 +733,15 @@ namespace Xtensive.Orm.Model
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      if (cachedHashCode == 0) {
+      var h = Volatile.Read(ref cachedHashCode);
+      if (h == 0) {
         var hashCode = HashCode.Combine(declaringType, valueType, Name);
         if (!IsLocked) {
           return hashCode;
         }
-        Volatile.Write(ref cachedHashCode, (uint)hashCode | (1L << 63));
+        Volatile.Write(ref cachedHashCode, h = (uint)hashCode | (1L << 63));
       }
-      return (int)cachedHashCode;
+      return (int)h;
     }
 
     #endregion
