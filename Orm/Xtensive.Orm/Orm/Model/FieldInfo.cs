@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -59,6 +60,7 @@ namespace Xtensive.Orm.Model
     private int adapterIndex = -1;
     private ColumnInfoCollection columns;
     private int fieldId;
+    private long cachedHashCode;
 
     private Segment<ColNum> mappingInfo;
 
@@ -729,7 +731,13 @@ namespace Xtensive.Orm.Model
     public override bool Equals(object obj) => obj is FieldInfo other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode() => HashCode.Combine(declaringType, valueType, Name);
+    public override int GetHashCode()
+    {
+      if (cachedHashCode == 0) {
+        Volatile.Write(ref cachedHashCode, (uint)HashCode.Combine(declaringType, valueType, Name) | (1L << 63));
+      }
+      return (int)cachedHashCode;
+    }
 
     #endregion
 
