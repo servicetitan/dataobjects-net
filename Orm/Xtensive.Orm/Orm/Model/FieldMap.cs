@@ -46,25 +46,37 @@ namespace Xtensive.Orm.Model
       return map.ContainsKey(interfaceField);
     }
 
-    public void Add(FieldInfo interfaceField, FieldInfo typeField)
+    internal bool TryAdd(FieldInfo interfaceField, FieldInfo typeField)
     {
       EnsureNotLocked();
-      map.Add(interfaceField, typeField);
+      if (!map.TryAdd(interfaceField, typeField)) {
+        return false;
+      }
       if (reversedMap.TryGetValue(typeField, out var interfaceFields)) {
         interfaceFields.Add(interfaceField);
       }
-      else
-        reversedMap.Add(typeField, new HashSet<FieldInfo> {interfaceField});
+      else {
+        reversedMap.Add(typeField, new HashSet<FieldInfo> { interfaceField });
+      }
+      return true;
     }
 
-    public void Override(FieldInfo interfaceField, FieldInfo typeField)
+    public void Add(FieldInfo interfaceField, FieldInfo typeField)
     {
-      EnsureNotLocked();
-      var oldTypeField = map[interfaceField];
-      var interfaceFields = reversedMap[oldTypeField];
-      map[interfaceField] = typeField;
-      reversedMap.Remove(oldTypeField);
-      reversedMap.Add(typeField, interfaceFields);
+      if (!TryAdd(interfaceField, typeField)) {
+        throw new ArgumentException("An element with the same key already exists");
+      }
+    }
+
+    public void AddOrOverride(FieldInfo interfaceField, FieldInfo typeField)
+    {
+      if (!TryAdd(interfaceField, typeField)) {
+        var oldTypeField = map[interfaceField];
+        var interfaceFields = reversedMap[oldTypeField];
+        map[interfaceField] = typeField;
+        reversedMap.Remove(oldTypeField);
+        reversedMap.Add(typeField, interfaceFields);
+      }
     }
 
     public bool TryGetValue(FieldInfo interfaceField, out FieldInfo typeField)
