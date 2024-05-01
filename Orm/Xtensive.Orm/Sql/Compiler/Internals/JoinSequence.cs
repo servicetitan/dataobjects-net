@@ -5,71 +5,55 @@
 // Created:    2012.05.18
 
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Compiler
 {
-  internal sealed class JoinSequence
+  internal readonly record struct JoinSequence
+  (
+    SqlTable Pivot,
+    IReadOnlyList<SqlTable> Tables,
+    IReadOnlyList<SqlJoinType> JoinTypes,
+    IReadOnlyList<SqlExpression> Conditions
+  )
   {
-    public SqlTable Pivot { get; private set; }
-
-    public IList<SqlTable> Tables { get; private set; }
-
-    public IList<SqlJoinType> JoinTypes { get; private set; }
-
-    public IList<SqlExpression> Conditions { get; private set; }
-
     public static JoinSequence Build(SqlJoinedTable root)
     {
-      var joins = new List<SqlJoinExpression>();
+      var joins = new List<SqlJoinExpression>(1);
       Traverse(root, joins);
 
-      var result = new JoinSequence();
+      List<SqlTable> tables = new();
+      List<SqlJoinType> joinTypes = new();
+      List<SqlExpression> conditions = new();
 
       foreach (var item in joins) {
-        if (!(item.Left is SqlJoinedTable))
-          result.Tables.Add(item.Left);
-        if (!(item.Right is SqlJoinedTable))
-          result.Tables.Add(item.Right);
-        result.JoinTypes.Add(item.JoinType);
-        result.Conditions.Add(item.Expression);
+        var left = item.Left;
+        if (!(left is SqlJoinedTable))
+          tables.Add(left);
+        var right = item.Right;
+        if (!(right is SqlJoinedTable))
+          tables.Add(right);
+        joinTypes.Add(item.JoinType);
+        conditions.Add(item.Expression);
       }
 
-      var pivot = result.Tables[0];
-      result.Pivot = pivot;
-      result.Tables.RemoveAt(0);
-
-      result.Tables = new ReadOnlyCollection<SqlTable>(result.Tables);
-      result.JoinTypes = new ReadOnlyCollection<SqlJoinType>(result.JoinTypes);
-      result.Conditions = new ReadOnlyCollection<SqlExpression>(result.Conditions);
-
-      return result;
+      var pivot = tables[0];
+      tables.RemoveAt(0);
+      return new(pivot, tables, joinTypes, conditions);
     }
 
-    private static void Traverse(SqlJoinedTable root, ICollection<SqlJoinExpression> output)
+    private static void Traverse(SqlJoinedTable root, List<SqlJoinExpression> output)
     {
-      var left = root.JoinExpression.Left;
-      var joinedLeft = left as SqlJoinedTable;
-      if (joinedLeft!=null)
+      var joinExpression = root.JoinExpression;
+      if (joinExpression.Left is SqlJoinedTable joinedLeft) {
         Traverse(joinedLeft, output);
+      }
 
-      output.Add(root.JoinExpression);
+      output.Add(joinExpression);
 
-      var right = root.JoinExpression.Right;
-      var joinedRight = right as SqlJoinedTable;
-      if (joinedRight!=null)
+      if (joinExpression.Right is SqlJoinedTable joinedRight) {
         Traverse(joinedRight, output);
-    }
-
-
-    // Constructors
-
-    private JoinSequence()
-    {
-      Tables = new List<SqlTable>();
-      JoinTypes = new List<SqlJoinType>();
-      Conditions = new List<SqlExpression>();
+      }
     }
   }
 }
