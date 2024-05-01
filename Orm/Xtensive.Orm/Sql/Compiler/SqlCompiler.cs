@@ -1650,7 +1650,7 @@ namespace Xtensive.Sql.Compiler
       var previous = joinSequence.Pivot;
       previous.AcceptVisitor(this);
 
-      for (var i = 0; i < joinSequence.Tables.Count; i++) {
+      for (int i = 0, n = joinSequence.Tables.Count; i < n; i++) {
         var table = joinSequence.Tables[i];
         var type = joinSequence.JoinTypes[i];
         var condition = joinSequence.Conditions[i];
