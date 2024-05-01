@@ -266,42 +266,29 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
                 _ = output.Append("OUTER APPLY");
                 return;
             }
-          var joinHint = TryFindJoinHint(context, node);
+
+          var right = node.Right;
+          var joinHint = context.GetTraversalPath()
+            .OfType<SqlQueryStatement>()
+            .LastOrDefault()?.Hints.OfType<SqlJoinHint>().FirstOrDefault(hint => hint.Table == right);
 
           Translate(output, node.JoinType);
           if (joinHint != null) {
             _ = output.AppendSpace().Append(Translate(joinHint.Method));
           }
+
           _ = output.Append(" JOIN");
           break;
         default:
           base.Translate(context, node, section);
           break;
       }
-
-      static SqlJoinHint TryFindJoinHint(SqlCompilerContext context, SqlJoinExpression node)
-      {
-        SqlQueryStatement statement = null;
-        for (int i = 0, count = context.GetTraversalPath().Length; i < count; i++) {
-          if (context.GetTraversalPath()[i] is SqlQueryStatement) {
-            statement = context.GetTraversalPath()[i] as SqlQueryStatement;
-          }
-        }
-        if (statement == null || statement.Hints.Count == 0) {
-          return null;
-        }
-
-        var candidate = statement.Hints
-          .OfType<SqlJoinHint>()
-          .FirstOrDefault(hint => hint.Table == node.Right);
-        return candidate;
-      }
     }
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlQueryExpression node, QueryExpressionSection section)
     {
-      if (node.All && section == QueryExpressionSection.All && (node.NodeType == SqlNodeType.Except || node.NodeType == SqlNodeType.Intersect))
+      if (node.All && section == QueryExpressionSection.All && (node.NodeType is SqlNodeType.Except or SqlNodeType.Intersect))
         return;
       base.Translate(context, node, section);
     }
