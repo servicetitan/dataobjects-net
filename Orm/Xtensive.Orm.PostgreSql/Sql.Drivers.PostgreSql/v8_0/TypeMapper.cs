@@ -114,7 +114,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var nativeParameter = (NpgsqlParameter) parameter;
       nativeParameter.NpgsqlDbType = NpgsqlDbType.Interval;
       nativeParameter.Value = value != null
-        ? (object) new NpgsqlTimeSpan((TimeSpan) value)
+        ? (object) (TimeSpan) value
         : DBNull.Value;
     }
 
@@ -181,7 +181,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override TimeSpan ReadTimeSpan(DbDataReader reader, int index)
     {
       var nativeReader = (NpgsqlDataReader) reader;
-      return (TimeSpan) nativeReader.GetInterval(index);
+      return nativeReader.GetTimeSpan(index);
     }
 
     public override decimal ReadDecimal(DbDataReader reader, int index)
