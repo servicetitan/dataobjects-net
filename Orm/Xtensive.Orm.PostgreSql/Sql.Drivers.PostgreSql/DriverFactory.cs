@@ -44,9 +44,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         builder.Username = url.User;
         builder.Password = url.Password;
       }
-      else {
-        builder.IntegratedSecurity = true;
-      }
 
       // custom options
       foreach (var param in url.Params) {

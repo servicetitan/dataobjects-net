@@ -18,6 +18,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
   {
     private NpgsqlConnection underlyingConnection;
     private NpgsqlTransaction activeTransaction;
+    private bool activeTransactionIsCompleted;
 
     /// <inheritdoc/>
     public override DbConnection UnderlyingConnection => underlyingConnection;
@@ -36,6 +37,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       EnsureIsNotDisposed();
       EnsureTransactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction();
+      activeTransactionIsCompleted = false;
     }
 
     /// <inheritdoc/>
@@ -45,6 +47,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       EnsureIsNotDisposed();
       EnsureTransactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
+      activeTransactionIsCompleted = false;
     }
 
     public override void Commit(bool rollbackOnFail = false)
@@ -56,6 +59,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         if (!IsTransactionCompleted()) {
           ActiveTransaction.Commit();
         }
+        activeTransactionIsCompleted = true;
       }
       catch when (rollbackOnFail) {
         ActiveTransaction.Rollback();
@@ -75,6 +79,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         if (!IsTransactionCompleted()) {
           await ActiveTransaction.CommitAsync(token).ConfigureAwait(false);
         }
+        activeTransactionIsCompleted = true;
       }
       catch when (rollbackOnFail) {
         await ActiveTransaction.RollbackAsync(token).ConfigureAwaitFalse();;
@@ -194,7 +199,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
     private bool IsTransactionCompleted()
     {
-      return activeTransaction != null && activeTransaction.IsCompleted;
+      return activeTransaction != null && activeTransactionIsCompleted;
     }
 
     // Constructors
