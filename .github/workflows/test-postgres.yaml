@@ -25,6 +25,8 @@ jobs:
             createuser dotest
             createdb --owner dotest dotest
             psql -c "ALTER USER dotest WITH PASSWORD 'dotest' SUPERUSER"
+        env:
+            PGSERVICE: ${{ steps.postgres.outputs.service-name }}
       - name: Create DO Tests Config file
         run: echo default=postgresql://dotest:dotest@localhost/dotest >$DO_CONFIG_FILE
       - name: Tests
