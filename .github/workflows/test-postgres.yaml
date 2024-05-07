@@ -1,0 +1,32 @@
+name: Tests with PostgreSQL
+on:
+  pull_request:
+    branches: [ master-servicetitan ]
+env:
+  DO_CONFIG_FILE: "/tmp/do-test.cfg"
+  DO_STORAGE: "pgsql160"
+  DO_TargetFrameworks: net8.0
+jobs:
+  test-with-postgresql:
+    name: SQL tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: ikalnytskyi/action-setup-postgres@v6 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with: { dotnet-version: 8 }
+      - name: Build
+        run: dotnet build -v q Orm.sln
+      - name: Init Test DB
+        run: |
+            echo 127.0.0.1 pghost >>/etc/hosts
+            createuser dotest
+            createdb --owner dotest dotest
+            psql -c "ALTER USER dotest WITH PASSWORD 'dotest' SUPERUSER"
+      - name: Create DO Tests Config file
+        run: echo default=postgresql://dotest:dotest@localhost/dotest >$DO_CONFIG_FILE
+      - name: Tests
+        run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj --filter 'TestCategory!=Mute'
+
+
