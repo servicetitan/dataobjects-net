@@ -17,8 +17,6 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with: { dotnet-version: 8 }
-      - name: Build
-        run: dotnet build -v q Orm.sln
       - uses: ikalnytskyi/action-setup-postgres@v6 
       - name: Init Test DB
         run: |
@@ -29,6 +27,8 @@ jobs:
             PGSERVICE: ${{ steps.postgres.outputs.service-name }}
       - name: Create DO Tests Config file
         run: echo default=postgresql://dotest:dotest@localhost/dotest >$DO_CONFIG_FILE
+      - name: Build
+        run: dotnet build -v q Orm.sln
       - name: Tests
         run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests.Sql/Xtensive.Orm.Tests.Sql.csproj --filter 'TestCategory!=Mute'
 
