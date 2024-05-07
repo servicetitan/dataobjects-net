@@ -22,7 +22,6 @@ jobs:
       - uses: ikalnytskyi/action-setup-postgres@v6 
       - name: Init Test DB
         run: |
-            echo 127.0.0.1 pghost >>/etc/hosts
             createuser dotest
             createdb --owner dotest dotest
             psql -c "ALTER USER dotest WITH PASSWORD 'dotest' SUPERUSER"
