@@ -1,4 +1,4 @@
-name: Tests with SQL Server
+name: Tests with PostgreSQL & SQL Server
 on:
   pull_request:
     branches: [ master-servicetitan ]
@@ -12,12 +12,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with: { dotnet-version: 8 }
       - name: Build SQL Docker image with FTS feature
         run: docker build -t sql .github/actions/mssql-fts
+      - uses: ikalnytskyi/action-setup-postgres@v6 
+      - name: Init PostgreSQL Test DB
+        run: |
+            createuser dotest
+            createdb --owner dotest dotest
+            psql -c "ALTER USER dotest WITH PASSWORD 'dotest' SUPERUSER"
+        env:
+            PGSERVICE: postgres
       - name: Run SQL Server container
         run: docker run -e ACCEPT_EULA=Y -e MSSQL_PID='Developer' -e MSSQL_SA_PASSWORD=${SQL_PASSWD} -p 1433:1433 -d sql
       - name: Build
@@ -26,6 +34,8 @@ jobs:
         run: sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests.sql && sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests-Plus.sql
       - name: Create DO Tests Config file
         run: echo default=sqlserver://sa:${SQL_PASSWD}@localhost/DO-Tests?MultipleActiveResultSets=True >$DO_CONFIG_FILE
+      - name: PostgreSQL Tests
+        run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests.Sql/Xtensive.Orm.Tests.Sql.csproj --filter 'TestCategory!=Mute'
       - name: Tests
         run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj --filter 'TestCategory!=Mute'
 
