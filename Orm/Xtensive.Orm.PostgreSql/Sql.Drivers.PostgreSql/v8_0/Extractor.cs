@@ -517,16 +517,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var ownerOid = Convert.ToInt64(dataReader["nspowner"]);
 
       var catalog = context.Catalog;
-      if (context.UserLookup.TryGetValue(ownerOid, out var ownerName)) {
-        var schema = catalog.Schemas[name] ?? catalog.CreateSchema(name);
-        if (name == "public") {
-          catalog.DefaultSchema = schema;
-        }
-
-        schema.Owner = ownerName;
-        context.SchemaMap[oid] = schema;
-        context.ReversedSchemaMap[schema] = oid;
+      var schema = catalog.Schemas[name] ?? catalog.CreateSchema(name);
+      if (name == "public") {
+        catalog.DefaultSchema = schema;
       }
+
+      if (context.UserLookup.TryGetValue(ownerOid, out var ownerName)) {
+        schema.Owner = ownerName;
+      }
+
+      context.SchemaMap[oid] = schema;
+      context.ReversedSchemaMap[schema] = oid;
     }
 
     private void ExtractSchemaContents(ExtractionContext context)

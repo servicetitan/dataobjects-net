@@ -124,12 +124,19 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       parameter.Value = value == null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
 
+    public override void BindDateTime(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.DateTime2;
+      parameter.Value = value ?? DBNull.Value;
+    }
+
     [SecuritySafeCritical]
     public override void BindDateTimeOffset(DbParameter parameter, object value)
     {
-      var nativeParameter = (NpgsqlParameter) parameter;
-      nativeParameter.NpgsqlDbType = NpgsqlDbType.TimestampTz;
-      nativeParameter.NpgsqlValue = value ?? DBNull.Value;
+      if (value is DateTimeOffset dto) {
+        value = dto.ToUniversalTime();
+      }
+      base.BindDateTimeOffset(parameter, value);
     }
 
     public override SqlValueType MapByte(int? length, int? precision, int? scale)

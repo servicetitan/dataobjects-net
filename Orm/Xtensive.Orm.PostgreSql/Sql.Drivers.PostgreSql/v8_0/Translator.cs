@@ -445,7 +445,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case DeclareCursorSection.Exit:
           break;
         case DeclareCursorSection.For:
-          _ = output.Append("FOR");
+          _ = output.Append("FOR ");
           break;
         default:
           base.Translate(context, node, section);

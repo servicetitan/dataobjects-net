@@ -42,7 +42,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override void Visit(SqlDeclareCursor node)
     {
     }
-
     /// <inheritdoc/>
     public override void Visit(SqlOpenCursor node) => base.Visit(node.Cursor.Declare());
 
