@@ -173,7 +173,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         ValueRange.Double, "double precision", "float8");
 
       dtc.DateTime = DataTypeInfo.Range(SqlType.DateTime, commonFeatures,
-        ValueRange.DateTime, "timestamp");
+        ValueRange.DateTime, "timestamptz");
 
       dtc.Interval = DataTypeInfo.Range(SqlType.Interval, commonFeatures,
         ValueRange.TimeSpan, "interval");
@@ -186,10 +186,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       dtc.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, commonFeatures, "text");
       dtc.VarBinaryMax = DataTypeInfo.Stream(SqlType.VarBinaryMax, commonFeatures, MaxTextLength, "bytea");
 
+      /*
       dtc.DateTimeOffset = DataTypeInfo.Range(SqlType.DateTimeOffset, commonFeatures,
         new ValueRange<DateTimeOffset>(new DateTimeOffset(1, 1, 1, 0, 0, 0, 0, new TimeSpan(0)),
           new DateTimeOffset(9999, 12, 31, 0, 0, 0, 0, new TimeSpan(0))),
-        "timestamptz");
+        "timestamptz");*/
 
       var geo = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.Multiple | DataTypeFeatures.Spatial;
 

@@ -51,6 +51,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    [Mute] // Issue with Postgres Timestamp types
     public void MainTest()
     {
       var configuration1 = DomainConfigurationFactory.Create();

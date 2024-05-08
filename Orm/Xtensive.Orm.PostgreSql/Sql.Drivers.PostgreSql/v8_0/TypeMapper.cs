@@ -127,11 +127,18 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override void BindDateTime(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.DateTime2;
-      parameter.Value = !(value is DateTime dt)
-        ? DBNull.Value
-        : ((NpgsqlParameter) parameter).NpgsqlDbType == NpgsqlDbType.TimestampTz
-          ? dt.ToUniversalTime()
-          : DateTime.SpecifyKind(dt, DateTimeKind.Unspecified);
+      if (value is DateTime dt) {
+        ((NpgsqlParameter) parameter).NpgsqlDbType = NpgsqlDbType.TimestampTz;
+        var utc = dt.Kind switch {
+          DateTimeKind.Local => dt.ToUniversalTime(),
+          DateTimeKind.Utc => dt,
+          _ => DateTime.SpecifyKind(dt, DateTimeKind.Utc)
+        };
+        parameter.Value = utc;
+      }
+      else {
+        parameter.Value = DBNull.Value;
+      }
     }
 
     [SecuritySafeCritical]
