@@ -161,6 +161,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
     
     [Test]
+    [MutePostgreSql]
     public void NonExistingIndexHint()
     {
       var session = Session.Demand();

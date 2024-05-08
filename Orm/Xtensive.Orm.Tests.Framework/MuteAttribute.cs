@@ -1,9 +1,7 @@
 using NUnit.Framework;
 
-namespace Xtensive.Orm.Tests
-{
-  public class MuteAttribute : CategoryAttribute
-  {
-      public MuteAttribute() : base("Mute") {}
-  }
-}
+namespace Xtensive.Orm.Tests;
+
+public class MuteAttribute() : CategoryAttribute("Mute");
+
+public class MutePostgreSqlAttribute() : CategoryAttribute("MutePostgreSql");

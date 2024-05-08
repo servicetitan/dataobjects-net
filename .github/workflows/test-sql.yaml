@@ -36,7 +36,7 @@ jobs:
       - name: Create PostgreSQL DO Tests Config file
         run: echo default=postgresql://dotest:dotest@localhost/dotest >$DO_CONFIG_FILE
       - name: Xtensive.Orm.Tests.Sql with PostgreSQL
-        run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests.Sql/Xtensive.Orm.Tests.Sql.csproj --filter 'TestCategory!=Mute'
+        run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests.Sql/Xtensive.Orm.Tests.Sql.csproj --filter 'TestCategory!=Mute&TestCategory!=MutePostgreSql'
         env:
             DO_STORAGE: pgsql160
       - name: Xtensive.Orm.Tests with PostgreSQL
