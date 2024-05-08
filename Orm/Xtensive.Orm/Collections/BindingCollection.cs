@@ -92,13 +92,13 @@ namespace Xtensive.Collections
     /// destroy the binding on its disposal.</returns>
     public virtual BindingScope Add(TKey key, TValue value)
     {
-      if (bindings.TryGetValue(key, out var previous)) {
-        bindings[key] = value;
-        return new BindingScope(this, key, previous);
+      if (bindings.TryAdd(key, value)) {
+        return new BindingScope(this, key);
       }
 
-      bindings.Add(key, value);
-      return new BindingScope(this, key);
+      var previous = bindings[key];
+      bindings[key] = value;
+      return new BindingScope(this, key, previous);
     }
 
     /// <summary>

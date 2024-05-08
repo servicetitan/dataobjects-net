@@ -147,7 +147,7 @@ namespace Xtensive.IoC
     {
       var key = GetKey(serviceRegistration.Type, serviceRegistration.Name);
       if (!types.TryGetValue(key, out var list)) {
-        types[key] = list = new List<ServiceRegistration>();
+        types[key] = list = new List<ServiceRegistration>(1);
       }
       list.Add(serviceRegistration);
     }
