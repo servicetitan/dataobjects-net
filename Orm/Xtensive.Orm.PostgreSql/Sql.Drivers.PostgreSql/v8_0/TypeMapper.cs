@@ -128,13 +128,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       parameter.DbType = DbType.DateTime2;
       if (value is DateTime dt) {
-        ((NpgsqlParameter) parameter).NpgsqlDbType = NpgsqlDbType.TimestampTz;
+//        ((NpgsqlParameter) parameter).NpgsqlDbType = NpgsqlDbType.TimestampTz;
         var utc = dt.Kind switch {
           DateTimeKind.Local => dt.ToUniversalTime(),
           DateTimeKind.Utc => dt,
           _ => DateTime.SpecifyKind(dt, DateTimeKind.Utc)
         };
-        parameter.Value = utc;
+        var unspec = DateTime.SpecifyKind(utc, DateTimeKind.Unspecified);
+        parameter.Value = unspec;
       }
       else {
         parameter.Value = DBNull.Value;

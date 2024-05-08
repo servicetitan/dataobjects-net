@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Tests.Sql
     protected int ExecuteNonQuery(string commandText)
     {
       using (var command = Connection.CreateCommand(commandText))
-        return command.ExecuteNonQuery();
+          return command.ExecuteNonQuery();
     }
 
     protected int ExecuteNonQuery(SqlConnection connection, string commandText)
