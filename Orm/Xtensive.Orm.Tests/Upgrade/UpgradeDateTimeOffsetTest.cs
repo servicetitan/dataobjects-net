@@ -123,6 +123,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    [MutePostgreSql]
     public async Task UpgradeDateTimeOffsetAndDateTimeAsyncTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.DateTimeOffset);

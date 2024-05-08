@@ -279,6 +279,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    [MutePostgreSql]
     public void MultischemaTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multischema);
