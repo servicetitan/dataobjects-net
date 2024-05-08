@@ -64,6 +64,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         OpenConnectionFast(connection, configuration, false).GetAwaiter().GetResult();
       var version = GetVersion(configuration, connection);
       var defaultSchema = GetDefaultSchema(connection);
+      SqlHelper.ExecuteInitializationSql(connection, @"SET TIME ZONE 'UTC'");
       return CreateDriverInstance(connectionString, version, defaultSchema);
     }
 

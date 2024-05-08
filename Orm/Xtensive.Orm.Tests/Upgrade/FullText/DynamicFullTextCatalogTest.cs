@@ -330,6 +330,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    [MutePostgreSql]
     public async Task MultischemaAsyncTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multischema);
