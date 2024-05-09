@@ -33,9 +33,11 @@ namespace Xtensive.Orm.Linq.Expressions
     {
       var newMapping = new Segment<ColNum>((ColNum)(Mapping.Offset + offset), Mapping.Length);
 
-      FieldExpression Remap(FieldExpression f) => f.Remap(offset, processedExpressions);
-
-      var fields = KeyFields.Select(Remap).ToArray(KeyFields.Count);
+      var n = KeyFields.Count;
+      var fields = new FieldExpression[n];
+      for (int i = 0; i < n; ++i) {
+        fields[i] = KeyFields[i].Remap(offset, processedExpressions);
+      }
       var result = new KeyExpression(EntityType, fields, newMapping, UnderlyingProperty, OuterParameter, DefaultIfEmpty);
 
       processedExpressions.Add(this, result);
@@ -84,10 +86,11 @@ namespace Xtensive.Orm.Linq.Expressions
     private KeyExpression BindParameterWithNoCheck(
       ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      FieldExpression BindParameter(FieldExpression f)
-        => f.BindParameter(parameter, processedExpressions);
-
-      var fields = KeyFields.Select(BindParameter).ToArray(KeyFields.Count);
+      var n = KeyFields.Count;
+      var fields = new FieldExpression[n];
+      for (int i = 0; i < n; ++i) {
+        fields[i] = KeyFields[i].BindParameter(parameter, processedExpressions);
+      }
       var result = new KeyExpression(EntityType, fields, Mapping, UnderlyingProperty, parameter, DefaultIfEmpty);
 
       processedExpressions.Add(this, result);
@@ -107,10 +110,11 @@ namespace Xtensive.Orm.Linq.Expressions
     // in case processedExpressions dictionary already contains a result.
     private Expression RemoveOuterParameterWithNoCheck(Dictionary<Expression, Expression> processedExpressions)
     {
-      FieldExpression RemoveOuterParameter(FieldExpression f)
-        => (FieldExpression) f.RemoveOuterParameter(processedExpressions);
-
-      var fields = KeyFields.Select(RemoveOuterParameter).ToArray(KeyFields.Count);
+      var n = KeyFields.Count;
+      var fields = new FieldExpression[n];
+      for (int i = 0; i < n; ++i) {
+        fields[i] = (FieldExpression) KeyFields[i].RemoveOuterParameter(processedExpressions);
+      }
       var result = new KeyExpression(EntityType, fields, Mapping, UnderlyingProperty, null, DefaultIfEmpty);
 
       processedExpressions.Add(this, result);
