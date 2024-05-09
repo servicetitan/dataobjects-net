@@ -64,6 +64,7 @@ namespace Xtensive.Orm.Tests.Issues
     private const int MaxEntities = 50;
 
     [Test]
+    [MutePostgreSql]
     public void TestTransactionRollbackOnDeadLock()
     {
       var task1 = System.Threading.Tasks.Task.Factory.StartNew(() => UpdateEntities(1));

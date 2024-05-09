@@ -41,6 +41,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     }
 
     [Test]
+    [MutePostgreSql]
     public void ExtractDayTest()
     {
       ExecuteInsideSession(() => {

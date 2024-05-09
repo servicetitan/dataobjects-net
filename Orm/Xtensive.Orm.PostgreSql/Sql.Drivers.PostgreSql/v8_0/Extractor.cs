@@ -514,7 +514,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var oid = Convert.ToInt64(dataReader["oid"]);
       var name = dataReader["nspname"].ToString();
-      var owner = Convert.ToInt64(dataReader["nspowner"]);
+      var ownerOid = Convert.ToInt64(dataReader["nspowner"]);
 
       var catalog = context.Catalog;
       var schema = catalog.Schemas[name] ?? catalog.CreateSchema(name);
@@ -522,7 +522,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         catalog.DefaultSchema = schema;
       }
 
-      schema.Owner = context.UserLookup[owner];
+      if (context.UserLookup.TryGetValue(ownerOid, out var ownerName)) {
+        schema.Owner = ownerName;
+      }
+
       context.SchemaMap[oid] = schema;
       context.ReversedSchemaMap[schema] = oid;
     }

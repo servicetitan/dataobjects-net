@@ -1,8 +1,9 @@
-name: Tests with SQL Server
+name: Tests with PostgreSQL & SQL Server
 on:
   pull_request:
     branches: [ master-servicetitan ]
 env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
   DO_CONFIG_FILE: "/tmp/do-test.cfg"
   DO_TargetFrameworks: net8.0
   SQL_PASSWD: dbatools.I0
@@ -12,21 +13,44 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: szenius/set-timezone@v2.0
+        with:
+          timezoneLinux: "UTC"
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with: { dotnet-version: 8 }
       - name: Build SQL Docker image with FTS feature
         run: docker build -t sql .github/actions/mssql-fts
+      - uses: ikalnytskyi/action-setup-postgres@v6 
+      - name: Init PostgreSQL Test DB
+        run: |
+            createuser dotest
+            createdb --owner dotest dotest
+            psql -c "ALTER USER dotest WITH PASSWORD 'dotest' SUPERUSER"
+        env:
+            PGSERVICE: postgres
       - name: Run SQL Server container
         run: docker run -e ACCEPT_EULA=Y -e MSSQL_PID='Developer' -e MSSQL_SA_PASSWORD=${SQL_PASSWD} -p 1433:1433 -d sql
       - name: Build
         run: dotnet build -v q Orm.sln
       - name: Init Test DB
         run: sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests.sql && sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests-Plus.sql
-      - name: Create DO Tests Config file
+      - name: Create PostgreSQL DO Tests Config file
+        run: echo default=postgresql://dotest:dotest@localhost/dotest >$DO_CONFIG_FILE
+      - name: Xtensive.Orm.Tests.Sql with PostgreSQL
+        run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests.Sql/Xtensive.Orm.Tests.Sql.csproj --filter 'TestCategory!=Mute'
+        env:
+            DO_STORAGE: pgsql160
+      - name: Xtensive.Orm.Tests with PostgreSQL
+        run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj --filter '(TestCategory!=Mute)&(TestCategory!=MutePostgreSql)'
+        env:
+            DO_STORAGE: pgsql160
+      - name: Create SQL Server DO Tests Config file
         run: echo default=sqlserver://sa:${SQL_PASSWD}@localhost/DO-Tests?MultipleActiveResultSets=True >$DO_CONFIG_FILE
-      - name: Tests
+      - name: Xtensive.Orm.Tests with SQL Server
         run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj --filter 'TestCategory!=Mute'
+        env:
+            DO_STORAGE: default
 
 

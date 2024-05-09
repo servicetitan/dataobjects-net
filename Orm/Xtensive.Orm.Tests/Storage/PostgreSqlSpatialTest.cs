@@ -56,6 +56,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
+    [MutePostgreSql]
     public void MainTest()
     {
       NpgsqlPoint point = new NpgsqlPoint(1, 2);

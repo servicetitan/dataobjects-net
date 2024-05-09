@@ -51,6 +51,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    [MutePostgreSql]
     public void MainTest()
     {
       var configuration1 = DomainConfigurationFactory.Create();

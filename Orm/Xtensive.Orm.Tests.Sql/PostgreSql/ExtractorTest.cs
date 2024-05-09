@@ -154,6 +154,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
+    [Ignore("PostgreSQL does not support default values for timestamp with time zone")]
     public void ExtractDateTimeOffsetFields()
     {
       var createTableQuery = GetExtractDateTimeOffsetFieldsPrepareScript("InteractionLog");

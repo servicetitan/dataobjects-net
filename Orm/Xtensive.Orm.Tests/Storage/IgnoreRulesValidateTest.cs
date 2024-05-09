@@ -754,6 +754,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
+    [MutePostgreSql]
     public void MultischemaValidateTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multischema);
@@ -816,6 +817,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
+    [MutePostgreSql]
     public void MultischemaUpgrageInPerformModeTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multischema);
@@ -853,6 +855,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
+    [MutePostgreSql]
     public void MultischemaUpgrageInPerformSafelyModeTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multischema);

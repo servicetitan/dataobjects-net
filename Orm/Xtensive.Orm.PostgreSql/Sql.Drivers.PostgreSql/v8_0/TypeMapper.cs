@@ -124,12 +124,31 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       parameter.Value = value == null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
 
+    public override void BindDateTime(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.DateTime2;
+      if (value is DateTime dt) {
+//        ((NpgsqlParameter) parameter).NpgsqlDbType = NpgsqlDbType.TimestampTz;
+        var utc = dt.Kind switch {
+          DateTimeKind.Local => dt.ToUniversalTime(),
+          DateTimeKind.Utc => dt,
+          _ => DateTime.SpecifyKind(dt, DateTimeKind.Utc)
+        };
+        var unspec = DateTime.SpecifyKind(utc, DateTimeKind.Unspecified);
+        parameter.Value = unspec;
+      }
+      else {
+        parameter.Value = DBNull.Value;
+      }
+    }
+
     [SecuritySafeCritical]
     public override void BindDateTimeOffset(DbParameter parameter, object value)
     {
-      var nativeParameter = (NpgsqlParameter) parameter;
-      nativeParameter.NpgsqlDbType = NpgsqlDbType.TimestampTz;
-      nativeParameter.NpgsqlValue = value ?? DBNull.Value;
+      if (value is DateTimeOffset dto) {
+        value = dto.ToUniversalTime();
+      }
+      base.BindDateTimeOffset(parameter, value);
     }
 
     public override SqlValueType MapByte(int? length, int? precision, int? scale)
