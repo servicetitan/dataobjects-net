@@ -163,7 +163,6 @@ namespace Xtensive.Orm.Linq
       if (!processedTypes.Add(type))
         throw new InvalidOperationException(string.Format(Strings.ExUnableToPersistTypeXBecauseOfLoopReference, type.FullName));
 
-
       var members = type
         .GetProperties(BindingFlags.Instance | BindingFlags.Public)
         .Where(propertyInfo => propertyInfo.CanRead)
