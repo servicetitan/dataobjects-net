@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Linq.Rewriters
           : FastExpression.Lambda(extractor.result, extractor.parameter);
       }
 
-      protected override Expression VisitMemberAccess(MemberExpression m)
+      protected override Expression VisitMember(MemberExpression m)
       {
         if (IsReferenceFieldAccess(m)) {
           var fieldAccess = m;
@@ -138,7 +138,7 @@ namespace Xtensive.Orm.Linq.Rewriters
             return m;
           }
         }
-        return base.VisitMemberAccess(m);
+        return base.VisitMember(m);
       }
 
       private static bool IsReferenceFieldAccess(MemberExpression m)

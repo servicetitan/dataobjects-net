@@ -33,11 +33,11 @@ namespace Xtensive.Orm.Rse.Transformation
       return (LambdaExpression) Visit(expression);
     }
 
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override Expression VisitMember(MemberExpression m)
     {
       if (IsApplyParameter(m.Expression))
         return substitute;
-      return base.VisitMemberAccess(m);
+      return base.VisitMember(m);
     }
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)

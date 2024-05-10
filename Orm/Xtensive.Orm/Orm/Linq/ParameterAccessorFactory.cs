@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Linq
         return FastExpression.Lambda<Func<ParameterContext, T>>(body, parameterContextArgument);
       }
 
-      protected override Expression VisitMemberAccess(MemberExpression ma)
+      protected override Expression VisitMember(MemberExpression ma)
       {
         if (string.Equals(nameof(Parameter<T>.Value), ma.Member.Name, StringComparison.Ordinal)
           && WellKnownOrmTypes.Parameter.IsAssignableFrom(ma.Expression.Type)) {
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Linq
             GetParameterValueMethod.CachedMakeGenericMethod(parameterValueType), ma.Expression);
         }
 
-        return base.VisitMemberAccess(ma);
+        return base.VisitMember(ma);
       }
 
       public ParameterAccessorFactoryImpl(ParameterExpression parameterContextArgument)

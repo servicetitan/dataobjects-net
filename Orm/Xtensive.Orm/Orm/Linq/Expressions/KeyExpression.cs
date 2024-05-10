@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
+using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Model;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
@@ -137,6 +138,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return new KeyExpression(entityType, fields, mapping, WellKnownMembers.IEntityKey, null, false);
     }
 
+    internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitKeyExpression(this);
 
     // Constructors
 

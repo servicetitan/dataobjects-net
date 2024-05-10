@@ -78,17 +78,17 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return result;
     }
 
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override Expression VisitMember(MemberExpression m)
     {
       var target = m.Expression;
       if (target == null) {
-        return base.VisitMemberAccess(m);
+        return base.VisitMember(m);
       }
 
       if (target.NodeType == ExpressionType.Constant && ((ConstantExpression) target).Value == filteredTuple) {
         return CalculatedColumnParameter;
       }
-      return base.VisitMemberAccess(m);
+      return base.VisitMember(m);
     }
 
     private MappingEntry CreateMappingEntry(Expression expression)

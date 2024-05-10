@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     private readonly Translator translator;
     private readonly ItemProjectorExpression itemProjectorExpression;
 
-    protected override System.Linq.Expressions.Expression VisitEntityExpression(EntityExpression expression)
+    internal override System.Linq.Expressions.Expression VisitEntityExpression(EntityExpression expression)
     {
       translator.EnsureEntityFieldsAreJoined(expression, itemProjectorExpression);
       return base.VisitEntityExpression(expression);

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Orm.Linq.Expressions.Visitors;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
@@ -57,6 +58,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return $"{base.ToString()}, Offset: {Mapping.Offset}";
     }
 
+    internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitColumnExpression(this);
 
     // Constructors
 

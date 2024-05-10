@@ -8,9 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
-using Xtensive.Reflection;
 using Xtensive.Core;
-
+using Xtensive.Reflection;
 
 namespace Xtensive.Linq
 {
@@ -94,21 +93,6 @@ namespace Xtensive.Linq
 
       cache?.Add(e, result);
       return result;
-    }
-
-    /// <summary>
-    /// Visits the expression list.
-    /// </summary>
-    /// <param name="expressions">The expression list.</param>
-    /// <returns>Visit result.</returns>
-    protected virtual IReadOnlyList<TResult> VisitExpressionList(IReadOnlyList<Expression> expressions)
-    {
-      var n = expressions.Count;
-      var results = new TResult[n];
-      for (int i = 0; i < n; i++) {
-        results[i] = Visit(expressions[i]);
-      }
-      return results.AsSafeWrapper();
     }
 
     /// <summary>

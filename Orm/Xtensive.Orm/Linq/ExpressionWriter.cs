@@ -474,7 +474,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override LambdaExpression VisitLambda(LambdaExpression l)
+    protected override LambdaExpression VisitLambda<T>(Expression<T> l)
     {
       if (l.Parameters.Count > 1) {
         Write("(");
@@ -512,7 +512,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override MemberExpression VisitMemberAccess(MemberExpression m)
+    protected override MemberExpression VisitMember(MemberExpression m)
     {
       Visit(m.Expression);
       Write(".");
@@ -616,8 +616,11 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override TypeBinaryExpression VisitTypeIs(TypeBinaryExpression tb)
+    protected override TypeBinaryExpression VisitTypeBinary(TypeBinaryExpression tb)
     {
+      if (tb.NodeType != ExpressionType.TypeIs) {
+        return (TypeBinaryExpression) base.VisitTypeBinary(tb);
+      }
       Visit(tb.Expression);
       Write(" is ");
       Write(GetTypeName(tb.TypeOperand));

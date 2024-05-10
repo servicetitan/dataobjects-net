@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    protected override Expression VisitMemberAccess(MemberExpression originalMemberAccess)
+    protected override Expression VisitMember(MemberExpression originalMemberAccess)
     {
       // Try to collapse series of member access expressions.
       // Finally we should reach original parameter.
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Building.Builders
         memberAccess = (MemberExpression) memberAccess.Expression;
       }
       if (memberAccessSequence.Count == 0 || !IsEntityParameter(memberAccess.Expression)) {
-        return base.VisitMemberAccess(originalMemberAccess);
+        return base.VisitMember(originalMemberAccess);
       }
       var nameBuilder = new StringBuilder();
       for (var i = memberAccessSequence.Count; i-- > 0;) {
@@ -208,7 +208,7 @@ namespace Xtensive.Orm.Building.Builders
       throw UnableToTranslate(p, string.Format(Strings.ParametersOfTypeOtherThanXAreNotSupported, declaringType.UnderlyingType));
     }
 
-    protected override Expression VisitLambda(LambdaExpression l)
+    protected override Expression VisitLambda<T>(Expression<T> l)
     {
       throw UnableToTranslate(l);
     }

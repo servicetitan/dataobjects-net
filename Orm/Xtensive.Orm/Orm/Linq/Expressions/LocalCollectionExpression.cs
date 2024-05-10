@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Linq.Expressions.Visitors;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
@@ -85,6 +86,8 @@ namespace Xtensive.Orm.Linq.Expressions
       expressionAsString = sourceExpression.ToString();
       ;
     }
+
+    internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitLocalCollectionExpression(this);
 
     private LocalCollectionExpression(Type type, MemberInfo memberInfo, in string stringRepresentation)
       : base(ExtendedExpressionType.LocalCollection, type, null, true)

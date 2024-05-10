@@ -9,6 +9,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Linq.Expressions.Visitors;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
@@ -205,6 +206,8 @@ namespace Xtensive.Orm.Linq.Expressions
     }
 
     public override string ToString() => $"{base.ToString()} {PersistentType.Name}";
+
+    internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitEntityExpression(this);
 
     // Constructors
 

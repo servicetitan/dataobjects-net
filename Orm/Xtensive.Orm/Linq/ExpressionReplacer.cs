@@ -46,7 +46,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression Visit(Expression exp)
+    public override Expression Visit(Expression exp)
     {
       if (exp == searchFor)
         return replaceWith;

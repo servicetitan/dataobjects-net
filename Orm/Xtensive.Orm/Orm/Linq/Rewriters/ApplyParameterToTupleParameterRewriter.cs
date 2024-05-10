@@ -27,19 +27,19 @@ namespace Xtensive.Orm.Linq.Rewriters
       return expressionRewriter.Visit(expression);
     }
 
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override Expression VisitMember(MemberExpression m)
     {
       if (m.Member!=WellKnownMembers.ApplyParameterValue)
-        return base.VisitMemberAccess(m);
+        return base.VisitMember(m);
       if (m.Expression.NodeType!=ExpressionType.Constant)
-        return base.VisitMemberAccess(m);
+        return base.VisitMember(m);
       var parameter = ((ConstantExpression) m.Expression).Value;
       if (parameter!=applyParameter)
-        return base.VisitMemberAccess(m);
+        return base.VisitMember(m);
       return parameterOfTupleExpression;
     }
 
-    protected override Expression VisitGroupingExpression(GroupingExpression expression)
+    internal override Expression VisitGroupingExpression(GroupingExpression expression)
     {
       var projectionExpression = expression.ProjectionExpression;
       var newProvider = Rewrite(projectionExpression.ItemProjector.DataSource, parameterOfTuple, applyParameter);
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       return expression;
     }
 
-    protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+    internal override Expression VisitSubQueryExpression(SubQueryExpression expression)
     {
       var projectionExpression = expression.ProjectionExpression;
       var newProvider = Rewrite(projectionExpression.ItemProjector.DataSource, parameterOfTuple, applyParameter);
