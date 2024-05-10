@@ -27,6 +27,7 @@ namespace Xtensive.Orm.Building.Builders
   internal sealed class PartialIndexFilterBuilder : ExpressionVisitor
   {
     private static readonly ParameterExpression Parameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
+    private static readonly IReadOnlyList<ParameterExpression> Parameters = [Parameter];
 
     private readonly TypeInfo declaringType;
     private readonly TypeInfo reflectedType;
@@ -40,7 +41,7 @@ namespace Xtensive.Orm.Building.Builders
       var builder = new PartialIndexFilterBuilder(index);
       var body = builder.Visit(index.FilterExpression.Body);
       var filter = new PartialIndexFilterInfo {
-        Expression = FastExpression.Lambda(body, Parameter),
+        Expression = FastExpression.Lambda(body, Parameters),
         Fields = builder.usedFields,
       };
       index.Filter = filter;

@@ -4,13 +4,13 @@
 // Created by: Alexey Gamzov
 // Created:    2009.11.16
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Rse;
-using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
@@ -35,6 +35,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     }
 
     private static readonly ParameterExpression CalculatedColumnParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "filteredRow");
+    private static readonly IReadOnlyList<ParameterExpression> CalculatedColumnParameters = [CalculatedColumnParameter];
 
     private readonly Expression filterDataTuple;
     private readonly ApplyParameter filteredTuple;
@@ -97,7 +98,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         return new MappingEntry(tupleAccess.GetTupleAccessArgument());
       }
       expression = ExpressionReplacer.Replace(expression, filterDataTuple, CalculatedColumnParameter);
-      return new MappingEntry(FastExpression.Lambda(expression, CalculatedColumnParameter));
+      return new MappingEntry(FastExpression.Lambda(expression, CalculatedColumnParameters));
     }
 
     private IncludeFilterMappingGatherer(Expression filterDataTuple, ApplyParameter filteredTuple, MappingEntry[] resultMapping)
