@@ -176,6 +176,7 @@ namespace Xtensive.Orm.Linq.Expressions
     public override string ToString() =>
       $"ItemProjectorExpression: IsPrimitive = {IsPrimitive} Item = {Item}, DataSource = {DataSource}";
 
+    internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitItemProjectorExpression(this);
 
     // Constructors
 

@@ -5,7 +5,7 @@
 // Created:    2009.06.22
 
 using System.Linq.Expressions;
-
+using Xtensive.Orm.Linq.Expressions.Visitors;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
@@ -14,6 +14,7 @@ namespace Xtensive.Orm.Linq.Expressions
     public Expression Target { get; private set; }
     public MarkerType MarkerType { get; private set; }
 
+    internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitMarker(this);
 
     // Constructors
 

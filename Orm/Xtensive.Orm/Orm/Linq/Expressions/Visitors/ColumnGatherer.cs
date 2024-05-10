@@ -70,20 +70,20 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return ordered.ToArray();
     }
 
-    protected override Expression VisitMarker(MarkerExpression expression)
+    internal override Expression VisitMarker(MarkerExpression expression)
     {
       Visit(expression.Target);
       return expression;
     }
 
-    protected override Expression VisitFieldExpression(FieldExpression f)
+    internal override Expression VisitFieldExpression(FieldExpression f)
     {
       ProcessFieldOwner(f);
       AddColumns(f, f.Mapping.GetItems());
       return f;
     }
 
-    protected override Expression VisitStructureFieldExpression(StructureFieldExpression s)
+    internal override Expression VisitStructureFieldExpression(StructureFieldExpression s)
     {
       ProcessFieldOwner(s);
       AddColumns(s,
@@ -93,13 +93,13 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return s;
     }
 
-    protected override Expression VisitKeyExpression(KeyExpression k)
+    internal override Expression VisitKeyExpression(KeyExpression k)
     {
       AddColumns(k, k.Mapping.GetItems());
       return k;
     }
 
-    protected override Expression VisitEntityExpression(EntityExpression e)
+    internal override Expression VisitEntityExpression(EntityExpression e)
     {
       if (TreatEntityAsKey) {
         var keyExpression = (KeyExpression) e.Fields.First(f => f.ExtendedType==ExtendedExpressionType.Key);
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return e;
     }
 
-    protected override Expression VisitEntityFieldExpression(EntityFieldExpression ef)
+    internal override Expression VisitEntityFieldExpression(EntityFieldExpression ef)
     {
       var keyExpression = (KeyExpression) ef.Fields.First(f => f.ExtendedType==ExtendedExpressionType.Key);
       AddColumns(ef, keyExpression.Mapping.GetItems());
@@ -127,19 +127,19 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return ef;
     }
 
-    protected override Expression VisitEntitySetExpression(EntitySetExpression es)
+    internal override Expression VisitEntitySetExpression(EntitySetExpression es)
     {
       VisitEntityExpression((EntityExpression) es.Owner);
       return es;
     }
 
-    protected override Expression VisitColumnExpression(ColumnExpression c)
+    internal override Expression VisitColumnExpression(ColumnExpression c)
     {
       AddColumns(c, c.Mapping.GetItems());
       return c;
     }
 
-    protected override Expression VisitStructureExpression(StructureExpression expression)
+    internal override Expression VisitStructureExpression(StructureExpression expression)
     {
       AddColumns(expression,
         expression.Fields
@@ -148,14 +148,14 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return expression;
     }
 
-    protected override Expression VisitGroupingExpression(GroupingExpression expression)
+    internal override Expression VisitGroupingExpression(GroupingExpression expression)
     {
       Visit(expression.KeyExpression);
       VisitSubQueryExpression(expression);
       return expression;
     }
 
-    protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
+    internal override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
     {
       bool isTopSubquery = false;
 
@@ -178,14 +178,14 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return subQueryExpression;
     }
 
-    protected override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
+    internal override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression)
     {
       foreach (var field in expression.Fields)
         Visit((Expression) field.Value);
       return expression;
     }
 
-    protected override Expression VisitConstructorExpression(ConstructorExpression expression)
+    internal override Expression VisitConstructorExpression(ConstructorExpression expression)
     {
       foreach (var binding in expression.Bindings)
         Visit(binding.Value);
@@ -228,7 +228,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         columns.AddRange(expressionColumns.Select(i=>new Pair<ColNum, Expression>(i, parameterizedExpression)));
     }
 
-    protected override Expression VisitFullTextExpression(FullTextExpression expression)
+    internal override Expression VisitFullTextExpression(FullTextExpression expression)
     {
       VisitEntityExpression(expression.EntityExpression);
       VisitColumnExpression(expression.RankExpression);

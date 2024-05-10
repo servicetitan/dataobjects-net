@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Orm.Linq.Expressions.Visitors;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 
 namespace Xtensive.Orm.Linq.Expressions
@@ -120,6 +121,8 @@ namespace Xtensive.Orm.Linq.Expressions
       var mapping = new Segment<ColNum>((ColNum)(mappingInfo.Offset + offset), mappingInfo.Length);
       return new FieldExpression(ExtendedExpressionType.Field, field, mapping, null, false);
     }
+
+    internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitFieldExpression(this);
 
     // Constructors
 

@@ -7,13 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Expressions.Visitors;
-using System.Linq;
 
 namespace Xtensive.Orm.Linq
 {
@@ -87,6 +87,8 @@ namespace Xtensive.Orm.Linq
       var newNativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
       return new ConstructorExpression(Type, newBindings, newNativeBindings, Constructor, newConstructorArguments);
     }
+
+    internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitConstructorExpression(this);
 
     public ConstructorExpression(Type type, Dictionary<MemberInfo, Expression> bindings, Dictionary<MemberInfo, Expression> nativeBindings, ConstructorInfo constructor, IReadOnlyList<Expression> constructorArguments)
       : base(ExtendedExpressionType.Constructor, type, null, false)

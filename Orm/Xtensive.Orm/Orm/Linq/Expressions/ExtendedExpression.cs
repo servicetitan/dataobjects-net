@@ -6,26 +6,19 @@
 
 using System;
 using System.Linq.Expressions;
+using Xtensive.Orm.Linq.Expressions.Visitors;
+using Xtensive.Reflection;
 
-namespace Xtensive.Orm.Linq.Expressions
+namespace Xtensive.Orm.Linq.Expressions;
+
+internal abstract class ExtendedExpression(ExtendedExpressionType expressionType, Type type) : Expression
 {
-  internal abstract class ExtendedExpression : Expression
-  {
-    private Type type;
+  public ExtendedExpressionType ExtendedType { get; } = expressionType;
 
-    public ExtendedExpressionType ExtendedType { get; private set; }
+  public sealed override ExpressionType NodeType => (ExpressionType) ExtendedType;
 
-    public sealed override ExpressionType NodeType => (ExpressionType) ExtendedType;
+  public override Type Type => type;
 
-    public override Type Type => type;
-
-    // Constructors
-
-    protected ExtendedExpression(ExtendedExpressionType expressionType, Type type)
-      : base()
-    {
-      this.type = type;
-      ExtendedType = expressionType;
-    }
-  }
+  internal virtual Expression Accept(ExtendedExpressionVisitor visitor) =>
+    throw new NotSupportedException(string.Format(Strings.ExUnknownExpressionType, visitor.GetType().GetShortName(), NodeType));
 }

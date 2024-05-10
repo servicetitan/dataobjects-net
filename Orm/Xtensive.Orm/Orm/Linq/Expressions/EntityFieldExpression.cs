@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Linq.Expressions.Visitors;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
@@ -183,6 +184,7 @@ namespace Xtensive.Orm.Linq.Expressions
       throw new NotSupportedException(string.Format(Strings.ExNestedFieldXIsNotSupported, nestedField.Attributes));
     }
 
+    internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitEntityFieldExpression(this);
 
     // Constructors
 

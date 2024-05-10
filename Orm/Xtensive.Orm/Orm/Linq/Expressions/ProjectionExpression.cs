@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Orm.Linq.Expressions.Visitors;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Expressions
@@ -23,6 +25,8 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public ProjectionExpression Apply(ItemProjectorExpression itemProjectorExpression) =>
       new ProjectionExpression(Type, itemProjectorExpression, TupleParameterBindings, ResultAccessMethod);
+
+    internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitProjectionExpression(this);
 
     // Constructors
 

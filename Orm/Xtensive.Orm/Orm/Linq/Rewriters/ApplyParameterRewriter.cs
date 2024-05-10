@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Linq.Rewriters
     }
 
 
-    protected override Expression VisitGroupingExpression(GroupingExpression expression)
+    internal override Expression VisitGroupingExpression(GroupingExpression expression)
     {
       var projectionExpression = expression.ProjectionExpression;
       var newProvider = Rewrite(projectionExpression.ItemProjector.DataSource, oldApplyParameter, newApplyParameter);
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       return expression;
     }
 
-    protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+    internal override Expression VisitSubQueryExpression(SubQueryExpression expression)
     {
       var projectionExpression = expression.ProjectionExpression;
       var newProvider = Rewrite(projectionExpression.ItemProjector.DataSource, oldApplyParameter, newApplyParameter);
