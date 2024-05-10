@@ -1329,13 +1329,11 @@ namespace Xtensive.Orm.Linq
         }
 
         ProjectionExpression innerProjection;
-        var outerParameters = State.OuterParameters
-          .Concat(State.Parameters)
-          .Concat(collectionSelector.Parameters)
-          .Append(outerParameter)
-          .ToArray(State.OuterParameters.Length + State.Parameters.Length + collectionSelector.Parameters.Count + 1);
         using (CreateScope(new TranslatorState(State) {
-          OuterParameters = outerParameters,
+          OuterParameters = State.OuterParameters
+            .Concat(State.Parameters)
+            .Concat(collectionSelector.Parameters)
+            .Append(outerParameter),
           Parameters = Array.Empty<ParameterExpression>(),
           RequestCalculateExpressionsOnce = true
         })) {
@@ -1840,12 +1838,9 @@ namespace Xtensive.Orm.Linq
 
     private TranslatorState.TranslatorScope CreateLambdaScope(LambdaExpression le, bool allowCalculableColumnCombine)
     {
-      var newOuterParameters = new ParameterExpression[State.OuterParameters.Length + State.Parameters.Length];
-      State.OuterParameters.CopyTo(newOuterParameters, 0);
-      State.Parameters.CopyTo(newOuterParameters, State.OuterParameters.Length);
       return CreateScope(new TranslatorState(State) {
-        OuterParameters = newOuterParameters,
-        Parameters = le.Parameters.ToArray(le.Parameters.Count),
+        OuterParameters = State.OuterParameters.Concat(State.Parameters),
+        Parameters = le.Parameters,
         CurrentLambda = le,
         AllowCalculableColumnCombine = allowCalculableColumnCombine
       });

@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Linq
 {
   internal static class ExpressionExtensions
   {
-    private static readonly ConcurrentDictionary<Type, MemberType> memberTypeByType = new;
+    private static readonly ConcurrentDictionary<Type, MemberType> memberTypeByType = new();
 
     private static readonly Func<Type, MemberType> memberTypeFactory = type =>
       WellKnownOrmTypes.Key.IsAssignableFrom(type) ? MemberType.Key

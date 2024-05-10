@@ -5,6 +5,7 @@
 // Created:    2010.01.21
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
@@ -53,9 +54,9 @@ namespace Xtensive.Orm.Linq
 
     private readonly TranslatorStateFlags flags;
 
-    public ParameterExpression[] Parameters { get; init; }
+    public IReadOnlyList<ParameterExpression> Parameters { get; init; }
 
-    public ParameterExpression[] OuterParameters { get; init; }
+    public IEnumerable<ParameterExpression> OuterParameters { get; init; }
 
     public LambdaExpression CurrentLambda { get; init; }
 
