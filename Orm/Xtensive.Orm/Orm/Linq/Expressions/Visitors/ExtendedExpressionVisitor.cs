@@ -13,8 +13,8 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors;
 
 internal abstract class ExtendedExpressionVisitor : ExpressionVisitor
 {
-  protected override Expression VisitUnknown(Expression expression) =>
-    (expression as ExtendedExpression ?? throw new NotSupportedException(string.Format(Strings.ExpressionXIsUnknown, expression)))
+  protected override Expression VisitExtension(Expression node) =>
+    (node as ExtendedExpression ?? throw new NotSupportedException(string.Format(Strings.ExpressionXIsUnknown, node)))
       .Accept(this);
 
   internal virtual Expression VisitFullTextExpression(FullTextExpression expression) => expression;

@@ -17,11 +17,11 @@ namespace Xtensive.Orm.Linq.Rewriters
     private readonly ParameterExpression targetParameter;
     private bool processingFailed;
 
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override Expression VisitMember(MemberExpression m)
     {
       if (m.Expression==sourceParameter && m.Type==targetParameter.Type)
         return targetParameter;
-      return base.VisitMemberAccess(m);
+      return base.VisitMember(m);
     }
 
     protected override Expression VisitParameter(ParameterExpression p)

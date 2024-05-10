@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return Visit(e);
     }
 
-    protected override Expression Visit(Expression e)
+    public override Expression Visit(Expression e)
     {
       if (e==null)
         return null;

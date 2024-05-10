@@ -450,7 +450,7 @@ namespace Xtensive.Orm.Linq.Materialization
       }
     }
 
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override Expression VisitMember(MemberExpression m)
     {
       if (m.Expression!=null) {
         if ((ExtendedExpressionType) m.Expression.NodeType==ExtendedExpressionType.LocalCollection) {

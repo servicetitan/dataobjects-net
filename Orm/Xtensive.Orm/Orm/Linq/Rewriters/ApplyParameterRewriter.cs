@@ -25,15 +25,15 @@ namespace Xtensive.Orm.Linq.Rewriters
       return expressionRewriter.Visit(expression);
     }
 
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override Expression VisitMember(MemberExpression m)
     {
       if (m.Member!=WellKnownMembers.ApplyParameterValue)
-        return base.VisitMemberAccess(m);
+        return base.VisitMember(m);
       if (m.Expression.NodeType!=ExpressionType.Constant)
-        return base.VisitMemberAccess(m);
+        return base.VisitMember(m);
       var parameter = ((ConstantExpression) m.Expression).Value;
       if (parameter!=oldApplyParameter)
-        return base.VisitMemberAccess(m);
+        return base.VisitMember(m);
       return newApplyParameterValueExpression;
     }
 

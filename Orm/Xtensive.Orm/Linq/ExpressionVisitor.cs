@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Reflection;
 
 namespace Xtensive.Linq
 {
@@ -16,10 +17,39 @@ namespace Xtensive.Linq
   /// An abstract base implementation of <see cref="ExpressionVisitor{TResult}"/>
   /// returning <see cref="Expression"/> as its visit result.
   /// </summary>
-  public abstract class ExpressionVisitor : ExpressionVisitor<Expression>
+  public abstract class ExpressionVisitor(bool isCaching = false) : System.Linq.Expressions.ExpressionVisitor
   {
-    protected override IReadOnlyList<Expression> VisitExpressionList(IReadOnlyList<Expression> expressions) =>
+    private readonly Dictionary<Expression, Expression> cache = isCaching ? new() : null;
+
+    public bool IsCaching => cache != null;
+
+    protected virtual IReadOnlyList<Expression> VisitExpressionList(IReadOnlyList<Expression> expressions) =>
       VisitList(expressions, Visit);
+
+    public override Expression Visit(Expression e)
+    {
+      Expression result = default;
+      if (e is null || cache?.TryGetValue(e, out result) == true) {
+        return result;
+      }
+
+      result = base.Visit(e);
+
+      cache?.Add(e, result);
+      return result;
+    }
+
+    /// <summary>
+    /// Visits the unknown expression.
+    /// </summary>
+    /// <param name="e">The unknown expression.</param>
+    /// <returns>Visit result.</returns>
+    /// <exception cref="NotSupportedException">Thrown by the base implementation of this method, 
+    /// if unknown expression isn't recognized by its overrides.</exception>
+    protected virtual Expression VisitUnknown(Expression e) =>
+      throw new NotSupportedException(string.Format(Strings.ExUnknownExpressionType, e.GetType().GetShortName(), e.NodeType));
+
+    protected override Expression VisitExtension(Expression node) => VisitUnknown(node);
 
     /// <summary>
     /// Visits the element initializer expression.
@@ -61,8 +91,11 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitTypeIs(TypeBinaryExpression tb) =>
-      Visit(tb, tb.Expression, static (tb, expression) => Expression.TypeIs(expression, tb.TypeOperand));
+    protected override Expression VisitTypeBinary(TypeBinaryExpression tb) =>
+      tb.NodeType == ExpressionType.TypeIs
+        ? Visit(tb, tb.Expression, static (tb, expression) => Expression.TypeIs(expression, tb.TypeOperand))
+        : base.VisitTypeBinary(tb);
+      
 
     /// <inheritdoc/>
     protected override Expression VisitConstant(ConstantExpression c)
@@ -97,7 +130,7 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitMemberAccess(MemberExpression m) =>
+    protected override Expression VisitMember(MemberExpression m) =>
       Visit(m, m.Expression, static (m, expression) => Expression.MakeMemberAccess(expression, m.Member));
 
     /// <inheritdoc/>
@@ -117,12 +150,14 @@ namespace Xtensive.Linq
     /// </summary>
     /// <param name="ma">The member assignment expression.</param>
     /// <returns>Visit result.</returns>
-    protected virtual MemberAssignment VisitMemberAssignment(MemberAssignment ma) =>
+    protected override MemberAssignment VisitMemberAssignment(MemberAssignment ma) =>
       Visit(ma, ma.Expression, static (ma, expression) => Expression.Bind(ma.Member, expression));
 
     /// <inheritdoc/>
-    protected override Expression VisitLambda(LambdaExpression l) =>
-      Visit(l, l.Body, static (l, body) => FastExpression.Lambda(l.Type, body, l.Parameters));
+    protected override Expression VisitLambda<T>(Expression<T> l) =>
+      Visit((LambdaExpression)l, l.Body, static (l, body) => FastExpression.Lambda(l.Type, body, l.Parameters));
+
+    protected Expression VisitLambda(LambdaExpression lambda) => base.Visit(lambda);
 
     private TOriginal Visit<TOriginal, TSubExpression>(TOriginal original, TSubExpression subExpression, Func<TOriginal, Expression, TOriginal> func) where TSubExpression : Expression
     {
@@ -213,7 +248,7 @@ namespace Xtensive.Linq
     /// </summary>
     /// <param name="binding">The member member binding.</param>
     /// <returns>Visit result.</returns>
-    protected virtual MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding binding)
+    protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding binding)
     {
       var bindingBindings = binding.Bindings;
       IEnumerable<MemberBinding> bindings = VisitBindingList(bindingBindings);
@@ -251,7 +286,7 @@ namespace Xtensive.Linq
       return ar?.AsSafeWrapper() ?? original;
     }
 
-    protected virtual MemberListBinding VisitMemberListBinding(MemberListBinding binding)
+    protected override MemberListBinding VisitMemberListBinding(MemberListBinding binding)
     {
       var bindingInitializers = binding.Initializers;
       IEnumerable<ElementInit> initializers = VisitElementInitializerList(bindingInitializers);
@@ -261,18 +296,5 @@ namespace Xtensive.Linq
     }
 
     #endregion
-
-    // Constructors
-
-    /// <inheritdoc/>
-    protected ExpressionVisitor()
-    {
-    }
-
-    /// <inheritdoc/>
-    protected ExpressionVisitor(bool isCaching)
-      : base(isCaching)
-    {
-    }
   }
 }

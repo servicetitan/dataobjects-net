@@ -25,10 +25,10 @@ namespace Xtensive.Orm.Linq
       return isParameter;
     }
 
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override Expression VisitMember(MemberExpression m)
     {
       isParameter = true;
-      return base.VisitMemberAccess(m);
+      return base.VisitMember(m);
     }
 
     protected override Expression VisitUnknown(Expression e) => e;
