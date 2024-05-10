@@ -12,11 +12,10 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
   internal sealed class OwnerRemover : PersistentExpressionVisitor
   {
-    public static Expression RemoveOwner(Expression target)
-    {
-      var remover = new OwnerRemover();
-      return remover.Visit(target);
-    }
+    private static readonly OwnerRemover Instance = new();
+
+    public static Expression RemoveOwner(Expression target) =>
+      Instance.Visit(target);
 
     internal override Expression VisitGroupingExpression(GroupingExpression expression)
     {
@@ -90,5 +89,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     {
       return expression;
     }
+
+    private OwnerRemover() { }
   }
 }
