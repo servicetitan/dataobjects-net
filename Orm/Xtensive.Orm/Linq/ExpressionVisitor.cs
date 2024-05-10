@@ -21,8 +21,6 @@ namespace Xtensive.Linq
   {
     private readonly Dictionary<Expression, Expression> cache = isCaching ? new() : null;
 
-    public bool IsCaching => cache != null;
-
     protected virtual IReadOnlyList<Expression> VisitExpressionList(IReadOnlyList<Expression> expressions) =>
       VisitList(expressions, Visit);
 
@@ -76,7 +74,7 @@ namespace Xtensive.Linq
 
     /// <inheritdoc/>
     protected override Expression VisitUnary(UnaryExpression u) =>
-      Visit(u, u.Operand, static (u, operand) => Expression.MakeUnary(u.NodeType, operand, u.Type, u.Method));
+      u.Update(Visit(u.Operand));
 
     /// <inheritdoc/>
     protected override Expression VisitBinary(BinaryExpression b)
@@ -98,35 +96,9 @@ namespace Xtensive.Linq
       
 
     /// <inheritdoc/>
-    protected override Expression VisitConstant(ConstantExpression c)
-    {
-      return c;
-    }
-
-    /// <inheritdoc/>
     protected override Expression VisitDefault(DefaultExpression d)
     {
       return d.ToConstantExpression();
-    }
-
-    /// <inheritdoc/>
-    protected override Expression VisitConditional(ConditionalExpression c)
-    {
-      var cTest = c.Test;
-      var cIfTrue = c.IfTrue;
-      var cIfFalse = c.IfFalse;
-      Expression test = Visit(cTest);
-      Expression ifTrue = Visit(cIfTrue);
-      Expression ifFalse = Visit(cIfFalse);
-      if (((test == cTest) && (ifTrue == cIfTrue)) && (ifFalse == cIfFalse))
-        return c;
-      return Expression.Condition(test, ifTrue, ifFalse);
-    }
-
-    /// <inheritdoc/>
-    protected override Expression VisitParameter(ParameterExpression p)
-    {
-      return p;
     }
 
     /// <inheritdoc/>
