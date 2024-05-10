@@ -118,7 +118,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
       var method = WellKnownMembers.Query.FreeTextStringTopNByRank.CachedMakeGenericMethod(typeof (T));
-      var expression = Expression.Call(method, Expression.Constant(searchCriteria), Expression.Constant(topNByRank));
+      var expression = Expression.Call(method, Expression.Constant(searchCriteria), Expr.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 
@@ -136,7 +136,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       var method = WellKnownMembers.Query.FreeTextExpression.CachedMakeGenericMethod(typeof(T));
-      var expression = Expression.Call(null, method, new[] { searchCriteria });
+      var expression = Expression.Call(null, method, [searchCriteria]);
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 
@@ -157,7 +157,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
       var method = WellKnownMembers.Query.FreeTextExpressionTopNByRank.CachedMakeGenericMethod(typeof (T));
-      var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(topNByRank));
+      var expression = Expression.Call(null, method, searchCriteria, Expr.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 
@@ -220,7 +220,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
       var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.CachedMakeGenericMethod(typeof(T));
-      var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(topNByRank));
+      var expression = Expression.Call(null, method, searchCriteria, Expr.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 
@@ -248,7 +248,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(targetFields, "targetFields");
       ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
       var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.CachedMakeGenericMethod(typeof(T));
-      var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetFields), Expression.Constant(topNByRank));
+      var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetFields), Expr.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 

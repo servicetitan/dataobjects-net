@@ -361,18 +361,19 @@ namespace Xtensive.Orm.Linq.Materialization
         .Select(f => (f.Field.MappingInfo.Offset, f.Mapping.Offset))
         .ToHashSet();
 
+      var exprIndex = Expr.Constant(index);
       var isMaterializedExpression = Expression.Call(
         itemMaterializationContextParameter,
         ItemMaterializationContext.IsMaterializedMethodInfo,
-        Expr.Constant(index));
+        exprIndex);
       var getEntityExpression = Expression.Call(
         itemMaterializationContextParameter,
         ItemMaterializationContext.GetEntityMethodInfo,
-        Expr.Constant(index));
+        exprIndex);
       var materializeEntityExpression = Expression.Call(
         itemMaterializationContextParameter,
         ItemMaterializationContext.MaterializeMethodInfo,
-        Expr.Constant(index),
+        exprIndex,
         Expr.Constant(typeIdIndex),
         Expression.Constant(expression.PersistentType),
         Expression.Constant(mappingInfo),
