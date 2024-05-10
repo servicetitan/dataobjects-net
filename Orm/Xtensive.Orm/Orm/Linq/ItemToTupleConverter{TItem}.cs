@@ -191,7 +191,7 @@ namespace Xtensive.Orm.Linq
     }
 
 
-    private IMappedExpression BuildField(Type type, ref ColNum index, TupleTypeCollection types)
+    private ParameterizedExpression BuildField(Type type, ref ColNum index, TupleTypeCollection types)
     {
 //      if (type.IsOfGenericType(typeof (Ref<>))) {
 //        var entityType = type.GetGenericType(typeof (Ref<>)).GetGenericArguments()[0];
@@ -208,7 +208,7 @@ namespace Xtensive.Orm.Linq
         var typeInfo = model.Types[type];
         var keyInfo = typeInfo.Key;
         var keyTupleDescriptor = keyInfo.TupleDescriptor;
-        IMappedExpression expression;
+        ParameterizedExpression expression;
         if (IsKeyConverter)
           expression = KeyExpression.Create(typeInfo, index);
         else {
@@ -247,7 +247,7 @@ namespace Xtensive.Orm.Linq
       ColNum index = 0;
       var types = new TupleTypeCollection();
       if (IsPersistableType(itemType)) {
-        Expression = (Expression) BuildField(itemType, ref index, types);
+        Expression = BuildField(itemType, ref index, types);
         TupleDescriptor = TupleDescriptor.Create(types.ToArray(types.Count));
       }
       else {
