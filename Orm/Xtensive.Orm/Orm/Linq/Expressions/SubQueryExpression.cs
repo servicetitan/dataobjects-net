@@ -112,6 +112,8 @@ namespace Xtensive.Orm.Linq.Expressions
       return new SubQueryExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter);
     }
 
+    internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitSubQueryExpression(this);
+
     public SubQueryExpression(
       Type type,
       ParameterExpression parameterExpression,

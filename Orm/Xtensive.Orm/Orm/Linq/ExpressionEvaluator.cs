@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression Visit(Expression e)
+    public override Expression Visit(Expression e)
     {
       if (e != null) {
         var saved = couldBeEvaluated;

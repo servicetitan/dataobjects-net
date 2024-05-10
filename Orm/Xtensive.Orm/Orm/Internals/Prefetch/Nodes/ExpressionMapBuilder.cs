@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return builder.result;
     }
 
-    protected override Expression Visit(Expression e)
+    public override Expression Visit(Expression e)
     {
       ValidateExpressionType(e);
       base.Visit(e);
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return p;
     }
 
-    protected override Expression VisitLambda(LambdaExpression l)
+    protected override Expression VisitLambda<T>(Expression<T> l)
     {
       var oldParameter = currentParameter;
       currentParameter = l.Parameters.First();
@@ -75,12 +75,12 @@ namespace Xtensive.Orm.Internals.Prefetch
       Visit(source);
 
       foreach (var item in subprefetches)
-        VisitLambda(item);
+        base.Visit(item);
 
       return call;
     }
 
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override Expression VisitMember(MemberExpression m)
     {
       ValidateMemberAccess(m);
       result.RegisterChild(m.Expression, m);

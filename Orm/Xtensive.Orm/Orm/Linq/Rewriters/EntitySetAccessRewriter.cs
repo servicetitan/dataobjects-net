@@ -35,10 +35,10 @@ namespace Xtensive.Orm.Linq.Rewriters
       throw NotSupported(method);
     }
 
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override Expression VisitMember(MemberExpression m)
     {
       if (!IsEntitySet(m.Expression))
-        return base.VisitMemberAccess(m);
+        return base.VisitMember(m);
 
       var member = m.Member;
       if (member.Name=="Count") {

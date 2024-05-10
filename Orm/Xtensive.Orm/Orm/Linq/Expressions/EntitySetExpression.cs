@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
+using Xtensive.Orm.Linq.Expressions.Visitors;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
@@ -109,6 +110,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return $"{base.ToString()} {Name}";
     }
 
+    internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitEntitySetExpression(this);
 
     // Constructors
 

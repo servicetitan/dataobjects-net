@@ -20,14 +20,14 @@ namespace Xtensive.Orm.Localization
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitMemberAccess(MemberExpression me)
+    protected override Expression VisitMember(MemberExpression me)
     {
       if (Map == null)
         return me;
 
       var localizationInfo = Map.Get(me.Expression?.Type ?? me.Member.ReflectedType);
       if (localizationInfo == null || !localizationInfo.LocalizationTypeInfo.Fields.Contains(me.Member.Name))
-        return base.VisitMemberAccess(me);
+        return base.VisitMember(me);
 
       var localizationSetExpression = Expression.MakeMemberAccess(me.Expression, localizationInfo.LocalizationSetProperty);
       var localizationExpression = LocalizationExpressionBuilder.BuildExpression(localizationInfo, me, Map.Configuration.DefaultCulture.Name);

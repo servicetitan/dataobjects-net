@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Linq.Rewriters
 
     protected override Expression VisitUnknown(Expression e) => e;
 
-    protected override Expression VisitMemberAccess(MemberExpression memberExpression)
+    protected override Expression VisitMember(MemberExpression memberExpression)
     {
       if (memberExpression.Type.IsOfGenericInterface(WellKnownInterfaces.QueryableOfT)
         && memberExpression.Expression != null
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Linq.Rewriters
         }
       }
 
-      return base.VisitMemberAccess(memberExpression);
+      return base.VisitMember(memberExpression);
     }
 
     public static Expression Rewrite(Expression e, CompiledQueryProcessingScope compiledQueryScope) =>

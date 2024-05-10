@@ -94,6 +94,8 @@ namespace Xtensive.Orm.Linq.Expressions
       return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter, KeyExpression, SelectManyInfo);
     }
 
+    internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitGroupingExpression(this);
+
     public GroupingExpression(
       Type type, 
       ParameterExpression parameterExpression, 

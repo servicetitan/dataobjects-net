@@ -42,8 +42,12 @@ namespace Xtensive.Orm.Linq
 
     private static IReadOnlyDictionary<Parameter<Tuple>, Tuple> EmptyTupleParameterBindings { get; } = new Dictionary<Parameter<Tuple>, Tuple>();
 
-    protected override Expression VisitTypeIs(TypeBinaryExpression tb)
+    protected override Expression VisitTypeBinary(TypeBinaryExpression tb)
     {
+      if (tb.NodeType != ExpressionType.TypeIs) {
+        return base.VisitTypeBinary(tb);
+      }
+
       var expression = tb.Expression;
       Type expressionType = expression.Type;
       Type operandType = tb.TypeOperand;
@@ -84,7 +88,7 @@ namespace Xtensive.Orm.Linq
       throw new NotSupportedException(Strings.ExTypeIsMethodSupportsOnlyEntitiesAndStructures);
     }
 
-    protected override Expression Visit(Expression e)
+    public override Expression Visit(Expression e)
     {
       if (e == null)
         return null;
@@ -135,7 +139,7 @@ namespace Xtensive.Orm.Linq
         : base.VisitUnary(u);
     }
 
-    protected override Expression VisitLambda(LambdaExpression le)
+    protected override Expression VisitLambda<T>(Expression<T> le)
     {
       using (CreateLambdaScope(le, allowCalculableColumnCombine: false)) {
         Expression body = le.Body;
@@ -317,7 +321,7 @@ namespace Xtensive.Orm.Linq
       return itemProjector.Item;
     }
 
-    protected override Expression VisitMemberAccess(MemberExpression ma)
+    protected override Expression VisitMember(MemberExpression ma)
     {
       var memberInfo = ma.Member;
       var sourceExpression = ma.Expression;
@@ -405,7 +409,7 @@ namespace Xtensive.Orm.Linq
         ? GetMemberWithRemap(source, memberInfo, ma)
         : GetMember(source, memberInfo, ma);
 
-      return result ?? base.VisitMemberAccess(ma);
+      return result ?? base.VisitMember(ma);
     }
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
@@ -948,7 +952,7 @@ namespace Xtensive.Orm.Linq
     private static ConstantExpression SelectBoolConstantExpression(bool b) =>
       b ? TrueExpression : FalseExpression;
 
-    private Expression VisitIndex(IndexExpression ie)
+    protected override Expression VisitIndex(IndexExpression ie)
     {
       var objectExpression = Visit(ie.Object).StripCasts();
       var argument = Visit(ie.Arguments[0]);

@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     #region Visitor methods overrsides
 
-    protected override Expression VisitFullTextExpression(FullTextExpression expression)
+    internal override Expression VisitFullTextExpression(FullTextExpression expression)
     {
       var rankMaterializer = Visit(expression.RankExpression);
       var entityMaterializer = Visit(expression.EntityExpression);
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Linq.Materialization
         entityMaterializer);
     }
 
-    protected override Expression VisitMarker(MarkerExpression expression)
+    internal override Expression VisitMarker(MarkerExpression expression)
     {
       var target = expression.Target;
       var processedTarget = Visit(target);
@@ -105,7 +105,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return processedTarget;
     }
 
-    protected override Expression VisitGroupingExpression(GroupingExpression groupingExpression)
+    internal override Expression VisitGroupingExpression(GroupingExpression groupingExpression)
     {
       // 1. Prepare subquery parameters.
       var translatedQuery = PrepareSubqueryParameters(groupingExpression,
@@ -139,7 +139,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return Expression.Convert(resultExpression, groupingExpression.Type);
     }
 
-    protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
+    internal override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
     {
       // 1. Prepare subquery parameters.
       var translatedQuery = PrepareSubqueryParameters(
@@ -202,7 +202,7 @@ namespace Xtensive.Orm.Linq.Materialization
       }
     }
 
-    protected override Expression VisitFieldExpression(FieldExpression expression)
+    internal override Expression VisitFieldExpression(FieldExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
 
@@ -233,11 +233,11 @@ namespace Xtensive.Orm.Linq.Materialization
       return MaterializeThroughOwner(expression, tupleExpression);
     }
 
-    protected override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression) =>
+    internal override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression) =>
       throw new NotSupportedException(
         string.Format(Strings.ExUnableToMaterializeBackLocalCollectionItem, expression.ToString()));
 
-    protected override Expression VisitStructureFieldExpression(StructureFieldExpression expression)
+    internal override Expression VisitStructureFieldExpression(StructureFieldExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
 
@@ -269,7 +269,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return MaterializeThroughOwner(expression, tupleExpression);
     }
 
-    protected override Expression VisitConstructorExpression(ConstructorExpression expression)
+    internal override Expression VisitConstructorExpression(ConstructorExpression expression)
     {
       var newExpression = expression.Constructor==null
         ? Expression.New(expression.Type) // Value type with default ctor (expression.Constructor is null in that case)
@@ -285,7 +285,7 @@ namespace Xtensive.Orm.Linq.Materialization
         .Select(item => Expression.Bind(item.Key, Visit(item.Value))).Cast<MemberBinding>());
     }
 
-    protected override Expression VisitStructureExpression(StructureExpression expression)
+    internal override Expression VisitStructureExpression(StructureExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
 
@@ -312,7 +312,7 @@ namespace Xtensive.Orm.Linq.Materialization
         expression.Type);
     }
 
-    protected override Expression VisitKeyExpression(KeyExpression expression)
+    internal override Expression VisitKeyExpression(KeyExpression expression)
     {
       // TODO: http://code.google.com/p/dataobjectsdotnet/issues/detail?id=336
       Expression tupleExpression = Expression.Call(
@@ -330,7 +330,7 @@ namespace Xtensive.Orm.Linq.Materialization
         tupleExpression);
     }
 
-    protected override Expression VisitEntityExpression(EntityExpression expression)
+    internal override Expression VisitEntityExpression(EntityExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
       return CreateEntity(expression, tupleExpression);
@@ -384,7 +384,7 @@ namespace Xtensive.Orm.Linq.Materialization
     }
 
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
-    protected override Expression VisitEntityFieldExpression(EntityFieldExpression expression)
+    internal override Expression VisitEntityFieldExpression(EntityFieldExpression expression)
     {
       if (expression.Entity!=null)
         return Visit(expression.Entity);
@@ -395,7 +395,7 @@ namespace Xtensive.Orm.Linq.Materialization
         : CreateEntity(expression, tupleExpression);
     }
 
-    protected override Expression VisitEntitySetExpression(EntitySetExpression expression)
+    internal override Expression VisitEntitySetExpression(EntitySetExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
       var materializedEntitySetExpression = MaterializeThroughOwner(expression, tupleExpression);
@@ -408,7 +408,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return prefetchEntitySetExpression;
     }
 
-    protected override Expression VisitColumnExpression(ColumnExpression expression)
+    internal override Expression VisitColumnExpression(ColumnExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
       return tupleExpression.MakeTupleAccess(expression.Type, expression.Mapping.Offset);
@@ -450,7 +450,7 @@ namespace Xtensive.Orm.Linq.Materialization
       }
     }
 
-    protected override Expression VisitMemberAccess(MemberExpression m)
+    protected override Expression VisitMember(MemberExpression m)
     {
       if (m.Expression!=null) {
         if ((ExtendedExpressionType) m.Expression.NodeType==ExtendedExpressionType.LocalCollection) {
