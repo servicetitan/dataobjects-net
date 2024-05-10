@@ -28,6 +28,8 @@ namespace Xtensive.Orm.Linq
   [Serializable]
   internal sealed class ItemToTupleConverter<TItem> : ItemToTupleConverter
   {
+    private static readonly bool IsKeyConverter = typeof(TItem).IsAssignableFrom(WellKnownOrmTypes.Key); 
+    
     private class TupleTypeCollection: IReadOnlyCollection<Type>
     {
       private IEnumerable<Type> types;
@@ -58,18 +60,15 @@ namespace Xtensive.Orm.Linq
     private readonly Func<ParameterContext, IEnumerable<TItem>> enumerableFunc;
     private readonly DomainModel model;
     private readonly Type entityTypestoredInKey;
-    private readonly bool isKeyConverter;
 
-    private Func<TItem, Tuple> converter;
-
+    private readonly ConstantExpression converterExpression;
 
     public override Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable()
     {
       var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method, ParamContextParams);
-      var select = Expression.Call(SelectMethod, call, Expression.Constant(converter));
+      var select = Expression.Call(SelectMethod, call, converterExpression);
       return FastExpression.Lambda<Func<ParameterContext, IEnumerable<Tuple>>>(select, ParamContextParams);
     }
-
 
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private bool IsPersistableType(Type type)
@@ -210,7 +209,7 @@ namespace Xtensive.Orm.Linq
         var keyInfo = typeInfo.Key;
         var keyTupleDescriptor = keyInfo.TupleDescriptor;
         IMappedExpression expression;
-        if (isKeyConverter)
+        if (IsKeyConverter)
           expression = KeyExpression.Create(typeInfo, index);
         else {
           var entityExpression = EntityExpression.Create(typeInfo, index, true);
@@ -242,9 +241,9 @@ namespace Xtensive.Orm.Linq
       throw new NotSupportedException();
     }
 
-    private void BuildConverter(Expression sourceExpression)
+    private Func<TItem, Tuple> BuildConverter(Expression sourceExpression)
     {
-      var itemType = isKeyConverter ? entityTypestoredInKey : typeof (TItem);
+      var itemType = IsKeyConverter ? entityTypestoredInKey : typeof (TItem);
       ColNum index = 0;
       var types = new TupleTypeCollection();
       if (IsPersistableType(itemType)) {
@@ -258,7 +257,7 @@ namespace Xtensive.Orm.Linq
         Expression = itemExpression;
       }
 
-      converter = delegate(TItem item) {
+      return delegate(TItem item) {
         var tuple = Tuple.Create(TupleDescriptor);
         if (ReferenceEquals(item, null)) {
           return tuple;
@@ -273,8 +272,7 @@ namespace Xtensive.Orm.Linq
       this.model = model;
       this.enumerableFunc = enumerableFunc;
       entityTypestoredInKey = storedEntityType;
-      isKeyConverter = typeof(TItem).IsAssignableFrom(WellKnownOrmTypes.Key);
-      BuildConverter(sourceExpression);
+      converterExpression = Expression.Constant(BuildConverter(sourceExpression));
     }
   }
 }
