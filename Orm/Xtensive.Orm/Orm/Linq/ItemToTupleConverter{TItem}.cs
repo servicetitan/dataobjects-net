@@ -171,18 +171,15 @@ namespace Xtensive.Orm.Linq
         .Concat(type.GetFields(BindingFlags.Instance | BindingFlags.Public));
       var fields = new Dictionary<MemberInfo, IMappedExpression>();
       foreach (var memberInfo in members) {
-        var propertyInfo = memberInfo as PropertyInfo;
-        var memberType = propertyInfo==null
-          ? ((FieldInfo) memberInfo).FieldType
-          : propertyInfo.PropertyType;
-        if (IsPersistableType(memberType)) {
-          var expression = BuildField(memberType, ref columnIndex, types);
-          fields.Add(memberInfo, expression);
-        }
-        else {
-          var collectionExpression = BuildLocalCollectionExpression(memberType, new HashSet<Type>(processedTypes), ref columnIndex, memberInfo, types, sourceExpression);
-          fields.Add(memberInfo, collectionExpression);
-        }
+        var memberType = memberInfo switch {
+          PropertyInfo propertyInfo => propertyInfo.PropertyType,
+          FieldInfo fieldInfo => fieldInfo.FieldType,
+          _ => throw new NotSupportedException()
+        };
+        var expression = IsPersistableType(memberType)
+          ? BuildField(memberType, ref columnIndex, types)
+          : BuildLocalCollectionExpression(memberType, new HashSet<Type>(processedTypes), ref columnIndex, memberInfo, types, sourceExpression);
+        fields.Add(memberInfo, expression);
       }
       if (fields.Count==0)
         throw new InvalidOperationException(string.Format(Strings.ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage, type.FullName));
@@ -246,16 +243,10 @@ namespace Xtensive.Orm.Linq
       var itemType = IsKeyConverter ? entityTypestoredInKey : typeof (TItem);
       ColNum index = 0;
       var types = new TupleTypeCollection();
-      if (IsPersistableType(itemType)) {
-        Expression = BuildField(itemType, ref index, types);
-        TupleDescriptor = TupleDescriptor.Create(types.ToArray(types.Count));
-      }
-      else {
-        var processedTypes = new HashSet<Type>();
-        var itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, ref index, null, types, sourceExpression);
-        TupleDescriptor = TupleDescriptor.Create(types.ToArray(types.Count));
-        Expression = itemExpression;
-      }
+      Expression = IsPersistableType(itemType)
+        ? BuildField(itemType, ref index, types)
+        : BuildLocalCollectionExpression(itemType, new HashSet<Type>(), ref index, null, types, sourceExpression);
+      TupleDescriptor = TupleDescriptor.Create(types.ToArray(types.Count));
 
       return delegate(TItem item) {
         var tuple = Tuple.Create(TupleDescriptor);
