@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
     {
       var lambda = (Func<int, int>) LambdaExpressionFactory
         .CreateFactoryFast(delegateType)
-        .Invoke(plusOne.Body, plusOne.Parameters.ToArray())
+        .Invoke(plusOne.Body, plusOne.Parameters)
         .Compile();
 
       Assert.That(lambda.Invoke(1), Is.EqualTo(2));
@@ -33,9 +33,8 @@ namespace Xtensive.Orm.Tests.Core.Linq
     [Test]
     public void ShouldCreateFactorySlow()
     {
-      var lambda = (Func<int, int>) LambdaExpressionFactory.Instance
-        .CreateFactorySlow(delegateType)
-        .Invoke(plusOne.Body, plusOne.Parameters.ToArray())
+      var lambda = (Func<int, int>) LambdaExpressionFactory.CreateFactorySlow(delegateType)
+        .Invoke(plusOne.Body, plusOne.Parameters)
         .Compile();
 
       Assert.That(lambda.Invoke(1), Is.EqualTo(2));
@@ -45,7 +44,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
     public void ShouldCreateLambda()
     {
       var lambda = (Func<int, int>) LambdaExpressionFactory.Instance
-        .CreateLambda(delegateType, plusOne.Body, plusOne.Parameters.ToArray())
+        .CreateLambda(delegateType, plusOne.Body, plusOne.Parameters)
         .Compile();
 
       Assert.That(lambda.Invoke(1), Is.EqualTo(2));

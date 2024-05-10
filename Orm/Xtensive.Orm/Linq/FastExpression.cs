@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace Xtensive.Linq
@@ -49,10 +48,8 @@ namespace Xtensive.Linq
     /// <param name="body">The body of lambda expression.</param>
     /// <param name="parameters">The parameters of lambda expression.</param>
     /// <returns>Constructed lambda expression.</returns>
-    public static LambdaExpression Lambda(Type delegateType, Expression body, IEnumerable<ParameterExpression> parameters)
-    {
-      return LambdaExpressionFactory.Instance.CreateLambda(delegateType, body, parameters.ToArray());
-    }
+    public static LambdaExpression Lambda(Type delegateType, Expression body, IReadOnlyList<ParameterExpression> parameters) =>
+      LambdaExpressionFactory.Instance.CreateLambda(delegateType, body, parameters);
 
     /// <summary>
     /// Generates <see cref="LambdaExpression"/> faster than <see cref="Expression.Lambda(Expression,ParameterExpression[])"/>.
@@ -71,9 +68,9 @@ namespace Xtensive.Linq
     /// <param name="body">The body of lambda expression.</param>
     /// <param name="parameters">The parameters of lambda expression.</param>
     /// <returns>Constructed lambda expression.</returns>
-    public static LambdaExpression Lambda(Expression body, IEnumerable<ParameterExpression> parameters)
+    public static LambdaExpression Lambda(Expression body, IReadOnlyList<ParameterExpression> parameters)
     {
-      return LambdaExpressionFactory.Instance.CreateLambda(body, parameters.ToArray());
+      return LambdaExpressionFactory.Instance.CreateLambda(body, parameters);
     }
   }
 }

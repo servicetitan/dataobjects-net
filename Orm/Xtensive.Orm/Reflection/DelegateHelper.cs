@@ -476,12 +476,10 @@ namespace Xtensive.Reflection
     public static Type MakeDelegateType(Type returnType, params Type[] parameterTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(parameterTypes, "parameterTypes");
-      if (parameterTypes.Length > MaxNumberOfGenericDelegateParameters)
-        throw new NotSupportedException();
+      var n = parameterTypes.Length;
+      ArgumentOutOfRangeException.ThrowIfGreaterThan(n, MaxNumberOfGenericDelegateParameters);
       if (returnType == WellKnownTypes.Void || returnType == null) {
-        if (parameterTypes.Length == 0)
-          return ActionTypes[0];
-        return ActionTypes[parameterTypes.Length].MakeGenericType(parameterTypes);
+        return n == 0 ? ActionTypes[0] : ActionTypes[n].MakeGenericType(parameterTypes);
       }
       var funcGenericParameters = parameterTypes.Append(returnType);
       return FuncTypes[funcGenericParameters.Length - 1].MakeGenericType(funcGenericParameters);

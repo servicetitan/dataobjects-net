@@ -14,7 +14,7 @@ using Xtensive.Reflection;
 
 using Factory = System.Func<
     System.Linq.Expressions.Expression,
-    System.Linq.Expressions.ParameterExpression[],
+    System.Collections.Generic.IReadOnlyList<System.Linq.Expressions.ParameterExpression>,
     System.Linq.Expressions.LambdaExpression
   >;
 
@@ -40,30 +40,24 @@ namespace Xtensive.Linq
       WellKnownTypes.Expression, WellKnownTypes.String, WellKnownTypes.Bool, typeof(IReadOnlyList<ParameterExpression>)
     };
 
-    private static readonly object _lock = new object();
-    private static volatile LambdaExpressionFactory instance;
     private static readonly Type FastFactoryType = typeof(FastFactory);
     private static readonly Type SlowFactoryType = typeof(SlowFactory);
 
-    public static LambdaExpressionFactory Instance {
-      get {
-        if (instance == null) lock (_lock) if (instance == null)
-          instance = new LambdaExpressionFactory();
-        return instance;
-      }
-    }
+    private static readonly MethodInfo SlowFactoryMethod = WellKnownTypes.Expression.GetMethods().Single(m =>
+      m.IsGenericMethod &&
+      m.Name == "Lambda" &&
+      m.GetParameters()[1].ParameterType == typeof(IEnumerable<ParameterExpression>));
 
-    private readonly ConcurrentDictionary<Type, Factory> cache;
-    private readonly Func<Type, Factory> createHandler;
-    private readonly MethodInfo slowFactoryMethod;
+    private static readonly Func<Type, Factory> CreateHandler = CanUseFastFactory() ? CreateFactoryFast : CreateFactorySlow;
 
-    public LambdaExpression CreateLambda(Type delegateType, Expression body, ParameterExpression[] parameters)
-    {
-      var factory = cache.GetOrAdd(delegateType, createHandler);
-      return factory.Invoke(body, parameters);
-    }
+    public static LambdaExpressionFactory Instance { get; } = new();
 
-    public LambdaExpression CreateLambda(Expression body, ParameterExpression[] parameters)
+    private readonly ConcurrentDictionary<Type, Factory> cache = new();
+
+    public LambdaExpression CreateLambda(Type delegateType, Expression body, IReadOnlyList<ParameterExpression> parameters) =>
+      cache.GetOrAdd(delegateType, CreateHandler).Invoke(body, parameters);
+
+    public LambdaExpression CreateLambda(Expression body, IReadOnlyList<ParameterExpression> parameters)
     {
       var delegateType = DelegateHelper.MakeDelegateType(body.Type, parameters.Select(p => p.Type));
       return CreateLambda(delegateType, body, parameters);
@@ -71,10 +65,10 @@ namespace Xtensive.Linq
 
     #region Private / internal methods
 
-    internal Factory CreateFactorySlow(Type delegateType)
+    internal static Factory CreateFactorySlow(Type delegateType)
     {
       var factory = (SlowFactory) Delegate.CreateDelegate(
-        SlowFactoryType, slowFactoryMethod.CachedMakeGenericMethod(delegateType));
+        SlowFactoryType, SlowFactoryMethod.CachedMakeGenericMethod(delegateType));
 
       return (body, parameters) => factory.Invoke(body, parameters);
     }
@@ -103,19 +97,5 @@ namespace Xtensive.Linq
     }
 
     #endregion
-
-    // Constructors
-
-    private LambdaExpressionFactory()
-    {
-      cache = new ConcurrentDictionary<Type, Factory>();
-
-      slowFactoryMethod = WellKnownTypes.Expression.GetMethods().Single(m =>
-        m.IsGenericMethod &&
-        m.Name == "Lambda" &&
-        m.GetParameters()[1].ParameterType == typeof(IEnumerable<ParameterExpression>));
-
-      createHandler = CanUseFastFactory() ? (Func<Type, Factory>) CreateFactoryFast : CreateFactorySlow;
-    }
   }
 }
