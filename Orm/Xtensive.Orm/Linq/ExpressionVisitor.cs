@@ -94,7 +94,7 @@ namespace Xtensive.Linq
     protected override Expression VisitTypeBinary(TypeBinaryExpression tb) =>
       tb.NodeType == ExpressionType.TypeIs
         ? Visit(tb, tb.Expression, static (tb, expression) => Expression.TypeIs(expression, tb.TypeOperand))
-        : base.VisitTypeBinary(tb);
+        : VisitUnknown(tb);
       
 
     /// <inheritdoc/>
