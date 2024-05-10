@@ -32,6 +32,7 @@ namespace Xtensive.Orm.Linq
     private static readonly ParameterExpression ParameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
     private static readonly ParameterExpression TupleReader = Expression.Parameter(typeof(RecordSetReader), "tupleReader");
     private static readonly ParameterExpression Session = Expression.Parameter(typeof(Session), "session");
+    private static readonly IReadOnlyList<ParameterExpression> TupleReaderSessionParameterContext = [TupleReader, Session, ParameterContext];
 
     private readonly CompiledQueryProcessingScope compiledQueryScope;
 
@@ -152,8 +153,7 @@ namespace Xtensive.Orm.Linq
         ParameterContext,
         Expression.Constant(itemMaterializer));
 
-      var projectorExpression = FastExpression.Lambda<Func<RecordSetReader, Session, ParameterContext, object>>(
-        body, TupleReader, Session, ParameterContext);
+      var projectorExpression = FastExpression.Lambda<Func<RecordSetReader, Session, ParameterContext, object>>(body, TupleReaderSessionParameterContext);
       return new Materializer(projectorExpression.CachingCompile());
     }
 

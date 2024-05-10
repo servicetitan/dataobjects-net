@@ -23,10 +23,8 @@ namespace Xtensive.Linq
     /// <param name="body">The body of lambda expression.</param>
     /// <param name="parameters">The parameters of lambda expression.</param>
     /// <returns>Constructed lambda expression.</returns>
-    public static LambdaExpression Lambda(Type delegateType, Expression body, params ParameterExpression[] parameters)
-    {
-      return LambdaExpressionFactory.Instance.CreateLambda(delegateType, body, parameters ?? Array.Empty<ParameterExpression>());
-    }
+    public static LambdaExpression Lambda(Type delegateType, Expression body, params ParameterExpression[] parameters) =>
+      LambdaExpressionFactory.Instance.CreateLambda(delegateType, body, parameters ?? Array.Empty<ParameterExpression>());
 
     /// <summary>
     /// Generates <see cref="LambdaExpression"/> faster than <see cref="Expression.Lambda(Type,Expression,ParameterExpression[])"/>.
@@ -35,11 +33,11 @@ namespace Xtensive.Linq
     /// <param name="body">The body of lambda expression.</param>
     /// <param name="parameters">The parameters of lambda expression.</param>
     /// <returns>Constructed lambda expression.</returns>
-    public static Expression<TDelegate> Lambda<TDelegate>(Expression body, params ParameterExpression[] parameters)
-    {
-      return (Expression<TDelegate>) LambdaExpressionFactory.Instance
-        .CreateLambda(typeof(TDelegate), body, parameters ?? Array.Empty<ParameterExpression>());
-    }
+    public static Expression<TDelegate> Lambda<TDelegate>(Expression body, params ParameterExpression[] parameters) =>
+      (Expression<TDelegate>) LambdaExpressionFactory.Instance.CreateLambda(typeof(TDelegate), body, parameters ?? Array.Empty<ParameterExpression>());
+
+    public static Expression<TDelegate> Lambda<TDelegate>(Expression body, IReadOnlyList<ParameterExpression> parameters) =>
+      (Expression<TDelegate>) LambdaExpressionFactory.Instance.CreateLambda(typeof(TDelegate), body, parameters);
 
     /// <summary>
     /// Generates <see cref="LambdaExpression"/> faster than <see cref="Expression.Lambda(Type,Expression,IEnumerable{ParameterExpression})"/>.

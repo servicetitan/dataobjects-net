@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    private static readonly ParameterExpression ParamContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+    private static readonly IReadOnlyList<ParameterExpression> ParamContextParams = [Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context")];
     private static readonly MethodInfo SelectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof(TItem), WellKnownOrmTypes.Tuple);
 
     private readonly Func<ParameterContext, IEnumerable<TItem>> enumerableFunc;
@@ -65,9 +65,9 @@ namespace Xtensive.Orm.Linq
 
     public override Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable()
     {
-      var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method, ParamContext);
+      var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method, ParamContextParams);
       var select = Expression.Call(SelectMethod, call, Expression.Constant(converter));
-      return FastExpression.Lambda<Func<ParameterContext, IEnumerable<Tuple>>>(select, ParamContext);
+      return FastExpression.Lambda<Func<ParameterContext, IEnumerable<Tuple>>>(select, ParamContextParams);
     }
 
 
