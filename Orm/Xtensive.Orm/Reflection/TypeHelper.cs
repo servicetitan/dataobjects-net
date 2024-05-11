@@ -636,8 +636,9 @@ namespace Xtensive.Reflection
         const BindingFlags bindingFlags =
           BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
 
-        var argumentTypes = new object[arguments.Length];
-        for (var i = 0; i < arguments.Length; i++) {
+        var n = arguments.Length;
+        var argumentTypes = new Type[n];
+        for (var i = 0; i < n; i++) {
           var o = arguments[i];
           if (o == null) {
             // Actually a case when GetConstructor will fail,
@@ -648,8 +649,7 @@ namespace Xtensive.Reflection
           argumentTypes[i] = o.GetType();
         }
 
-        var constructor = type.GetConstructorEx(bindingFlags, argumentTypes);
-        return constructor == null ? null : constructor.Invoke(arguments);
+        return type.GetConstructorEx(bindingFlags, argumentTypes)?.Invoke(arguments);
       }
       catch (Exception) {
         return null;
