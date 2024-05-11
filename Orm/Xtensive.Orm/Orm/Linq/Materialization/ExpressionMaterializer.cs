@@ -36,7 +36,9 @@ namespace Xtensive.Orm.Linq.Materialization
     private static readonly PropertyInfo ParameterContextProperty = WellKnownOrmTypes.ItemMaterializationContext.GetProperty(nameof(ItemMaterializationContext.ParameterContext));
     private static readonly MethodInfo GetTupleParameterValueMethod = GetParameterValueMethod.CachedMakeGenericMethod(WellKnownOrmTypes.Tuple);
     private static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
+    private static readonly IReadOnlyList<ParameterExpression> TupleParameters = [TupleParameter];
     private static readonly ParameterExpression MaterializationContextParameter = Expression.Parameter(WellKnownOrmTypes.ItemMaterializationContext, "mc");
+    private static readonly IReadOnlyList<ParameterExpression> TupleAndMaterializationContextParameters = [TupleParameter, MaterializationContextParameter];
     private static readonly ConstantExpression TypeReferenceAccuracyConstantExpression = Expression.Constant(TypeReferenceAccuracy.BaseType);
     private static readonly MethodInfo GetTypeInfoMethod = typeof(ItemMaterializationContext).GetMethod(nameof(ItemMaterializationContext.GetTypeInfo));
 
@@ -59,14 +61,14 @@ namespace Xtensive.Orm.Linq.Materialization
     {
       var visitor = new ExpressionMaterializer(context, null, EmptyTupleParameters);
       var processedExpression = OwnerRemover.RemoveOwner(expression);
-      return FastExpression.Lambda(visitor.Visit(processedExpression), TupleParameter);
+      return FastExpression.Lambda(visitor.Visit(processedExpression), TupleParameters);
     }
 
     public static MaterializationInfo MakeMaterialization(ItemProjectorExpression projector, TranslatorContext context,
       IReadOnlySet<Parameter<Tuple>> tupleParameters)
     {
       var visitor = new ExpressionMaterializer(context, MaterializationContextParameter, tupleParameters);
-      var lambda = FastExpression.Lambda(visitor.Visit(projector.Item), TupleParameter, MaterializationContextParameter);
+      var lambda = FastExpression.Lambda(visitor.Visit(projector.Item), TupleAndMaterializationContextParameters);
       var count = visitor.entityRegistry.Count;
       return new MaterializationInfo(count, lambda);
     }
@@ -359,18 +361,19 @@ namespace Xtensive.Orm.Linq.Materialization
         .Select(f => (f.Field.MappingInfo.Offset, f.Mapping.Offset))
         .ToHashSet();
 
+      var exprIndex = Expr.Constant(index);
       var isMaterializedExpression = Expression.Call(
         itemMaterializationContextParameter,
         ItemMaterializationContext.IsMaterializedMethodInfo,
-        Expr.Constant(index));
+        exprIndex);
       var getEntityExpression = Expression.Call(
         itemMaterializationContextParameter,
         ItemMaterializationContext.GetEntityMethodInfo,
-        Expr.Constant(index));
+        exprIndex);
       var materializeEntityExpression = Expression.Call(
         itemMaterializationContextParameter,
         ItemMaterializationContext.MaterializeMethodInfo,
-        Expr.Constant(index),
+        exprIndex,
         Expr.Constant(typeIdIndex),
         Expression.Constant(expression.PersistentType),
         Expression.Constant(mappingInfo),

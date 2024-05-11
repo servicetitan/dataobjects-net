@@ -33,7 +33,8 @@ namespace Xtensive.Orm.Linq
 
     private static readonly Type IEnumerableOfKeyType = typeof(IEnumerable<Key>);
     private static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
-    private static readonly ParameterExpression ParameterContextContextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+    private static readonly IReadOnlyList<ParameterExpression> TupleParameters = [TupleParameter];
+    private static readonly IReadOnlyList<ParameterExpression> ParameterContextContextParameters = [Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context")];
 
     private readonly TranslatorContext context;
     private readonly bool tagsEnabled;
@@ -612,8 +613,8 @@ namespace Xtensive.Orm.Linq
         ParameterExpression contextParameter;
         if (compiledQueryScope == null) {
           var indexLambda = (Expression<Func<int>>) index;
-          contextParameter = ParameterContextContextParameter;
-          elementAtIndex = FastExpression.Lambda<Func<ParameterContext, int>>(indexLambda.Body, contextParameter);
+          contextParameter = ParameterContextContextParameters[0];
+          elementAtIndex = FastExpression.Lambda<Func<ParameterContext, int>>(indexLambda.Body, ParameterContextContextParameters);
         }
         else {
           var replacer = compiledQueryScope.QueryParameterReplacer;
@@ -690,7 +691,7 @@ namespace Xtensive.Orm.Linq
       if (take.Type == typeof(Func<int>)) {
         if (compiledQueryScope == null) {
           var takeLambda = (Expression<Func<int>>) take;
-          var newTakeLambda = FastExpression.Lambda<Func<ParameterContext, int>>(takeLambda.Body, ParameterContextContextParameter);
+          var newTakeLambda = FastExpression.Lambda<Func<ParameterContext, int>>(takeLambda.Body, ParameterContextContextParameters);
           compiledParameter = newTakeLambda.CachingCompile();
         }
         else {
@@ -1098,7 +1099,7 @@ namespace Xtensive.Orm.Linq
               ExpressionType.AndAlso);
           });
 
-      var filter = FastExpression.Lambda(filterBody, TupleParameter);
+      var filter = FastExpression.Lambda(filterBody, TupleParameters);
       var subqueryProjection = sequence.Apply(new ItemProjectorExpression(
           sequence.ItemProjector.Item,
           groupingSourceProjection.ItemProjector.DataSource.Filter((Expression<Func<Tuple, bool>>) filter),
@@ -1328,13 +1329,11 @@ namespace Xtensive.Orm.Linq
         }
 
         ProjectionExpression innerProjection;
-        var outerParameters = State.OuterParameters
-          .Concat(State.Parameters)
-          .Concat(collectionSelector.Parameters)
-          .Append(outerParameter)
-          .ToArray(State.OuterParameters.Length + State.Parameters.Length + collectionSelector.Parameters.Count + 1);
         using (CreateScope(new TranslatorState(State) {
-          OuterParameters = outerParameters,
+          OuterParameters = State.OuterParameters
+            .Concat(State.Parameters)
+            .Concat(collectionSelector.Parameters)
+            .Append(outerParameter),
           Parameters = Array.Empty<ParameterExpression>(),
           RequestCalculateExpressionsOnce = true
         })) {
@@ -1839,12 +1838,9 @@ namespace Xtensive.Orm.Linq
 
     private TranslatorState.TranslatorScope CreateLambdaScope(LambdaExpression le, bool allowCalculableColumnCombine)
     {
-      var newOuterParameters = new ParameterExpression[State.OuterParameters.Length + State.Parameters.Length];
-      State.OuterParameters.CopyTo(newOuterParameters, 0);
-      State.Parameters.CopyTo(newOuterParameters, State.OuterParameters.Length);
       return CreateScope(new TranslatorState(State) {
-        OuterParameters = newOuterParameters,
-        Parameters = le.Parameters.ToArray(le.Parameters.Count),
+        OuterParameters = State.OuterParameters.Concat(State.Parameters),
+        Parameters = le.Parameters,
         CurrentLambda = le,
         AllowCalculableColumnCombine = allowCalculableColumnCombine
       });

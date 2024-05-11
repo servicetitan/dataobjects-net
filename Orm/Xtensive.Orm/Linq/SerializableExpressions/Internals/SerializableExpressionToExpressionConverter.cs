@@ -163,7 +163,7 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private Expression VisitLambda(SerializableLambdaExpression l)
     {
-      return FastExpression.Lambda(l.Type, Visit(l.Body), l.Parameters.Select(p => (ParameterExpression) Visit(p)));
+      return FastExpression.Lambda(l.Type, Visit(l.Body), l.Parameters.Select(p => (ParameterExpression) Visit(p)).ToArray());
     }
 
     private Expression VisitNew(SerializableNewExpression n)

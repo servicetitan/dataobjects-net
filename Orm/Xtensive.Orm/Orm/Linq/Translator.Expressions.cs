@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
-    private static readonly ParameterExpression ParameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+    private static readonly IReadOnlyList<ParameterExpression> ParameterContextParams = [Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context")];
     private static readonly ConstantExpression
       NullExpression = Expression.Constant(null),
       NullKeyExpression = Expression.Constant(null, WellKnownOrmTypes.Key),
@@ -564,7 +564,7 @@ namespace Xtensive.Orm.Linq
         if (compiledQueryScope == null) {
           var originalSearchCriteria = (Expression<Func<string>>) searchCriteria;
           var body = originalSearchCriteria.Body;
-          var searchCriteriaLambda = FastExpression.Lambda<Func<ParameterContext, string>>(body, ParameterContextParam);
+          var searchCriteriaLambda = FastExpression.Lambda<Func<ParameterContext, string>>(body, ParameterContextParams);
           compiledParameter = searchCriteriaLambda.CachingCompile();
         }
         else {
@@ -631,7 +631,7 @@ namespace Xtensive.Orm.Linq
       func.Invoke(SearchConditionNodeFactory.CreateConditonRoot()).AcceptVisitor(conditionCompiler);
 
       var preparedSearchCriteria = FastExpression.Lambda<Func<ParameterContext, string>>(
-        Expression.Constant(conditionCompiler.CurrentOutput), ParameterContextParam);
+        Expression.Constant(conditionCompiler.CurrentOutput), ParameterContextParams);
 
       if (compiledQueryScope == null) {
         compiledParameter = preparedSearchCriteria.CachingCompile();
@@ -1257,7 +1257,7 @@ namespace Xtensive.Orm.Linq
 
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
     {
-      if (State.Parameters.Length == 0)
+      if (State.Parameters.Count == 0)
         throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters, subQuery), OrmLog.Instance);
 
       if (!resultType.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT))

@@ -28,6 +28,8 @@ namespace Xtensive.Orm.Linq
   [Serializable]
   internal sealed class ItemToTupleConverter<TItem> : ItemToTupleConverter
   {
+    private static readonly bool IsKeyConverter = typeof(TItem).IsAssignableFrom(WellKnownOrmTypes.Key); 
+    
     private class TupleTypeCollection: IReadOnlyCollection<Type>
     {
       private IEnumerable<Type> types;
@@ -52,24 +54,21 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    private static readonly ParameterExpression ParamContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+    private static readonly IReadOnlyList<ParameterExpression> ParamContextParams = [Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context")];
     private static readonly MethodInfo SelectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof(TItem), WellKnownOrmTypes.Tuple);
 
     private readonly Func<ParameterContext, IEnumerable<TItem>> enumerableFunc;
     private readonly DomainModel model;
     private readonly Type entityTypestoredInKey;
-    private readonly bool isKeyConverter;
 
-    private Func<TItem, Tuple> converter;
-
+    private readonly ConstantExpression converterExpression;
 
     public override Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable()
     {
-      var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method, ParamContext);
-      var select = Expression.Call(SelectMethod, call, Expression.Constant(converter));
-      return FastExpression.Lambda<Func<ParameterContext, IEnumerable<Tuple>>>(select, ParamContext);
+      var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method, ParamContextParams);
+      var select = Expression.Call(SelectMethod, call, converterExpression);
+      return FastExpression.Lambda<Func<ParameterContext, IEnumerable<Tuple>>>(select, ParamContextParams);
     }
-
 
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private bool IsPersistableType(Type type)
@@ -164,7 +163,6 @@ namespace Xtensive.Orm.Linq
       if (!processedTypes.Add(type))
         throw new InvalidOperationException(string.Format(Strings.ExUnableToPersistTypeXBecauseOfLoopReference, type.FullName));
 
-
       var members = type
         .GetProperties(BindingFlags.Instance | BindingFlags.Public)
         .Where(propertyInfo => propertyInfo.CanRead)
@@ -172,18 +170,15 @@ namespace Xtensive.Orm.Linq
         .Concat(type.GetFields(BindingFlags.Instance | BindingFlags.Public));
       var fields = new Dictionary<MemberInfo, IMappedExpression>();
       foreach (var memberInfo in members) {
-        var propertyInfo = memberInfo as PropertyInfo;
-        var memberType = propertyInfo==null
-          ? ((FieldInfo) memberInfo).FieldType
-          : propertyInfo.PropertyType;
-        if (IsPersistableType(memberType)) {
-          var expression = BuildField(memberType, ref columnIndex, types);
-          fields.Add(memberInfo, expression);
-        }
-        else {
-          var collectionExpression = BuildLocalCollectionExpression(memberType, new HashSet<Type>(processedTypes), ref columnIndex, memberInfo, types, sourceExpression);
-          fields.Add(memberInfo, collectionExpression);
-        }
+        var memberType = memberInfo switch {
+          PropertyInfo propertyInfo => propertyInfo.PropertyType,
+          FieldInfo fieldInfo => fieldInfo.FieldType,
+          _ => throw new NotSupportedException()
+        };
+        var expression = IsPersistableType(memberType)
+          ? BuildField(memberType, ref columnIndex, types)
+          : BuildLocalCollectionExpression(memberType, new HashSet<Type>(processedTypes), ref columnIndex, memberInfo, types, sourceExpression);
+        fields.Add(memberInfo, expression);
       }
       if (fields.Count==0)
         throw new InvalidOperationException(string.Format(Strings.ExTypeXDoesNotHasAnyPublicReadablePropertiesOrFieldsSoItCanTBePersistedToStorage, type.FullName));
@@ -192,7 +187,7 @@ namespace Xtensive.Orm.Linq
     }
 
 
-    private IMappedExpression BuildField(Type type, ref ColNum index, TupleTypeCollection types)
+    private ParameterizedExpression BuildField(Type type, ref ColNum index, TupleTypeCollection types)
     {
 //      if (type.IsOfGenericType(typeof (Ref<>))) {
 //        var entityType = type.GetGenericType(typeof (Ref<>)).GetGenericArguments()[0];
@@ -209,8 +204,8 @@ namespace Xtensive.Orm.Linq
         var typeInfo = model.Types[type];
         var keyInfo = typeInfo.Key;
         var keyTupleDescriptor = keyInfo.TupleDescriptor;
-        IMappedExpression expression;
-        if (isKeyConverter)
+        ParameterizedExpression expression;
+        if (IsKeyConverter)
           expression = KeyExpression.Create(typeInfo, index);
         else {
           var entityExpression = EntityExpression.Create(typeInfo, index, true);
@@ -242,23 +237,17 @@ namespace Xtensive.Orm.Linq
       throw new NotSupportedException();
     }
 
-    private void BuildConverter(Expression sourceExpression)
+    private Func<TItem, Tuple> BuildConverter(Expression sourceExpression)
     {
-      var itemType = isKeyConverter ? entityTypestoredInKey : typeof (TItem);
+      var itemType = IsKeyConverter ? entityTypestoredInKey : typeof (TItem);
       ColNum index = 0;
       var types = new TupleTypeCollection();
-      if (IsPersistableType(itemType)) {
-        Expression = (Expression) BuildField(itemType, ref index, types);
-        TupleDescriptor = TupleDescriptor.Create(types.ToArray(types.Count));
-      }
-      else {
-        var processedTypes = new HashSet<Type>();
-        var itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, ref index, null, types, sourceExpression);
-        TupleDescriptor = TupleDescriptor.Create(types.ToArray(types.Count));
-        Expression = itemExpression;
-      }
+      Expression = IsPersistableType(itemType)
+        ? BuildField(itemType, ref index, types)
+        : BuildLocalCollectionExpression(itemType, new HashSet<Type>(), ref index, null, types, sourceExpression);
+      TupleDescriptor = TupleDescriptor.Create(types.ToArray(types.Count));
 
-      converter = delegate(TItem item) {
+      return delegate(TItem item) {
         var tuple = Tuple.Create(TupleDescriptor);
         if (ReferenceEquals(item, null)) {
           return tuple;
@@ -273,8 +262,7 @@ namespace Xtensive.Orm.Linq
       this.model = model;
       this.enumerableFunc = enumerableFunc;
       entityTypestoredInKey = storedEntityType;
-      isKeyConverter = typeof(TItem).IsAssignableFrom(WellKnownOrmTypes.Key);
-      BuildConverter(sourceExpression);
+      converterExpression = Expression.Constant(BuildConverter(sourceExpression));
     }
   }
 }

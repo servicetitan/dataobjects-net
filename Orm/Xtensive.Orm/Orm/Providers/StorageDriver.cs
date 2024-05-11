@@ -211,12 +211,14 @@ namespace Xtensive.Orm.Providers
       return instances.ToArray();
     }
 
-    private static Func<IDbConnectionAccessor> CreateNewAccessor<T>() where T : IDbConnectionAccessor
+    private static class Traits<T> where T : IDbConnectionAccessor
     {
-      return FastExpression.Lambda<Func<IDbConnectionAccessor>>(
-        Expression.Convert(Expression.New(typeof(T)), typeof(IDbConnectionAccessor)))
+      public static readonly Func<IDbConnectionAccessor> NewAccessor = FastExpression.Lambda<Func<IDbConnectionAccessor>>(
+          Expression.Convert(Expression.New(typeof(T)), typeof(IDbConnectionAccessor)))
         .Compile();
     }
+
+    private static Func<IDbConnectionAccessor> CreateNewAccessor<T>() where T : IDbConnectionAccessor => Traits<T>.NewAccessor;
 
     // Constructors
 

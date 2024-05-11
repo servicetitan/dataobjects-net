@@ -18,6 +18,8 @@ namespace Xtensive.Orm.BulkOperations
   internal abstract class QueryOperation<T> : Operation<T>
     where T : class, IEntity
   {
+    private static readonly ConstantExpression ComplexConditionConstant = Expression.Constant(IncludeAlgorithm.ComplexCondition);
+
     protected IQueryable<T> query;
 
     protected QueryOperation(QueryProvider queryProvider)
@@ -37,7 +39,7 @@ namespace Xtensive.Orm.BulkOperations
             var localCollection = ex.Arguments[0];//IEnumerable<T>
             var valueToCheck = ex.Arguments[1];
             var genericInMethod = WellKnownMembers.InMethod.CachedMakeGenericMethod(valueToCheck.Type);
-            ex = Expression.Call(genericInMethod, valueToCheck, Expression.Constant(IncludeAlgorithm.ComplexCondition), localCollection);
+            ex = Expression.Call(genericInMethod, valueToCheck, ComplexConditionConstant, localCollection);
             methodInfo = ex.Method;
           }
 
@@ -52,13 +54,13 @@ namespace Xtensive.Orm.BulkOperations
 
               if (algorithm == IncludeAlgorithm.Auto) {
                 var arguments = ex.Arguments.ToList();
-                arguments[1] = Expression.Constant(IncludeAlgorithm.ComplexCondition);
+                arguments[1] = ComplexConditionConstant;
                 ex = Expression.Call(methodInfo, arguments);
               }
             }
             else {
               var arguments = ex.Arguments.ToList();
-              arguments.Insert(1, Expression.Constant(IncludeAlgorithm.ComplexCondition));
+              arguments.Insert(1, ComplexConditionConstant);
               ex = Expression.Call(WellKnownMembers.InMethod.MakeGenericMethod(methodInfo.GetGenericArguments()), arguments);
             }
           }

@@ -9,9 +9,8 @@ using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq
 {
-  internal sealed class ParameterExtractor : ExpressionVisitor
+  internal sealed class ParameterExtractor(ExpressionEvaluator evaluator) : ExpressionVisitor
   {
-    private readonly ExpressionEvaluator evaluator;
     private bool isParameter;
 
     public bool IsParameter(Expression e)
@@ -35,19 +34,8 @@ namespace Xtensive.Orm.Linq
 
     protected override Expression VisitConstant(ConstantExpression c)
     {
-      isParameter = c.GetMemberType() switch {
-        MemberType.Entity => true,
-        MemberType.Structure => true,
-        _ => isParameter
-      };
+      isParameter |= c.GetMemberType() is MemberType.Entity or MemberType.Structure;
       return c;
-    }
-
-    // Constructors
-
-    public ParameterExtractor(ExpressionEvaluator evaluator)
-    {
-      this.evaluator = evaluator;
     }
   }
 }
