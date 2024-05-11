@@ -13,6 +13,8 @@ namespace Xtensive.Orm.Linq.Rewriters
 {
   internal sealed class SubqueryDefaultResultRewriter : ExpressionVisitor
   {
+    private static readonly SubqueryDefaultResultRewriter Instance = new();
+
     protected override Expression VisitUnknown(Expression e) => e;
 
     protected override Expression VisitBinary(BinaryExpression b)
@@ -58,8 +60,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       && (method.Name == nameof(Queryable.FirstOrDefault)
         || method.Name == nameof(Queryable.SingleOrDefault));
 
-    public static Expression Rewrite(Expression expression) =>
-      new SubqueryDefaultResultRewriter().Visit(expression);
+    public static Expression Rewrite(Expression expression) => Instance.Visit(expression);
 
     private SubqueryDefaultResultRewriter()
     {

@@ -215,7 +215,7 @@ namespace Xtensive.Orm.Providers
         }
       }
 
-      //handle SQLite DateTime comparsion
+      //handle SQLite DateTime comparison
       if (dateTimeEmulation
           && left.NodeType != SqlNodeType.Null
           && right.NodeType != SqlNodeType.Null
@@ -234,7 +234,7 @@ namespace Xtensive.Orm.Providers
         }
       }
 
-      //handle SQLite DateTimeOffset comparsion
+      //handle SQLite DateTimeOffset comparison
       if (dateTimeOffsetEmulation
           && left.NodeType != SqlNodeType.Null
           && right.NodeType != SqlNodeType.Null

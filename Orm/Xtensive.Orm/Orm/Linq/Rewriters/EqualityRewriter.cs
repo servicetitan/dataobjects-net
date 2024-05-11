@@ -14,6 +14,8 @@ namespace Xtensive.Orm.Linq.Rewriters
 {
   internal sealed class EqualityRewriter : ExpressionVisitor
   {
+    private static readonly EqualityRewriter Instance = new();
+
     protected override Expression VisitUnknown(Expression e)
     {
       return e;
@@ -53,10 +55,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       return base.VisitMethodCall(mc);
     }
 
-    public static Expression Rewrite(Expression e)
-    {
-      return new EqualityRewriter().Visit(e);
-    }
+    public static Expression Rewrite(Expression e) => Instance.Visit(e);
 
     // Constructors
 
