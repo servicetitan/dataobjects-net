@@ -1123,7 +1123,10 @@ namespace Xtensive.Reflection
     /// where type parameters are bound in case it is implemented by the <paramref name="type"/>;
     /// otherwise, <see langword="null"/>.
     /// </returns>
-    public static Type GetGenericInterface(this Type type, Type openGenericInterface)
+    public static Type GetGenericInterface(this Type type, Type openGenericInterface) =>
+      Memoizer.Get((type, openGenericInterface), static t => GetGenericInterfaceInternal(t.Item1, t.Item2));
+
+    private static Type GetGenericInterfaceInternal(Type type, Type openGenericInterface)
     {
       var metadataToken = openGenericInterface.MetadataToken;
       var module = openGenericInterface.Module;
