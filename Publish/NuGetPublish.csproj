@@ -34,6 +34,7 @@
   <ItemGroup>
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.BulkOperations.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.PostgreSql.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.SqlServer.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Security.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Tracking.$(Version).nupkg" />
@@ -44,7 +45,6 @@
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Logging.NLog.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.MySql.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Oracle.$(Version).nupkg" />
-    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.PostgreSql.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Reprocessing.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Sqlite.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Web.$(Version).nupkg" />
