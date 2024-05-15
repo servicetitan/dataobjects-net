@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Linq
       using (CreateLambdaScope(le, allowCalculableColumnCombine: false)) {
         Expression body = le.Body;
         if (!State.IsTailMethod)
-          body = NullComparsionRewriter.Rewrite(body);
+          body = NullComparisonRewriter.Rewrite(body);
         body = Visit(body);
         ParameterExpression parameter = le.Parameters[0];
         var nodeType = body.NodeType;

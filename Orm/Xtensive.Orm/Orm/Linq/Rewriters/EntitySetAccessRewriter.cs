@@ -15,6 +15,8 @@ namespace Xtensive.Orm.Linq.Rewriters
 {
   internal sealed class EntitySetAccessRewriter : ExpressionVisitor
   {
+    private static readonly EntitySetAccessRewriter Instance = new();
+
     protected override Expression VisitUnknown(Expression e)
     {
       return e;
@@ -65,10 +67,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       return expression!=null && expression.Type.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT);
     }
 
-    public static Expression Rewrite(Expression e)
-    {
-      return new EntitySetAccessRewriter().Visit(e);
-    }
+    public static Expression Rewrite(Expression e) => Instance.Visit(e);
 
     // Constructors
 

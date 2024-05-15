@@ -11,10 +11,9 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
   internal sealed class EnumRewriter : ExpressionVisitor
   {
-    public static Expression Rewrite(Expression target)
-    {
-      return new EnumRewriter().Visit(target);
-    }
+    private static readonly EnumRewriter Instance = new EnumRewriter();
+
+    public static Expression Rewrite(Expression target) => Instance.Visit(target);
 
     protected override Expression VisitUnknown(Expression e)
     {
