@@ -107,7 +107,22 @@ namespace Xtensive.Reflection
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
-      return type.GetConstructor(bindingFlags, null, parameterTypes, null);
+      if (parameterTypes.All(o => o is not null)) {
+        return type.GetConstructor(bindingFlags, null, parameterTypes, null);
+      }
+      ConstructorInfo lastMatch = null;
+
+      foreach (var ci in type.GetConstructors(bindingFlags)) {
+        if (CheckMethod(ci, WellKnown.CtorName, Array.Empty<string>(), parameterTypes)) {
+          if (lastMatch != null) {
+            throw new AmbiguousMatchException();
+          }
+
+          lastMatch = ci;
+        }
+      }
+
+      return lastMatch;
     }
 
     /// <summary>
