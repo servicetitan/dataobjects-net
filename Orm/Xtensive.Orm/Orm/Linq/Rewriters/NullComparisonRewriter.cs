@@ -10,8 +10,10 @@ using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
 {
-  internal sealed class NullComparsionRewriter : ExpressionVisitor
+  internal sealed class NullComparisonRewriter : ExpressionVisitor
   {
+    private static readonly NullComparisonRewriter Instance = new();
+
     protected override Expression VisitUnknown(Expression e)
     {
       return e;
@@ -54,14 +56,11 @@ namespace Xtensive.Orm.Linq.Rewriters
       return expression.Type.IsSubclassOf(WellKnownOrmTypes.Entity);
     }
 
-    public static Expression Rewrite(Expression e)
-    {
-      return new NullComparsionRewriter().Visit(e);
-    }
+    public static Expression Rewrite(Expression e) => Instance.Visit(e);
 
     // Constructors
 
-    private NullComparsionRewriter()
+    private NullComparisonRewriter()
     {
     }
   }
