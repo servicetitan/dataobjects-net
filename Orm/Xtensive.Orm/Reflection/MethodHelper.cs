@@ -98,23 +98,18 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="type">Type to search constructor in.</param>
     /// <param name="bindingFlags">Binding attributes.</param>
-    /// <param name="parameterTypes">Either strings or <see cref="Type"/>s of parameters (mixing is allowed).</param>
+    /// <param name="parameterTypes"><see cref="Type"/>s of parameters (mixing is allowed).</param>
     /// <returns>Found constructor, if match was found;
     /// otherwise, <see langword="null"/>.</returns>
 
     [CanBeNull]
-    public static ConstructorInfo GetConstructorEx(this Type type, BindingFlags bindingFlags, object[] parameterTypes)
+    public static ConstructorInfo GetConstructorEx(this Type type, BindingFlags bindingFlags, Type[] parameterTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
-      if (parameterTypes == null) {
-        parameterTypes = Array.Empty<object>();
+      if (parameterTypes.All(o => o is not null)) {
+        return type.GetConstructor(bindingFlags, null, parameterTypes, null);
       }
-      else if (parameterTypes.All(o => o is Type)) {
-        return type.GetConstructor(bindingFlags, null,
-          parameterTypes.Select(o => (Type) o).ToArray(parameterTypes.Length), null);
-      }
-
       ConstructorInfo lastMatch = null;
 
       foreach (var ci in type.GetConstructors(bindingFlags)) {

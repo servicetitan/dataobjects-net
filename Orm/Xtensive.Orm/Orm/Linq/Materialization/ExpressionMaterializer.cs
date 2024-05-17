@@ -83,8 +83,7 @@ namespace Xtensive.Orm.Linq.Materialization
       var entityMaterializer = Visit(expression.EntityExpression);
       var constructorInfo = WellKnownOrmTypes.FullTextMatchOfT
         .CachedMakeGenericType(expression.EntityExpression.Type)
-        .GetConstructorEx(BindingFlags.NonPublic | BindingFlags.Instance,
-          new object[] {WellKnownTypes.Double, expression.EntityExpression.Type});
+        .GetConstructorEx(BindingFlags.NonPublic | BindingFlags.Instance, [WellKnownTypes.Double, expression.EntityExpression.Type]);
 
       return Expression.New(
         constructorInfo,
