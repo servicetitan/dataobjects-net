@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Providers
 
     protected SqlExpression CreateIncludeViaComplexConditionExpression(
       IncludeProvider provider, Func<ParameterContext, object> valueAccessor,
-      IList<SqlExpression> sourceColumns, out QueryParameterBinding binding)
+      IReadOnlyList<SqlExpression> sourceColumns, out QueryParameterBinding binding)
     {
       var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
       var mappings = filterTupleDescriptor.Select(type => Driver.GetTypeMapping(type));
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Providers
     }
 
     protected SqlExpression CreateIncludeViaTemporaryTableExpression(
-      IncludeProvider provider, IList<SqlExpression> sourceColumns,
+      IncludeProvider provider, IReadOnlyList<SqlExpression> sourceColumns,
       out TemporaryTableDescriptor tableDescriptor)
     {
       var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;

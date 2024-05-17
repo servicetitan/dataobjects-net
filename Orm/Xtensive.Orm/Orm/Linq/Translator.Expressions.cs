@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Linq
           ? e
           : ExpressionEvaluator.Evaluate(e);
       }
-      return e.NodeType == ExpressionType.Index ? VisitIndex((IndexExpression) e) : base.Visit(e);
+      return base.Visit(e);
     }
 
     protected override Expression VisitUnknown(Expression e)

@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Providers.Oracle
       return Handlers.NameBuilder.ApplyNamingRules(name);
     }
 
-    protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
+    protected override SqlExpression ProcessAggregate(SqlProvider source, IReadOnlyList<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
       var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);
       if (aggregateColumn.AggregateType==AggregateType.Avg) {

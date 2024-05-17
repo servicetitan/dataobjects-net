@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Providers.SqlServer
     }
 
     protected override SqlExpression ProcessAggregate(
-      SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
+      SqlProvider source, IReadOnlyList<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
       var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);
       var aggregateReturnType = aggregateColumn.Type;

@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       return CreateProvider(select, queryAndBindings.Bindings.Append(topNBinding).Append(searchCriteriaBinding), provider);
     }
 
-    protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
+    protected override SqlExpression ProcessAggregate(SqlProvider source, IReadOnlyList<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
       var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);
       if (aggregateColumn.AggregateType == AggregateType.Sum || aggregateColumn.AggregateType == AggregateType.Avg) {
