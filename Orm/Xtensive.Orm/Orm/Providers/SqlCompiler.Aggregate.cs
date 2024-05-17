@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="sourceColumns">The source columns.</param>
     /// <param name="aggregateColumn">The aggregate column.</param>
     /// <returns>Aggregate processing result (expression).</returns>
-    protected virtual SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
+    protected virtual SqlExpression ProcessAggregate(SqlProvider source, IReadOnlyList<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
       switch (aggregateColumn.AggregateType) {
       case AggregateType.Avg:

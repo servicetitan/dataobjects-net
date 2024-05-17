@@ -22,6 +22,7 @@ namespace Xtensive.Linq
   public sealed class ConstantExtractor : ExpressionVisitor
   {
     private static readonly ParameterExpression ConstantParameter = Expression.Parameter(WellKnownTypes.ObjectArray, "constants");
+    private static readonly Expression[] ConstantExpressions = Enumerable.Range(0, 10).Select(i => Expression.ArrayIndex(ConstantParameter, Expr.Constant(i))).ToArray();
 
     private readonly Func<ConstantExpression, bool> constantFilter;
     private readonly LambdaExpression lambda;
@@ -60,8 +61,12 @@ namespace Xtensive.Linq
     {
       if (!constantFilter.Invoke(c))
         return c;
+      var n = constantValues.Count;       
       var result = Expression.Convert(
-        Expression.ArrayIndex(ConstantParameter, Expr.Constant(constantValues.Count)), c.Type);
+        n < ConstantExpressions.Length
+          ? ConstantExpressions[n]
+          : Expression.ArrayIndex(ConstantParameter, Expr.Constant(n))
+        , c.Type);
       constantValues.Add(c.Value);
       return result;
     }

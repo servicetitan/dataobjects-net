@@ -83,12 +83,8 @@ namespace Xtensive.Orm.Providers
       return sourceSelect.ShallowClone();
     }
 
-    protected List<SqlExpression> ExtractColumnExpressions(SqlSelect query)
-    {
-      var result = new List<SqlExpression>(query.Columns.Count);
-      result.AddRange(query.Columns.Select(ExtractColumnExpression));
-      return result;
-    }
+    protected IReadOnlyList<SqlExpression> ExtractColumnExpressions(SqlSelect query) =>
+      query.Columns.Select(ExtractColumnExpression).ToArray(query.Columns.Count);
 
     protected SqlExpression ExtractColumnExpression(SqlColumn column)
     {
