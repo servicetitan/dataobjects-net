@@ -23,6 +23,7 @@ namespace Xtensive.Sql.Drivers.MySql.v8_0
       }
 
       _ = output
+        .AppendSpaceIfNecessary()
         .Append(forShare ? "FOR SHARE" : "FOR UPDATE")
         .Append(lockType.Supports(SqlLockType.SkipLocked)
           ? " SKIP LOCKED"
