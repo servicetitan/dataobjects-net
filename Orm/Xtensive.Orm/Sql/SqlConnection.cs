@@ -109,9 +109,6 @@ namespace Xtensive.Sql
     /// <returns>Created command.</returns>
     public DbCommand CreateCommand(ISqlCompileUnit statement)
     {
-      ArgumentValidator.EnsureArgumentNotNull(statement, nameof(statement));
-      EnsureIsNotDisposed();
-
       var command = CreateCommand();
       command.CommandText = Driver.Compile(statement).GetCommandText();
       return command;
@@ -125,8 +122,6 @@ namespace Xtensive.Sql
     public DbCommand CreateCommand(string commandText)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(commandText, nameof(commandText));
-      EnsureIsNotDisposed();
-
       var command = CreateCommand();
       command.CommandText = commandText;
       return command;
@@ -525,8 +520,8 @@ namespace Xtensive.Sql
       isDisposed = true;
 
       try {
-        if (ActiveTransaction != null) {
-          ActiveTransaction.Dispose();
+        if (ActiveTransaction is {} t) {
+          t.Dispose();
           ClearActiveTransaction();
         }
       }
@@ -546,8 +541,8 @@ namespace Xtensive.Sql
 
       isDisposed = true;
       try {
-        if (ActiveTransaction != null) {
-          await ActiveTransaction.DisposeAsync().ConfigureAwaitFalse();
+        if (ActiveTransaction is {} t) {
+          await t.DisposeAsync().ConfigureAwaitFalse();
           ClearActiveTransaction();
         }
       }
@@ -593,7 +588,7 @@ namespace Xtensive.Sql
     /// </summary>
     protected void EnsureTransactionIsAlive()
     {
-      if (ActiveTransaction != null && ActiveTransaction.Connection == null)
+      if (ActiveTransaction is {} t && t.Connection == null)
         throw new InvalidOperationException(Strings.ExActiveTransactionIsNoLongerUsable);
     }
 
