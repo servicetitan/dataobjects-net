@@ -871,7 +871,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         base.Translate(output, lockType);
       }
       else {
-        _ = output.Append("FOR UPDATE");
+        _ = output.AppendSpaceIfNecessary().Append("FOR UPDATE");
       }
     }
 

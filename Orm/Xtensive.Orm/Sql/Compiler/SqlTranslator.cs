@@ -1062,7 +1062,7 @@ namespace Xtensive.Sql.Compiler
           _ = output.Append(node.Cursor.WithReturn ? "WITH RETURN " : "WITHOUT RETURN ");
           break;
         case DeclareCursorSection.Updatability:
-          _ = output.Append(node.Cursor.ReadOnly ? "FOR READ ONLY" : "FOR UPDATE");
+          _ = context.Output.AppendSpacePrefixed(node.Cursor.ReadOnly ? "FOR READ ONLY" : "FOR UPDATE");
           break;
       }
     }

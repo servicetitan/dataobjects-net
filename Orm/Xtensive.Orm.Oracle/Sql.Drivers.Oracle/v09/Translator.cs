@@ -426,10 +426,10 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         base.Translate(output, lockType);
       }
       else if (lockType.Supports(SqlLockType.ThrowIfLocked)) {
-        _ = output.Append("FOR UPDATE NOWAIT");
+        _ = output.AppendSpaceIfNecessary().Append("FOR UPDATE NOWAIT");
       }
       else {
-        _ = output.Append("FOR UPDATE");
+        _ = output.AppendSpaceIfNecessary().Append("FOR UPDATE");
       }
     }
 

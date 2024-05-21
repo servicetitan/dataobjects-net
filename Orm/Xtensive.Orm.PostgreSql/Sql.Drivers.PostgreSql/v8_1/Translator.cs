@@ -44,6 +44,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_1
       if (lockType.Supports(SqlLockType.SkipLocked)) {
         base.Translate(output, lockType);
       }
+      _ = output.AppendSpaceIfNecessary();
       _ = lockType.Supports(SqlLockType.Shared)
         ? output.Append("FOR SHARE")
         : output.Append("FOR UPDATE");
