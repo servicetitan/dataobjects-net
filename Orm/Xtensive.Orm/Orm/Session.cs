@@ -220,10 +220,12 @@ namespace Xtensive.Orm
     /// </summary>
     public IServiceContainer Services { get; private set; }
 
+    private Guid? guid;
+
     /// <summary>
     /// Gets the unique identifier of this session.
     /// </summary>
-    public Guid Guid { get; private set; }
+    public Guid Guid => guid ??= Guid.NewGuid();
 
     /// <summary>
     /// Provides context for <see cref="CommandProcessor"/>.
@@ -542,7 +544,6 @@ namespace Xtensive.Orm
     internal Session(Domain domain, StorageNode selectedStorageNode, SessionConfiguration configuration, bool activate)
       : base(domain)
     {
-      Guid = Guid.NewGuid();
       IsDebugEventLoggingEnabled = OrmLog.IsLogged(LogLevel.Debug); // Just to cache this value
 
       // Both Domain and Configuration are valid references here;
@@ -646,14 +647,14 @@ namespace Xtensive.Orm
         SystemEvents.NotifyDisposing();
         Events.NotifyDisposing();
 
-        Services.DisposeSafely();
+        Services?.Dispose();
         if (isAsync) {
           await Handler.DisposeSafelyAsync().ConfigureAwaitFalse();
         }
         else {
-          Handler.DisposeSafely();
+          Handler?.Dispose();
         }
-        CommandProcessorContextProvider.DisposeSafely();
+        CommandProcessorContextProvider = null;
 
         Domain.ReleaseSingleConnection();
 

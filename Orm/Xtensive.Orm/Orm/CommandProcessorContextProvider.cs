@@ -10,7 +10,7 @@ using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm
 {
-  public sealed class CommandProcessorContextProvider : SessionBound, IDisposable
+  public sealed class CommandProcessorContextProvider : SessionBound
   {
     private readonly ConcurrentDictionary<CommandProcessorContext, CommandProcessorContext> providedContexts
       = new ConcurrentDictionary<CommandProcessorContext, CommandProcessorContext>();
@@ -33,8 +33,6 @@ namespace Xtensive.Orm
       context.Disposed += RemoveDisposedContext;
       return context;
     }
-
-    public void Dispose() => providedContexts.Clear();
 
     private void RemoveDisposedContext(object sender, EventArgs args)
     {
