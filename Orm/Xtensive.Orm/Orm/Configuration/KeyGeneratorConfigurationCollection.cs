@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc/>
-    public object Clone()
+    public KeyGeneratorConfigurationCollection Clone()
     {
       var result = new KeyGeneratorConfigurationCollection();
       foreach (var generator in this)
@@ -50,6 +50,7 @@ namespace Xtensive.Orm.Configuration
       return result;
     }
 
+    object ICloneable.Clone() => Clone();
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {

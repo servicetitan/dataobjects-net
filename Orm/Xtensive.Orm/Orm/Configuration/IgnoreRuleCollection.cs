@@ -51,13 +51,15 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc />
-    public object Clone()
+    public IgnoreRuleCollection Clone()
     {
       var result = new IgnoreRuleCollection();
       foreach (var rule in this)
         result.Add(rule.Clone());
       return result;
     }
+
+    object ICloneable.Clone() => Clone();
 
     /// <inheritdoc />
     public override void Lock(bool recursive)

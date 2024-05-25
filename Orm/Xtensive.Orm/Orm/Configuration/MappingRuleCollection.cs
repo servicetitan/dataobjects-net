@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -51,13 +51,15 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc />
-    public object Clone()
+    public MappingRuleCollection Clone()
     {
       var result = new MappingRuleCollection();
       foreach (var rule in this)
         result.Add(rule.Clone());
       return result;
     }
+
+    object ICloneable.Clone() => Clone();
 
     /// <inheritdoc/>
     public override void Lock(bool recursive)

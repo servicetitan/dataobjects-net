@@ -1052,7 +1052,7 @@ namespace Xtensive.Orm.Linq
           var methodInfo = structureType.GetProperty(indexerPropertyName).GetGetMethod();
           propertyAccessorExpression = Expression.Call(Expression.Convert(expression, structureType), methodInfo, Expression.Constant(fieldExpression.Name));
         }
-        var memberExpression = (Expression) Expression.Condition(
+        Expression memberExpression = Expression.Condition(
           isNullExpression,
           Expression.Constant(null, nullableType),
           Expression.Convert(
@@ -1152,7 +1152,7 @@ namespace Xtensive.Orm.Linq
           var resultType = type.ToNullable();
           var baseType = type.StripNullable();
           var fieldType = (baseType.IsEnum ? Enum.GetUnderlyingType(baseType) : baseType).ToNullable();
-          var tupleAccess = (Expression) keyTupleExpression.MakeTupleAccess(fieldType, index);
+          Expression tupleAccess = keyTupleExpression.MakeTupleAccess(fieldType, index);
           if (fieldType != resultType)
             tupleAccess = Expression.Convert(tupleAccess, resultType);
           return (Expression) Expression.Condition(isNullExpression, Expression.Constant(null, resultType), tupleAccess);

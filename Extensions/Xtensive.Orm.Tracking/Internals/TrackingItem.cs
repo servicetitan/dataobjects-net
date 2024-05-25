@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -72,7 +73,7 @@ namespace Xtensive.Orm.Tracking
         changedValuesList.Add(new ChangedValue(field, origValue, changedValue));
       }
 
-      return changedValuesList.AsReadOnly();
+      return changedValuesList.AsSafeWrapper();
     }
 
     private void MergeWith(Tuple difference)
@@ -92,8 +93,7 @@ namespace Xtensive.Orm.Tracking
       }
 
       Key = key;
-      if (tuple != null)
-        RawData = (DifferentialTuple) tuple.Clone();
+      RawData = tuple?.Clone();
       State = state;
     }
   }

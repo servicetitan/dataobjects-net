@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       foreach (var sourceSequence in sourceSchema.Sequences) {
         var newSequence = newSchema.CreateSequence(sourceSequence.Name);
         CopyDbName(newSequence, sourceSequence);
-        newSequence.SequenceDescriptor = (SequenceDescriptor) sourceSequence.SequenceDescriptor.Clone();
+        newSequence.SequenceDescriptor = sourceSequence.SequenceDescriptor.Clone();
       }
     }
 
@@ -200,7 +200,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         newColumn.IsNullable = sourceTableColumn.IsNullable;
         newColumn.IsPersisted = sourceTableColumn.IsPersisted;
         if (sourceTableColumn.SequenceDescriptor!=null)
-          newColumn.SequenceDescriptor = (SequenceDescriptor) sourceTableColumn.SequenceDescriptor.Clone();
+          newColumn.SequenceDescriptor = sourceTableColumn.SequenceDescriptor.Clone();
       }
     }
 

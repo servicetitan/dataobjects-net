@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
 
       PopulateData(fieldTypes, t1, d);
       AssertAreSame(t1, d);
-      DifferentialTuple c = (DifferentialTuple)d.Clone();
+      DifferentialTuple c = d.Clone();
       AssertAreSame(d, c);
 
       d.Reset();

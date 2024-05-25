@@ -45,13 +45,15 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc/>
-    public object Clone()
+    public VersioningConvention Clone()
     {
       var result = new VersioningConvention();
       result.EntityVersioningPolicy = entityVersioningPolicy;
       result.DenyEntitySetOwnerVersionChange = denyEntitySetOwnerVersionChange;
       return result;
     }
+
+    object ICloneable.Clone() => Clone();
 
     /// <inheritdoc/>
     public VersioningConvention()

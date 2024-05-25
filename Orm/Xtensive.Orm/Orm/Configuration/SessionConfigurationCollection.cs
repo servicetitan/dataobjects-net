@@ -150,13 +150,15 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc/>
-    public object Clone()
+    public SessionConfigurationCollection Clone()
     {
       var result = new SessionConfigurationCollection();
       foreach (var configuration in this)
         result.Add(configuration.Clone());
       return result;
     }
+
+    object ICloneable.Clone() => Clone();
 
     private SessionConfiguration GetConfiguration(string name, SessionConfiguration fallback)
     {
