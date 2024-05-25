@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Tracking
 {
   internal readonly struct TrackingStackFrame : IEnumerable<TrackingItem>
   {
-    private readonly Dictionary<Key, TrackingItem> items;
+    private readonly Dictionary<Key, TrackingItem> items = new();
 
     public int Count => items.Count;
 
@@ -49,11 +49,8 @@ namespace Xtensive.Orm.Tracking
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    // parameterless ctor not allowed in C#9
-    //TODO: remove it after moving to C#10
-    public TrackingStackFrame(bool _)
+    public TrackingStackFrame()
     {
-      items = new();
     }
   }
 }
