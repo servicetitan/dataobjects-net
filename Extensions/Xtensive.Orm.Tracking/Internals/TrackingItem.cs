@@ -37,6 +37,8 @@ namespace Xtensive.Orm.Tracking
         return;
       }
 
+      ArgumentNullException.ThrowIfNull(source.RawData);
+
       if (State == TrackingItemState.Created && source.State == TrackingItemState.Changed) {
         State = TrackingItemState.Created;
         MergeWith(source.RawData.Difference);
