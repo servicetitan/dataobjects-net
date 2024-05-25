@@ -177,7 +177,7 @@ namespace Xtensive.Tuples
 
     /// <inheritdoc/>
     public override DifferentialTuple Clone() =>
-      new DifferentialTuple(origin.Clone(), difference?.Clone(), backupedDifference?.Clone());
+      new(origin.Clone(), difference?.Clone(), backupedDifference?.Clone());
 
     /// <summary>
     /// Resets all the changes in <see cref="Difference"/> by re-creating it.
