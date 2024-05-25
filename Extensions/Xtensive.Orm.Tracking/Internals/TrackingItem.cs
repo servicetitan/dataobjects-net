@@ -80,6 +80,7 @@ namespace Xtensive.Orm.Tracking
 
     private void MergeWith(Tuple difference)
     {
+      ArgumentNullException.ThrowIfNull(RawData);
       if (RawData.Difference == null)
         RawData.Difference = difference;
       else
