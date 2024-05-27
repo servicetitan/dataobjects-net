@@ -12,9 +12,8 @@ namespace Xtensive.Sql.Ddl
   {
     public Table Table { get; }
 
-    internal override SqlTruncateTable Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlTruncateTable(t.Table));
+    internal override SqlTruncateTable Clone(SqlNodeCloneContext? context = null) =>
+      context.GetOrAdd(this, static (t, c) => new(t.Table));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

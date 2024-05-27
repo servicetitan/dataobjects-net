@@ -18,9 +18,8 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override SqlCreatePartitionScheme Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlCreatePartitionScheme(t.partitionSchema));
+    internal override SqlCreatePartitionScheme Clone(SqlNodeCloneContext? context = null) =>
+      context.GetOrAdd(this, static (t, c) => new(t.partitionSchema));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

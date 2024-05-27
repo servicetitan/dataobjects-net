@@ -18,9 +18,8 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override SqlDropCollation Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlDropCollation(t.collation));
+    internal override SqlDropCollation Clone(SqlNodeCloneContext? context = null) =>
+      context.GetOrAdd(this, static (t, c) => new(t.collation));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

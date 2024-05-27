@@ -38,6 +38,8 @@ namespace Xtensive.Sql.Dml
       name = replacingExpression.Name;
     }
 
+    internal override abstract SqlColumn Clone(SqlNodeCloneContext? context = null);
+
     // Constructor
 
     internal SqlColumn(SqlTable sqlTable, string name) : base(SqlNodeType.Column)
@@ -59,6 +61,5 @@ namespace Xtensive.Sql.Dml
     internal SqlColumn() : base(SqlNodeType.Column)
     {
     }
-
   }
 }

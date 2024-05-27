@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override SqlCreateAssertion Clone(SqlNodeCloneContext context) =>
+    internal override SqlCreateAssertion Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) =>
         new SqlCreateAssertion(t.assertion));
 

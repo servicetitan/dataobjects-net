@@ -22,9 +22,9 @@ namespace Xtensive.Sql.Dml
       Id = replacingExpression.Id;
     }
 
-    internal override SqlVariant Clone(SqlNodeCloneContext context) =>
+    internal override SqlVariant Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlVariant(t.Id, t.Main.Clone(c), t.Alternative.Clone(c)));
+        new(t.Id, t.Main.Clone(c), t.Alternative.Clone(c)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

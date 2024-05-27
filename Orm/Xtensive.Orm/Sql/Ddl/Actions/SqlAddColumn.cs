@@ -12,9 +12,8 @@ namespace Xtensive.Sql.Ddl
   {
     public TableColumn Column { get; private set; }
 
-    internal override SqlAddColumn Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlAddColumn(t.Column));
+    internal override SqlAddColumn Clone(SqlNodeCloneContext? context = null) =>
+      context.GetOrAdd(this, static (t, c) => new(t.Column));
 
     // Constructors
 

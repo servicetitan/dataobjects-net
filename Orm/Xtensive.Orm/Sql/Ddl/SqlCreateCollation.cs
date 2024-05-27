@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override SqlCreateCollation Clone(SqlNodeCloneContext context) =>
+    internal override SqlCreateCollation Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) =>
         new SqlCreateCollation(t.collation));
 

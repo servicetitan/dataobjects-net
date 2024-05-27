@@ -25,7 +25,7 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override SqlAlterDomain Clone(SqlNodeCloneContext context) =>
+    internal override SqlAlterDomain Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) =>
         new SqlAlterDomain(t.domain, (SqlAction)t.action.Clone(c)));
 

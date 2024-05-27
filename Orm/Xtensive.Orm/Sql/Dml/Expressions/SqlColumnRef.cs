@@ -23,11 +23,9 @@ namespace Xtensive.Sql.Dml
       SqlColumn = ArgumentValidator.EnsureArgumentIs<SqlColumnRef>(expression).SqlColumn;
     }
 
-    internal override SqlColumnRef Clone(SqlNodeCloneContext context) =>
+    internal override SqlColumnRef Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlColumnRef(
-            t.SqlTable?.Clone(c),
-            (SqlColumn) t.SqlColumn.Clone(c), t.Name));
+        new(t.SqlTable?.Clone(c), t.SqlColumn.Clone(c), t.Name));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

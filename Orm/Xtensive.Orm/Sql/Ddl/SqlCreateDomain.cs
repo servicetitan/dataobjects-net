@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override SqlCreateDomain Clone(SqlNodeCloneContext context) =>
+    internal override SqlCreateDomain Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) =>
         new SqlCreateDomain(t.domain));
 

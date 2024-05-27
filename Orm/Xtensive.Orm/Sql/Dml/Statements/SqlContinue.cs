@@ -9,7 +9,7 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlContinue : SqlStatement
   {
-    internal override SqlContinue Clone(SqlNodeCloneContext context) => this;
+    internal override SqlContinue Clone(SqlNodeCloneContext? context = null) => this;
 
     internal SqlContinue()
       : base(SqlNodeType.Continue)

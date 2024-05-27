@@ -23,9 +23,8 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     public SqlTable Table { get; private set; }
 
-    internal override SqlJoinHint Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlJoinHint(t.Method, t.Table.Clone()));
+    internal override SqlJoinHint Clone(SqlNodeCloneContext? context = null) =>
+      context.GetOrAdd(this, static (t, c) => new(t.Method, t.Table.Clone()));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

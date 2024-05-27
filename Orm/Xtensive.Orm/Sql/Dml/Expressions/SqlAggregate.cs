@@ -39,10 +39,8 @@ namespace Xtensive.Sql.Dml
       this.expression = replacingExpression.Expression;
     }
 
-    internal override SqlAggregate Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlAggregate(t.NodeType,
-            t.expression?.Clone(c), t.distinct));
+    internal override SqlAggregate Clone(SqlNodeCloneContext? context = null) =>
+      context.GetOrAdd(this, static (t, c) => new(t.NodeType, t.expression?.Clone(c), t.distinct));
 
     internal SqlAggregate(SqlNodeType nodeType, SqlExpression expression, bool distinct) : base(nodeType)
     {

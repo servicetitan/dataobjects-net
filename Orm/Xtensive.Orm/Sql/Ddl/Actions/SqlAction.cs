@@ -14,6 +14,8 @@ namespace Xtensive.Sql.Ddl
       throw new NotSupportedException();
     }
 
+    internal override abstract SqlAction Clone(SqlNodeCloneContext? context = null);
+
     // Constructors
 
     protected SqlAction() : base(SqlNodeType.Action)

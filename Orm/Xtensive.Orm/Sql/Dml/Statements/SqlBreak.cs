@@ -9,7 +9,7 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlBreak : SqlStatement
   {
-    internal override SqlBreak Clone(SqlNodeCloneContext context) => this;
+    internal override SqlBreak Clone(SqlNodeCloneContext? context = null) => this;
 
     internal SqlBreak()
       : base(SqlNodeType.Break)

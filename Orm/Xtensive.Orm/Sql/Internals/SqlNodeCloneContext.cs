@@ -9,8 +9,8 @@ namespace Xtensive.Sql
 {
   internal readonly struct SqlNodeCloneContext
   {
-    private readonly Dictionary<SqlNode, SqlNode> nodeMapping;
-    
+    private readonly Dictionary<SqlNode, SqlNode> nodeMapping = new();
+
     public Dictionary<SqlNode, SqlNode> NodeMapping => nodeMapping;
 
     public T TryGet<T>(T node) where T : SqlNode =>
@@ -18,19 +18,22 @@ namespace Xtensive.Sql
         ? (T) clone
         : null;
 
-    public T GetOrAdd<T>(T node, Func<T, SqlNodeCloneContext, T> factory) where T : SqlNode
+    public SqlNodeCloneContext()
     {
-      if (NodeMapping.TryGetValue(node, out var clone)) {
-        return (T)clone;
-      }
-      var result = factory(node, this);
-      NodeMapping[node] = result;
-      return result;
     }
+  }
 
-    public SqlNodeCloneContext(bool _)
+  internal static class SqlNodeCloneContextExtensions
+  {
+    public static T GetOrAdd<T>(this SqlNodeCloneContext? context, T node, Func<T, SqlNodeCloneContext, T> factory) where T : SqlNode
     {
-      nodeMapping = new();
+      var ctx = context ?? new();
+      if (ctx.NodeMapping.TryGetValue(node, out var clone)) {
+        return (T) clone;
+      }
+      var result = factory(node, ctx);
+      ctx.NodeMapping[node] = result;
+      return result;
     }
   }
 }

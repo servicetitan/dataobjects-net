@@ -31,7 +31,7 @@ namespace Xtensive.Sql.Ddl
       set { option = value; }
     }
 
-    internal override SqlAlterPartitionFunction Clone(SqlNodeCloneContext context) =>
+    internal override SqlAlterPartitionFunction Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) =>
         new SqlAlterPartitionFunction(t.partitionFunction, t.boundary, t.option));
 

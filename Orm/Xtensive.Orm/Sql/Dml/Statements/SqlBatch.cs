@@ -105,11 +105,11 @@ namespace Xtensive.Sql.Dml
 
     #endregion
 
-    internal override SqlBatch Clone(SqlNodeCloneContext context) =>
+    internal override SqlBatch Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) => {
         var clone = new SqlBatch();
         foreach (SqlStatement s in t.statements)
-          clone.Add((SqlStatement) s.Clone(c));
+          clone.Add(s.Clone(c));
         return clone;
       });
 

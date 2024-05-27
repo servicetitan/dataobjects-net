@@ -18,9 +18,8 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override SqlCreateSequence Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlCreateSequence(t.sequence));
+    internal override SqlCreateSequence Clone(SqlNodeCloneContext? context = null) =>
+      context.GetOrAdd(this, static (t, c) => new(t.sequence));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

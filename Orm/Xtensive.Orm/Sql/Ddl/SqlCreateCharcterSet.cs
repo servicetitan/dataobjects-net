@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override SqlCreateCharacterSet Clone(SqlNodeCloneContext context) =>
+    internal override SqlCreateCharacterSet Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) =>
         new SqlCreateCharacterSet(t.characterSet));
 

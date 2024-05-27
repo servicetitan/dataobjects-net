@@ -103,7 +103,7 @@ namespace Xtensive.Sql.Dml
         cases.Add(pair);
     }
 
-    internal override SqlCase Clone(SqlNodeCloneContext context) =>
+    internal override SqlCase Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) => {
         var clone = new SqlCase(t.value?.Clone(c));
 

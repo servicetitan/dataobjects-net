@@ -18,9 +18,8 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override SqlDropCharacterSet Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlDropCharacterSet(t.characterSet));
+    internal override SqlDropCharacterSet Clone(SqlNodeCloneContext? context = null) =>
+      context.GetOrAdd(this, static (t, c) => new(t.characterSet));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

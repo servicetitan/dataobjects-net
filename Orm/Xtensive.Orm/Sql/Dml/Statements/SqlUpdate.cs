@@ -67,7 +67,7 @@ namespace Xtensive.Sql.Dml
       set { limit = value; }
     }
 
-    internal override SqlUpdate Clone(SqlNodeCloneContext context) =>
+    internal override SqlUpdate Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) => {
         var clone = new SqlUpdate();
         if (t.update != null)
@@ -83,7 +83,7 @@ namespace Xtensive.Sql.Dml
           clone.Limit = t.where.Clone(c);
         if (t.Hints.Count > 0)
           foreach (SqlHint hint in t.Hints)
-            clone.Hints.Add((SqlHint) hint.Clone(c));
+            clone.Hints.Add(hint.Clone(c));
 
         return clone;
       });

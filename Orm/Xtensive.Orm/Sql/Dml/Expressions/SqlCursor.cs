@@ -168,10 +168,7 @@ namespace Xtensive.Sql.Dml
       throw new NotImplementedException();
     }
 
-    internal override SqlCursor Clone(SqlNodeCloneContext context)
-    {
-      throw new NotImplementedException();
-    }
+    internal override SqlCursor Clone(SqlNodeCloneContext? context = null) => throw new NotImplementedException();
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

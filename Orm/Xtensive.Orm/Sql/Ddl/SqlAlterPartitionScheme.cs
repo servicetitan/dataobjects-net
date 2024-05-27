@@ -25,7 +25,7 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override SqlAlterPartitionScheme Clone(SqlNodeCloneContext context) =>
+    internal override SqlAlterPartitionScheme Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) =>
         new SqlAlterPartitionScheme(t.partitionSchema, t.filegroup));
 
