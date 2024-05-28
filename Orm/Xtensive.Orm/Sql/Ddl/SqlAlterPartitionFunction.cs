@@ -33,7 +33,7 @@ namespace Xtensive.Sql.Ddl
 
     internal override SqlAlterPartitionFunction Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlAlterPartitionFunction(t.partitionFunction, t.boundary, t.option));
+        new(t.partitionFunction, t.boundary, t.option));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
