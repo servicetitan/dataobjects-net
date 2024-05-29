@@ -43,11 +43,11 @@ namespace Xtensive.Sql.Dml
       }
     }
 
-    internal override SqlWhile Clone(SqlNodeCloneContext context) =>
+    internal override SqlWhile Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) => {
-        SqlWhile clone = new SqlWhile(t.condition.Clone(c));
+        SqlWhile clone = new(t.condition.Clone(c));
         if (t.statement!=null)
-          clone.Statement = (SqlStatement) t.statement.Clone(c);
+          clone.Statement = t.statement.Clone(c);
         return clone;
       });
     

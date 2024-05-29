@@ -13,9 +13,8 @@ namespace Xtensive.Sql.Ddl
   {
     public SqlCommandType CommandType { get; private set; }
 
-    internal override SqlCommand Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlCommand(t.CommandType));
+    internal override SqlCommand Clone(SqlNodeCloneContext? context = null) =>
+      context.GetOrAdd(this, static (t, c) => new(t.CommandType));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Services;
 
@@ -28,7 +29,7 @@ namespace Xtensive.Orm.Tracking
 
     private void OnOpenTransaction(object sender, TransactionEventArgs e)
     {
-      stack.Push(new TrackingStackFrame(false));
+      stack.Push(new TrackingStackFrame());
     }
 
     private void OnCommitTransaction(object sender, TransactionEventArgs e)
@@ -40,7 +41,7 @@ namespace Xtensive.Orm.Tracking
       if (e.Transaction.IsNested)
         return;
 
-      var items = target.Cast<ITrackingItem>().ToList().AsReadOnly();
+      var items = target.Cast<ITrackingItem>().ToList().AsSafeWrapper();
       target.Clear();
 
       RaiseTrackingCompleted(new TrackingCompletedEventArgs(session, items));
@@ -82,7 +83,7 @@ namespace Xtensive.Orm.Tracking
       this.session = session;
       this.accessor = accessor;
 
-      stack.Push(new TrackingStackFrame(false));
+      stack.Push(new TrackingStackFrame());
 
       Subscribe();
     }

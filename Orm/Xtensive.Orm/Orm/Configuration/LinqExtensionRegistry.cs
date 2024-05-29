@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -78,11 +78,8 @@ namespace Xtensive.Orm.Configuration
     /// Clones this instance.
     /// </summary>
     /// <returns>Clone of this instance.</returns>
-    public object Clone()
-    {
-      return new LinqExtensionRegistry(this);
-    }
-
+    public LinqExtensionRegistry Clone() => new(this);
+    object ICloneable.Clone() => Clone();
 
     // Constructors
 

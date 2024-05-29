@@ -253,7 +253,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
         var columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
 
-        var persistentTupleExpression = (Expression) Expression.Call(
+        Expression persistentTupleExpression = Expression.Call(
           BuildPersistentTupleMethod,
           tupleExpression,
           Expression.Constant(tuplePrototype),
@@ -299,7 +299,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
       var columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
 
-      var persistentTupleExpression = (Expression) Expression.Call(
+      Expression persistentTupleExpression = Expression.Call(
         BuildPersistentTupleMethod,
         tupleExpression,
         Expression.Constant(tuplePrototype),

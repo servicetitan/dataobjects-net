@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Configuration
     #region ICloneable members
 
     /// <inheritdoc/>
-    public object Clone()
+    public NamingConvention Clone()
     {
       EnsureNotLocked();
       var result = new NamingConvention();
@@ -102,6 +102,8 @@ namespace Xtensive.Orm.Configuration
       result.namespaceSynonyms = new Dictionary<string, string>(namespaceSynonyms);
       return result;
     }
+
+    object ICloneable.Clone() => Clone();
 
     #endregion
   }

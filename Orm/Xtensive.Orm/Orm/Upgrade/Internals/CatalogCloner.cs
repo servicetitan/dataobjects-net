@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Providers;
+using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Index = Xtensive.Sql.Model.Index;
@@ -126,7 +127,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       foreach (var sourceSequence in sourceSchema.Sequences) {
         var newSequence = newSchema.CreateSequence(sourceSequence.Name);
         CopyDbName(newSequence, sourceSequence);
-        newSequence.SequenceDescriptor = (SequenceDescriptor) sourceSequence.SequenceDescriptor.Clone();
+        newSequence.SequenceDescriptor = sourceSequence.SequenceDescriptor.Clone();
       }
     }
 
@@ -159,7 +160,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         CopyDbName(newView, sourceView);
         newView.CheckOptions = sourceView.CheckOptions;
         if (sourceView.Definition != null) {
-          newView.Definition = (SqlNative) sourceView.Definition.Clone();
+          newView.Definition = sourceView.Definition.Clone();
         }
         CloneViewColumns(newView, sourceView);
         CloneIndexes(newView, sourceView);
@@ -200,7 +201,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         newColumn.IsNullable = sourceTableColumn.IsNullable;
         newColumn.IsPersisted = sourceTableColumn.IsPersisted;
         if (sourceTableColumn.SequenceDescriptor!=null)
-          newColumn.SequenceDescriptor = (SequenceDescriptor) sourceTableColumn.SequenceDescriptor.Clone();
+          newColumn.SequenceDescriptor = sourceTableColumn.SequenceDescriptor.Clone();
       }
     }
 

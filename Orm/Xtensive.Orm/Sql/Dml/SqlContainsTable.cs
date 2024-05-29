@@ -18,10 +18,7 @@ namespace Xtensive.Sql.Dml
 
     public SqlExpression TopNByRank { get; private set; }
 
-    internal override SqlContainsTable Clone(SqlNodeCloneContext context)
-    {
-      throw new NotImplementedException();
-    }
+    internal override SqlContainsTable Clone(SqlNodeCloneContext? context = null) => throw new NotImplementedException();
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

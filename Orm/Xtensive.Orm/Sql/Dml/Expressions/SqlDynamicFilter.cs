@@ -15,7 +15,7 @@ namespace Xtensive.Sql.Dml
 
     public List<SqlExpression> Expressions { get; private set; }
 
-    internal override SqlDynamicFilter Clone(SqlNodeCloneContext context) =>
+    internal override SqlDynamicFilter Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) => {
         var clone = new SqlDynamicFilter(t.Id);
         foreach (var expression in t.Expressions) {

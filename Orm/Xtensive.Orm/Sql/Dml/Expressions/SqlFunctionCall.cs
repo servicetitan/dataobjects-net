@@ -25,9 +25,9 @@ namespace Xtensive.Sql.Dml
       Arguments = replacingExpression.Arguments;
     }
 
-    internal override SqlFunctionCall Clone(SqlNodeCloneContext context) =>
+    internal override SqlFunctionCall Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlFunctionCall(t.FunctionType, t.Arguments.Select(o => o.Clone(c)).ToArray(t.Arguments.Count)));
+        new(t.FunctionType, t.Arguments.Select(o => o.Clone(c)).ToArray(t.Arguments.Count)));
 
     public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
 

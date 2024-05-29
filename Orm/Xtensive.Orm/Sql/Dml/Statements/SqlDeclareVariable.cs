@@ -20,9 +20,8 @@ namespace Xtensive.Sql.Dml
       get { return variable; }
     }
 
-    internal override SqlDeclareVariable Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlDeclareVariable(t.variable));
+    internal override SqlDeclareVariable Clone(SqlNodeCloneContext? context = null) =>
+      context.GetOrAdd(this, static (t, c) => new(t.variable));
 
     internal SqlDeclareVariable(SqlVariable variable)
       : base(SqlNodeType.DeclareVariable)

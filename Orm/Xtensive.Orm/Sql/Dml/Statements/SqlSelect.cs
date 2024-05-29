@@ -187,7 +187,7 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     public bool HasOffset => Offset is not null;
 
-    internal override SqlSelect Clone(SqlNodeCloneContext context) =>
+    internal override SqlSelect Clone(SqlNodeCloneContext? context = null ) =>
       context.GetOrAdd(this, static (t, c) => {
         SqlSelect clone = new SqlSelect(t.from==null ? null : t.from.Clone(c));
 
@@ -211,7 +211,7 @@ namespace Xtensive.Sql.Dml
 
         if (t.Hints.Count > 0)
           foreach (SqlHint hint in t.Hints)
-            clone.Hints.Add((SqlHint)hint.Clone(c));
+            clone.Hints.Add(hint.Clone(c));
 
         return clone;
       });

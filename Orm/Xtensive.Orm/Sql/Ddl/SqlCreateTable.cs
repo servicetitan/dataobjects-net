@@ -5,31 +5,15 @@
 using System;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.Ddl
+namespace Xtensive.Sql.Ddl;
+
+[Serializable]
+public class SqlCreateTable(Table table) : SqlStatement(SqlNodeType.Create), ISqlCompileUnit
 {
-  [Serializable]
-  public class SqlCreateTable : SqlStatement, ISqlCompileUnit
-  {
-    private Table table;
+  public Table Table { get; } = table;
 
-    public Table Table {
-      get {
-        return table;
-      }
-    }
+  internal override SqlCreateTable Clone(SqlNodeCloneContext? context = null) =>
+    context.GetOrAdd(this, static (t, c) => new(t.Table));
 
-    internal override SqlCreateTable Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlCreateTable(t.table));
-
-    public override void AcceptVisitor(ISqlVisitor visitor)
-    {
-      visitor.Visit(this);
-    }
-
-    internal SqlCreateTable(Table table) : base(SqlNodeType.Create)
-    {
-      this.table = table;
-    }
-  }
+  public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
 }

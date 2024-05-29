@@ -31,17 +31,13 @@ namespace Xtensive.Sql.Dml
       query = replacingExpression.Query;
     }
 
-    internal override SqlSubQuery Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) => {
-        SqlSubQuery clone;
-        SqlSelect select = t.query as SqlSelect;
-        SqlQueryExpression expression = t.query as SqlQueryExpression;
-        if (select != null)
-          clone = new SqlSubQuery(select.Clone(c));
-        else 
-          clone = new SqlSubQuery(expression.Clone(c));
-        return clone;
-      });
+    internal override SqlSubQuery Clone(SqlNodeCloneContext? context = null) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new(t.query is SqlSelect select
+          ? select.Clone(c)
+          : (t.query as SqlQueryExpression).Clone(c)
+          )
+      );
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

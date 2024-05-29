@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -35,6 +36,8 @@ namespace Xtensive.Orm.Tracking
         RawData = source.RawData; // TODO: Check whether a clone is required
         return;
       }
+
+      ArgumentNullException.ThrowIfNull(source.RawData);
 
       if (State == TrackingItemState.Created && source.State == TrackingItemState.Changed) {
         State = TrackingItemState.Created;
@@ -72,11 +75,12 @@ namespace Xtensive.Orm.Tracking
         changedValuesList.Add(new ChangedValue(field, origValue, changedValue));
       }
 
-      return changedValuesList.AsReadOnly();
+      return changedValuesList.AsSafeWrapper();
     }
 
     private void MergeWith(Tuple difference)
     {
+      ArgumentNullException.ThrowIfNull(RawData);
       if (RawData.Difference == null)
         RawData.Difference = difference;
       else
@@ -92,8 +96,7 @@ namespace Xtensive.Orm.Tracking
       }
 
       Key = key;
-      if (tuple != null)
-        RawData = (DifferentialTuple) tuple.Clone();
+      RawData = tuple?.Clone();
       State = state;
     }
   }

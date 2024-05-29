@@ -140,10 +140,8 @@ namespace Xtensive.Sql.Model
     ///<returns>
     ///A new object that is a copy of this instance.
     ///</returns>
-    public object Clone()
-    {
-      return new SequenceDescriptor(owner, startValue, increment, maxValue, minValue, isCyclic);
-    }
+    public SequenceDescriptor Clone() => new(owner, startValue, increment, maxValue, minValue, isCyclic);
+    object ICloneable.Clone() => Clone();
 
     #endregion
 

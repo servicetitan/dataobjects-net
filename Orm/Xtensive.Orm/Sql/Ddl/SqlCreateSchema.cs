@@ -18,9 +18,8 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override SqlCreateSchema Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlCreateSchema(t.schema));
+    internal override SqlCreateSchema Clone(SqlNodeCloneContext? context = null) =>
+      context.GetOrAdd(this, static (t, c) => new(t.schema));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

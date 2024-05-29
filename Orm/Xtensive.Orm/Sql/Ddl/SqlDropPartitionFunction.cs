@@ -18,9 +18,8 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override SqlDropPartitionFunction Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlDropPartitionFunction(t.partitionFunction));
+    internal override SqlDropPartitionFunction Clone(SqlNodeCloneContext? context = null) =>
+      context.GetOrAdd(this, static (t, c) => new(t.partitionFunction));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

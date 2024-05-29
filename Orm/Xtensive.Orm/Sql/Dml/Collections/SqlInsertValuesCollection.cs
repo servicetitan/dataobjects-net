@@ -107,8 +107,9 @@ namespace Xtensive.Sql.Dml.Collections
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    internal SqlInsertValuesCollection Clone(SqlNodeCloneContext context)
+    internal SqlInsertValuesCollection Clone(SqlNodeCloneContext? context = null)
     {
+      var ctx = context ?? new();
       var clone = new SqlInsertValuesCollection();
 
       if (rows.Count == 0) {
@@ -117,13 +118,13 @@ namespace Xtensive.Sql.Dml.Collections
 
       var clonedList = new List<SqlColumn>(columns.Count);
       foreach (var oldColumn in columns) {
-        clonedList.Add((SqlColumn) context.NodeMapping[oldColumn]);
+        clonedList.Add((SqlColumn) ctx.NodeMapping[oldColumn]);
       }
       clone.columns = clonedList;
 
       clone.rows = new List<SqlRow>(rows.Count);
       foreach(var oldRow in rows) {
-        clone.rows.Add((SqlRow) oldRow.Clone());
+        clone.rows.Add(oldRow.Clone());
       }
 
       return clone;

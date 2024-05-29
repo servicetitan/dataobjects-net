@@ -89,11 +89,9 @@ namespace Xtensive.Sql.Dml
       Right = replacingExpression.Right;
     }
 
-    internal override SqlBinary Clone(SqlNodeCloneContext context) =>
+    internal override SqlBinary Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) =>
-        new SqlBinary(t.NodeType,
-            t.Left.Clone(c),
-            t.Right.Clone(c)));
+        new(t.NodeType, t.Left.Clone(c), t.Right.Clone(c)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

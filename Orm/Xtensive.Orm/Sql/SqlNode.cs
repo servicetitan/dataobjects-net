@@ -18,17 +18,9 @@ namespace Xtensive.Sql
     /// <value>The type of the node.</value>
     public SqlNodeType NodeType { get; internal set; }
 
-    /// <summary>
-    /// Creates a new object that is a copy of the current instance.
-    /// </summary>
-    /// <returns>
-    /// A new object that is a copy of this instance.
-    /// </returns>
-    public virtual SqlNode Clone() => Clone(new SqlNodeCloneContext(false));
+    object ICloneable.Clone() => Clone();
 
-    object ICloneable.Clone() => Clone(new SqlNodeCloneContext(false));
-
-    internal abstract SqlNode Clone(SqlNodeCloneContext context);
+    internal abstract SqlNode Clone(SqlNodeCloneContext? context = null);
 
     internal SqlNode(SqlNodeType nodeType)
     {

@@ -797,7 +797,7 @@ namespace Xtensive.Orm.Linq
       }
 
       if (isRoot) {
-        var projectorBody = (Expression) ColumnExpression.Create(columnType, 0);
+        Expression projectorBody = ColumnExpression.Create(columnType, 0);
         if (convertResultColumn) {
           projectorBody = Expression.Convert(projectorBody, resultType);
         }

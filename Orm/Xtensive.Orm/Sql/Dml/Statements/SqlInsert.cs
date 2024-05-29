@@ -37,7 +37,7 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     public SqlSelect From { get; set; }
 
-    internal override SqlInsert Clone(SqlNodeCloneContext context) =>
+    internal override SqlInsert Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) => {
         var clone = new SqlInsert {
           Into = t.Into?.Clone(c),
@@ -47,7 +47,7 @@ namespace Xtensive.Sql.Dml
 
         if (t.Hints.Count > 0) {
           foreach (SqlHint hint in t.Hints)
-            clone.Hints.Add((SqlHint) hint.Clone(c));
+            clone.Hints.Add(hint.Clone(c));
         }
         return clone;
       });

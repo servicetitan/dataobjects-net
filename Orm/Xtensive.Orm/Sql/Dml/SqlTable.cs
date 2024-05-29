@@ -139,7 +139,7 @@ namespace Xtensive.Sql.Dml
       return GetEnumerator();
     }
 
-    internal abstract override SqlTable Clone(SqlNodeCloneContext context);
+    internal abstract override SqlTable Clone(SqlNodeCloneContext? context = null);
 
     // Constructors
 

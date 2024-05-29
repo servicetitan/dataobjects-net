@@ -105,7 +105,7 @@ namespace Xtensive.Tuples
     internal void BackupDifference()
     {
       if (difference != null)
-        backupedDifference = (DifferentialTuple) this.Clone();
+        backupedDifference = this.Clone();
     }
 
     internal void DropBackedUpDifference()
@@ -176,13 +176,8 @@ namespace Xtensive.Tuples
     }
 
     /// <inheritdoc/>
-    public override Tuple Clone()
-    {
-      return new DifferentialTuple(
-        origin.Clone(), 
-        difference==null ? null : difference.Clone(), 
-        backupedDifference==null ? null : (DifferentialTuple) backupedDifference.Clone());
-    }
+    public override DifferentialTuple Clone() =>
+      new(origin.Clone(), difference?.Clone(), backupedDifference?.Clone());
 
     /// <summary>
     /// Resets all the changes in <see cref="Difference"/> by re-creating it.

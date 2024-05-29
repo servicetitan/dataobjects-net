@@ -106,10 +106,8 @@ namespace Xtensive.Collections
     #region ICloneable methods
 
     /// <inheritdoc/>
-    public object Clone()
-    {
-      return new ExtensionCollection(this);
-    }
+    public ExtensionCollection Clone() => new(this);
+    object ICloneable.Clone() => Clone();
 
     #endregion
 

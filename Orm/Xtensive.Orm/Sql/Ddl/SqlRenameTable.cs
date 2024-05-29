@@ -15,9 +15,8 @@ namespace Xtensive.Sql.Ddl
     public Table Table { get; private set; }
     public string NewName { get; private set; }
 
-    internal override SqlRenameTable Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlRenameTable(t.Table, t.NewName));
+    internal override SqlRenameTable Clone(SqlNodeCloneContext? context = null) =>
+      context.GetOrAdd(this, static (t, c) => new(t.Table, t.NewName));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

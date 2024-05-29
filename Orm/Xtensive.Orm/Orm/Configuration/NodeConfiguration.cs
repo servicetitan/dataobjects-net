@@ -104,18 +104,17 @@ namespace Xtensive.Orm.Configuration
     /// Creates clone of this instance.
     /// </summary>
     /// <returns>Clone of this instance.</returns>
-    public object Clone()
-    {
-      var clone = new NodeConfiguration {
+    public NodeConfiguration Clone() =>
+      new() {
         nodeId = nodeId,
         connectionInfo = connectionInfo,
         connectionInitializationSql = connectionInitializationSql,
-        databaseMapping = (NameMappingCollection) databaseMapping.Clone(),
-        schemaMapping = (NameMappingCollection) schemaMapping.Clone(),
+        databaseMapping = databaseMapping.Clone(),
+        schemaMapping = schemaMapping.Clone(),
         TypeIdRegistry = TypeIdRegistry,
       };
-      return clone;
-    }
+
+    object ICloneable.Clone() => Clone();
 
     internal void Validate(DomainConfiguration configuration)
     {

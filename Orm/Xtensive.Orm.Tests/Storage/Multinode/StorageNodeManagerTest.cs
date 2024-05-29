@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       nodeConfiguration.SchemaMapping.Add(dbo, Schema1);
       _ = Domain.StorageNodeManager.AddNode(nodeConfiguration);
 
-      var sameConfig = (NodeConfiguration)nodeConfiguration.Clone();
+      var sameConfig = nodeConfiguration.Clone();
       var result = Domain.StorageNodeManager.AddNode(sameConfig);
       Assert.That(result, Is.False);
     }
