@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Providers
           ? new SqlPostCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
           : new SqlPostCompilerConfiguration();
 
-        var part = new CommandPart();
+        var part = new CommandPart(null, new(), new());
 
         foreach (var binding in request.ParameterBindings) {
           var parameterValue = GetParameterValue(task, binding);
@@ -74,8 +74,7 @@ namespace Xtensive.Orm.Providers
           }
         }
 
-        part.Statement = compilationResult.GetCommandText(configuration);
-        result.Add(part);
+        result.Add(part with { Statement = compilationResult.GetCommandText(configuration) });
       }
       return result;
     }
@@ -110,7 +109,7 @@ namespace Xtensive.Orm.Providers
           ? new SqlPostCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
           : new SqlPostCompilerConfiguration();
       ;
-      var result = new CommandPart();
+      var result = new CommandPart(null, new(), new());
 
       foreach (var binding in request.ParameterBindings) {
         object parameterValue = GetParameterValue(binding, parameterContext);
@@ -180,7 +179,7 @@ namespace Xtensive.Orm.Providers
         AddParameter(result, binding, parameterName, parameterValue);
       }
 
-      result.Statement = compilationResult.GetCommandText(configuration);
+      result = result with { Statement = compilationResult.GetCommandText(configuration) };
       return result;
     }
 

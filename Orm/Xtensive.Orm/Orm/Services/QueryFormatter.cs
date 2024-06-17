@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Services
       ArgumentValidator.EnsureArgumentNotNull(query, "query");
 
       var part = GetCommandPart(query);
-      return part!=null ? part.Statement : string.Empty;
+      return part!=default ? part.Statement : string.Empty;
     }
 
     /// <summary>
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Services
       var sqlProvider = translatedQuery.DataSource as SqlProvider;
 
       if (sqlProvider==null)
-        return null;
+        return default;
 
       return commandFactory.CreateQueryPart(sqlProvider.Request, null);
     }

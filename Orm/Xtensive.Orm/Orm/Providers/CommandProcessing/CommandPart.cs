@@ -13,20 +13,5 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// A part of a command.
   /// </summary>
-  public sealed class CommandPart
-  {
-    public string Statement { get; set; }
-
-    public List<DbParameter> Parameters { get; private set; }
-
-    public List<IDisposable> Resources { get; private set; }
-
-    // Constructors
-
-    internal CommandPart()
-    {
-      Parameters = new List<DbParameter>();
-      Resources = new List<IDisposable>();
-    }
-  }
+  public readonly record struct CommandPart(string Statement, List<DbParameter> Parameters, List<IDisposable> Resources);
 }
