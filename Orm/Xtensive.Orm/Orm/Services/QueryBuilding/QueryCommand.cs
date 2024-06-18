@@ -9,6 +9,7 @@ using System.Data.Common;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Services
@@ -18,7 +19,7 @@ namespace Xtensive.Orm.Services
   /// Unlike <see cref="DbCommand"/> this type is aware of <see cref="Session.Events"/>
   /// and does all necessary logging of executed SQL.
   /// </summary>
-  public sealed class QueryCommand : IDisposable, IAsyncDisposable
+  public struct QueryCommand : IDisposable, IAsyncDisposable
   {
     private readonly StorageDriver driver;
     private readonly Session session;
@@ -124,7 +125,7 @@ namespace Xtensive.Orm.Services
       }
       disposed = true;
       if (realCommand != null) {
-        return realCommand.DisposeAsync();
+        return realCommand.ConfigureAwaitFalse().DisposeAsync();
       }
       return default;
     }
