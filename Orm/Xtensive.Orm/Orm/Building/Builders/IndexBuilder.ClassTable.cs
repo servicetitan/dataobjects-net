@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Building.Builders
 
       // Building inherited from interfaces indexes
       foreach (var @interface in interfaces) {
-        foreach (var interfaceIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None).ToChainedBuffer()) {
+        foreach (var interfaceIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None).ToList()) {
           if (interfaceIndex.DeclaringIndex != interfaceIndex &&
               parent != null &&
               parent.Indexes.Any(i => i.DeclaringIndex == interfaceIndex)) {
@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Building.Builders
 
       // Build typed indexes
       if (type == root) {
-        foreach (var realIndex in type.Indexes.Find(IndexAttributes.Real).ToChainedBuffer()) {
+        foreach (var realIndex in type.Indexes.Find(IndexAttributes.Real).ToList()) {
           if (!untypedIndexes.Contains(realIndex)) {
             continue;
           }
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Building.Builders
       // Build virtual secondary index
       var primaryOrVirtualIndexes = ancestors
         .SelectMany(
-          ancestor => ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None).ToChainedBuffer());
+          ancestor => ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None).ToList());
 
       foreach (var ancestorIndex in primaryOrVirtualIndexes) {
         if (ancestorIndex.DeclaringIndex != ancestorIndex) {

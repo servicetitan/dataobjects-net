@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Building.Builders
       var parent = type.Ancestor;
       // Building inherited from interfaces indexes
       foreach (var @interface in type.DirectInterfaces) {
-        foreach (var interfaceIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None).ToChainedBuffer()) {
+        foreach (var interfaceIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None).ToList()) {
           if (root.Indexes.Any(i => i.DeclaringIndex == interfaceIndex.DeclaringIndex && i.ReflectedType == type)) {
             continue;
           }
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Building.Builders
       _ = types.Add(type);
 
       // Build typed indexes
-      foreach (var realIndex in root.Indexes.Find(IndexAttributes.Real).ToChainedBuffer()) {
+      foreach (var realIndex in root.Indexes.Find(IndexAttributes.Real).ToList()) {
         if (!types.Contains(realIndex.ReflectedType)) {
           continue;
         }
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Building.Builders
         .Select(i => untypedIndexes.Contains(i)
           ? root.Indexes.Single(index => index.DeclaringIndex == i.DeclaringIndex && index.ReflectedType == type && index.IsTyped)
           : i)
-        .ToChainedBuffer();
+        .ToList();
       foreach (var ancestorIndex in ancestorIndexes) {
         if (type.Indexes.Any(i =>
             i.DeclaringIndex == ancestorIndex.DeclaringIndex &&

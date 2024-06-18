@@ -145,7 +145,7 @@ namespace Xtensive.Orm.BulkOperations
           var ex = SqlDml.Equals(s.From.Columns[column.Name], table.Columns[column.Name]);
           s.Where = s.Where is null ? ex : SqlDml.And(s.Where, ex);
         }
-        var existingColumns = s.Columns.ToChainedBuffer();
+        var existingColumns = s.Columns.ToList();
         s.Columns.Clear();
         var columnToAdd = existingColumns.First(c => c.Name.Equals(columnInfo.Name, StringComparison.Ordinal));
         s.Columns.Add(columnToAdd);
