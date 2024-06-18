@@ -41,8 +41,11 @@ namespace Xtensive.Orm.Providers
 
       statements.Add(part.Statement);
 
-      foreach (var parameter in part.Parameters) {
-        _ = underlyingCommand.Parameters.Add(parameter);
+      if (part.Parameters.Count > 0) {
+        var commandParameters = underlyingCommand.Parameters;
+        foreach (var parameter in part.Parameters) {
+          _ = commandParameters.Add(parameter);
+        }
       }
 
       if (part.Resources.Count==0) {
