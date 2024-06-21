@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Providers
         context.CurrentTask = null;
         return;
       }
-      var sequence = Factory.CreatePersistParts(task, GetParameterPrefix(context)).ToChainedBuffer();
+      var sequence = Factory.CreatePersistParts(task, GetParameterPrefix(context)).ToList();
       if (PendCommandParts(context.ActiveCommand, sequence)) {
         // higly recommended to no tear apart persist actions if they are batchable
         return;

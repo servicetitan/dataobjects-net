@@ -104,8 +104,8 @@ namespace Xtensive.Orm.Upgrade
     {
       var driver = services.StorageDriver;
       var extractionResult = ExtractSchema(services, executor);
-      var schemas = extractionResult.Catalogs.SelectMany(c => c.Schemas).ToChainedBuffer();
-      var tables = schemas.SelectMany(s => s.Tables).ToChainedBuffer();
+      var schemas = extractionResult.Catalogs.SelectMany(c => c.Schemas).ToList();
+      var tables = schemas.SelectMany(s => s.Tables).ToList();
       var sequences = schemas.SelectMany(s => s.Sequences);
 
       DropForeignKeys(driver, tables, executor);
@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Upgrade
     private static void DropSequences(StorageDriver driver, IEnumerable<Sequence> sequences, ISqlExecutor executor)
     {
       var statements = BreakEvery(sequences
-        .Select(s => driver.Compile(SqlDdl.Drop(s)).GetCommandText()), 25).ToChainedBuffer();
+        .Select(s => driver.Compile(SqlDdl.Drop(s)).GetCommandText()), 25).ToList();
       executor.ExecuteMany(statements);
     }
 

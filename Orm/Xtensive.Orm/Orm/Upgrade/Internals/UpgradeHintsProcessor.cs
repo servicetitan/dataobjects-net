@@ -77,8 +77,8 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     private void ProcessFieldChanges()
     {
-      var renameFieldHints = hints.GetItems<RenameFieldHint>().ToChainedBuffer();
-      var changeFieldTypeHints = hints.GetItems<ChangeFieldTypeHint>().ToChainedBuffer();
+      var renameFieldHints = hints.GetItems<RenameFieldHint>().ToList();
+      var changeFieldTypeHints = hints.GetItems<ChangeFieldTypeHint>().ToList();
       BuildFieldMapping(renameFieldHints, changeFieldTypeHints);
     }
 
@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     private void ProcessFieldMovements()
     {
-      var moveFieldHints = hints.GetItems<MoveFieldHint>().ToChainedBuffer();
+      var moveFieldHints = hints.GetItems<MoveFieldHint>().ToList();
       hints.AddRange(RewriteMoveFieldHints(moveFieldHints));
       hints.AddRange(GenerateTypeIdFieldRemoveHintsForConcreteTable());
     }
@@ -269,7 +269,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       }
 
       // Will be modified, so we need to copy sequence into independant collection
-      foreach (var pair in fieldMapping.ToChainedBuffer()) {
+      foreach (var pair in fieldMapping.ToList()) {
         MapNestedFields(pair.Key, pair.Value);
       }
     }

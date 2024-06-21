@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Building.Builders
 
       // Building inherited from interfaces indexes
       foreach (var @interface in type.AllInterfaces) {
-        foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None).ToChainedBuffer()) {
+        foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None).ToList()) {
           if (parentIndex.DeclaringIndex != parentIndex) {
             continue;
           }
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       // Build typed indexes
-      foreach (var realIndex in type.Indexes.Find(IndexAttributes.Real).ToChainedBuffer()) {
+      foreach (var realIndex in type.Indexes.Find(IndexAttributes.Real).ToList()) {
         if (!untypedIndexes.Contains(realIndex)) {
           continue;
         }
@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Building.Builders
       // Build inherited secondary indexes
       var primaryOrVirtualIndexes = ancestors
         .SelectMany(
-          ancestor => ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None).ToChainedBuffer());
+          ancestor => ancestor.Indexes.Find(IndexAttributes.Primary | IndexAttributes.Virtual, MatchType.None).ToList());
 
       foreach (var ancestorIndex in primaryOrVirtualIndexes) {
         if (ancestorIndex.DeclaringIndex != ancestorIndex) {
@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Building.Builders
 
       // Build virtual secondary indexes
       if (descendants.Count > 0) {
-        foreach (var index in type.Indexes.Where(static i => !i.IsPrimary && !i.IsVirtual).ToChainedBuffer()) {
+        foreach (var index in type.Indexes.Where(static i => !i.IsPrimary && !i.IsVirtual).ToList()) {
           var isUntyped = untypedIndexes.Contains(index);
           var indexToUnion = isUntyped
             ? type.Indexes.Single(i => i.DeclaringIndex == index.DeclaringIndex && i.IsTyped)

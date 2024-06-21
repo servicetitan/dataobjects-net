@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Building.Builders
 
       // Build virtual inherited interface index
       foreach (var parent in interfaces) {
-        foreach (var parentIndex in parent.Indexes.Find(IndexAttributes.Primary, MatchType.None).ToChainedBuffer()) {
+        foreach (var parentIndex in parent.Indexes.Find(IndexAttributes.Primary, MatchType.None).ToList()) {
           var index = BuildInheritedIndex(@interface, parentIndex, false);
           if (@interface.Indexes.Contains(index.Name)) {
             index.Dispose();
@@ -747,7 +747,7 @@ namespace Xtensive.Orm.Building.Builders
       var actualColumnMapping = valueColumns
         .Zip(columnMap, static (column, sourceIndex) => (column, sourceIndex))
         .OrderBy(p => reflectedType.Columns.IndexOf(p.column))
-        .ToChainedBuffer();
+        .ToList();
       valueColumns.Clear();
       columnMap.Clear();
       columnMap.AddRange(CollectionUtils.ColNumRange(keyLength));
@@ -893,7 +893,7 @@ namespace Xtensive.Orm.Building.Builders
       var primaryIndex = typeInfo.Indexes.PrimaryIndex;
       foreach (var descendant in typeInfo.AllDescendants.Where(static t => t.IsEntity)) {
         descendant.AffectedIndexes.Add(primaryIndex);
-        foreach (var indexInfo in typeInfo.Indexes.Find(IndexAttributes.Primary, MatchType.None).ToChainedBuffer()) {
+        foreach (var indexInfo in typeInfo.Indexes.Find(IndexAttributes.Primary, MatchType.None).ToList()) {
           var descendantIndex = descendant.Indexes.Where(i => i.DeclaringIndex == indexInfo.DeclaringIndex).FirstOrDefault();
           if (descendantIndex != null) {
             foreach (var pair in descendantIndex.KeyColumns) {
