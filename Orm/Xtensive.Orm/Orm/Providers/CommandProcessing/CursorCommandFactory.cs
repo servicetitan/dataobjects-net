@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Providers
     {
       var part = base.CreateQueryPart(request, parameterNamePrefix, parameterContext);
       var parameterName = string.Format(CursorParameterNameFormat, parameterNamePrefix);
-      part.Statement = string.Format(StatementFormat, parameterName, part.Statement);
+      part = part with { Statement = string.Format(StatementFormat, parameterName, part.Statement) };
       var parameter = Connection.CreateCursorParameter();
       parameter.ParameterName = parameterName;
       part.Parameters.Add(parameter);
