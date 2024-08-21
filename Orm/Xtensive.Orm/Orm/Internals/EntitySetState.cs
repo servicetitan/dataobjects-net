@@ -294,23 +294,35 @@ namespace Xtensive.Orm.Internals
     public IEnumerator<Key> GetEnumerator()
     {
       var versionSnapshot = version;
-      foreach (var fetchedKey in FetchedKeys) {
-        if (versionSnapshot != version) {
-          throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
-        }
-        if (!removedKeys.Contains(fetchedKey)) {
-          yield return fetchedKey;
+      using (var fetchedKeysEnumerator = FetchedKeys.GetEnumerator()) {
+        while (true) {
+          if (versionSnapshot != version) {
+            throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
+          }
+
+          if (!fetchedKeysEnumerator.MoveNext()) {
+            break;
+          }
+
+          var fetchedKey = fetchedKeysEnumerator.Current;
+          if (!removedKeys.Contains(fetchedKey)) {
+            yield return fetchedKey;
+          }
         }
       }
 
-      if (versionSnapshot != version) {
-        throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
-      }
-      foreach (var addedKey in addedKeys) {
-        if (versionSnapshot != version) {
-          throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
+      using (var addedKeysEnumerator = addedKeys.GetEnumerator()) {
+        while (true) {
+          if (versionSnapshot != version) {
+            throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
+          }
+
+          if (!addedKeysEnumerator.MoveNext()) {
+            break;
+          }
+
+          yield return addedKeysEnumerator.Current;
         }
-        yield return addedKey;
       }
     }
 
