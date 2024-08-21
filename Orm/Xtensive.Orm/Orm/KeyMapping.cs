@@ -6,12 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Security;
 using Xtensive.Core;
-
 
 namespace Xtensive.Orm
 {
@@ -20,7 +18,7 @@ namespace Xtensive.Orm
   /// to actual (storage) <see cref="Key"/> instances.
   /// </summary>
   [Serializable]
-  public sealed class KeyMapping : ISerializable
+  public readonly struct KeyMapping : ISerializable
   {
     /// <summary>
     /// Gets the key map.
@@ -34,13 +32,8 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="key">The key to remap.</param>
     /// <returns>The mapped storage <see cref="Key"/>.</returns>
-    public Key TryRemapKey(Key key)
-    {
-      Key remappedKey;
-      if (key!=null && Map.TryGetValue(key, out remappedKey))
-        return remappedKey;
-      return key;
-    }
+    public Key TryRemapKey(Key key) =>
+      key!=null && Map.TryGetValue(key, out var remappedKey) ? remappedKey : key;
 
     /// <summary>
     /// Remaps the keys of cached entities
