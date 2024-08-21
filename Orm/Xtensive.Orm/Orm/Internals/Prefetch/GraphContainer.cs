@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         RegisterFetchByKnownForeignKey(referencingFieldDescriptor, ownerState);
     }
 
-    public void RegisterEntitySetTask(EntityState ownerState, PrefetchFieldDescriptor referencingFieldDescriptor)
+    public void RegisterEntitySetTask(EntityState ownerState, in PrefetchFieldDescriptor referencingFieldDescriptor)
     {
       if (entitySetTasks == null)
         entitySetTasks = new Dictionary<FieldInfo, EntitySetTask>();
@@ -138,7 +138,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return true;
     }
 
-    private void RegisterFetchByKnownForeignKey(PrefetchFieldDescriptor referencingFieldDescriptor,
+    private void RegisterFetchByKnownForeignKey(in PrefetchFieldDescriptor referencingFieldDescriptor,
       EntityState ownerState)
     {
       var association = referencingFieldDescriptor.Field.Associations.Last();
@@ -173,10 +173,9 @@ namespace Xtensive.Orm.Internals.Prefetch
         graphContainer.RootEntityContainer.SetParametersOfReference(referencingFieldDescriptor, referencedKey);
     }
 
-    private void RegisterFetchByUnknownForeignKey(PrefetchFieldDescriptor referencingFieldDescriptor)
+    private void RegisterFetchByUnknownForeignKey(in PrefetchFieldDescriptor referencingFieldDescriptor)
     {
-      if (referencedEntityContainers == null)
-        referencedEntityContainers = new Dictionary<FieldInfo, ReferencedEntityContainer>();
+      referencedEntityContainers ??= new();
       referencedEntityContainers.Add(referencingFieldDescriptor.Field, new ReferencedEntityContainer(Key,
         referencingFieldDescriptor, exactType, Manager));
     }

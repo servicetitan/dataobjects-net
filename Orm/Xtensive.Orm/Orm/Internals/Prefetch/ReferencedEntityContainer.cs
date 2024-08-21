@@ -116,11 +116,10 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     // Constructors
 
-    public ReferencedEntityContainer(Key ownerKey, PrefetchFieldDescriptor referencingFieldDescriptor,
+    public ReferencedEntityContainer(Key ownerKey, in PrefetchFieldDescriptor referencingFieldDescriptor,
       bool isOwnerTypeKnown, PrefetchManager manager)
       : base(null, referencingFieldDescriptor.Field.Associations.Last().TargetType, true, manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(referencingFieldDescriptor, "referencingFieldDescriptor");
       ArgumentValidator.EnsureArgumentNotNull(ownerKey, "ownerKey");
       this.ownerKey = ownerKey;
       this.referencingFieldDescriptor = referencingFieldDescriptor;
