@@ -354,7 +354,7 @@ namespace Xtensive.Orm.Internals
     }
 
     private void BackupState() =>
-      previousState = new(IsLoaded, TotalItemCount, addedKeys.ToList(), removedKeys.ToList());
+      previousState = new(IsLoaded, TotalItemCount, addedKeys.ToArray(), removedKeys.ToArray());
 
     private void InitializeFetchedKeys()
       => FetchedKeys = new LruCache<Key, Key>(WellKnown.EntitySetCacheSize, cachedKey => cachedKey);
