@@ -80,8 +80,7 @@ namespace Xtensive.Orm.Providers
     public override void FetchField(Key key, FieldInfo field)
     {
       var type = key.TypeReference.Type;
-      var descriptor = new PrefetchFieldDescriptor(field, false, false);
-      var descriptors = new List<PrefetchFieldDescriptor> {descriptor};
+      PrefetchFieldDescriptor[] descriptors = [new(field, false, false)];
       prefetchManager.Prefetch(key, type, descriptors);
       prefetchManager.ExecuteTasks(true);
     }
@@ -96,8 +95,7 @@ namespace Xtensive.Orm.Providers
     public override void FetchEntitySet(Key ownerKey, FieldInfo field, int? itemCountLimit)
     {
       var ownerType = ownerKey.TypeReference.Type;
-      var descriptor = new PrefetchFieldDescriptor(field, itemCountLimit);
-      var descriptors = new List<PrefetchFieldDescriptor> { descriptor };
+      PrefetchFieldDescriptor[] descriptors = [new(field, itemCountLimit)];
       Session.Handler.Prefetch(ownerKey, ownerType, descriptors);
       Session.Handler.ExecutePrefetchTasks();
     }

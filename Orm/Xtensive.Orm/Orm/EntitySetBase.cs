@@ -44,7 +44,6 @@ namespace Xtensive.Orm
 
     private static readonly Func<FieldInfo, EntitySetBase, EntitySetTypeState> EntitySetTypeStateFactory = BuildEntitySetTypeState;
 
-    private readonly Entity owner;
     private readonly CombineTransform auxilaryTypeKeyTransform;
     private readonly bool skipOwnerVersionChange;
     private bool isInitialized;
@@ -52,7 +51,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the owner of this instance.
     /// </summary>
-    public Entity Owner => owner;
+    public Entity Owner { get; }
 
     /// <inheritdoc/>
     Persistent IFieldValueAdapter.Owner => Owner;
@@ -857,7 +856,7 @@ namespace Xtensive.Orm
       }
 
       var parameterContext = new ParameterContext();
-      parameterContext.SetValue(ownerParameter, owner);
+      parameterContext.SetValue(ownerParameter, Owner);
 
       var cachedState = GetEntitySetTypeState();
       State.TotalItemCount = Session.Query.Execute(cachedState, cachedState.ItemCountQuery, parameterContext);
@@ -1026,7 +1025,7 @@ namespace Xtensive.Orm
     protected EntitySetBase(Entity owner, FieldInfo field)
       : base(owner.Session)
     {
-      this.owner = owner;
+      Owner = owner;
       Field = field;
       State = new EntitySetState(this);
       var association = Field.Associations.Last();
