@@ -635,9 +635,9 @@ namespace Xtensive.Orm
           return;
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.GettingFieldEventKey);
-        if (subscriptionInfo.Second!=null)
-          ((Action<Key, FieldInfo>) subscriptionInfo.Second)
-            .Invoke(subscriptionInfo.First, field);
+        if (subscriptionInfo.Second is Action<Key, FieldInfo> action) {
+          action(subscriptionInfo.First, field);
+        }
         OnGettingFieldValue(field);
       }
     }
