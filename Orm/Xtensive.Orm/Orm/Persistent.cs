@@ -189,9 +189,10 @@ namespace Xtensive.Orm
       try {
         SystemBeforeGetValue(field);
         result = fieldAccessor.GetValue(this);
-        result = (T) AdjustFieldValue(field, result);
-        SystemGetValue(field, result);
-        SystemGetValueCompleted(field, result, null);
+        var resultAsObject = AdjustFieldValue(field, result);
+        result = (T) resultAsObject;
+        SystemGetValue(field, resultAsObject);
+        SystemGetValueCompleted(field, resultAsObject, null);
         return result;
       }
       catch (Exception e) {
