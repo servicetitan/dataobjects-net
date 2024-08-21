@@ -59,12 +59,12 @@ namespace Xtensive.Orm.Internals.Prefetch
     }
 
     public void RegisterReferencedEntityContainer(
-      EntityState ownerState, PrefetchFieldDescriptor referencingFieldDescriptor)
+      EntityState ownerState, in PrefetchFieldDescriptor referencingFieldDescriptor)
     {
-      if (referencedEntityContainers != null
-        && referencedEntityContainers.ContainsKey(referencingFieldDescriptor.Field))
+      var field = referencingFieldDescriptor.Field;
+      if (referencedEntityContainers?.ContainsKey(field) == true)
         return;
-      if (!AreAllForeignKeyColumnsLoaded(ownerState, referencingFieldDescriptor.Field))
+      if (!AreAllForeignKeyColumnsLoaded(ownerState, field))
         RegisterFetchByUnknownForeignKey(referencingFieldDescriptor);
       else
         RegisterFetchByKnownForeignKey(referencingFieldDescriptor, ownerState);
@@ -72,8 +72,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public void RegisterEntitySetTask(EntityState ownerState, in PrefetchFieldDescriptor referencingFieldDescriptor)
     {
-      if (entitySetTasks == null)
-        entitySetTasks = new Dictionary<FieldInfo, EntitySetTask>();
+      entitySetTasks ??= new();
       if (RootEntityContainer == null)
         AddEntityColumns(Key.TypeReference.Type.Fields
           .Where(field => field.IsPrimaryKey || field.IsSystem).SelectMany(field => field.Columns));
