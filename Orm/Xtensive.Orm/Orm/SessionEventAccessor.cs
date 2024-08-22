@@ -274,8 +274,11 @@ namespace Xtensive.Orm
 
     internal Expression NotifyQueryExecuting(Expression expression)
     {
+      if (QueryExecuting == null) {
+        return expression;
+      }
       var args = new QueryEventArgs(expression);
-      QueryExecuting?.Invoke(this, args);
+      QueryExecuting.Invoke(this, args);
       return args.Expression;
     }
 

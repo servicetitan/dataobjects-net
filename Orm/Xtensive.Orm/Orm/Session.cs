@@ -447,14 +447,7 @@ namespace Xtensive.Orm
     #region IHasExtensions members
 
     /// <inheritdoc/>
-    public IExtensionCollection Extensions
-    {
-      get {
-        if (extensions == null)
-          extensions = new ExtensionCollection();
-        return extensions;
-      }
-    }
+    public IExtensionCollection Extensions => extensions ??= new ExtensionCollection();
 
     #endregion
 
@@ -666,7 +659,7 @@ namespace Xtensive.Orm
         EntityStateCache = null;
         ReferenceFieldsChangesRegistry = null;
         NonPairedReferencesRegistry = null;
-        Extensions.Clear();
+        extensions?.Clear();
       }
       finally {
         isDisposed = true;
