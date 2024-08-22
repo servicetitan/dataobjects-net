@@ -278,7 +278,7 @@ namespace Xtensive.Orm
         return expression;
       }
       var args = new QueryEventArgs(expression);
-      QueryExecuting?.Invoke(this, args);
+      QueryExecuting.Invoke(this, args);
       return args.Expression;
     }
 
