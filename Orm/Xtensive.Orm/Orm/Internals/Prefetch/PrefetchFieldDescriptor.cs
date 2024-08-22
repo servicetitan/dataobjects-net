@@ -5,7 +5,6 @@
 // Created:    2009.09.23
 
 using System;
-using Xtensive.Core;
 
 using Xtensive.Orm.Model;
 
@@ -15,7 +14,7 @@ namespace Xtensive.Orm.Internals.Prefetch
   /// Descriptor of a field's fetching request.
   /// </summary>
   [Serializable]
-  public sealed class PrefetchFieldDescriptor
+  public readonly struct PrefetchFieldDescriptor
   {
     private readonly Action<Key, FieldInfo, Key> keyExtractionSubscriber;
 
@@ -46,27 +45,17 @@ namespace Xtensive.Orm.Internals.Prefetch
     public readonly Guid? PrefetchOperationId;
 
     /// <inheritdoc/>
-    public bool Equals(PrefetchFieldDescriptor other)
-    {
-      return Equals(other.Field, Field);
-    }
+    public bool Equals(PrefetchFieldDescriptor other) => Field.Equals(other.Field);
 
     /// <inheritdoc/>
     public override bool Equals(object obj) =>
       obj is PrefetchFieldDescriptor other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return Field.GetHashCode();
-    }
+    public override int GetHashCode() => Field.GetHashCode();
 
-    internal void NotifySubscriber(Key ownerKey, Key referencedKey)
-    {
-      if (keyExtractionSubscriber != null) {
-        keyExtractionSubscriber.Invoke(ownerKey, Field, referencedKey);
-      }
-    }
+    internal void NotifySubscriber(Key ownerKey, Key referencedKey) =>
+      keyExtractionSubscriber?.Invoke(ownerKey, Field, referencedKey);
 
 
     // Constructors
@@ -136,18 +125,8 @@ namespace Xtensive.Orm.Internals.Prefetch
       bool fetchFieldsOfReferencedEntity,
       bool fetchLazyFields,
       Action<Key, FieldInfo, Key> keyExtractionSubscriber)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(field, "field");
-      if (entitySetItemCountLimit != null) {
-        ArgumentValidator.EnsureArgumentIsGreaterThan(entitySetItemCountLimit.Value, 0,
-          "entitySetItemCountLimit");
-      }
-      Field = field;
-      FetchFieldsOfReferencedEntity = fetchFieldsOfReferencedEntity;
-      EntitySetItemCountLimit = entitySetItemCountLimit;
-      FetchLazyFields = fetchLazyFields;
-      this.keyExtractionSubscriber = keyExtractionSubscriber;
-    }
+      : this(field, entitySetItemCountLimit, fetchFieldsOfReferencedEntity, fetchLazyFields, keyExtractionSubscriber, null)
+    {}
 
     /// <summary>
     /// Initializes a new instance of this class.
@@ -172,10 +151,9 @@ namespace Xtensive.Orm.Internals.Prefetch
       Action<Key, FieldInfo, Key> keyExtractionSubscriber,
       Guid? prefetchOperationId)
     {
-      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      ArgumentNullException.ThrowIfNull(field);
       if (entitySetItemCountLimit != null) {
-        ArgumentValidator.EnsureArgumentIsGreaterThan(entitySetItemCountLimit.Value, 0,
-          "entitySetItemCountLimit");
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(entitySetItemCountLimit.Value, 0);
       }
       Field = field;
       FetchFieldsOfReferencedEntity = fetchFieldsOfReferencedEntity;

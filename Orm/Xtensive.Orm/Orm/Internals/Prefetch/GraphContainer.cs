@@ -59,21 +59,20 @@ namespace Xtensive.Orm.Internals.Prefetch
     }
 
     public void RegisterReferencedEntityContainer(
-      EntityState ownerState, PrefetchFieldDescriptor referencingFieldDescriptor)
+      EntityState ownerState, in PrefetchFieldDescriptor referencingFieldDescriptor)
     {
-      if (referencedEntityContainers != null
-        && referencedEntityContainers.ContainsKey(referencingFieldDescriptor.Field))
+      var field = referencingFieldDescriptor.Field;
+      if (referencedEntityContainers?.ContainsKey(field) == true)
         return;
-      if (!AreAllForeignKeyColumnsLoaded(ownerState, referencingFieldDescriptor.Field))
+      if (!AreAllForeignKeyColumnsLoaded(ownerState, field))
         RegisterFetchByUnknownForeignKey(referencingFieldDescriptor);
       else
         RegisterFetchByKnownForeignKey(referencingFieldDescriptor, ownerState);
     }
 
-    public void RegisterEntitySetTask(EntityState ownerState, PrefetchFieldDescriptor referencingFieldDescriptor)
+    public void RegisterEntitySetTask(EntityState ownerState, in PrefetchFieldDescriptor referencingFieldDescriptor)
     {
-      if (entitySetTasks == null)
-        entitySetTasks = new Dictionary<FieldInfo, EntitySetTask>();
+      entitySetTasks ??= new();
       if (RootEntityContainer == null)
         AddEntityColumns(Key.TypeReference.Type.Fields
           .Where(field => field.IsPrimaryKey || field.IsSystem).SelectMany(field => field.Columns));
@@ -138,7 +137,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return true;
     }
 
-    private void RegisterFetchByKnownForeignKey(PrefetchFieldDescriptor referencingFieldDescriptor,
+    private void RegisterFetchByKnownForeignKey(in PrefetchFieldDescriptor referencingFieldDescriptor,
       EntityState ownerState)
     {
       var association = referencingFieldDescriptor.Field.Associations.Last();
@@ -173,10 +172,9 @@ namespace Xtensive.Orm.Internals.Prefetch
         graphContainer.RootEntityContainer.SetParametersOfReference(referencingFieldDescriptor, referencedKey);
     }
 
-    private void RegisterFetchByUnknownForeignKey(PrefetchFieldDescriptor referencingFieldDescriptor)
+    private void RegisterFetchByUnknownForeignKey(in PrefetchFieldDescriptor referencingFieldDescriptor)
     {
-      if (referencedEntityContainers == null)
-        referencedEntityContainers = new Dictionary<FieldInfo, ReferencedEntityContainer>();
+      referencedEntityContainers ??= new();
       referencedEntityContainers.Add(referencingFieldDescriptor.Field, new ReferencedEntityContainer(Key,
         referencingFieldDescriptor, exactType, Manager));
     }

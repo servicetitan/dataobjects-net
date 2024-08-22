@@ -107,10 +107,11 @@ namespace Xtensive.Orm.Linq.Materialization
     public static TEntitySet PrefetechEntitySet<TEntitySet>(TEntitySet entitySet, ItemMaterializationContext context)
       where TEntitySet : EntitySetBase
     {
+      var owner = entitySet.Owner;
       context.Session.Handler.Prefetch(
-        entitySet.Owner.Key,
-        entitySet.Owner.TypeInfo,
-        new List<PrefetchFieldDescriptor>{new PrefetchFieldDescriptor(entitySet.Field, WellKnown.EntitySetPreloadCount)});
+        owner.Key,
+        owner.TypeInfo,
+        [new(entitySet.Field, WellKnown.EntitySetPreloadCount)]);
       return entitySet;
     }
   }

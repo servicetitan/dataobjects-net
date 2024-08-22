@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return Task;
     }
 
-    public void SetParametersOfReference(PrefetchFieldDescriptor referencingField, Key key)
+    public void SetParametersOfReference(in PrefetchFieldDescriptor referencingField, Key key)
     {
       referencingFieldDescriptor = referencingField;
       ownerKey = key;
