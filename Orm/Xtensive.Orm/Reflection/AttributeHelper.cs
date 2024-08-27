@@ -5,12 +5,9 @@
 // Created:    2008.06.13
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Reflection;
-using Xtensive.Core;
-using PerAttributeKey = System.ValueTuple<System.Reflection.MemberInfo, Xtensive.Reflection.AttributeSearchOptions>;
+using PerAttributeKey = System.ValueTuple<System.ModuleHandle, int, Xtensive.Reflection.AttributeSearchOptions>;
 
 namespace Xtensive.Reflection
 {
@@ -24,25 +21,20 @@ namespace Xtensive.Reflection
       private static readonly Type attributeType = typeof(TAttribute);
       public static readonly ConcurrentDictionary<PerAttributeKey, TAttribute[]> Dictionary = new();
 
-      public static readonly Func<PerAttributeKey, TAttribute[]> AttributesExtractor = ExtractAttributesByKey;
+      public static readonly Func<PerAttributeKey, MemberInfo, TAttribute[]> AttributesExtractor = ExtractAttributesByKey;
 
-      private static TAttribute[] ExtractAttributesByKey(PerAttributeKey key)
+      private static TAttribute[] ExtractAttributesByKey(PerAttributeKey key, MemberInfo member)
       {
-        var (member, options) = key;
+        var (_, _, options) = key;
 
-        var attributesAsObjects = member.GetCustomAttributes(attributeType, false);
-        var attributesCount = attributesAsObjects.Length;
-
-        var attributes = attributesCount > 0
-          ? attributesAsObjects.Cast<TAttribute>().ToList(attributesCount)
-          : null;
+        var attributes = (TAttribute[]) member.GetCustomAttributes(attributeType, false);
 
         if (options != AttributeSearchOptions.InheritNone) {
-          if (attributesCount == 0) {
+          if (attributes.Length == 0) {
             if ((options & AttributeSearchOptions.InheritFromPropertyOrEvent) != 0
                 && member is MethodInfo m
-                && ((MemberInfo) m.GetProperty() ?? m.GetEvent()) is MemberInfo poe) {
-              attributes = GetAttributesAsNewList(poe);
+                && ((MemberInfo) m.GetProperty() ?? m.GetEvent()) is { } poe) {
+              attributes = (TAttribute[]) poe.GetCustomAttributes(attributeType, false);
             }
             if ((options & AttributeSearchOptions.InheritFromBase) != 0
                 && (options & AttributeSearchOptions.InheritFromAllBase) == 0) {
@@ -56,25 +48,23 @@ namespace Xtensive.Reflection
           }
         }
 
-        return attributes?.ToArray(attributes.Count) ?? Array.Empty<TAttribute>();
+        return attributes ?? Array.Empty<TAttribute>();
       }
 
-      private static List<TAttribute> GetAttributesAsNewList(MemberInfo member)
+      private static void AddAttributesFromBase(ref TAttribute[] attributes, MemberInfo member, AttributeSearchOptions options)
       {
-        var attrObjects = member.GetCustomAttributes(attributeType, false);
-        var attrs = new List<TAttribute>(attrObjects.Length);
-        for (int i = 0, count = attrObjects.Length; i < count; ++i) {
-          attrs.Add((TAttribute) attrObjects[i]);
-        }
-        return attrs;
-      }
-
-      private static void AddAttributesFromBase(ref List<TAttribute> attributes, MemberInfo member, AttributeSearchOptions options)
-      {
-        if (member.GetBaseMember() is MemberInfo bm) {
+        if (member.GetBaseMember() is { } bm) {
           var attrsToAdd = bm.GetAttributes<TAttribute>(options);
-          if (attrsToAdd.Count > 0) {
-            (attributes ??= new List<TAttribute>(attrsToAdd.Count)).AddRange(attrsToAdd);
+          if (attrsToAdd.Length > 0) {
+            if (attributes?.Length > 0) {
+              var newArr = new TAttribute[attributes.Length + attrsToAdd.Length];
+              attributes.CopyTo(newArr, 0);
+              attrsToAdd.CopyTo(newArr, attributes.Length);
+              attributes = newArr;
+            }
+            else {
+              attributes = attrsToAdd;
+            }
           }
         }
       }
@@ -88,9 +78,9 @@ namespace Xtensive.Reflection
     /// <param name="options">Attribute search options.</param>
     /// <returns>An array of attributes of specified type.</returns>
     ///
-    public static IReadOnlyList<TAttribute> GetAttributes<TAttribute>(this MemberInfo member, AttributeSearchOptions options = AttributeSearchOptions.InheritNone)
+    public static TAttribute[] GetAttributes<TAttribute>(this MemberInfo member, AttributeSearchOptions options = AttributeSearchOptions.InheritNone)
         where TAttribute : Attribute =>
-      AttributeDictionary<TAttribute>.Dictionary.GetOrAdd(new PerAttributeKey(member, options), AttributeDictionary<TAttribute>.AttributesExtractor);
+      AttributeDictionary<TAttribute>.Dictionary.GetOrAdd(new PerAttributeKey(member.Module.ModuleHandle, member.MetadataToken, options), AttributeDictionary<TAttribute>.AttributesExtractor, member);
 
     /// <summary>
     /// A version of <see cref="GetAttributes{TAttribute}(MemberInfo, AttributeSearchOptions)"/>
@@ -108,7 +98,7 @@ namespace Xtensive.Reflection
       where TAttribute : Attribute
     {
       var attributes = member.GetAttributes<TAttribute>(options);
-      return attributes.Count switch {
+      return attributes.Length switch {
         0 => null,
         1 => attributes[0],
         _ => throw new InvalidOperationException(string.Format(Strings.ExMultipleAttributesOfTypeXAreNotAllowedHere,
