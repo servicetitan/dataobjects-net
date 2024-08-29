@@ -45,17 +45,16 @@ namespace Xtensive.Orm.Linq.Materialization
       if (typeId==TypeInfo.NoTypeId)
         return null;
 
-      var canCache = accuracy==TypeReferenceAccuracy.ExactType;
       var materializationInfo = MaterializationContext.GetTypeMapping(entityIndex, type, typeId, entityColumns);
       Key key;
       var keyIndexes = materializationInfo.KeyIndexes;
       if (!KeyFactory.IsValidKeyTuple(tuple, keyIndexes))
         return null;
       if (keyIndexes.Count <= WellKnown.MaxGenericKeyLength)
-        key = KeyFactory.Materialize(Session.Domain, Session.StorageNodeId, materializationInfo.Type, tuple, accuracy, canCache, keyIndexes);
+        key = KeyFactory.Materialize(Session.Domain, Session.StorageNodeId, materializationInfo.Type, tuple, accuracy, keyIndexes);
       else {
         var keyTuple = materializationInfo.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-        key = KeyFactory.Materialize(Session.Domain, Session.StorageNodeId, materializationInfo.Type, keyTuple, accuracy, canCache, null);
+        key = KeyFactory.Materialize(Session.Domain, Session.StorageNodeId, materializationInfo.Type, keyTuple, accuracy, null);
       }
       if (accuracy==TypeReferenceAccuracy.ExactType) {
         var entityTuple = materializationInfo.Transform.Apply(TupleTransformType.Tuple, tuple);

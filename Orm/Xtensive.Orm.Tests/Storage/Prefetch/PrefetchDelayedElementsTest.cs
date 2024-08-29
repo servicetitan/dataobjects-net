@@ -62,11 +62,6 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var count = 0;
         foreach (var person in persons) {
           count++;
-          Key cachedKey;
-          Assert.IsTrue(Domain.KeyCache.TryGetItem(person.Key, true, out cachedKey));
-          Assert.IsTrue(cachedKey.HasExactType);
-          PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(person.Key, cachedKey.TypeInfo, session,
-            PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
         Assert.AreEqual(keys.Count, count);
       }

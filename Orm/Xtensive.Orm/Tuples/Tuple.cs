@@ -23,21 +23,16 @@ namespace Xtensive.Tuples
   [Serializable]
   public abstract class Tuple : ITuple, IEquatable<Tuple>
   {
-    /// <summary>
-    /// Per-field hash code multiplier used in <see cref="GetHashCode"/> calculation.
-    /// </summary>
-    public const int HashCodeMultiplier = 397;
-
     /// <inheritdoc />
     [IgnoreDataMember]
     public abstract TupleDescriptor Descriptor { get; }
 
     /// <inheritdoc />
     [IgnoreDataMember]
-    public virtual int Count
-    {
+    
+    public virtual int Count {
       [DebuggerStepThrough]
-      get { return Descriptor.Count; }
+      get => Descriptor.Count;
     }
 
     /// <inheritdoc/>
@@ -206,10 +201,10 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public virtual bool Equals(Tuple other)
     {
-      if (other is null)
-        return false;
       if (ReferenceEquals(other, this))
         return true;
+      if (other is null)
+        return false;
       if (Descriptor!=other.Descriptor)
         return false;
 
@@ -234,13 +229,11 @@ namespace Xtensive.Tuples
     public override int GetHashCode()
     {
       var count = Count;
-      int result = 0;
+      HashCode hashCode = new();
       for (int i = 0; i < count; i++) {
-        TupleFieldState state;
-        object value = GetValue(i, out state);
-        result = HashCodeMultiplier * result ^ (value!=null ? value.GetHashCode() : 0);
+        hashCode.Add(GetValue(i, out var state));
       }
-      return result;
+      return hashCode.ToHashCode();
     }
 
     #endregion

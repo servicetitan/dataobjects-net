@@ -65,18 +65,15 @@ namespace Xtensive.Tuples.Packed
 
     public override int GetHashCode()
     {
-      var count = Count;
       var fieldDescriptors = PackedDescriptor.FieldDescriptors;
-      int result = 0;
-      for (int i = 0; i < count; i++) {
+      HashCode hashCode = new();
+      for (int i = Count; i-- > 0;) {
         var descriptor = fieldDescriptors[i];
-        var state = GetFieldState(descriptor);
-        var fieldHash = state == TupleFieldState.Available
+        hashCode.Add(GetFieldState(descriptor) == TupleFieldState.Available
           ? descriptor.Accessor.GetValueHashCode(this, descriptor)
-          : 0;
-        result = HashCodeMultiplier * result ^ fieldHash;
+          : 0);
       }
-      return result;
+      return hashCode.ToHashCode();
     }
 
     public override TupleFieldState GetFieldState(int fieldIndex) =>

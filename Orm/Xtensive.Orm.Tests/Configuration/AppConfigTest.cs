@@ -269,7 +269,6 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(actual.ForcedServerVersion, Is.EqualTo(expected.ForcedServerVersion));
       Assert.That(actual.ForeignKeyMode, Is.EqualTo(expected.ForeignKeyMode));
       Assert.That(actual.IncludeSqlInExceptions, Is.EqualTo(expected.IncludeSqlInExceptions));
-      Assert.That(actual.KeyCacheSize, Is.EqualTo(expected.KeyCacheSize));
       Assert.That(actual.KeyGeneratorCacheSize, Is.EqualTo(expected.KeyGeneratorCacheSize));
       Assert.That(actual.QueryCacheSize, Is.EqualTo(expected.QueryCacheSize));
       Assert.That(actual.RecordSetMappingCacheSize, Is.EqualTo(expected.RecordSetMappingCacheSize));

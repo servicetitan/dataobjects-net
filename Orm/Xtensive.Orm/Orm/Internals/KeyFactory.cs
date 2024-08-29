@@ -29,13 +29,13 @@ namespace Xtensive.Orm.Internals
       if (keyGenerator==null)
         throw new InvalidOperationException(String.Format(Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
       var keyValue = keyGenerator.GenerateKey(typeInfo.Key, session);
-      var key = Materialize(domain, session.StorageNodeId, typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
+      var key = Materialize(domain, session.StorageNodeId, typeInfo, keyValue, TypeReferenceAccuracy.ExactType, null);
 
       return key;
     }
 
     public static Key Materialize(Domain domain, string nodeId,
-      TypeInfo type, Tuple value, TypeReferenceAccuracy accuracy, bool canCache, IReadOnlyList<ColNum> keyIndexes)
+      TypeInfo type, Tuple value, TypeReferenceAccuracy accuracy, IReadOnlyList<ColNum> keyIndexes)
     {
       var hierarchy = type.Hierarchy;
       var keyInfo = type.Key;
@@ -51,7 +51,6 @@ namespace Xtensive.Orm.Internals
       }
       if (hierarchy!=null && hierarchy.Root.IsLeaf) {
         accuracy = TypeReferenceAccuracy.ExactType;
-        canCache = false; // No reason to cache
       }
 
       Key key;
@@ -62,18 +61,6 @@ namespace Xtensive.Orm.Internals
         if (keyIndexes!=null)
           throw Exceptions.InternalError(Strings.ExKeyIndexesAreSpecifiedForNonGenericKey, OrmLog.Instance);
         key = new LongKey(nodeId, type, accuracy, value);
-      }
-      if (!canCache)
-        return key;
-      var keyCache = domain.KeyCache;
-      lock (keyCache) {
-        Key foundKey;
-        if (keyCache.TryGetItem(key, true, out foundKey))
-          key = foundKey;
-        else {
-          if (accuracy==TypeReferenceAccuracy.ExactType)
-            keyCache.Add(key);
-        }
       }
       return key;
     }
@@ -119,7 +106,7 @@ namespace Xtensive.Orm.Internals
         throw new ArgumentException(String.Format(
           Strings.ExSpecifiedValuesArentEnoughToCreateKeyForTypeX, type.Name));
 
-      return Materialize(domain, nodeId, type, tuple, accuracy, false, null);
+      return Materialize(domain, nodeId, type, tuple, accuracy, null);
     }
 
     public static bool IsValidKeyTuple(Tuple tuple)

@@ -11,36 +11,16 @@ using Tuple = Xtensive.Tuples.Tuple;
 namespace Xtensive.Orm.Internals
 {
   [Serializable]
-  internal sealed class LongKey : Key
+  internal sealed class LongKey(string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, Tuple value) : Key(nodeId, type, accuracy, value)
   {
     /// <inheritdoc/>
-    protected override Tuple GetValue()
-    {
-      return value;
-    }
+    protected override Tuple GetValue() => value;
 
     /// <inheritdoc/>
-    protected override int CalculateHashCode()
-    {
-      return value.GetHashCode();
-    }
+    protected override int CalculateHashCode() => value.GetHashCode();
 
     /// <inheritdoc/>
-    protected override bool ValueEquals(Key other)
-    {
-      var otherKey = other as LongKey;
-      if (otherKey==null)
-        return false;
-
-      return value.Equals(otherKey.value);
-    }
-
-
-    // Constructors
-
-    internal LongKey(string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, Tuple value)
-      : base(nodeId, type, accuracy, value)
-    {
-    }
+    protected override bool ValueEquals(Key other) =>
+      other is LongKey otherKey && value.Equals(otherKey.value);
   }
 }

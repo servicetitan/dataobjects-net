@@ -29,19 +29,10 @@ namespace Xtensive.Orm.Internals
       return result;
     }
 
-    protected override bool ValueEquals(Key other)
-    {
-      var otherKey = other as Key<T>;
-      if (otherKey == null)
-        return false;
-      return
-        EqualityComparer1.Invoke(value1, otherKey.value1);
-    }
+    protected override bool ValueEquals(Key other) =>
+      other is Key<T> otherKey && EqualityComparer1(value1, otherKey.value1);
 
-    protected override int CalculateHashCode()
-    {
-      return value1.GetHashCode();
-    }
+    protected override int CalculateHashCode() => value1.GetHashCode();
 
     [UsedImplicitly]
     public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, IReadOnlyList<ColNum> keyIndexes)

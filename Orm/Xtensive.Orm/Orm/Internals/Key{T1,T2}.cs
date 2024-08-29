@@ -33,20 +33,12 @@ namespace Xtensive.Orm.Internals
       return result;
     }
 
-    protected override bool ValueEquals(Key other)
-    {
-      var otherKey = other as Key<T1, T2>;
-      if (otherKey == null)
-        return false;
-      return
-        EqualityComparer2.Invoke(value2, otherKey.value2) &&
-        EqualityComparer1.Invoke(value1, otherKey.value1);
-    }
+    protected override bool ValueEquals(Key other) =>
+      other is Key<T1, T2> otherKey
+        && EqualityComparer2(value2, otherKey.value2)
+        && EqualityComparer1(value1, otherKey.value1);
 
-    protected override int CalculateHashCode()
-    {
-      return Tuple.HashCodeMultiplier * value1.GetHashCode() ^ value2.GetHashCode();
-    }
+    protected override int CalculateHashCode() => HashCode.Combine(value1, value2);
 
     [UsedImplicitly]
     public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, IReadOnlyList<ColNum> keyIndexes)
