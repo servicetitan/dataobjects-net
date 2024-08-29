@@ -110,16 +110,9 @@ namespace Xtensive.Orm
     /// <summary>
     /// Determines whether <see cref="TypeInfo"/> property has exact type value or not.
     /// </summary>
-    internal bool HasExactType
-    {
-      get { return TypeReference.Accuracy==TypeReferenceAccuracy.ExactType; }
-    }
+    internal bool HasExactType => TypeReference.Accuracy == TypeReferenceAccuracy.ExactType;
 
-    internal Tuple CreateTuple()
-    {
-      var descriptor = TypeReference.Type.Key.TupleDescriptor;
-      return Tuple.Create(descriptor);
-    }
+    internal Tuple CreateTuple() => Tuple.Create(TypeReference.Type.Key.TupleDescriptor);
 
     #region Equals, GetHashCode, ==, != 
 
@@ -132,25 +125,22 @@ namespace Xtensive.Orm
         return false;
       var thisType = TypeReference.Type;
       var otherType = other.TypeReference.Type;
-      if (HasExactType && other.HasExactType && thisType!=otherType)
+      if (HasExactType && other.HasExactType && thisType != otherType)
         return false;
-      if (!thisType.IsInterface && !otherType.IsInterface && thisType.Hierarchy!=otherType.Hierarchy)
+      var thisTypeIsInterface = thisType.IsInterface;
+      var otherTypeIsInterface = otherType.IsInterface;
+      if (!thisTypeIsInterface && !otherTypeIsInterface && thisType.Hierarchy != otherType.Hierarchy
+          || thisType.Key.EqualityIdentifier != otherType.Key.EqualityIdentifier
+          || NodeId != other.NodeId)
         return false;
-      if (thisType.Key.EqualityIdentifier!=otherType.Key.EqualityIdentifier)
-        return false;
-      if (NodeId!=other.NodeId)
-        return false;
-      if (thisType.IsInterface && !otherType.IsInterface) {
-        if (!thisType.UnderlyingType.IsAssignableFrom(otherType.UnderlyingType))
+      if (thisTypeIsInterface) {
+        if (!otherTypeIsInterface && !thisType.UnderlyingType.IsAssignableFrom(otherType.UnderlyingType))
           return false;
       }
-      else if (otherType.IsInterface && !thisType.IsInterface) {
-        if (!otherType.UnderlyingType.IsAssignableFrom(thisType.UnderlyingType))
+      else if (otherTypeIsInterface && !otherType.UnderlyingType.IsAssignableFrom(thisType.UnderlyingType)) {
           return false;
       }
-      if (other.GetType().IsGenericType)
-        return other.ValueEquals(this);
-      return ValueEquals(other);
+      return other.GetType().IsGenericType ? other.ValueEquals(this) : ValueEquals(other);
     }
 
     /// <inheritdoc/>

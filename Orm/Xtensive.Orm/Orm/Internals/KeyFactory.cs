@@ -49,20 +49,15 @@ namespace Xtensive.Orm.Internals
             value.SetValue(typeIdColumnIndex, type.TypeId);
         }
       }
-      if (hierarchy!=null && hierarchy.Root.IsLeaf) {
+      if (hierarchy?.Root.IsLeaf == true) {
         accuracy = TypeReferenceAccuracy.ExactType;
       }
 
-      Key key;
       var isGenericKey = keyInfo.TupleDescriptor.Count <= WellKnown.MaxGenericKeyLength;
-      if (isGenericKey)
-        key = CreateGenericKey(domain, nodeId, type, accuracy, value, keyIndexes);
-      else {
-        if (keyIndexes!=null)
-          throw Exceptions.InternalError(Strings.ExKeyIndexesAreSpecifiedForNonGenericKey, OrmLog.Instance);
-        key = new LongKey(nodeId, type, accuracy, value);
-      }
-      return key;
+      return isGenericKey
+        ? CreateGenericKey(domain, nodeId, type, accuracy, value, keyIndexes)
+        : keyIndexes == null ? new LongKey(nodeId, type, accuracy, value)
+        : throw Exceptions.InternalError(Strings.ExKeyIndexesAreSpecifiedForNonGenericKey, OrmLog.Instance);
     }
 
     public static Key Materialize(Domain domain, string nodeId,
