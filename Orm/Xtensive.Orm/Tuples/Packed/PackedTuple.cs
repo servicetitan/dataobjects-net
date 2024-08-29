@@ -63,6 +63,7 @@ namespace Xtensive.Tuples.Packed
       return true;
     }
 
+    // Must be compatible with Tuple.GetHashCode() - return the same result
     public override int GetHashCode()
     {
       var fieldDescriptors = PackedDescriptor.FieldDescriptors;

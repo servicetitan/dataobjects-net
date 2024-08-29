@@ -228,9 +228,8 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      var count = Count;
       HashCode hashCode = new();
-      for (int i = 0; i < count; i++) {
+      for (int i = Count; i-- > 0;) {
         hashCode.Add(GetValue(i, out var state));
       }
       return hashCode.ToHashCode();
