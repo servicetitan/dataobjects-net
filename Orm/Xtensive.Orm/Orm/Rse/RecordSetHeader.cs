@@ -7,14 +7,12 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
-using System.Linq;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 
 namespace Xtensive.Orm.Rse
@@ -25,7 +23,6 @@ namespace Xtensive.Orm.Rse
   [Serializable]
   public sealed class RecordSetHeader
   {
-    private volatile bool hasOrderTupleDescriptor;
     private TupleDescriptor orderTupleDescriptor;
 
     /// <summary>
@@ -37,7 +34,7 @@ namespace Xtensive.Orm.Rse
     /// Gets the <see cref="Provider"/> keys.
     /// </summary>
     /// <value>The keys.</value>
-    public ColumnGroupCollection ColumnGroups { get; }
+    public IReadOnlyList<ColumnGroup> ColumnGroups { get; }
 
     /// <summary>
     /// Gets the <see cref="Provider"/> columns.
@@ -58,24 +55,7 @@ namespace Xtensive.Orm.Rse
     /// Gets the tuple descriptor describing
     /// a set of <see cref="Order"/> columns.
     /// </summary>
-    public TupleDescriptor OrderTupleDescriptor {
-      get {
-        if (Order.Count==0) {
-          return null;
-        }
-        if (!hasOrderTupleDescriptor) {
-          lock (this)
-            if (!hasOrderTupleDescriptor) {
-              var fieldTypes = Order.Select(p => Columns[p.Key].Type).ToArray(Order.Count);
-              orderTupleDescriptor = TupleDescriptor.Create(fieldTypes);
-              hasOrderTupleDescriptor = true;
-            }
-        }
-
-        return orderTupleDescriptor;
-      }
-    }
-
+    public TupleDescriptor OrderTupleDescriptor => Order.Count == 0 ? null : orderTupleDescriptor;
 
     /// <summary>
     /// Aliases the header.
@@ -355,13 +335,8 @@ namespace Xtensive.Orm.Rse
       if (tupleDescriptor.Count != Columns.Count)
         throw new ArgumentOutOfRangeException("columns.Count");
 
-      ColumnGroups = columnGroups == null
-        ? ColumnGroupCollection.Empty
-        // Unsafe perf. optimization: if you pass a list, it should be immutable!
-        : new ColumnGroupCollection(columnGroups);
-
+      ColumnGroups = columnGroups ?? [];
       orderTupleDescriptor = orderKeyDescriptor ?? TupleDescriptor.Empty;
-      hasOrderTupleDescriptor = true;
       Order = order ?? new DirectionCollection<ColNum>();
       Order.Lock(true);
     }
