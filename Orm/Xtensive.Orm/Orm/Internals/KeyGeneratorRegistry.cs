@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -12,33 +12,17 @@ namespace Xtensive.Orm.Internals
 {
   internal sealed class KeyGeneratorRegistry : LockableBase
   {
-    private readonly Dictionary<KeyInfo, KeyGenerator> generators
-      = new Dictionary<KeyInfo, KeyGenerator>();
-
-    private readonly Dictionary<KeyInfo, TemporaryKeyGenerator> temporaryGenerators
-      = new Dictionary<KeyInfo, TemporaryKeyGenerator>();
+    private readonly Dictionary<KeyInfo, KeyGenerator> generators = new();
+    private readonly Dictionary<KeyInfo, TemporaryKeyGenerator> temporaryGenerators = new();
 
     // Compatibility indexer
-    public KeyGenerator this[KeyInfo key] { get { return Get(key); } }
+    public KeyGenerator this[KeyInfo key] => Get(key);
 
-    public KeyGenerator Get(KeyInfo key)
-    {
-      KeyGenerator result;
-      generators.TryGetValue(key, out result);
-      return result;
-    }
+    public KeyGenerator Get(KeyInfo key) => generators.GetValueOrDefault(key);
 
-    public KeyGenerator Get(KeyInfo key, bool isTemporary)
-    {
-      return isTemporary ? GetTemporary(key) : Get(key);
-    }
+    public KeyGenerator Get(KeyInfo key, bool isTemporary) => isTemporary ? GetTemporary(key) : Get(key);
 
-    public TemporaryKeyGenerator GetTemporary(KeyInfo key)
-    {
-      TemporaryKeyGenerator result;
-      temporaryGenerators.TryGetValue(key, out result);
-      return result;
-    }
+    public TemporaryKeyGenerator GetTemporary(KeyInfo key) => temporaryGenerators.GetValueOrDefault(key);
 
     public void Register(KeyInfo key, KeyGenerator generator)
     {

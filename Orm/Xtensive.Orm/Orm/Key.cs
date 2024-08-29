@@ -40,15 +40,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the key value.
     /// </summary>
-    public Tuple Value
-    {
-      get
-      {
-        if (value==null)
-          value = GetValue();
-        return value;
-      }
-    }
+    public Tuple Value => value ??= GetValue();
 
     /// <summary>
     /// Gets the <see cref="TypeReference"/> object
@@ -59,31 +51,21 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets node identifier for this instance.
     /// </summary>
-    public string NodeId { get; private set; }
+    public string NodeId { get; }
 
     /// <summary>
     /// Gets the type of <see cref="Entity"/> this instance identifies.
     /// </summary>
     [CanBeNull]
-    public TypeInfo TypeInfo
-    {
-      get
-      {
-        return TypeReference.Accuracy==TypeReferenceAccuracy.ExactType ? TypeReference.Type : null;
-      }
-    }
+    public TypeInfo TypeInfo => TypeReference.Accuracy == TypeReferenceAccuracy.ExactType ? TypeReference.Type : null;
 
     /// <summary>
     /// Determines whether this key is a temporary key in the specified <paramref name="domain"/>.
     /// </summary>
     /// <param name="domain">The domain.</param>
     /// <returns>Check result.</returns>
-    public bool IsTemporary(Domain domain)
-    {
-      var keyInfo = TypeReference.Type.Key;
-      var keyGenerator = domain.KeyGenerators.GetTemporary(keyInfo);
-      return keyGenerator!=null && keyGenerator.IsTemporaryKey(Value);
-    }
+    public bool IsTemporary(Domain domain) =>
+      domain.KeyGenerators.GetTemporary(TypeReference.Type.Key)?.IsTemporaryKey(Value) == true;
 
     /// <summary>
     /// Resolves the type of <see cref="Entity"/> this instance identifies.
@@ -100,16 +82,6 @@ namespace Xtensive.Orm
         return TypeReference.Type;
 
       var domain = session.Domain;
-      var keyCache = domain.KeyCache;
-      Key cachedKey;
-
-      lock (keyCache)
-        keyCache.TryGetItem(this, true, out cachedKey);
-      if (cachedKey!=null) {
-        TypeReference = cachedKey.TypeReference;
-        return TypeReference.Type;
-      }
-
       var hierarchy = TypeReference.Type.Hierarchy;
       if (hierarchy!=null && hierarchy.Types.Count==1) {
         TypeReference = new TypeReference(hierarchy.Types[0], TypeReferenceAccuracy.ExactType);
@@ -138,54 +110,41 @@ namespace Xtensive.Orm
     /// <summary>
     /// Determines whether <see cref="TypeInfo"/> property has exact type value or not.
     /// </summary>
-    internal bool HasExactType
-    {
-      get { return TypeReference.Accuracy==TypeReferenceAccuracy.ExactType; }
-    }
+    internal bool HasExactType => TypeReference.Accuracy == TypeReferenceAccuracy.ExactType;
 
-    internal Tuple CreateTuple()
-    {
-      var descriptor = TypeReference.Type.Key.TupleDescriptor;
-      return Tuple.Create(descriptor);
-    }
+    internal Tuple CreateTuple() => Tuple.Create(TypeReference.Type.Key.TupleDescriptor);
 
     #region Equals, GetHashCode, ==, != 
 
     /// <inheritdoc/>
     public bool Equals(Key other)
     {
-      if (other is null)
-        return false;
       if (ReferenceEquals(this, other))
         return true;
+      if (other is null)
+        return false;
       var thisType = TypeReference.Type;
       var otherType = other.TypeReference.Type;
-      if (HasExactType && other.HasExactType && thisType!=otherType)
+      if (HasExactType && other.HasExactType && thisType != otherType)
         return false;
-      if (!thisType.IsInterface && !otherType.IsInterface && thisType.Hierarchy!=otherType.Hierarchy)
+      var thisTypeIsInterface = thisType.IsInterface;
+      var otherTypeIsInterface = otherType.IsInterface;
+      if (!thisTypeIsInterface && !otherTypeIsInterface && thisType.Hierarchy != otherType.Hierarchy
+          || thisType.Key.EqualityIdentifier != otherType.Key.EqualityIdentifier
+          || NodeId != other.NodeId)
         return false;
-      if (thisType.Key.EqualityIdentifier!=otherType.Key.EqualityIdentifier)
-        return false;
-      if (NodeId!=other.NodeId)
-        return false;
-      if (thisType.IsInterface && !otherType.IsInterface) {
-        if (!thisType.UnderlyingType.IsAssignableFrom(otherType.UnderlyingType))
+      if (thisTypeIsInterface) {
+        if (!otherTypeIsInterface && !thisType.UnderlyingType.IsAssignableFrom(otherType.UnderlyingType))
           return false;
       }
-      else if (otherType.IsInterface && !thisType.IsInterface) {
-        if (!otherType.UnderlyingType.IsAssignableFrom(thisType.UnderlyingType))
+      else if (otherTypeIsInterface && !otherType.UnderlyingType.IsAssignableFrom(thisType.UnderlyingType)) {
           return false;
       }
-      if (other.GetType().IsGenericType)
-        return other.ValueEquals(this);
-      return ValueEquals(other);
+      return other.GetType().IsGenericType ? other.ValueEquals(this) : ValueEquals(other);
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      return Equals(obj as Key);
-    }
+    public override bool Equals(object obj) => Equals(obj as Key);
 
     /// <summary>
     /// Implements the operator ==.
@@ -196,10 +155,7 @@ namespace Xtensive.Orm
     /// The result of the operator.
     /// </returns>
     [DebuggerStepThrough]
-    public static bool operator ==(Key left, Key right)
-    {
-      return Equals(left, right);
-    }
+    public static bool operator ==(Key left, Key right) => Equals(left, right);
 
     /// <summary>
     /// Implements the operator !=.
@@ -210,19 +166,11 @@ namespace Xtensive.Orm
     /// The result of the operator.
     /// </returns>
     [DebuggerStepThrough]
-    public static bool operator !=(Key left, Key right)
-    {
-      return !Equals(left, right);
-    }
+    public static bool operator !=(Key left, Key right) => !Equals(left, right);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      var result = CalculateHashCode();
-      result = result * Tuple.HashCodeMultiplier ^ NodeId.GetHashCode();
-      result = result * Tuple.HashCodeMultiplier ^ TypeReference.Type.Key.EqualityIdentifier.GetHashCode();
-      return result;
-    }
+    public override int GetHashCode() =>
+      HashCode.Combine(CalculateHashCode(), NodeId, TypeReference.Type.Key.EqualityIdentifier);
 
     /// <summary>
     /// Compares key value for equality.
@@ -433,7 +381,7 @@ namespace Xtensive.Orm
 
     internal static Key Create(Domain domain, string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, Tuple value)
     {
-      return KeyFactory.Materialize(domain, nodeId, type, value, accuracy, false, null);
+      return KeyFactory.Materialize(domain, nodeId, type, value, accuracy, null);
     }
 
     #endregion

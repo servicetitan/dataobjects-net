@@ -6,10 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
-using System.Text;
-using Xtensive.Comparison;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Tuples.Packed;
@@ -23,52 +20,32 @@ namespace Xtensive.Tuples
   [Serializable]
   public abstract class Tuple : ITuple, IEquatable<Tuple>
   {
-    /// <summary>
-    /// Per-field hash code multiplier used in <see cref="GetHashCode"/> calculation.
-    /// </summary>
-    public const int HashCodeMultiplier = 397;
-
     /// <inheritdoc />
     [IgnoreDataMember]
     public abstract TupleDescriptor Descriptor { get; }
 
     /// <inheritdoc />
     [IgnoreDataMember]
-    public virtual int Count
-    {
+    
+    public virtual int Count {
       [DebuggerStepThrough]
-      get { return Descriptor.Count; }
+      get => Descriptor.Count;
     }
 
     /// <inheritdoc/>
-    Tuple ITupleFactory.CreateNew()
-    {
-      return CreateNew();
-    }
+    Tuple ITupleFactory.CreateNew() => CreateNew();
 
     /// <inheritdoc/>
-    Tuple ITuple.Clone()
-    {
-      return Clone();
-    }
+    Tuple ITuple.Clone() => Clone();
 
     /// <inheritdoc/>
-    object ICloneable.Clone()
-    {
-      return Clone();
-    }
+    object ICloneable.Clone() => Clone();
 
     /// <see cref="ITupleFactory.CreateNew" copy="true" />
-    public virtual Tuple CreateNew()
-    {
-      return Create(Descriptor);
-    }
+    public virtual Tuple CreateNew() => Create(Descriptor);
 
     /// <see cref="ITuple.Clone" copy="true" />
-    public virtual Tuple Clone()
-    {
-      return (Tuple) MemberwiseClone();
-    }
+    public virtual Tuple Clone() => (Tuple) MemberwiseClone();
 
     /// <inheritdoc />
     public abstract TupleFieldState GetFieldState(int fieldIndex);
@@ -82,16 +59,14 @@ namespace Xtensive.Tuples
     /// <exception cref="InvalidOperationException">Field value is not available.</exception>
     public object GetValue(int fieldIndex)
     {
-      TupleFieldState state;
-      var result = GetValue(fieldIndex, out state);
+      var result = GetValue(fieldIndex, out var state);
       return state.IsNull() ? null : result;
     }
 
     /// <inheritdoc/>
     public object GetValueOrDefault(int fieldIndex)
     {
-      TupleFieldState state;
-      var value = GetValue(fieldIndex, out state);
+      var value = GetValue(fieldIndex, out var state);
       return state==TupleFieldState.Available ? value : null;
     }
 
@@ -133,16 +108,11 @@ namespace Xtensive.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValue<T>(int fieldIndex)
     {
-      TupleFieldState fieldState;
-      var result = GetValue<T>(fieldIndex, out fieldState);
+      var result = GetValue<T>(fieldIndex, out var fieldState);
 
-      if (fieldState.IsNull()) {
-        if (default(T)!=null)
-          throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof (T)));
-        return default(T);
-      }
-
-      return result;
+      return !fieldState.IsNull() ? result
+        : default(T) != null ? throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof(T)))
+        : default(T);
     }
 
     /// <summary>
@@ -160,8 +130,7 @@ namespace Xtensive.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValueOrDefault<T>(int fieldIndex)
     {
-      TupleFieldState fieldState;
-      var result = GetValue<T>(fieldIndex, out fieldState);
+      var result = GetValue<T>(fieldIndex, out var fieldState);
       return fieldState==TupleFieldState.Available ? result : default(T);
     }
 
@@ -198,33 +167,26 @@ namespace Xtensive.Tuples
     #region Equals, GetHashCode
 
     /// <inheritdoc/>
-    public override sealed bool Equals(object obj)
-    {
-      return Equals(obj as Tuple);
-    }
+    public override sealed bool Equals(object obj) => Equals(obj as Tuple);
 
     /// <inheritdoc/>
     public virtual bool Equals(Tuple other)
     {
-      if (other is null)
-        return false;
       if (ReferenceEquals(other, this))
         return true;
+      if (other is null)
+        return false;
       if (Descriptor!=other.Descriptor)
         return false;
 
       var count = Count;
       for (int i = 0; i < count; i++) {
-        TupleFieldState thisState;
-        TupleFieldState otherState;
-        var thisValue = GetValue(i, out thisState);
-        var otherValue = other.GetValue(i, out otherState);
-        if (thisState!=otherState)
+        var thisValue = GetValue(i, out var thisState);
+        var otherValue = other.GetValue(i, out var otherState);
+        if (thisState != otherState
+            || thisState == TupleFieldState.Available && !Equals(thisValue, otherValue)) {
           return false;
-        if (thisState!=TupleFieldState.Available)
-          continue;
-        if (!Equals(thisValue, otherValue))
-          return false;
+        }          
       }
 
       return true;
@@ -233,14 +195,11 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      var count = Count;
-      int result = 0;
-      for (int i = 0; i < count; i++) {
-        TupleFieldState state;
-        object value = GetValue(i, out state);
-        result = HashCodeMultiplier * result ^ (value!=null ? value.GetHashCode() : 0);
+      HashCode hashCode = new();
+      for (int i = Count; i-- > 0;) {
+        hashCode.Add(GetValue(i, out var state));
       }
-      return result;
+      return hashCode.ToHashCode();
     }
 
     #endregion

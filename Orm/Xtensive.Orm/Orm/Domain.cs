@@ -132,8 +132,6 @@ namespace Xtensive.Orm
 
     internal FastConcurrentLruCache<object, Pair<object, ParameterizedQuery>> QueryCache { get; }
 
-    internal ICache<Key, Key> KeyCache { get; private set; }
-
     internal object UpgradeContextCookie { get; private set; }
 
     internal SqlConnection SingleConnection { get; private set; }
@@ -414,7 +412,6 @@ namespace Xtensive.Orm
       GenericKeyFactories = new ConcurrentDictionary<TypeInfo, GenericKeyFactory>();
       EntityDataReader = new EntityDataReader(this);
       KeyGenerators = new KeyGeneratorRegistry();
-      KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       QueryCache = new FastConcurrentLruCache<object, Pair<object, ParameterizedQuery>>(Configuration.QueryCacheSize, k => k.First);
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
       Extensions = new ExtensionCollection();

@@ -24,12 +24,6 @@ namespace Xtensive.Orm.Configuration
     #region Defaults
 
     /// <summary>
-    /// Default <see cref="DomainConfiguration.KeyCacheSize"/> value:
-    /// <see langword="16*1024" />.
-    /// </summary>
-    public const int DefaultKeyCacheSize = 16 * 1024;
-
-    /// <summary>
     /// Default <see cref="DomainConfiguration.KeyGeneratorCacheSize"/> value:
     /// <see langword="128" />.
     /// </summary>
@@ -135,7 +129,6 @@ namespace Xtensive.Orm.Configuration
     private LinqExtensionRegistry linqExtensions = new();
     private SessionConfigurationCollection sessions = new();
     private NamingConvention namingConvention = new();
-    private int keyCacheSize = DefaultKeyCacheSize;
     private int keyGeneratorCacheSize = DefaultKeyGeneratorCacheSize;
     private int queryCacheSize = DefaultQueryCacheSize;
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
@@ -275,20 +268,6 @@ namespace Xtensive.Orm.Configuration
       set {
         EnsureNotLocked();
         namingConvention = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the size of the key cache.
-    /// Default value is <see cref="DefaultKeyCacheSize"/>.
-    /// </summary>
-    public int KeyCacheSize
-    {
-      get => keyCacheSize;
-      set {
-        EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
-        keyCacheSize = value;
       }
     }
 
@@ -783,7 +762,6 @@ namespace Xtensive.Orm.Configuration
       types = configuration.Types.Clone();
       linqExtensions = configuration.LinqExtensions.Clone();
       namingConvention = configuration.NamingConvention.Clone();
-      keyCacheSize = configuration.KeyCacheSize;
       keyGeneratorCacheSize = configuration.KeyGeneratorCacheSize;
       queryCacheSize = configuration.QueryCacheSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;

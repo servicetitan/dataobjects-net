@@ -21,11 +21,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets a value indicating whether state is loaded and actual.
     /// </summary>
-    public bool IsActual {
-      get {
-        return LifetimeToken!=null && LifetimeToken.IsActive;
-      }
-    }
+    public bool IsActual => LifetimeToken?.IsActive == true;
 
     /// <summary>
     /// Gets the transactional state.

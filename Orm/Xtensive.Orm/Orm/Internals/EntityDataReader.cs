@@ -83,14 +83,13 @@ namespace Xtensive.Orm.Internals
       }
       var typeMapping = context.GetTypeMapping(groupIndex, mapping.ApproximateType, typeId, mapping.Columns);
 
-      bool canCache = accuracy == TypeReferenceAccuracy.ExactType;
       var keyTuple = tuple;
       var keyIndexes = typeMapping.KeyIndexes;
       if (typeMapping.KeyTransform.Descriptor.Count > WellKnown.MaxGenericKeyLength) {
         keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
         keyIndexes = null;
       }
-      var key = KeyFactory.Materialize(Domain, context.Session.StorageNodeId, typeMapping.Type, keyTuple, accuracy, canCache, keyIndexes);
+      var key = KeyFactory.Materialize(Domain, context.Session.StorageNodeId, typeMapping.Type, keyTuple, accuracy, keyIndexes);
       return new Pair<Key, Tuple>(
         key,
         accuracy == TypeReferenceAccuracy.ExactType

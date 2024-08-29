@@ -24,7 +24,6 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string ConnectionUrlElementName = "connectionUrl";
     private const string TypesElementName = "types";
     private const string NamingConventionElementName = "namingConvention";
-    private const string KeyCacheSizeElementName = "keyCacheSize";
     private const string KeyGeneratorCacheSizeElementName = "generatorCacheSize";
     private const string QueryCacheSizeElementName = "queryCacheSize";
     private const string RecordSetMappingCacheSizeElementName = "recordSetMappingCacheSizeSize";
@@ -117,17 +116,6 @@ namespace Xtensive.Orm.Configuration.Elements
     {
       get { return (NamingConventionElement) this[NamingConventionElementName]; }
       set { this[NamingConventionElementName] = value; }
-    }
-
-    /// <summary>
-    /// <see cref="DomainConfiguration.KeyCacheSize" copy="true"/>
-    /// </summary>
-    [ConfigurationProperty(KeyCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultKeyCacheSize)]
-    [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
-    public int KeyCacheSize
-    {
-      get { return (int) this[KeyCacheSizeElementName]; }
-      set { this[KeyCacheSizeElementName] = value; }
     }
 
     /// <summary>
@@ -446,7 +434,6 @@ namespace Xtensive.Orm.Configuration.Elements
         Name = Name,
         ConnectionInfo = ConnectionInfoParser.GetConnectionInfo(CurrentConfiguration, ConnectionUrl, Provider, ConnectionString),
         NamingConvention = NamingConvention.ToNative(),
-        KeyCacheSize = KeyCacheSize,
         KeyGeneratorCacheSize = KeyGeneratorCacheSize,
         QueryCacheSize = QueryCacheSize,
         RecordSetMappingCacheSize = RecordSetMappingCacheSize,

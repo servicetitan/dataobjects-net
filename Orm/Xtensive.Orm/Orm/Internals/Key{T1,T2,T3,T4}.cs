@@ -41,26 +41,14 @@ namespace Xtensive.Orm.Internals
       return result;
     }
 
-    protected override bool ValueEquals(Key other)
-    {
-      var otherKey = other as Key<T1, T2, T3, T4>;
-      if (otherKey == null)
-        return false;
-      return
-        EqualityComparer4.Invoke(value4, otherKey.value4) &&
-        EqualityComparer3.Invoke(value3, otherKey.value3) &&
-        EqualityComparer2.Invoke(value2, otherKey.value2) &&
-        EqualityComparer1.Invoke(value1, otherKey.value1);
-    }
+    protected override bool ValueEquals(Key other) =>
+      other is Key<T1, T2, T3, T4> otherKey
+        && EqualityComparer4(value4, otherKey.value4)
+        && EqualityComparer3(value3, otherKey.value3)
+        && EqualityComparer2(value2, otherKey.value2)
+        && EqualityComparer1(value1, otherKey.value1);
 
-    protected override int CalculateHashCode()
-    {
-      var result = value1.GetHashCode();
-      result = Tuple.HashCodeMultiplier * result ^ value2.GetHashCode();
-      result = Tuple.HashCodeMultiplier * result ^ value3.GetHashCode();
-      result = Tuple.HashCodeMultiplier * result ^ value4.GetHashCode();
-      return result;
-    }
+    protected override int CalculateHashCode() => HashCode.Combine(value1, value2, value3, value4);
 
     [UsedImplicitly]
     public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, IReadOnlyList<ColNum> keyIndexes)
