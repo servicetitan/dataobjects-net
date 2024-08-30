@@ -119,11 +119,6 @@ namespace Xtensive.Orm.Rse
         newColumns[j++] = c.Clone((ColNum) (columnCount + c.Index));
       }
 
-      var newFieldTypes = new Type[newColumns.Length];
-      for (var i = 0; i < newColumns.Length; i++)
-        newFieldTypes[i] = newColumns[i].Type;
-      var newTupleDescriptor = TupleDescriptor.Create(newFieldTypes);
-
       var columnGroupCount = ColumnGroups.Count;
       var groups = new ColumnGroup[columnGroupCount + joined.ColumnGroups.Count];
       j = 0;
@@ -145,7 +140,7 @@ namespace Xtensive.Orm.Rse
       }
 
       return new RecordSetHeader(
-        newTupleDescriptor,
+        new(TupleDescriptor, joined.TupleDescriptor),
         newColumns,
         groups,
         OrderTupleDescriptor,
@@ -167,14 +162,10 @@ namespace Xtensive.Orm.Rse
           columnsMap[oldIndex] = newIndex;
         }
 
-        var fieldTypes = columns.Select(i => TupleDescriptor[i]).ToArray(columns.Count);
-        var resultTupleDescriptor = Xtensive.Tuples.TupleDescriptor.Create(fieldTypes);
         var resultOrder = new DirectionCollection<ColNum>(
           Order
             .Select(o => new KeyValuePair<ColNum, Direction>(columnsMap[o.Key], o.Value))
             .TakeWhile(o => o.Key >= 0));
-
-        var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum) newIndex)).ToArray(columns.Count);
 
         var resultGroups = ColumnGroups
           .Where(g => g.Keys.All(k => columnsMap[k] >= 0))
@@ -186,8 +177,8 @@ namespace Xtensive.Orm.Rse
               .Where(c => c >= 0).ToList()));
 
         return new RecordSetHeader(
-          resultTupleDescriptor,
-          resultColumns,
+          TupleDescriptor.CreateFromNormalized(columns.Select(i => TupleDescriptor[i]).ToArray(columns.Count)),
+          columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum) newIndex)).ToArray(columns.Count),
           resultGroups.ToList(),
           null,
           resultOrder);

@@ -145,15 +145,17 @@ namespace Xtensive.Tuples
       if (other is null) {
          return false;
       }
-      if (FieldTypes == null) {
-        return other.FieldTypes == null;
+      var a = FieldTypes;
+      var b = other.FieldTypes;
+      if (a == null) {
+        return b == null;
       }
-      if (other.FieldTypes == null || FieldCount != other.FieldCount) {
+      if (a.Length != b?.Length) {
         return false;
       }
 
-      for (int i = 0; i < FieldCount; i++) {
-        if (FieldTypes[i] != other.FieldTypes[i]) {
+      for (int i = a.Length; i-- > 0;) {
+        if (a[i] != b[i]) {
           return false;
         }
       }
@@ -167,10 +169,10 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      int result = FieldCount;
-      for (int i = 0; i < FieldCount; i++)
-        result = unchecked (FieldTypes[i].GetHashCode() + 29 * result);
-      return result;
+      HashCode hashCode = new();
+      for (int i = FieldCount; i-- > 0;)
+        hashCode.Add(FieldTypes[i]);
+      return hashCode.ToHashCode();
     }
 
     public static bool operator ==(in TupleDescriptor left, in TupleDescriptor right) =>
@@ -207,25 +209,10 @@ namespace Xtensive.Tuples
 
     #region Create methods (base)
 
-    public static TupleDescriptor Create(Type t1)
-    {
-      return new TupleDescriptor(new [] {t1});
-    }
-
-    public static TupleDescriptor Create(Type t1, Type t2)
-    {
-      return new TupleDescriptor(new [] {t1, t2});
-    }
-
-    public static TupleDescriptor Create(Type t1, Type t2, Type t3)
-    {
-      return new TupleDescriptor(new [] {t1, t2, t3});
-    }
-
-    public static TupleDescriptor Create(Type t1, Type t2, Type t3, Type t4)
-    {
-      return  new TupleDescriptor(new [] {t1, t2, t3, t4});
-    }
+    public static TupleDescriptor Create(Type t1) => new([t1]);
+    public static TupleDescriptor Create(Type t1, Type t2) => new([t1, t2]);
+    public static TupleDescriptor Create(Type t1, Type t2, Type t3) => new([t1, t2, t3]);
+    public static TupleDescriptor Create(Type t1, Type t2, Type t3, Type t4) => new([t1, t2, t3, t4]);
 
     /// <summary>
     /// Creates or returns already created descriptor
@@ -236,11 +223,14 @@ namespace Xtensive.Tuples
     /// describing the specified set of fields.</returns>
     public static TupleDescriptor Create(Type[] fieldTypes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(fieldTypes, nameof(fieldTypes));
-      if (fieldTypes.Length == 0) {
-        return EmptyDescriptor;
-      }
-      return new TupleDescriptor(fieldTypes);
+      ArgumentNullException.ThrowIfNull(fieldTypes);
+      return fieldTypes.Length == 0 ? EmptyDescriptor : new(fieldTypes);
+    }
+
+    internal static TupleDescriptor CreateFromNormalized(Type[] normalizedFieldTypes)
+    {
+      ArgumentNullException.ThrowIfNull(normalizedFieldTypes);
+      return normalizedFieldTypes.Length == 0 ? EmptyDescriptor : new(normalizedFieldTypes, true);
     }
 
     /// <summary>
@@ -254,7 +244,7 @@ namespace Xtensive.Tuples
       ArgumentValidator.EnsureArgumentIsInRange(fieldCount, 1, Count, nameof(fieldCount));
       var fieldTypes = new Type[fieldCount];
       Array.Copy(FieldTypes, 0, fieldTypes, 0, fieldCount);
-      return new TupleDescriptor(fieldTypes);
+      return new(fieldTypes, true);
     }
 
     /// <summary>
@@ -268,7 +258,7 @@ namespace Xtensive.Tuples
       ArgumentValidator.EnsureArgumentIsInRange(tailFieldCount, 1, Count, nameof(tailFieldCount));
       var fieldTypes = new Type[tailFieldCount];
       Array.Copy(FieldTypes, Count - tailFieldCount, fieldTypes, 0, tailFieldCount);
-      return new TupleDescriptor(fieldTypes);
+      return new(fieldTypes, true);
     }
 
     #endregion
@@ -316,6 +306,15 @@ namespace Xtensive.Tuples
     #endregion
 
     // Constructors
+
+    private TupleDescriptor(Type[] normalizedFieldTypes, bool _)
+    {
+      FieldTypes = normalizedFieldTypes;
+    }
+
+    internal TupleDescriptor(TupleDescriptor a, TupleDescriptor b)
+      : this(a.FieldTypes.Combine(b.FieldTypes), true)
+    { }
 
     private TupleDescriptor(Type[] fieldTypes)
     {
