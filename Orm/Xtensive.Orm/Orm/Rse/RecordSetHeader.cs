@@ -162,13 +162,10 @@ namespace Xtensive.Orm.Rse
           columnsMap[oldIndex] = newIndex;
         }
 
-        var resultTupleDescriptor = TupleDescriptor.CreateFromNormalized(columns.Select(i => TupleDescriptor[i]).ToArray(columns.Count));
         var resultOrder = new DirectionCollection<ColNum>(
           Order
             .Select(o => new KeyValuePair<ColNum, Direction>(columnsMap[o.Key], o.Value))
             .TakeWhile(o => o.Key >= 0));
-
-        var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum) newIndex)).ToArray(columns.Count);
 
         var resultGroups = ColumnGroups
           .Where(g => g.Keys.All(k => columnsMap[k] >= 0))
@@ -180,8 +177,8 @@ namespace Xtensive.Orm.Rse
               .Where(c => c >= 0).ToList()));
 
         return new RecordSetHeader(
-          resultTupleDescriptor,
-          resultColumns,
+          TupleDescriptor.CreateFromNormalized(columns.Select(i => TupleDescriptor[i]).ToArray(columns.Count)),
+          columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum) newIndex)).ToArray(columns.Count),
           resultGroups.ToList(),
           null,
           resultOrder);
