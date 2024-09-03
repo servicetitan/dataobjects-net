@@ -283,13 +283,13 @@ namespace Xtensive.Orm.Operations
         }
 
         if (scope.PrecedingOperations!=null)
-          operation.PrecedingOperations = scope.PrecedingOperations.AsReadOnly();
+          operation.PrecedingOperations = scope.PrecedingOperations.AsSafeWrapper();
         if (scope.FollowingOperations!=null)
-          operation.FollowingOperations = scope.FollowingOperations.AsReadOnly();
+          operation.FollowingOperations = scope.FollowingOperations.AsSafeWrapper();
         if (scope.UndoOperations!=null)
-          operation.UndoOperations = scope.UndoOperations.AsReadOnly();
+          operation.UndoOperations = scope.UndoOperations.AsSafeWrapper();
         if (scope.KeyByIdentifier!=null)
-          operation.IdentifiedEntities = new ReadOnlyDictionary<string, Key>(scope.KeyByIdentifier);
+          operation.IdentifiedEntities = scope.KeyByIdentifier.AsSafeWrapper();
       }
       finally {
         RemoveCurrentScope(scope);

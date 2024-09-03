@@ -25,11 +25,6 @@ namespace Xtensive.Orm
     private static readonly IReadOnlyDictionary<string, Key> EmptyIdentifiedEntities =
       new ReadOnlyDictionary<string, Key>(new Dictionary<string, Key>());
 
-    private IReadOnlyDictionary<string, Key> identifiedEntities = EmptyIdentifiedEntities;
-    private IReadOnlyList<IOperation> precedingOperations = Array.Empty<IOperation>();
-    private IReadOnlyList<IOperation> followingOperations = Array.Empty<IOperation>();
-    private IReadOnlyList<IOperation> undoOperations = Array.Empty<IOperation>();
-
     /// <inheritdoc/>
     public abstract string Title { get; }
 
@@ -42,28 +37,16 @@ namespace Xtensive.Orm
     public OperationType Type { get; internal set; }
 
     /// <inheritdoc/>
-    public IReadOnlyList<IOperation> PrecedingOperations {
-      get { return precedingOperations; }
-      internal set { precedingOperations = value; }
-    }
+    public IReadOnlyList<IOperation> PrecedingOperations { get; internal set; } = [];
 
     /// <inheritdoc/>
-    public IReadOnlyList<IOperation> FollowingOperations {
-      get { return followingOperations; }
-      internal set { followingOperations = value; }
-    }
+    public IReadOnlyList<IOperation> FollowingOperations { get; internal set; } = [];
 
     /// <inheritdoc/>
-    public IReadOnlyList<IOperation> UndoOperations {
-      get { return undoOperations; }
-      internal set { undoOperations = value; }
-    }
+    public IReadOnlyList<IOperation> UndoOperations { get; internal set; } = [];
 
     /// <inheritdoc/>
-    public IReadOnlyDictionary<string, Key> IdentifiedEntities {
-      get { return identifiedEntities; }
-      set { identifiedEntities = value; }
-    }
+    public IReadOnlyDictionary<string, Key> IdentifiedEntities { get; set; } = EmptyIdentifiedEntities;
 
     /// <inheritdoc/>
     public void Prepare(OperationExecutionContext context)
