@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Validation
@@ -80,19 +81,19 @@ namespace Xtensive.Orm.Validation
         throw new ValidationFailedException(GetErrorMessage(reason)) {ValidationErrors = errors};
     }
 
-    public override IList<ValidationResult> ValidateAndGetErrors(Entity target)
+    public override IReadOnlyList<ValidationResult> ValidateAndGetErrors(Entity target)
     {
       var result = new List<ValidationResult>();
       GetValidationErrors(target, result);
       if (result.Count==0)
         return EmptyValidationResultCollection;
-      var lockedResult = result.AsReadOnly();
+      var lockedResult = result.AsSafeWrapper();
       var errorInfo = new EntityErrorInfo(target, lockedResult);
       RegisterForValidation(target, errorInfo);
       return lockedResult;
     }
 
-    public override IList<ValidationResult> ValidateOnceAndGetErrors(Entity target)
+    public override IReadOnlyList<ValidationResult> ValidateOnceAndGetErrors(Entity target)
     {
       EntityErrorInfo errorInfo;
       if (entitiesToValidate!=null && entitiesToValidate.TryGetValue(target, out errorInfo) && errorInfo!=null)
@@ -101,16 +102,13 @@ namespace Xtensive.Orm.Validation
       return ValidateAndGetErrors(target);
     }
 
-    public override IList<EntityErrorInfo> ValidateAndGetErrors()
-    {
-      return ValidateAndGetErrors(null);
-    }
+    public override IReadOnlyList<EntityErrorInfo> ValidateAndGetErrors() => ValidateAndGetErrors(null);
 
-    private IList<EntityErrorInfo> ValidateAndGetErrors(ValidationReason? reason)
+    private IReadOnlyList<EntityErrorInfo> ValidateAndGetErrors(ValidationReason? reason)
     {
       var errors = new List<EntityErrorInfo>();
       GetValidationErrors(errors, reason);
-      return errors.Count==0 ? EmptyEntityErrorCollection : errors.AsReadOnly();
+      return errors.Count==0 ? EmptyEntityErrorCollection : errors.AsSafeWrapper();
     }
 
     private void RegisterForValidation(Entity target, EntityErrorInfo previousStatus)
@@ -137,7 +135,7 @@ namespace Xtensive.Orm.Validation
         if (entity.CanBeValidated) {
           GetValidationErrors(entity, currentEntityErrors, validationReason);
           if (currentEntityErrors.Count > 0) {
-            var errorInfo = new EntityErrorInfo(entity, currentEntityErrors.AsReadOnly());
+            var errorInfo = new EntityErrorInfo(entity, currentEntityErrors.AsSafeWrapper());
             RegisterForValidation(entity, errorInfo);
             output.Add(errorInfo);
             currentEntityErrors = new List<ValidationResult>();

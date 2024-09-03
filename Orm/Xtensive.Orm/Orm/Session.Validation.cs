@@ -29,6 +29,6 @@ namespace Xtensive.Orm
     /// and returns all validation errors.
     /// </summary>
     /// <returns>List errors occurred during validation.</returns>
-    public IList<EntityErrorInfo> ValidateAndGetErrors() => ValidationContext.ValidateAndGetErrors();
+    public IReadOnlyList<EntityErrorInfo> ValidateAndGetErrors() => ValidationContext.ValidateAndGetErrors();
   }
 }

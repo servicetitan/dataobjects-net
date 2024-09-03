@@ -16,17 +16,12 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// A special version of <see cref="QueryParameterBinding"/> used for complex filters.
   /// </summary>
-  public class QueryRowFilterParameterBinding : QueryParameterBinding
+  public class QueryRowFilterParameterBinding(IReadOnlyList<TypeMapping> rowTypeMapping, Func<ParameterContext, object> valueAccessor)
+    : QueryParameterBinding(null, valueAccessor, QueryParameterBindingType.RowFilter)
   {
     /// <summary>
     /// Gets the complex type mapping.
     /// </summary>
-    public IReadOnlyList<TypeMapping> RowTypeMapping { get; private set; }
-
-    public QueryRowFilterParameterBinding(IEnumerable<TypeMapping> rowTypeMapping, Func<ParameterContext, object> valueAccessor)
-      : base(null, valueAccessor, QueryParameterBindingType.RowFilter)
-    {
-      RowTypeMapping = rowTypeMapping.ToList().AsReadOnly();
-    }
+    public IReadOnlyList<TypeMapping> RowTypeMapping => rowTypeMapping;
   }
 }

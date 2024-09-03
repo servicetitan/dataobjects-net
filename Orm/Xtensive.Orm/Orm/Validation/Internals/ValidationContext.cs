@@ -11,9 +11,9 @@ namespace Xtensive.Orm.Validation
 {
   internal abstract class ValidationContext
   {
-    protected static IList<EntityErrorInfo> EmptyEntityErrorCollection = new List<EntityErrorInfo>().AsReadOnly();
+    protected static IReadOnlyList<EntityErrorInfo> EmptyEntityErrorCollection = [];
 
-    protected static IList<ValidationResult> EmptyValidationResultCollection = new List<ValidationResult>().AsReadOnly();
+    protected static IReadOnlyList<ValidationResult> EmptyValidationResultCollection = [];
 
     public abstract void Reset();
 
@@ -21,11 +21,11 @@ namespace Xtensive.Orm.Validation
 
     public abstract void Validate(Entity target);
 
-    public abstract IList<EntityErrorInfo> ValidateAndGetErrors();
+    public abstract IReadOnlyList<EntityErrorInfo> ValidateAndGetErrors();
 
-    public abstract IList<ValidationResult> ValidateAndGetErrors(Entity target);
+    public abstract IReadOnlyList<ValidationResult> ValidateAndGetErrors(Entity target);
 
-    public abstract IList<ValidationResult> ValidateOnceAndGetErrors(Entity target);
+    public abstract IReadOnlyList<ValidationResult> ValidateOnceAndGetErrors(Entity target);
 
     public abstract void ValidateSetAttempt(Entity target, FieldInfo field, object value);
 

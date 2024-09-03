@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Rse.Providers
       PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);
       TargetColumns = targetColumns.Select(tc => index.Columns.First(c => c.Column == tc))
         .ToList(targetColumns.Count)
-        .AsReadOnly();
+        .AsSafeWrapper();
       TopN = topNByRank;
       if (FullFeatured) {
         var primaryIndexRecordsetHeader =

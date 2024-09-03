@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Providers
       IReadOnlyList<SqlExpression> sourceColumns, out QueryParameterBinding binding)
     {
       var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
-      var mappings = filterTupleDescriptor.Select(type => Driver.GetTypeMapping(type));
+      var mappings = filterTupleDescriptor.Select(type => Driver.GetTypeMapping(type)).ToArray(filterTupleDescriptor.Count).AsSafeWrapper();
       binding = new QueryRowFilterParameterBinding(mappings, valueAccessor);
       var resultExpression = SqlDml.DynamicFilter(binding);
       resultExpression.Expressions.AddRange(provider.FilteredColumns.Select(index => sourceColumns[index]));

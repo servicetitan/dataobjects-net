@@ -615,7 +615,7 @@ namespace Xtensive.Orm.Upgrade
           throw Exceptions.InternalError(string.Format(
             Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), UpgradeLog.Instance);
       }
-      hint.AffectedTables = affectedTables.AsReadOnly();
+      hint.AffectedTables = affectedTables.AsSafeWrapper();
     }
 
     private void UpdateAffectedColumns(ChangeFieldTypeHint hint)
@@ -633,8 +633,7 @@ namespace Xtensive.Orm.Upgrade
         throw FieldNotFound(currentTypeName, hint.FieldName);
       }
 
-      var affectedColumns = GetAffectedColumns(currentType, currentField);
-      hint.AffectedColumns = affectedColumns.AsReadOnly();
+      hint.AffectedColumns = GetAffectedColumns(currentType, currentField).AsSafeWrapper();
     }
 
     private void UpdateAffectedColumns(RemoveFieldHint hint)
@@ -675,8 +674,7 @@ namespace Xtensive.Orm.Upgrade
         throw FieldNotFound(typeName, hint.Field);
       }
 
-      var affectedColumns = GetAffectedColumns(storedType, storedField);
-      hint.AffectedColumns = affectedColumns.AsReadOnly();
+      hint.AffectedColumns = GetAffectedColumns(storedType, storedField).AsSafeWrapper();
     }
 
     #endregion

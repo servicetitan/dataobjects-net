@@ -50,7 +50,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
       ArgumentValidator.EnsureArgumentNotNull(proximityTerms, "proximityTerms");
       ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(maxDistance, 0, "maxDistance");
 
-      Terms = proximityTerms.ToList().AsReadOnly();
+      Terms = proximityTerms.ToList().AsSafeWrapper();
       MaxDistance = maxDistance;
       MatchOrder = matchOrder;
     }

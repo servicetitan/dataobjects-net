@@ -21,8 +21,6 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public class CommandFactory
   {
-    private const string ParameterNameFormat = "{0}{1}";
-    private const string RowFilterParameterNameFormat = "{0}_{1}_{2}";
     private const string DefaultParameterNamePrefix = "p0_";
     private const int LobBlockSize = ushort.MaxValue;
 
@@ -101,10 +99,11 @@ namespace Xtensive.Orm.Providers
 
       int parameterIndex = 0;
       var compilationResult = request.GetCompiledStatement();
-      var upgradeContext = Upgrade.UpgradeContext.GetCurrent(Session.Domain.UpgradeContextCookie);
+      var domain = Session.Domain;
+      var upgradeContext = Upgrade.UpgradeContext.GetCurrent(domain.UpgradeContextCookie);
       var nodeConfiguration = upgradeContext != null ? upgradeContext.NodeConfiguration : Session.StorageNode.Configuration;
 
-      var shareStorageNodesOverNodes = Session.Domain.Configuration.ShareStorageSchemaOverNodes;
+      var shareStorageNodesOverNodes = domain.Configuration.ShareStorageSchemaOverNodes;
       var configuration = shareStorageNodesOverNodes
           ? new SqlPostCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
           : new SqlPostCompilerConfiguration();
@@ -151,25 +150,25 @@ namespace Xtensive.Orm.Providers
             continue;
           }
           var commonPrefix = GetParameterName(parameterNamePrefix, ref parameterIndex);
-          var filterValues = new List<string[]>();
+          var filterValues = new string[filterData.Count][];
           for (int tupleIndex = 0; tupleIndex < filterData.Count; tupleIndex++) {
             var tuple = filterData[tupleIndex];
             var parameterReferences = new string[tuple.Count];
             for (int fieldIndex = 0; fieldIndex < tuple.Count; fieldIndex++) {
-              var name = string.Format(RowFilterParameterNameFormat, commonPrefix, tupleIndex, fieldIndex);
+              var name = $"{commonPrefix}_{tupleIndex}_{fieldIndex}";
               var value = tuple.GetValueOrDefault(fieldIndex);
               parameterReferences[fieldIndex] = Driver.BuildParameterReference(name);
               AddRegularParameter(result, rowTypeMapping[fieldIndex], name, value);
             }
-            filterValues.Add(parameterReferences);
+            filterValues[tupleIndex] = parameterReferences;
           }
           configuration.DynamicFilterValues.Add(binding, filterValues);
           continue;
-          case QueryParameterBindingType.TypeIdentifier: {
-            var originalTypeId = ((QueryTypeIdentifierParameterBinding) binding).OriginalTypeId;
-            parameterValue = Session.StorageNode.TypeIdRegistry[Session.Domain.Model.Types[originalTypeId]];
-            break;
-          }
+        case QueryParameterBindingType.TypeIdentifier: {
+          var originalTypeId = ((QueryTypeIdentifierParameterBinding) binding).OriginalTypeId;
+          parameterValue = Session.StorageNode.TypeIdRegistry[domain.Model.Types[originalTypeId]];
+          break;
+        }
         default:
           throw new ArgumentOutOfRangeException("binding.BindingType");
         }
@@ -281,13 +280,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private string GetParameterName(string prefix, ref int index)
-    {
-      var result = string.Format(ParameterNameFormat, prefix, index);
-      index++;
-      return result;
-    }
-
+    private string GetParameterName(string prefix, ref int index) => $"{prefix}{index++}";
 
     // Constructors
 

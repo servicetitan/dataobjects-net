@@ -23,20 +23,11 @@ namespace Xtensive.Orm.Validation
     {
     }
 
-    public override IList<EntityErrorInfo> ValidateAndGetErrors()
-    {
-      return EmptyEntityErrorCollection;
-    }
+    public override IReadOnlyList<EntityErrorInfo> ValidateAndGetErrors() => EmptyEntityErrorCollection;
 
-    public override IList<ValidationResult> ValidateAndGetErrors(Entity target)
-    {
-      return EmptyValidationResultCollection;
-    }
+    public override IReadOnlyList<ValidationResult> ValidateAndGetErrors(Entity target) => EmptyValidationResultCollection;
 
-    public override IList<ValidationResult> ValidateOnceAndGetErrors(Entity target)
-    {
-      return EmptyValidationResultCollection;
-    }
+    public override IReadOnlyList<ValidationResult> ValidateOnceAndGetErrors(Entity target) => EmptyValidationResultCollection;
 
     public override void ValidateSetAttempt(Entity target, FieldInfo field, object value)
     {

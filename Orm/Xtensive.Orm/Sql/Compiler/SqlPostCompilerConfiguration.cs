@@ -21,23 +21,23 @@ namespace Xtensive.Sql.Compiler
   /// </summary>
   public sealed class SqlPostCompilerConfiguration
   {
-    public HashSet<object> AlternativeBranches { get; private set; } = new HashSet<object>();
+    public HashSet<object> AlternativeBranches { get; } = new();
 
     public TypeIdRegistry TypeIdRegistry { get; }
 
-    public Dictionary<object, string> PlaceholderValues { get; private set; } = new Dictionary<object, string>();
+    public Dictionary<object, string> PlaceholderValues { get; } = new();
 
-    public Dictionary<object, List<string[]>> DynamicFilterValues { get; private set; } = new Dictionary<object, List<string[]>>();
-
-    /// <summary>
-    /// Gets database mapping.
-    /// </summary>
-    public IReadOnlyDictionary<string, string> SchemaMapping { get; private set; }
+    public Dictionary<object, IReadOnlyList<string[]>> DynamicFilterValues { get; } = new();
 
     /// <summary>
     /// Gets database mapping.
     /// </summary>
-    public IReadOnlyDictionary<string, string> DatabaseMapping { get; private set; }
+    public IReadOnlyDictionary<string, string> SchemaMapping { get; }
+
+    /// <summary>
+    /// Gets database mapping.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> DatabaseMapping { get; }
 
     internal void AppendPlaceholderValue(StringBuilder sb, PlaceholderNode node)
     {

@@ -75,20 +75,21 @@ namespace Xtensive.Sql.Compiler
 
     public override void Visit(CycleNode node)
     {
-      List<string[]> items;
-      if (!configuration.DynamicFilterValues.TryGetValue(node.Id, out items))
+      if (!configuration.DynamicFilterValues.TryGetValue(node.Id, out var items))
         throw new InvalidOperationException(string.Format(Strings.ExItemsForCycleXAreNotSpecified, node.Id));
       if (items==null || items.Count==0) {
         VisitNodes(node.EmptyCase);
         return;
       }
-      for (int i = 0; i < items.Count - 1; i++) {
+
+      var count = items.Count;
+      for (int i = 0; i < count; i++) {
         currentCycleItem = items[i];
         VisitNodes(node.Body);
-        result.Append(node.Delimiter);
+        if (i < count - 1) {
+          result.Append(node.Delimiter);
+        }
       }
-      currentCycleItem = items[items.Count - 1];
-      VisitNodes(node.Body);
     }
 
     #endregion

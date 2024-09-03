@@ -39,7 +39,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
       if (terms.Any(c=>c.IsNullOrEmpty() || c.Trim().IsNullOrEmpty()))
         throw new ArgumentException(Strings.ExCollectionCannotContainAnyNeitherNullOrEmptyStringValues, "terms");
       GenerationType = generationType;
-      Terms = terms.ToList().AsReadOnly();
+      Terms = terms.ToList().AsSafeWrapper();
     }
   }
 }

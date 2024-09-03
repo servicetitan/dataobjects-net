@@ -97,7 +97,7 @@ namespace Xtensive.Orm
           select o.Clone(false)
           ).ToList();
         if (preconditions.Count != 0)
-          clone.PrecedingOperations = preconditions.AsReadOnly();
+          clone.PrecedingOperations = preconditions.AsSafeWrapper();
       }
       if (IdentifiedEntities.Count!=0 && withIdentifiedEntities)
         clone.IdentifiedEntities = IdentifiedEntities;

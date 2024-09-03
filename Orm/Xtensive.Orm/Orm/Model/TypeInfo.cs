@@ -613,7 +613,7 @@ namespace Xtensive.Orm.Model
         if (!IsLocked) {
           return result;
         }
-        versionFields = result.AsReadOnly();
+        versionFields = result.AsSafeWrapper();
       }
       return versionFields;
     }
@@ -649,7 +649,7 @@ namespace Xtensive.Orm.Model
         if (!IsLocked) {
           return result;
         }
-        versionColumns = result.AsReadOnly();
+        versionColumns = result.AsSafeWrapper();
       }
       return versionColumns;
     }
