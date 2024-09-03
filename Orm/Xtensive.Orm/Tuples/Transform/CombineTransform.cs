@@ -28,7 +28,7 @@ namespace Xtensive.Tuples.Transform
     public IReadOnlyList<TupleDescriptor> Sources
     {
       [DebuggerStepThrough]
-      get => Array.AsReadOnly(sources);
+      get => sources.AsSafeWrapper();
     }
 
     /// <see cref="MapTransform.Apply(TupleTransformType,Tuple,Tuple)" copy="true" />

@@ -144,7 +144,7 @@ namespace Xtensive.Comparison
     /// </summary>
     public IReadOnlyList<ComparisonRules> Composite {
       [DebuggerStepThrough]
-      get => Array.AsReadOnly(composite);
+      get => composite.AsSafeWrapper();
     }
     
     /// <summary>
