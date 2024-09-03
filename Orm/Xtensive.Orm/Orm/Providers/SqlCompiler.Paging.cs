@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Providers
   partial class SqlCompiler 
   {
     /// <inheritdoc/>
-    protected override SqlProvider VisitTake(TakeProvider provider)
+    internal protected override SqlProvider VisitTake(TakeProvider provider)
     {
       if (providerInfo.Supports(ProviderFeatures.NativeTake))
         return VisitPagingNative(provider, provider.Count, null);
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitSkip(SkipProvider provider)
+    internal protected override SqlProvider VisitSkip(SkipProvider provider)
     {
       if (providerInfo.Supports(ProviderFeatures.NativeSkip))
         return VisitPagingNative(provider, null, provider.Count);
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitPaging(PagingProvider provider)
+    internal protected override SqlProvider VisitPaging(PagingProvider provider)
     {
       if (providerInfo.Supports(ProviderFeatures.NativePaging))
         return VisitPagingNative(provider, provider.Take, provider.Skip);

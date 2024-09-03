@@ -61,6 +61,7 @@ namespace Xtensive.Orm.Rse.Providers
       EqualColumns = equalColumns;
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitJoin(this);
 
     // Constructors
 

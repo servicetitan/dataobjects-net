@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Providers
   public partial class SqlCompiler
   {
     /// <inheritdoc/>
-    protected override SqlProvider VisitApply(ApplyProvider provider)
+    internal protected override SqlProvider VisitApply(ApplyProvider provider)
     {
       bool processViaCrossApply;
       switch (provider.SequenceType) {

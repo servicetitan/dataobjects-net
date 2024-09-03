@@ -9,7 +9,7 @@ namespace Xtensive.Orm.Rse.Compilation
   /// Abstract base class for RSE <see cref="Provider"/> compilers that implements visitor pattern.
   /// Compiles <see cref="CompilableProvider"/>s into <see cref="ExecutableProvider"/>.
   /// </summary>
-  public abstract class Compiler<TResult> : ProviderVisitor<TResult>, ICompiler
+  public abstract class Compiler<TResult> : ProviderVisitor, ICompiler
     where TResult : ExecutableProvider
   {
     private readonly Stack<CompilableProvider> traversalStack = new Stack<CompilableProvider>();
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Rse.Compilation
         Initialize();
       }
       traversalStack.Push(cp);
-      TResult result = Visit(cp);
+      TResult result = (TResult)Visit(cp);
       traversalStack.Pop();
       owner = null;
       return result;

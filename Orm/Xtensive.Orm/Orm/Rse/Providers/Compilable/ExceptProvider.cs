@@ -33,6 +33,7 @@ namespace Xtensive.Orm.Rse.Providers
         throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Except operation"));
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitExcept(this);
 
     // Constructors
 

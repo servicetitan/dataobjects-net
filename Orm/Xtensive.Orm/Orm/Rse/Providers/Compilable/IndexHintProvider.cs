@@ -15,6 +15,8 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     public IndexInfoRef Index { get; }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitIndexHint(this);
+
     // Constructors
     public IndexHintProvider(CompilableProvider source, IndexInfo index)
       : base(ProviderType.IndexHint, source)
@@ -34,4 +36,3 @@ namespace Xtensive.Orm.Rse.Providers
     }
   }
 }
-

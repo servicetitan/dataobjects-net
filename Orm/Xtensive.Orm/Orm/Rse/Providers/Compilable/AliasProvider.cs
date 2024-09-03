@@ -34,6 +34,7 @@ namespace Xtensive.Orm.Rse.Providers
       return Alias;
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitAlias(this);
 
     // Constructors
 

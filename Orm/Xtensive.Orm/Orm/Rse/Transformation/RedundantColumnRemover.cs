@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return (selectProvider, requestedMapping);
     }
 
-    protected override RawProvider VisitRaw(RawProvider provider)
+    internal protected override RawProvider VisitRaw(RawProvider provider)
     {
       var mapping = mappings[provider];
       if (mapping.SequenceEqual(CollectionUtils.ColNumRange(provider.Header.Length)))

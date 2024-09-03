@@ -12,9 +12,6 @@ namespace Xtensive.Orm.Providers
   partial class SqlCompiler 
   {
     /// <inheritdoc/>
-    protected override SqlProvider VisitRaw(RawProvider provider)
-    {
-      throw new NotSupportedException();
-    }
+    internal protected override SqlProvider VisitRaw(RawProvider provider) => throw new NotSupportedException();
   }
 }

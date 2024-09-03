@@ -38,6 +38,8 @@ namespace Xtensive.Orm.Rse.Providers
       return indexHeader;
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitFreeText(this);
+
     public FreeTextProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, bool fullFeatured)
       : this(index, searchCriteria, rankColumnName, null, fullFeatured)
     {

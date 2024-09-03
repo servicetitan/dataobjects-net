@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.01.29
 
+using System;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -16,6 +17,9 @@ namespace Xtensive.Orm.Rse.Providers
     {
       return header;
     }
+
+    internal override Provider Visit(ProviderVisitor visitor) =>
+      throw new NotSupportedException(Strings.ExProcessingOfVoidProviderIsNotSupported);
 
     public VoidProvider(RecordSetHeader header)
       : base(ProviderType.Void)

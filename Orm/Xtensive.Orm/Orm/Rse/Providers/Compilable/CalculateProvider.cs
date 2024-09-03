@@ -59,6 +59,7 @@ namespace Xtensive.Orm.Rse.Providers
       ResizeTransform = new MapTransform(false, Header.TupleDescriptor, columnIndexes);
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitCalculate(this);
 
     // Constructors
 

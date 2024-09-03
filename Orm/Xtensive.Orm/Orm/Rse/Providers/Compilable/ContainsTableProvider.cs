@@ -36,6 +36,8 @@ namespace Xtensive.Orm.Rse.Providers
       return indexHeader;
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitContainsTable(this);
+
     public ContainsTableProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, bool fullFeatured)
       : this(index, searchCriteria, rankColumnName, new List<ColumnInfo>(), null, fullFeatured)
     {

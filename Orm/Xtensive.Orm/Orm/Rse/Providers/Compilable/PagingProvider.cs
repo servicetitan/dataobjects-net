@@ -43,6 +43,7 @@ namespace Xtensive.Orm.Rse.Providers
       return "[" + Skip + "; " + Take +"]";
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitPaging(this);
 
     // Constructors
 

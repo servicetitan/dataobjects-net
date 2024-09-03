@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Providers
     protected NodeConfiguration NodeConfiguration { get; private set; }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitAlias(AliasProvider provider)
+    internal protected override SqlProvider VisitAlias(AliasProvider provider)
     {
       var source = Compile(provider.Source);
 
@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitCalculate(CalculateProvider provider)
+    internal protected override SqlProvider VisitCalculate(CalculateProvider provider)
     {
       var source = Compile(provider.Source);
 
@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitDistinct(DistinctProvider provider)
+    internal protected override SqlProvider VisitDistinct(DistinctProvider provider)
     {
       var source = Compile(provider.Source);
 
@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitFilter(FilterProvider provider)
+    internal protected override SqlProvider VisitFilter(FilterProvider provider)
     {
       var source = Compile(provider.Source);
 
@@ -162,7 +162,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitJoin(JoinProvider provider)
+    internal protected override SqlProvider VisitJoin(JoinProvider provider)
     {
       var left = Compile(provider.Left);
       var right = Compile(provider.Right);
@@ -233,7 +233,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitPredicateJoin(PredicateJoinProvider provider)
+    internal protected override SqlProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
       var left = Compile(provider.Left);
       var right = Compile(provider.Right);
@@ -291,7 +291,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitSeek(SeekProvider provider)
+    internal protected override SqlProvider VisitSeek(SeekProvider provider)
     {
       var compiledSource = Compile(provider.Source);
 
@@ -324,7 +324,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitSelect(SelectProvider provider)
+    internal protected override SqlProvider VisitSelect(SelectProvider provider)
     {
       var compiledSource = Compile(provider.Source);
 
@@ -344,7 +344,7 @@ namespace Xtensive.Orm.Providers
       return CreateProvider(query, provider, compiledSource);
     }
 
-    protected override SqlProvider VisitTag(TagProvider provider)
+    internal protected override SqlProvider VisitTag(TagProvider provider)
     {
       var compiledSource = Compile(provider.Source);
 
@@ -354,7 +354,7 @@ namespace Xtensive.Orm.Providers
       return CreateProvider(query, provider, compiledSource);
     }
 
-    protected override SqlProvider VisitIndexHint(IndexHintProvider provider)
+    internal protected override SqlProvider VisitIndexHint(IndexHintProvider provider)
     {
       var compiledSource = Compile(provider.Source);
       
@@ -370,7 +370,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitSort(SortProvider provider)
+    internal protected override SqlProvider VisitSort(SortProvider provider)
     {
       var compiledSource = Compile(provider.Source);
 
@@ -407,7 +407,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitStore(StoreProvider provider)
+    internal protected override SqlProvider VisitStore(StoreProvider provider)
     {
       var source = provider.Source is RawProvider rawProvider
             ? (ExecutableProvider) (new Rse.Providers.ExecutableRawProvider(rawProvider))
@@ -421,7 +421,7 @@ namespace Xtensive.Orm.Providers
     }
     
     /// <inheritdoc/>
-    protected override SqlProvider VisitExistence(ExistenceProvider provider)
+    internal protected override SqlProvider VisitExistence(ExistenceProvider provider)
     {
       var source = Compile(provider.Source);
 
@@ -439,7 +439,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitIntersect(IntersectProvider provider)
+    internal protected override SqlProvider VisitIntersect(IntersectProvider provider)
     {
       var left = Compile(provider.Left);
       var right = Compile(provider.Right);
@@ -464,7 +464,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitExcept(ExceptProvider provider)
+    internal protected override SqlProvider VisitExcept(ExceptProvider provider)
     {
       var left = Compile(provider.Left);
       var right = Compile(provider.Right);
@@ -488,7 +488,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitConcat(ConcatProvider provider)
+    internal protected override SqlProvider VisitConcat(ConcatProvider provider)
     {
       var left = Compile(provider.Left);
       var right = Compile(provider.Right);
@@ -512,7 +512,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitUnion(UnionProvider provider)
+    internal protected override SqlProvider VisitUnion(UnionProvider provider)
     {
       var left = Compile(provider.Left);
       var right = Compile(provider.Right);
@@ -535,7 +535,7 @@ namespace Xtensive.Orm.Providers
       return CreateProvider(query, provider, left, right);
     }
 
-    protected override SqlProvider VisitRowNumber(RowNumberProvider provider)
+    internal protected override SqlProvider VisitRowNumber(RowNumberProvider provider)
     {
       var directionCollection = provider.Header.Order;
       if (directionCollection.Count == 0)
@@ -552,7 +552,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitLock(LockProvider provider)
+    internal protected override SqlProvider VisitLock(LockProvider provider)
     {
       var source = Compile(provider.Source);
 

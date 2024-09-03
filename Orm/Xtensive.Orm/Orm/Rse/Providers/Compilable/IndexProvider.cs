@@ -37,6 +37,7 @@ namespace Xtensive.Orm.Rse.Providers
       return Index.ToString();
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitIndex(this);
 
     // Constructors
 

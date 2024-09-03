@@ -26,6 +26,7 @@ namespace Xtensive.Orm.Rse.Providers
       return Count.ToString();
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitTake(this);
 
     // Constructors
 

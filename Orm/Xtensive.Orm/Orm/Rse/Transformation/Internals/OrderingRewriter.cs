@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return visited;
     }
 
-    protected override CompilableProvider VisitSort(SortProvider provider)
+    internal protected override CompilableProvider VisitSort(SortProvider provider)
     {
       var source = VisitCompilable(provider.Source);
       sortOrder = provider.Order;
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return source;
     }
 
-    protected override CompilableProvider VisitSelect(SelectProvider provider)
+    internal protected override CompilableProvider VisitSelect(SelectProvider provider)
     {
       var result = provider;
       var source = VisitCompilable(provider.Source);
@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    protected override CompilableProvider VisitAggregate(AggregateProvider provider)
+    internal protected override CompilableProvider VisitAggregate(AggregateProvider provider)
     {
       var result = provider;
       var source = VisitCompilable(provider.Source);
@@ -119,37 +119,37 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    protected override CompilableProvider VisitIndex(IndexProvider provider)
+    internal protected override CompilableProvider VisitIndex(IndexProvider provider)
     {
       sortOrder = new();
       return provider;
     }
 
-    protected override CompilableProvider VisitFreeText(FreeTextProvider provider)
+    internal protected override CompilableProvider VisitFreeText(FreeTextProvider provider)
     {
       sortOrder = new();
       return provider;
     }
 
-    protected override CompilableProvider VisitContainsTable(ContainsTableProvider provider)
+    internal protected override CompilableProvider VisitContainsTable(ContainsTableProvider provider)
     {
       sortOrder = new();
       return provider;
     }
 
-    protected override RawProvider VisitRaw(RawProvider provider)
+    internal protected override RawProvider VisitRaw(RawProvider provider)
     {
       sortOrder = new();
       return provider;
     }
 
-    protected override CompilableProvider VisitStore(StoreProvider provider)
+    internal protected override CompilableProvider VisitStore(StoreProvider provider)
     {
       sortOrder = new();
       return provider;
     }
 
-    protected override ApplyProvider VisitApply(ApplyProvider provider)
+    internal protected override ApplyProvider VisitApply(ApplyProvider provider)
     {
       var left = VisitCompilable(provider.Left);
       var leftOrder = sortOrder;
@@ -162,7 +162,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    protected override JoinProvider VisitJoin(JoinProvider provider)
+    internal protected override JoinProvider VisitJoin(JoinProvider provider)
     {
       var left = VisitCompilable(provider.Left);
       var leftOrder = sortOrder;
@@ -175,7 +175,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    protected override PredicateJoinProvider VisitPredicateJoin(PredicateJoinProvider provider)
+    internal protected override PredicateJoinProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
       var left = VisitCompilable(provider.Left);
       var leftOrder = sortOrder;

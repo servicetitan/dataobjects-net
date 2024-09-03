@@ -16,6 +16,8 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class SortProvider : OrderProviderBase
   {
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitSort(this);
+
     // Constructors
 
     /// <summary>

@@ -14,18 +14,14 @@ namespace Xtensive.Orm.Rse.Providers
   /// that requires storage-specific compilation before in can be executed.
   /// </summary>
   [Serializable]
-  public abstract class CompilableProvider : Provider
+  public abstract class CompilableProvider(ProviderType type, params Provider[] sources) : Provider(type, sources)
   {
+    internal abstract Provider Visit(ProviderVisitor visitor);
+
     // Constructors
 
-    /// <inheritdoc/>
-    protected CompilableProvider(ProviderType type, params Provider[] sources)
-      : base(type, sources)
-    {
-    }
-
     protected CompilableProvider(ProviderType type)
-      : this(type, Array.Empty<Provider>())
+      : this(type, [])
     {
     }
   }

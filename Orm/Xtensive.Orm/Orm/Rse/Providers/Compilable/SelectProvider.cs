@@ -35,6 +35,7 @@ namespace Xtensive.Orm.Rse.Providers
       return Header.Columns.Select(c => c.Name).ToCommaDelimitedString();
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitSelect(this);
 
     // Constructors
 

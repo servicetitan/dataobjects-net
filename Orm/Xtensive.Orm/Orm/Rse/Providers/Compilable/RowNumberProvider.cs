@@ -43,6 +43,7 @@ namespace Xtensive.Orm.Rse.Providers
       return Source.Header.Add(SystemColumn);
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitRowNumber(this);
 
     // Constructors
 
