@@ -18,13 +18,13 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
   public sealed class CustomProximityTerm : Operand, ICustomProximityTerm
   {
     /// <inheritdoc/>
-    public IReadOnlyList<IProximityOperand> Terms { get; private set; }
+    public IReadOnlyList<IProximityOperand> Terms { get; }
 
     /// <inheritdoc/>
-    public long? MaxDistance { get; private set; }
+    public long? MaxDistance { get; }
 
     /// <inheritdoc/>
-    public bool MatchOrder { get; private set; }
+    public bool MatchOrder { get; }
 
     protected override void AcceptVisitorInternal(ISearchConditionNodeVisitor visitor)
     {
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
       ArgumentValidator.EnsureArgumentNotNull(proximityTerms, "proximityTerms");
       ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(maxDistance, 0, "maxDistance");
 
-      Terms = proximityTerms.ToList().AsSafeWrapper();
+      Terms = proximityTerms.ToArray().AsSafeWrapper();
       MaxDistance = maxDistance;
       MatchOrder = matchOrder;
     }
