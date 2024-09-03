@@ -22,8 +22,7 @@ namespace Xtensive.Orm
   [Serializable]
   public abstract class Operation : IOperation
   {
-    private static readonly IReadOnlyDictionary<string, Key> EmptyIdentifiedEntities =
-      new ReadOnlyDictionary<string, Key>(new Dictionary<string, Key>());
+    private static readonly IReadOnlyDictionary<string, Key> EmptyIdentifiedEntities = new Dictionary<string, Key>().AsSafeWrapper();
 
     /// <inheritdoc/>
     public abstract string Title { get; }
