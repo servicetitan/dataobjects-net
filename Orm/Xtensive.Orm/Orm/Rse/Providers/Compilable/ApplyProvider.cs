@@ -70,6 +70,7 @@ namespace Xtensive.Orm.Rse.Providers
     {
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitApply(this);
 
     /// <summary>
     /// Initializes a new instance of this class.

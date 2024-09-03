@@ -60,6 +60,7 @@ namespace Xtensive.Orm.Rse.Providers
         throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Union operation"));
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitUnion(this);
 
     // Constructors
 

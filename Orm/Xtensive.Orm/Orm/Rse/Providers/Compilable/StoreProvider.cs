@@ -40,6 +40,7 @@ namespace Xtensive.Orm.Rse.Providers
       return Name;
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitStore(this);
 
     // Constructors
 

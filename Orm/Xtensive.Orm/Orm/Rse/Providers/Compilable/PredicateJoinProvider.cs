@@ -34,6 +34,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     public Expression<Func<Tuple, Tuple, bool>> Predicate { get; private set; }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitPredicateJoin(this);
 
     // Constructors
 

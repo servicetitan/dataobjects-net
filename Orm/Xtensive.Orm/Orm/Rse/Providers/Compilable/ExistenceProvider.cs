@@ -34,6 +34,7 @@ namespace Xtensive.Orm.Rse.Providers
         BoolTupleDescriptor, new[] { new SystemColumn(ExistenceColumnName, 0, WellKnownTypes.Bool) });
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitExistence(this);
 
     // Constructors
 

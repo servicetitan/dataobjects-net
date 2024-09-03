@@ -33,7 +33,8 @@ namespace Xtensive.Orm.Rse.Providers
         throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Intersection"));
     }
 
-  
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitIntersect(this);
+
     // Constructors
 
     /// <summary>

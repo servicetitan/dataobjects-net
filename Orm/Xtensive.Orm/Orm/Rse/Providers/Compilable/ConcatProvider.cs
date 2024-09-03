@@ -58,6 +58,7 @@ namespace Xtensive.Orm.Rse.Providers
         throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Concatenation"));
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitConcat(this);
 
     // Constructors
 

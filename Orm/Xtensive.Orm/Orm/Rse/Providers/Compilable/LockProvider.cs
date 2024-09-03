@@ -25,6 +25,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     public readonly Func<LockBehavior> LockBehavior;
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitLock(this);
 
     // Constructors
 

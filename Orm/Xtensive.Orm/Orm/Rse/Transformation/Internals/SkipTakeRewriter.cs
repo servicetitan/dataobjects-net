@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return base.Visit(cp);
     }
 
-    protected override CompilableProvider VisitSkip(SkipProvider provider)
+    internal protected override CompilableProvider VisitSkip(SkipProvider provider)
     {
       State.IsSkipTakeChain = true;
       var visitedSource = VisitCompilable(provider.Source);
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return visitedSource;
     }
 
-    protected override CompilableProvider VisitTake(TakeProvider provider)
+    internal protected override CompilableProvider VisitTake(TakeProvider provider)
     {
       State.IsSkipTakeChain = true;
       var visitedSource = VisitCompilable(provider.Source);
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return visitedSource;
     }
 
-    protected override CompilableProvider VisitPaging(PagingProvider provider)
+    internal protected override CompilableProvider VisitPaging(PagingProvider provider)
     {
       State.IsSkipTakeChain = true;
       var visitedSource = VisitCompilable(provider.Source);

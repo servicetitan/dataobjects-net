@@ -43,18 +43,12 @@ namespace Xtensive.Orm.Providers
 
     private TypeMapping int32TypeMapping;
 
-    protected override SqlProvider VisitFreeText(FreeTextProvider provider)
-    {
-      throw new NotSupportedException();
-    }
+    internal protected override SqlProvider VisitFreeText(FreeTextProvider provider) => throw new NotSupportedException();
 
-    protected override SqlProvider VisitContainsTable(ContainsTableProvider provider)
-    {
-      throw new NotSupportedException();
-    }
+    internal protected override SqlProvider VisitContainsTable(ContainsTableProvider provider) => throw new NotSupportedException();
 
     /// <inheritdoc/>
-    protected override SqlProvider VisitIndex(IndexProvider provider)
+    internal protected override SqlProvider VisitIndex(IndexProvider provider)
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);
       var queryAndBindings = BuildProviderQuery(index);

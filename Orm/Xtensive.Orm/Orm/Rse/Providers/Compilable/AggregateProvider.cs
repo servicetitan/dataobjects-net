@@ -186,6 +186,8 @@ namespace Xtensive.Orm.Rse.Providers
         Strings.ExAggregateXIsNotSupportedForTypeY, aggregateType, sourceColumnType));
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitAggregate(this);
+
     #endregion
 
     // Constructors

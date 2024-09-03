@@ -45,6 +45,7 @@ namespace Xtensive.Orm.Rse.Providers
       return Predicate.ToString(true);
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitFilter(this);
 
     // Constructors
 

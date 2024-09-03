@@ -18,9 +18,11 @@ namespace Xtensive.Orm.Rse.Providers
   /// <see cref="CompilableProvider"/> visitor class. Result is <see cref="CompilableProvider"/>.
   /// </summary>
   [Serializable]
-  public class CompilableProviderVisitor : ProviderVisitor<CompilableProvider>
+  public class CompilableProviderVisitor : ProviderVisitor
   {
     protected Func<CompilableProvider, Expression, Expression> translate;
+
+    protected override CompilableProvider Visit(CompilableProvider cp) => (CompilableProvider) base.Visit(cp);
 
     /// <summary>
     /// Visits the compilable provider.
@@ -29,7 +31,7 @@ namespace Xtensive.Orm.Rse.Providers
     public CompilableProvider VisitCompilable(CompilableProvider cp) => Visit(cp);
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitTake(TakeProvider provider)
+    internal protected override CompilableProvider VisitTake(TakeProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -38,7 +40,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitSkip(SkipProvider provider)
+    internal protected override CompilableProvider VisitSkip(SkipProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -47,7 +49,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitPaging(PagingProvider provider)
+    internal protected override CompilableProvider VisitPaging(PagingProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -56,7 +58,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitSelect(SelectProvider provider)
+    internal protected override CompilableProvider VisitSelect(SelectProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -67,7 +69,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitTag(TagProvider provider)
+    internal protected override CompilableProvider VisitTag(TagProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -78,7 +80,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
     
     /// <inheritdoc/>
-    protected override IndexHintProvider VisitIndexHint(IndexHintProvider provider)
+    internal protected override IndexHintProvider VisitIndexHint(IndexHintProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -89,7 +91,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitSeek(SeekProvider provider)
+    internal protected override CompilableProvider VisitSeek(SeekProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -98,13 +100,13 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitRaw(RawProvider provider)
+    internal protected override CompilableProvider VisitRaw(RawProvider provider)
     {
       return provider;
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitSort(SortProvider provider)
+    internal protected override CompilableProvider VisitSort(SortProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -115,7 +117,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitJoin(JoinProvider provider)
+    internal protected override CompilableProvider VisitJoin(JoinProvider provider)
     {
       OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
@@ -128,7 +130,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitFilter(FilterProvider provider)
+    internal protected override CompilableProvider VisitFilter(FilterProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -140,7 +142,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitDistinct(DistinctProvider provider)
+    internal protected override CompilableProvider VisitDistinct(DistinctProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -149,7 +151,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitCalculate(CalculateProvider provider)
+    internal protected override CompilableProvider VisitCalculate(CalculateProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -169,7 +171,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitRowNumber(RowNumberProvider provider)
+    internal protected override CompilableProvider VisitRowNumber(RowNumberProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -179,7 +181,7 @@ namespace Xtensive.Orm.Rse.Providers
 
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitAlias(AliasProvider provider)
+    internal protected override CompilableProvider VisitAlias(AliasProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -188,7 +190,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitAggregate(AggregateProvider provider)
+    internal protected override CompilableProvider VisitAggregate(AggregateProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -206,7 +208,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitStore(StoreProvider provider)
+    internal protected override CompilableProvider VisitStore(StoreProvider provider)
     {
       var compilableSource = provider.Source;
       OnRecursionEntrance(provider);
@@ -216,7 +218,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitIndex(IndexProvider provider)
+    internal protected override CompilableProvider VisitIndex(IndexProvider provider)
     {
       OnRecursionEntrance(provider);
       _ = OnRecursionExit(provider);
@@ -224,7 +226,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitFreeText(FreeTextProvider provider)
+    internal protected override CompilableProvider VisitFreeText(FreeTextProvider provider)
     {
       OnRecursionEntrance(provider);
       _ = OnRecursionExit(provider);
@@ -232,7 +234,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitContainsTable(ContainsTableProvider provider)
+    internal protected override CompilableProvider VisitContainsTable(ContainsTableProvider provider)
     {
       OnRecursionEntrance(provider);
       _ = OnRecursionExit(provider);
@@ -240,7 +242,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitPredicateJoin(PredicateJoinProvider provider)
+    internal protected override CompilableProvider VisitPredicateJoin(PredicateJoinProvider provider)
     {
       OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
@@ -252,7 +254,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitExistence(ExistenceProvider provider)
+    internal protected override CompilableProvider VisitExistence(ExistenceProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -261,7 +263,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitApply(ApplyProvider provider)
+    internal protected override CompilableProvider VisitApply(ApplyProvider provider)
     {
       OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
@@ -274,7 +276,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitIntersect(IntersectProvider provider)
+    internal protected override CompilableProvider VisitIntersect(IntersectProvider provider)
     {
       OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
@@ -286,7 +288,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitExcept(ExceptProvider provider)
+    internal protected override CompilableProvider VisitExcept(ExceptProvider provider)
     {
       OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
@@ -298,7 +300,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitConcat(ConcatProvider provider)
+    internal protected override CompilableProvider VisitConcat(ConcatProvider provider)
     {
       OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
@@ -310,7 +312,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitUnion(UnionProvider provider)
+    internal protected override CompilableProvider VisitUnion(UnionProvider provider)
     {
       OnRecursionEntrance(provider);
       var left = VisitCompilable(provider.Left);
@@ -322,7 +324,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitLock(LockProvider provider)
+    internal protected override CompilableProvider VisitLock(LockProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);
@@ -331,7 +333,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override CompilableProvider VisitInclude(IncludeProvider provider)
+    internal protected override CompilableProvider VisitInclude(IncludeProvider provider)
     {
       OnRecursionEntrance(provider);
       var source = VisitCompilable(provider.Source);

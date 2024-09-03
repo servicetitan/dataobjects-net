@@ -18,6 +18,8 @@ namespace Xtensive.Orm.Rse.Providers
   {
     public readonly string Tag;
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitTag(this);
+
     // Constructors
 
     public TagProvider(CompilableProvider source, string tag)

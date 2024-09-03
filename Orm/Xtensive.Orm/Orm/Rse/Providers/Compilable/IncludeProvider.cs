@@ -73,6 +73,7 @@ namespace Xtensive.Orm.Rse.Providers
       return newHeader;
     }
 
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitInclude(this);
 
     // Constructors
 
