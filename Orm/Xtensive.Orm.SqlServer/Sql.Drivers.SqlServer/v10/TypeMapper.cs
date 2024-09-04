@@ -35,9 +35,22 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     private SqlDbType GetSqlDbType(object v) =>
       v switch {
         string _ => SqlDbType.NVarChar,
+        char _ => SqlDbType.NChar,
+        byte _ => SqlDbType.TinyInt,
+        short _ => SqlDbType.SmallInt,
         int _ => SqlDbType.Int,
         long _ => SqlDbType.BigInt,
-        _ => throw new NotSupportedException($"Type {v.GetType()} is not supported")
+        bool _ => SqlDbType.Bit,
+        DateTime _ => SqlDbType.DateTime2,
+        TimeOnly _ => SqlDbType.Time,
+        DateOnly _ => SqlDbType.Date,
+        float _ => SqlDbType.Float,
+        double _ => SqlDbType.Float,
+        decimal _ => SqlDbType.Decimal,
+        Guid _ => SqlDbType.UniqueIdentifier,
+        byte[] _ => SqlDbType.VarBinary,
+        null => throw new NotSupportedException($"null is not supported by TVP"),
+        _ => throw new NotSupportedException($"Type {v.GetType()} is not supported by TVP")
       };
 
     public override void BindTable(DbParameter parameter, object value)
@@ -49,12 +62,25 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       SqlMetaData[] metaDatas = null;
       List<SqlDataRecord> records = new();
       var tuples = (List<Tuple>) value;
+      int maxStringLength = 20;
+
+      foreach (var tuple in tuples) {
+        for (int i = 0; i < tuple.Count; ++i) {
+          if (tuple.GetValueOrDefault(i) is string s) {
+            maxStringLength = Math.Max(maxStringLength, s.Length);
+          }
+        }
+      }
 
       foreach (var tuple in tuples) {
         if (metaDatas == null) {
           metaDatas = new SqlMetaData[tuple.Count];
           for (int i = 0; i < tuple.Count; ++i) {
-            metaDatas[i] = new SqlMetaData($"Field{i}", GetSqlDbType(tuple.GetValueOrDefault(i)));
+            var fieldName = $"Field{i}";
+            var sqlDbType = GetSqlDbType(tuple.GetValueOrDefault(i));
+            metaDatas[i] = sqlDbType == SqlDbType.NVarChar
+              ? new SqlMetaData(fieldName, sqlDbType, maxStringLength)
+              : new SqlMetaData(fieldName, sqlDbType);
           }
         }
 
