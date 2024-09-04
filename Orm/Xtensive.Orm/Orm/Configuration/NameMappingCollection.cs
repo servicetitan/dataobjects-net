@@ -40,8 +40,8 @@ namespace Xtensive.Orm.Configuration
     /// <param name="mappedName"></param>
     public void Add([NotNull] string originalName, [NotNull] string mappedName)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(originalName, "originalName");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(mappedName, "mappedName");
+      ArgumentException.ThrowIfNullOrEmpty(originalName);
+      ArgumentException.ThrowIfNullOrEmpty(mappedName);
       EnsureNotLocked();
       items[originalName] = mappedName;
     }
@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Configuration
     /// <param name="originalName"></param>
     public bool Remove([NotNull] string originalName)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(originalName, "originalName");
+      ArgumentException.ThrowIfNullOrEmpty(originalName);
       EnsureNotLocked();
       return items.Remove(originalName);
     }
@@ -63,11 +63,8 @@ namespace Xtensive.Orm.Configuration
     /// <param name="name">Mapped name for <paramref name="name"/>.</param>
     public string Apply([NotNull] string name)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      string result;
-      if (items.TryGetValue(name, out result))
-        return result;
-      return name;
+      ArgumentException.ThrowIfNullOrEmpty(name);
+      return items.GetValueOrDefault(name, name);
     }
 
     /// <summary>
@@ -92,10 +89,7 @@ namespace Xtensive.Orm.Configuration
     /// Returns an enumerator that iterates through a collection.
     /// </summary>
     /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
     /// Creates clone of this instance.
@@ -117,7 +111,7 @@ namespace Xtensive.Orm.Configuration
     /// <param name="items">Mappings to add to this instance.</param>
     public NameMappingCollection([NotNull] IEnumerable<KeyValuePair<string, string>> items)
     {
-      ArgumentValidator.EnsureArgumentNotNull(items, "items");
+      ArgumentNullException.ThrowIfNull(items);
 
       foreach (var item in items)
         Add(item.Key, item.Value);
