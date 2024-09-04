@@ -36,7 +36,7 @@ tab_width = 2
 
 # New line preferences
 end_of_line = lf
-insert_final_newline = false
+insert_final_newline = true
 
 #### .NET Coding Conventions ####
 # https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-language-conventions?view=vs-2019#net-code-style-settings

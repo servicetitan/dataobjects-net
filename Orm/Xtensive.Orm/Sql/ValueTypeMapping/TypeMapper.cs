@@ -173,6 +173,8 @@ namespace Xtensive.Sql
       parameter.Value = value ?? DBNull.Value;
     }
 
+    public virtual void BindTable(DbParameter parameter, object value) => throw new NotSupportedException("Table-Valued Paramenters not supported");
+
     #endregion
 
     #region ReadXxx methods

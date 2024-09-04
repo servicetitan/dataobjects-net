@@ -30,7 +30,8 @@ namespace Xtensive.Orm.Providers
       TemporaryTableDescriptor tableDescriptor = null;
       QueryParameterBinding extraBinding = null;
       var algorithm = provider.Algorithm;
-      if (!temporaryTablesSupported) {
+      if (!temporaryTablesSupported
+          || algorithm == IncludeAlgorithm.Auto && tableValuedParametersSupported) {
         algorithm = IncludeAlgorithm.ComplexCondition;
       }
 
@@ -78,7 +79,9 @@ namespace Xtensive.Orm.Providers
       IReadOnlyList<SqlExpression> sourceColumns, out QueryParameterBinding binding)
     {
       var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
-      var mappings = filterTupleDescriptor.Select(type => Driver.GetTypeMapping(type)).ToArray(filterTupleDescriptor.Count).AsSafeWrapper();
+      var mappings = tableValuedParametersSupported
+        ? [Driver.GetTypeMapping(typeof(List<>))]
+        : filterTupleDescriptor.Select(type => Driver.GetTypeMapping(type)).ToArray(filterTupleDescriptor.Count).AsSafeWrapper();
       binding = new QueryRowFilterParameterBinding(mappings, valueAccessor);
       var resultExpression = SqlDml.DynamicFilter(binding);
       resultExpression.Expressions.AddRange(provider.FilteredColumns.Select(index => sourceColumns[index]));

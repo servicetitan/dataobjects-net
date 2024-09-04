@@ -5,12 +5,16 @@
 // Created:    2009.07.02
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using Microsoft.Data.SqlClient;
+using Microsoft.Data.SqlClient.Server;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
-  internal class TypeMapper : v09.TypeMapper
+  internal class TypeMapper(SqlDriver driver) : v09.TypeMapper(driver)
   {
     public override void BindDateTime(DbParameter parameter, object value)
     {
@@ -28,11 +32,25 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       return base.ReadDateTime(reader, index);
     }
 
-    // Constructors
-
-    public TypeMapper(SqlDriver driver)
-      : base(driver)
+    public override void BindTable(DbParameter parameter, object value)
     {
+      SqlParameter sqlParameter = (SqlParameter) parameter;
+      sqlParameter.SqlDbType = SqlDbType.Structured;
+      sqlParameter.TypeName = sqlParameter.ParameterName + "_tvp";
+      List<SqlDataRecord> records = new();
+      var tuples = (List<Tuple>) value;
+
+      new SqlMetaData("OrderId", SqlDbType.Int),
+
+      foreach (var tuple in tuples) {
+        SqlDataRecord record = new();
+        for (int fieldIndex = 0; fieldIndex < tuple.Count; ++fieldIndex) {
+          var fieldValue = tuple.GetValueOrDefault(fieldIndex);
+          record.SetValue(fieldIndex, fieldValue);
+        }
+        records.Add(record);
+      }
+      sqlParameter.Value = records;
     }
   }
 }

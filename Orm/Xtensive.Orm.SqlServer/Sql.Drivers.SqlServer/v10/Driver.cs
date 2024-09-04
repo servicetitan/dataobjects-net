@@ -5,6 +5,7 @@
 // Created:    2009.07.07
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
@@ -40,12 +41,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     // As far as SqlGeometry and SqlGeography have no support in .Net Standard
     // these two methods are useless
 
-    //protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
-    //{
-    //  base.RegisterCustomMappings(builder);
-    //  builder.Add(new GeometryMapper());
-    //  builder.Add(new GeographyMapper());
-    //}
+    protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
+    {
+      base.RegisterCustomMappings(builder);
+      builder.Add(typeof(List<>), null, builder.Mapper.BindTable, null);
+
+      //      builder.Add(new GeometryMapper());
+      //      builder.Add(new GeographyMapper());
+    }
 
     //protected override void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
     //{
