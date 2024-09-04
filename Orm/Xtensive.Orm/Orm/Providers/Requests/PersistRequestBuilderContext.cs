@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 
@@ -50,7 +51,7 @@ namespace Xtensive.Orm.Providers
           return -1;
         return 0;
       });
-      AffectedIndexes = affectedIndexes.AsReadOnly();
+      AffectedIndexes = affectedIndexes.AsSafeWrapper();
 
       PrimaryIndex = Task.Type.Indexes.PrimaryIndex;
       ParameterBindings = new Dictionary<ColumnInfo, PersistParameterBinding>();

@@ -190,8 +190,7 @@ namespace Xtensive.Orm.Operations
       var scope = GetCurrentOperationRegistrationScope();
       if (scope==null)
         return;
-      if (scope.UndoOperations==null)
-        scope.UndoOperations = new List<IOperation>();
+      scope.UndoOperations ??= new(1);
       scope.UndoOperations.Add(operation);
       // Notifying...
       NotifyUndoOperation(operation);
@@ -284,13 +283,13 @@ namespace Xtensive.Orm.Operations
         }
 
         if (scope.PrecedingOperations!=null)
-          operation.PrecedingOperations = scope.PrecedingOperations.AsReadOnly();
+          operation.PrecedingOperations = scope.PrecedingOperations.AsSafeWrapper();
         if (scope.FollowingOperations!=null)
-          operation.FollowingOperations = scope.FollowingOperations.AsReadOnly();
+          operation.FollowingOperations = scope.FollowingOperations.AsSafeWrapper();
         if (scope.UndoOperations!=null)
-          operation.UndoOperations = scope.UndoOperations.AsReadOnly();
+          operation.UndoOperations = scope.UndoOperations.AsSafeWrapper();
         if (scope.KeyByIdentifier!=null)
-          operation.IdentifiedEntities = new ReadOnlyDictionary<string, Key>(scope.KeyByIdentifier);
+          operation.IdentifiedEntities = scope.KeyByIdentifier.AsSafeWrapper();
       }
       finally {
         RemoveCurrentScope(scope);
@@ -299,13 +298,11 @@ namespace Xtensive.Orm.Operations
       var parentScope = GetCurrentOrParentOperationRegistrationScope();
       if (parentScope != null) {
         if (!parentScope.IsOperationStarted) {
-          if (parentScope.PrecedingOperations==null)
-            parentScope.PrecedingOperations = new List<IOperation>();
+          parentScope.PrecedingOperations ??= new(1);
           parentScope.PrecedingOperations.Add(operation);
         }
         else {
-          if (parentScope.FollowingOperations==null)
-            parentScope.FollowingOperations = new List<IOperation>();
+          parentScope.FollowingOperations ??= new(1);
           parentScope.FollowingOperations.Add(operation);
         }
       }

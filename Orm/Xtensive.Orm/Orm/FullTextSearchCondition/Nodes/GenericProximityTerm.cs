@@ -29,7 +29,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
     {
       if (terms.Count < 2)
         throw new ArgumentException(string.Format(Strings.ExCollectionShouldContainAtLeastXElements, 2));
-      Terms = terms.ToList().AsReadOnly();
+      Terms = terms.ToArray();
     }
   }
 }

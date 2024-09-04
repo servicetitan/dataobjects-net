@@ -433,9 +433,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         // Generating affected columns list explicitly for a situation when "type" is renamed to "targetType"
         if (type != targetType) {
           hint.IsExplicit = true;
-          hint.AffectedColumns = Array.AsReadOnly(new string[] {
-            GetColumnPath(targetType, targetTypeIdField.MappingName)
-          });
+          hint.AffectedColumns = (new[] { GetColumnPath(targetType, targetTypeIdField.MappingName) }).AsSafeWrapper();
         }
         result.Add(hint);
       }

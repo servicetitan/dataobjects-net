@@ -19,10 +19,10 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
   public sealed class GenerationTerm : Operand, IGenerationTerm, IWeighableTerm
   {
     /// <inheritdoc/>
-    public GenerationType GenerationType { get; private set; }
+    public GenerationType GenerationType { get; }
 
     /// <inheritdoc/>
-    public IReadOnlyList<string> Terms { get; private set; }
+    public IReadOnlyList<string> Terms { get; }
 
     protected override void AcceptVisitorInternal(ISearchConditionNodeVisitor visitor)
     {
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
       if (terms.Any(c=>c.IsNullOrEmpty() || c.Trim().IsNullOrEmpty()))
         throw new ArgumentException(Strings.ExCollectionCannotContainAnyNeitherNullOrEmptyStringValues, "terms");
       GenerationType = generationType;
-      Terms = terms.ToList().AsReadOnly();
+      Terms = terms.ToArray().AsSafeWrapper();
     }
   }
 }

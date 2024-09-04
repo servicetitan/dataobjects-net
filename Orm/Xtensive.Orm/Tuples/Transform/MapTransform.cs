@@ -61,8 +61,7 @@ namespace Xtensive.Tuples.Transform
     /// </summary>
     public IReadOnlyList<Pair<ColNum, ColNum>> Map
     {
-      [DebuggerStepThrough]
-      get { return Array.AsReadOnly(map); }
+      [DebuggerStepThrough] get => map.AsSafeWrapper();
     }
 
     protected void SetSingleSourceMap(IReadOnlyList<ColNum> singleSourceMap)

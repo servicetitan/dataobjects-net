@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       var oldBindings = expression.Bindings.Values.ToArray(expression.Bindings.Count);
       var newBindings = VisitExpressionList(oldBindings);
 
-      var oldNativeBindings = expression.NativeBindings.Select(b => b.Value).ToList().AsReadOnly();
+      var oldNativeBindings = expression.NativeBindings.Select(b => b.Value).ToArray().AsSafeWrapper();
       var newNativeBindings = VisitExpressionList(oldNativeBindings);
       
       var notChanged =

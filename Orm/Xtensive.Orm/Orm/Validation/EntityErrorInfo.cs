@@ -12,24 +12,24 @@ namespace Xtensive.Orm.Validation
   /// <summary>
   /// Entity validation error info.
   /// </summary>
-  public sealed class EntityErrorInfo
+  public class EntityErrorInfo
   {
     /// <summary>
     /// Gets validated entity.
     /// </summary>
-    public Entity Target { get; private set; }
+    public Entity Target { get;}
 
     /// <summary>
     /// Gets or sets validation errors.
     /// </summary>
-    public IList<ValidationResult> Errors { get; private set; }
+    public IReadOnlyList<ValidationResult> Errors { get;}
 
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
     /// <param name="target">Validated entity.</param>
     /// <param name="errors">A collection of <see cref="ValidationResult"/>s for an errors discovered.</param>
-    public EntityErrorInfo(Entity target, IList<ValidationResult> errors)
+    public EntityErrorInfo(Entity target, IReadOnlyList<ValidationResult> errors)
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       ArgumentValidator.EnsureArgumentNotNull(errors, "errors");

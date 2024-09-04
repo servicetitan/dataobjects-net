@@ -22,13 +22,7 @@ namespace Xtensive.Orm
   [Serializable]
   public abstract class Operation : IOperation
   {
-    private static readonly IReadOnlyDictionary<string, Key> EmptyIdentifiedEntities =
-      new ReadOnlyDictionary<string, Key>(new Dictionary<string, Key>());
-
-    private IReadOnlyDictionary<string, Key> identifiedEntities = EmptyIdentifiedEntities;
-    private IReadOnlyList<IOperation> precedingOperations = Array.Empty<IOperation>();
-    private IReadOnlyList<IOperation> followingOperations = Array.Empty<IOperation>();
-    private IReadOnlyList<IOperation> undoOperations = Array.Empty<IOperation>();
+    private static readonly IReadOnlyDictionary<string, Key> EmptyIdentifiedEntities = new Dictionary<string, Key>().AsSafeWrapper();
 
     /// <inheritdoc/>
     public abstract string Title { get; }
@@ -42,28 +36,16 @@ namespace Xtensive.Orm
     public OperationType Type { get; internal set; }
 
     /// <inheritdoc/>
-    public IReadOnlyList<IOperation> PrecedingOperations {
-      get { return precedingOperations; }
-      internal set { precedingOperations = value; }
-    }
+    public IReadOnlyList<IOperation> PrecedingOperations { get; internal set; } = [];
 
     /// <inheritdoc/>
-    public IReadOnlyList<IOperation> FollowingOperations {
-      get { return followingOperations; }
-      internal set { followingOperations = value; }
-    }
+    public IReadOnlyList<IOperation> FollowingOperations { get; internal set; } = [];
 
     /// <inheritdoc/>
-    public IReadOnlyList<IOperation> UndoOperations {
-      get { return undoOperations; }
-      internal set { undoOperations = value; }
-    }
+    public IReadOnlyList<IOperation> UndoOperations { get; internal set; } = [];
 
     /// <inheritdoc/>
-    public IReadOnlyDictionary<string, Key> IdentifiedEntities {
-      get { return identifiedEntities; }
-      set { identifiedEntities = value; }
-    }
+    public IReadOnlyDictionary<string, Key> IdentifiedEntities { get; set; } = EmptyIdentifiedEntities;
 
     /// <inheritdoc/>
     public void Prepare(OperationExecutionContext context)
@@ -97,7 +79,7 @@ namespace Xtensive.Orm
           select o.Clone(false)
           ).ToList();
         if (preconditions.Count != 0)
-          clone.PrecedingOperations = preconditions.AsReadOnly();
+          clone.PrecedingOperations = preconditions.AsSafeWrapper();
       }
       if (IdentifiedEntities.Count!=0 && withIdentifiedEntities)
         clone.IdentifiedEntities = IdentifiedEntities;

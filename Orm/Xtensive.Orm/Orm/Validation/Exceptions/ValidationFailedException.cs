@@ -12,12 +12,12 @@ namespace Xtensive.Orm.Validation
   public class ValidationFailedException : StorageException
   {
     [NonSerialized]
-    private IList<EntityErrorInfo> validationErrors;
+    private IReadOnlyList<EntityErrorInfo> validationErrors;
 
     /// <summary>
     /// Gets validation errors associated with this instance.
     /// </summary>
-    public IList<EntityErrorInfo> ValidationErrors
+    public IReadOnlyList<EntityErrorInfo> ValidationErrors
     {
       get { return validationErrors; }
       set

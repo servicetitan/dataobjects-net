@@ -24,7 +24,7 @@ namespace Xtensive.Tuples.Transform.Internals
     public override IReadOnlyList<object> Arguments
     {
       [DebuggerStepThrough]
-      get => Array.AsReadOnly(tuples);
+      get => tuples.AsSafeWrapper();
     }
 
     #region GetFieldState, GetValue, SetValue methods
