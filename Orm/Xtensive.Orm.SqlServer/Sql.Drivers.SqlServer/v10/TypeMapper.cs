@@ -32,21 +32,36 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       return base.ReadDateTime(reader, index);
     }
 
+    private SqlDbType GetSqlDbType(object v) =>
+      v switch {
+        string _ => SqlDbType.NVarChar,
+        int _ => SqlDbType.Int,
+        long _ => SqlDbType.BigInt,
+        _ => throw new NotSupportedException($"Type {v.GetType()} is not supported")
+      };
+
     public override void BindTable(DbParameter parameter, object value)
     {
       SqlParameter sqlParameter = (SqlParameter) parameter;
       sqlParameter.SqlDbType = SqlDbType.Structured;
       sqlParameter.TypeName = sqlParameter.ParameterName + "_tvp";
+
+      SqlMetaData[] metaDatas = null;
       List<SqlDataRecord> records = new();
       var tuples = (List<Tuple>) value;
 
-      new SqlMetaData("OrderId", SqlDbType.Int),
-
       foreach (var tuple in tuples) {
-        SqlDataRecord record = new();
-        for (int fieldIndex = 0; fieldIndex < tuple.Count; ++fieldIndex) {
-          var fieldValue = tuple.GetValueOrDefault(fieldIndex);
-          record.SetValue(fieldIndex, fieldValue);
+        if (metaDatas == null) {
+          metaDatas = new SqlMetaData[tuple.Count];
+          for (int i = 0; i < tuple.Count; ++i) {
+            metaDatas[i] = new SqlMetaData($"Field{i}", GetSqlDbType(tuple.GetValueOrDefault(i)));
+          }
+        }
+
+        SqlDataRecord record = new(metaDatas);
+        for (int i = 0; i < tuple.Count; ++i) {
+          var fieldValue = tuple.GetValueOrDefault(i);
+          record.SetValue(i, fieldValue);
         }
         records.Add(record);
       }
