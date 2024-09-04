@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets empty <see cref="NameMappingCollection"/>.
     /// </summary>
-    public static readonly NameMappingCollection Empty = new NameMappingCollection();
+    public static readonly NameMappingCollection Empty = new();
 
     private readonly Dictionary<string, string> items = new();
 
