@@ -23,12 +23,14 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public static readonly NameMappingCollection Empty = new NameMappingCollection();
 
-    private readonly Dictionary<string, string> items = new Dictionary<string, string>();
+    private readonly Dictionary<string, string> items = new();
+
+    public IReadOnlyDictionary<string, string> AsReadOnlyDictionary => items;
 
     /// <summary>
     /// Gets number of elements in this collection.
     /// </summary>
-    public int Count { get { return items.Count; } }
+    public int Count => items.Count;
 
     /// <summary>
     /// Adds mapping between <paramref name="originalName"/>
