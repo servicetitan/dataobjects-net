@@ -18,9 +18,9 @@ namespace Xtensive.Sql.Compiler
 
     public bool ParametrizeSchemaNames { get; set; }
 
-    public SqlTableNameProvider TableNameProvider { get; private set; }
+    public SqlTableNameProvider TableNameProvider { get; }
 
-    public SqlParameterNameProvider ParameterNameProvider { get; private set; }
+    public SqlParameterNameProvider ParameterNameProvider { get; }
 
     public ContainerNode Output { get; private set; }
 
@@ -37,17 +37,15 @@ namespace Xtensive.Sql.Compiler
     public SqlCompilerNamingScope EnterScope(SqlCompilerNamingOptions options)
     {
       if (NamingOptions==options)
-        return null;
+        return new(null);
 
       var scope = new SqlCompilerNamingScope(this, NamingOptions);
       NamingOptions = options;
       return scope;
     }
 
-    internal void CloseScope(SqlCompilerNamingScope scope)
-    {
-      NamingOptions = scope.ParentOptions;
-    }
+    internal void CloseScope(SqlCompilerNamingOptions parentOptions) =>
+      NamingOptions = parentOptions;
 
     #region SqlCompilerOutputScope members
 
