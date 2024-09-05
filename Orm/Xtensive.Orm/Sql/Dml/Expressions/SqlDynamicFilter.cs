@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Dml
   {
     public object Id { get; private set; }
 
-    public IReadOnlyList<SqlExpression> Expressions { get; set; }
+    public IReadOnlyList<SqlExpression> Expressions { get; private set; }
 
     internal override SqlDynamicFilter Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) => new(t.Id, t.Expressions.Select(e => e.Clone(c)).ToArray()));
