@@ -13,13 +13,15 @@ namespace Xtensive.Sql.Compiler
   /// SQL parameter name provider.
   /// </summary>
   [Serializable]
-  public class SqlParameterNameProvider
+  public struct SqlParameterNameProvider(SqlCompilerConfiguration configuration)
   {
     private const string DefaultPrefix = "p";
     private int nextParameter;
-    private readonly string prefix;
-    
-    internal Dictionary<object, string> NameTable { get; private set; }
+    private readonly string prefix = string.IsNullOrEmpty(configuration.ParameterNamePrefix)
+      ? DefaultPrefix
+      : configuration.ParameterNamePrefix;
+
+    internal Dictionary<object, string> NameTable { get; } = new();
 
     /// <summary>
     /// Gets the name for the specified <paramref name="parameter"/>.
@@ -28,24 +30,11 @@ namespace Xtensive.Sql.Compiler
     /// <returns>Name for the specified parameter.</returns>
     public string GetName(object parameter)
     {
-      string result;
-      if (!NameTable.TryGetValue(parameter, out result)) {
+      if (!NameTable.TryGetValue(parameter, out var result)) {
         result = prefix + nextParameter++;
         NameTable.Add(parameter, result);
       }
       return result;
     }
-
-
-    // Constructor
-
-    /// <inheritdoc/>
-    public SqlParameterNameProvider(SqlCompilerConfiguration configuration)
-    {
-      NameTable = new Dictionary<object, string>();
-      prefix = string.IsNullOrEmpty(configuration.ParameterNamePrefix)
-        ? DefaultPrefix
-        : configuration.ParameterNamePrefix;
-    }
-  }
+ }
 }
