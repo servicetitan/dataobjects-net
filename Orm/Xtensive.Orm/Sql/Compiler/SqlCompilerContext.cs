@@ -18,9 +18,9 @@ namespace Xtensive.Sql.Compiler
 
     public bool ParametrizeSchemaNames { get; set; }
 
-    public SqlTableNameProvider TableNameProvider { get; }
+    public SqlTableNameProvider TableNameProvider;
 
-    public SqlParameterNameProvider ParameterNameProvider { get; }
+    public SqlParameterNameProvider ParameterNameProvider;
 
     public ContainerNode Output { get; private set; }
 
