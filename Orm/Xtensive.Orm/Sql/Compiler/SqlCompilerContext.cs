@@ -12,9 +12,8 @@ namespace Xtensive.Sql.Compiler
   /// </summary>
   public class SqlCompilerContext
   {
-    private SqlNode[] traversalPath;
-    private readonly Stack<SqlNode> traversalStack = new Stack<SqlNode>();
-    private readonly HashSet<SqlNode> traversalTable = new HashSet<SqlNode>();
+    private readonly Stack<SqlNode> traversalStack = new();
+    private readonly HashSet<SqlNode> traversalTable = new();
 
     public bool ParametrizeSchemaNames { get; set; }
 
@@ -26,8 +25,7 @@ namespace Xtensive.Sql.Compiler
 
     public SqlCompilerNamingOptions NamingOptions { get; private set; }
 
-    public SqlNode[] GetTraversalPath() =>
-      traversalPath ??= traversalStack.ToArray();
+    public IEnumerable<SqlNode> GetTraversalPath() => traversalStack;
 
     public bool HasOptions(SqlCompilerNamingOptions requiredOptions)
     {
@@ -92,15 +90,10 @@ namespace Xtensive.Sql.Compiler
       return OpenScope(ContextType.Collection, (ContainerNode) cycle.EmptyCase);
     }
 
-    private SqlCompilerOutputScope OpenScope(ContextType type)
+    private SqlCompilerOutputScope OpenScope(ContextType type, ContainerNode container = null)
     {
-      return OpenScope(type, Output);
-    }
-
-    private SqlCompilerOutputScope OpenScope(ContextType type, ContainerNode container)
-    {
-      traversalPath = null;
       var scope = new SqlCompilerOutputScope(this, type);
+      container ??= Output;
       if (Output != container) {
         Output = container;
       }
@@ -113,9 +106,8 @@ namespace Xtensive.Sql.Compiler
       return scope;
     }
 
-    internal void CloseScope(SqlCompilerOutputScope scope)
+    internal void CloseScope(in SqlCompilerOutputScope scope)
     {
-      traversalPath = null;
       if (Output != scope.ParentContainer) {
         Output.FlushBuffer();
         Output = scope.ParentContainer;
