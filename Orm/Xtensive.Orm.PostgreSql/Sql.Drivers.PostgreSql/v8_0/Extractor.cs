@@ -208,7 +208,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       // Query OID of some system catalog tables for using them in pg_depend lookups
       var rel = PgClass;
       var q = SqlDml.Select(rel);
-      q.Where = SqlDml.In(rel["relname"], SqlDml.Row("pg_class"));
+      q.Where = SqlDml.In(rel["relname"], SqlDml.Row(["pg_class"]));
       q.Columns.Add(rel["oid"]);
       q.Columns.Add(rel["relname"]);
       return q;
@@ -577,7 +577,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         tablespacesTable["oid"] == relationsTable["reltablespace"]);
       var select = SqlDml.Select(join);
       select.Where = relationsTable["relowner"] == context.CurrentUserIdentifier
-        && SqlDml.In(relationsTable["relkind"], SqlDml.Row('r', 'v', 'S'));
+        && SqlDml.In(relationsTable["relkind"], SqlDml.Row(['r', 'v', 'S']));
 
       var catalog = context.Catalog;
       var targetSchemes = context.TargetSchemes;
@@ -1372,18 +1372,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     protected static SqlRow CreateOidRow(IEnumerable<long> oids)
     {
-      var result = SqlDml.Row();
-      foreach (var oid in oids) {
-        result.Add(oid);
-      }
+      var list = oids.Select(oid => (SqlExpression) oid).ToList();
 
       // make sure it is not empty, so that "IN" expression always works
       // add an invalid OID value 
-      if (result.Count == 0) {
-        result.Add(-1000);
+      if (list.Count == 0) {
+        list.Add(-1000);
       }
-
-      return result;
+      return SqlDml.Row(list);
     }
 
     protected static int[] ReadIntArray(object value)

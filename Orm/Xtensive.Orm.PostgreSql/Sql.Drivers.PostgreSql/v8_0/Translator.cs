@@ -488,7 +488,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
                 break;
               }
             }
-            var newNode = SqlDml.Match(SqlDml.Row(), SqlDml.SubQuery(finalQuery).Query, node.Unique, node.MatchType);
+            var newNode = SqlDml.Match(SqlDml.Row([]), SqlDml.SubQuery(finalQuery).Query, node.Unique, node.MatchType);
             node.ReplaceWith(newNode);
             _ = context.Output.Append("EXISTS(SELECT '");
             break;

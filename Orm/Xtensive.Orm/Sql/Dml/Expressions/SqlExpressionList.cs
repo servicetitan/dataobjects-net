@@ -10,101 +10,29 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  public abstract class SqlExpressionList : SqlExpression, IList<SqlExpression>
+  public abstract class SqlExpressionList : SqlExpression, IReadOnlyList<SqlExpression>
   {
-    protected IList<SqlExpression> expressions;
+    protected IReadOnlyList<SqlExpression> expressions;
 
     /// <inheritdoc/>
-    public SqlExpression this[int index]
-    {
-      get { return expressions[index]; }
-      set
-      {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        expressions[index] = value;
-      }
-    }
+    public SqlExpression this[int index] => expressions[index];
 
     /// <inheritdoc/>
-    public int Count
-    {
-      get { return expressions.Count; }
-    }
+    public int Count => expressions.Count;
 
     /// <inheritdoc/>
-    public bool IsReadOnly
-    {
-      get { return false; }
-    }
+    public IEnumerator<SqlExpression> GetEnumerator() => expressions.GetEnumerator();
 
     /// <inheritdoc/>
-    public void Add(SqlExpression item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      expressions.Add(item);
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc/>
-    public void Clear()
-    {
-      expressions.Clear();
-    }
+    public int IndexOf(SqlExpression item) => expressions.IndexOf(item);
 
-    /// <inheritdoc/>
-    public bool Contains(SqlExpression item)
-    {
-      return expressions.Contains(item);
-    }
-
-    /// <inheritdoc/>
-    public void CopyTo(SqlExpression[] array, int index)
-    {
-      expressions.CopyTo(array, index);
-    }
-
-    /// <inheritdoc/>
-    public IEnumerator<SqlExpression> GetEnumerator()
-    {
-      return expressions.GetEnumerator();
-    }
-
-    /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return expressions.GetEnumerator();
-    }
-
-    /// <inheritdoc/>
-    public int IndexOf(SqlExpression item)
-    {
-      return expressions.IndexOf(item);
-    }
-
-    /// <inheritdoc/>
-    public void Insert(int index, SqlExpression item)
-    {
-      expressions.Insert(index, item);
-    }
-
-    /// <inheritdoc/>
-    public bool Remove(SqlExpression item)
-    {
-      return expressions.Remove(item);
-    }
-
-    /// <inheritdoc/>
-    public void RemoveAt(int index)
-    {
-      expressions.RemoveAt(index);
-    }
-
-
-    // Constructor
-
-    protected SqlExpressionList(SqlNodeType nodeType, IList<SqlExpression> list)
+    protected SqlExpressionList(SqlNodeType nodeType, IReadOnlyList<SqlExpression> expressions)
       : base(nodeType)
     {
-      expressions = list;
+      this.expressions = expressions;
     }
   }
 }
