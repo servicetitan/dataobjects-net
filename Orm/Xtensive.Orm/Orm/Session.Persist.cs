@@ -366,8 +366,8 @@ namespace Xtensive.Orm
 
     private void ProcessChangesOfEntitySets(Action<EntitySetState> action)
     {
-      if (EntitySetChangeRegistry is not null) {
-        foreach (var entitySet in EntitySetChangeRegistry.GetItems())
+      if (EntitySetChangeRegistry.GetItems() is { } items) {
+        foreach (var entitySet in items)
           action.Invoke(entitySet);
       }
     }

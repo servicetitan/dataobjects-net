@@ -555,7 +555,6 @@ namespace Xtensive.Orm
       // Caches, registry
       EntityStateCache = CreateSessionCache(configuration);
       EntityChangeRegistry = new EntityChangeRegistry(this);
-      EntitySetChangeRegistry = new EntitySetChangeRegistry(this);
       ReferenceFieldsChangesRegistry = new ReferenceFieldsChangesRegistry(this);
       entitySetsWithInvalidState = new HashSet<EntitySetBase>();
 
@@ -655,7 +654,7 @@ namespace Xtensive.Orm
         disposableSet = null;
 
         EntityChangeRegistry = null;
-        EntitySetChangeRegistry = null;
+        EntitySetChangeRegistry = default;
         EntityStateCache = null;
         ReferenceFieldsChangesRegistry = null;
         NonPairedReferencesRegistry = null;

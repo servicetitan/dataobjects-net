@@ -315,7 +315,7 @@ namespace Xtensive.Orm
               CancelEntitySetsChanges();
               ClearChangeRegistry();
               NonPairedReferencesRegistry?.Clear();
-              EntitySetChangeRegistry?.Clear();
+              EntitySetChangeRegistry.Clear();
             }
             persistingIsFailed = false;
           }
