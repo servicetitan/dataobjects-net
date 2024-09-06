@@ -61,8 +61,7 @@ namespace Xtensive.Orm.Internals
     /// </summary>
     /// <param name="state">The state of items to get.</param>
     /// <returns>The sequence of items with specified state.</returns>
-    public RegistryItems<EntityState> GetItems(in PersistenceState state) =>
-      new(GetContainer(state));
+    public IReadOnlySet<EntityState> GetItems(in PersistenceState state) => GetContainer(state);
 
     /// <summary>
     /// Clears the registry.

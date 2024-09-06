@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Internals
     /// Gets all registered items.
     /// </summary>
     /// <returns>All registered items.</returns>
-    public RegistryItems<ReferenceFieldChangeInfo> GetItems() => new(changes);
+    public IReadOnlySet<ReferenceFieldChangeInfo> GetItems() => changes;
 
     /// <summary>
     /// Removes all registered items.

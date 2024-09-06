@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Internals
     /// Gets all registered items.
     /// </summary>
     /// <returns></returns>
-    public RegistryItems<EntitySetState> GetItems() => new(modifiedEntitySets);
+    public IReadOnlySet<EntitySetState> GetItems() => modifiedEntitySets;
 
     /// <summary>
     /// Clears the registry.
