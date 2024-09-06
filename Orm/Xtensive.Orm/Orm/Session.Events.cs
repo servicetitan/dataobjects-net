@@ -30,7 +30,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// The manager of <see cref="Entity"/>'s events.
     /// </summary>
-    internal EntityEventBroker EntityEvents { get; private set; }
+    internal readonly EntityEventBroker EntityEvents = new();
 
     /// <summary>
     /// Raises events on all <see cref="INotifyPropertyChanged"/> and

@@ -14,7 +14,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// Manages events related to <see cref="Entity"/>.
   /// </summary>
-  public sealed class EntityEventBroker
+  public struct EntityEventBroker
   {
     private Dictionary<(Key, FieldInfo, object), Delegate> subscribers;
 

@@ -559,7 +559,6 @@ namespace Xtensive.Orm
       entitySetsWithInvalidState = new HashSet<EntitySetBase>();
 
       // Events
-      EntityEvents = new EntityEventBroker();
       Events = new SessionEventAccessor(this, false);
       SystemEvents = new SessionEventAccessor(this, true);
 
