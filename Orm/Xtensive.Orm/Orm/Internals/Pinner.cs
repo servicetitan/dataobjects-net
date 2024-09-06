@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Internals
     public EntityChangeRegistry PersistableItems { get; private set; }
     
     public PinnerDisposableRemover RegisterRoot(EntityState state) =>
-      new(roots.Add(state) ? roots : null, state);
+      roots.Add(state) ? new(roots, state) : default;
 
     public void ClearRoots() => roots.Clear();
 
