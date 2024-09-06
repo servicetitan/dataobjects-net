@@ -567,7 +567,7 @@ namespace Xtensive.Orm
       RemovalProcessor = new RemovalProcessor(this);
       pinner = new Pinner(this);
       Operations = new OperationRegistry(this);
-      NonPairedReferencesRegistry = new NonPairedReferenceChangesRegistry(this);
+      NonPairedReferencesRegistry = new(this);
       CommandProcessorContextProvider = new CommandProcessorContextProvider(this);
 
       // Validation context
@@ -656,7 +656,7 @@ namespace Xtensive.Orm
         EntitySetChangeRegistry = default;
         EntityStateCache = null;
         ReferenceFieldsChangesRegistry = null;
-        NonPairedReferencesRegistry = null;
+        NonPairedReferencesRegistry = default;
         extensions?.Clear();
       }
       finally {

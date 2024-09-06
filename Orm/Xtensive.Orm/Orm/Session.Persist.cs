@@ -25,7 +25,7 @@ namespace Xtensive.Orm
     private bool persistingIsFailed;
 
     internal bool DisableAutoSaveChanges { get { return disableAutoSaveChanges; } }
-    internal NonPairedReferenceChangesRegistry NonPairedReferencesRegistry { get; private set; }
+    internal NonPairedReferenceChangesRegistry NonPairedReferencesRegistry;
     internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry { get; private set; }
 
     /// <summary>
