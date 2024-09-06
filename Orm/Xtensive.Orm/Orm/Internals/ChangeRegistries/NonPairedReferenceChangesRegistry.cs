@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals
@@ -135,14 +134,14 @@ namespace Xtensive.Orm.Internals
     {
       if (ShouldSkipRegistration(e))
         return;
-      RegisterChange(null, e.Entity.State, e.Item.State, e.Field.Associations.First());
+      RegisterChange(null, e.Entity.State, e.Item.State, e.Field.Associations[0]);
     }
 
     private void OnEntitySetItemAddCompleted(object sender, EntitySetItemActionCompletedEventArgs e)
     {
       if (ShouldSkipRegistration(e))
         return;
-      RegisterChange(e.Item.State, e.Entity.State, null, e.Field.Associations.First());
+      RegisterChange(e.Item.State, e.Entity.State, null, e.Field.Associations[0]);
     }
 
     private void OnEntityFieldValueSetCompleted(object sender, EntityFieldValueSetCompletedEventArgs e)
@@ -163,7 +162,7 @@ namespace Xtensive.Orm.Internals
         var realField = owner.TypeInfo.Fields[BuildNameOfEntityField(fieldOfOwner, referenceFieldOfStructure)];
         if (realField.Associations.Count>1)
           continue;
-        var realAssociation = realField.Associations.First();
+        var realAssociation = realField.Associations[0];
         var oldFieldValue = GetStructureFieldValue(referenceFieldOfStructure, oldValue);
         var newFieldValue = GetStructureFieldValue(referenceFieldOfStructure, newValue);
         RegisterChange(newFieldValue, owner.State, oldFieldValue, realAssociation);
@@ -188,7 +187,7 @@ namespace Xtensive.Orm.Internals
         return true;
       if (!e.Field.IsEntity && !e.Field.IsStructure)
         return true;
-      if (e.Field.IsEntity && e.Field.Associations.First().IsPaired)
+      if (e.Field.IsEntity && e.Field.Associations[0].IsPaired)
         return true;
       if (e.NewValue==null && e.OldValue==null)
         return true;
@@ -196,7 +195,7 @@ namespace Xtensive.Orm.Internals
     }
 
     private bool ShouldSkipRegistration(EntitySetItemActionCompletedEventArgs e) =>
-      !Session.DisableAutoSaveChanges || Session.IsPersisting || e.Exception != null || e.Field.Associations.First().IsPaired;
+      !Session.DisableAutoSaveChanges || Session.IsPersisting || e.Exception != null || e.Field.Associations[0].IsPaired;
 
     private EntityState GetStructureFieldValue(FieldInfo fieldOfStructure, Structure structure) =>
       ((Entity) structure?.GetFieldAccessor(fieldOfStructure).GetUntypedValue(structure))?.State;
