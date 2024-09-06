@@ -80,9 +80,7 @@ namespace Xtensive.Orm.Providers
       var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
       var mappings = filterTupleDescriptor.Select(type => Driver.GetTypeMapping(type)).ToArray(filterTupleDescriptor.Count).AsSafeWrapper();
       binding = new QueryRowFilterParameterBinding(mappings, valueAccessor);
-      var resultExpression = SqlDml.DynamicFilter(binding);
-      resultExpression.Expressions.AddRange(provider.FilteredColumns.Select(index => sourceColumns[index]));
-      return resultExpression;
+      return SqlDml.DynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray());
     }
 
     protected SqlExpression CreateIncludeViaTemporaryTableExpression(

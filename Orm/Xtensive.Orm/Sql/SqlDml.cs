@@ -1509,10 +1509,10 @@ namespace Xtensive.Sql
       return new SqlPlaceholder(id);
     }
 
-    public static SqlDynamicFilter DynamicFilter(object id)
+    public static SqlDynamicFilter DynamicFilter(object id, IReadOnlyList<SqlExpression> expressions)
     {
       ArgumentValidator.EnsureArgumentNotNull(id, "id");
-      return new SqlDynamicFilter(id);
+      return new SqlDynamicFilter(id, expressions);
     }
 
     public static SqlContainer Container(object value)
@@ -1562,23 +1562,13 @@ namespace Xtensive.Sql
 
     #region Row
 
-    public static SqlRow Row(IList<SqlExpression> expressions)
+    public static SqlRow Row(IReadOnlyList<SqlExpression> expressions)
     {
       SqlValidator.EnsureAreSqlRowArguments(expressions);
       return new SqlRow(expressions);
     }
 
-    public static SqlRow Row(params SqlExpression[] expressions)
-    {
-      var collection = new List<SqlExpression>(expressions.Length);
-      collection.AddRange(expressions);
-      return Row(collection);
-    }
-
-    public static SqlRow Row()
-    {
-      return Row(new List<SqlExpression>());
-    }
+    public static SqlRow Row(params SqlExpression[] expressions) => Row((IReadOnlyList<SqlExpression>)expressions);
 
     #endregion
 
@@ -1837,15 +1827,11 @@ namespace Xtensive.Sql
       return NotLike(expression, new SqlLiteral<string>(pattern), new SqlLiteral<char>(escape));
     }
 
-    public static SqlBinary Overlaps(DateTime from1, TimeSpan span1, DateTime from2, TimeSpan span2)
-    {
-      return new SqlBinary(SqlNodeType.Overlaps, Row(from1, span1), Row(from2, span2));
-    }
+    public static SqlBinary Overlaps(DateTime from1, TimeSpan span1, DateTime from2, TimeSpan span2) =>
+      new(SqlNodeType.Overlaps, Row([from1, span1]), Row([from2, span2]));
 
-    public static SqlBinary Overlaps(DateTime from1, DateTime to1, DateTime from2, DateTime to2)
-    {
-      return new SqlBinary(SqlNodeType.Overlaps, Row(from1, to1), Row(from2, to2));
-    }
+    public static SqlBinary Overlaps(DateTime from1, DateTime to1, DateTime from2, DateTime to2) =>
+      new(SqlNodeType.Overlaps, Row([from1, to1]), Row([from2, to2]));
 
     public static SqlBinary Overlaps(SqlExpression from1, SqlExpression toOrSpan1, SqlExpression from2, SqlExpression toOrSpan2)
     {
@@ -1853,7 +1839,7 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(toOrSpan1, "toOrSpan1");
       ArgumentValidator.EnsureArgumentNotNull(from2, "from2");
       ArgumentValidator.EnsureArgumentNotNull(toOrSpan2, "toOrSpan2");
-      return new SqlBinary(SqlNodeType.Overlaps, Row(from1, toOrSpan1), Row(from2, toOrSpan2));
+      return new(SqlNodeType.Overlaps, Row([from1, toOrSpan1]), Row([from2, toOrSpan2]));
     }
 
     public static SqlBinary Overlaps(SqlRow left, SqlRow right)

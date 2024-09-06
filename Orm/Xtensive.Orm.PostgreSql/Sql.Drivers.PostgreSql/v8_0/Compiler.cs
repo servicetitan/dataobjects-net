@@ -67,7 +67,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           }
         }
         else {
-          var row = SqlDml.Row(right.GetValues().Select(value => SqlDml.Literal(value)).ToArray());
+          var row = SqlDml.Row(right.GetValues().Select(SqlDml.Literal).ToArray());
           base.Visit(node.NodeType == SqlNodeType.In ? SqlDml.In(node.Left, row) : SqlDml.NotIn(node.Left, row));
         }
         return;

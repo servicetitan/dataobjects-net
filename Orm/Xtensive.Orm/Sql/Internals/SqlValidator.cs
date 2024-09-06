@@ -39,11 +39,11 @@ namespace Xtensive.Sql
         WellKnownOrmTypes.TypeInfo
     };
 
-    public static void EnsureAreSqlRowArguments(IEnumerable<SqlExpression> nodes)
+    public static void EnsureAreSqlRowArguments(IReadOnlyList<SqlExpression> nodes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(nodes, "expressions");
-      foreach (SqlExpression expression in nodes)
-        ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(nodes);
+      foreach (var expression in nodes)
+        ArgumentNullException.ThrowIfNull(expression);
     }
 
     public static void EnsureIsBooleanExpression(SqlExpression node)
