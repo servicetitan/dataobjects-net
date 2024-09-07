@@ -10,19 +10,17 @@ namespace Xtensive.Sql.Compiler
   /// <summary>
   /// Table name provider.
   /// </summary>
-  public class SqlTableNameProvider
+  public struct SqlTableNameProvider(SqlCompilerContext context)
   {
-    private readonly Dictionary<SqlTable, string> aliasMap = new Dictionary<SqlTable, string>(16);
-    private readonly HashSet<string> aliasIndex = new HashSet<string>();
+    private readonly Dictionary<SqlTable, string> aliasMap = new(16);
+    private readonly HashSet<string> aliasIndex = new();
     private byte prefixIndex;
     private byte suffix;
-    private readonly SqlCompilerContext context;
 
-    private static readonly string[] Prefixes =
-      new[] {
-        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
-        "w", "x", "y", "z"
-      };
+    private static readonly string[] Prefixes = [
+      "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
+      "w", "x", "y", "z"
+    ];
 
     public string GetName(SqlTable table)
     {
@@ -32,13 +30,11 @@ namespace Xtensive.Sql.Compiler
         return table.Name;
       }
 
-      string result;
-      if (aliasMap.TryGetValue(table, out result))
+      if (aliasMap.TryGetValue(table, out var result))
         return result;
 
-      var tableRef = table as SqlTableRef;
       // Table reference
-      if (tableRef!=null) {
+      if (table is SqlTableRef tableRef) {
         // Alias
         if (tableRef.Name!=tableRef.DataTable.Name) {
           result = tableRef.Name;
@@ -89,14 +85,6 @@ namespace Xtensive.Sql.Compiler
 
       prefixIndex = 0;
       suffix++;
-    }
-
-
-    // Constructor
-
-    public SqlTableNameProvider(SqlCompilerContext context)
-    {
-      this.context = context;
     }
   }
 }

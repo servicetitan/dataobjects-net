@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (session.OpenTransaction()) {
         var victim = new Victim();
         using (session.DisableSaveChanges(victim))
-          Assert.IsNull(session.DisableSaveChanges(victim));
+          Assert.AreEqual(default(Xtensive.Orm.Internals.PinnerDisposableRemover), session.DisableSaveChanges(victim));
       }
     }
 

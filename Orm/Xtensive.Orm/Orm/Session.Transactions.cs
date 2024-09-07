@@ -314,8 +314,8 @@ namespace Xtensive.Orm
             if(!persistingIsFailed || !Configuration.Supports(SessionOptions.NonTransactionalReads)) {
               CancelEntitySetsChanges();
               ClearChangeRegistry();
-              NonPairedReferencesRegistry?.Clear();
-              EntitySetChangeRegistry?.Clear();
+              NonPairedReferencesRegistry.Clear();
+              EntitySetChangeRegistry.Clear();
             }
             persistingIsFailed = false;
           }

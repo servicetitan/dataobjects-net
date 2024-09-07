@@ -10,19 +10,15 @@ using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm
 {
-  public sealed class CommandProcessorContextProvider : SessionBound
+  internal struct CommandProcessorContextProvider()
   {
-    private readonly ConcurrentDictionary<CommandProcessorContext, CommandProcessorContext> providedContexts
-      = new ConcurrentDictionary<CommandProcessorContext, CommandProcessorContext>();
+    private readonly ConcurrentDictionary<CommandProcessorContext, CommandProcessorContext> providedContexts = new();
 
     /// <inheritdoc/>
-    public int AliveContextCount { get { return providedContexts.Count; } }
+    public int AliveContextCount => providedContexts.Count;
 
     /// <inheritdoc/>
-    public CommandProcessorContext ProvideContext()
-    {
-      return ProvideContext(false);
-    }
+    public CommandProcessorContext ProvideContext() => ProvideContext(false);
 
     /// <inheritdoc/>
     public CommandProcessorContext ProvideContext(bool allowPartialExecution)
@@ -39,11 +35,6 @@ namespace Xtensive.Orm
       var context = (CommandProcessorContext) sender;
       providedContexts.TryRemove(context, out _);
       context.Disposed -= RemoveDisposedContext;
-    }
-    
-    internal CommandProcessorContextProvider(Session session)
-      : base(session)
-    {
     }
   }
 }

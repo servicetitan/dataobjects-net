@@ -19,8 +19,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void GetContextTest()
     {
       var session = Session.Demand();
-      var provider = session.CommandProcessorContextProvider;
-      var context = provider.ProvideContext();
+      var context = session.CommandProcessorContextProvider.ProvideContext();
 
       Assert.That(context, Is.Not.Null);
       Assert.That(context.AllowPartialExecution, Is.False);
@@ -30,15 +29,14 @@ namespace Xtensive.Orm.Tests.Storage
       Assert.That(context.ProcessingTasks, Is.Not.Null);
       Assert.That(context.ProcessingTasks.Count, Is.EqualTo(0));
 
-      Assert.That(provider.ProvideContext(), Is.Not.SameAs(provider.ProvideContext()));
+      Assert.That(session.CommandProcessorContextProvider.ProvideContext(), Is.Not.SameAs(session.CommandProcessorContextProvider.ProvideContext()));
     }
 
     [Test]
     public void GetContextForPartialExecutionTest()
     {
       var session = Session.Demand();
-      var provider = session.CommandProcessorContextProvider;
-      var context = provider.ProvideContext(true);
+      var context = session.CommandProcessorContextProvider.ProvideContext(true);
 
       Assert.That(context, Is.Not.Null);
       Assert.That(context.AllowPartialExecution, Is.True);
@@ -48,7 +46,7 @@ namespace Xtensive.Orm.Tests.Storage
       Assert.That(context.ProcessingTasks, Is.Not.Null);
       Assert.That(context.ProcessingTasks.Count, Is.EqualTo(0));
 
-      Assert.That(provider.ProvideContext(true), Is.Not.SameAs(provider.ProvideContext(true)));
+      Assert.That(session.CommandProcessorContextProvider.ProvideContext(true), Is.Not.SameAs(session.CommandProcessorContextProvider.ProvideContext(true)));
     }
   }
 }
