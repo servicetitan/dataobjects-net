@@ -25,8 +25,8 @@ namespace Xtensive.Orm
     private bool persistingIsFailed;
 
     internal bool DisableAutoSaveChanges { get { return disableAutoSaveChanges; } }
-    internal NonPairedReferenceChangesRegistry NonPairedReferencesRegistry { get; private set; }
-    internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry { get; private set; }
+    internal NonPairedReferenceChangesRegistry NonPairedReferencesRegistry;
+    internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry = new();
 
     /// <summary>
     /// Saves all modified instances immediately to the database.
@@ -366,8 +366,8 @@ namespace Xtensive.Orm
 
     private void ProcessChangesOfEntitySets(Action<EntitySetState> action)
     {
-      if (EntitySetChangeRegistry is not null) {
-        foreach (var entitySet in EntitySetChangeRegistry.GetItems())
+      if (EntitySetChangeRegistry.GetItems() is { } items) {
+        foreach (var entitySet in items)
           action.Invoke(entitySet);
       }
     }

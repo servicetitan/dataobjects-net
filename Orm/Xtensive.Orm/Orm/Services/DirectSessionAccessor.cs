@@ -74,10 +74,8 @@ namespace Xtensive.Orm.Services
     /// </summary>
     /// <param name="persistenceState">Type of entity change.</param>
     /// <returns><see cref="EntityState"/>s with the specified <paramref name="persistenceState"/>.</returns>
-    public RegistryItems<EntityState> GetChangedEntities(PersistenceState persistenceState)
-    {
-      return Session.EntityChangeRegistry.GetItems(persistenceState);
-    }
+    public IReadOnlySet<EntityState> GetChangedEntities(PersistenceState persistenceState) =>
+      Session.EntityChangeRegistry.GetItems(persistenceState);
 
 
     // Constructors

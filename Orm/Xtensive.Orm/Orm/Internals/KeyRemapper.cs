@@ -4,13 +4,12 @@
 // Created by: Alexey Kulakov
 // Created:    2014.05.06
 
-using System;
 using System.Linq;
 using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Orm.Internals
 {
-  internal class KeyRemapper : SessionBound
+  internal struct KeyRemapper(Session session)
   {
     /// <summary>
     /// Remap temporary (local) keys to real (will be saved to storage) keys.
@@ -22,21 +21,22 @@ namespace Xtensive.Orm.Internals
       var context = new RemapContext(registry);
       RemapEntityKeys(context);
       RemapReferencesToEntities(context);
-      Session.ReferenceFieldsChangesRegistry.Clear();
+      session.ReferenceFieldsChangesRegistry.Clear();
       return context.KeyMapping;
     }
     
     private void RemapEntityKeys(RemapContext context)
     {
-      foreach (var entityState in context.EntitiesToRemap.Where(el => el.Key.IsTemporary(Session.Domain))) {
-        var newKey = Key.Generate(Session, entityState.Entity.TypeInfo);
+      var domain = session.Domain;
+      foreach (var entityState in context.EntitiesToRemap.Where(el => el.Key.IsTemporary(domain))) {
+        var newKey = Key.Generate(session, entityState.Entity.TypeInfo);
         context.RegisterKeyMap(entityState.Key, newKey);
       }
     }
 
     private void RemapReferencesToEntities(RemapContext context)
     {
-      foreach (var setInfo in Session.ReferenceFieldsChangesRegistry.GetItems())
+      foreach (var setInfo in session.ReferenceFieldsChangesRegistry.GetItems())
         if (setInfo.Field.IsEntitySet)
           RemapEntitySetReference(context, setInfo);
         else
@@ -57,13 +57,13 @@ namespace Xtensive.Orm.Internals
       var transformer = new CombineTransform(false, fieldOwnerKey.Value.Descriptor, fieldValueKey.Value.Descriptor);
       var combinedTuple = transformer.Apply(TupleTransformType.Tuple, fieldOwnerKey.Value, fieldValueKey.Value);
 
-      var newCombinedKey = Key.Create(Session.Domain, Session.StorageNodeId, fieldAssociation.AuxiliaryType, TypeReferenceAccuracy.ExactType, combinedTuple);
+      var newCombinedKey = Key.Create(session.Domain, session.StorageNodeId, fieldAssociation.AuxiliaryType, TypeReferenceAccuracy.ExactType, combinedTuple);
       context.RegisterKeyMap(oldCombinedKey, newCombinedKey);
     }
 
     private void RemapEntityReference(RemapContext context, ReferenceFieldChangeInfo info)
     {
-      var entity = Session.Query.SingleOrDefault(info.FieldOwner);
+      var entity = session.Query.SingleOrDefault(info.FieldOwner);
       if (entity==null)
         return;
       var referencedEntity = (Entity) entity.GetFieldValue(info.Field);
@@ -72,11 +72,6 @@ namespace Xtensive.Orm.Internals
       var referencedKey = referencedEntity.Key;
       var realKey = context.TryRemapKey(referencedKey);
       entity.SetReferenceKey(info.Field, realKey);
-    }
-
-    public KeyRemapper(Session session)
-      :base(session)
-    {
     }
   }
 }

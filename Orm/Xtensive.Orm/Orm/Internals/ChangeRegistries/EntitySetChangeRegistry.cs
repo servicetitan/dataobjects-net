@@ -11,14 +11,14 @@ namespace Xtensive.Orm.Internals
   /// <summary>
   /// Contains <see cref="EntitySetState"/>s which modified during the bounded session.
   /// </summary>
-  public sealed class EntitySetChangeRegistry : SessionBound
+  public readonly struct EntitySetChangeRegistry()
   {
     private readonly HashSet<EntitySetState> modifiedEntitySets = new();
 
     /// <summary>
     /// Count of registered <see cref="EntitySetState"/>.
     /// </summary>
-    public int Count { get { return modifiedEntitySets.Count; } }
+    public int Count => modifiedEntitySets.Count;
 
     /// <summary>
     /// Register the specified <see cref="EntitySetState"/>.
@@ -30,21 +30,11 @@ namespace Xtensive.Orm.Internals
     /// Gets all registered items.
     /// </summary>
     /// <returns></returns>
-    public RegistryItems<EntitySetState> GetItems() => new(modifiedEntitySets);
+    public IReadOnlySet<EntitySetState> GetItems() => modifiedEntitySets;
 
     /// <summary>
     /// Clears the registry.
     /// </summary>
-    public void Clear() => modifiedEntitySets.Clear();
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="session"><see cref="Session"/>, to which current instance 
-    /// is bound.</param>
-    public EntitySetChangeRegistry(Session session)
-      : base(session)
-    {
-    }
+    public void Clear() => modifiedEntitySets?.Clear();
   }
 }
