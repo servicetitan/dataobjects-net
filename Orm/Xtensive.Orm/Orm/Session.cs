@@ -578,7 +578,7 @@ namespace Xtensive.Orm
       Services = CreateServices();
 
       disposableSet = new DisposableSet();
-      remapper = new KeyRemapper(this);
+      remapper = new(this);
 
       disableAutoSaveChanges = !configuration.Supports(SessionOptions.AutoSaveChanges);
       if (configuration.Supports(SessionOptions.NonTransactionalReads)) {
