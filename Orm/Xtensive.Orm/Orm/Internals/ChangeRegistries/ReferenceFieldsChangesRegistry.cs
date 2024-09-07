@@ -4,35 +4,35 @@
 // Created by: Alexey Kulakov
 // Created:    2014.04.07
 
+using System;
 using System.Collections.Generic;
-using Xtensive.Core;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals
 {
   /// <summary>
-  /// Registrates information about changed reference fields.
+  /// Registers information about changed reference fields.
   /// </summary>
-  internal sealed class ReferenceFieldsChangesRegistry : SessionBound
+  internal struct ReferenceFieldsChangesRegistry()
   {
-    private readonly HashSet<ReferenceFieldChangeInfo> changes = new ();
+    private readonly HashSet<ReferenceFieldChangeInfo> changes = new();
 
     /// <summary>
-    /// Registrates information about field which value was set.
+    /// Registers information about field which value was set.
     /// </summary>
     /// <param name="fieldOwner">Key of entity which field was set.</param>
     /// <param name="fieldValue">Value of field.</param>
     /// <param name="field">Field which value was set./</param>
     public void Register(Key fieldOwner, Key fieldValue, FieldInfo field)
     {
-      ArgumentValidator.EnsureArgumentNotNull(fieldOwner, "fieldOwner");
-      ArgumentValidator.EnsureArgumentNotNull(fieldValue, "fieldValue");
-      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      ArgumentNullException.ThrowIfNull(fieldOwner);
+      ArgumentNullException.ThrowIfNull(fieldValue);
+      ArgumentNullException.ThrowIfNull(field);
       Register(new ReferenceFieldChangeInfo(fieldOwner, fieldValue, field));
     }
 
     /// <summary>
-    /// Registrates information about field which value was set.
+    /// Registers information about field which value was set.
     /// </summary>
     /// <param name="fieldOwner">Key of entity which field was set.</param>
     /// <param name="fieldValue">Value of field.</param>
@@ -40,10 +40,10 @@ namespace Xtensive.Orm.Internals
     /// <param name="field">Field which value was set.</param>
     public void Register(Key fieldOwner, Key fieldValue, Key auxiliaryEntity, FieldInfo field)
     {
-      ArgumentValidator.EnsureArgumentNotNull(fieldOwner, "fieldOwner");
-      ArgumentValidator.EnsureArgumentNotNull(fieldValue, "fieldValue");
-      ArgumentValidator.EnsureArgumentNotNull(auxiliaryEntity, "auxiliaryEntity");
-      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      ArgumentNullException.ThrowIfNull(fieldOwner);
+      ArgumentNullException.ThrowIfNull(fieldValue);
+      ArgumentNullException.ThrowIfNull(auxiliaryEntity);
+      ArgumentNullException.ThrowIfNull(field);
       Register(new ReferenceFieldChangeInfo(fieldOwner, fieldValue, auxiliaryEntity, field));
     }
 
@@ -59,10 +59,5 @@ namespace Xtensive.Orm.Internals
     public void Clear() => changes.Clear();
     
     private void Register(ReferenceFieldChangeInfo fieldChangeInfo) => changes.Add(fieldChangeInfo);
-
-    public ReferenceFieldsChangesRegistry(Session session)
-      : base(session)
-    {
-    }
   }
 }

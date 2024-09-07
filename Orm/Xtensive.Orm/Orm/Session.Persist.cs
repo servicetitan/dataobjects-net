@@ -26,7 +26,7 @@ namespace Xtensive.Orm
 
     internal bool DisableAutoSaveChanges { get { return disableAutoSaveChanges; } }
     internal NonPairedReferenceChangesRegistry NonPairedReferencesRegistry;
-    internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry { get; private set; }
+    internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry = new();
 
     /// <summary>
     /// Saves all modified instances immediately to the database.
