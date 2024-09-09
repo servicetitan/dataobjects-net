@@ -212,8 +212,7 @@ namespace Xtensive.Orm.Upgrade.Internals
     private void CreateGeneratorTable(Schema schema, StorageSequenceInfo sequenceInfo, string name)
     {
       var sequenceTable = schema.CreateTable(name);
-      var idColumn = sequenceTable.CreateColumn(WellKnown.GeneratorColumnName,
-        (SqlValueType) sequenceInfo.Type.NativeType);
+      var idColumn = sequenceTable.CreateColumn(WellKnown.GeneratorColumnName, sequenceInfo.Type.NativeType);
       idColumn.SequenceDescriptor =
         new SequenceDescriptor(
           idColumn,
