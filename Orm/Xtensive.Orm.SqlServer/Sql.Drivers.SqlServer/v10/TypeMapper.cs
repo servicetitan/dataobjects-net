@@ -34,21 +34,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
     private SqlDbType GetSqlDbType(object v) =>
       v switch {
-        string _ => SqlDbType.NVarChar,
-        char _ => SqlDbType.NChar,
-        byte _ => SqlDbType.TinyInt,
-        short _ => SqlDbType.SmallInt,
-        int _ => SqlDbType.Int,
-        long _ => SqlDbType.BigInt,
-        bool _ => SqlDbType.Bit,
-        DateTime _ => SqlDbType.DateTime2,
-        TimeOnly _ => SqlDbType.Time,
-        DateOnly _ => SqlDbType.Date,
-        float _ => SqlDbType.Float,
-        double _ => SqlDbType.Float,
-        decimal _ => SqlDbType.Decimal,
-        Guid _ => SqlDbType.UniqueIdentifier,
-        byte[] _ => SqlDbType.VarBinary,
+        byte or short or ushort or int or uint or long => SqlDbType.BigInt,
+        string => SqlDbType.NChar,
         null => throw new NotSupportedException($"null is not supported by TVP"),
         _ => throw new NotSupportedException($"Type {v.GetType()} is not supported by TVP")
       };
