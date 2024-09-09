@@ -72,12 +72,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         }
       }
 
+      SqlDbType sqlDbType = SqlDbType.BigInt;
       foreach (var tuple in tuples) {
         if (metaDatas == null) {
           metaDatas = new SqlMetaData[tuple.Count];
           for (int i = 0; i < tuple.Count; ++i) {
-            var fieldName = $"Field{i}";
-            var sqlDbType = GetSqlDbType(tuple.GetValueOrDefault(i));
+            var fieldName = $"Value";
+            sqlDbType = GetSqlDbType(tuple.GetValueOrDefault(i));
             metaDatas[i] = sqlDbType == SqlDbType.NVarChar
               ? new SqlMetaData(fieldName, sqlDbType, maxStringLength)
               : new SqlMetaData(fieldName, sqlDbType);
@@ -92,6 +93,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         records.Add(record);
       }
       sqlParameter.Value = records;
+      sqlParameter.TypeName = sqlDbType == SqlDbType.BigInt ? "_DO_LongList" : "_DO_StringList";
     }
   }
 }

@@ -30,9 +30,16 @@ namespace Xtensive.Orm.Providers
       TemporaryTableDescriptor tableDescriptor = null;
       QueryParameterBinding extraBinding = null;
       var algorithm = provider.Algorithm;
-      if (!temporaryTablesSupported
-          || algorithm == IncludeAlgorithm.Auto && tableValuedParametersSupported) {
+      if (!temporaryTablesSupported) {
         algorithm = IncludeAlgorithm.ComplexCondition;
+      }
+      else if (algorithm == IncludeAlgorithm.Auto && tableValuedParametersSupported) {
+        if (provider.FilteredColumnsExtractionTransform.Descriptor.Count == 1) {
+          var fieldType = provider.FilteredColumnsExtractionTransform.Descriptor[0];
+          if (fieldType == typeof(long) || fieldType == typeof(int) || fieldType == typeof(string)) {
+            algorithm = IncludeAlgorithm.ComplexCondition;
+          }
+        }
       }
 
       switch (algorithm) {

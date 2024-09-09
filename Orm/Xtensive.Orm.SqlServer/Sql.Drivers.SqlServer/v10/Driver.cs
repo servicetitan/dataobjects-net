@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
@@ -36,6 +37,16 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     protected override Info.ServerInfoProvider CreateServerInfoProvider()
     {
       return new ServerInfoProvider(this);
+    }
+
+    public override async Task CreateTypesIfNotExistAsync()
+    {
+      using var conn = CreateConnection();
+      using var cmd = conn.CreateCommand("""
+        IF NOT EXISTS(SELECT 1 FROM sys.types WHERE name = '_DO_LongList') CREATE TYPE [_DO_LongList] AS TABLE ([Value] BIGINT NOT NULL PRIMARY KEY);
+        IF NOT EXISTS(SELECT 1 FROM sys.types WHERE name = '_DO_StringList') CREATE TYPE [_DO_StringList] AS TABLE ([Value] NVARCHAR(256) NOT NULL PRIMARY KEY);
+        """);
+      await cmd.ExecuteNonQueryAsync();
     }
 
     // As far as SqlGeometry and SqlGeography have no support in .Net Standard

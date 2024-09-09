@@ -373,6 +373,8 @@ namespace Xtensive.Sql
     {
     }
 
+    public virtual Task CreateTypesIfNotExistAsync() => Task.CompletedTask;
+
     #region Private / internal methods
 
     internal void Initialize(SqlDriverFactory creator, ConnectionInfo creatorConnectionInfo)

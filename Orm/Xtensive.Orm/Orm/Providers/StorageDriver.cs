@@ -220,6 +220,8 @@ namespace Xtensive.Orm.Providers
 
     private static Func<IDbConnectionAccessor> CreateNewAccessor<T>() where T : IDbConnectionAccessor => Traits<T>.NewAccessor;
 
+    internal Task CreateTypesIfNotExistAsync() => underlyingDriver.CreateTypesIfNotExistAsync();
+
     // Constructors
 
     public static StorageDriver Create(SqlDriverFactory driverFactory, DomainConfiguration configuration)
