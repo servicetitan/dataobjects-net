@@ -1290,13 +1290,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     #region Column creation methods
 
     protected static void CreateOidColumn(Table t) =>
-      t.CreateColumn("oid", new SqlValueType(SqlType.Int64));
+      t.CreateColumn("oid", SqlValueType.Int64);
 
     protected static void CreateInt2Column(Table t, string name) =>
-      t.CreateColumn(name, new SqlValueType(SqlType.Int16));
+      t.CreateColumn(name, SqlValueType.Int16);
 
     protected static void CreateInt4Column(Table t, string name) =>
-      t.CreateColumn(name, new SqlValueType(SqlType.Int32));
+      t.CreateColumn(name, SqlValueType.Int32);
 
     protected static void CreateChar1Column(Table t, string name) =>
       t.CreateColumn(name, new SqlValueType(SqlType.Char, 1));
@@ -1305,7 +1305,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       t.CreateColumn(name, new SqlValueType(SqlType.VarChar));
 
     protected static void CreateBoolColumn(Table t, string name) =>
-      t.CreateColumn(name, new SqlValueType(SqlType.Boolean));
+      t.CreateColumn(name, SqlValueType.Boolean);
 
     #endregion
 

@@ -17,6 +17,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal class TypeMapper : Sql.TypeMapper
   {
+    private static readonly SqlValueType
+      Decimal20Type = new(SqlType.Decimal, 20, 0),
+      VarChar32Type = new(SqlType.VarChar, 32),
+      IntervalType = new(SqlType.Interval);
+
     public override bool IsParameterCastRequired(Type type)
     {
       switch (Type.GetTypeCode(type)) {
@@ -151,40 +156,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       base.BindDateTimeOffset(parameter, value);
     }
 
-    public override SqlValueType MapByte(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int16);
-    }
- 
-    public override SqlValueType MapSByte(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int16);
-    }
-
-    public override SqlValueType MapUShort(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int32);
-    }
-
-    public override SqlValueType MapUInt(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int64);
-    }
-
-    public override SqlValueType MapULong(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Decimal, 20, 0);
-    }
-
-    public override SqlValueType MapGuid(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.VarChar, 32);
-    }
-
-    public override SqlValueType MapTimeSpan(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Interval);
-    }
+    public override SqlValueType MapByte(int? length, int? precision, int? scale) => SqlValueType.Int16;
+    public override SqlValueType MapSByte(int? length, int? precision, int? scale) => SqlValueType.Int16;
+    public override SqlValueType MapUShort(int? length, int? precision, int? scale) => SqlValueType.Int32;
+    public override SqlValueType MapUInt(int? length, int? precision, int? scale) => SqlValueType.Int64;
+    public override SqlValueType MapULong(int? length, int? precision, int? scale) => Decimal20Type;
+    public override SqlValueType MapGuid(int? length, int? precision, int? scale) => VarChar32Type;
+    public override SqlValueType MapTimeSpan(int? length, int? precision, int? scale) => IntervalType;
 
     public override byte ReadByte(DbDataReader reader, int index)
     {
