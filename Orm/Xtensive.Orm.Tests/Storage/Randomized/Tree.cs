@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     /// <inheritdoc/>
     public IEnumerator<TreeNode> GetEnumerator()
     {
-      return EnumerableUtils.One(Root).Flatten(node => node.Children, null, true).GetEnumerator();
+      return new[] { Root }.Flatten(node => node.Children, null, true).GetEnumerator();
     }
 
     /// <inheritdoc/>

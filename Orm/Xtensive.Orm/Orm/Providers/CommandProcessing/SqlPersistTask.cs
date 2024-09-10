@@ -58,13 +58,13 @@ namespace Xtensive.Orm.Providers
 
     public SqlPersistTask(PersistRequest request, Tuple tuple = null)
     {
-      RequestSequence = EnumerableUtils.One(request);
+      RequestSequence = [request];
       Tuple = tuple;
     }
 
     public SqlPersistTask(PersistRequest request, IReadOnlyList<Tuple> tuples)
     {
-      RequestSequence = EnumerableUtils.One(request);
+      RequestSequence = [request];
       Tuples = tuples;
     }
 

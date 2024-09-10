@@ -318,7 +318,7 @@ namespace Xtensive.Orm.Rse.Transformation
       var newSource = VisitCompilable(provider.Source);
       var currentMapping = mappings[provider.Source];
       var rowNumberColumn = provider.Header.Columns.Last();
-      mappings[provider] = Merge(currentMapping, EnumerableUtils.One(rowNumberColumn.Index));
+      mappings[provider] = Merge(currentMapping, [rowNumberColumn.Index]);
       return newSource == provider.Source
         ? provider
         : new RowNumberProvider(newSource, rowNumberColumn.Name);

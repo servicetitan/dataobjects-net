@@ -429,7 +429,7 @@ namespace Xtensive.Core
       using var enumerator = source.GetEnumerator();
       while (currentCount < firstFastCount && enumerator.MoveNext()) {
         currentCount++;
-        yield return EnumerableUtils.One(enumerator.Current);
+        yield return [enumerator.Current];
       }
       while (enumerator.MoveNext()) {
         currentCount = 0;
