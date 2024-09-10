@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
       var connection2 = new NodeConnection<int, string>(node2, node2, "ConnectionItem");
       connection2.BindToNodes();
 
-      var result = TopologicalSorter.SortToList([node1], out var removedEdges1);
+      var result = TopologicalSorter.SortToList((IEnumerable<Node<int, string>>)[node1], out var removedEdges1);
       Assert.AreEqual(1, result.Count);
       Assert.AreEqual(node1.Item, result[0]);
       Assert.AreEqual(1, removedEdges1.Count);
