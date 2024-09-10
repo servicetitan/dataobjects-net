@@ -42,6 +42,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     public override async Task CreateTypesIfNotExistAsync()
     {
       using var conn = CreateConnection();
+      await conn.OpenAsync(default);
       using var cmd = conn.CreateCommand("""
         IF NOT EXISTS(SELECT 1 FROM sys.types WHERE name = '_DO_LongList') CREATE TYPE [_DO_LongList] AS TABLE ([Value] BIGINT NOT NULL PRIMARY KEY);
         IF NOT EXISTS(SELECT 1 FROM sys.types WHERE name = '_DO_StringList') CREATE TYPE [_DO_StringList] AS TABLE ([Value] NVARCHAR(256) NOT NULL PRIMARY KEY);

@@ -1515,6 +1515,12 @@ namespace Xtensive.Sql
       return new SqlDynamicFilter(id, expressions);
     }
 
+    public static SqlTvpDynamicFilter TvpDynamicFilter(object id, IReadOnlyList<SqlExpression> expressions)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(id, "id");
+      return new(id, expressions);
+    }
+
     public static SqlContainer Container(object value)
     {
       return new SqlContainer(value);

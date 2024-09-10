@@ -34,8 +34,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
     private SqlDbType GetSqlDbType(object v) =>
       v switch {
-        byte or short or ushort or int or uint or long => SqlDbType.BigInt,
-        string => SqlDbType.NChar,
+        byte or short or ushort or int or uint or long or decimal => SqlDbType.BigInt,
+        string => SqlDbType.NVarChar,
         null => throw new NotSupportedException($"null is not supported by TVP"),
         _ => throw new NotSupportedException($"Type {v.GetType()} is not supported by TVP")
       };
@@ -74,7 +74,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
         SqlDataRecord record = new(metaDatas);
         for (int i = 0; i < tuple.Count; ++i) {
-          var fieldValue = tuple.GetValueOrDefault(i);
+          var fieldValue = tuple.GetValueOrDefault(i) switch {
+            int n => (long) n,
+            decimal d => (long) d,
+            var o => o
+          };
           record.SetValue(i, fieldValue);
         }
         records.Add(record);

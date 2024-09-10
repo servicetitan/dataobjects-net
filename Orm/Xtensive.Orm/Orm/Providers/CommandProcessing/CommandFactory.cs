@@ -25,7 +25,6 @@ namespace Xtensive.Orm.Providers
     private const int LobBlockSize = ushort.MaxValue;
 
     private readonly bool emptyStringIsNull;
-    private readonly bool tableValuedParametersSupported;
 
     public StorageDriver Driver { get; private set; }
 
@@ -145,17 +144,21 @@ namespace Xtensive.Orm.Providers
             continue;
           case QueryParameterBindingType.RowFilter:
             var filterData = (List<Tuple>) parameterValue;
-            var rowTypeMapping = ((QueryRowFilterParameterBinding) binding).RowTypeMapping;
+            var rowFilterParameterBinding = (QueryRowFilterParameterBinding) binding;
+            var rowTypeMapping = rowFilterParameterBinding.RowTypeMapping;
             if (filterData == null) {
               configuration.AlternativeBranches.Add(binding);
             }
-            else if (tableValuedParametersSupported) {
+            else if (rowFilterParameterBinding.TableValuedParameter) {
               string paramName = GetParameterName(parameterNamePrefix, ref parameterIndex);
-              configuration.PlaceholderValues.Add(binding, Driver.BuildParameterReference(paramName));
+              var parameterReference = Driver.BuildParameterReference(paramName);
+              configuration.PlaceholderValues.Add(binding, parameterReference);
               var parameter = Connection.CreateParameter();
               parameter.ParameterName = paramName;
               rowTypeMapping[0].BindValue(parameter, parameterValue);
               result.Parameters.Add(parameter);
+              var filterValues = new string[1][] { [parameterReference] };
+              configuration.DynamicFilterValues.Add(binding, filterValues);
             }
             else {
               var commonPrefix = GetParameterName(parameterNamePrefix, ref parameterIndex);
@@ -296,16 +299,14 @@ namespace Xtensive.Orm.Providers
 
     public CommandFactory(StorageDriver driver, Session session, SqlConnection connection)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
-
+      ArgumentNullException.ThrowIfNull(driver);
+      ArgumentNullException.ThrowIfNull(session);
+      ArgumentNullException.ThrowIfNull(connection);
       Driver = driver;
       Session = session;
       Connection = connection;
 
       emptyStringIsNull = driver.ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
-      tableValuedParametersSupported = driver.ProviderInfo.Supports(ProviderFeatures.TableValuedParameters);
     }
   }
 }

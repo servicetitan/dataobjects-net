@@ -2752,32 +2752,40 @@ namespace Xtensive.Sql.Compiler
       filteredExpression.AcceptVisitor(this);
       AppendTranslated(SqlNodeType.In);
       _ = context.Output.Append(translator.RowBegin);
-      using (context.EnterCycleBodyScope(node.Id, delimiter)) {
-        if (isMulticolumn) {
-          _ = context.Output.Append(translator.RowBegin);
-          for (int i = 0; i < numberOfExpressions; i++) {
-            context.Output.AppendCycleItem(i);
-            if (i != numberOfExpressions - 1) {
-              AppendRowItemDelimiter();
+
+      if (node is SqlTvpDynamicFilter) {
+        _ = context.Output.Append("SELECT Value FROM ");
+        context.Output.AppendPlaceholderWithId(node.Id);
+      }
+      else {
+        using (context.EnterCycleBodyScope(node.Id, delimiter)) {
+          if (isMulticolumn) {
+            _ = context.Output.Append(translator.RowBegin);
+            for (int i = 0; i < numberOfExpressions; i++) {
+              context.Output.AppendCycleItem(i);
+              if (i != numberOfExpressions - 1) {
+                AppendRowItemDelimiter();
+              }
             }
+            _ = context.Output.Append(translator.RowEnd);
           }
-          _ = context.Output.Append(translator.RowEnd);
+          else {
+            context.Output.AppendCycleItem(0);
+          }
         }
-        else {
-          context.Output.AppendCycleItem(0);
+        using (context.EnterCycleEmptyCaseScope(node.Id)) {
+          var nullExpression = isMulticolumn
+            ? SqlDml.Row(Enumerable.Repeat(SqlDml.Null, numberOfExpressions).ToArray())
+            : (SqlExpression) SqlDml.Null;
+          nullExpression.AcceptVisitor(this);
+          // Append "and false" to avoid result beeing "undefined" rather than "false"
+          _ = context.Output.Append(translator.ClosingParenthesis);
+          AppendTranslated(SqlNodeType.And);
+          _ = context.Output.Append(translator.OpeningParenthesis);
+          WriteFalseExpression();
         }
       }
-      using (context.EnterCycleEmptyCaseScope(node.Id)) {
-        var nullExpression = isMulticolumn
-          ? SqlDml.Row(Enumerable.Repeat(SqlDml.Null, numberOfExpressions).ToArray())
-          : (SqlExpression) SqlDml.Null;
-        nullExpression.AcceptVisitor(this);
-        // Append "and false" to avoid result beeing "undefined" rather than "false"
-        _ = context.Output.Append(translator.ClosingParenthesis);
-        AppendTranslated(SqlNodeType.And);
-        _ = context.Output.Append(translator.OpeningParenthesis);
-        WriteFalseExpression();
-      }
+
       _ = context.Output.Append(translator.RowEnd);
       _ = context.Output.Append(translator.ClosingParenthesis);
     }
