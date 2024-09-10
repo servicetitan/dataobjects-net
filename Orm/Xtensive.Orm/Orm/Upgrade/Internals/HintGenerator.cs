@@ -351,10 +351,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void GenerateCleanupByForeignKeyHints(StoredTypeInfo removedType, CleanupInfo cleanupInfo)
     {
-      var removedTypeAndAncestors = new HashSet<StoredTypeInfo>(removedType.AllAncestors.Length + 1);
-      foreach (var t in removedType.AllAncestors.Append(removedType)) {
-        removedTypeAndAncestors.Add(t);
-      }
+      var removedTypeAndAncestors = removedType.AllAncestors.Append(removedType).ToHashSet();
 
       var descendantsToHash = (cleanupInfo & CleanupInfo.ConflictByTable) != 0
         ? removedType.AllDescendants

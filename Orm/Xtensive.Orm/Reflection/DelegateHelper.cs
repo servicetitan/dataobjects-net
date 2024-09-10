@@ -481,7 +481,7 @@ namespace Xtensive.Reflection
       if (returnType == WellKnownTypes.Void || returnType == null) {
         return n == 0 ? ActionTypes[0] : ActionTypes[n].MakeGenericType(parameterTypes);
       }
-      var funcGenericParameters = parameterTypes.Append(returnType);
+      var funcGenericParameters = parameterTypes.Append(returnType).ToArray();
       return FuncTypes[funcGenericParameters.Length - 1].MakeGenericType(funcGenericParameters);
     }
 

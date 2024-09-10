@@ -5,6 +5,7 @@
 // Created:    2008.07.18
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -415,7 +416,7 @@ namespace Xtensive.Core
     {
       ArgumentNullException.ThrowIfNull(source);
       ArgumentNullException.ThrowIfNull(escapedChars);
-      var chars = escapedChars.Append(escape);
+      var chars = escapedChars.Append(escape).ToArray();
       var sb = new ValueStringBuilder(stackalloc char[4096]);
       foreach (var c in source) {
         var found = false;
