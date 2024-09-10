@@ -15,78 +15,75 @@ namespace Xtensive.Sql
   public sealed class SqlValueType
     : IEquatable<SqlValueType>
   {
+    public static readonly SqlValueType
+      Boolean = new(SqlType.Boolean),
+      Char = new(SqlType.VarChar, 1),
+      Int8 = new(SqlType.Int8),
+      UInt8 = new(SqlType.UInt8),
+      Int16 = new(SqlType.Int16),
+      UInt16 = new(SqlType.UInt16),
+      Int32 = new(SqlType.Int32),
+      UInt32 = new(SqlType.UInt32),
+      Int64 = new(SqlType.Int64),
+      UInt64 = new(SqlType.UInt64),
+      Float = new(SqlType.Float),
+      Double = new(SqlType.Double),
+      Decimal = new(SqlType.Decimal),
+      DateTime = new(SqlType.DateTime),
+      Date = new(SqlType.Date),
+      Time = new(SqlType.Time),
+      DateTimeOffset = new(SqlType.DateTimeOffset),
+      Guid = new(SqlType.Guid),
+      Binary = new(SqlType.Binary);
+
     /// <summary>
     /// Gets the <see cref="SqlType"/>.
     /// </summary>
-    public SqlType Type { get; private set; }
+    public SqlType Type { get; }
 
     /// <summary>
     /// Gets the name of the type in case when <see cref="Type"/> has value <see cref="SqlType.Unknown"/>.
     /// </summary>
-    public string TypeName { get; private set; }
+    public string TypeName { get; }
 
     /// <summary>
     /// Gets or sets the length.
     /// </summary>
-    public int? Length { get; private set; }
+    public int? Length { get; }
 
     /// <summary>
     /// Gets the scale.
     /// </summary>
-    public int? Scale { get; private set; }
+    public int? Scale { get; }
 
     /// <summary>
     /// Gets the precision.
     /// </summary>
-    public int? Precision { get; private set; }
+    public int? Precision { get; }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = Type.GetHashCode();
-        result = 29*result + Length.GetHashCode();
-        result = 29*result + Scale.GetHashCode();
-        result = 29*result + Precision.GetHashCode();
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(Type, Length, Scale, Precision);
 
     /// <inheritdoc/>
-    public bool Equals(SqlValueType other)
-    {
-      if (other is null)
-        return false;
-      return
-        other.Type==Type &&
-        other.TypeName==TypeName &&
-        other.Length==Length &&
-        other.Precision==Precision &&
-        other.Scale==Scale;
-    }
-    
+    public bool Equals(SqlValueType other) =>
+      other != null &&
+      other.Type == Type &&
+      other.TypeName == TypeName &&
+      other.Length == Length &&
+      other.Precision == Precision &&
+      other.Scale == Scale;
+
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      return Equals(obj as SqlValueType);
-    }
-    
+    public override bool Equals(object obj) => obj is SqlValueType other && Equals(other);
+
     /// <summary>
     /// Implements the operator ==.
     /// </summary>
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator ==(SqlValueType left, SqlValueType right)
-    {
-      if (ReferenceEquals(left, right))
-        return true;
-      if (left is null)
-        return false;
-      if (right is null)
-        return false;
-      return left.Equals(right);
-    }
+    public static bool operator ==(SqlValueType left, SqlValueType right) =>
+      ReferenceEquals(left, right) || left?.Equals(right) == true;
 
     /// <summary>
     /// Implements the operator !=.
@@ -94,10 +91,7 @@ namespace Xtensive.Sql
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator !=(SqlValueType left, SqlValueType right)
-    {
-      return !(left==right);
-    }
+    public static bool operator !=(SqlValueType left, SqlValueType right) => !(left == right);
 
     public static bool IsNumeric(SqlValueType valueType)
     {

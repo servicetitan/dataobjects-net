@@ -72,7 +72,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
     protected static SqlExpression DateTimeOffsetTimeOfDay(SqlExpression dateTimeOffset) =>
       DateDiffBigNanosecond(
         SqlDml.Native(ZeroTime),
-        SqlDml.Cast(dateTimeOffset, new SqlValueType("time")));
+        SqlDml.Cast(dateTimeOffset, SqlTimeType));
 
     protected static SqlUserFunctionCall DateDiffBigNanosecond(SqlExpression date1, SqlExpression date2) =>
       SqlDml.FunctionCall("DATEDIFF_BIG", SqlDml.Native(NanosecondPart), date1, date2);

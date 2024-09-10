@@ -15,6 +15,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
   internal class TypeMapper : Sql.TypeMapper
   {
+    private static readonly SqlValueType
+      Decimal20Type = new(SqlType.Decimal, 20, 0);
+
     private static readonly SqlDecimal MinDecimal = new SqlDecimal(decimal.MinValue);
     private static readonly SqlDecimal MaxDecimal = new SqlDecimal(decimal.MaxValue);
     private static readonly int NVarCharLength = 4000;
@@ -92,25 +95,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       parameter.Value = value != null ? (TimeOnly) value : DBNull.Value;
     }
 
-    public override SqlValueType MapSByte(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int16);
-    }
-
-    public override SqlValueType MapUShort(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int32);
-    }
-
-    public override SqlValueType MapUInt(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int64);
-    }
-
-    public override SqlValueType MapULong(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Decimal, 20, 0);
-    }
+    public override SqlValueType MapSByte(int? length, int? precision, int? scale) => SqlValueType.Int16;
+    public override SqlValueType MapUShort(int? length, int? precision, int? scale) => SqlValueType.Int32;
+    public override SqlValueType MapUInt(int? length, int? precision, int? scale) => SqlValueType.Int64;
+    public override SqlValueType MapULong(int? length, int? precision, int? scale) => Decimal20Type;
 
     public override decimal ReadDecimal(DbDataReader reader, int index)
     {
