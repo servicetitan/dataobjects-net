@@ -13,7 +13,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v12_0
     {
       base.BuildPgCatalogSchema(schema);
       var defaultValuesTable = schema.Tables["pg_attrdef"];
-      defaultValuesTable.CreateColumn("adbin", new SqlValueType(SqlType.Binary));
+      defaultValuesTable.CreateColumn("adbin", SqlValueType.Binary);
     }
 
     /// <inheritdoc/>

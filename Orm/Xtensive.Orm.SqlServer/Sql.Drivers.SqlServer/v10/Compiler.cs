@@ -14,8 +14,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     protected const string OffsetPart = "TZoffset";
     protected const string UtcTimeZone = "+00:00";
     protected const string ZeroTime = "'00:00:00.0000000'";
-    protected const string SqlDateTypeName = "date";
-    protected const string SqlDateTime2TypeName = "datetime2";
+
+    protected static readonly SqlValueType
+      SqlDateType = new("date"),
+      SqlDateTime2Type = new("datetime2"),
+      SqlTimeType = new("time");
 
     /// <summary>
     /// Creates <see cref="SqlUserFunctionCall"/> expression that adds given nanoseconds to
@@ -42,8 +45,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     /// <inheritdoc/>
     protected override SqlExpression DateTimeTruncate(SqlExpression date) =>
       SqlDml.Cast(
-        SqlDml.Cast(date, new SqlValueType(SqlDateTypeName)),
-        new SqlValueType(SqlDateTime2TypeName));
+        SqlDml.Cast(date, SqlDateType),
+        SqlDateTime2Type);
 
     /// <inheritdoc/>
     protected override SqlExpression  DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
@@ -173,8 +176,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
     private static SqlExpression DateTimeOffsetTruncate(SqlExpression dateTimeOffset) =>
       SqlDml.Cast(
-        SqlDml.Cast(dateTimeOffset, new SqlValueType(SqlDateTypeName)),
-        new SqlValueType(SqlDateTime2TypeName));
+        SqlDml.Cast(dateTimeOffset, SqlDateType),
+        SqlDateTime2Type);
 
     private static SqlExpression DateTimeOffsetTruncateOffset(SqlExpression dateTimeOffset) =>
       SqlDml.Cast(dateTimeOffset, SqlType.DateTime);
@@ -187,7 +190,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     private static SqlExpression DateTimeOffsetTimeOfDay(SqlExpression dateTimeOffset) =>
       DateDiffMillisecond(
         SqlDml.Native(ZeroTime),
-        SqlDml.Cast(dateTimeOffset, new SqlValueType("time")))
+        SqlDml.Cast(dateTimeOffset, SqlTimeType))
       * NanosecondsPerMillisecond;
 
     private static SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression dateTimeOffset) =>
@@ -240,5 +243,3 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     }
   }
 }
-
-

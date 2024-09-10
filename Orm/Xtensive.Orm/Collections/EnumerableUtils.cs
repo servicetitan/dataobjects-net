@@ -17,16 +17,6 @@ namespace Xtensive.Collections
   public static class EnumerableUtils
   {
     /// <summary>
-    /// Gets the enumerable with one element.
-    /// </summary>
-    /// <typeparam name="TItem">The type of enumerated item.</typeparam>
-    /// <returns>Sequence with value inside.</returns>
-    public static IEnumerable<TItem> One<TItem>(TItem value)
-    {
-      yield return value;
-    }
-
-    /// <summary>
     /// Unfolds the whole sequence from its <paramref name="first"/> item.
     /// If <paramref name="first"/> is <see langword="null" />,
     /// an empty sequence is returned.

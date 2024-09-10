@@ -7,7 +7,6 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.IO;
 using System.Linq;
 using Xtensive.Sql.Info;
 
@@ -266,49 +265,28 @@ namespace Xtensive.Sql
 
     #region MapXxx methods
 
-    public virtual SqlValueType MapBoolean(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.Boolean);
+    public virtual SqlValueType MapBoolean(int? length, int? precision, int? scale) => SqlValueType.Boolean;
 
-    public virtual SqlValueType MapChar(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.VarChar, 1);
+    public virtual SqlValueType MapChar(int? length, int? precision, int? scale) => SqlValueType.Char;
 
     public virtual SqlValueType MapString(int? length, int? precision, int? scale) =>
       ChooseStreamType(SqlType.VarChar, SqlType.VarCharMax, length, VarCharMaxLength);
 
-    public virtual SqlValueType MapByte(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.UInt8);
-
-    public virtual SqlValueType MapSByte(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.Int8);
-
-    public virtual SqlValueType MapShort(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.Int16);
-
-    public virtual SqlValueType MapUShort(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.UInt16);
-
-    public virtual SqlValueType MapInt(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.Int32);
-
-    public virtual SqlValueType MapUInt(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.UInt32);
-
-    public virtual SqlValueType MapLong(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.Int64);
-
-    public virtual SqlValueType MapULong(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.UInt64);
-
-    public virtual SqlValueType MapFloat(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.Float);
-
-    public virtual SqlValueType MapDouble(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.Double);
+    public virtual SqlValueType MapByte(int? length, int? precision, int? scale) => SqlValueType.UInt8;
+    public virtual SqlValueType MapSByte(int? length, int? precision, int? scale) => SqlValueType.Int8;
+    public virtual SqlValueType MapShort(int? length, int? precision, int? scale) => SqlValueType.Int16;
+    public virtual SqlValueType MapUShort(int? length, int? precision, int? scale) => SqlValueType.UInt16;
+    public virtual SqlValueType MapInt(int? length, int? precision, int? scale) => SqlValueType.Int32;
+    public virtual SqlValueType MapUInt(int? length, int? precision, int? scale) => SqlValueType.UInt32;
+    public virtual SqlValueType MapLong(int? length, int? precision, int? scale) => SqlValueType.Int64;
+    public virtual SqlValueType MapULong(int? length, int? precision, int? scale) => SqlValueType.UInt64;
+    public virtual SqlValueType MapFloat(int? length, int? precision, int? scale) => SqlValueType.Float;
+    public virtual SqlValueType MapDouble(int? length, int? precision, int? scale) => SqlValueType.Double;
 
     public virtual SqlValueType MapDecimal(int? length, int? precision, int? scale)
     {
       if (MaxDecimalPrecision == null)
-        return new SqlValueType(SqlType.Decimal);
+        return SqlValueType.Decimal;
       if (precision == null) {
         var resultPrecision = Math.Min(DecimalPrecisionLimit, MaxDecimalPrecision.Value);
         var resultScale = resultPrecision / 2;
@@ -321,23 +299,12 @@ namespace Xtensive.Sql
       return new SqlValueType(SqlType.Decimal, null, null, precision, scale);
     }
 
-    public virtual SqlValueType MapDateTime(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.DateTime);
-
-    public virtual SqlValueType MapDateOnly(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.Date);
-
-    public virtual SqlValueType MapTimeOnly(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.Time);
-
-    public virtual SqlValueType MapDateTimeOffset(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.DateTimeOffset);
-
-    public virtual SqlValueType MapTimeSpan(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.Int64);
-
-    public virtual SqlValueType MapGuid(int? length, int? precision, int? scale) =>
-      new SqlValueType(SqlType.Guid);
+    public virtual SqlValueType MapDateTime(int? length, int? precision, int? scale) => SqlValueType.DateTime;
+    public virtual SqlValueType MapDateOnly(int? length, int? precision, int? scale) => SqlValueType.Date;
+    public virtual SqlValueType MapTimeOnly(int? length, int? precision, int? scale) => SqlValueType.Time;
+    public virtual SqlValueType MapDateTimeOffset(int? length, int? precision, int? scale) => SqlValueType.DateTimeOffset;
+    public virtual SqlValueType MapTimeSpan(int? length, int? precision, int? scale) => SqlValueType.Int64;
+    public virtual SqlValueType MapGuid(int? length, int? precision, int? scale) => SqlValueType.Guid;
 
     public virtual SqlValueType MapByteArray(int? length, int? precision, int? scale) =>
       ChooseStreamType(SqlType.VarBinary, SqlType.VarBinaryMax, length, VarBinaryMaxLength);

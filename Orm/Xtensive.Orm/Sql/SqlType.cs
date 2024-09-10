@@ -10,9 +10,9 @@ namespace Xtensive.Sql
   /// Enumerates supported SQL column types.
   /// </summary>
   [Serializable]
-  public struct SqlType : IEquatable<SqlType>
+  public struct SqlType(string name) : IEquatable<SqlType>
   {
-    public readonly string Name;
+    public readonly string Name = name;
 
     /// <summary>
     /// An unknown type.
@@ -182,10 +182,7 @@ namespace Xtensive.Sql
     /// <param name="left">The first argument.</param>
     /// <param name="right">The second argument.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator ==(SqlType left, SqlType right)
-    {
-      return left.Equals(right);
-    }
+    public static bool operator ==(SqlType left, SqlType right) => left.Equals(right);
 
     /// <summary>
     /// Implements the inequality operator.
@@ -193,31 +190,15 @@ namespace Xtensive.Sql
     /// <param name="left">The first argument.</param>
     /// <param name="right">The second argument.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator !=(SqlType left, SqlType right)
-    {
-      return !(left==right);
-    }
+    public static bool operator !=(SqlType left, SqlType right) => !(left==right);
 
-    public bool Equals(SqlType other)
-    {
-      return string.Equals(Name, other.Name, StringComparison.Ordinal);
-    }
+    public bool Equals(SqlType other) => string.Equals(Name, other.Name, StringComparison.Ordinal);
 
     public override bool Equals(object obj) =>
       obj is SqlType other && Equals(other);
 
-    public override int GetHashCode()
-    {
-      return (Name!=null ? Name.GetHashCode() : 0);
-    }
+    public override int GetHashCode() => Name?.GetHashCode() ?? 0;
 
     #endregion
-
-    // Constructors
-
-    public SqlType(string name)
-    {
-      Name = name;
-    }
   }
 }
