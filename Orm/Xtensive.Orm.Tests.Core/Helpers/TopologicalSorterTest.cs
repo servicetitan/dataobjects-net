@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
       Assert.AreEqual(1, removedEdges1.Count);
       Assert.AreEqual(connection1, removedEdges1[0]);
 
-      result = TopologicalSorter.Sort([node2], out var removedEdges2).ToList(1);
+      result = TopologicalSorter.Sort((IEnumerable<Node<int, string>>) [node2], out var removedEdges2).ToList(1);
       Assert.AreEqual(1, result.Count);
       Assert.AreEqual(node2.Item, result[0]);
       Assert.AreEqual(1, removedEdges2.Count);
