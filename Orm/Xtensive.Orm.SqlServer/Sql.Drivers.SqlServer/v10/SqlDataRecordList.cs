@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       v switch {
         byte or short or ushort or int or uint or long or decimal or Enum => SqlDbType.BigInt,
         string => SqlDbType.NVarChar,
-        null => throw new NotSupportedException($"null is not supported by TVP"),
+        null => throw new NotSupportedException("null is not supported by TVP"),
         _ => throw new NotSupportedException($"Type {v.GetType()} is not supported by TVP")
       };
 
