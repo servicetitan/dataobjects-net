@@ -32,65 +32,17 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       return base.ReadDateTime(reader, index);
     }
 
-    private SqlDbType GetSqlDbType(object v) =>
-      v switch {
-        byte or short or ushort or int or uint or long or decimal or Enum => SqlDbType.BigInt,
-        string => SqlDbType.NVarChar,
-        null => throw new NotSupportedException($"null is not supported by TVP"),
-        _ => throw new NotSupportedException($"Type {v.GetType()} is not supported by TVP")
-      };
-
     public override void BindTable(DbParameter parameter, object value)
     {
       SqlParameter sqlParameter = (SqlParameter) parameter;
       sqlParameter.SqlDbType = SqlDbType.Structured;
       sqlParameter.TypeName = sqlParameter.ParameterName + "_tvp";
 
-      SqlMetaData[] metaDatas = null;
-      List<SqlDataRecord> records = null;
       var tuples = (List<Tuple>) value;
-      int maxStringLength = 20;
-
-      foreach (var tuple in tuples) {
-        for (int i = 0; i < tuple.Count; ++i) {
-          if (tuple.GetValueOrDefault(i) is string s) {
-            maxStringLength = Math.Max(maxStringLength, s.Length);
-          }
-        }
-      }
-
-      SqlDbType sqlDbType = SqlDbType.BigInt;
-      foreach (var tuple in tuples) {
-        if (metaDatas == null) {
-          records = new();
-          metaDatas = new SqlMetaData[tuple.Count];
-          for (int i = 0; i < tuple.Count; ++i) {
-            var fieldName = "Value";
-            sqlDbType = GetSqlDbType(tuple.GetValueOrDefault(i));
-            metaDatas[i] = sqlDbType == SqlDbType.NVarChar
-              ? new SqlMetaData(fieldName, sqlDbType, maxStringLength)
-              : new SqlMetaData(fieldName, sqlDbType);
-          }
-        }
-
-        SqlDataRecord record = new(metaDatas);
-        for (int i = 0; i < tuple.Count; ++i) {
-          var fieldValue = tuple.GetValueOrDefault(i) switch {
-            byte n => (long) n,
-            short n => (long) n,
-            ushort n => (long) n,
-            int n => (long) n,
-            uint n => (long) n,
-            decimal d => (long) d,
-            Enum e => Convert.ToInt64(e),
-            var o => o
-          };
-          record.SetValue(i, fieldValue);
-        }
-        records.Add(record);
-      }
+      SqlDataRecordList records = tuples.Count == 0 ? null : new(tuples);
       sqlParameter.Value = records;
-      sqlParameter.TypeName = sqlDbType == SqlDbType.BigInt ? "_DO_LongList" : "_DO_StringList";
+      sqlParameter.TypeName = records?.SqlDbType == SqlDbType.BigInt ? "_DO_LongList" : "_DO_StringList";
+
     }
   }
 }
