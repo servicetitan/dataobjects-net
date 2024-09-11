@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
     private SqlDbType GetSqlDbType(object v) =>
       v switch {
-        byte or short or ushort or int or uint or long or decimal => SqlDbType.BigInt,
+        byte or short or ushort or int or uint or long or decimal or Enum => SqlDbType.BigInt,
         string => SqlDbType.NVarChar,
         null => throw new NotSupportedException($"null is not supported by TVP"),
         _ => throw new NotSupportedException($"Type {v.GetType()} is not supported by TVP")
@@ -82,6 +82,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
             int n => (long) n,
             uint n => (long) n,
             decimal d => (long) d,
+            Enum e => Convert.ToInt64(e),
             var o => o
           };
           record.SetValue(i, fieldValue);
