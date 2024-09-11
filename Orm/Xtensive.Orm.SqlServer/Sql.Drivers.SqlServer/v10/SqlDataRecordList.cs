@@ -26,27 +26,17 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       : base(tuples.Count)
     {
       SqlMetaData[] metaDatas = null;
-
-      int maxStringLength = 20;
-
-      foreach (var tuple in tuples) {
-        if (tuple.GetValueOrDefault(0) is string s) {
-          maxStringLength = Math.Max(maxStringLength, s.Length);
-        }
-      }
-
       HashSet<object> addedElements = new();
 
       foreach (var tuple in tuples) {
         if (metaDatas == null) {
-          metaDatas = new SqlMetaData[tuple.Count];
-          for (int i = 0; i < tuple.Count; ++i) {
-            var fieldName = "Value";
-            SqlDbType = GetSqlDbType(tuple.GetValueOrDefault(i));
-            metaDatas[i] = SqlDbType == SqlDbType.NVarChar
-              ? new SqlMetaData(fieldName, SqlDbType, maxStringLength)
-              : new SqlMetaData(fieldName, SqlDbType);
-          }
+          SqlDbType = GetSqlDbType(tuple.GetValueOrDefault(0));
+          var fieldName = "Value";
+          metaDatas = [
+            SqlDbType == SqlDbType.NVarChar
+              ? new SqlMetaData(fieldName, SqlDbType, tuples.Max(t => (t.GetValueOrDefault(0) as string)?.Length ?? 20))
+              : new SqlMetaData(fieldName, SqlDbType)
+          ];
         }
         
         var valueObj = tuple.GetValueOrDefault(0);
