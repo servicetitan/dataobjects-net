@@ -47,7 +47,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       sqlParameter.TypeName = sqlParameter.ParameterName + "_tvp";
 
       SqlMetaData[] metaDatas = null;
-      List<SqlDataRecord> records = new();
+      List<SqlDataRecord> records = null;
       var tuples = (List<Tuple>) value;
       int maxStringLength = 20;
 
@@ -62,9 +62,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       SqlDbType sqlDbType = SqlDbType.BigInt;
       foreach (var tuple in tuples) {
         if (metaDatas == null) {
+          records = new();
           metaDatas = new SqlMetaData[tuple.Count];
           for (int i = 0; i < tuple.Count; ++i) {
-            var fieldName = $"Value";
+            var fieldName = "Value";
             sqlDbType = GetSqlDbType(tuple.GetValueOrDefault(i));
             metaDatas[i] = sqlDbType == SqlDbType.NVarChar
               ? new SqlMetaData(fieldName, sqlDbType, maxStringLength)
@@ -75,7 +76,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         SqlDataRecord record = new(metaDatas);
         for (int i = 0; i < tuple.Count; ++i) {
           var fieldValue = tuple.GetValueOrDefault(i) switch {
+            byte n => (long) n,
+            short n => (long) n,
+            ushort n => (long) n,
             int n => (long) n,
+            uint n => (long) n,
             decimal d => (long) d,
             var o => o
           };
