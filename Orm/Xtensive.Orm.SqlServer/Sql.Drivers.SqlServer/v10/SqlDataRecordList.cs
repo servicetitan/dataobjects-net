@@ -35,18 +35,19 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       };
 
     public SqlDataRecordList(List<Tuple> tuples)
+      : base(tuples.Count)
     {
       SqlMetaData[] metaDatas = null;
 
       int maxStringLength = 20;
 
       foreach (var tuple in tuples) {
-        for (int i = 0; i < tuple.Count; ++i) {
-          if (tuple.GetValueOrDefault(i) is string s) {
-            maxStringLength = Math.Max(maxStringLength, s.Length);
-          }
+        if (tuple.GetValueOrDefault(0) is string s) {
+          maxStringLength = Math.Max(maxStringLength, s.Length);
         }
       }
+
+      HashSet<object> addedElements = new();
 
       foreach (var tuple in tuples) {
         if (metaDatas == null) {
@@ -59,10 +60,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
               : new SqlMetaData(fieldName, SqlDbType);
           }
         }
-
-        SqlDataRecord record = new(metaDatas);
-        for (int i = 0; i < tuple.Count; ++i) {
-          var fieldValue = tuple.GetValueOrDefault(i) switch {
+        
+        var valueObj = tuple.GetValueOrDefault(0);
+        if (addedElements.Add(valueObj)) {
+          var castValue = valueObj switch {
             byte n => (long) n,
             short n => (long) n,
             ushort n => (long) n,
@@ -72,9 +73,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
             Enum e => Convert.ToInt64(e),
             var o => o
           };
-          record.SetValue(i, fieldValue);
-        }
-        Add(record);
+          SqlDataRecord record = new(metaDatas);
+          record.SetValue(0, castValue);
+          Add(record);
+        }        
       }
     }
   }
