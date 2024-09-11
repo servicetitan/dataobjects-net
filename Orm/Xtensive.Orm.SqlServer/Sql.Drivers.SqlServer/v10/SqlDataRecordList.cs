@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
+using System.Linq;
 using Microsoft.Data.SqlClient.Server;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -11,20 +11,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
   {
     public SqlDbType SqlDbType {  get; set; } = SqlDbType.BigInt;
 
-    public override string ToString()
-    {
-      StringBuilder sb = new();
-      _ = sb.Append('[');
-      for (int i = 0; i < this.Count; i++) {
-        _ = sb.Append(this[i]);
-        if (i < this.Count - 1) {
-          _ = sb.Append(", ");
-        }
-
-      }
-      _ = sb.Append(']');
-      return sb.ToString();
-    }
+    public override string ToString() =>
+      $"[{string.Join(", ", this.Select(o => o.GetValue(0)))}]";
 
     private SqlDbType GetSqlDbType(object v) =>
       v switch {
@@ -34,7 +22,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         _ => throw new NotSupportedException($"Type {v.GetType()} is not supported by TVP")
       };
 
-    public SqlDataRecordList(List<Tuple> tuples)
+    public SqlDataRecordList(IReadOnlyList<Tuple> tuples)
       : base(tuples.Count)
     {
       SqlMetaData[] metaDatas = null;
