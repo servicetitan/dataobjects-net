@@ -17,7 +17,7 @@ namespace Xtensive.Sql.Dml
       ISqlQueryExpression
   {
     private readonly SqlUserColumn asterisk = SqlDml.Column(SqlDml.Asterisk);
-    private readonly SqlColumnCollection columns = new SqlColumnCollection();
+    private readonly SqlColumnCollection columns = new();
     private SqlLockType _lock;
     private SqlColumnCollection groupBy;
     private SqlExpression having;

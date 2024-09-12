@@ -27,29 +27,21 @@ namespace Xtensive.Sql.Dml
     /// the provided <paramref name="alias"/> and then adds it to the end of the <see cref="SqlColumnCollection"/>.
     /// </summary>
     /// <exception cref="ArgumentNullException"><paramref name="alias"/> is null.</exception>
-    public void Add(SqlColumn column, string alias)
-    {
-      ArgumentNullException.ThrowIfNull(alias);
-      Add(SqlDml.ColumnRef(column, alias));
-    }
+    public void Add(SqlColumn column, string alias) => Add(SqlDml.ColumnRef(column, alias));
 
     /// <summary>
     /// Builds a <see cref="SqlColumnRef"/> by the specified <paramref name="expression"/> and
     /// then adds it to the end of the <see cref="SqlColumnCollection"/>.
     /// </summary>
     public void Add(SqlExpression expression) =>
-      Add(expression is SqlColumn column ? column : SqlDml.ColumnRef(SqlDml.Column(expression)));
+      base.Add(expression as SqlColumn ?? SqlDml.ColumnRef(SqlDml.Column(expression)));
 
     /// <summary>
     /// Builds a <see cref="SqlColumnRef"/> by the specified <paramref name="expression"/> and
     /// <paramref name="alias"/>; then adds it to the end of the <see cref="SqlColumnCollection"/>.
     /// </summary>
     /// <exception cref="ArgumentNullException"><paramref name="alias"/> is <see langword="null"/>.</exception>
-    public void Add(SqlExpression expression, string alias)
-    {
-      ArgumentNullException.ThrowIfNull(alias);
-      Add(SqlDml.ColumnRef(SqlDml.Column(expression), alias));
-    }
+    public void Add(SqlExpression expression, string alias) => Add(SqlDml.ColumnRef(SqlDml.Column(expression), alias));
 
     /// <summary>
     /// Builds a <see cref="SqlColumnRef"/> by the specified <paramref name="expression"/> and <paramref name="alias"/>
@@ -58,11 +50,8 @@ namespace Xtensive.Sql.Dml
     /// <exception cref="ArgumentNullException"><paramref name="alias"/> is <see langword="null"/>.</exception>
     /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is less than <c>0</c>.
     /// -or- <paramref name="index"/> is greater than <see cref="Count"/>.</exception>
-    public void Insert(int index, SqlExpression expression, string alias)
-    {
-      ArgumentNullException.ThrowIfNull(alias);
+    public void Insert(int index, SqlExpression expression, string alias) =>
       Insert(index, SqlDml.ColumnRef(SqlDml.Column(expression), alias));
-    }
 
     /// <summary>
     /// Adds <paramref name="columns"/> to the end of the <see cref="SqlColumnCollection"/>.
