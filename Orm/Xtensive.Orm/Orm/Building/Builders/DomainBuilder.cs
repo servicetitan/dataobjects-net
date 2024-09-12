@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Building.Builders
         handlers.SequenceQueryBuilder = new SequenceQueryBuilder(handlers.StorageDriver);
 
         // StorageNodeRegistry
-        handlers.StorageNodeRegistry = new StorageNodeRegistry();
+        handlers.StorageNodeRegistry = new();
 
         // DomainHandler
         handlers.DomainHandler = handlers.Create<DomainHandler>();
