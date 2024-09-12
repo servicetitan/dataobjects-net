@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     public DomainHandler DomainHandler { get; internal set; }
 
-    internal StorageNodeRegistry StorageNodeRegistry { get; set; }
+    internal StorageNodeRegistry StorageNodeRegistry;
 
     internal SequenceQueryBuilder SequenceQueryBuilder { get; set; }
 

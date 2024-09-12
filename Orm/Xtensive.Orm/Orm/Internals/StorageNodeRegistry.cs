@@ -7,44 +7,34 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Xtensive.Core;
 
 namespace Xtensive.Orm.Internals
 {
-  internal sealed class StorageNodeRegistry
+  internal readonly struct StorageNodeRegistry()
   {
-    private readonly ConcurrentDictionary<string, StorageNode> nodes = new ConcurrentDictionary<string, StorageNode>();
+    private readonly ConcurrentDictionary<string, StorageNode> nodes = new();
 
     public bool Add(StorageNode node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node, "node");
+      ArgumentNullException.ThrowIfNull(node);
       return nodes.TryAdd(node.Id, node);
     }
 
     public bool Remove(string nodeId)
     {
-      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
-      if (nodeId==WellKnown.DefaultNodeId)
-        throw new InvalidOperationException(Strings.ExDefaultStorageNodeCanNotBeRemoved);
-      StorageNode dummy;
-      return nodes.TryRemove(nodeId, out dummy);
+      ArgumentNullException.ThrowIfNull(nodeId);
+      return nodeId != WellKnown.DefaultNodeId
+        ? nodes.TryRemove(nodeId, out var dummy)
+        : throw new InvalidOperationException(Strings.ExDefaultStorageNodeCanNotBeRemoved);
     }
 
     public StorageNode TryGet(string nodeId)
     {
-      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
-      StorageNode result;
-      nodes.TryGetValue(nodeId, out result);
-      return result;
+      ArgumentNullException.ThrowIfNull(nodeId);
+      return nodes.GetValueOrDefault(nodeId);
     }
 
-    public StorageNode Get(string nodeId)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
-      StorageNode result;
-      if (!nodes.TryGetValue(nodeId, out result))
-        throw new KeyNotFoundException(string.Format(Strings.ExStorageNodeWithIdXIsNotFound, nodeId));
-      return result;
-    }
+    public StorageNode Get(string nodeId) =>
+      TryGet(nodeId) ?? throw new KeyNotFoundException(string.Format(Strings.ExStorageNodeWithIdXIsNotFound, nodeId));
   }
 }
