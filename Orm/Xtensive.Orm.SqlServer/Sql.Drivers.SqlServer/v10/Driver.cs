@@ -41,13 +41,15 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
     public override async Task CreateTypesIfNotExistAsync()
     {
-      using var conn = CreateConnection();
+      await using var conn = CreateConnection();
       await conn.OpenAsync(default);
-      using var cmd = conn.CreateCommand("""
-        IF NOT EXISTS(SELECT 1 FROM sys.types WHERE name = '_DO_LongList') CREATE TYPE [_DO_LongList] AS TABLE ([Value] BIGINT NOT NULL PRIMARY KEY);
-        IF NOT EXISTS(SELECT 1 FROM sys.types WHERE name = '_DO_StringList') CREATE TYPE [_DO_StringList] AS TABLE ([Value] NVARCHAR(256) NOT NULL PRIMARY KEY);
+      await using var cmd = conn.CreateCommand($"""
+        IF NOT EXISTS(SELECT 1 FROM sys.types WHERE name = '{TypeMapper.LongListTypeName}')
+          CREATE TYPE [{TypeMapper.LongListTypeName}] AS TABLE ([Value] BIGINT NOT NULL PRIMARY KEY);
+        IF NOT EXISTS(SELECT 1 FROM sys.types WHERE name = '{TypeMapper.StringListTypeName}')
+          CREATE TYPE [{TypeMapper.StringListTypeName}] AS TABLE ([Value] NVARCHAR(256) NOT NULL PRIMARY KEY);
         """);
-      await cmd.ExecuteNonQueryAsync();
+      _ = await cmd.ExecuteNonQueryAsync();
     }
 
     // As far as SqlGeometry and SqlGeography have no support in .Net Standard

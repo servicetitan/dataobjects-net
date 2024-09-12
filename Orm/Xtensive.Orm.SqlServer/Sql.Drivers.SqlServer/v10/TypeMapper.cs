@@ -16,6 +16,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
   internal class TypeMapper(SqlDriver driver) : v09.TypeMapper(driver)
   {
+    public const string
+      LongListTypeName = "_DO_LongList",
+      StringListTypeName = "_DO_StringList";
+
     public override void BindDateTime(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.DateTime2;
@@ -41,8 +45,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       var tuples = (List<Tuple>) value;
       SqlDataRecordList records = tuples.Count == 0 ? null : new(tuples);
       sqlParameter.Value = records;
-      sqlParameter.TypeName = records?.SqlDbType == SqlDbType.BigInt ? "_DO_LongList" : "_DO_StringList";
-
+      sqlParameter.TypeName = records?.SqlDbType == SqlDbType.BigInt ? LongListTypeName : StringListTypeName;
     }
   }
 }
