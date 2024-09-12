@@ -11,7 +11,7 @@ namespace Xtensive.Sql.Dml
   /// Represents collection of <see cref="SqlColumn"/>s.
   /// </summary>
   [Serializable]
-  public class SqlColumnCollection(IEnumerable<SqlColumn> columns) : List<SqlColumn>(columns)
+  public class SqlColumnCollection : List<SqlColumn>
   {
     private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
 
@@ -64,9 +64,11 @@ namespace Xtensive.Sql.Dml
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
-    public SqlColumnCollection()
-      : this([])
-    {
-    }
+    public SqlColumnCollection() { }
+
+    /// <summary>
+    /// Initializes new instance of this type.
+    /// </summary>
+    public SqlColumnCollection(IEnumerable<SqlColumn> columns) : base(columns) { }
   }
 }
