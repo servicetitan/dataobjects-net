@@ -57,11 +57,7 @@ namespace Xtensive.Sql.Dml
     /// Adds <paramref name="columns"/> to the end of the <see cref="SqlColumnCollection"/>.
     /// </summary>
     /// <param name="columns">Columns to be added.</param>
-    public void AddRange(params SqlColumn[] columns)
-    {
-      ArgumentNullException.ThrowIfNull(columns);
-      AddRange(columns);
-    }
+    public void AddRange(params SqlColumn[] columns) => base.AddRange(columns);
 
     // Constructors
 
