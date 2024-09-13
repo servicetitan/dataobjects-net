@@ -25,8 +25,8 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed class TranslatorContext
   {
-    private readonly AliasGenerator resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
-    private readonly AliasGenerator columnAliasGenerator = AliasGenerator.Create(new[] {"c01umn"});
+    private AliasGenerator resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
+    private AliasGenerator columnAliasGenerator = AliasGenerator.Create(new[] {"c01umn"});
     private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters;
     private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
     private readonly Dictionary<ParameterExpression, ItemProjectorExpression> boundItemProjectors;

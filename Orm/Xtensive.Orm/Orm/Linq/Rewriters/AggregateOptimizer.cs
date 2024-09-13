@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Linq.Rewriters
 {
   internal sealed class AggregateOptimizer : ExtendedExpressionVisitor
   {
-    private static AggregateOptimizer Instance = new();
+    private static readonly AggregateOptimizer Instance = new();
 
     private sealed class GroupByItemWrapper<TKey, TElement>
     {
