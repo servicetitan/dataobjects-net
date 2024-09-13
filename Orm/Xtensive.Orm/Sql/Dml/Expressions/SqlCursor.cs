@@ -15,7 +15,7 @@ namespace Xtensive.Sql.Dml
     private bool scroll;
     private ISqlQueryExpression query;
     private bool readOnly = false;
-    private readonly SqlColumnCollection columns = new SqlColumnCollection();
+    private readonly SqlColumnCollection columns = new();
     private bool withHold;
     private bool withReturn;
 
