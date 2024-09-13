@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Linq
 
     // Constructors
 
-    public TranslatorContext(Session session, CompilerConfiguration rseCompilerConfiguration, Expression query,
+    public TranslatorContext(Session session, in CompilerConfiguration rseCompilerConfiguration, Expression query,
       CompiledQueryProcessingScope compiledQueryScope)
     {
       ArgumentNullException.ThrowIfNull(session);
