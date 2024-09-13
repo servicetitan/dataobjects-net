@@ -31,8 +31,8 @@ namespace Xtensive.Orm.Providers
 
     public ExecutableProvider Compile(CompilableProvider provider, CompilerConfiguration configuration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      ArgumentNullException.ThrowIfNull(provider);
+      ArgumentNullException.ThrowIfNull(configuration);
 
       var preCompiler = preCompilerProvider.Invoke(configuration);
       var compiler = compilerProvider.Invoke(configuration);
