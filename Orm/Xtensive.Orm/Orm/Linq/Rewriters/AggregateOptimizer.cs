@@ -21,6 +21,8 @@ namespace Xtensive.Orm.Linq.Rewriters
 {
   internal sealed class AggregateOptimizer : ExtendedExpressionVisitor
   {
+    private static AggregateOptimizer Instance = new();
+
     private sealed class GroupByItemWrapper<TKey, TElement>
     {
       public TKey Key { get; set; }
@@ -214,7 +216,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       // This would help Translator to translate GroupBy+Aggregate
       // into single AggregateProvider.
 
-      return new AggregateOptimizer().Visit(expression);
+      return Instance.Visit(expression);
     }
 
     private static void AddGroupByItemWrapper(GroupByQuery groupBy, List<LambdaExpression> elementProjections)
