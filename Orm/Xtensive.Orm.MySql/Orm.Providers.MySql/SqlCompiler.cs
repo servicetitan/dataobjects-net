@@ -9,13 +9,6 @@ using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Providers.MySql
 {
-  internal class SqlCompiler : Providers.SqlCompiler
-  {
-    // Constructors
-    
-    public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
-      : base(handlers, configuration)
-    {
-    }
-  }
+  internal class SqlCompiler(HandlerAccessor handlers, in CompilerConfiguration configuration)
+    : Providers.SqlCompiler(handlers, configuration);
 }
