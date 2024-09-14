@@ -37,10 +37,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
     private static void BindList(DbParameter parameter, object value, SqlDbType sqlDbType)
     {
-      SqlDataRecordList records = new((List<Tuple>) value, sqlDbType);
       var sqlParameter = (SqlParameter) parameter;
       sqlParameter.SqlDbType = SqlDbType.Structured;
-      sqlParameter.Value = records.Count == 0 ? null : records;
+      sqlParameter.Value = new SqlDataRecordList((List<Tuple>) value, sqlDbType) switch { var o => o.Count == 0 ? null : o };
       sqlParameter.TypeName = sqlDbType == SqlDbType.BigInt ? LongListTypeName : StringListTypeName;
     }
 
