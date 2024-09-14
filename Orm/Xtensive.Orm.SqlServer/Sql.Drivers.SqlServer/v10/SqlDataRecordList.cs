@@ -17,29 +17,30 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         var ns => ns.ToString()
       }))}]";
 
-    private SqlDbType GetSqlDbType(object v) =>
-      v switch {
+    private SqlDbType GetSqlDbType(object valueObj) =>
+      valueObj switch {
         byte or short or ushort or int or uint or long or decimal or Enum => SqlDbType.BigInt,
         string => SqlDbType.NVarChar,
         null => throw new NotSupportedException("null is not supported by TVP"),
-        _ => throw new NotSupportedException($"Type {v.GetType()} is not supported by TVP")
+        _ => throw new NotSupportedException($"Type {valueObj.GetType()} is not supported by TVP")
       };
 
     public SqlDataRecordList(IReadOnlyList<Tuple> tuples)
       : base(tuples.Count)
     {
       SqlMetaData[] metaDatas = null;
-
       foreach (var tuple in tuples) {
-        if (metaDatas == null) {
-          SqlDbType = GetSqlDbType(tuple.GetValueOrDefault(0));
+        if (tuple.GetValueOrDefault(0) is object valueObj) {
+          SqlDbType = GetSqlDbType(valueObj);
           metaDatas = [
             SqlDbType == SqlDbType.NVarChar
               ? new SqlMetaData("Value", SqlDbType, tuples.Max(t => (t.GetValueOrDefault(0) as string)?.Length ?? 20))
               : new SqlMetaData("Value", SqlDbType)
           ];
+          break;
         }
-        
+      }
+      foreach (var tuple in tuples) {
         var valueObj = tuple.GetValueOrDefault(0);
         var castValue = valueObj switch {
           byte n => (long) n,
