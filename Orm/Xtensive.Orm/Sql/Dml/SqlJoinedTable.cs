@@ -27,12 +27,12 @@ namespace Xtensive.Sql.Dml
     /// Gets or sets the aliased columns.
     /// </summary>
     /// <value>Aliased columns.</value>
-    public SqlColumnCollection AliasedColumns { get; private set; }
+    public SqlColumnCollection AliasedColumns { get; init; }
 
     internal override SqlJoinedTable Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) =>
         new(t.joinExpression.Clone(c)) {
-            AliasedColumns = new SqlColumnCollection(new List<SqlColumn>(t.AliasedColumns))
+            AliasedColumns = new(t.AliasedColumns)
           });
 
     public override void AcceptVisitor(ISqlVisitor visitor)
@@ -62,10 +62,7 @@ namespace Xtensive.Sql.Dml
 
       columns = new SqlTableColumnCollection(allLeftColumns.Concat(allRightColumns).ToArray(allLeftColumns.Count + allRightColumns.Count));
 
-      var aliasedColumns = new List<SqlColumn>(leftColumns.Count + rightColumns.Count);
-      aliasedColumns.AddRange(leftColumns);
-      aliasedColumns.AddRange(rightColumns);
-      AliasedColumns = new SqlColumnCollection(aliasedColumns);
+      AliasedColumns = new(leftColumns.Concat(rightColumns));
     }
   }
 }

@@ -1980,8 +1980,8 @@ namespace Xtensive.Sql
 
     public static SqlColumnRef ColumnRef(SqlColumn column, string alias)
     {
-      ArgumentValidator.EnsureArgumentNotNull(column, "column");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(alias, "alias");
+      ArgumentNullException.ThrowIfNull(column);
+      ArgumentException.ThrowIfNullOrEmpty(alias);
       return new SqlColumnRef(column, alias);
     }
 
