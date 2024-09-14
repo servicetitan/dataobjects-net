@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers
       SqlExpression resultExpression;
       TemporaryTableDescriptor tableDescriptor = null;
       QueryParameterBinding extraBinding = null;
-      bool tableValuedParameter = false;
+      Type tableValuedParameterType = null;
       var algorithm = provider.Algorithm;
       if (!temporaryTablesSupported) {
         algorithm = IncludeAlgorithm.ComplexCondition;
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Providers
         if (provider.FilteredColumnsExtractionTransform.Descriptor.Count == 1) {
           var fieldType = provider.FilteredColumnsExtractionTransform.Descriptor[0];
           if (fieldType == WellKnownTypes.Int64 || fieldType == WellKnownTypes.Int32 || fieldType == WellKnownTypes.String) {
-            tableValuedParameter = true;
+            tableValuedParameterType = fieldType;
             algorithm = IncludeAlgorithm.ComplexCondition;
           }
         }
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Providers
           provider, sourceColumns, out tableDescriptor);
         (var complexConditionExpression, extraBinding) = CreateIncludeViaComplexConditionExpression(
           provider, BuildAutoRowFilterParameterAccessor(tableDescriptor),
-          sourceColumns, tableValuedParameter);
+          sourceColumns, tableValuedParameterType);
         resultExpression = SqlDml.Variant(extraBinding,
           complexConditionExpression, temporaryTableExpression);
         anyTemporaryTablesRequired = true;
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Providers
       case IncludeAlgorithm.ComplexCondition:
         (resultExpression, extraBinding) = CreateIncludeViaComplexConditionExpression(
           provider, BuildComplexConditionRowFilterParameterAccessor(filterDataSource),
-          sourceColumns, tableValuedParameter);
+          sourceColumns, tableValuedParameterType);
         if (!anyTemporaryTablesRequired) {
           requestOptions |= QueryRequestOptions.AllowOptimization;
         }
@@ -86,14 +86,14 @@ namespace Xtensive.Orm.Providers
 
     protected (SqlExpression, QueryParameterBinding) CreateIncludeViaComplexConditionExpression(
       IncludeProvider provider, Func<ParameterContext, object> valueAccessor,
-      IReadOnlyList<SqlExpression> sourceColumns, bool tableValuedParameter)
+      IReadOnlyList<SqlExpression> sourceColumns, Type tableValuedParameterType)
     {
       var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
-      var mappings = tableValuedParameter
-        ? [Driver.GetTypeMapping(typeof(List<>))]
+      var mappings = tableValuedParameterType != null
+        ? [Driver.GetTypeMapping(tableValuedParameterType == WellKnownTypes.String ? typeof(List<string>) : typeof(List<long>))]
         : filterTupleDescriptor.Select(type => Driver.GetTypeMapping(type)).ToArray(filterTupleDescriptor.Count).AsSafeWrapper();
-      QueryRowFilterParameterBinding binding = new(mappings, valueAccessor, tableValuedParameter);
-      return tableValuedParameter
+      QueryRowFilterParameterBinding binding = new(mappings, valueAccessor, tableValuedParameterType != null);
+      return tableValuedParameterType != null
         ? (SqlDml.TvpDynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding)
         : (SqlDml.DynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding);
     }

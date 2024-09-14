@@ -56,7 +56,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
     {
       base.RegisterCustomMappings(builder);
-      builder.Add(typeof(List<>), null, builder.Mapper.BindTable, null);
+      builder.Add(typeof(List<long>), null, builder.Mapper.BindLongList, null);
+      builder.Add(typeof(List<string>), null, builder.Mapper.BindStringList, null);
 
       //      builder.Add(new GeometryMapper());
       //      builder.Add(new GeographyMapper());

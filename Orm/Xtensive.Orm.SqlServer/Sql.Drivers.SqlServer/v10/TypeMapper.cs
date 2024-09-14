@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
-using Microsoft.Data.SqlClient.Server;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v10
@@ -36,16 +35,17 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       return base.ReadDateTime(reader, index);
     }
 
-    public override void BindTable(DbParameter parameter, object value)
+    private static void BindList(DbParameter parameter, object value, SqlDbType sqlDbType)
     {
-      SqlParameter sqlParameter = (SqlParameter) parameter;
+      SqlDataRecordList records = new((List<Tuple>) value, sqlDbType);
+      var sqlParameter = (SqlParameter) parameter;
       sqlParameter.SqlDbType = SqlDbType.Structured;
       sqlParameter.TypeName = sqlParameter.ParameterName + "_tvp";
-
-      var tuples = (List<Tuple>) value;
-      SqlDataRecordList records = tuples.Count == 0 ? null : new(tuples);
-      sqlParameter.Value = records;
-      sqlParameter.TypeName = records?.SqlDbType == SqlDbType.BigInt ? LongListTypeName : StringListTypeName;
+      sqlParameter.Value = records.Count == 0 ? null : records;
+      sqlParameter.TypeName = sqlDbType == SqlDbType.BigInt ? LongListTypeName : StringListTypeName;
     }
+
+    public override void BindLongList(DbParameter parameter, object value) => BindList(parameter, value, SqlDbType.BigInt);
+    public override void BindStringList(DbParameter parameter, object value) => BindList(parameter, value, SqlDbType.NVarChar);
   }
 }
