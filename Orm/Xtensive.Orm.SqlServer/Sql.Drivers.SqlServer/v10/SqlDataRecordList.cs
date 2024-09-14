@@ -18,13 +18,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     public SqlDataRecordList(IReadOnlyList<Tuple> tuples, SqlDbType sqlDbType)
       : base(tuples.Count)
     {
-      SqlMetaData[] metaDatas = [
-        sqlDbType == SqlDbType.BigInt
-          ? new SqlMetaData("Value", sqlDbType)
-          : new SqlMetaData("Value", sqlDbType, tuples.Max(t => (t.GetValueOrDefault(0) as string)?.Length ?? 20))
-      ];
+      SqlMetaData[] metaDatas = null;
       foreach (var tuple in tuples) {
         if (tuple.GetValueOrDefault(0) is object valueObj) {
+          metaDatas ??= [
+            sqlDbType == SqlDbType.BigInt
+              ? new SqlMetaData("Value", sqlDbType)
+              : new SqlMetaData("Value", sqlDbType, tuples.Max(t => (t.GetValueOrDefault(0) as string)?.Length ?? 20))
+          ];
           var castValue = valueObj switch {
             byte n => (long) n,
             short n => (long) n,
