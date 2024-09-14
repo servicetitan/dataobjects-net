@@ -26,7 +26,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       : base(tuples.Count)
     {
       SqlMetaData[] metaDatas = null;
-      HashSet<object> addedElements = new();
 
       foreach (var tuple in tuples) {
         if (metaDatas == null) {
@@ -40,21 +39,19 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         }
         
         var valueObj = tuple.GetValueOrDefault(0);
-        if (addedElements.Add(valueObj)) {
-          var castValue = valueObj switch {
-            byte n => (long) n,
-            short n => (long) n,
-            ushort n => (long) n,
-            int n => (long) n,
-            uint n => (long) n,
-            decimal d => (long) d,
-            Enum e => Convert.ToInt64(e),
-            var o => o
-          };
-          SqlDataRecord record = new(metaDatas);
-          record.SetValue(0, castValue);
-          Add(record);
-        }        
+        var castValue = valueObj switch {
+          byte n => (long) n,
+          short n => (long) n,
+          ushort n => (long) n,
+          int n => (long) n,
+          uint n => (long) n,
+          decimal d => (long) d,
+          Enum e => Convert.ToInt64(e),
+          var o => o
+        };
+        SqlDataRecord record = new(metaDatas);
+        record.SetValue(0, castValue);
+        Add(record);
       }
     }
   }
