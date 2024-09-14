@@ -14,6 +14,7 @@ using Xtensive.Reflection;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
+using ISqlExecutor = Xtensive.Orm.Providers.ISqlExecutor;
 
 namespace Xtensive.Sql
 {
@@ -373,7 +374,7 @@ namespace Xtensive.Sql
     {
     }
 
-    public virtual Task CreateTypesIfNotExistAsync() => Task.CompletedTask;
+    public virtual Task CreateTypesIfNotExistAsync(ISqlExecutor executor) => Task.CompletedTask;
 
     #region Private / internal methods
 

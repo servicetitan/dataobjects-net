@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
+using ISqlExecutor =Xtensive.Orm.Providers.ISqlExecutor;  
 
 namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
@@ -39,17 +40,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       return new ServerInfoProvider(this);
     }
 
-    public override async Task CreateTypesIfNotExistAsync()
+    public override async Task CreateTypesIfNotExistAsync(ISqlExecutor executor)
     {
-      await using var conn = CreateConnection();
-      await conn.OpenAsync(default);
-      await using var cmd = conn.CreateCommand($"""
+      _ = await executor.ExecuteNonQueryAsync($"""
         IF NOT EXISTS(SELECT 1 FROM sys.types WHERE name = '{TypeMapper.LongListTypeName}')
           CREATE TYPE [{TypeMapper.LongListTypeName}] AS TABLE ([Value] BIGINT NOT NULL PRIMARY KEY);
         IF NOT EXISTS(SELECT 1 FROM sys.types WHERE name = '{TypeMapper.StringListTypeName}')
           CREATE TYPE [{TypeMapper.StringListTypeName}] AS TABLE ([Value] NVARCHAR(256) NOT NULL PRIMARY KEY);
         """);
-      _ = await cmd.ExecuteNonQueryAsync();
     }
 
     // As far as SqlGeometry and SqlGeography have no support in .Net Standard

@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Upgrade
       if ((task & (SqlWorkerTask.ExtractMetadataTypes | SqlWorkerTask.ExtractMetadataAssemblies | SqlWorkerTask.ExtractMetadataExtension)) > 0) {
         ExtractMetadata(services, executor, result, task);
       }
-      services.StorageDriver.CreateTypesIfNotExistAsync().Wait();
+      services.StorageDriver.CreateTypesIfNotExistAsync(executor).Wait();
 
       return result;
     }
