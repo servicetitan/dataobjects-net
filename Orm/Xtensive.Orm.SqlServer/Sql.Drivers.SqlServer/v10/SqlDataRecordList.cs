@@ -12,7 +12,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     public SqlDbType SqlDbType {  get; set; } = SqlDbType.BigInt;
 
     public override string ToString() =>
-      $"[{string.Join(", ", this.Select(o => o.GetValue(0)))}]";
+      $"[{string.Join(", ", this.Select(o => o.GetValue(0) switch {
+        string s => $"\"{s}\"",
+        var ns => ns.ToString()
+      }))}]";
 
     private SqlDbType GetSqlDbType(object v) =>
       v switch {
