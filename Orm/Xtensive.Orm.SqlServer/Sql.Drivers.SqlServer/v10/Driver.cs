@@ -30,15 +30,14 @@ internal class Driver(CoreServerInfo coreServerInfo, ErrorMessageParser errorMes
         CREATE TYPE [{TypeMapper.StringListTypeName}] AS TABLE ([Value] NVARCHAR(256) NOT NULL);
       """);
 
-  // As far as SqlGeometry and SqlGeography have no support in .Net Standard
-  // these two methods are useless
-
   protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
   {
     base.RegisterCustomMappings(builder);
     builder.Add(typeof(List<long>), null, builder.Mapper.BindLongList, null);
     builder.Add(typeof(List<string>), null, builder.Mapper.BindStringList, null);
 
+    // As far as SqlGeometry and SqlGeography have no support in .Net Standard
+    // these two methods are useless
     //      builder.Add(new GeometryMapper());
     //      builder.Add(new GeographyMapper());
   }
