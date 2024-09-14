@@ -19,27 +19,25 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       : base(tuples.Count)
     {
       SqlMetaData[] metaDatas = null;
-      foreach (var tuple in tuples) {
-        if (tuple.GetValueOrDefault(0) is object valueObj) {
-          metaDatas ??= [
-            sqlDbType == SqlDbType.BigInt
-              ? new SqlMetaData("Value", sqlDbType)
-              : new SqlMetaData("Value", sqlDbType, tuples.Max(t => (t.GetValueOrDefault(0) as string)?.Length ?? 20))
-          ];
-          var castValue = valueObj switch {
-            byte n => (long) n,
-            short n => (long) n,
-            ushort n => (long) n,
-            int n => (long) n,
-            uint n => (long) n,
-            decimal d => (long) d,
-            Enum e => Convert.ToInt64(e),
-            var o => o
-          };
-          SqlDataRecord record = new(metaDatas);
-          record.SetValue(0, castValue);
-          Add(record);
-        }
+      foreach (var valueObj in tuples.Select(t => t.GetValueOrDefault(0)).Where(o => o != null)) {
+        metaDatas ??= [
+          sqlDbType == SqlDbType.BigInt
+            ? new SqlMetaData("Value", sqlDbType)
+            : new SqlMetaData("Value", sqlDbType, tuples.Max(t => (t.GetValueOrDefault(0) as string)?.Length ?? 20))
+        ];
+        var castValue = valueObj switch {
+          byte n => (long) n,
+          short n => (long) n,
+          ushort n => (long) n,
+          int n => (long) n,
+          uint n => (long) n,
+          decimal d => (long) d,
+          Enum e => Convert.ToInt64(e),
+          var o => o
+        };
+        SqlDataRecord record = new(metaDatas);
+        record.SetValue(0, castValue);
+        Add(record);
       }
     }
   }
