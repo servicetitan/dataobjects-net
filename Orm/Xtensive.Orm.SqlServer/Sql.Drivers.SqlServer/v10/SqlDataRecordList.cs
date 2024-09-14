@@ -33,11 +33,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       foreach (var tuple in tuples) {
         if (metaDatas == null) {
           SqlDbType = GetSqlDbType(tuple.GetValueOrDefault(0));
-          var fieldName = "Value";
           metaDatas = [
             SqlDbType == SqlDbType.NVarChar
-              ? new SqlMetaData(fieldName, SqlDbType, tuples.Max(t => (t.GetValueOrDefault(0) as string)?.Length ?? 20))
-              : new SqlMetaData(fieldName, SqlDbType)
+              ? new SqlMetaData("Value", SqlDbType, tuples.Max(t => (t.GetValueOrDefault(0) as string)?.Length ?? 20))
+              : new SqlMetaData("Value", SqlDbType)
           ];
         }
         
@@ -52,9 +51,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
           Enum e => Convert.ToInt64(e),
           var o => o
         };
-        SqlDataRecord record = new(metaDatas);
-        record.SetValue(0, castValue);
-        Add(record);
+        if (castValue is not null) {
+          SqlDataRecord record = new(metaDatas);
+          record.SetValue(0, castValue);
+          Add(record);
+        }
       }
     }
   }
