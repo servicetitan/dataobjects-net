@@ -40,7 +40,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       SqlDataRecordList records = new((List<Tuple>) value, sqlDbType);
       var sqlParameter = (SqlParameter) parameter;
       sqlParameter.SqlDbType = SqlDbType.Structured;
-      sqlParameter.TypeName = sqlParameter.ParameterName + "_tvp";
       sqlParameter.Value = records.Count == 0 ? null : records;
       sqlParameter.TypeName = sqlDbType == SqlDbType.BigInt ? LongListTypeName : StringListTypeName;
     }
