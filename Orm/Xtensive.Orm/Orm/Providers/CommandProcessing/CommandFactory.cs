@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Providers
       try {
         return binding.ValueAccessor.Invoke(parameterContext);
       }
-      catch(Exception exception) {
+      catch(Exception exception) when (exception is not ArgumentNullException) {
         throw new TargetInvocationException(Strings.ExExceptionHasBeenThrownByTheParameterValueAccessor, exception);
       }
     }
