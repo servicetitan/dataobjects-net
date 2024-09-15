@@ -64,6 +64,7 @@ namespace Xtensive.Orm.Providers
 
           break;
         case IncludeAlgorithm.ComplexCondition:
+        case IncludeAlgorithm.TableValuedParameter:
           // nothing
           break;
         case IncludeAlgorithm.TemporaryTable:

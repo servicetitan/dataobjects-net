@@ -149,7 +149,8 @@ namespace Xtensive.Orm.Providers
             if (filterData == null) {
               configuration.AlternativeBranches.Add(binding);
             }
-            else if (rowFilterParameterBinding.TableValuedParameter) {
+            else if (rowFilterParameterBinding.TableValuedParameter
+                || filterData.Count > Session.Domain.Configuration.MaxNumberOfConditions) {
               string paramName = GetParameterName(parameterNamePrefix, ref parameterIndex);
               var parameterReference = Driver.BuildParameterReference(paramName);
               configuration.PlaceholderValues.Add(binding, parameterReference);
