@@ -25,9 +25,9 @@ internal class Driver(CoreServerInfo coreServerInfo, ErrorMessageParser errorMes
   public override Task CreateTypesIfNotExistAsync(ISqlExecutor executor) =>
     executor.ExecuteNonQueryAsync($"""
       IF NOT EXISTS(SELECT 1 FROM sys.types WHERE name = '{TypeMapper.LongListTypeName}')
-        CREATE TYPE [{TypeMapper.LongListTypeName}] AS TABLE ([Value] BIGINT NOT NULL);
+        CREATE TYPE [{TypeMapper.LongListTypeName}] AS TABLE ([Value] BIGINT NOT NULL PRIMARY KEY);
       IF NOT EXISTS(SELECT 1 FROM sys.types WHERE name = '{TypeMapper.StringListTypeName}')
-        CREATE TYPE [{TypeMapper.StringListTypeName}] AS TABLE ([Value] NVARCHAR(256) NOT NULL);
+        CREATE TYPE [{TypeMapper.StringListTypeName}] AS TABLE ([Value] NVARCHAR(256) NOT NULL PRIMARY KEY);
       """);
 
   protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)

@@ -19,6 +19,7 @@ public class SqlDataRecordList : List<SqlDataRecord>
     : base(tuples.Count)
   {
     SqlMetaData[] metaDatas = null;
+    HashSet<object> added = new();
     foreach (var valueObj in tuples.Select(t => t.GetValueOrDefault(0)).Where(o => o != null)) {
       metaDatas ??= [
         sqlDbType == SqlDbType.BigInt
@@ -35,9 +36,11 @@ public class SqlDataRecordList : List<SqlDataRecord>
         Enum e => Convert.ToInt64(e),
         var o => o
       };
-      SqlDataRecord record = new(metaDatas);
-      record.SetValue(0, castValue);
-      Add(record);
+      if (added.Add(castValue)) {
+        SqlDataRecord record = new(metaDatas);
+        record.SetValue(0, castValue);
+        Add(record);
+      }
     }
   }
 }
