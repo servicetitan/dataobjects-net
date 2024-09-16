@@ -109,13 +109,10 @@ namespace Xtensive.Orm.Providers
     /// <param name="configuration">Compiler configuration to use.</param>
     /// <param name="compiler">Currently used compiler instance.</param>
     /// <returns>A new post-compiler.</returns>
-    protected virtual IPostCompiler CreatePostCompiler(CompilerConfiguration configuration, ICompiler compiler)
-    {
-      var result = new CompositePostCompiler(new SqlSelectCorrector(Handlers.ProviderInfo));
-      if (configuration.PrepareRequest)
-        result.Items.Add(new SqlProviderPreparer(Handlers));
-      return result;
-    }
+    protected virtual IPostCompiler CreatePostCompiler(CompilerConfiguration configuration, ICompiler compiler) =>
+      configuration.PrepareRequest
+        ? new CompositePostCompiler([new SqlSelectCorrector(Handlers.ProviderInfo), new SqlProviderPreparer(Handlers)])
+        : new CompositePostCompiler([new SqlSelectCorrector(Handlers.ProviderInfo)]);
 
     /// <summary>
     /// Gets compiler containers specific to current storage provider.
