@@ -4,59 +4,35 @@
 // Created by: Dmitri Maximov
 // Created:    2009.08.12
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
-  internal sealed class ColumnResolver
+  internal sealed class ColumnResolver(DataTable table)
   {
-    public DataTable Table;
+    private readonly record struct ColumnIndexMapping(int DbIndex, int ModelIndex, bool IsValid);
+
+    public DataTable Table = table;
     private List<ColumnIndexMapping> columnMappings;
 
-    private class ColumnIndexMapping
-    {
-      public readonly int DbIndex;
-      public readonly int ModelIndex;
-
-      public ColumnIndexMapping(int dbIndex, int modelIndex)
-      {
-        DbIndex = dbIndex;
-        ModelIndex = modelIndex;
-      }
-    }
-
-    public void RegisterColumnMapping(int dbIndex, int modelIndex)
-    {
-      if (columnMappings == null)
-        columnMappings = new List<ColumnIndexMapping>(1);
-
-      columnMappings.Add(new ColumnIndexMapping(dbIndex, modelIndex));
-    }
+    public void RegisterColumnMapping(int dbIndex, int modelIndex) =>
+      (columnMappings ??= new(1)).Add(new ColumnIndexMapping(dbIndex, modelIndex, true));
 
     public DataTableColumn GetColumn(int dbIndex)
     {
       int modelIndex = dbIndex-1;
-      var view = Table as View;
-      if (view != null)
+      if (Table is View view)
         return view.ViewColumns[modelIndex];
 
       var table = (Table)Table;
       if (columnMappings == null)
         return table.TableColumns[modelIndex];
 
-      var mapping = columnMappings.Where(item => item.DbIndex==dbIndex).FirstOrDefault();
-      if (mapping != null)
+      var mapping = columnMappings.FirstOrDefault(item => item.DbIndex==dbIndex);
+      if (mapping != default)
         return table.TableColumns[mapping.ModelIndex];
 
       throw new ArgumentOutOfRangeException("dbIndex");
-    }
-
-    public ColumnResolver(DataTable table)
-    {
-      Table = table;
     }
   }
 }
