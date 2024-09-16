@@ -126,6 +126,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+  </ItemGroup>
+
+  <ItemGroup>
     <SourceRoot Include="$(SolutionDir)"/>
     <None Include="$(DoPackageIcon)" Visible="false" >
       <PackagePath>.</PackagePath>

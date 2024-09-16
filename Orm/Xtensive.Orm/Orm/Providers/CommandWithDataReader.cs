@@ -11,10 +11,10 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers
 {
-  public sealed class CommandWithDataReader : IDisposable, IAsyncDisposable
+  public readonly record struct CommandWithDataReader : IDisposable, IAsyncDisposable
   {
-    public DbCommand Command { get; private set; }
-    public DbDataReader Reader { get; private set; }
+    public DbCommand Command { get; }
+    public DbDataReader Reader { get; }
 
     public void Dispose()
     {
@@ -34,12 +34,10 @@ namespace Xtensive.Orm.Providers
 
     internal CommandWithDataReader(DbCommand command, DbDataReader reader)
     {
-      ArgumentValidator.EnsureArgumentNotNull(command, nameof(command));
-      ArgumentValidator.EnsureArgumentNotNull(reader, nameof(reader));
-
+      ArgumentNullException.ThrowIfNull(command);
+      ArgumentNullException.ThrowIfNull(reader);
       Command = command;
       Reader = reader;
-
     }
   }
 }

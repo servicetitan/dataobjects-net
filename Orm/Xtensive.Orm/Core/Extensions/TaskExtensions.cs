@@ -14,6 +14,7 @@ namespace Xtensive.Core
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static ConfiguredValueTaskAwaitable<T> ConfigureAwaitFalse<T>(this ValueTask<T> task) => task.ConfigureAwait(false);
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static ConfiguredAsyncDisposable ConfigureAwaitFalse(this IAsyncDisposable source) => source.ConfigureAwait(false);
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static ConfiguredCancelableAsyncEnumerable<T> ConfigureAwaitFalse<T>(this IAsyncEnumerable<T> source) => source.ConfigureAwait(false);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static ConfiguredAsyncDisposable ConfigureAwaitFalse<T>(this T source) where T: struct, IAsyncDisposable => source.ConfigureAwait(false);;
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static ConfiguredCancelableAsyncEnumerable<T> ConfigureAwaitFalse<T>(this ConfiguredCancelableAsyncEnumerable<T> source) => source.ConfigureAwait(false);
 #else
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static Task ConfigureAwaitFalse(this Task task) => task;
@@ -22,6 +23,7 @@ namespace Xtensive.Core
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static ValueTask<T> ConfigureAwaitFalse<T>(this ValueTask<T> task) => task;
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static IAsyncDisposable ConfigureAwaitFalse(this IAsyncDisposable source) => source;
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static IAsyncEnumerable<T> ConfigureAwaitFalse<T>(this IAsyncEnumerable<T> source) => source;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] public static T ConfigureAwaitFalse<T>(this T source) where T: struct, IAsyncDisposable => source;
     [MethodImpl(MethodImplOptions.AggressiveInlining)] public static ConfiguredCancelableAsyncEnumerable<T> ConfigureAwaitFalse<T>(this ConfiguredCancelableAsyncEnumerable<T> source) => source;
 #endif
   }
