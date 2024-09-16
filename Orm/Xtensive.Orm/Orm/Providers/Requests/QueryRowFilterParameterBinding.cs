@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// A special version of <see cref="QueryParameterBinding"/> used for complex filters.
   /// </summary>
-  public class QueryRowFilterParameterBinding(IReadOnlyList<TypeMapping> rowTypeMapping, Func<ParameterContext, object> valueAccessor, bool tableValuedParameter = false)
+  public class QueryRowFilterParameterBinding(IReadOnlyList<TypeMapping> rowTypeMapping, Func<ParameterContext, object> valueAccessor, TypeMapping tvpTypeMapping)
     : QueryParameterBinding(null, valueAccessor, QueryParameterBindingType.RowFilter)
   {
     /// <summary>
@@ -24,6 +24,6 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     public IReadOnlyList<TypeMapping> RowTypeMapping => rowTypeMapping;
 
-    public bool TableValuedParameter => tableValuedParameter;
+    public TypeMapping TvpTypeMapping => tvpTypeMapping;
   }
 }
