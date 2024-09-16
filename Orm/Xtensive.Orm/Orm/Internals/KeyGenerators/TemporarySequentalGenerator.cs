@@ -8,6 +8,7 @@ using Xtensive.Arithmetic;
 using Xtensive.Comparison;
 using Xtensive.Orm.Model;
 using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals.KeyGenerators
 {

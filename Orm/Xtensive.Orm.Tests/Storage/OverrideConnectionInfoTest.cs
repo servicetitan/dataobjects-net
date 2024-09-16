@@ -6,6 +6,7 @@
 
 using NUnit.Framework;
 using Xtensive.Orm.Metadata;
+using Type = Xtensive.Orm.Metadata.Type;
 
 namespace Xtensive.Orm.Tests.Storage
 {
