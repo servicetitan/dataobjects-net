@@ -73,26 +73,32 @@ namespace Xtensive.Core
     /// <exception cref="InvalidOperationException">Something went wrong :(.</exception>
     public static Expression BindParameters(this LambdaExpression lambdaExpression, params Expression[] parameters)
     {
-      if (lambdaExpression.Parameters.Count!=parameters.Length)
+      var lambdaExpressionParameters = lambdaExpression.Parameters;
+      var lambdaExpressionParametersCount = lambdaExpressionParameters.Count;
+      if (lambdaExpressionParametersCount != parameters.Length)
         throw new InvalidOperationException(String.Format(
           Strings.ExUnableToBindParametersToLambdaXParametersCountIsIncorrect,
           lambdaExpression.ToString(true)));
       if (parameters.Length==0)
         return lambdaExpression;
       var convertedParameters = new Expression[parameters.Length];
-      for (int i = 0; i < lambdaExpression.Parameters.Count; i++) {
-        var expressionParameter = lambdaExpression.Parameters[i];
-        if (expressionParameter.Type.IsAssignableFrom(parameters[i].Type))
-          convertedParameters[i] = expressionParameter.Type==parameters[i].Type
-            ? parameters[i]
-            : Expression.Convert(parameters[i], expressionParameter.Type);
+      for (int i = 0; i < lambdaExpressionParametersCount; i++) {
+        var expressionParameter = lambdaExpressionParameters[i];
+        var parameter = parameters[i];
+        var parameterType = parameter.Type;
+        if (expressionParameter.Type.IsAssignableFrom(parameterType)) {
+          var expressionParameterType = expressionParameter.Type;
+          convertedParameters[i] = expressionParameterType == parameterType
+            ? parameter
+            : Expression.Convert(parameter, expressionParameterType);
+        }
         else
           throw new InvalidOperationException(String.Format(
             Strings.ExUnableToUseExpressionXAsXParameterOfLambdaXBecauseOfTypeMistmatch,
-            parameters[i].ToString(true), i, lambdaExpression.Parameters[i].ToString(true)));
+            parameters[i].ToString(true), i, lambdaExpressionParameters[i].ToString(true)));
       }
       return ExpressionReplacer.ReplaceAll(
-        lambdaExpression.Body, lambdaExpression.Parameters, convertedParameters);
+        lambdaExpression.Body, lambdaExpressionParameters, convertedParameters);
     }
 
     /// <summary>
