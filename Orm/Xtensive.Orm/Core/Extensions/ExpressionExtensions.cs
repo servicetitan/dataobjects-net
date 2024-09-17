@@ -79,7 +79,7 @@ namespace Xtensive.Core
         throw new InvalidOperationException(String.Format(
           Strings.ExUnableToBindParametersToLambdaXParametersCountIsIncorrect,
           lambdaExpression.ToString(true)));
-      if (parameters.Length==0)
+      if (parameters.Length == 0)
         return lambdaExpression;
       var convertedParameters = new Expression[parameters.Length];
       for (int i = 0; i < lambdaExpressionParametersCount; i++) {
@@ -94,7 +94,7 @@ namespace Xtensive.Core
         else
           throw new InvalidOperationException(String.Format(
             Strings.ExUnableToUseExpressionXAsXParameterOfLambdaXBecauseOfTypeMistmatch,
-            parameters[i].ToString(true), i, lambdaExpressionParameters[i].ToString(true)));
+            parameters[i].ToString(true), i, expressionParameter.ToString(true)));
       }
       return ExpressionReplacer.ReplaceAll(
         lambdaExpression.Body, lambdaExpressionParameters, convertedParameters);
