@@ -72,6 +72,7 @@ namespace Xtensive.Orm.Providers
     DateTimeEmulation = 1L << 54,
     DateTimeOffsetEmulation = 1L << 55,
     TruncateTable = 1L << 56,
+    TableValuedParameters = 1L << 57,
 
     // Feature groups
     Paging = Take | Skip,

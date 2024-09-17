@@ -36,8 +36,11 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public class TemporaryTablePopulationTest : AutoBuildTest
   {
-    protected override void CheckRequirements() =>
+    protected override void CheckRequirements()
+    {
       Require.AnyFeatureSupported(ProviderFeatures.TemporaryTables | ProviderFeatures.TemporaryTableEmulation);
+      Require.AnyFeatureNotSupported(ProviderFeatures.TableValuedParameters);
+    }
 
     protected override DomainConfiguration BuildConfiguration()
     {

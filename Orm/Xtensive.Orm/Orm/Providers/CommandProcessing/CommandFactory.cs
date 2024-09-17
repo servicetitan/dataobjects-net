@@ -113,64 +113,79 @@ namespace Xtensive.Orm.Providers
       foreach (var binding in request.ParameterBindings) {
         object parameterValue = GetParameterValue(binding, parameterContext);
         switch (binding.BindingType) {
-        case QueryParameterBindingType.Regular:
-          break;
-        case QueryParameterBindingType.SmartNull:
-          // replacing "x = @p" with "x is null" when @p = null (or empty string in case of Oracle)
-          if (IsHandledLikeNull(parameterValue)) {
-            configuration.AlternativeBranches.Add(binding);
-            continue;
-          }
-          break;
-        case QueryParameterBindingType.BooleanConstant:
-          // expanding true/false parameters to constants to help query optimizer with branching
-          if ((bool) parameterValue)
-            configuration.AlternativeBranches.Add(binding);
-          continue;
-        case QueryParameterBindingType.LimitOffset:
-          // not parameter, just inlined constant
-          configuration.PlaceholderValues.Add(binding, parameterValue.ToString());
-          continue;
-        case QueryParameterBindingType.NonZeroLimitOffset:
-          // Like "LimitOffset" but we handle zero value specially
-          // We replace value with 1 and activate special branch that evaluates "where" part to "false"
-          var stringValue = parameterValue.ToString();
-          if (stringValue=="0") {
-            configuration.PlaceholderValues.Add(binding, "1");
-            configuration.AlternativeBranches.Add(binding);
-          }
-          else
-            configuration.PlaceholderValues.Add(binding, stringValue);
-          continue;
-        case QueryParameterBindingType.RowFilter:
-          var filterData = (List<Tuple>) parameterValue;
-          var rowTypeMapping = ((QueryRowFilterParameterBinding) binding).RowTypeMapping;
-          if (filterData==null) {
-            configuration.AlternativeBranches.Add(binding);
-            continue;
-          }
-          var commonPrefix = GetParameterName(parameterNamePrefix, ref parameterIndex);
-          var filterValues = new string[filterData.Count][];
-          for (int tupleIndex = 0; tupleIndex < filterData.Count; tupleIndex++) {
-            var tuple = filterData[tupleIndex];
-            var parameterReferences = new string[tuple.Count];
-            for (int fieldIndex = 0; fieldIndex < tuple.Count; fieldIndex++) {
-              var name = $"{commonPrefix}_{tupleIndex}_{fieldIndex}";
-              var value = tuple.GetValueOrDefault(fieldIndex);
-              parameterReferences[fieldIndex] = Driver.BuildParameterReference(name);
-              AddRegularParameter(result, rowTypeMapping[fieldIndex], name, value);
+          case QueryParameterBindingType.Regular:
+            break;
+          case QueryParameterBindingType.SmartNull:
+            // replacing "x = @p" with "x is null" when @p = null (or empty string in case of Oracle)
+            if (IsHandledLikeNull(parameterValue)) {
+              configuration.AlternativeBranches.Add(binding);
+              continue;
             }
-            filterValues[tupleIndex] = parameterReferences;
+            break;
+          case QueryParameterBindingType.BooleanConstant:
+            // expanding true/false parameters to constants to help query optimizer with branching
+            if ((bool) parameterValue)
+              configuration.AlternativeBranches.Add(binding);
+            continue;
+          case QueryParameterBindingType.LimitOffset:
+            // not parameter, just inlined constant
+            configuration.PlaceholderValues.Add(binding, parameterValue.ToString());
+            continue;
+          case QueryParameterBindingType.NonZeroLimitOffset:
+            // Like "LimitOffset" but we handle zero value specially
+            // We replace value with 1 and activate special branch that evaluates "where" part to "false"
+            var stringValue = parameterValue.ToString();
+            if (stringValue == "0") {
+              configuration.PlaceholderValues.Add(binding, "1");
+              configuration.AlternativeBranches.Add(binding);
+            }
+            else
+              configuration.PlaceholderValues.Add(binding, stringValue);
+            continue;
+          case QueryParameterBindingType.RowFilter:
+            var filterData = (List<Tuple>) parameterValue;
+            var rowFilterParameterBinding = (QueryRowFilterParameterBinding) binding;
+            if (filterData == null) {
+              configuration.AlternativeBranches.Add(binding);
+            }
+            else if (rowFilterParameterBinding.TvpTypeMapping != null
+                            && filterData.Count > Session.Domain.Configuration.MaxNumberOfConditions) {
+              configuration.AlternativeBranches.Add(binding);
+              string paramName = GetParameterName(parameterNamePrefix, ref parameterIndex);
+              var parameterReference = Driver.BuildParameterReference(paramName);
+              configuration.PlaceholderValues.Add(binding, parameterReference);
+              var parameter = Connection.CreateParameter();
+              parameter.ParameterName = paramName;
+              rowFilterParameterBinding.TvpTypeMapping.BindValue(parameter, parameterValue);
+              result.Parameters.Add(parameter);
+              var filterValues = new string[1][] { [parameterReference] };
+              configuration.DynamicFilterValues.Add(binding, filterValues);
+            }
+            else {
+              var commonPrefix = GetParameterName(parameterNamePrefix, ref parameterIndex);
+              var filterValues = new string[filterData.Count][];
+              var rowTypeMapping = rowFilterParameterBinding.RowTypeMapping;
+              for (int tupleIndex = 0; tupleIndex < filterData.Count; tupleIndex++) {
+                var tuple = filterData[tupleIndex];
+                var parameterReferences = new string[tuple.Count];
+                for (int fieldIndex = 0; fieldIndex < tuple.Count; fieldIndex++) {
+                  var name = $"{commonPrefix}_{tupleIndex}_{fieldIndex}";
+                  var value = tuple.GetValueOrDefault(fieldIndex);
+                  parameterReferences[fieldIndex] = Driver.BuildParameterReference(name);
+                  AddRegularParameter(result, rowTypeMapping[fieldIndex], name, value);
+                }
+                filterValues[tupleIndex] = parameterReferences;
+              }
+              configuration.DynamicFilterValues.Add(binding, filterValues);
+            }
+            continue;
+          case QueryParameterBindingType.TypeIdentifier: {
+            var originalTypeId = ((QueryTypeIdentifierParameterBinding) binding).OriginalTypeId;
+            parameterValue = Session.StorageNode.TypeIdRegistry[domain.Model.Types[originalTypeId]];
+            break;
           }
-          configuration.DynamicFilterValues.Add(binding, filterValues);
-          continue;
-        case QueryParameterBindingType.TypeIdentifier: {
-          var originalTypeId = ((QueryTypeIdentifierParameterBinding) binding).OriginalTypeId;
-          parameterValue = Session.StorageNode.TypeIdRegistry[domain.Model.Types[originalTypeId]];
-          break;
-        }
-        default:
-          throw new ArgumentOutOfRangeException("binding.BindingType");
+          default:
+            throw new ArgumentOutOfRangeException("binding.BindingType");
         }
         // regular case -> just adding the parameter
         string parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
@@ -192,7 +207,7 @@ namespace Xtensive.Orm.Providers
       try {
         return binding.ValueAccessor.Invoke(parameterContext);
       }
-      catch(Exception exception) {
+      catch(Exception exception) when (exception is not ArgumentNullException) {
         throw new TargetInvocationException(Strings.ExExceptionHasBeenThrownByTheParameterValueAccessor, exception);
       }
     }
@@ -286,10 +301,9 @@ namespace Xtensive.Orm.Providers
 
     public CommandFactory(StorageDriver driver, Session session, SqlConnection connection)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
-
+      ArgumentNullException.ThrowIfNull(driver);
+      ArgumentNullException.ThrowIfNull(session);
+      ArgumentNullException.ThrowIfNull(connection);
       Driver = driver;
       Session = session;
       Connection = connection;

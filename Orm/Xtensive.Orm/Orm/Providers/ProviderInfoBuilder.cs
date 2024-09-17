@@ -26,6 +26,8 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.DdlBatches;
       if (queryFeatures.Supports(QueryFeatures.DmlBatches))
         f |= ProviderFeatures.DmlBatches;
+      if (queryFeatures.Supports(QueryFeatures.TableValuedParameters))
+        f |= ProviderFeatures.TableValuedParameters;
       if (indexFeatures.Supports(IndexFeatures.Clustered))
         f |= ProviderFeatures.ClusteredIndexes;
       if (indexFeatures.Supports(IndexFeatures.Filtered))

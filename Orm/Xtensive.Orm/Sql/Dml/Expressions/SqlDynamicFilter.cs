@@ -37,4 +37,10 @@ namespace Xtensive.Sql.Dml
       Expressions = expressions;
     }
   }
+
+  public class SqlTvpDynamicFilter(object id, IReadOnlyList<SqlExpression> expressions) : SqlDynamicFilter(id, expressions)
+  {
+    internal override SqlTvpDynamicFilter Clone(SqlNodeCloneContext? context = null) =>
+      context.GetOrAdd(this, static (t, c) => new(t.Id, t.Expressions.Select(e => e.Clone(c)).ToArray()));
+  }
 }
