@@ -22,7 +22,7 @@ namespace Xtensive.Core
   /// </summary>
   public static class ExpressionExtensions
   {
-    private readonly static ConcurrentDictionary<Type, object> StructDefaultValues = new();
+    private readonly static ConcurrentDictionary<Type, ConstantExpression> StructDefaultConstantExpressions = new();
 
     /// <summary>
     /// Formats the <paramref name="expression"/>.
@@ -73,26 +73,31 @@ namespace Xtensive.Core
     /// <exception cref="InvalidOperationException">Something went wrong :(.</exception>
     public static Expression BindParameters(this LambdaExpression lambdaExpression, params Expression[] parameters)
     {
-      if (lambdaExpression.Parameters.Count!=parameters.Length)
+      var lambdaExpressionParameters = lambdaExpression.Parameters;
+      var lambdaExpressionParametersCount = lambdaExpressionParameters.Count;
+      if (lambdaExpressionParametersCount != parameters.Length)
         throw new InvalidOperationException(String.Format(
           Strings.ExUnableToBindParametersToLambdaXParametersCountIsIncorrect,
           lambdaExpression.ToString(true)));
-      if (parameters.Length==0)
+      if (parameters.Length == 0)
         return lambdaExpression;
       var convertedParameters = new Expression[parameters.Length];
-      for (int i = 0; i < lambdaExpression.Parameters.Count; i++) {
-        var expressionParameter = lambdaExpression.Parameters[i];
-        if (expressionParameter.Type.IsAssignableFrom(parameters[i].Type))
-          convertedParameters[i] = expressionParameter.Type==parameters[i].Type
-            ? parameters[i]
-            : Expression.Convert(parameters[i], expressionParameter.Type);
+      for (int i = 0; i < lambdaExpressionParametersCount; i++) {
+        var expressionParameter = lambdaExpressionParameters[i];
+        var parameter = parameters[i];
+        var parameterType = parameter.Type;
+        var expressionParameterType = expressionParameter.Type;
+        if (expressionParameterType.IsAssignableFrom(parameterType))
+          convertedParameters[i] = expressionParameterType == parameterType
+            ? parameter
+            : Expression.Convert(parameter, expressionParameterType);
         else
           throw new InvalidOperationException(String.Format(
             Strings.ExUnableToUseExpressionXAsXParameterOfLambdaXBecauseOfTypeMistmatch,
-            parameters[i].ToString(true), i, lambdaExpression.Parameters[i].ToString(true)));
+            parameters[i].ToString(true), i, expressionParameter.ToString(true)));
       }
       return ExpressionReplacer.ReplaceAll(
-        lambdaExpression.Body, lambdaExpression.Parameters, convertedParameters);
+        lambdaExpression.Body, lambdaExpressionParameters, convertedParameters);
     }
 
     /// <summary>
@@ -121,28 +126,15 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="defaultExpression">The expression to convert.</param>
     /// <returns>Result constant expression.</returns>
-    public static ConstantExpression ToConstantExpression(this DefaultExpression defaultExpression)
-    {
-      var value = GetDefaultValue(defaultExpression);
-
-      return Expression.Constant(value, defaultExpression.Type);
-    }
-
-    /// <summary>
-    /// Gets the value represented by given <see cref="DefaultExpression"/>.
-    /// </summary>
-    /// <param name="defaultExpression">The default value expression.</param>
-    /// <returns>Object value of default value.</returns>
-    public static object GetDefaultValue(this DefaultExpression defaultExpression)
-    {
-      if (defaultExpression.Type.IsValueType) {
-        return StructDefaultValues.GetOrAdd<DefaultExpression>(
-          defaultExpression.Type,
-          (type, expr) => { return ((Func<object>) Expression.Lambda(Expression.Convert(expr, WellKnownTypes.Object)).Compile()).Invoke(); },
-          defaultExpression);
-      }
-      return null;
-    }
+    public static ConstantExpression ToConstantExpression(this DefaultExpression defaultExpression) =>
+      StructDefaultConstantExpressions.GetOrAdd(
+        defaultExpression.Type,
+        static (t, expr) => Expression.Constant(
+          t.IsValueType
+            ? ((Func<object>) Expression.Lambda(Expression.Convert(expr, WellKnownTypes.Object)).Compile()).Invoke()
+            : null,
+          t),
+        defaultExpression);
 
     /// <summary>
     /// Gets return type of <see cref="LambdaExpression"/>.
