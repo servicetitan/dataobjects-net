@@ -102,9 +102,9 @@ namespace Xtensive.Sql.Model
     public PairedNodeCollection(TOwner owner, string property, int capacity, IEqualityComparer<string> equalityComparer)
       : base(capacity, equalityComparer)
     {
-      ArgumentNullException.ThrowIfNull(owner, nameof(owner));
+      ArgumentNullException.ThrowIfNull(owner);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(property, nameof(property));
-      ArgumentNullException.ThrowIfNull(equalityComparer, nameof(equalityComparer));
+      ArgumentNullException.ThrowIfNull(equalityComparer);
 
       this.owner = owner;
       this.property = property;

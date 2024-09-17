@@ -31,7 +31,7 @@ namespace Xtensive.Core
     [DebuggerStepThrough]
     protected Parameter(string name)
     {
-      ArgumentNullException.ThrowIfNull(name, nameof(name));
+      ArgumentNullException.ThrowIfNull(name);
       Name = name;
     }
   }

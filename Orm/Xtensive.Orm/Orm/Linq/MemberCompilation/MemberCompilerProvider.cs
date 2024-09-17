@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     public Delegate GetUntypedCompiler(MemberInfo target)
     {
-      ArgumentNullException.ThrowIfNull(target, nameof(target));
+      ArgumentNullException.ThrowIfNull(target);
 
       return compilers.GetValueOrDefault(GetCompilerKey(target));
     }

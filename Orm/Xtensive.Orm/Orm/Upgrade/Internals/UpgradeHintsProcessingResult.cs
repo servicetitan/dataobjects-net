@@ -53,13 +53,13 @@ namespace Xtensive.Orm.Upgrade.Internals
       IReadOnlyList<StoredTypeInfo> currentNonConnectorTypes,
       IReadOnlyList<StoredTypeInfo> extractedNonConnectorTypes)
     {
-      ArgumentNullException.ThrowIfNull(hints, nameof(hints));
-      ArgumentNullException.ThrowIfNull(typeMapping, nameof(typeMapping));
-      ArgumentNullException.ThrowIfNull(reverseTypeMapping, nameof(reverseTypeMapping));
-      ArgumentNullException.ThrowIfNull(fieldMapping, nameof(fieldMapping));
-      ArgumentNullException.ThrowIfNull(reverseFieldMapping, nameof(reverseFieldMapping));
-      ArgumentNullException.ThrowIfNull(currentModelTypes, nameof(currentModelTypes));
-      ArgumentNullException.ThrowIfNull(suspiciousTypes, nameof(suspiciousTypes));
+      ArgumentNullException.ThrowIfNull(hints);
+      ArgumentNullException.ThrowIfNull(typeMapping);
+      ArgumentNullException.ThrowIfNull(reverseTypeMapping);
+      ArgumentNullException.ThrowIfNull(fieldMapping);
+      ArgumentNullException.ThrowIfNull(reverseFieldMapping);
+      ArgumentNullException.ThrowIfNull(currentModelTypes);
+      ArgumentNullException.ThrowIfNull(suspiciousTypes);
       ArgumentNullException.ThrowIfNull(currentNonConnectorTypes, nameof(suspiciousTypes));
       ArgumentNullException.ThrowIfNull(extractedNonConnectorTypes, nameof(suspiciousTypes));
 

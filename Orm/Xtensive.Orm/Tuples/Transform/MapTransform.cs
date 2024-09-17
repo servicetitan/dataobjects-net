@@ -66,7 +66,7 @@ namespace Xtensive.Tuples.Transform
 
     protected void SetSingleSourceMap(IReadOnlyList<ColNum> singleSourceMap)
     {
-      ArgumentNullException.ThrowIfNull(singleSourceMap, nameof(singleSourceMap));
+      ArgumentNullException.ThrowIfNull(singleSourceMap);
       var newMap = new Pair<ColNum, ColNum>[Descriptor.Count];
       var index = 0;
       for (; index < newMap.Length && index < singleSourceMap.Count; index++) {
@@ -83,7 +83,7 @@ namespace Xtensive.Tuples.Transform
 
     protected void SetMap(Pair<ColNum, ColNum>[] map)
     {
-      ArgumentNullException.ThrowIfNull(map, nameof(map));
+      ArgumentNullException.ThrowIfNull(map);
       ColNum[] newFirstSourceMap = new ColNum[map.Length];
       int index = 0;
       int newSourceCount = -1;

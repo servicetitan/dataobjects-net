@@ -101,7 +101,7 @@ namespace Xtensive.Core
     /// <returns>Indented <paramref name="value"/>.</returns>
     public static string Indent(this string value, int indentSize, bool indentFirstLine)
     {
-      ArgumentNullException.ThrowIfNull(value, nameof(value));
+      ArgumentNullException.ThrowIfNull(value);
 
       var lineCount = value.AsSpan().TrimEnd('\n').Count('\n');
 
@@ -245,7 +245,7 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
     public static string RevertibleJoin(this IEnumerable<string> source, char escape, char delimiter)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
       if (escape == delimiter) {
         throw new ArgumentException(
           Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
@@ -292,7 +292,7 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
     public static IEnumerable<string> RevertibleSplit(this string source, char escape, char delimiter)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
       if (escape == delimiter) {
         throw new ArgumentException(
           Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
@@ -331,7 +331,7 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
     public static Pair<string> RevertibleSplitFirstAndTail(this string source, char escape, char delimiter)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
       if (escape == delimiter) {
         throw new ArgumentException(
           Strings.ExEscapeCharacterMustDifferFromDelimiterCharacter);
@@ -550,8 +550,8 @@ namespace Xtensive.Core
 
     internal static bool Contains(this string str, string value, StringComparison comparison)
     {
-      ArgumentNullException.ThrowIfNull(str, nameof(str));
-      ArgumentNullException.ThrowIfNull(value, nameof(value));
+      ArgumentNullException.ThrowIfNull(str);
+      ArgumentNullException.ThrowIfNull(value);
 
       return str.IndexOf(value, comparison) >= 0;
     }

@@ -1029,12 +1029,12 @@ namespace Xtensive.Orm.Upgrade
       StoredDomainModel currentDomainModel,
       StoredDomainModel extractedDomainModel)
     {
-      ArgumentNullException.ThrowIfNull(hintsProcessingResult, nameof(hintsProcessingResult));
-      ArgumentNullException.ThrowIfNull(handlers, nameof(handlers));
-      ArgumentNullException.ThrowIfNull(resolver, nameof(resolver));
-      ArgumentNullException.ThrowIfNull(extractedStorageModel, nameof(extractedStorageModel));
-      ArgumentNullException.ThrowIfNull(currentDomainModel, nameof(currentDomainModel));
-      ArgumentNullException.ThrowIfNull(extractedDomainModel, nameof(extractedDomainModel));
+      ArgumentNullException.ThrowIfNull(hintsProcessingResult);
+      ArgumentNullException.ThrowIfNull(handlers);
+      ArgumentNullException.ThrowIfNull(resolver);
+      ArgumentNullException.ThrowIfNull(extractedStorageModel);
+      ArgumentNullException.ThrowIfNull(currentDomainModel);
+      ArgumentNullException.ThrowIfNull(extractedDomainModel);
 
       typeMapping = hintsProcessingResult.TypeMapping;
       reverseTypeMapping = hintsProcessingResult.ReverseTypeMapping;

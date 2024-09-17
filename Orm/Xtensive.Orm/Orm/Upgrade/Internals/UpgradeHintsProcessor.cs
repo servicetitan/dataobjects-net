@@ -604,11 +604,11 @@ namespace Xtensive.Orm.Upgrade.Internals
       StorageModel extractedStorageModel,
       bool autoDetectTypesMovements)
     {
-      ArgumentNullException.ThrowIfNull(handlers, nameof(handlers));
-      ArgumentNullException.ThrowIfNull(resolver, nameof(resolver));
-      ArgumentNullException.ThrowIfNull(currentDomainModel, nameof(currentDomainModel));
-      ArgumentNullException.ThrowIfNull(extractedDomainModel, nameof(extractedDomainModel));
-      ArgumentNullException.ThrowIfNull(extractedStorageModel, nameof(extractedStorageModel));
+      ArgumentNullException.ThrowIfNull(handlers);
+      ArgumentNullException.ThrowIfNull(resolver);
+      ArgumentNullException.ThrowIfNull(currentDomainModel);
+      ArgumentNullException.ThrowIfNull(extractedDomainModel);
+      ArgumentNullException.ThrowIfNull(extractedStorageModel);
 
       // since type mapping is intersection of current types and extracted types
       // it will be equal or less than min size of these two sets

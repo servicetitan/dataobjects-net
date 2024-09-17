@@ -38,7 +38,7 @@ namespace Xtensive.Core
 
     public SynchronousFutureResult(Func<T> worker)
     {
-      ArgumentNullException.ThrowIfNull(worker, nameof(worker));
+      ArgumentNullException.ThrowIfNull(worker);
 
       this.worker = worker;
     }

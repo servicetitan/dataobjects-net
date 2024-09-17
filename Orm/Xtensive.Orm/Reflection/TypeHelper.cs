@@ -168,7 +168,7 @@ namespace Xtensive.Reflection
       object[] constructorParams, IEnumerable<Pair<Assembly, string>> highPriorityLocations, bool exactTypeMatch)
       where T : class
     {
-      ArgumentNullException.ThrowIfNull(forType, nameof(forType));
+      ArgumentNullException.ThrowIfNull(forType);
       if (forType.IsGenericTypeDefinition) {
         throw new InvalidOperationException(string.Format(
           Strings.ExCantCreateAssociateForGenericTypeDefinitions, GetShortName(forType)));
@@ -428,7 +428,7 @@ namespace Xtensive.Reflection
     public static Type CreateDummyType(string namePrefix, Type inheritFrom, bool implementProtectedConstructorAccessor)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(namePrefix, nameof(namePrefix));
-      ArgumentNullException.ThrowIfNull(inheritFrom, nameof(inheritFrom));
+      ArgumentNullException.ThrowIfNull(inheritFrom);
 
 
       var n = Interlocked.Increment(ref createDummyTypeNumber);
@@ -449,7 +449,7 @@ namespace Xtensive.Reflection
       bool implementProtectedConstructorAccessor)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, nameof(typeName));
-      ArgumentNullException.ThrowIfNull(inheritFrom, nameof(inheritFrom));
+      ArgumentNullException.ThrowIfNull(inheritFrom);
       EnsureEmitInitialized();
       lock (EmitLock) {
         var typeBuilder = moduleBuilder.DefineType(
@@ -555,7 +555,7 @@ namespace Xtensive.Reflection
     public static object Activate(Assembly assembly, string typeName, Type[] genericArguments,
       params object[] arguments)
     {
-      ArgumentNullException.ThrowIfNull(assembly, nameof(assembly));
+      ArgumentNullException.ThrowIfNull(assembly);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, nameof(typeName));
       var type = assembly.GetType(typeName, false);
       return type == null ? null : Activate(type, genericArguments, arguments);
@@ -1158,7 +1158,7 @@ namespace Xtensive.Reflection
     /// </returns>
     public static Type ToNullable(this Type type)
     {
-      ArgumentNullException.ThrowIfNull(type, nameof(type));
+      ArgumentNullException.ThrowIfNull(type);
       return type.IsValueType && !type.IsNullable()
         ? WellKnownTypes.NullableOfT.CachedMakeGenericType(type)
         : type;
@@ -1176,7 +1176,7 @@ namespace Xtensive.Reflection
     /// </returns>
     public static Type StripNullable(this Type type)
     {
-      ArgumentNullException.ThrowIfNull(type, nameof(type));
+      ArgumentNullException.ThrowIfNull(type);
       return type.IsNullable()
         ? type.GetGenericArguments()[0]
         : type;
@@ -1226,8 +1226,8 @@ namespace Xtensive.Reflection
     /// </returns>
     public static bool IsPublicNonAbstractInheritorOf(this Type type, Type baseType)
     {
-      ArgumentNullException.ThrowIfNull(type, nameof(type));
-      ArgumentNullException.ThrowIfNull(baseType, nameof(baseType));
+      ArgumentNullException.ThrowIfNull(type);
+      ArgumentNullException.ThrowIfNull(baseType);
       return type.IsPublic && !type.IsAbstract && baseType.IsAssignableFrom(type);
     }
 
@@ -1241,7 +1241,7 @@ namespace Xtensive.Reflection
     /// </returns>
     public static bool IsNumericType(this Type type)
     {
-      ArgumentNullException.ThrowIfNull(type, nameof(type));
+      ArgumentNullException.ThrowIfNull(type);
       var nonNullableType = type.StripNullable();
       if (nonNullableType.IsEnum) {
         return false;

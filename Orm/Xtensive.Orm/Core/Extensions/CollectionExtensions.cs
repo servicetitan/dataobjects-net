@@ -208,9 +208,9 @@ namespace Xtensive.Core
     internal static Pair<TFirst[], TSecond[]> SelectToArrays<TSource, TFirst,TSecond>(
       this ICollection<TSource> source, Func<TSource, TFirst> firstArraySelector, Func<TSource, TSecond> secondArraySelector)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(firstArraySelector, nameof(firstArraySelector));
-      ArgumentNullException.ThrowIfNull(secondArraySelector, nameof(secondArraySelector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(firstArraySelector);
+      ArgumentNullException.ThrowIfNull(secondArraySelector);
 
       var first = new TFirst[source.Count];
       var second = new TSecond[source.Count];

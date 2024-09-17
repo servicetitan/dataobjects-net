@@ -51,7 +51,7 @@ namespace Xtensive.Orm
     /// <exception cref="InvalidOperationException"><see cref="Transaction.Current"/> <see cref="Transaction"/> is <see langword="null" />.</exception>
     public static void Require(Session session)
     {
-      ArgumentNullException.ThrowIfNull(session, nameof(session));
+      ArgumentNullException.ThrowIfNull(session);
       session.DemandTransaction();
     }
 

@@ -185,10 +185,10 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public EntityGroupTask(TypeInfo type, IReadOnlyList<ColNum> columnIndexes, PrefetchManager manager)
     {
-      ArgumentNullException.ThrowIfNull(type, nameof(type));
-      ArgumentNullException.ThrowIfNull(columnIndexes, nameof(columnIndexes));
+      ArgumentNullException.ThrowIfNull(type);
+      ArgumentNullException.ThrowIfNull(columnIndexes);
       ArgumentValidator.EnsureArgumentIsGreaterThan(columnIndexes.Count, 0, "columnIndexes.Length");
-      ArgumentNullException.ThrowIfNull(manager, nameof(manager));
+      ArgumentNullException.ThrowIfNull(manager);
 
       this.type = type;
       this.manager = manager;

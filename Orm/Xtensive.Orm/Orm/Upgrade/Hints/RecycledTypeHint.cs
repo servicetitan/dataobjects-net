@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="type">The recycled type.</param>
     public RecycledTypeHint(Type type)
     {
-      ArgumentNullException.ThrowIfNull(type, nameof(type));
+      ArgumentNullException.ThrowIfNull(type);
 
       Type = type;
 

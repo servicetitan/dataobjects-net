@@ -379,9 +379,9 @@ namespace Xtensive.Core
       IEqualityComparer<TKey> comparer,
       int capacity)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(keySelector, nameof(keySelector));
-      ArgumentNullException.ThrowIfNull(elementSelector, nameof(elementSelector));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(keySelector);
+      ArgumentNullException.ThrowIfNull(elementSelector);
       ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(capacity, 0, nameof(capacity));
 
       var dictionary = comparer != null

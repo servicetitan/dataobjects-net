@@ -56,7 +56,7 @@ namespace Xtensive.Sql
     {
       get => connectionInfo;
       set {
-        ArgumentNullException.ThrowIfNull(value, nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
         EnsureIsNotDisposed();
 
         UnderlyingConnection.ConnectionString = Driver.GetConnectionString(value);

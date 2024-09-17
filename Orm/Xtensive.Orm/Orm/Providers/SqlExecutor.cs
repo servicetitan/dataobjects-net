@@ -294,8 +294,8 @@ namespace Xtensive.Orm.Providers
 
     public SqlExecutor(StorageDriver driver, SqlConnection connection)
     {
-      ArgumentNullException.ThrowIfNull(driver, nameof(driver));
-      ArgumentNullException.ThrowIfNull(connection, nameof(connection));
+      ArgumentNullException.ThrowIfNull(driver);
+      ArgumentNullException.ThrowIfNull(connection);
       this.driver = driver;
       this.connection = connection;
     }

@@ -83,7 +83,7 @@ namespace Xtensive.IoC
     private static Lazy<ServiceRegistration[]> ServiceRegistrationsExtractorImpl(ServiceRegistrationKey key) =>
       new Lazy<ServiceRegistration[]>(() => {
         (var type, var defaultOnly) = key;
-        ArgumentNullException.ThrowIfNull(type, nameof(type));
+        ArgumentNullException.ThrowIfNull(type);
         if (type.IsAbstract) {
           return Array.Empty<ServiceRegistration>();
         }

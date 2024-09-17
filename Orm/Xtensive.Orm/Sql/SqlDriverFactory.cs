@@ -68,8 +68,8 @@ namespace Xtensive.Sql
     /// <returns>Created driver.</returns>
     public SqlDriver GetDriver(ConnectionInfo connectionInfo, SqlDriverConfiguration configuration)
     {
-      ArgumentNullException.ThrowIfNull(connectionInfo, nameof(connectionInfo));
-      ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(connectionInfo);
+      ArgumentNullException.ThrowIfNull(configuration);
 
       var connectionString = GetConnectionString(connectionInfo);
       configuration = configuration.Clone();
@@ -91,8 +91,8 @@ namespace Xtensive.Sql
     public async Task<SqlDriver> GetDriverAsync(
       ConnectionInfo connectionInfo, SqlDriverConfiguration configuration, CancellationToken token)
     {
-      ArgumentNullException.ThrowIfNull(connectionInfo, nameof(connectionInfo));
-      ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(connectionInfo);
+      ArgumentNullException.ThrowIfNull(configuration);
 
       var connectionString = GetConnectionString(connectionInfo);
       configuration = configuration.Clone();
@@ -108,7 +108,7 @@ namespace Xtensive.Sql
     /// <returns>Connection string for <paramref name="connectionInfo"/>.</returns>
     public string GetConnectionString(ConnectionInfo connectionInfo)
     {
-      ArgumentNullException.ThrowIfNull(connectionInfo, nameof(connectionInfo));
+      ArgumentNullException.ThrowIfNull(connectionInfo);
       return connectionInfo.ConnectionString
         ?? BuildConnectionString(connectionInfo.ConnectionUrl);
     }
@@ -121,7 +121,7 @@ namespace Xtensive.Sql
     /// <returns><see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.</returns>
     public DefaultSchemaInfo GetDefaultSchema(DbConnection connection, DbTransaction transaction = null)
     {
-      ArgumentNullException.ThrowIfNull(connection, nameof(connection));
+      ArgumentNullException.ThrowIfNull(connection);
       return ReadDefaultSchema(connection, transaction);
     }
 
@@ -137,7 +137,7 @@ namespace Xtensive.Sql
     public Task<DefaultSchemaInfo> GetDefaultSchemaAsync(
       DbConnection connection, DbTransaction transaction = null, CancellationToken token = default)
     {
-      ArgumentNullException.ThrowIfNull(connection, nameof(connection));
+      ArgumentNullException.ThrowIfNull(connection);
       return ReadDefaultSchemaAsync(connection, transaction, token);
     }
 

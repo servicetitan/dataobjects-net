@@ -340,10 +340,10 @@ namespace Xtensive.Modelling
       using (CloningScope.Open()) {
         var isModel = this is IModel;
         if (!isModel) {
-          ArgumentNullException.ThrowIfNull(newParent, nameof(newParent));
+          ArgumentNullException.ThrowIfNull(newParent);
         }
 
-        ArgumentNullException.ThrowIfNull(newName, nameof(newName));
+        ArgumentNullException.ThrowIfNull(newName);
 
         // Cloning the instance
         var model = isModel ? null : (IModel) newParent.Model;
@@ -852,7 +852,7 @@ namespace Xtensive.Modelling
 
     private static PropertyAccessorDictionary GetPropertyAccessors(Type type)
     {
-      ArgumentNullException.ThrowIfNull(type, nameof(type));
+      ArgumentNullException.ThrowIfNull(type);
 
       static Lazy<PropertyAccessorDictionary> PropertyAccessorExtractor(Type entityType)
       {
@@ -1008,7 +1008,7 @@ namespace Xtensive.Modelling
     protected Node(Node parent, string name)
     {
       if (!(this is IModel)) {
-        ArgumentNullException.ThrowIfNull(parent, nameof(parent));
+        ArgumentNullException.ThrowIfNull(parent);
       }
 
       if (!(this is IUnnamedNode)) {

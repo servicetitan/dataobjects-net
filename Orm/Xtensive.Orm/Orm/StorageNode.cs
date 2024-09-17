@@ -98,7 +98,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken = default)
     {
-      ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(configuration);
 
       SessionScope sessionScope = null;
       try {
@@ -124,10 +124,10 @@ namespace Xtensive.Orm
 
     internal StorageNode(Domain domain, NodeConfiguration configuration, ModelMapping mapping, TypeIdRegistry typeIdRegistry)
     {
-      ArgumentNullException.ThrowIfNull(domain, nameof(domain));
-      ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
-      ArgumentNullException.ThrowIfNull(mapping, nameof(mapping));
-      ArgumentNullException.ThrowIfNull(typeIdRegistry, nameof(typeIdRegistry));
+      ArgumentNullException.ThrowIfNull(domain);
+      ArgumentNullException.ThrowIfNull(configuration);
+      ArgumentNullException.ThrowIfNull(mapping);
+      ArgumentNullException.ThrowIfNull(typeIdRegistry);
 
       this.domain = domain;
       Configuration = configuration;

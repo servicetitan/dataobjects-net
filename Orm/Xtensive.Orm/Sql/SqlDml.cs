@@ -547,7 +547,7 @@ namespace Xtensive.Sql
 
     public static SqlExtract Extract(SqlDatePart part, SqlExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, nameof(operand));
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsArithmeticExpression(operand);
       if (part == SqlDatePart.Nothing) {
         throw new ArgumentException(string.Format("Unable to extract {0} part", SqlDatePart.Nothing.ToString()));
@@ -557,7 +557,7 @@ namespace Xtensive.Sql
 
     public static SqlExtract Extract(SqlTimePart part, SqlExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, nameof(operand));
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsArithmeticExpression(operand);
       if (part == SqlTimePart.Nothing) {
         throw new ArgumentException(string.Format("Unable to extract {0} part", SqlTimePart.Nothing.ToString()));
@@ -631,15 +631,15 @@ namespace Xtensive.Sql
 
     public static SqlBinary TimePlusInterval(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, nameof(left));
-      ArgumentNullException.ThrowIfNull(right, nameof(right));
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlBinary(SqlNodeType.TimePlusInterval, left, right);
     }
 
     public static SqlBinary TimeMinusTime(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, nameof(left));
-      ArgumentNullException.ThrowIfNull(right, nameof(right));
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlBinary(SqlNodeType.TimeMinusTime, left, right);
     }
 
@@ -673,90 +673,90 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall DateTimeToTime(SqlExpression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlFunctionCall(SqlFunctionType.DateTimeToTime, expression);
     }
 
     public static SqlFunctionCall DateAddYears(SqlExpression source, SqlExpression years)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(years, nameof(years));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(years);
       return new SqlFunctionCall(SqlFunctionType.DateAddYears, source, years);
     }
 
     public static SqlFunctionCall DateAddMonths(SqlExpression source, SqlExpression months)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(months, nameof(months));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(months);
       return new SqlFunctionCall(SqlFunctionType.DateAddMonths, source, months);
     }
 
     public static SqlFunctionCall DateAddDays(SqlExpression source, SqlExpression days)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(days, nameof(days));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(days);
       return new SqlFunctionCall(SqlFunctionType.DateAddDays, source, days);
     }
 
     public static SqlFunctionCall DateToString(SqlExpression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlFunctionCall(SqlFunctionType.DateToString, expression);
     }
 
     public static SqlFunctionCall DateToDateTime(SqlExpression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlFunctionCall(SqlFunctionType.DateToDateTime, expression);
     }
 
     public static SqlFunctionCall DateTimeToDate(SqlExpression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlFunctionCall(SqlFunctionType.DateTimeToDate, expression);
     }
 
     public static SqlFunctionCall DateToDateTimeOffset(SqlExpression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlFunctionCall(SqlFunctionType.DateToDateTimeOffset, expression);
     }
 
     public static SqlFunctionCall TimeAddHours(SqlExpression source, SqlExpression hours)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(hours, nameof(hours));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(hours);
       return new SqlFunctionCall(SqlFunctionType.TimeAddHours, source, hours);
     }
 
     public static SqlFunctionCall TimeAddMinutes(SqlExpression source, SqlExpression minutes)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
-      ArgumentNullException.ThrowIfNull(minutes, nameof(minutes));
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(minutes);
       return new SqlFunctionCall(SqlFunctionType.TimeAddMinutes, source, minutes);
     }
 
     public static SqlFunctionCall TimeToString(SqlExpression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlFunctionCall(SqlFunctionType.TimeToString, expression);
     }
 
     public static SqlFunctionCall TimeToDateTime(SqlExpression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlFunctionCall(SqlFunctionType.TimeToDateTime, expression);
     }
 
     public static SqlExpression TimeToNanoseconds(SqlExpression source)
     {
-      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source);
       return new SqlFunctionCall(SqlFunctionType.TimeToNanoseconds, source);
     }
 
     public static SqlFunctionCall TimeToDateTimeOffset(SqlExpression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlFunctionCall(SqlFunctionType.TimeToDateTimeOffset, expression);
     }
 
@@ -889,20 +889,20 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall DateTimeOffsetToDateTime(SqlExpression dateTimeOffset)
     {
-      ArgumentNullException.ThrowIfNull(dateTimeOffset, nameof(dateTimeOffset));
+      ArgumentNullException.ThrowIfNull(dateTimeOffset);
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToDateTime, dateTimeOffset);
     }
 
     public static SqlFunctionCall DateTimeOffsetToTime(SqlExpression dateTimeOffset)
     {
-      ArgumentNullException.ThrowIfNull(dateTimeOffset, nameof(dateTimeOffset));
+      ArgumentNullException.ThrowIfNull(dateTimeOffset);
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToTime, dateTimeOffset);
     }
 
     public static SqlFunctionCall DateTimeOffsetToDate(SqlExpression dateTimeOffset)
     {
-      ArgumentNullException.ThrowIfNull(dateTimeOffset, nameof(dateTimeOffset));
-      ArgumentNullException.ThrowIfNull(dateTimeOffset, nameof(dateTimeOffset));
+      ArgumentNullException.ThrowIfNull(dateTimeOffset);
+      ArgumentNullException.ThrowIfNull(dateTimeOffset);
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToDate, dateTimeOffset);
     }
 
@@ -1435,7 +1435,7 @@ namespace Xtensive.Sql
 
     public static SqlMetadata Metadata(SqlExpression expression, object value)
     {
-      ArgumentNullException.ThrowIfNull(expression, nameof(expression));
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlMetadata(expression, value);
     }
 
