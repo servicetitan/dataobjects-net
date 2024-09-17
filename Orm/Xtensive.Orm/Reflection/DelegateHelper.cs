@@ -351,9 +351,9 @@ namespace Xtensive.Reflection
     public static TDelegate CreateDelegate<TDelegate>(object callTarget, Type type, string methodName, params Type[] genericArgumentTypes)
       where TDelegate : class
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(methodName, "methodName");
-      ArgumentValidator.EnsureArgumentNotNull(genericArgumentTypes, "genericArgumentTypes");
+      ArgumentNullException.ThrowIfNull(genericArgumentTypes, "genericArgumentTypes");
       Type delegateType = typeof (TDelegate);
       if (!WellKnownTypes.Delegate.IsAssignableFrom(delegateType))
         throw new ArgumentException(string.Format(Strings.ExGenericParameterShouldBeOfTypeT,
@@ -398,9 +398,9 @@ namespace Xtensive.Reflection
     public static TDelegate[] CreateDelegates<TDelegate>(object callTarget, Type type, string methodName, IList<Type> genericArgumentVariants)
       where TDelegate : class
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(methodName, "methodName");
-      ArgumentValidator.EnsureArgumentNotNull(genericArgumentVariants, "genericArgumentVariants");
+      ArgumentNullException.ThrowIfNull(genericArgumentVariants, "genericArgumentVariants");
       Type delegateType = typeof (TDelegate);
       if (!WellKnownTypes.Delegate.IsAssignableFrom(delegateType))
         throw new ArgumentException(string.Format(Strings.ExGenericParameterShouldBeOfTypeT,
@@ -475,7 +475,7 @@ namespace Xtensive.Reflection
     /// <returns>Created delegate type.</returns>
     public static Type MakeDelegateType(Type returnType, params Type[] parameterTypes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(parameterTypes, "parameterTypes");
+      ArgumentNullException.ThrowIfNull(parameterTypes, "parameterTypes");
       var n = parameterTypes.Length;
       ArgumentOutOfRangeException.ThrowIfGreaterThan(n, MaxNumberOfGenericDelegateParameters);
       if (returnType == WellKnownTypes.Void || returnType == null) {
@@ -493,7 +493,7 @@ namespace Xtensive.Reflection
     /// <returns>Created delegate type.</returns>
     public static Type MakeDelegateType(Type returnType, IEnumerable<Type> parameterTypes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(parameterTypes, "parameterTypes");
+      ArgumentNullException.ThrowIfNull(parameterTypes, "parameterTypes");
       return MakeDelegateType(returnType, parameterTypes.ToArray());
     }
 
@@ -504,7 +504,7 @@ namespace Xtensive.Reflection
     /// <returns>A pair that contains return type as first element and parameter types as second arguments.</returns>
     public static Pair<Type, Type[]> GetDelegateSignature(Type delegateType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(delegateType, "delegateType");
+      ArgumentNullException.ThrowIfNull(delegateType, "delegateType");
       // check for non-generic Action
       if (delegateType == ActionTypes[0])
         return new Pair<Type, Type[]>(WellKnownTypes.Void, Array.Empty<Type>());

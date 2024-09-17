@@ -76,7 +76,7 @@ namespace Xtensive.Orm
     [NotNull]
     public TypeInfo ResolveTypeInfo([NotNull, InstantHandle] Session session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      ArgumentNullException.ThrowIfNull(session, "session");
 
       if (TypeReference.Accuracy==TypeReferenceAccuracy.ExactType)
         return TypeReference.Type;
@@ -228,7 +228,7 @@ namespace Xtensive.Orm
       if (source==null)
         return null;
 
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
+      ArgumentNullException.ThrowIfNull(domain, "domain");
 
       var parts = source.RevertibleSplit(KeyFormatEscape, KeyFormatDelimiter).ToList();
       if (parts.Count!=2 && parts.Count!=3 || parts.Contains(null))
@@ -298,8 +298,8 @@ namespace Xtensive.Orm
     /// </returns>
     public static Key Generate([NotNull] Session session, [NotNull] Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(session, "session");
+      ArgumentNullException.ThrowIfNull(type, "type");
 
       return Generate(session, session.Domain.Model.Types[type]);
     }
@@ -372,9 +372,9 @@ namespace Xtensive.Orm
     /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
     public static Key Create([NotNull] Domain domain, [NotNull] string nodeId, [NotNull] Type type, TypeReferenceAccuracy accuracy, [NotNull] Tuple value)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      ArgumentNullException.ThrowIfNull(domain, "domain");
+      ArgumentNullException.ThrowIfNull(type, "type");
+      ArgumentNullException.ThrowIfNull(value, "value");
 
       return Create(domain, nodeId, domain.Model.Types[type], accuracy, value);
     }
@@ -445,10 +445,10 @@ namespace Xtensive.Orm
     /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
     public static Key Create([NotNull] Domain domain, [NotNull] string nodeId, [NotNull] Type type, TypeReferenceAccuracy accuracy, [NotNull] params object[] values)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNull(values, "values");
+      ArgumentNullException.ThrowIfNull(domain, "domain");
+      ArgumentNullException.ThrowIfNull(nodeId, "nodeId");
+      ArgumentNullException.ThrowIfNull(type, "type");
+      ArgumentNullException.ThrowIfNull(values, "values");
 
       return Create(domain, nodeId, domain.Model.Types[type], accuracy, values);
     }

@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Operations
     protected EntityFieldOperation(Key key, FieldInfo field)
       : base(key)
     {
-      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      ArgumentNullException.ThrowIfNull(field, "field");
       Field = field;
     }
 

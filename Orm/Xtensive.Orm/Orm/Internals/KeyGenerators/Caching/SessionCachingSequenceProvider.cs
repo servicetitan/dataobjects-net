@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Internals.KeyGenerators
 
     public SessionCachingSequenceProvider(IStorageSequenceAccessor accessor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(accessor, "accessor");
+      ArgumentNullException.ThrowIfNull(accessor, "accessor");
 
       this.accessor = accessor;
     }

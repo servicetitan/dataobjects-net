@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Serialization
     /// <param name="serializationKindGetter">The <see cref="SerializationKind"/> getter.</param>
     public SerializationContext(Func<Entity, SerializationKind> serializationKindGetter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(serializationKindGetter, "serializationKindGetter");
+      ArgumentNullException.ThrowIfNull(serializationKindGetter, "serializationKindGetter");
       this.serializationKindGetter = serializationKindGetter;
     }
   }

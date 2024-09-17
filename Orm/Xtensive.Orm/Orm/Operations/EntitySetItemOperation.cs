@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Operations
     protected EntitySetItemOperation(Key key, FieldInfo field, Key itemKey)
       : base(key, field)
     {
-      ArgumentValidator.EnsureArgumentNotNull(itemKey, "itemKey");
+      ArgumentNullException.ThrowIfNull(itemKey, "itemKey");
       ItemKey = itemKey;
     }
 

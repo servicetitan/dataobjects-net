@@ -42,8 +42,8 @@ namespace Xtensive.Orm.Configuration
     /// <param name="substitution">Value for <see cref="Substitution"/>.</param>
     public LinqExtensionRegistration(MemberInfo member, LambdaExpression substitution)
     {
-      ArgumentValidator.EnsureArgumentNotNull(member, "member");
-      ArgumentValidator.EnsureArgumentNotNull(substitution, "substitution");
+      ArgumentNullException.ThrowIfNull(member, "member");
+      ArgumentNullException.ThrowIfNull(substitution, "substitution");
 
       Member = member;
       Substitution = substitution;
@@ -56,8 +56,8 @@ namespace Xtensive.Orm.Configuration
     /// <param name="compiler">Value for <see cref="Compiler"/>.</param>
     public LinqExtensionRegistration(MemberInfo member, Func<MemberInfo, Expression, Expression[], Expression> compiler)
     {
-      ArgumentValidator.EnsureArgumentNotNull(member, "member");
-      ArgumentValidator.EnsureArgumentNotNull(compiler, "compiler");
+      ArgumentNullException.ThrowIfNull(member, "member");
+      ArgumentNullException.ThrowIfNull(compiler, "compiler");
 
       Member = member;
       Compiler = compiler;

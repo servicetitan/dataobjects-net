@@ -66,7 +66,7 @@ namespace Xtensive.Tuples.Transform
 
     protected void SetSingleSourceMap(IReadOnlyList<ColNum> singleSourceMap)
     {
-      ArgumentValidator.EnsureArgumentNotNull(singleSourceMap, nameof(singleSourceMap));
+      ArgumentNullException.ThrowIfNull(singleSourceMap, nameof(singleSourceMap));
       var newMap = new Pair<ColNum, ColNum>[Descriptor.Count];
       var index = 0;
       for (; index < newMap.Length && index < singleSourceMap.Count; index++) {
@@ -83,7 +83,7 @@ namespace Xtensive.Tuples.Transform
 
     protected void SetMap(Pair<ColNum, ColNum>[] map)
     {
-      ArgumentValidator.EnsureArgumentNotNull(map, nameof(map));
+      ArgumentNullException.ThrowIfNull(map, nameof(map));
       ColNum[] newFirstSourceMap = new ColNum[map.Length];
       int index = 0;
       int newSourceCount = -1;
@@ -104,7 +104,7 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public override Tuple Apply(TupleTransformType transformType, params object[] arguments)
     {
-      ArgumentValidator.EnsureArgumentNotNull(arguments, "arguments");
+      ArgumentNullException.ThrowIfNull(arguments, "arguments");
       switch (sourceCount) {
       case 1:
         return Apply(transformType, (Tuple)arguments[0]);
@@ -127,7 +127,7 @@ namespace Xtensive.Tuples.Transform
     /// dependently on specified <paramref name="transformType"/>.</returns>
     public Tuple Apply(TupleTransformType transformType, params Tuple[] sources)
     {
-      ArgumentValidator.EnsureArgumentNotNull(sources, "sources");
+      ArgumentNullException.ThrowIfNull(sources, "sources");
       if (sourceCount>sources.Length)
         throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
       switch (sourceCount) {
@@ -293,7 +293,7 @@ namespace Xtensive.Tuples.Transform
     protected MapTransform(bool isReadOnly, TupleDescriptor descriptor)
       : this(isReadOnly)
     {
-      ArgumentValidator.EnsureArgumentNotNull(descriptor, "descriptor");
+      ArgumentNullException.ThrowIfNull(descriptor, "descriptor");
       Descriptor = descriptor;
       this.isReadOnly = isReadOnly;
     }

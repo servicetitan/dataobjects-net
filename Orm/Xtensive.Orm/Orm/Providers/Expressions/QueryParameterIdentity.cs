@@ -61,8 +61,8 @@ namespace Xtensive.Orm.Providers
 
     public QueryParameterIdentity(TypeMapping mapping, object closureObject, string fieldName, QueryParameterBindingType bindingType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(mapping, "mapping");
-      ArgumentValidator.EnsureArgumentNotNull(closureObject, "closureObject");
+      ArgumentNullException.ThrowIfNull(mapping, "mapping");
+      ArgumentNullException.ThrowIfNull(closureObject, "closureObject");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, "fieldName");
 
       Mapping = mapping;

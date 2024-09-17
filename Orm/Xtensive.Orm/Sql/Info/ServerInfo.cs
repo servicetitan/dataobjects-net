@@ -169,7 +169,7 @@ namespace Xtensive.Sql.Info
     /// <param name="provider">The provider.</param>
     public static ServerInfo Build(ServerInfoProvider provider)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
+      ArgumentNullException.ThrowIfNull(provider, "provider");
       var info = new ServerInfo {
         Assertion = provider.GetAssertionInfo(), 
         CharacterSet = provider.GetCharacterSetInfo(), 

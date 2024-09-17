@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     public ApplyPredicateCollector(ApplyProviderCorrectorRewriter owner)
     {
-      ArgumentValidator.EnsureArgumentNotNull(owner, "owner");
+      ArgumentNullException.ThrowIfNull(owner, "owner");
       this.owner = owner;
     }
   }

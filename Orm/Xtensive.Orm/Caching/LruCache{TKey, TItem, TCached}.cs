@@ -113,7 +113,7 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public override TItem Add(TItem item, bool replaceIfExists)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item, "item");
       var key = KeyExtractor(item);
       TCached cached = cacheConverter.ConvertForward(item);
       TCached oldCached;
@@ -243,7 +243,7 @@ namespace Xtensive.Caching
     {
       if (maxSize <= 0)
         ArgumentValidator.EnsureArgumentIsInRange(maxSize, 1, long.MaxValue, "maxSize");
-      ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
+      ArgumentNullException.ThrowIfNull(keyExtractor, "keyExtractor");
       this.maxSize = maxSize;
       this.KeyExtractor = keyExtractor;
       this.cacheConverter = cacheConverter;

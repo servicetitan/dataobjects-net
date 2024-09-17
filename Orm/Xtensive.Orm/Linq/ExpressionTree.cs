@@ -114,7 +114,7 @@ namespace Xtensive.Linq
 
     internal ExpressionTree(Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression, "expression");
       this.expression = expression;
       hashCode = new ExpressionHashCodeCalculator().CalculateHashCode(expression);
     }

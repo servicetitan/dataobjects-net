@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Tests.Linq
     private Expression<Func<T, object>>[] MakeUpColumns<T>(Expression<Func<T, object>> column, params Expression<Func<T, object>>[] additionalColumns)
       where T : Entity
     {
-      ArgumentValidator.EnsureArgumentNotNull(column, "column");
+      ArgumentNullException.ThrowIfNull(column, "column");
       var columns = new List<Expression<Func<T, object>>>();
       columns.Add(column);
       if (additionalColumns!=null) {

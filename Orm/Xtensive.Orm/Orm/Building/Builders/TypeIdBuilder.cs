@@ -117,8 +117,8 @@ namespace Xtensive.Orm.Building.Builders
 
     public TypeIdBuilder(Domain domain, ITypeIdProvider typeIdProvider)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      ArgumentValidator.EnsureArgumentNotNull(typeIdProvider, "typeIdProvider");
+      ArgumentNullException.ThrowIfNull(domain, "domain");
+      ArgumentNullException.ThrowIfNull(typeIdProvider, "typeIdProvider");
 
       this.domain = domain;
       this.typeIdProvider = typeIdProvider;

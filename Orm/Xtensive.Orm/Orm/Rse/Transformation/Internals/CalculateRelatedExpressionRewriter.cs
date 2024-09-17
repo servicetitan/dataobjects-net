@@ -23,10 +23,10 @@ namespace Xtensive.Orm.Rse.Transformation
       ParameterExpression substituteParameter, ColumnCollection sourceColumns,
       ColumnCollection targetColumns)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentNotNull(substituteParameter, "substituteParameter");
-      ArgumentValidator.EnsureArgumentNotNull(sourceColumns, "sourceColumns");
-      ArgumentValidator.EnsureArgumentNotNull(targetColumns, "targetColumns");
+      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(substituteParameter, "substituteParameter");
+      ArgumentNullException.ThrowIfNull(sourceColumns, "sourceColumns");
+      ArgumentNullException.ThrowIfNull(targetColumns, "targetColumns");
       substitute = substituteParameter;
       this.sourceColumns = sourceColumns;
       this.targetColumns = targetColumns;

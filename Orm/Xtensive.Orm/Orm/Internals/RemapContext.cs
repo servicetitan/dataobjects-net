@@ -35,8 +35,8 @@ namespace Xtensive.Orm.Internals
     /// <param name="realKey">Actual key</param>
     public void RegisterKeyMap(Key localKey, Key realKey)
     {
-      ArgumentValidator.EnsureArgumentNotNull(localKey, "localKey");
-      ArgumentValidator.EnsureArgumentNotNull(realKey, "realKey");
+      ArgumentNullException.ThrowIfNull(localKey, "localKey");
+      ArgumentNullException.ThrowIfNull(realKey, "realKey");
       if(localKey!=realKey)
         keyMap.Add(localKey, realKey);
     }
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Internals
 
     public RemapContext(EntityChangeRegistry registry)
     {
-      ArgumentValidator.EnsureArgumentNotNull(registry, "registry");
+      ArgumentNullException.ThrowIfNull(registry, "registry");
       this.registry = registry;
       keyMap = new Dictionary<Key, Key>();
     }

@@ -24,7 +24,7 @@ namespace Xtensive.Orm
 
     public ConnectionEventData(DbConnection connection, bool reconnect = false)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
+      ArgumentNullException.ThrowIfNull(connection, nameof(connection));
       Connection = connection;
       Reconnect = reconnect;
     }

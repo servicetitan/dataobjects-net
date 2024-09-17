@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Rse.Providers
     public IndexHintProvider(CompilableProvider source, IndexInfo index)
       : base(ProviderType.IndexHint, source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(index, "index");
+      ArgumentNullException.ThrowIfNull(index, "index");
 
       Index = new IndexInfoRef(index);
       Initialize();
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Rse.Providers
     public IndexHintProvider(CompilableProvider source, IndexInfoRef index)
       : base(ProviderType.IndexHint, source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(index, "index");
+      ArgumentNullException.ThrowIfNull(index, "index");
       Index = index;
       Initialize();
     }

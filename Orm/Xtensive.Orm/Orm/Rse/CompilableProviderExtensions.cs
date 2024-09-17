@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Rse
 
     public static CompilableProvider Select(this CompilableProvider source, IReadOnlyList<ColNum> columnIndexes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(columnIndexes, "columnIndexes");
+      ArgumentNullException.ThrowIfNull(columnIndexes, "columnIndexes");
       return new SelectProvider(source, columnIndexes);
     }
 

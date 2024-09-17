@@ -1327,14 +1327,14 @@ namespace Xtensive.Orm.Upgrade
       ActionSequence actions, SchemaExtractionResult sqlModel, StorageModel sourceModel, StorageModel targetModel,
       List<string> enforceChangedColumns, bool allowCreateConstraints)
     {
-      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(sqlExecutor, "sqlExecutor");
-      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
-      ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
-      ArgumentValidator.EnsureArgumentNotNull(sqlModel, "sqlModel");
-      ArgumentValidator.EnsureArgumentNotNull(sourceModel, "sourceModel");
-      ArgumentValidator.EnsureArgumentNotNull(targetModel, "targetModel");
-      ArgumentValidator.EnsureArgumentNotNull(enforceChangedColumns, "enforceChangedColumns");
+      ArgumentNullException.ThrowIfNull(handlers, "handlers");
+      ArgumentNullException.ThrowIfNull(sqlExecutor, "sqlExecutor");
+      ArgumentNullException.ThrowIfNull(resolver, "resolver");
+      ArgumentNullException.ThrowIfNull(actions, "actions");
+      ArgumentNullException.ThrowIfNull(sqlModel, "sqlModel");
+      ArgumentNullException.ThrowIfNull(sourceModel, "sourceModel");
+      ArgumentNullException.ThrowIfNull(targetModel, "targetModel");
+      ArgumentNullException.ThrowIfNull(enforceChangedColumns, "enforceChangedColumns");
 
       driver = handlers.StorageDriver;
       providerInfo = handlers.ProviderInfo;

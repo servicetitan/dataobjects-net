@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     public UpgradeHintsProcessingResult Process(IEnumerable<UpgradeHint> inputHints)
     {
-      ArgumentValidator.EnsureArgumentNotNull(inputHints, "inputHints");
+      ArgumentNullException.ThrowIfNull(inputHints, "inputHints");
 
       ProcessGenericTypeHints(inputHints);
       ProcessTypeChanges();
@@ -604,11 +604,11 @@ namespace Xtensive.Orm.Upgrade.Internals
       StorageModel extractedStorageModel,
       bool autoDetectTypesMovements)
     {
-      ArgumentValidator.EnsureArgumentNotNull(handlers, nameof(handlers));
-      ArgumentValidator.EnsureArgumentNotNull(resolver, nameof(resolver));
-      ArgumentValidator.EnsureArgumentNotNull(currentDomainModel, nameof(currentDomainModel));
-      ArgumentValidator.EnsureArgumentNotNull(extractedDomainModel, nameof(extractedDomainModel));
-      ArgumentValidator.EnsureArgumentNotNull(extractedStorageModel, nameof(extractedStorageModel));
+      ArgumentNullException.ThrowIfNull(handlers, nameof(handlers));
+      ArgumentNullException.ThrowIfNull(resolver, nameof(resolver));
+      ArgumentNullException.ThrowIfNull(currentDomainModel, nameof(currentDomainModel));
+      ArgumentNullException.ThrowIfNull(extractedDomainModel, nameof(extractedDomainModel));
+      ArgumentNullException.ThrowIfNull(extractedStorageModel, nameof(extractedStorageModel));
 
       // since type mapping is intersection of current types and extracted types
       // it will be equal or less than min size of these two sets

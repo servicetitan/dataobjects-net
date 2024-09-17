@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       tasks = new HashSet<EntityGroupTask>();
       foundKeys = new HashSet<Key>();
-      ArgumentValidator.EnsureArgumentNotNull(manager, nameof(manager));
+      ArgumentNullException.ThrowIfNull(manager, nameof(manager));
       this.manager = manager;
     }
   }

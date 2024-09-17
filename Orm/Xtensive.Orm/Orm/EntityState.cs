@@ -330,7 +330,7 @@ namespace Xtensive.Orm
     internal EntityState(Session session, Key key, Tuple data)
       : base(session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
+      ArgumentNullException.ThrowIfNull(key, "key");
       this.key = key;
       Tuple = data;
     }

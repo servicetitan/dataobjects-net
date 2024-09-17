@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Rse.Transformation
       CompilableProvider originProvider,
       Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver)
     {
-      ArgumentValidator.EnsureArgumentNotNull(originProvider, "originProvider");
+      ArgumentNullException.ThrowIfNull(originProvider, "originProvider");
       var rewriter = new OrderingRewriter(orderingDescriptorResolver);
       if (originProvider.Type == ProviderType.Select) {
         var selectProvider = (SelectProvider) originProvider;
@@ -228,7 +228,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private OrderingRewriter(Func<CompilableProvider, ProviderOrderingDescriptor> orderingDescriptorResolver)
     {
-      ArgumentValidator.EnsureArgumentNotNull(orderingDescriptorResolver, "orderingDescriptorResolver");
+      ArgumentNullException.ThrowIfNull(orderingDescriptorResolver, "orderingDescriptorResolver");
       descriptorResolver = orderingDescriptorResolver;
       sortOrder = new();
     }

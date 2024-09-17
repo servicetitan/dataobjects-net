@@ -271,7 +271,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void CopyTo(T[] array, int arrayIndex)
     {
-      ArgumentValidator.EnsureArgumentNotNull(array, "array");
+      ArgumentNullException.ThrowIfNull(array, "array");
       array.EnsureIndexIsValid<T>(arrayIndex);
 
       if (arrayIndex + count > array.Length)
@@ -282,7 +282,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void CopyTo(Array array, int index)
     {
-      ArgumentValidator.EnsureArgumentNotNull(array, "array");
+      ArgumentNullException.ThrowIfNull(array, "array");
       array.EnsureIndexIsValid(index);
 
       if (array.Rank!=1)

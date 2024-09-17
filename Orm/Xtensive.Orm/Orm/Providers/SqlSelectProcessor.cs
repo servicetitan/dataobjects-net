@@ -583,8 +583,8 @@ namespace Xtensive.Orm.Providers
 
     public static void Process(SqlSelect select, ProviderInfo providerInfo)
     {
-      ArgumentValidator.EnsureArgumentNotNull(select, "select");
-      ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
+      ArgumentNullException.ThrowIfNull(select, "select");
+      ArgumentNullException.ThrowIfNull(providerInfo, "providerInfo");
       new SqlSelectProcessor(select, providerInfo).Visit(select);
     }
 

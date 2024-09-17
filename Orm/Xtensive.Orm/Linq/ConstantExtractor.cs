@@ -109,7 +109,7 @@ namespace Xtensive.Linq
     /// </param>
     public ConstantExtractor(LambdaExpression lambda, Func<ConstantExpression, bool> constantFilter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(lambda, "lambda");
+      ArgumentNullException.ThrowIfNull(lambda, "lambda");
       this.lambda = lambda;
       this.constantFilter = constantFilter ?? DefaultConstantFilter;
     }

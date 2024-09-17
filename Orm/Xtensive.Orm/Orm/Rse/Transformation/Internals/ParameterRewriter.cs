@@ -19,9 +19,9 @@ namespace Xtensive.Orm.Rse.Transformation
     public LambdaExpression Replace(LambdaExpression sourceExpression, ParameterExpression oldParameter,
       ParameterExpression newParameter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(sourceExpression, "sourceExpression");
-      ArgumentValidator.EnsureArgumentNotNull(oldParameter, "oldParameter");
-      ArgumentValidator.EnsureArgumentNotNull(newParameter, "newParameter");
+      ArgumentNullException.ThrowIfNull(sourceExpression, "sourceExpression");
+      ArgumentNullException.ThrowIfNull(oldParameter, "oldParameter");
+      ArgumentNullException.ThrowIfNull(newParameter, "newParameter");
       this.oldParameter = oldParameter;
       this.newParameter = newParameter;
       return (LambdaExpression)Visit(sourceExpression);

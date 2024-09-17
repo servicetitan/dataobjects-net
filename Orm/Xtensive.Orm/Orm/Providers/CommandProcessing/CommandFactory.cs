@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Providers
 
     public virtual IEnumerable<CommandPart> CreatePersistParts(SqlPersistTask task, string parameterNamePrefix)
     {
-      ArgumentValidator.EnsureArgumentNotNull(task, "task");
+      ArgumentNullException.ThrowIfNull(task, "task");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
 
       var nodeConfiguration = Session.StorageNode.Configuration;
@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Providers
 
     public virtual CommandPart CreateQueryPart(IQueryRequest request, string parameterNamePrefix, ParameterContext parameterContext)
     {
-      ArgumentValidator.EnsureArgumentNotNull(request, "request");
+      ArgumentNullException.ThrowIfNull(request, "request");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(parameterNamePrefix, "parameterNamePrefix");
 
       int parameterIndex = 0;

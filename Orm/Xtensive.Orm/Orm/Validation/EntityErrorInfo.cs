@@ -31,8 +31,8 @@ namespace Xtensive.Orm.Validation
     /// <param name="errors">A collection of <see cref="ValidationResult"/>s for an errors discovered.</param>
     public EntityErrorInfo(Entity target, IReadOnlyList<ValidationResult> errors)
     {
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
-      ArgumentValidator.EnsureArgumentNotNull(errors, "errors");
+      ArgumentNullException.ThrowIfNull(target, "target");
+      ArgumentNullException.ThrowIfNull(errors, "errors");
 
       Target = target;
       Errors = errors;

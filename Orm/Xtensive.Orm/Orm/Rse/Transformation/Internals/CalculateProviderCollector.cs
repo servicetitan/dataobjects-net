@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     public CalculateProviderCollector(ApplyProviderCorrectorRewriter owner)
     {
-      ArgumentValidator.EnsureArgumentNotNull(owner, "owner");
+      ArgumentNullException.ThrowIfNull(owner, "owner");
       this.owner = owner;
     }
   }

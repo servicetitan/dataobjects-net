@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Model
     /// <param name="ascending">The sort direction.</param>
     public IndexColumn CreateIndexColumn(DataTableColumn column, bool ascending)
     {
-      ArgumentValidator.EnsureArgumentNotNull(column, "column");
+      ArgumentNullException.ThrowIfNull(column, "column");
       return new IndexColumn(this, column, ascending);
     }
 

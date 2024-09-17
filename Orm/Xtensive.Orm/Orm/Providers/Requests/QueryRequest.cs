@@ -63,9 +63,9 @@ namespace Xtensive.Orm.Providers
       StorageDriver driver, SqlSelect statement, IEnumerable<QueryParameterBinding> parameterBindings,
       TupleDescriptor tupleDescriptor, QueryRequestOptions options)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
-      ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
+      ArgumentNullException.ThrowIfNull(driver, "driver");
+      ArgumentNullException.ThrowIfNull(statement, "statement");
+      ArgumentNullException.ThrowIfNull(tupleDescriptor, "tupleDescriptor");
 
       this.driver = driver;
       Statement = statement;
@@ -78,9 +78,9 @@ namespace Xtensive.Orm.Providers
       StorageDriver driver, SqlSelect statement, IEnumerable<QueryParameterBinding> parameterBindings,
       TupleDescriptor tupleDescriptor, QueryRequestOptions options, NodeConfiguration nodeConfiguration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
-      ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
-      ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
+      ArgumentNullException.ThrowIfNull(driver, "driver");
+      ArgumentNullException.ThrowIfNull(statement, "statement");
+      ArgumentNullException.ThrowIfNull(tupleDescriptor, "tupleDescriptor");
 
       this.driver = driver;
       Statement = statement;

@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Model
     public int this[TypeInfo type]
     {
       get {
-        ArgumentValidator.EnsureArgumentNotNull(type, "type");
+        ArgumentNullException.ThrowIfNull(type, "type");
 
         int result = mapping is null ? sharedIdToTypeId[type.SharedId]
           : mapping.TryGetValue(type, out var r) ? r : 0;
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Model
     /// otherwise false.</returns>
     public bool Contains(TypeInfo type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type, "type");
       return mapping?.ContainsKey(type) ?? sharedIdToTypeId[type.SharedId] != TypeInfo.NoTypeId;
     }
 
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Model
     /// otherwise <see cref="TypeInfo.NoTypeId"/>.</returns>
     public int GetTypeId(TypeInfo type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type, "type");
       return mapping is null
         ? sharedIdToTypeId[type.SharedId]
         : mapping.TryGetValue(type, out var result) ? result : TypeInfo.NoTypeId;
@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Model
     /// <param name="type">Type.</param>
     public void Register(int typeId, TypeInfo type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type, "type");
       EnsureNotLocked();
 
       if (mapping is null) {

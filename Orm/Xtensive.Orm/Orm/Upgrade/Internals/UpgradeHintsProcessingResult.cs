@@ -53,15 +53,15 @@ namespace Xtensive.Orm.Upgrade.Internals
       IReadOnlyList<StoredTypeInfo> currentNonConnectorTypes,
       IReadOnlyList<StoredTypeInfo> extractedNonConnectorTypes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(hints, nameof(hints));
-      ArgumentValidator.EnsureArgumentNotNull(typeMapping, nameof(typeMapping));
-      ArgumentValidator.EnsureArgumentNotNull(reverseTypeMapping, nameof(reverseTypeMapping));
-      ArgumentValidator.EnsureArgumentNotNull(fieldMapping, nameof(fieldMapping));
-      ArgumentValidator.EnsureArgumentNotNull(reverseFieldMapping, nameof(reverseFieldMapping));
-      ArgumentValidator.EnsureArgumentNotNull(currentModelTypes, nameof(currentModelTypes));
-      ArgumentValidator.EnsureArgumentNotNull(suspiciousTypes, nameof(suspiciousTypes));
-      ArgumentValidator.EnsureArgumentNotNull(currentNonConnectorTypes, nameof(suspiciousTypes));
-      ArgumentValidator.EnsureArgumentNotNull(extractedNonConnectorTypes, nameof(suspiciousTypes));
+      ArgumentNullException.ThrowIfNull(hints, nameof(hints));
+      ArgumentNullException.ThrowIfNull(typeMapping, nameof(typeMapping));
+      ArgumentNullException.ThrowIfNull(reverseTypeMapping, nameof(reverseTypeMapping));
+      ArgumentNullException.ThrowIfNull(fieldMapping, nameof(fieldMapping));
+      ArgumentNullException.ThrowIfNull(reverseFieldMapping, nameof(reverseFieldMapping));
+      ArgumentNullException.ThrowIfNull(currentModelTypes, nameof(currentModelTypes));
+      ArgumentNullException.ThrowIfNull(suspiciousTypes, nameof(suspiciousTypes));
+      ArgumentNullException.ThrowIfNull(currentNonConnectorTypes, nameof(suspiciousTypes));
+      ArgumentNullException.ThrowIfNull(extractedNonConnectorTypes, nameof(suspiciousTypes));
 
       Hints = hints;
       TypeMapping = typeMapping;

@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Upgrade.Internals
   {
     public static ISchemaExtractionResultBuilder GetBuilder(UpgradeContext context)
     {
-      ArgumentValidator.EnsureArgumentNotNull(context, "context");
+      ArgumentNullException.ThrowIfNull(context, "context");
       if (context.ParentDomain==null) {
         var makeShared = context.Configuration.ShareStorageSchemaOverNodes;
         return new DomainExtractedModelBuilder(context.Services, context.TargetStorageModel, makeShared);

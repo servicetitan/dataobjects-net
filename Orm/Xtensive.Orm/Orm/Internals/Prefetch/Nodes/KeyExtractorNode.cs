@@ -43,8 +43,8 @@ namespace Xtensive.Orm.Internals.Prefetch
     public KeyExtractorNode(Func<T, IReadOnlyCollection<Key>> extractor, IReadOnlyList<BaseFieldNode> nestedNodes)
       : base("*")
     {
-      ArgumentValidator.EnsureArgumentNotNull(extractor, nameof(extractor));
-      ArgumentValidator.EnsureArgumentNotNull(nestedNodes, nameof(nestedNodes));
+      ArgumentNullException.ThrowIfNull(extractor, nameof(extractor));
+      ArgumentNullException.ThrowIfNull(nestedNodes, nameof(nestedNodes));
 
       KeyExtractor = extractor;
       NestedNodes = nestedNodes;

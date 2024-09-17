@@ -73,8 +73,8 @@ namespace Xtensive.Sql.Compiler
 
     public SqlPostCompilerConfiguration([NotNull] IReadOnlyDictionary<string, string> databaseMapping, [NotNull] IReadOnlyDictionary<string, string> schemaMapping)
     {
-      ArgumentValidator.EnsureArgumentNotNull(databaseMapping, "databaseMapping");
-      ArgumentValidator.EnsureArgumentNotNull(schemaMapping, "schemaMapping");
+      ArgumentNullException.ThrowIfNull(databaseMapping, "databaseMapping");
+      ArgumentNullException.ThrowIfNull(schemaMapping, "schemaMapping");
 
       DatabaseMapping = databaseMapping;
       SchemaMapping = schemaMapping;

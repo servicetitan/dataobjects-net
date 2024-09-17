@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Logging
     public InternalLog(string name, LogWriter writer)
       : base(name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(writer, "writer");
+      ArgumentNullException.ThrowIfNull(writer, "writer");
       this.writer = writer;
     }
   }

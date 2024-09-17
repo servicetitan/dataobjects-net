@@ -41,7 +41,7 @@ namespace Xtensive.Sql.Compiler
     /// <returns></returns>
     public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration, TypeIdRegistry typeIdRegistry = null)
     {
-      ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
+      ArgumentNullException.ThrowIfNull(unit, "unit");
       configuration = compilerConfiguration;
       context = new SqlCompilerContext(configuration);
       unit.AcceptVisitor(this);
@@ -532,7 +532,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateCharacterSet node)
     {
-      //      ArgumentValidator.EnsureArgumentNotNull(node.CharacterSet.CharacterSetSource, "CharacterSetSource");
+      //      ArgumentNullException.ThrowIfNull(node.CharacterSet.CharacterSetSource, "CharacterSetSource");
       //      AppendTranslated(node);
     }
 
@@ -542,7 +542,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateCollation node)
     {
-      //      ArgumentValidator.EnsureArgumentNotNull(node.Collation.CharacterSet, "CharacterSet");
+      //      ArgumentNullException.ThrowIfNull(node.Collation.CharacterSet, "CharacterSet");
       //      AppendTranslated(node);
     }
 
@@ -552,7 +552,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateDomain node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node.Domain.DataType, "DataType");
+      ArgumentNullException.ThrowIfNull(node.Domain.DataType, "DataType");
 
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
@@ -583,7 +583,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateIndex node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node.Index.DataTable, "DataTable");
+      ArgumentNullException.ThrowIfNull(node.Index.DataTable, "DataTable");
 
       AppendTranslatedEntry(node);
       if (node.Index.Columns.Count > 0) {
@@ -650,7 +650,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreatePartitionFunction node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node.PartitionFunction.DataType, "DataType");
+      ArgumentNullException.ThrowIfNull(node.PartitionFunction.DataType, "DataType");
       translator.Translate(context, node);
     }
 
@@ -660,7 +660,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreatePartitionScheme node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node.PartitionSchema.PartitionFunction, "PartitionFunction");
+      ArgumentNullException.ThrowIfNull(node.PartitionSchema.PartitionFunction, "PartitionFunction");
       translator.Translate(context, node);
     }
 
@@ -763,7 +763,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateSequence node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node.Sequence.SequenceDescriptor, "SequenceDescriptor");
+      ArgumentNullException.ThrowIfNull(node.Sequence.SequenceDescriptor, "SequenceDescriptor");
 
       if (node.Sequence.SequenceDescriptor.Increment.HasValue && node.Sequence.SequenceDescriptor.Increment.Value == 0) {
         throw new SqlCompilerException(Strings.ExIncrementMustNotBeZero);
@@ -890,9 +890,9 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateTranslation node)
     {
-      //      ArgumentValidator.EnsureArgumentNotNull(node.Translation.SourceCharacterSet, "SourceCharacterSet");
-      //      ArgumentValidator.EnsureArgumentNotNull(node.Translation.TargetCharacterSet, "TargetCharacterSet");
-      //      ArgumentValidator.EnsureArgumentNotNull(node.Translation.TranslationSource, "TranslationSource");
+      //      ArgumentNullException.ThrowIfNull(node.Translation.SourceCharacterSet, "SourceCharacterSet");
+      //      ArgumentNullException.ThrowIfNull(node.Translation.TargetCharacterSet, "TargetCharacterSet");
+      //      ArgumentNullException.ThrowIfNull(node.Translation.TranslationSource, "TranslationSource");
       //      AppendTranslated(node);
     }
 
@@ -1074,7 +1074,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlDropIndex node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node.Index.DataTable, "DataTable");
+      ArgumentNullException.ThrowIfNull(node.Index.DataTable, "DataTable");
       translator.Translate(context, node);
     }
 
@@ -2052,7 +2052,7 @@ namespace Xtensive.Sql.Compiler
       AppendTranslated(column, TableColumnSection.Entry);
       if (column.Expression is null) {
         if (column.Domain == null) {
-          ArgumentValidator.EnsureArgumentNotNull(column.DataType, "DataType");
+          ArgumentNullException.ThrowIfNull(column.DataType, "DataType");
         }
 
         AppendTranslated(column, TableColumnSection.Type);

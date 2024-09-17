@@ -34,8 +34,8 @@ namespace Xtensive.Orm
     /// <returns>The same sequence, but with "comment" applied to query.</returns>
     public static IQueryable<TSource> Tag<TSource>(this IQueryable<TSource> source, string tag)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(tag, "tag");
+      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(tag, "tag");
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -58,8 +58,8 @@ namespace Xtensive.Orm
     /// <returns>The same sequence, but with "comment" applied to query.</returns>
     public static IQueryable Tag(this IQueryable source, string tag)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(tag, "tag");
+      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(tag, "tag");
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -82,8 +82,8 @@ namespace Xtensive.Orm
     /// <returns>The same sequence, but with index hint applied to query.</returns>
     public static IQueryable<TSource> WithIndexHint<TSource, TEntity>(this IQueryable<TSource> source, string indexName)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(indexName, "indexName");
+      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(indexName, "indexName");
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -113,8 +113,8 @@ namespace Xtensive.Orm
     /// <returns>The same sequence, but with index hint applied to query.</returns>
     public static IQueryable WithIndexHint(this IQueryable source, string indexName)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(indexName, "indexName");
+      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(indexName, "indexName");
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -133,7 +133,7 @@ namespace Xtensive.Orm
     /// <param name="source">The source sequence.</param>
     public static int Count([InstantHandle] this IQueryable source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
       return (int) source.Provider.Execute(
         Expression.Call(
           WellKnownTypes.Queryable, nameof(Queryable.Count),
@@ -150,8 +150,8 @@ namespace Xtensive.Orm
     /// <returns>The same result as its original version.</returns>
     public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, Expression<Func<int>> count)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
-      ArgumentValidator.EnsureArgumentNotNull(count, nameof(count));
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(count, nameof(count));
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -174,8 +174,8 @@ namespace Xtensive.Orm
     /// <returns>The same result as its original version.</returns>
     public static IQueryable<TSource> Skip<TSource>(this IQueryable<TSource> source, Expression<Func<int>> count)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
-      ArgumentValidator.EnsureArgumentNotNull(count, nameof(count));
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(count, nameof(count));
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -198,8 +198,8 @@ namespace Xtensive.Orm
     /// <returns>The same result as its original version.</returns>
     public static TSource ElementAt<TSource>(this IQueryable<TSource> source, Expression<Func<int>> index)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
-      ArgumentValidator.EnsureArgumentNotNull(index, nameof(index));
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(index, nameof(index));
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -222,8 +222,8 @@ namespace Xtensive.Orm
     /// <returns>The same result as its original version.</returns>
     public static TSource ElementAtOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<int>> index)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
-      ArgumentValidator.EnsureArgumentNotNull(index, nameof(index));
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(index, nameof(index));
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -246,9 +246,9 @@ namespace Xtensive.Orm
     /// <returns>The same sequence, but with "apply lock" hint.</returns>
     public static IQueryable<TSource> Lock<TSource>(this IQueryable<TSource> source, LockMode lockMode, LockBehavior lockBehavior)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
-      ArgumentValidator.EnsureArgumentNotNull(lockMode, nameof(lockMode));
-      ArgumentValidator.EnsureArgumentNotNull(lockBehavior, nameof(lockBehavior));
+      ArgumentNullException.ThrowIfNull(source, nameof(source));
+      ArgumentNullException.ThrowIfNull(lockMode, nameof(lockMode));
+      ArgumentNullException.ThrowIfNull(lockBehavior, nameof(lockBehavior));
 
       var providerType = source.Provider.GetType();
       if (providerType!=WellKnownOrmTypes.QueryProvider) {
@@ -326,11 +326,11 @@ namespace Xtensive.Orm
     /// <exception cref="NotSupportedException">Queryable is not a <see cref="Xtensive.Orm.Linq"/> query.</exception>
     public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
     {
-      ArgumentValidator.EnsureArgumentNotNull(outer, nameof(outer));
-      ArgumentValidator.EnsureArgumentNotNull(inner, nameof(inner));
-      ArgumentValidator.EnsureArgumentNotNull(outerKeySelector, nameof(outerKeySelector));
-      ArgumentValidator.EnsureArgumentNotNull(innerKeySelector, nameof(innerKeySelector));
-      ArgumentValidator.EnsureArgumentNotNull(resultSelector, nameof(resultSelector));
+      ArgumentNullException.ThrowIfNull(outer, nameof(outer));
+      ArgumentNullException.ThrowIfNull(inner, nameof(inner));
+      ArgumentNullException.ThrowIfNull(outerKeySelector, nameof(outerKeySelector));
+      ArgumentNullException.ThrowIfNull(innerKeySelector, nameof(innerKeySelector));
+      ArgumentNullException.ThrowIfNull(resultSelector, nameof(resultSelector));
 
       var outerProviderType = outer.Provider.GetType();
       if (outerProviderType!=WellKnownOrmTypes.QueryProvider) {

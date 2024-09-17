@@ -61,7 +61,7 @@ namespace Xtensive.Sql.Dml
 
     public SqlCustomFunctionType(string name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(name, "name");
+      ArgumentNullException.ThrowIfNull(name, "name");
 
       Name = name;
     }
