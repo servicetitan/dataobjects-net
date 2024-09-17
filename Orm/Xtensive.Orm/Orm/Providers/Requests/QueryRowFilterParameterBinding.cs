@@ -11,19 +11,18 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Sql;
 
-namespace Xtensive.Orm.Providers
+namespace Xtensive.Orm.Providers;
+
+/// <summary>
+/// A special version of <see cref="QueryParameterBinding"/> used for complex filters.
+/// </summary>
+public class QueryRowFilterParameterBinding(IReadOnlyList<TypeMapping> rowTypeMapping, Func<ParameterContext, object> valueAccessor, TypeMapping tvpTypeMapping)
+  : QueryParameterBinding(null, valueAccessor, QueryParameterBindingType.RowFilter)
 {
   /// <summary>
-  /// A special version of <see cref="QueryParameterBinding"/> used for complex filters.
+  /// Gets the complex type mapping.
   /// </summary>
-  public class QueryRowFilterParameterBinding(IReadOnlyList<TypeMapping> rowTypeMapping, Func<ParameterContext, object> valueAccessor, TypeMapping tvpTypeMapping)
-    : QueryParameterBinding(null, valueAccessor, QueryParameterBindingType.RowFilter)
-  {
-    /// <summary>
-    /// Gets the complex type mapping.
-    /// </summary>
-    public IReadOnlyList<TypeMapping> RowTypeMapping => rowTypeMapping;
+  public IReadOnlyList<TypeMapping> RowTypeMapping => rowTypeMapping;
 
-    public TypeMapping TvpTypeMapping => tvpTypeMapping;
-  }
+  public TypeMapping TvpTypeMapping => tvpTypeMapping;
 }

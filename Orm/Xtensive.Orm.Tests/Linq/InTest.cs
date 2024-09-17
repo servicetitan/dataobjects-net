@@ -85,8 +85,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void InTest1000()
     {
-      //!!!T var someInvoiceId = Session.Query.All<Invoice>().First().InvoiceId;
-      var someInvoiceId = 4500;
+      var someInvoiceId = Session.Query.All<Invoice>().First().InvoiceId;
       var list = Enumerable.Range(someInvoiceId - 500, 1000).ToList();
       var count = (from invoice in Session.Query.All<Invoice>()
                    where invoice.InvoiceId.In(list)
