@@ -22,7 +22,7 @@ namespace Xtensive.Core
   /// </summary>
   public static class ExpressionExtensions
   {
-    private readonly static ConcurrentDictionary<Type, ConstantExpression> StructDefaultValues = new();
+    private readonly static ConcurrentDictionary<Type, ConstantExpression> StructDefaultConstantExpressions = new();
 
     /// <summary>
     /// Formats the <paramref name="expression"/>.
@@ -124,7 +124,7 @@ namespace Xtensive.Core
     public static ConstantExpression ToConstantExpression(this DefaultExpression defaultExpression) =>
       defaultExpression.Type switch {
         var type => type.IsValueType
-          ? StructDefaultValues.GetOrAdd<DefaultExpression>(
+          ? StructDefaultConstantExpressions.GetOrAdd<DefaultExpression>(
             type,
             static (t, expr) => Expression.Constant(((Func<object>) Expression.Lambda(Expression.Convert(expr, WellKnownTypes.Object)).Compile()).Invoke(), t),
             defaultExpression)
