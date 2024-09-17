@@ -127,14 +127,14 @@ namespace Xtensive.Core
     /// <param name="defaultExpression">The expression to convert.</param>
     /// <returns>Result constant expression.</returns>
     public static ConstantExpression ToConstantExpression(this DefaultExpression defaultExpression) =>
-      defaultExpression.Type switch {
-        var type => type.IsValueType
-          ? StructDefaultConstantExpressions.GetOrAdd(
-            type,
-            static (t, expr) => Expression.Constant(((Func<object>) Expression.Lambda(Expression.Convert(expr, WellKnownTypes.Object)).Compile()).Invoke(), t),
-            defaultExpression)
-          : null
-      };
+      StructDefaultConstantExpressions.GetOrAdd(
+        defaultExpression.Type,
+        static (t, expr) => Expression.Constant(
+          t.IsValueType
+            ? ((Func<object>) Expression.Lambda(Expression.Convert(expr, WellKnownTypes.Object)).Compile()).Invoke()
+            : null,
+          t),
+        defaultExpression);
 
     /// <summary>
     /// Gets return type of <see cref="LambdaExpression"/>.
