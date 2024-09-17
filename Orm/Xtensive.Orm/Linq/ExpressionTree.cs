@@ -16,8 +16,7 @@ namespace Xtensive.Linq
   /// that can be used for comparing expression trees and calculating their hash codes.
   /// </summary>
   [DebuggerDisplay("{expression}")]
-  public sealed class ExpressionTree
-    : IEquatable<ExpressionTree>
+  public readonly struct ExpressionTree : IEquatable<ExpressionTree>
   {
     private readonly int hashCode;
     private readonly Expression expression;
@@ -26,38 +25,21 @@ namespace Xtensive.Linq
     /// Gets the underlying <see cref="Expression"/>.
     /// </summary>
     /// <returns></returns>
-    public Expression ToExpression()
-    {
-      return expression;
-    }
-    
+    public Expression ToExpression() => expression;
+
     #region ToString, GetHashCode, Equals, ==, != implementation
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return expression.ToString(true);
-    }
+    public override string ToString() => expression.ToString(true);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return hashCode;
-    }
+    public override int GetHashCode() => hashCode;
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      return Equals(obj as ExpressionTree);
-    }
+    public bool Equals(ExpressionTree other) => new ExpressionComparer().AreEqual(expression, other.expression);
 
     /// <inheritdoc/>
-    public bool Equals(ExpressionTree other)
-    {
-      if (ReferenceEquals(other, null))
-        return false;
-      return new ExpressionComparer().AreEqual(expression, other.expression);
-    }
+    public override bool Equals(object obj) => obj is ExpressionTree other && Equals(other);
 
     /// <summary>
     /// Implements the operator ==.
@@ -67,11 +49,8 @@ namespace Xtensive.Linq
     /// <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.
     /// Otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool operator == (ExpressionTree left, ExpressionTree right)
-    {
-      return Equals(left, right);
-    }
-    
+    public static bool operator == (ExpressionTree left, ExpressionTree right) => Equals(left, right);
+
     /// <summary>
     /// Implements the operator !=.
     /// </summary>
@@ -80,10 +59,7 @@ namespace Xtensive.Linq
     /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.
     /// Otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool operator != (ExpressionTree left, ExpressionTree right)
-    {
-      return !Equals(left, right);
-    }
+    public static bool operator != (ExpressionTree left, ExpressionTree right) => !Equals(left, right);
 
     #endregion
 
@@ -94,27 +70,20 @@ namespace Xtensive.Linq
     /// <param name="right">Second expression to compare.</param>
     /// <returns>true, if <paramref name="left"/> and <paramref name="right"/>
     /// are equal by value, otherwise false.</returns>
-    public static bool Equals(Expression left, Expression right)
-    {
-      return new ExpressionComparer().AreEqual(left, right);
-    }
+    public static bool Equals(Expression left, Expression right) => new ExpressionComparer().AreEqual(left, right);
 
     /// <summary>
     /// Calculates hash code by value for the specified <paramref name="expression"/>.
     /// </summary>
     /// <param name="expression">Expression to calculate hash code for.</param>
     /// <returns>Hash code for <paramref name="expression"/>.</returns>
-    public static int GetHashCode(Expression expression)
-    {
-      return new ExpressionHashCodeCalculator().CalculateHashCode(expression);
-    }
+    public static int GetHashCode(Expression expression) => new ExpressionHashCodeCalculator().CalculateHashCode(expression);
 
 
     // Constructors
 
     internal ExpressionTree(Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       this.expression = expression;
       hashCode = new ExpressionHashCodeCalculator().CalculateHashCode(expression);
     }

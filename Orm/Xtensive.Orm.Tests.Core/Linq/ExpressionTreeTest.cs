@@ -102,20 +102,20 @@ namespace Xtensive.Orm.Tests.Core.Linq
       Expression<Func<int, int>> expression = x => x + 1;
       var t = expression.ToExpressionTree();
 
-      Assert.That(!t.Equals(null));
+      Assert.That(!t.Equals(default));
 
-      Assert.That(null!=t);
-      Assert.That(t!=null);
+      Assert.That(default!=t);
+      Assert.That(t!=default);
 
-      Assert.That(!(t==null));
-      Assert.That(!(null==t));
+      Assert.That(!(t==default));
+      Assert.That(!(default==t));
 
-      t = null;
+      t = default;
 
-      Assert.That(t==null);
-      Assert.That(null==t);
-      Assert.That(!(t!=null));
-      Assert.That(!(null!=t));
+      Assert.That(t==default);
+      Assert.That(default==t);
+      Assert.That(!(t!=default));
+      Assert.That(!(default!=t));
     }
 
     private static Expression<Func<int, int, int>> CreateProduct()
