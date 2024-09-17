@@ -86,12 +86,11 @@ namespace Xtensive.Core
         var expressionParameter = lambdaExpressionParameters[i];
         var parameter = parameters[i];
         var parameterType = parameter.Type;
-        if (expressionParameter.Type.IsAssignableFrom(parameterType)) {
-          var expressionParameterType = expressionParameter.Type;
+        var expressionParameterType = expressionParameter.Type;
+        if (expressionParameterType.IsAssignableFrom(parameterType))
           convertedParameters[i] = expressionParameterType == parameterType
             ? parameter
             : Expression.Convert(parameter, expressionParameterType);
-        }
         else
           throw new InvalidOperationException(String.Format(
             Strings.ExUnableToUseExpressionXAsXParameterOfLambdaXBecauseOfTypeMistmatch,
