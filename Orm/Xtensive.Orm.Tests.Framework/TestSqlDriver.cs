@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Tests
 
     public static SqlDriver Create(UrlInfo connectionUrl)
     {
-      ArgumentNullException.ThrowIfNull(connectionUrl, "connectionUrl");
+      ArgumentNullException.ThrowIfNull(connectionUrl);
       return BuildDriver(new ConnectionInfo(connectionUrl));
     }
 
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Tests
 
     public static SqlDriver Create(ConnectionInfo connectionInfo)
     {
-      ArgumentNullException.ThrowIfNull(connectionInfo, "connectionInfo");
+      ArgumentNullException.ThrowIfNull(connectionInfo);
       return BuildDriver(connectionInfo);
     }
 

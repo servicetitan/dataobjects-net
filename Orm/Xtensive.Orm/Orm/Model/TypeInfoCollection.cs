@@ -170,7 +170,7 @@ namespace Xtensive.Orm.Model
     /// <see langword="null" />, if there is no type with specified full name.</returns>
     public TypeInfo Find(string fullName)
     {
-      ArgumentNullException.ThrowIfNull(fullName, "fullName");
+      ArgumentNullException.ThrowIfNull(fullName);
       TypeInfo result;
       return fullNameTable.TryGetValue(fullName, out result) ? result : null;
     }

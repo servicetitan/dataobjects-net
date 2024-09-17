@@ -63,9 +63,9 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     internal NodeExtractedModelBuilder(UpgradeServiceAccessor services, StorageNode defaultNode, NodeConfiguration buildingNodeConfiguration, bool defaultNodeIsUnreadable)
     {
-      ArgumentNullException.ThrowIfNull(services, "services");
-      ArgumentNullException.ThrowIfNull(defaultNode, "defaultNode");
-      ArgumentNullException.ThrowIfNull(buildingNodeConfiguration, "buildingNodeConfiguration");
+      ArgumentNullException.ThrowIfNull(services);
+      ArgumentNullException.ThrowIfNull(defaultNode);
+      ArgumentNullException.ThrowIfNull(buildingNodeConfiguration);
 
       mappingResolver = services.MappingResolver;
       this.buildingNodeConfiguration = buildingNodeConfiguration;

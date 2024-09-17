@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Upgrade
 
     public TypeMetadata(int id, string name)
     {
-      ArgumentNullException.ThrowIfNull(name, "name");
+      ArgumentNullException.ThrowIfNull(name);
 
       Id = id;
       Name = name;

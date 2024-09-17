@@ -343,8 +343,8 @@ namespace Xtensive.Orm.Upgrade
       IEnumerable<StoredPartialIndexFilterInfo> partialIndexes)
     {
       ArgumentNullException.ThrowIfNull(services, "handlers");
-      ArgumentNullException.ThrowIfNull(sourceModel, "sourceModel");
-      ArgumentNullException.ThrowIfNull(partialIndexes, "partialIndexes");
+      ArgumentNullException.ThrowIfNull(sourceModel);
+      ArgumentNullException.ThrowIfNull(partialIndexes);
 
       this.sourceModel = sourceModel;
 

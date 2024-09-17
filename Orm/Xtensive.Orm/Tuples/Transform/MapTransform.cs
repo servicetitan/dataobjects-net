@@ -104,7 +104,7 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public override Tuple Apply(TupleTransformType transformType, params object[] arguments)
     {
-      ArgumentNullException.ThrowIfNull(arguments, "arguments");
+      ArgumentNullException.ThrowIfNull(arguments);
       switch (sourceCount) {
       case 1:
         return Apply(transformType, (Tuple)arguments[0]);
@@ -127,7 +127,7 @@ namespace Xtensive.Tuples.Transform
     /// dependently on specified <paramref name="transformType"/>.</returns>
     public Tuple Apply(TupleTransformType transformType, params Tuple[] sources)
     {
-      ArgumentNullException.ThrowIfNull(sources, "sources");
+      ArgumentNullException.ThrowIfNull(sources);
       if (sourceCount>sources.Length)
         throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
       switch (sourceCount) {
@@ -293,7 +293,7 @@ namespace Xtensive.Tuples.Transform
     protected MapTransform(bool isReadOnly, TupleDescriptor descriptor)
       : this(isReadOnly)
     {
-      ArgumentNullException.ThrowIfNull(descriptor, "descriptor");
+      ArgumentNullException.ThrowIfNull(descriptor);
       Descriptor = descriptor;
       this.isReadOnly = isReadOnly;
     }

@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Tests
     /// <param name="provider">Instance generator provider this generator is bound to.</param>
     public InstanceGeneratorBase(IInstanceGeneratorProvider provider)
     {
-      ArgumentNullException.ThrowIfNull(provider, "provider");
+      ArgumentNullException.ThrowIfNull(provider);
       this.provider = provider;
     }
 

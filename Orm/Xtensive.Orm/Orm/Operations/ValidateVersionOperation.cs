@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Operations
     public ValidateVersionOperation(Key key, VersionInfo version)
       : base(key)
     {
-      ArgumentNullException.ThrowIfNull(version, "version");
+      ArgumentNullException.ThrowIfNull(version);
       Version = version;
     }
 

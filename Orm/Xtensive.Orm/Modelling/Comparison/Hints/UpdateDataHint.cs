@@ -59,7 +59,7 @@ namespace Xtensive.Modelling.Comparison.Hints
       IReadOnlyList<Pair<string, object>> updateParameters)
       : base(sourceTablePath, identities)
     {
-      ArgumentNullException.ThrowIfNull(updateParameters, "updateParameters");
+      ArgumentNullException.ThrowIfNull(updateParameters);
       UpdateParameter = updateParameters.AsSafeWrapper();
     }
   }

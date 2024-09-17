@@ -332,7 +332,7 @@ namespace Xtensive.Orm
     private VersionValidator(Session session, Func<Key, VersionInfo> expectedVersionProvider)
       : base(session)
     {
-      ArgumentNullException.ThrowIfNull(expectedVersionProvider, "expectedVersionProvider");
+      ArgumentNullException.ThrowIfNull(expectedVersionProvider);
       if (session.IsPersisting)
         throw new InvalidOperationException(
           Strings.ExServiceCanNotBeAttachedToSessionWhileItIsPersistingTheChanges);

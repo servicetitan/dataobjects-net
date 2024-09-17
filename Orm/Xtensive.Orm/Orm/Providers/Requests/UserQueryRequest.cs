@@ -25,8 +25,8 @@ namespace Xtensive.Orm.Providers
 
     public UserQueryRequest(SqlCompilationResult compiledStatement, IEnumerable<QueryParameterBinding> parameterBindings)
     {
-      ArgumentNullException.ThrowIfNull(compiledStatement, "compiledStatement");
-      ArgumentNullException.ThrowIfNull(parameterBindings, "parameterBindings");
+      ArgumentNullException.ThrowIfNull(compiledStatement);
+      ArgumentNullException.ThrowIfNull(parameterBindings);
 
       this.compiledStatement = compiledStatement;
       ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);

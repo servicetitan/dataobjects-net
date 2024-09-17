@@ -102,7 +102,7 @@ namespace Xtensive.Collections
     /// <param name="type">The type to register.</param>
     public TypeRegistration(Type type)
     {
-      ArgumentNullException.ThrowIfNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       this.type = type;
     }
 
@@ -112,7 +112,7 @@ namespace Xtensive.Collections
     /// <param name="assembly">The assembly to register.</param>
     public TypeRegistration(Assembly assembly)
     {
-      ArgumentNullException.ThrowIfNull(assembly, "assembly");
+      ArgumentNullException.ThrowIfNull(assembly);
       this.assembly = assembly;
     }
 

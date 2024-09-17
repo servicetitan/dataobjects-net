@@ -58,7 +58,7 @@ namespace Xtensive.Sql.Model
     /// <param name="name">The name.</param>
     protected SchemaNode(Schema schema, string name) : base(name)
     {
-      ArgumentNullException.ThrowIfNull(schema, "schema");
+      ArgumentNullException.ThrowIfNull(schema);
       Schema = schema;
     }
 

@@ -90,9 +90,9 @@ namespace Xtensive.Orm.Rse.Providers
       Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource, string resultColumnName, IReadOnlyList<ColNum> filteredColumns)
       : base(ProviderType.Include, source)
     {
-      ArgumentNullException.ThrowIfNull(filterDataSource, "filterDataSource");
+      ArgumentNullException.ThrowIfNull(filterDataSource);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(resultColumnName, "resultColumnName");
-      ArgumentNullException.ThrowIfNull(filteredColumns, "filteredColumns");
+      ArgumentNullException.ThrowIfNull(filteredColumns);
       Algorithm = algorithm;
       IsInlined = isInlined;
       FilterDataSource = filterDataSource;

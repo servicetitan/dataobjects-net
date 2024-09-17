@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     public UpgradeHintsProcessingResult Process(IEnumerable<UpgradeHint> inputHints)
     {
-      ArgumentNullException.ThrowIfNull(inputHints, "inputHints");
+      ArgumentNullException.ThrowIfNull(inputHints);
 
       ProcessGenericTypeHints(inputHints);
       ProcessTypeChanges();

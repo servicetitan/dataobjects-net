@@ -614,10 +614,10 @@ namespace Xtensive.Orm.Upgrade
       IFullTextCatalogNameBuilder fulltextCatalogNameBuilder,
       bool isUpgradingStage)
     {
-      ArgumentNullException.ThrowIfNull(handlers, "handlers");
-      ArgumentNullException.ThrowIfNull(typeIdProvider, "typeIdProvider");
-      ArgumentNullException.ThrowIfNull(compiler, "compiler");
-      ArgumentNullException.ThrowIfNull(resolver, "resolver");
+      ArgumentNullException.ThrowIfNull(handlers);
+      ArgumentNullException.ThrowIfNull(typeIdProvider);
+      ArgumentNullException.ThrowIfNull(compiler);
+      ArgumentNullException.ThrowIfNull(resolver);
 
       this.handlers = handlers;
       this.compiler = compiler;

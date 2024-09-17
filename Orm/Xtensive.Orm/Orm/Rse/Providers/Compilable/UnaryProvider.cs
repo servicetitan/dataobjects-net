@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Rse.Providers
     protected UnaryProvider(ProviderType type, CompilableProvider source)
       : base(type, source)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       Source = source;
     }
   }

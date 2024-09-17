@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     protected EntityContainer(Key key, TypeInfo type, bool exactType, PrefetchManager manager)
     {
-      ArgumentNullException.ThrowIfNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       ArgumentNullException.ThrowIfNull(manager, "processor");
       Key = key;
       Type = type;

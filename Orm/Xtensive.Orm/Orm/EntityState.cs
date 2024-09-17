@@ -330,7 +330,7 @@ namespace Xtensive.Orm
     internal EntityState(Session session, Key key, Tuple data)
       : base(session)
     {
-      ArgumentNullException.ThrowIfNull(key, "key");
+      ArgumentNullException.ThrowIfNull(key);
       this.key = key;
       Tuple = data;
     }

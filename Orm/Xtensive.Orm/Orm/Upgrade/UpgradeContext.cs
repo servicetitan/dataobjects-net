@@ -233,8 +233,8 @@ namespace Xtensive.Orm.Upgrade
 
     internal UpgradeContext(Domain parentDomain, NodeConfiguration nodeConfiguration)
     {
-      ArgumentNullException.ThrowIfNull(parentDomain, "parentDomain");
-      ArgumentNullException.ThrowIfNull(nodeConfiguration, "nodeConfiguration");
+      ArgumentNullException.ThrowIfNull(parentDomain);
+      ArgumentNullException.ThrowIfNull(nodeConfiguration);
 
       UpgradeMode = nodeConfiguration.UpgradeMode;
       Configuration = parentDomain.Configuration;
@@ -249,7 +249,7 @@ namespace Xtensive.Orm.Upgrade
 
     internal UpgradeContext(DomainConfiguration configuration)
     {
-      ArgumentNullException.ThrowIfNull(configuration, "configuration");
+      ArgumentNullException.ThrowIfNull(configuration);
 
       UpgradeMode = configuration.UpgradeMode;
       Configuration = configuration;

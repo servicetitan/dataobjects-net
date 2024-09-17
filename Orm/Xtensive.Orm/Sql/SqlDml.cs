@@ -54,7 +54,7 @@ namespace Xtensive.Sql
 
     public static SqlAggregate Avg(SqlExpression expression, bool distinct)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlAggregate(SqlNodeType.Avg, expression, distinct);
     }
 
@@ -65,7 +65,7 @@ namespace Xtensive.Sql
 
     public static SqlAggregate Sum(SqlExpression expression, bool distinct)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlAggregate(SqlNodeType.Sum, expression, distinct);
     }
 
@@ -76,7 +76,7 @@ namespace Xtensive.Sql
 
     public static SqlAggregate Min(SqlExpression expression, bool distinct)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlAggregate(SqlNodeType.Min, expression, distinct);
     }
 
@@ -87,7 +87,7 @@ namespace Xtensive.Sql
 
     public static SqlAggregate Max(SqlExpression expression, bool distinct)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlAggregate(SqlNodeType.Max, expression, distinct);
     }
 
@@ -97,8 +97,8 @@ namespace Xtensive.Sql
 
     public static SqlBinary Add(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsArithmeticExpression(left);
       SqlValidator.EnsureIsArithmeticExpression(right);
       return Binary(SqlNodeType.Add, left, right);
@@ -106,8 +106,8 @@ namespace Xtensive.Sql
 
     public static SqlBinary Subtract(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsArithmeticExpression(left);
       SqlValidator.EnsureIsArithmeticExpression(right);
       return Binary(SqlNodeType.Subtract, left, right);
@@ -115,8 +115,8 @@ namespace Xtensive.Sql
 
     public static SqlBinary Multiply(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsArithmeticExpression(left);
       SqlValidator.EnsureIsArithmeticExpression(right);
       return Binary(SqlNodeType.Multiply, left, right);
@@ -124,8 +124,8 @@ namespace Xtensive.Sql
 
     public static SqlBinary Divide(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsArithmeticExpression(left);
       SqlValidator.EnsureIsArithmeticExpression(right);
       return Binary(SqlNodeType.Divide, left, right);
@@ -133,8 +133,8 @@ namespace Xtensive.Sql
 
     public static SqlBinary Modulo(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsArithmeticExpression(left);
       SqlValidator.EnsureIsArithmeticExpression(right);
       return Binary(SqlNodeType.Modulo, left, right);
@@ -248,8 +248,8 @@ namespace Xtensive.Sql
 
     public static SqlBinary BitAnd(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsArithmeticExpression(left);
       SqlValidator.EnsureIsArithmeticExpression(right);
       return Binary(SqlNodeType.BitAnd, left, right);
@@ -257,8 +257,8 @@ namespace Xtensive.Sql
 
     public static SqlBinary BitOr(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsArithmeticExpression(left);
       SqlValidator.EnsureIsArithmeticExpression(right);
       return Binary(SqlNodeType.BitOr, left, right);
@@ -266,8 +266,8 @@ namespace Xtensive.Sql
 
     public static SqlBinary BitXor(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsArithmeticExpression(left);
       SqlValidator.EnsureIsArithmeticExpression(right);
       return Binary(SqlNodeType.BitXor, left, right);
@@ -275,8 +275,8 @@ namespace Xtensive.Sql
 
     public static SqlBinary And(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsBooleanExpression(left);
       SqlValidator.EnsureIsBooleanExpression(right);
       return Binary(SqlNodeType.And, left, right);
@@ -284,8 +284,8 @@ namespace Xtensive.Sql
 
     public static SqlBinary Or(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsBooleanExpression(left);
       SqlValidator.EnsureIsBooleanExpression(right);
       return Binary(SqlNodeType.Or, left, right);
@@ -303,8 +303,8 @@ namespace Xtensive.Sql
 
     private static SqlQueryExpression Except(ISqlQueryExpression left, ISqlQueryExpression right, bool all)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlQueryExpression(SqlNodeType.Except, left, right, all);
     }
 
@@ -320,8 +320,8 @@ namespace Xtensive.Sql
 
     private static SqlQueryExpression Intersect(ISqlQueryExpression left, ISqlQueryExpression right, bool all)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlQueryExpression(SqlNodeType.Intersect, left, right, all);
     }
 
@@ -337,50 +337,50 @@ namespace Xtensive.Sql
 
     private static SqlQueryExpression Union(ISqlQueryExpression left, ISqlQueryExpression right, bool all)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlQueryExpression(SqlNodeType.Union, left, right, all);
     }
 
     public static SqlBinary In(SqlExpression left, ISqlQueryExpression right)
     {
       SqlValidator.EnsureIsRowValueConstructor(left);
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(right);
       return Binary(SqlNodeType.In, left, SubQuery(right));
     }
 
     public static SqlBinary In(SqlExpression left, SqlRow right)
     {
       SqlValidator.EnsureIsRowValueConstructor(left);
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(right);
       return Binary(SqlNodeType.In, left, right);
     }
 
     public static SqlBinary In(SqlExpression left, SqlArray right)
     {
       SqlValidator.EnsureIsRowValueConstructor(left);
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(right);
       return Binary(SqlNodeType.In, left, right);
     }
 
     public static SqlBinary NotIn(SqlExpression left, ISqlQueryExpression right)
     {
       SqlValidator.EnsureIsRowValueConstructor(left);
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(right);
       return Binary(SqlNodeType.NotIn, left, SubQuery(right));
     }
 
     public static SqlBinary NotIn(SqlExpression left, SqlRow right)
     {
       SqlValidator.EnsureIsRowValueConstructor(left);
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(right);
       return Binary(SqlNodeType.NotIn, left, right);
     }
 
     public static SqlBinary NotIn(SqlExpression left, SqlArray right)
     {
       SqlValidator.EnsureIsRowValueConstructor(left);
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(right);
       return Binary(SqlNodeType.NotIn, left, right);
     }
 
@@ -417,32 +417,32 @@ namespace Xtensive.Sql
 
     public static SqlCast Cast(SqlExpression operand, SqlValueType type)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
-      ArgumentNullException.ThrowIfNull(type, "type");
+      ArgumentNullException.ThrowIfNull(operand);
+      ArgumentNullException.ThrowIfNull(type);
       return new SqlCast(operand, type);
     }
 
     public static SqlCast Cast(SqlExpression operand, SqlType type)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return new SqlCast(operand, new SqlValueType(type));
     }
 
     public static SqlCast Cast(SqlExpression operand, SqlType type, int size)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return new SqlCast(operand, new SqlValueType(type, size));
     }
 
     public static SqlCast Cast(SqlExpression operand, SqlType type, short precision, short scale)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return new SqlCast(operand, new SqlValueType(type, precision, scale));
     }
 
     public static SqlCast Cast(SqlExpression operand, SqlType type, short precision)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return new SqlCast(operand, new SqlValueType(type, precision, 0));
     }
 
@@ -452,43 +452,43 @@ namespace Xtensive.Sql
 
     public static SqlBinary Equals(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return Binary(SqlNodeType.Equals, left, right);
     }
 
     public static SqlBinary NotEquals(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return Binary(SqlNodeType.NotEquals, left, right);
     }
 
     public static SqlBinary GreaterThan(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return Binary(SqlNodeType.GreaterThan, left, right);
     }
 
     public static SqlBinary LessThan(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return Binary(SqlNodeType.LessThan, left, right);
     }
 
     public static SqlBinary GreaterThanOrEquals(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return Binary(SqlNodeType.GreaterThanOrEquals, left, right);
     }
 
     public static SqlBinary LessThanOrEquals(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return Binary(SqlNodeType.LessThanOrEquals, left, right);
     }
 
@@ -537,7 +537,7 @@ namespace Xtensive.Sql
 
     public static SqlExtract Extract(SqlDateTimePart part, SqlExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsArithmeticExpression(operand);
       if (part == SqlDateTimePart.Nothing) {
         throw new ArgumentException(string.Format("Unable to extract {0} part", SqlDateTimePart.Nothing.ToString()));
@@ -567,7 +567,7 @@ namespace Xtensive.Sql
 
     public static SqlExtract Extract(SqlIntervalPart part, SqlExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsArithmeticExpression(operand);
       if (part == SqlIntervalPart.Nothing) {
         throw new ArgumentException(string.Format("Unable to extract {0} part", SqlIntervalPart.Nothing.ToString()));
@@ -577,9 +577,9 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall DateTimeConstruct(SqlExpression year, SqlExpression month, SqlExpression day)
     {
-      ArgumentNullException.ThrowIfNull(year, "year");
-      ArgumentNullException.ThrowIfNull(month, "month");
-      ArgumentNullException.ThrowIfNull(day, "day");
+      ArgumentNullException.ThrowIfNull(year);
+      ArgumentNullException.ThrowIfNull(month);
+      ArgumentNullException.ThrowIfNull(day);
       SqlValidator.EnsureIsArithmeticExpression(year);
       SqlValidator.EnsureIsArithmeticExpression(month);
       SqlValidator.EnsureIsArithmeticExpression(day);
@@ -624,8 +624,8 @@ namespace Xtensive.Sql
 
     public static SqlBinary DateTimePlusInterval(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlBinary(SqlNodeType.DateTimePlusInterval, left, right);
     }
 
@@ -645,29 +645,29 @@ namespace Xtensive.Sql
 
     public static SqlBinary DateTimeMinusInterval(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlBinary(SqlNodeType.DateTimeMinusInterval, left, right);
     }
 
     public static SqlBinary DateTimeMinusDateTime(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlBinary(SqlNodeType.DateTimeMinusDateTime, left, right);
     }
 
     public static SqlFunctionCall DateTimeAddYears(SqlExpression source, SqlExpression years)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
-      ArgumentNullException.ThrowIfNull(years, "years");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(years);
       return new SqlFunctionCall(SqlFunctionType.DateTimeAddYears, source, years);
     }
 
     public static SqlFunctionCall DateTimeAddMonths(SqlExpression source, SqlExpression months)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
-      ArgumentNullException.ThrowIfNull(months, "months");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(months);
       return new SqlFunctionCall(SqlFunctionType.DateTimeAddMonths, source, months);
     }
 
@@ -762,43 +762,43 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall DateTimeToStringIso(SqlExpression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlFunctionCall(SqlFunctionType.DateTimeToStringIso, expression);
     }
 
     public static SqlFunctionCall DateTimeTruncate(SqlExpression source)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       return new SqlFunctionCall(SqlFunctionType.DateTimeTruncate, source);
     }
 
     public static SqlFunctionCall IntervalConstruct(SqlExpression nanoseconds)
     {
-      ArgumentNullException.ThrowIfNull(nanoseconds, "nanoseconds");
+      ArgumentNullException.ThrowIfNull(nanoseconds);
       return new SqlFunctionCall(SqlFunctionType.IntervalConstruct, nanoseconds);
     }
 
     public static SqlFunctionCall IntervalToMilliseconds(SqlExpression source)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       return new SqlFunctionCall(SqlFunctionType.IntervalToMilliseconds, source);
     }
 
     public static SqlFunctionCall IntervalToNanoseconds(SqlExpression source)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       return new SqlFunctionCall(SqlFunctionType.IntervalToNanoseconds, source);
     }
 
     public static SqlFunctionCall IntervalAbs(SqlExpression source)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       return new SqlFunctionCall(SqlFunctionType.IntervalAbs, source);
     }
 
     public static SqlFunctionCall IntervalNegate(SqlExpression source)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       return new SqlFunctionCall(SqlFunctionType.IntervalNegate, source);
     }
 
@@ -813,7 +813,7 @@ namespace Xtensive.Sql
 
     public static SqlExtract Extract(SqlDateTimeOffsetPart part, SqlExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsArithmeticExpression(operand);
       if (part==SqlDateTimeOffsetPart.Nothing)
         throw new ArgumentException();
@@ -822,68 +822,68 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall DateTimeOffsetConstruct(SqlExpression dateTime, SqlExpression offset)
     {
-      ArgumentNullException.ThrowIfNull(dateTime, "dateTime");
-      ArgumentNullException.ThrowIfNull(offset, "offset");
+      ArgumentNullException.ThrowIfNull(dateTime);
+      ArgumentNullException.ThrowIfNull(offset);
       SqlValidator.EnsureIsArithmeticExpression(offset);
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetConstruct, dateTime, offset);
     }
 
     public static SqlBinary DateTimeOffsetPlusInterval(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlBinary(SqlNodeType.DateTimeOffsetPlusInterval, left, right);
     }
 
     public static SqlBinary DateTimeOffsetMinusInterval(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlBinary(SqlNodeType.DateTimeOffsetMinusInterval, left, right);
     }
 
     public static SqlBinary DateTimeOffsetMinusDateTimeOffset(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlBinary(SqlNodeType.DateTimeOffsetMinusDateTimeOffset, left, right);
     }
 
     public static SqlFunctionCall DateTimeOffsetAddYears(SqlExpression source, SqlExpression years)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
-      ArgumentNullException.ThrowIfNull(years, "years");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(years);
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetAddYears, source, years);
     }
 
     public static SqlFunctionCall DateTimeOffsetAddMonths(SqlExpression source, SqlExpression months)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
-      ArgumentNullException.ThrowIfNull(months, "months");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(months);
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetAddMonths, source, months);
     }
 
     public static SqlFunctionCall DateTimeOffsetTimeOfDay(SqlExpression dateTimeOffset)
     {
-      ArgumentNullException.ThrowIfNull(dateTimeOffset, "dateTimeOffset");
+      ArgumentNullException.ThrowIfNull(dateTimeOffset);
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetTimeOfDay, dateTimeOffset);
     }
 
     public static SqlFunctionCall DateTimeOffsetToLocalTime(SqlExpression dateTimeOffset)
     {
-      ArgumentNullException.ThrowIfNull(dateTimeOffset, "dateTimeOffset");
+      ArgumentNullException.ThrowIfNull(dateTimeOffset);
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToLocalTime, dateTimeOffset);
     }
 
     public static SqlFunctionCall DateTimeOffsetToUtcTime(SqlExpression dateTimeOffset)
     {
-      ArgumentNullException.ThrowIfNull(dateTimeOffset, "dateTimeOffset");
+      ArgumentNullException.ThrowIfNull(dateTimeOffset);
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToUtcTime, dateTimeOffset);
     }
 
     public static SqlFunctionCall DateTimeToDateTimeOffset(SqlExpression dateTime)
     {
-      ArgumentNullException.ThrowIfNull(dateTime, "dateTime");
+      ArgumentNullException.ThrowIfNull(dateTime);
       return new SqlFunctionCall(SqlFunctionType.DateTimeToDateTimeOffset, dateTime);
     }
 
@@ -947,8 +947,8 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall NullIf(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsArithmeticExpression(left);
       SqlValidator.EnsureIsArithmeticExpression(right);
       //SqlCase c = new SqlCase(null);
@@ -960,8 +960,8 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall Coalesce(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsArithmeticExpression(left);
       SqlValidator.EnsureIsArithmeticExpression(right);
       //SqlCase c = new SqlCase(null);
@@ -981,7 +981,7 @@ namespace Xtensive.Sql
       //    for (int i = 1, l = values.Length; i<l; i++)
       //      v[i-1] = values[i];
       //  }
-      //  ArgumentNullException.ThrowIfNull(left, "left");
+      //  ArgumentNullException.ThrowIfNull(left);
       //  SqlValidator.VerifyArithmeticalOperatorsArgs(left);
       //  SqlCase c = new SqlCase(null);
       //  c[IsNotNull(left)] = left;
@@ -991,8 +991,8 @@ namespace Xtensive.Sql
       //else {
       //  return Coalesce(left, right);
       //}
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsArithmeticExpression(left);
       SqlValidator.EnsureIsArithmeticExpression(right);
       SqlExpression[] expressions;
@@ -1029,8 +1029,8 @@ namespace Xtensive.Sql
 
     public static SqlJoinedTable Join(SqlJoinType joinType, SqlTable left, SqlTable right, SqlExpression expression)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       if (expression is not null && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
         throw new ArgumentException(Strings.ExJoinExpressionShouldBeNullForCrossApplyAndOuterApply, "expression");
       return new SqlJoinedTable(new SqlJoinExpression(joinType, left, right, expression));
@@ -1039,8 +1039,8 @@ namespace Xtensive.Sql
     public static SqlJoinedTable Join(SqlJoinType joinType, SqlTable left, SqlTable right,
       IReadOnlyList<SqlColumn> leftColumns, IReadOnlyList<SqlColumn> rightColumns, SqlExpression expression)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       if (expression is not null && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
         throw new ArgumentException(Strings.ExJoinExpressionShouldBeNullForCrossApplyAndOuterApply, "expression");
       return new SqlJoinedTable(new SqlJoinExpression(joinType, left, right, expression), leftColumns, rightColumns);
@@ -1048,8 +1048,8 @@ namespace Xtensive.Sql
 
     public static SqlJoinedTable Join(SqlTable left, SqlTable right, params SqlColumn[] columns)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlJoinedTable(new SqlJoinExpression(SqlJoinType.UsingJoin, left, right, Row(columns)));
     }
 
@@ -1182,8 +1182,8 @@ namespace Xtensive.Sql
 
     public static SqlMatch Match(SqlRow value, ISqlQueryExpression query, bool unique, SqlMatchType matchType)
     {
-      ArgumentNullException.ThrowIfNull(value, "value");
-      ArgumentNullException.ThrowIfNull(query, "query");
+      ArgumentNullException.ThrowIfNull(value);
+      ArgumentNullException.ThrowIfNull(query);
       return new SqlMatch(value, SubQuery(query), unique, matchType);
     }
 
@@ -1204,8 +1204,8 @@ namespace Xtensive.Sql
 
     public static SqlMatch Match(ISqlQueryExpression value, ISqlQueryExpression query, bool unique, SqlMatchType matchType)
     {
-      ArgumentNullException.ThrowIfNull(value, "value");
-      ArgumentNullException.ThrowIfNull(query, "query");
+      ArgumentNullException.ThrowIfNull(value);
+      ArgumentNullException.ThrowIfNull(query);
       return new SqlMatch(SubQuery(value), SubQuery(query), unique, matchType);
     }
 
@@ -1230,36 +1230,36 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall Abs(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Abs, argument);
     }
 
     public static SqlFunctionCall Acos(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Acos, argument);
     }
 
     public static SqlFunctionCall Asin(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Asin, argument);
     }
 
     public static SqlFunctionCall Atan(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Atan, argument);
     }
 
     public static SqlFunctionCall Atan2(SqlExpression argument1, SqlExpression argument2)
     {
-      ArgumentNullException.ThrowIfNull(argument1, "argument1");
-      ArgumentNullException.ThrowIfNull(argument2, "argument2");
+      ArgumentNullException.ThrowIfNull(argument1);
+      ArgumentNullException.ThrowIfNull(argument2);
       SqlValidator.EnsureIsArithmeticExpression(argument1);
       SqlValidator.EnsureIsArithmeticExpression(argument2);
       return new SqlFunctionCall(SqlFunctionType.Atan2, argument1, argument2);
@@ -1267,56 +1267,56 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall Ceiling(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Ceiling, argument);
     }
 
     public static SqlFunctionCall Cos(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Cos, argument);
     }
 
     public static SqlFunctionCall Cot(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Cot, argument);
     }
 
     public static SqlFunctionCall Degrees(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Degrees, argument);
     }
 
     public static SqlFunctionCall Exp(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Exp, argument);
     }
 
     public static SqlFunctionCall Floor(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Floor, argument);
     }
 
     public static SqlFunctionCall Log(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Log, argument);
     }
 
     public static SqlFunctionCall Log10(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Log10, argument);
     }
@@ -1328,16 +1328,16 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall Power(SqlExpression argument, SqlExpression power)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
-      ArgumentNullException.ThrowIfNull(power, "power");
+      ArgumentNullException.ThrowIfNull(power);
       SqlValidator.EnsureIsArithmeticExpression(power);
       return new SqlFunctionCall(SqlFunctionType.Power, argument, power);
     }
 
     public static SqlFunctionCall Radians(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Radians, argument);
     }
@@ -1359,23 +1359,23 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall Round(SqlExpression argument, SqlExpression length)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
-      ArgumentNullException.ThrowIfNull(length, "length");
+      ArgumentNullException.ThrowIfNull(length);
       SqlValidator.EnsureIsArithmeticExpression(length);
       return new SqlFunctionCall(SqlFunctionType.Round, argument, length);
     }
 
     public static SqlFunctionCall Round(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Round, argument);
     }
 
     public static SqlRound Round(SqlExpression argument, SqlExpression length, TypeCode type, MidpointRounding mode)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       if (type!=TypeCode.Decimal && type!=TypeCode.Double)
         throw new ArgumentOutOfRangeException("type");
       return new SqlRound(argument, length, type, mode);
@@ -1383,42 +1383,42 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall Truncate(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Truncate, argument);
     }
 
     public static SqlFunctionCall Sign(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Sign, argument);
     }
 
     public static SqlFunctionCall Sin(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Sin, argument);
     }
 
     public static SqlFunctionCall Sqrt(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Sqrt, argument);
     }
 
     public static SqlFunctionCall Square(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Square, argument);
     }
 
     public static SqlFunctionCall Tan(SqlExpression argument)
     {
-      ArgumentNullException.ThrowIfNull(argument, "argument");
+      ArgumentNullException.ThrowIfNull(argument);
       SqlValidator.EnsureIsArithmeticExpression(argument);
       return new SqlFunctionCall(SqlFunctionType.Tan, argument);
     }
@@ -1441,7 +1441,7 @@ namespace Xtensive.Sql
 
     public static SqlSubQuery SubQuery(ISqlQueryExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return new SqlSubQuery(operand);
     }
 
@@ -1458,7 +1458,7 @@ namespace Xtensive.Sql
 
     public static SqlParameterRef ParameterRef(object parameter)
     {
-      ArgumentNullException.ThrowIfNull(parameter, "parameter");
+      ArgumentNullException.ThrowIfNull(parameter);
       return new SqlParameterRef(parameter);
     }
 
@@ -1480,13 +1480,13 @@ namespace Xtensive.Sql
 
     public static SqlNextValue NextValue(Sequence sequence)
     {
-      ArgumentNullException.ThrowIfNull(sequence, "sequence");
+      ArgumentNullException.ThrowIfNull(sequence);
       return new SqlNextValue(sequence);
     }
 
     public static SqlNextValue NextValue(Sequence sequence, int increment)
     {
-      ArgumentNullException.ThrowIfNull(sequence, "sequence");
+      ArgumentNullException.ThrowIfNull(sequence);
       return new SqlNextValue(sequence, increment);
     }
 
@@ -1497,27 +1497,27 @@ namespace Xtensive.Sql
 
     public static SqlVariant Variant(object id, SqlExpression main, SqlExpression alternative)
     {
-      ArgumentNullException.ThrowIfNull(id, "id");
-      ArgumentNullException.ThrowIfNull(main, "main");
-      ArgumentNullException.ThrowIfNull(alternative, "alternative");
+      ArgumentNullException.ThrowIfNull(id);
+      ArgumentNullException.ThrowIfNull(main);
+      ArgumentNullException.ThrowIfNull(alternative);
       return new SqlVariant(id, main, alternative);
     }
 
     public static SqlPlaceholder Placeholder(object id)
     {
-      ArgumentNullException.ThrowIfNull(id, "id");
+      ArgumentNullException.ThrowIfNull(id);
       return new SqlPlaceholder(id);
     }
 
     public static SqlDynamicFilter DynamicFilter(object id, IReadOnlyList<SqlExpression> expressions)
     {
-      ArgumentNullException.ThrowIfNull(id, "id");
+      ArgumentNullException.ThrowIfNull(id);
       return new SqlDynamicFilter(id, expressions);
     }
 
     public static SqlTvpDynamicFilter TvpDynamicFilter(object id, IReadOnlyList<SqlExpression> expressions)
     {
-      ArgumentNullException.ThrowIfNull(id, "id");
+      ArgumentNullException.ThrowIfNull(id);
       return new(id, expressions);
     }
 
@@ -1547,7 +1547,7 @@ namespace Xtensive.Sql
 
     public static SqlOrder Order(SqlExpression expression, bool ascending)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlOrder(expression, ascending);
     }
 
@@ -1582,13 +1582,13 @@ namespace Xtensive.Sql
 
     public static SqlFragment Fragment(SqlExpression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlFragment(expression);
     }
 
     public static SqlWhile While(SqlExpression condition)
     {
-      ArgumentNullException.ThrowIfNull(condition, "condition");
+      ArgumentNullException.ThrowIfNull(condition);
       SqlValidator.EnsureIsBooleanExpression(condition);
       return new SqlWhile(condition);
     }
@@ -1600,25 +1600,25 @@ namespace Xtensive.Sql
 
     public static SqlAssignment Assign(SqlVariable left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsArithmeticExpression(right);
       return new SqlAssignment(left, right);
     }
 
     public static SqlAssignment Assign(SqlParameterRef left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsArithmeticExpression(right);
       return new SqlAssignment(left, right);
     }
 
     public static SqlIf If(SqlExpression condition, SqlStatement ifTrue, SqlStatement ifFalse)
     {
-      ArgumentNullException.ThrowIfNull(condition, "condition");
+      ArgumentNullException.ThrowIfNull(condition);
       SqlValidator.EnsureIsBooleanExpression(condition);
-      ArgumentNullException.ThrowIfNull(ifTrue, "ifTrue");
+      ArgumentNullException.ThrowIfNull(ifTrue);
       return new SqlIf(condition, ifTrue, ifFalse);
     }
 
@@ -1634,7 +1634,7 @@ namespace Xtensive.Sql
 
     public static SqlDelete Delete(SqlTableRef table)
     {
-      ArgumentNullException.ThrowIfNull(table, "table");
+      ArgumentNullException.ThrowIfNull(table);
       return new SqlDelete(table);
     }
 
@@ -1667,7 +1667,7 @@ namespace Xtensive.Sql
 
     public static SqlSelect Select(SqlExpression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       var result = new SqlSelect();
       result.Columns.Add(expression);
       return result;
@@ -1675,7 +1675,7 @@ namespace Xtensive.Sql
 
     public static SqlSelect Select(SqlTable table)
     {
-      ArgumentNullException.ThrowIfNull(table, "table");
+      ArgumentNullException.ThrowIfNull(table);
       return new SqlSelect(table);
     }
 
@@ -1690,7 +1690,7 @@ namespace Xtensive.Sql
 
     public static SqlConcat Concat(params SqlExpression[] items)
     {
-      ArgumentNullException.ThrowIfNull(items, "items");
+      ArgumentNullException.ThrowIfNull(items);
       foreach (var item in items)
         SqlValidator.EnsureIsCharacterExpression(item);
       return new SqlConcat(items);
@@ -1704,8 +1704,8 @@ namespace Xtensive.Sql
     /// <returns>New <see cref="SqlBinary"/> expression.</returns>
     public static SqlBinary RawConcat(SqlExpression left, SqlExpression right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       SqlValidator.EnsureIsCharacterExpression(left);
       SqlValidator.EnsureIsCharacterExpression(right);
       return new SqlBinary(SqlNodeType.RawConcat, left, right);
@@ -1718,7 +1718,7 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall Substring(SqlExpression operand, int start, int? length)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsCharacterExpression(operand);
       if (length<0)
         throw new ArgumentException(Strings.ExLengthShouldBeNotNegativeValue, "length");
@@ -1730,8 +1730,8 @@ namespace Xtensive.Sql
     public static SqlFunctionCall Substring(
       SqlExpression operand, SqlExpression start, SqlExpression length = null)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
-      ArgumentNullException.ThrowIfNull(start, "start");
+      ArgumentNullException.ThrowIfNull(operand);
+      ArgumentNullException.ThrowIfNull(start);
       SqlValidator.EnsureIsCharacterExpression(operand);
       SqlValidator.EnsureIsArithmeticExpression(start);
       if (length != null) {
@@ -1743,29 +1743,29 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall Upper(SqlExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsCharacterExpression(operand);
       return new SqlFunctionCall(SqlFunctionType.Upper, operand);
     }
 
     public static SqlFunctionCall Lower(SqlExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsCharacterExpression(operand);
       return new SqlFunctionCall(SqlFunctionType.Lower, operand);
     }
 
     public static SqlTrim Trim(SqlExpression operand, SqlTrimType trimType, string trimCharacters)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsCharacterExpression(operand);
-      ArgumentNullException.ThrowIfNull(trimCharacters, "trimCharacters");
+      ArgumentNullException.ThrowIfNull(trimCharacters);
       return new SqlTrim(operand, trimCharacters, trimType);
     }
 
     public static SqlTrim Trim(SqlExpression operand, SqlTrimType trimType)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsCharacterExpression(operand);
       return new SqlTrim(operand, null, trimType);
     }
@@ -1778,8 +1778,8 @@ namespace Xtensive.Sql
     public static SqlLike Like(
       SqlExpression expression, SqlExpression pattern, SqlExpression escape)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
-      ArgumentNullException.ThrowIfNull(pattern, "pattern");
+      ArgumentNullException.ThrowIfNull(expression);
+      ArgumentNullException.ThrowIfNull(pattern);
       SqlValidator.EnsureIsCharacterExpression(expression);
       SqlValidator.EnsureIsCharacterExpression(pattern);
       SqlValidator.EnsureIsCharacterExpression(escape);
@@ -1793,22 +1793,22 @@ namespace Xtensive.Sql
 
     public static SqlLike Like(SqlExpression expression, string pattern)
     {
-      ArgumentNullException.ThrowIfNull(pattern, "pattern");
+      ArgumentNullException.ThrowIfNull(pattern);
       return Like(expression, new SqlLiteral<string>(pattern), null);
     }
 
     public static SqlLike Like(SqlExpression expression, string pattern, char escape)
     {
       SqlValidator.EnsureIsCharacterExpression(expression);
-      ArgumentNullException.ThrowIfNull(pattern, "pattern");
+      ArgumentNullException.ThrowIfNull(pattern);
       return Like(expression, new SqlLiteral<string>(pattern), new SqlLiteral<char>(escape));
     }
 
     public static SqlLike NotLike(
       SqlExpression expression, SqlExpression pattern, SqlExpression escape)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
-      ArgumentNullException.ThrowIfNull(pattern, "pattern");
+      ArgumentNullException.ThrowIfNull(expression);
+      ArgumentNullException.ThrowIfNull(pattern);
       SqlValidator.EnsureIsCharacterExpression(expression);
       SqlValidator.EnsureIsCharacterExpression(pattern);
       SqlValidator.EnsureIsCharacterExpression(escape);
@@ -1822,14 +1822,14 @@ namespace Xtensive.Sql
 
     public static SqlLike NotLike(SqlExpression expression, string pattern)
     {
-      ArgumentNullException.ThrowIfNull(pattern, "pattern");
+      ArgumentNullException.ThrowIfNull(pattern);
       return NotLike(expression, new SqlLiteral<string>(pattern), null);
     }
 
     public static SqlLike NotLike(SqlExpression expression, string pattern, char escape)
     {
       SqlValidator.EnsureIsCharacterExpression(expression);
-      ArgumentNullException.ThrowIfNull(pattern, "pattern");
+      ArgumentNullException.ThrowIfNull(pattern);
       return NotLike(expression, new SqlLiteral<string>(pattern), new SqlLiteral<char>(escape));
     }
 
@@ -1841,59 +1841,59 @@ namespace Xtensive.Sql
 
     public static SqlBinary Overlaps(SqlExpression from1, SqlExpression toOrSpan1, SqlExpression from2, SqlExpression toOrSpan2)
     {
-      ArgumentNullException.ThrowIfNull(from1, "from1");
-      ArgumentNullException.ThrowIfNull(toOrSpan1, "toOrSpan1");
-      ArgumentNullException.ThrowIfNull(from2, "from2");
-      ArgumentNullException.ThrowIfNull(toOrSpan2, "toOrSpan2");
+      ArgumentNullException.ThrowIfNull(from1);
+      ArgumentNullException.ThrowIfNull(toOrSpan1);
+      ArgumentNullException.ThrowIfNull(from2);
+      ArgumentNullException.ThrowIfNull(toOrSpan2);
       return new(SqlNodeType.Overlaps, Row([from1, toOrSpan1]), Row([from2, toOrSpan2]));
     }
 
     public static SqlBinary Overlaps(SqlRow left, SqlRow right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlBinary(SqlNodeType.Overlaps, left, right);
     }
 
     public static SqlBinary Overlaps(SqlSelect left, SqlRow right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlBinary(SqlNodeType.Overlaps, SubQuery(left), right);
     }
 
     public static SqlBinary Overlaps(SqlRow left, SqlSelect right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlBinary(SqlNodeType.Overlaps, left, SubQuery(right));
     }
 
     public static SqlBinary Overlaps(SqlSelect left, SqlSelect right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       return new SqlBinary(SqlNodeType.Overlaps, left, right);
     }
 
     public static SqlFunctionCall BinaryLength(SqlExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsCharacterExpression(operand);
       return new SqlFunctionCall(SqlFunctionType.BinaryLength, operand);
     }
 
     public static SqlFunctionCall CharLength(SqlExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsCharacterExpression(operand);
       return new SqlFunctionCall(SqlFunctionType.CharLength, operand);
     }
 
     public static SqlFunctionCall Position(SqlExpression pattern, SqlExpression source)
     {
-      ArgumentNullException.ThrowIfNull(pattern, "pattern");
-      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(pattern);
+      ArgumentNullException.ThrowIfNull(source);
       SqlValidator.EnsureIsCharacterExpression(pattern);
       SqlValidator.EnsureIsCharacterExpression(source);
       return new SqlFunctionCall(SqlFunctionType.Position, pattern, source);
@@ -1901,9 +1901,9 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall Replace(SqlExpression text, SqlExpression from, SqlExpression to)
     {
-      ArgumentNullException.ThrowIfNull(text, "text");
-      ArgumentNullException.ThrowIfNull(from, "from");
-      ArgumentNullException.ThrowIfNull(to, "to");
+      ArgumentNullException.ThrowIfNull(text);
+      ArgumentNullException.ThrowIfNull(from);
+      ArgumentNullException.ThrowIfNull(to);
       SqlValidator.EnsureIsCharacterExpression(text);
       SqlValidator.EnsureIsCharacterExpression(from);
       SqlValidator.EnsureIsCharacterExpression(to);
@@ -1912,40 +1912,40 @@ namespace Xtensive.Sql
 
     public static SqlCollate Collate(SqlExpression operand, Collation collation)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsCharacterExpression(operand);
-      ArgumentNullException.ThrowIfNull(collation, "collation");
+      ArgumentNullException.ThrowIfNull(collation);
       return new SqlCollate(operand, collation);
     }
 
 
     public static SqlFunctionCall PadLeft(SqlExpression operand, SqlExpression length)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
-      ArgumentNullException.ThrowIfNull(length, "length");
+      ArgumentNullException.ThrowIfNull(operand);
+      ArgumentNullException.ThrowIfNull(length);
       return new SqlFunctionCall(SqlFunctionType.PadLeft, operand, length);
     }
 
     public static SqlFunctionCall PadLeft(SqlExpression operand, SqlExpression length, SqlExpression padChar)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
-      ArgumentNullException.ThrowIfNull(length, "length");
-      ArgumentNullException.ThrowIfNull(padChar, "padChar");
+      ArgumentNullException.ThrowIfNull(operand);
+      ArgumentNullException.ThrowIfNull(length);
+      ArgumentNullException.ThrowIfNull(padChar);
       return new SqlFunctionCall(SqlFunctionType.PadLeft, operand, length, padChar);
     }
 
     public static SqlFunctionCall PadRight(SqlExpression operand, SqlExpression length)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
-      ArgumentNullException.ThrowIfNull(length, "length");
+      ArgumentNullException.ThrowIfNull(operand);
+      ArgumentNullException.ThrowIfNull(length);
       return new SqlFunctionCall(SqlFunctionType.PadRight, operand, length);
     }
 
     public static SqlFunctionCall PadRight(SqlExpression operand, SqlExpression length, SqlExpression padChar)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
-      ArgumentNullException.ThrowIfNull(length, "length");
-      ArgumentNullException.ThrowIfNull(padChar, "padChar");
+      ArgumentNullException.ThrowIfNull(operand);
+      ArgumentNullException.ThrowIfNull(length);
+      ArgumentNullException.ThrowIfNull(padChar);
       return new SqlFunctionCall(SqlFunctionType.PadRight, operand, length, padChar);
     }
 
@@ -1968,13 +1968,13 @@ namespace Xtensive.Sql
 
     public static SqlUserColumn Column(SqlExpression expression)
     {
-      ArgumentNullException.ThrowIfNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       return new SqlUserColumn(expression);
     }
 
     public static SqlColumnRef ColumnRef(SqlColumn column)
     {
-      ArgumentNullException.ThrowIfNull(column, "column");
+      ArgumentNullException.ThrowIfNull(column);
       return new SqlColumnRef(column);
     }
 
@@ -1987,109 +1987,109 @@ namespace Xtensive.Sql
 
     public static SqlColumnStub ColumnStub(SqlColumn column)
     {
-      ArgumentNullException.ThrowIfNull(column, "column");
+      ArgumentNullException.ThrowIfNull(column);
       return new SqlColumnStub(column);
     }
 
     public static SqlFreeTextTable FreeTextTable(DataTable dataTable, SqlExpression freeText, IList<string> columnNames)
     {
-      ArgumentNullException.ThrowIfNull(dataTable, "dataTable");
-      ArgumentNullException.ThrowIfNull(freeText, "freeText");
+      ArgumentNullException.ThrowIfNull(dataTable);
+      ArgumentNullException.ThrowIfNull(freeText);
       return new SqlFreeTextTable(dataTable, freeText, columnNames);
     }
 
     public static SqlFreeTextTable FreeTextTable(DataTable dataTable, SqlExpression freeText, IList<string> columnNames, IList<string> targetColumnNames)
     {
-      ArgumentNullException.ThrowIfNull(dataTable, "dataTable");
-      ArgumentNullException.ThrowIfNull(freeText, "freeText");
-      ArgumentNullException.ThrowIfNull(columnNames, "columnNames");
+      ArgumentNullException.ThrowIfNull(dataTable);
+      ArgumentNullException.ThrowIfNull(freeText);
+      ArgumentNullException.ThrowIfNull(columnNames);
       return new SqlFreeTextTable(dataTable, freeText, columnNames, targetColumnNames);
     }
 
     public static SqlFreeTextTable FreeTextTable(DataTable dataTable, SqlExpression freeText, IList<string> columnNames, SqlExpression topN)
     {
-      ArgumentNullException.ThrowIfNull(dataTable, "dataTable");
-      ArgumentNullException.ThrowIfNull(freeText, "freeText");
-      ArgumentNullException.ThrowIfNull(topN, "topN");
+      ArgumentNullException.ThrowIfNull(dataTable);
+      ArgumentNullException.ThrowIfNull(freeText);
+      ArgumentNullException.ThrowIfNull(topN);
       return new SqlFreeTextTable(dataTable, freeText, columnNames, topN);
     }
 
     public static SqlFreeTextTable FreeTextTable(DataTable dataTable, SqlExpression freeText, IList<string> columnNames, IList<string> targetColumNames, SqlExpression topN)
     {
-      ArgumentNullException.ThrowIfNull(dataTable, "dataTable");
-      ArgumentNullException.ThrowIfNull(freeText, "freeText");
-      ArgumentNullException.ThrowIfNull(targetColumNames, "targetColumNames");
-      ArgumentNullException.ThrowIfNull(topN, "topN");
+      ArgumentNullException.ThrowIfNull(dataTable);
+      ArgumentNullException.ThrowIfNull(freeText);
+      ArgumentNullException.ThrowIfNull(targetColumNames);
+      ArgumentNullException.ThrowIfNull(topN);
       return new SqlFreeTextTable(dataTable, freeText, columnNames, targetColumNames, topN);
     }
 
     public static SqlContainsTable ContainsTable(DataTable dataTable, SqlExpression searchText, IList<string> columnNames)
     {
-      ArgumentNullException.ThrowIfNull(dataTable, "dataTable");
-      ArgumentNullException.ThrowIfNull(searchText, "searchText");
+      ArgumentNullException.ThrowIfNull(dataTable);
+      ArgumentNullException.ThrowIfNull(searchText);
       return new SqlContainsTable(dataTable, searchText, columnNames);
     }
 
     public static SqlContainsTable ContainsTable(DataTable dataTable, SqlExpression searchText, IList<string> columnNames, IList<string> targetColumnNames)
     {
-      ArgumentNullException.ThrowIfNull(dataTable, "dataTable");
-      ArgumentNullException.ThrowIfNull(searchText, "searchText");
-      ArgumentNullException.ThrowIfNull(columnNames, "columnNames");
+      ArgumentNullException.ThrowIfNull(dataTable);
+      ArgumentNullException.ThrowIfNull(searchText);
+      ArgumentNullException.ThrowIfNull(columnNames);
       return new SqlContainsTable(dataTable, searchText, columnNames, targetColumnNames);
     }
 
     public static SqlContainsTable ContainsTable(DataTable dataTable, SqlExpression searchText, IList<string> columnNames, SqlExpression topN)
     {
-      ArgumentNullException.ThrowIfNull(dataTable, "dataTable");
-      ArgumentNullException.ThrowIfNull(searchText, "searchText");
+      ArgumentNullException.ThrowIfNull(dataTable);
+      ArgumentNullException.ThrowIfNull(searchText);
       return new SqlContainsTable(dataTable, searchText, columnNames, topN);
     }
 
     public static SqlContainsTable ContainsTable(DataTable dataTable, SqlExpression searchText, IList<string> columnNames, IList<string> targetColumnNames, SqlExpression topN)
     {
-      ArgumentNullException.ThrowIfNull(dataTable, "dataTable");
-      ArgumentNullException.ThrowIfNull(searchText, "searchText");
-      ArgumentNullException.ThrowIfNull(columnNames, "columnNames");
+      ArgumentNullException.ThrowIfNull(dataTable);
+      ArgumentNullException.ThrowIfNull(searchText);
+      ArgumentNullException.ThrowIfNull(columnNames);
       return new SqlContainsTable(dataTable, searchText, columnNames, targetColumnNames, topN);
     }
 
     public static SqlTableRef TableRef(DataTable dataTable)
     {
-      ArgumentNullException.ThrowIfNull(dataTable, "dataTable");
+      ArgumentNullException.ThrowIfNull(dataTable);
       return new SqlTableRef(dataTable);
     }
 
     public static SqlTableRef TableRef(DataTable dataTable, IEnumerable<string> columnNames)
     {
-      ArgumentNullException.ThrowIfNull(dataTable, "dataTable");
-      ArgumentNullException.ThrowIfNull(columnNames, "columnNames");
+      ArgumentNullException.ThrowIfNull(dataTable);
+      ArgumentNullException.ThrowIfNull(columnNames);
       return new SqlTableRef(dataTable, string.Empty, columnNames.ToArray());
     }
 
     public static SqlTableRef TableRef(DataTable dataTable, string name)
     {
-      ArgumentNullException.ThrowIfNull(dataTable, "dataTable");
+      ArgumentNullException.ThrowIfNull(dataTable);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       return new SqlTableRef(dataTable, name);
     }
 
     public static SqlTableRef TableRef(DataTable dataTable, string name, IEnumerable<string> columnNames)
     {
-      ArgumentNullException.ThrowIfNull(dataTable, "dataTable");
+      ArgumentNullException.ThrowIfNull(dataTable);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      ArgumentNullException.ThrowIfNull(columnNames, "columnNames");
+      ArgumentNullException.ThrowIfNull(columnNames);
       return new SqlTableRef(dataTable, name, columnNames.ToArray());
     }
 
     public static SqlQueryRef QueryRef(ISqlQueryExpression query)
     {
-      ArgumentNullException.ThrowIfNull(query, "query");
+      ArgumentNullException.ThrowIfNull(query);
       return new SqlQueryRef(query);
     }
 
     public static SqlQueryRef QueryRef(ISqlQueryExpression query, string alias)
     {
-      ArgumentNullException.ThrowIfNull(query, "query");
+      ArgumentNullException.ThrowIfNull(query);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(alias, "alias");
       return new SqlQueryRef(query, alias);
     }
@@ -2100,64 +2100,64 @@ namespace Xtensive.Sql
 
     public static SqlUnary BitNot(SqlExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsArithmeticExpression(operand);
       return Unary(SqlNodeType.BitNot, operand);
     }
 
     public static SqlUnary Negate(SqlExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsArithmeticExpression(operand);
       return Unary(SqlNodeType.Negate, operand);
     }
 
     public static SqlUnary Not(SqlExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsBooleanExpression(operand);
       return Unary(SqlNodeType.Not, operand);
     }
 
     public static SqlUnary IsNull(SqlExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return Unary(SqlNodeType.IsNull, operand);
     }
 
     public static SqlUnary IsNotNull(SqlExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return Unary(SqlNodeType.IsNotNull, operand);
     }
 
     public static SqlUnary Unique(ISqlQueryExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return Unary(SqlNodeType.Unique, SubQuery(operand));
     }
 
     public static SqlUnary Exists(ISqlQueryExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return new SqlUnary(SqlNodeType.Exists, SubQuery(operand));
     }
 
     public static SqlUnary All(ISqlQueryExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return Unary(SqlNodeType.All, SubQuery(operand));
     }
 
     public static SqlUnary Any(ISqlQueryExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return Unary(SqlNodeType.Any, SubQuery(operand));
     }
 
     public static SqlUnary Some(ISqlQueryExpression operand)
     {
-      ArgumentNullException.ThrowIfNull(operand, "operand");
+      ArgumentNullException.ThrowIfNull(operand);
       return Unary(SqlNodeType.Some, SubQuery(operand));
     }
 
@@ -2205,7 +2205,7 @@ namespace Xtensive.Sql
 
     public static SqlJoinHint JoinHint(SqlJoinMethod method, SqlTable table)
     {
-      ArgumentNullException.ThrowIfNull(table, "table");
+      ArgumentNullException.ThrowIfNull(table);
       return new SqlJoinHint(method, table);
     }
 
@@ -2216,7 +2216,7 @@ namespace Xtensive.Sql
 
     public static SqlForceJoinOrderHint ForceJoinOrderHint(params SqlTable[] sqlTables)
     {
-      ArgumentNullException.ThrowIfNull(sqlTables, "sqlTables");
+      ArgumentNullException.ThrowIfNull(sqlTables);
       return new SqlForceJoinOrderHint(sqlTables);
     }
 

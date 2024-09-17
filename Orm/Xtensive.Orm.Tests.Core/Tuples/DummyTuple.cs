@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
 
     public DummyTuple(TupleDescriptor descriptor)
     {
-      ArgumentNullException.ThrowIfNull(descriptor, "descriptor");
+      ArgumentNullException.ThrowIfNull(descriptor);
       this.descriptor = descriptor;
       values = new object[descriptor.Count];
       available = new BitArray(new bool[descriptor.Count]);

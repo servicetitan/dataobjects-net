@@ -114,7 +114,7 @@ namespace Xtensive.Orm
     /// <param name="connectionUrl">A value for <see cref="ConnectionUrl"/>.</param>
     public ConnectionInfo(UrlInfo connectionUrl)
     {
-      ArgumentNullException.ThrowIfNull(connectionUrl, "connectionUrl");
+      ArgumentNullException.ThrowIfNull(connectionUrl);
 
       ConnectionUrl = connectionUrl;
       Provider = connectionUrl.Protocol.ToLowerInvariant();

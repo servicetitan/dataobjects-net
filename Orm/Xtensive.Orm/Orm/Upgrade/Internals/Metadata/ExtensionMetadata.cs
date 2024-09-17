@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Upgrade
 
     public ExtensionMetadata(string name, string value)
     {
-      ArgumentNullException.ThrowIfNull(name, "name");
+      ArgumentNullException.ThrowIfNull(name);
       Name = name;
       Value = value;
     }

@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Providers
 
     public StorageDriver CreateNew(Domain domain)
     {
-      ArgumentNullException.ThrowIfNull(domain, "domain");
+      ArgumentNullException.ThrowIfNull(domain);
       return new StorageDriver(underlyingDriver, ProviderInfo, domain.Configuration, GetModelProvider(domain), connectionAccessorFactories);
     }
 

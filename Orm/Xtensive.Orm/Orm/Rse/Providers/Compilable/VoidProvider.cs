@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Rse.Providers
     public VoidProvider(RecordSetHeader header)
       : base(ProviderType.Void)
     {
-      ArgumentNullException.ThrowIfNull(header, "header");
+      ArgumentNullException.ThrowIfNull(header);
       this.header = header;
       Initialize();
     }

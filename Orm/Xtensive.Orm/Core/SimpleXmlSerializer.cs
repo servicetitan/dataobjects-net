@@ -37,7 +37,7 @@ namespace Xtensive.Core
     /// <returns>Serialized instance.</returns>
     public string Serialize(T value)
     {
-      ArgumentNullException.ThrowIfNull(value, "value");
+      ArgumentNullException.ThrowIfNull(value);
 
       using (var writer = new StringWriter()) {
         serializer.Serialize(writer, value);

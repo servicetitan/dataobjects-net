@@ -66,8 +66,8 @@ namespace Xtensive.Orm.Upgrade
 
     public UpgradeActionSequenceBuilder(StorageDriver driver, UpgradeActionSequence result, SqlUpgradeStage stage)
     {
-      ArgumentNullException.ThrowIfNull(driver, "driver");
-      ArgumentNullException.ThrowIfNull(result, "result");
+      ArgumentNullException.ThrowIfNull(driver);
+      ArgumentNullException.ThrowIfNull(result);
 
       this.driver = driver;
 

@@ -29,8 +29,8 @@ namespace Xtensive.Orm.Upgrade
 
     public PartialIndexInfoMap(MappingResolver resolver, IEnumerable<StoredPartialIndexFilterInfo> indexes)
     {
-      ArgumentNullException.ThrowIfNull(resolver, "resolver");
-      ArgumentNullException.ThrowIfNull(indexes, "indexes");
+      ArgumentNullException.ThrowIfNull(resolver);
+      ArgumentNullException.ThrowIfNull(indexes);
 
       items = new Dictionary<string, Dictionary<string, StoredPartialIndexFilterInfo>>(Comparer);
 

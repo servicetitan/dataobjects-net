@@ -117,7 +117,7 @@ namespace Xtensive.Arithmetic
     /// <param name="rules">Arithmetic rules.</param>
     public ArithmeticBase(IArithmeticProvider provider, ArithmeticRules rules)
     {
-      ArgumentNullException.ThrowIfNull(provider, "provider");
+      ArgumentNullException.ThrowIfNull(provider);
       this.provider = provider;
       Rules = rules;
       OverflowAllowed = (rules.OverflowBehavior==OverflowBehavior.AllowOverflow);

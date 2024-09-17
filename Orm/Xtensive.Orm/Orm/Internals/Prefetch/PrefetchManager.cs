@@ -333,7 +333,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public PrefetchManager(Session session)
     {
-      ArgumentNullException.ThrowIfNull(session, "session");
+      ArgumentNullException.ThrowIfNull(session);
 
       this.session = session;
       fetcher = new Fetcher(this);

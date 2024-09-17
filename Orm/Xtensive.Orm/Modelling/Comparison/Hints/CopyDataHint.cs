@@ -65,7 +65,7 @@ namespace Xtensive.Modelling.Comparison.Hints
       IReadOnlyList<Pair<string>> copiedColumns)
       : base(sourceTablePath, identities)
     {
-      ArgumentNullException.ThrowIfNull(copiedColumns, "copiedColumns");
+      ArgumentNullException.ThrowIfNull(copiedColumns);
       CopiedColumns = copiedColumns.AsSafeWrapper();
     }
   }

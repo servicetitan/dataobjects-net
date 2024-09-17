@@ -46,9 +46,9 @@ namespace Xtensive.Orm.Rse.Transformation
     private void Initialize(Expression<Func<Tuple, bool>> predicate,
       ColumnCollection predicateColumns, ColumnCollection currentColumns)
     {
-      ArgumentNullException.ThrowIfNull(predicate, "predicate");
-      ArgumentNullException.ThrowIfNull(predicateColumns, "predicateColumns");
-      ArgumentNullException.ThrowIfNull(currentColumns, "currentColumns");
+      ArgumentNullException.ThrowIfNull(predicate);
+      ArgumentNullException.ThrowIfNull(predicateColumns);
+      ArgumentNullException.ThrowIfNull(currentColumns);
       if (predicateColumns.Count == 0)
         throw Exceptions.CollectionIsEmpty("predicateColumns");
       if (currentColumns.Count == 0)

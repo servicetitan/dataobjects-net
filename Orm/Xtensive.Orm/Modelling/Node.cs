@@ -66,7 +66,7 @@ namespace Xtensive.Modelling
       get { return parent; }
       [DebuggerStepThrough]
       set {
-        ArgumentNullException.ThrowIfNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         if (value==Parent)
           return;
         NodeCollection collection = null;

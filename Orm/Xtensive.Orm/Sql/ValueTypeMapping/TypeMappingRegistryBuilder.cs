@@ -56,7 +56,7 @@ namespace Xtensive.Sql
 
     public TypeMappingRegistryBuilder(TypeMapper mapper)
     {
-      ArgumentNullException.ThrowIfNull(mapper, "mapper");
+      ArgumentNullException.ThrowIfNull(mapper);
       Mapper = mapper;
     }
   }

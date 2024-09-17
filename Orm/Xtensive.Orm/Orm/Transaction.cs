@@ -155,7 +155,7 @@ namespace Xtensive.Orm
     /// </returns>
     public bool AreChangesVisibleTo(Transaction otherTransaction)
     {
-      ArgumentNullException.ThrowIfNull(otherTransaction, "otherTransaction");
+      ArgumentNullException.ThrowIfNull(otherTransaction);
       if (Outermost != otherTransaction.Outermost) {
         return false;
       }

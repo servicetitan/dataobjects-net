@@ -58,7 +58,7 @@ namespace Xtensive.Orm
     /// <returns>Combined version info.</returns>
     internal VersionInfo Combine(Key key, VersionInfo versionInfo)
     {
-      ArgumentNullException.ThrowIfNull(key, "key");
+      ArgumentNullException.ThrowIfNull(key);
 
       Tuple resultVersion = Value;
       if (resultVersion==null)

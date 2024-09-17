@@ -80,7 +80,7 @@ namespace Xtensive.Sql
 
     public static void EnsureIsLimitOffsetArgument(SqlExpression node)
     {
-      ArgumentNullException.ThrowIfNull(node, "node");
+      ArgumentNullException.ThrowIfNull(node);
       if (!IsLimitOffsetArgument(node))
         throw new InvalidOperationException(Strings.ExOnlySqlLiteralOrSqlPlaceholderCanBeUsedInLimitOffset);
     }

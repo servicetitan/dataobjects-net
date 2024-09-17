@@ -130,7 +130,7 @@ namespace Xtensive.Orm
     private VersionCapturer(Session session, VersionSet versions)
       : base(session)
     {
-      ArgumentNullException.ThrowIfNull(versions, "versions");
+      ArgumentNullException.ThrowIfNull(versions);
       Versions = versions;
       AttachEventHandlers();
     }

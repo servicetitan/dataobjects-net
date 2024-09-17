@@ -28,15 +28,15 @@ namespace Xtensive.Sql
 
     public SqlExtractionTask(string catalog)
     {
-      ArgumentNullException.ThrowIfNull(catalog, "catalog");
+      ArgumentNullException.ThrowIfNull(catalog);
 
       Catalog = catalog;
     }
 
     public SqlExtractionTask(string catalog, string schema)
     {
-      ArgumentNullException.ThrowIfNull(catalog, "catalog");
-      ArgumentNullException.ThrowIfNull(schema, "schema");
+      ArgumentNullException.ThrowIfNull(catalog);
+      ArgumentNullException.ThrowIfNull(schema);
 
       Catalog = catalog;
       Schema = schema;

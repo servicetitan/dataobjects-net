@@ -31,8 +31,8 @@ namespace Xtensive.Orm.Upgrade
     /// </returns>
     public static bool CanConvert(StorageTypeInfo from, StorageTypeInfo to)
     {
-      ArgumentNullException.ThrowIfNull(from, "from");
-      ArgumentNullException.ThrowIfNull(to, "to");
+      ArgumentNullException.ThrowIfNull(from);
+      ArgumentNullException.ThrowIfNull(to);
 
       // Truncation and precision loss is ALLOWED by this method
 
@@ -65,8 +65,8 @@ namespace Xtensive.Orm.Upgrade
     /// </returns>
     public static bool CanConvertSafely(StorageTypeInfo from, StorageTypeInfo to)
     {
-      ArgumentNullException.ThrowIfNull(from, "from");
-      ArgumentNullException.ThrowIfNull(to, "to");
+      ArgumentNullException.ThrowIfNull(from);
+      ArgumentNullException.ThrowIfNull(to);
 
       // Truncation and precision loss is NOT ALLOWED by this method
 

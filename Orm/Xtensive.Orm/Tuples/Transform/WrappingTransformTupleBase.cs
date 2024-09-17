@@ -82,7 +82,7 @@ namespace Xtensive.Tuples.Transform
     /// <param name="tuple">Tuple to provide the wrapper for.</param>
     protected WrappingTransformTupleBase(Tuple tuple)
     {
-      ArgumentNullException.ThrowIfNull(tuple, "tuple");
+      ArgumentNullException.ThrowIfNull(tuple);
       origin = tuple;
     }
   }

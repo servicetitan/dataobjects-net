@@ -34,8 +34,8 @@ namespace Xtensive.Orm
     /// <returns>The same sequence, but with "comment" applied to query.</returns>
     public static IQueryable<TSource> Tag<TSource>(this IQueryable<TSource> source, string tag)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
-      ArgumentNullException.ThrowIfNull(tag, "tag");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(tag);
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -58,8 +58,8 @@ namespace Xtensive.Orm
     /// <returns>The same sequence, but with "comment" applied to query.</returns>
     public static IQueryable Tag(this IQueryable source, string tag)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
-      ArgumentNullException.ThrowIfNull(tag, "tag");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(tag);
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -82,8 +82,8 @@ namespace Xtensive.Orm
     /// <returns>The same sequence, but with index hint applied to query.</returns>
     public static IQueryable<TSource> WithIndexHint<TSource, TEntity>(this IQueryable<TSource> source, string indexName)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
-      ArgumentNullException.ThrowIfNull(indexName, "indexName");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(indexName);
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
@@ -113,8 +113,8 @@ namespace Xtensive.Orm
     /// <returns>The same sequence, but with index hint applied to query.</returns>
     public static IQueryable WithIndexHint(this IQueryable source, string indexName)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
-      ArgumentNullException.ThrowIfNull(indexName, "indexName");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(indexName);
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {

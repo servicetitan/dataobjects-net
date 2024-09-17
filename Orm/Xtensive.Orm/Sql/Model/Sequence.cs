@@ -24,7 +24,7 @@ namespace Xtensive.Sql.Model
       get { return sequenceDescriptor; }
       set {
         EnsureNotLocked();
-        ArgumentNullException.ThrowIfNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         sequenceDescriptor = value;
         SequenceDescriptor old = sequenceDescriptor;
         sequenceDescriptor = value;

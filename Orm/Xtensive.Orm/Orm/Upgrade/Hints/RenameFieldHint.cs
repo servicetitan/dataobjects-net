@@ -76,9 +76,9 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="newFieldName">New name of the field.</param>
     public RenameFieldHint(Type targetType, string oldFieldName, string newFieldName)
     {
-      ArgumentNullException.ThrowIfNull(targetType, "targetType");
+      ArgumentNullException.ThrowIfNull(targetType);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(oldFieldName, "oldFieldName");
-      ArgumentNullException.ThrowIfNull(newFieldName, "newFieldName");
+      ArgumentNullException.ThrowIfNull(newFieldName);
 
       TargetType = targetType;
       OldFieldName = oldFieldName;

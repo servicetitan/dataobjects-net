@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Upgrade
 
     public TypeIdProvider(UpgradeContext context)
     {
-      ArgumentNullException.ThrowIfNull(context, "context");
+      ArgumentNullException.ThrowIfNull(context);
       this.context = context;
     }
   }

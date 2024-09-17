@@ -45,8 +45,8 @@ namespace Xtensive.Orm.Rse.Providers
     protected BinaryProvider(ProviderType type, CompilableProvider left, CompilableProvider right)
       : base(type, left, right)
     {
-      ArgumentNullException.ThrowIfNull(left, "left");
-      ArgumentNullException.ThrowIfNull(right, "right");
+      ArgumentNullException.ThrowIfNull(left);
+      ArgumentNullException.ThrowIfNull(right);
       Left = left;
       Right = right;
     }

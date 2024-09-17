@@ -186,8 +186,8 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public GraphContainer(Key key, TypeInfo type, bool exactType, PrefetchManager manager)
     {
-      ArgumentNullException.ThrowIfNull(key, "key");
-      ArgumentNullException.ThrowIfNull(type, "type");
+      ArgumentNullException.ThrowIfNull(key);
+      ArgumentNullException.ThrowIfNull(type);
       ArgumentNullException.ThrowIfNull(manager, "processor");
 
       Key = key;

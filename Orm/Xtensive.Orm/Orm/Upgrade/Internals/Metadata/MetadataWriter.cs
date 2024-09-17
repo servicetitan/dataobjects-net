@@ -131,10 +131,10 @@ namespace Xtensive.Orm.Upgrade
 
     public MetadataWriter(StorageDriver driver, MetadataMapping mapping, SqlExtractionTask task, IProviderExecutor executor)
     {
-      ArgumentNullException.ThrowIfNull(driver, "driver");
-      ArgumentNullException.ThrowIfNull(mapping, "mapping");
-      ArgumentNullException.ThrowIfNull(task, "task");
-      ArgumentNullException.ThrowIfNull(executor, "executor");
+      ArgumentNullException.ThrowIfNull(driver);
+      ArgumentNullException.ThrowIfNull(mapping);
+      ArgumentNullException.ThrowIfNull(task);
+      ArgumentNullException.ThrowIfNull(executor);
 
       this.driver = driver;
       this.mapping = mapping;

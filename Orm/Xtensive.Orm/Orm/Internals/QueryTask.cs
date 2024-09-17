@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Internals
     /// <param name="parameterContext">The parameter value context.</param>
     public QueryTask(ExecutableProvider dataSource, StateLifetimeToken lifetimeToken, ParameterContext parameterContext)
     {
-      ArgumentNullException.ThrowIfNull(dataSource, "dataSource");
+      ArgumentNullException.ThrowIfNull(dataSource);
       DataSource = dataSource;
       LifetimeToken = lifetimeToken;
       ParameterContext = parameterContext;

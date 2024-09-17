@@ -116,7 +116,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void CopyTo(T[] array, int arrayIndex)
     {
-      ArgumentNullException.ThrowIfNull(array, "array");
+      ArgumentNullException.ThrowIfNull(array);
       ArgumentValidator.EnsureArgumentIsInRange(arrayIndex, 0, int.MaxValue, "arrayIndex");
 
       if (array.Length < totalItemCount + arrayIndex)
@@ -135,7 +135,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void AddRange(IEnumerable<T> items)
     {
-      ArgumentNullException.ThrowIfNull(items, "items");
+      ArgumentNullException.ThrowIfNull(items);
       foreach (var item in items)
         Add(item);
     }

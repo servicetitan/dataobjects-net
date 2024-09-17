@@ -62,7 +62,7 @@ namespace Xtensive.Sql.Model
     /// <param name="name">The name.</param>
     protected DataTableNode(DataTable dataTable, string name) : base(name)
     {
-      ArgumentNullException.ThrowIfNull(dataTable, "dataTable");
+      ArgumentNullException.ThrowIfNull(dataTable);
       DataTable = dataTable;
     }
 

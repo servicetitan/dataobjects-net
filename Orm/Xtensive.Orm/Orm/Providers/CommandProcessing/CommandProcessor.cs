@@ -162,7 +162,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="maxQueryParameterCount">The maximum parameter count per query.</param>
     protected CommandProcessor(CommandFactory factory, int maxQueryParameterCount)
     {
-      ArgumentNullException.ThrowIfNull(factory, "factory");
+      ArgumentNullException.ThrowIfNull(factory);
       ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(maxQueryParameterCount, 0, "maxQueryParameterCount");
       Factory = factory;
       MaxQueryParameterCount = maxQueryParameterCount;

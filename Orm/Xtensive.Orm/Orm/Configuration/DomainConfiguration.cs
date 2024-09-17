@@ -187,7 +187,7 @@ namespace Xtensive.Orm.Configuration
       get => name;
       set {
         EnsureNotLocked();
-        ArgumentNullException.ThrowIfNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         name = value;
       }
     }
@@ -361,7 +361,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => sessions;
       set {
-        ArgumentNullException.ThrowIfNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         EnsureNotLocked();
         sessions = value;
       }
@@ -374,7 +374,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => mappingRules;
       set {
-        ArgumentNullException.ThrowIfNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         EnsureNotLocked();
         mappingRules = value;
       }
@@ -387,7 +387,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => databases;
       set {
-        ArgumentNullException.ThrowIfNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         EnsureNotLocked();
         databases = value;
       }
@@ -400,7 +400,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => keyGenerators;
       set {
-        ArgumentNullException.ThrowIfNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         EnsureNotLocked();
         keyGenerators = value;
       }

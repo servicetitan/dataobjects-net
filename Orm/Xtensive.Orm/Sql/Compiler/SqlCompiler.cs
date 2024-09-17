@@ -41,7 +41,7 @@ namespace Xtensive.Sql.Compiler
     /// <returns></returns>
     public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration, TypeIdRegistry typeIdRegistry = null)
     {
-      ArgumentNullException.ThrowIfNull(unit, "unit");
+      ArgumentNullException.ThrowIfNull(unit);
       configuration = compilerConfiguration;
       context = new SqlCompilerContext(configuration);
       unit.AcceptVisitor(this);

@@ -62,9 +62,9 @@ namespace Xtensive.Orm
 
     private void Initialize(Type ownerType, string fieldName, Type fieldType)
     {
-      ArgumentNullException.ThrowIfNull(ownerType, "ownerType");
+      ArgumentNullException.ThrowIfNull(ownerType);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, "fieldName");
-      ArgumentNullException.ThrowIfNull(fieldType, "fieldType");
+      ArgumentNullException.ThrowIfNull(fieldType);
 
       OwnerType = ownerType;
       FieldName = fieldName;

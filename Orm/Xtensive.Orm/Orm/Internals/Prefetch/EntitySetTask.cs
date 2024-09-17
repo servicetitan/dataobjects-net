@@ -260,7 +260,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     public EntitySetTask(Key ownerKey, in PrefetchFieldDescriptor referencingFieldDescriptor, bool isOwnerCached,
       PrefetchManager manager)
     {
-      ArgumentNullException.ThrowIfNull(ownerKey, "ownerKey");
+      ArgumentNullException.ThrowIfNull(ownerKey);
       ArgumentNullException.ThrowIfNull(manager, "processor");
 
       this.ownerKey = ownerKey;

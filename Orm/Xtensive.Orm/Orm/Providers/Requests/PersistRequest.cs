@@ -45,8 +45,8 @@ namespace Xtensive.Orm.Providers
     public PersistRequest(
       StorageDriver driver, SqlStatement statement, IEnumerable<PersistParameterBinding> parameterBindings)
     {
-      ArgumentNullException.ThrowIfNull(driver, "driver");
-      ArgumentNullException.ThrowIfNull(statement, "statement");
+      ArgumentNullException.ThrowIfNull(driver);
+      ArgumentNullException.ThrowIfNull(statement);
 
       var compileUnit = statement as ISqlCompileUnit
         ?? throw new ArgumentException("Statement is not ISqlCompileUnit");

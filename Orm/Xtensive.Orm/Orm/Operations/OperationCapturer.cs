@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Operations
     private OperationCapturer(Session session, IOperationLogger operations)
       : base(session)
     {
-      ArgumentNullException.ThrowIfNull(operations, "operations");
+      ArgumentNullException.ThrowIfNull(operations);
       Operations = operations;
       AttachEventHandlers();
     }

@@ -80,8 +80,8 @@ namespace Xtensive.Collections.Graphs
     /// <param name="target">Target node.</param>
     public Edge(Node source, Node target)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
-      ArgumentNullException.ThrowIfNull(target, "target");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(target);
       Source = source;
       Target = target;
       Attach();

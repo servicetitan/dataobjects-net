@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Internals.KeyGenerators
 
     public CachingSequence(IStorageSequenceAccessor accessor, bool threadSafe)
     {
-      ArgumentNullException.ThrowIfNull(accessor, "accessor");
+      ArgumentNullException.ThrowIfNull(accessor);
 
       this.accessor = accessor;
       syncRoot = threadSafe ? new object() : null;

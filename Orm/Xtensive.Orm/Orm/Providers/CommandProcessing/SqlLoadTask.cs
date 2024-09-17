@@ -47,8 +47,8 @@ namespace Xtensive.Orm.Providers
     /// <param name="parameterContext">A value for <see cref="ParameterContext"/>.</param>
     public SqlLoadTask(QueryRequest request, List<Tuple> output, ParameterContext parameterContext)
     {
-      ArgumentNullException.ThrowIfNull(request, "request");
-      ArgumentNullException.ThrowIfNull(output, "output");
+      ArgumentNullException.ThrowIfNull(request);
+      ArgumentNullException.ThrowIfNull(output);
 
       Request = request;
       ParameterContext = parameterContext;

@@ -468,8 +468,8 @@ namespace Xtensive.Core
     /// </returns>
     public static bool Like(this string value, string sqlLikePattern)
     {
-      ArgumentNullException.ThrowIfNull(value, "value");
-      ArgumentNullException.ThrowIfNull(sqlLikePattern, "sqlLikePattern");
+      ArgumentNullException.ThrowIfNull(value);
+      ArgumentNullException.ThrowIfNull(sqlLikePattern);
       var regexPattern = Regex.Replace(sqlLikePattern,
         @"[%_]|[^%_]+",
         match => {
@@ -495,8 +495,8 @@ namespace Xtensive.Core
     /// </returns>
     public static bool Like(this string value, string sqlLikePattern, char escapeCharacter)
     {
-      ArgumentNullException.ThrowIfNull(value, "value");
-      ArgumentNullException.ThrowIfNull(sqlLikePattern, "sqlLikePattern");
+      ArgumentNullException.ThrowIfNull(value);
+      ArgumentNullException.ThrowIfNull(sqlLikePattern);
       const string regExSpecialChars = @"[]\/^$.|?*+(){}";
 
       if (char.IsControl(escapeCharacter)) {

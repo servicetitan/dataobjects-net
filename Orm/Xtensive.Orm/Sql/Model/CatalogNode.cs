@@ -126,7 +126,7 @@ namespace Xtensive.Sql.Model
     protected CatalogNode(Catalog catalog, string name)
       : base(name)
     {
-      ArgumentNullException.ThrowIfNull(catalog, "catalog");
+      ArgumentNullException.ThrowIfNull(catalog);
       Catalog = catalog;
     }
 

@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Providers
 
     public SequenceQuery(string deleteQuery, string insertQuery, string selectQuery, SequenceQueryCompartment compartment)
     {
-      ArgumentNullException.ThrowIfNull(deleteQuery, "deleteQuery");
+      ArgumentNullException.ThrowIfNull(deleteQuery);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(insertQuery, "insertQuery");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(selectQuery, "selectQuery");
 

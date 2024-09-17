@@ -225,7 +225,7 @@ namespace Xtensive.Caching
     /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     public WeakCache(bool trackResurrection, Converter<TItem, TKey> keyExtractor)
     {
-      ArgumentNullException.ThrowIfNull(keyExtractor, "keyExtractor");
+      ArgumentNullException.ThrowIfNull(keyExtractor);
       this.trackResurrection = trackResurrection;
       this.KeyExtractor = keyExtractor;
     }

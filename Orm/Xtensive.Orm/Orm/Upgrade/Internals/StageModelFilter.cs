@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Upgrade
 
     public StageModelFilter(IReadOnlyDictionary<Assembly, IUpgradeHandler> handlers, UpgradeStage stage)
     {
-      ArgumentNullException.ThrowIfNull(handlers, "handlers");
+      ArgumentNullException.ThrowIfNull(handlers);
 
       this.handlers = handlers;
       this.stage = stage;

@@ -210,7 +210,7 @@ namespace Xtensive.Caching
     [SecuritySafeCritical]
     public override TItem Add(TItem item, bool replaceIfExists)
     {
-      ArgumentNullException.ThrowIfNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
       var key = KeyExtractor(item);
       ArgumentNullException.ThrowIfNull(key, "KeyExtractor.Invoke(item)");
       RegisterOperation(4);
@@ -235,7 +235,7 @@ namespace Xtensive.Caching
     [SecuritySafeCritical]
     public override void RemoveKey(TKey key)
     {
-      ArgumentNullException.ThrowIfNull(key, "key");
+      ArgumentNullException.ThrowIfNull(key);
       if (items.Remove(key, out var entry)) {
         entry.Dispose();
       }
@@ -360,7 +360,7 @@ namespace Xtensive.Caching
     /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     public WeakestCache(bool trackKeyResurrection, bool trackItemResurrection, Converter<TItem, TKey> keyExtractor)
     {
-      ArgumentNullException.ThrowIfNull(keyExtractor, "keyExtractor");
+      ArgumentNullException.ThrowIfNull(keyExtractor);
       this.trackKeyResurrection = trackKeyResurrection;
       this.trackItemResurrection = trackItemResurrection;
       this.KeyExtractor = keyExtractor;

@@ -130,7 +130,7 @@ namespace Xtensive.Core
     /// all the items from the <paramref name="source"/> sequence.</returns>
     public static ChainedBuffer<T> ToChainedBuffer<T>(this IEnumerable<T> source)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       return new ChainedBuffer<T>(source);
     }
 
@@ -145,8 +145,8 @@ namespace Xtensive.Core
     /// <returns>A sequence of converted elements.</returns>
     public static IEnumerable<TNewItem> Convert<TItem, TNewItem>(this IEnumerable<TItem> source, Converter<TItem, TNewItem> converter)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
-      ArgumentNullException.ThrowIfNull(converter, "converter");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(converter);
       foreach (TItem item in source)
         yield return converter(item);
     }
@@ -588,8 +588,8 @@ namespace Xtensive.Core
     /// <returns>Topologically sorted <paramref name="values"/> if no cycles exist, otherwise null.</returns>
     public static List<TValue> SortTopologically<TValue>(this IEnumerable<TValue> values, Func<TValue, TValue, bool> edgeTester)
     {
-      ArgumentNullException.ThrowIfNull(values, "values");
-      ArgumentNullException.ThrowIfNull(edgeTester, "edgeTester");
+      ArgumentNullException.ThrowIfNull(values);
+      ArgumentNullException.ThrowIfNull(edgeTester);
 
       var graph = new Graph<Node<TValue>, Edge>();
       graph.Nodes.AddRange(values.Select(p => new Node<TValue>(p)));

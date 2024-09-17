@@ -32,8 +32,8 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
     internal GenerationTerm(IOperator source, GenerationType generationType, ICollection<string> terms)
       : base(SearchConditionNodeType.GenerationTerm, source)
     {
-      ArgumentNullException.ThrowIfNull(source, "source");
-      ArgumentNullException.ThrowIfNull(terms, "terms");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(terms);
       if (terms.Count==0)
         throw new ArgumentException(Strings.ExCollectionIsEmpty, "terms");
       if (terms.Any(c=>c.IsNullOrEmpty() || c.Trim().IsNullOrEmpty()))

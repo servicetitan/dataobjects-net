@@ -59,7 +59,7 @@ namespace Xtensive.Sql.Dml
       get { return query; }
       set
       {
-        ArgumentNullException.ThrowIfNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         query = value;
       }
     }
