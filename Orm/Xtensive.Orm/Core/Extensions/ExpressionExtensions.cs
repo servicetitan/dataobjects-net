@@ -129,7 +129,7 @@ namespace Xtensive.Core
     public static ConstantExpression ToConstantExpression(this DefaultExpression defaultExpression) =>
       defaultExpression.Type switch {
         var type => type.IsValueType
-          ? StructDefaultConstantExpressions.GetOrAdd<DefaultExpression>(
+          ? StructDefaultConstantExpressions.GetOrAdd(
             type,
             static (t, expr) => Expression.Constant(((Func<object>) Expression.Lambda(Expression.Convert(expr, WellKnownTypes.Object)).Compile()).Invoke(), t),
             defaultExpression)
