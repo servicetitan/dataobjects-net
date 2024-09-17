@@ -64,7 +64,7 @@ namespace Xtensive.Linq
     protected override int VisitDefault(DefaultExpression d)
     {
       if (d.Type.IsValueType) {
-        return d.GetDefaultValue().GetHashCode();
+        return d.ToConstantExpression().Value.GetHashCode();
       }
       else {
         return NullHashCode;
