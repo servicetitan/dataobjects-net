@@ -23,5 +23,9 @@ namespace Xtensive.Orm
     /// Inclusion is described via temporary table.
     /// </summary>
     TemporaryTable = 2,
+    /// <summary>
+    /// Inclusion is described via Table-Valued Parameter.
+    /// </summary>
+    TableValuedParameter = 3,
   }
 }

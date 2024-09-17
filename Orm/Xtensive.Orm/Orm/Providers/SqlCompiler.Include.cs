@@ -30,49 +30,55 @@ namespace Xtensive.Orm.Providers
       SqlExpression resultExpression;
       TemporaryTableDescriptor tableDescriptor = null;
       QueryParameterBinding extraBinding = null;
-      Type tableValuedParameterType = null;
+      Type tvpType = null;
       var algorithm = provider.Algorithm;
-      if (!temporaryTablesSupported) {
-        algorithm = IncludeAlgorithm.ComplexCondition;
+      if (!temporaryTablesSupported && algorithm is IncludeAlgorithm.Auto or IncludeAlgorithm.TemporaryTable) {
+        algorithm = tableValuedParametersSupported ? IncludeAlgorithm.Auto : IncludeAlgorithm.ComplexCondition;
       }
-      else if (algorithm == IncludeAlgorithm.Auto && tableValuedParametersSupported) {
-        if (provider.FilteredColumnsExtractionTransform.Descriptor.Count == 1) {
-          var fieldType = provider.FilteredColumnsExtractionTransform.Descriptor[0];
-          if (fieldType == WellKnownTypes.Int64 || fieldType == WellKnownTypes.Int32 || fieldType == WellKnownTypes.String) {
-            tableValuedParameterType = fieldType;
-            algorithm = IncludeAlgorithm.ComplexCondition;
-          }
+      if (algorithm is IncludeAlgorithm.Auto or IncludeAlgorithm.TableValuedParameter
+            && tableValuedParametersSupported
+            && provider.FilteredColumnsExtractionTransform.Descriptor.Count == 1) {
+        var fieldType = provider.FilteredColumnsExtractionTransform.Descriptor[0];
+        if (fieldType == WellKnownTypes.Int64 || fieldType == WellKnownTypes.Int32 || fieldType == WellKnownTypes.String) {
+          tvpType = fieldType;
         }
       }
 
+      Func<ParameterContext, object> parameterAccessor;
+      var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
+      var mappings = filterTupleDescriptor.Select(type => Driver.GetTypeMapping(type)).ToArray(filterTupleDescriptor.Count).AsSafeWrapper();
       switch (algorithm) {
-      case IncludeAlgorithm.Auto:
-        var temporaryTableExpression = CreateIncludeViaTemporaryTableExpression(
-          provider, sourceColumns, out tableDescriptor);
-        (var complexConditionExpression, extraBinding) = CreateIncludeViaComplexConditionExpression(
-          provider, BuildAutoRowFilterParameterAccessor(tableDescriptor),
-          sourceColumns, tableValuedParameterType);
-        resultExpression = SqlDml.Variant(extraBinding,
-          complexConditionExpression, temporaryTableExpression);
-        anyTemporaryTablesRequired = true;
-        break;
-      case IncludeAlgorithm.ComplexCondition:
-        (resultExpression, extraBinding) = CreateIncludeViaComplexConditionExpression(
-          provider, BuildComplexConditionRowFilterParameterAccessor(filterDataSource),
-          sourceColumns, tableValuedParameterType);
-        if (!anyTemporaryTablesRequired) {
-          requestOptions |= QueryRequestOptions.AllowOptimization;
-        }
-
-        break;
-      case IncludeAlgorithm.TemporaryTable:
-        resultExpression = CreateIncludeViaTemporaryTableExpression(
-          provider, sourceColumns, out tableDescriptor);
-        anyTemporaryTablesRequired = true;
-        break;
-      default:
-        throw new ArgumentOutOfRangeException("provider.Algorithm");
+        case IncludeAlgorithm.Auto:
+          if (tvpType != null) {
+            parameterAccessor = BuildComplexConditionRowFilterParameterAccessor(filterDataSource);
+            (var alternative, extraBinding) = CreateIncludeViaTableValuedParameter(provider, mappings, parameterAccessor, sourceColumns, tvpType);
+            (var complexConditionExpression, extraBinding) = CreateIncludeViaComplexConditionExpression(provider, mappings, parameterAccessor, sourceColumns, extraBinding);
+            resultExpression = SqlDml.Variant(extraBinding, complexConditionExpression, alternative);
+          }
+          else {
+            var temporaryTableExpression = CreateIncludeViaTemporaryTableExpression(
+            provider, sourceColumns, out tableDescriptor);
+            (var complexConditionExpression, extraBinding) = CreateIncludeViaComplexConditionExpression(provider, mappings, BuildAutoRowFilterParameterAccessor(tableDescriptor), sourceColumns);
+            resultExpression = SqlDml.Variant(extraBinding, complexConditionExpression, temporaryTableExpression);
+            anyTemporaryTablesRequired = true;
+          }
+          break;
+        case IncludeAlgorithm.ComplexCondition:
+          (resultExpression, extraBinding) = CreateIncludeViaComplexConditionExpression(provider, mappings, BuildComplexConditionRowFilterParameterAccessor(filterDataSource), sourceColumns);
+          break;
+        case IncludeAlgorithm.TemporaryTable:
+          resultExpression = CreateIncludeViaTemporaryTableExpression(
+            provider, sourceColumns, out tableDescriptor);
+          anyTemporaryTablesRequired = true;
+          break;
+        case IncludeAlgorithm.TableValuedParameter:
+          parameterAccessor = BuildComplexConditionRowFilterParameterAccessor(filterDataSource);
+          (resultExpression, extraBinding) = CreateIncludeViaTableValuedParameter(provider, mappings, parameterAccessor, sourceColumns, tvpType);
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("provider.Algorithm");
       }
+      requestOptions |= anyTemporaryTablesRequired ? QueryRequestOptions.Empty : QueryRequestOptions.AllowOptimization;
       resultExpression = GetBooleanColumnExpression(resultExpression);
       var calculatedColumn = provider.Header.Columns[provider.Header.Length - 1];
       AddInlinableColumn(provider, calculatedColumn, resultQuery, resultExpression);
@@ -85,17 +91,22 @@ namespace Xtensive.Orm.Providers
     }
 
     protected (SqlExpression, QueryParameterBinding) CreateIncludeViaComplexConditionExpression(
-      IncludeProvider provider, Func<ParameterContext, object> valueAccessor,
+      IncludeProvider provider, IReadOnlyList<TypeMapping> mappings, Func<ParameterContext, object> valueAccessor,
+      IReadOnlyList<SqlExpression> sourceColumns, QueryParameterBinding binding = null)
+    {
+      binding ??= new QueryRowFilterParameterBinding(mappings, valueAccessor, null);
+      return (SqlDml.DynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding);
+    }
+
+    protected (SqlExpression, QueryParameterBinding) CreateIncludeViaTableValuedParameter(
+      IncludeProvider provider, IReadOnlyList<TypeMapping> mappings, Func<ParameterContext, object> valueAccessor,
       IReadOnlyList<SqlExpression> sourceColumns, Type tableValuedParameterType)
     {
-      var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
-      var mappings = tableValuedParameterType != null
-        ? [Driver.GetTypeMapping(tableValuedParameterType == WellKnownTypes.String ? typeof(List<string>) : typeof(List<long>))]
-        : filterTupleDescriptor.Select(type => Driver.GetTypeMapping(type)).ToArray(filterTupleDescriptor.Count).AsSafeWrapper();
-      QueryRowFilterParameterBinding binding = new(mappings, valueAccessor, tableValuedParameterType != null);
-      return tableValuedParameterType != null
-        ? (SqlDml.TvpDynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding)
-        : (SqlDml.DynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding);
+      var tvpMapping = Driver.GetTypeMapping(tableValuedParameterType == WellKnownTypes.String
+        ? typeof(List<string>)
+        : typeof(List<long>));
+      QueryRowFilterParameterBinding binding = new(mappings, valueAccessor, tvpMapping);
+      return (SqlDml.TvpDynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding);
     }
 
     protected SqlExpression CreateIncludeViaTemporaryTableExpression(

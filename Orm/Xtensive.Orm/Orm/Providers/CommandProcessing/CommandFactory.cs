@@ -145,17 +145,18 @@ namespace Xtensive.Orm.Providers
           case QueryParameterBindingType.RowFilter:
             var filterData = (List<Tuple>) parameterValue;
             var rowFilterParameterBinding = (QueryRowFilterParameterBinding) binding;
-            var rowTypeMapping = rowFilterParameterBinding.RowTypeMapping;
             if (filterData == null) {
               configuration.AlternativeBranches.Add(binding);
             }
-            else if (rowFilterParameterBinding.TableValuedParameter) {
+            else if (rowFilterParameterBinding.TvpTypeMapping != null
+                            && filterData.Count > Session.Domain.Configuration.MaxNumberOfConditions) {
+              configuration.AlternativeBranches.Add(binding);
               string paramName = GetParameterName(parameterNamePrefix, ref parameterIndex);
               var parameterReference = Driver.BuildParameterReference(paramName);
               configuration.PlaceholderValues.Add(binding, parameterReference);
               var parameter = Connection.CreateParameter();
               parameter.ParameterName = paramName;
-              rowTypeMapping[0].BindValue(parameter, parameterValue);
+              rowFilterParameterBinding.TvpTypeMapping.BindValue(parameter, parameterValue);
               result.Parameters.Add(parameter);
               var filterValues = new string[1][] { [parameterReference] };
               configuration.DynamicFilterValues.Add(binding, filterValues);
@@ -163,6 +164,7 @@ namespace Xtensive.Orm.Providers
             else {
               var commonPrefix = GetParameterName(parameterNamePrefix, ref parameterIndex);
               var filterValues = new string[filterData.Count][];
+              var rowTypeMapping = rowFilterParameterBinding.RowTypeMapping;
               for (int tupleIndex = 0; tupleIndex < filterData.Count; tupleIndex++) {
                 var tuple = filterData[tupleIndex];
                 var parameterReferences = new string[tuple.Count];
