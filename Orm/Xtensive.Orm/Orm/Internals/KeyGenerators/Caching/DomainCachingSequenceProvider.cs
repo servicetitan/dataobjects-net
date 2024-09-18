@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Internals.KeyGenerators
 
     public DomainCachingSequenceProvider(IStorageSequenceAccessor accessor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(accessor, "accessor");
+      ArgumentNullException.ThrowIfNull(accessor);
 
       this.accessor = accessor;
     }

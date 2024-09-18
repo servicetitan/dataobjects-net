@@ -154,7 +154,7 @@ namespace Xtensive.Comparison
     /// <param name="comparisonRules">Comparison rules.</param>
     public AdvancedComparerBase(IComparerProvider provider, ComparisonRules comparisonRules)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
+      ArgumentNullException.ThrowIfNull(provider);
       valueRangeInfo = new ValueRangeInfo<T>(
         false, default(T),
         false, default(T),

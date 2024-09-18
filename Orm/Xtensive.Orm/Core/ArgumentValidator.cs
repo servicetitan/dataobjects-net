@@ -23,27 +23,6 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="value">Value to compare with <see langword="null"/>.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#if NET6_0_OR_GREATER
-    [Obsolete("Use ArgumentNullException.ThrowIfNull()")]
-#endif
-    internal static void EnsureArgumentNotNull(object value, [InvokerParameterName] string parameterName)
-    {
-#if NET6_0_OR_GREATER
-      ArgumentNullException.ThrowIfNull(value, parameterName);
-#else      
-      if (value == null) {
-        throw new ArgumentNullException(parameterName);
-      }
-#endif
-    }
-
-    /// <summary>
-    /// Ensures argument (<paramref name="value"/>) is not
-    /// <see langoword="null"/>.
-    /// </summary>
-    /// <param name="value">Value to compare with <see langword="null"/>.</param>
-    /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The type of default value.</typeparam>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void EnsureArgumentIsNotDefault<T>(T value, [InvokerParameterName] string parameterName)
@@ -110,7 +89,7 @@ namespace Xtensive.Core
       if (value is T result) {
         return result;
       }
-      EnsureArgumentNotNull(value, parameterName);
+      ArgumentNullException.ThrowIfNull(value, parameterName);
       throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, typeof(T)), parameterName);
     }
 
@@ -124,7 +103,7 @@ namespace Xtensive.Core
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void EnsureArgumentIs(object value, Type type, [InvokerParameterName] string parameterName)
     {
-      EnsureArgumentNotNull(value, parameterName);
+      ArgumentNullException.ThrowIfNull(value, parameterName);
       if (!type.IsInstanceOfType(value)) {
         throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, type), parameterName);
       }

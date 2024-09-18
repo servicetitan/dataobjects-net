@@ -126,7 +126,7 @@ namespace Xtensive.Sql.Model
     protected CatalogNode(Catalog catalog, string name)
       : base(name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(catalog, "catalog");
+      ArgumentNullException.ThrowIfNull(catalog);
       Catalog = catalog;
     }
 

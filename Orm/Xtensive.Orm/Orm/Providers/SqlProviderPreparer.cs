@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Providers
 
     public SqlProviderPreparer(HandlerAccessor handlers)
     {
-      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
+      ArgumentNullException.ThrowIfNull(handlers);
       this.handlers = handlers;
     }
   }

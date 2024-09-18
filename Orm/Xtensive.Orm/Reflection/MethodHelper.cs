@@ -44,7 +44,7 @@ namespace Xtensive.Reflection
     [CanBeNull]
     public static MethodInfo GetMethodEx(this Type type, string name, BindingFlags bindingFlags, string[] genericArgumentNames, object[] parameterTypes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 
       if (genericArgumentNames == null) {
@@ -105,7 +105,7 @@ namespace Xtensive.Reflection
     [CanBeNull]
     public static ConstructorInfo GetConstructorEx(this Type type, BindingFlags bindingFlags, Type[] parameterTypes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
 
       if (parameterTypes.All(o => o is not null)) {
         return type.GetConstructor(bindingFlags, null, parameterTypes, null);
