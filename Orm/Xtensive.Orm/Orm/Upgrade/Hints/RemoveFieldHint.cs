@@ -55,15 +55,7 @@ namespace Xtensive.Orm.Upgrade
     public override bool Equals(UpgradeHint other) => Equals(other as RemoveFieldHint);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = base.GetHashCode();
-        result = (result * 397) ^ (Type != null ? Type.GetHashCode() : 0);
-        result = (result * 397) ^ (Field != null ? Field.GetHashCode() : 0);
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Type, Field);
 
     /// <inheritdoc/>
     public override string ToString() => $"Remove field: {Type}.{Field}";

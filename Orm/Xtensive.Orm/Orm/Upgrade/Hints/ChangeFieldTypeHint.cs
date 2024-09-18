@@ -51,15 +51,7 @@ namespace Xtensive.Orm.Upgrade
     public override bool Equals(UpgradeHint other) => Equals(other as ChangeFieldTypeHint);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = base.GetHashCode();
-        result = (result * 397) ^ (Type != null ? Type.GetHashCode() : 0);
-        result = (result * 397) ^ (FieldName != null ? FieldName.GetHashCode() : 0);
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Type, FieldName);
 
     /// <inheritdoc/>
     public override string ToString() => $"Change type of field: {Type}.{FieldName}";

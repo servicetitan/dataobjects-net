@@ -83,13 +83,7 @@ namespace Xtensive.Comparison
       obj is ComparisonRule other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      int result = (int)Direction;
-      if (Culture != null)
-        result ^= Culture.GetHashCode();
-      return result;
-    }
+    public override int GetHashCode() => HashCode.Combine(Direction, Culture);
 
     #endregion
 

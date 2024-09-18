@@ -115,10 +115,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public override int GetHashCode()
     {
-      if (cachedHashCode == null)
-        unchecked {
-          cachedHashCode = (Key.GetHashCode() * 397) ^ Type.GetHashCode();
-        }
+      cachedHashCode ??= HashCode.Combine(Key, Type);
       return cachedHashCode.Value;
     }
 

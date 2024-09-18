@@ -345,10 +345,7 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return Tuple.GetHashCode();
-    }
+    public override int GetHashCode() => Tuple.GetHashCode();
 
     #endregion
 

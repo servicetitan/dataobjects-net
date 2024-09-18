@@ -86,14 +86,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        return 
-          ((IndexName!=null ? IndexName.GetHashCode() : 0) * 397) ^ 
-          (TypeName!=null ? TypeName.GetHashCode() : 0);
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(IndexName, TypeName);
 
     /// <summary>
     /// Implements the operator ==.

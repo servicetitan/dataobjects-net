@@ -58,14 +58,7 @@ namespace Xtensive.Core
       obj is Pair<T> other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = (First!=null ? First.GetHashCode() : 0);
-        result = (result * 397) ^ (Second!=null ? Second.GetHashCode() : 0);
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(First, Second);
 
     /// <summary>
     /// Checks specified objects for equality.

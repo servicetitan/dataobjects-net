@@ -66,12 +66,7 @@ namespace Xtensive.Core
       obj is Pair<T> other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      int firstHash = Offset == null ? 0 : Offset.GetHashCode();
-      int secondHash = Length == null ? 0 : Length.GetHashCode();
-      return firstHash ^ 29 * secondHash;
-    }
+    public override int GetHashCode() => HashCode.Combine(Offset, Length);
 
     #endregion
 

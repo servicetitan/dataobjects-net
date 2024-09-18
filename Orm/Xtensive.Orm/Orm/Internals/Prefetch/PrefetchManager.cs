@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       {
         this.descriptors = descriptors;
         this.type = type;
-        hashCode = unchecked ((type.GetHashCode() * 397) ^ descriptors.GetHashCode());
+        hashCode = HashCode.Combine(type, descriptors);
       }
     }
 

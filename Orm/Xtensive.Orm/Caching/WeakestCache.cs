@@ -101,10 +101,7 @@ namespace Xtensive.Caching
         return Equals((WeakEntry) obj);
       }
 
-      public override int GetHashCode()
-      {
-        return hashCode;
-      }
+      public override int GetHashCode() => hashCode;
 
       #endregion
 

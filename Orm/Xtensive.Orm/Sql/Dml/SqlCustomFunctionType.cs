@@ -40,10 +40,7 @@ namespace Xtensive.Sql.Dml
       return Equals((SqlCustomFunctionType) obj);
     }
 
-    public override int GetHashCode()
-    {
-      return Name.GetHashCode();
-    }
+    public override int GetHashCode() => Name.GetHashCode();
 
     public static bool operator ==(SqlCustomFunctionType left, SqlCustomFunctionType right)
     {
