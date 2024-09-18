@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Upgrade
 
     public void RegisterTemporaryResource(IDisposable resource)
     {
-      ArgumentValidator.EnsureArgumentNotNull(resource, "resource");
+      ArgumentNullException.ThrowIfNull(resource);
       lock (resourcesSyncRoot) {
         temporaryResources.Add(resource);
       }
@@ -163,7 +163,7 @@ namespace Xtensive.Orm.Upgrade
 
     public void RegisterResource(IDisposable resource)
     {
-      ArgumentValidator.EnsureArgumentNotNull(resource, "resource");
+      ArgumentNullException.ThrowIfNull(resource);
       lock (resourcesSyncRoot) {
         resources.Add(resource);
       }

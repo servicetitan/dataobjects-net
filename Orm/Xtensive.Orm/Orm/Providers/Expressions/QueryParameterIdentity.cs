@@ -32,16 +32,7 @@ namespace Xtensive.Orm.Providers
         && Mapping.Equals(other.Mapping);
     }
 
-    public override int GetHashCode()
-    {
-      unchecked {
-        var hashCode = FieldName.GetHashCode();
-        hashCode = (hashCode * 397) ^ ClosureObject.GetHashCode();
-        hashCode = (hashCode * 397) ^ (int) BindingType;
-        hashCode = (hashCode * 397) ^ Mapping.GetHashCode();
-        return hashCode;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(FieldName, ClosureObject, BindingType, Mapping);
 
     public static bool operator ==(QueryParameterIdentity left, QueryParameterIdentity right)
     {
@@ -61,8 +52,8 @@ namespace Xtensive.Orm.Providers
 
     public QueryParameterIdentity(TypeMapping mapping, object closureObject, string fieldName, QueryParameterBindingType bindingType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(mapping, "mapping");
-      ArgumentValidator.EnsureArgumentNotNull(closureObject, "closureObject");
+      ArgumentNullException.ThrowIfNull(mapping);
+      ArgumentNullException.ThrowIfNull(closureObject);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, "fieldName");
 
       Mapping = mapping;

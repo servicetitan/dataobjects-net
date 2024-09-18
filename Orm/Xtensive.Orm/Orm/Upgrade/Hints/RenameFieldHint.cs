@@ -50,16 +50,7 @@ namespace Xtensive.Orm.Upgrade
     public override bool Equals(UpgradeHint other) => Equals(other as RenameFieldHint);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = base.GetHashCode();
-        result = (result * 397) ^ (TargetType != null ? TargetType.GetHashCode() : 0);
-        result = (result * 397) ^ (OldFieldName != null ? OldFieldName.GetHashCode() : 0);
-        result = (result * 397) ^ (NewFieldName != null ? NewFieldName.GetHashCode() : 0);
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), TargetType, OldFieldName, NewFieldName); 
 
     /// <inheritdoc/>
     public override string ToString() =>
@@ -76,9 +67,9 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="newFieldName">New name of the field.</param>
     public RenameFieldHint(Type targetType, string oldFieldName, string newFieldName)
     {
-      ArgumentValidator.EnsureArgumentNotNull(targetType, "targetType");
+      ArgumentNullException.ThrowIfNull(targetType);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(oldFieldName, "oldFieldName");
-      ArgumentValidator.EnsureArgumentNotNull(newFieldName, "newFieldName");
+      ArgumentNullException.ThrowIfNull(newFieldName);
 
       TargetType = targetType;
       OldFieldName = oldFieldName;

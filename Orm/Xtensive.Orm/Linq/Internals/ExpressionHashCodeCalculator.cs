@@ -20,7 +20,7 @@ namespace Xtensive.Linq
 
     public int CalculateHashCode(Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       try {
         return Visit(expression);
       }
@@ -86,10 +86,7 @@ namespace Xtensive.Linq
       return Visit(m.Expression) ^ m.Member.GetHashCode();
     }
 
-    protected override int VisitMethodCall(MethodCallExpression mc)
-    {
-      return Visit(mc.Object) ^ mc.Method.GetHashCode() ^ HashExpressionSequence(mc.Arguments);
-    }
+    protected override int VisitMethodCall(MethodCallExpression mc) => HashCode.Combine(Visit(mc.Object), mc.Method, HashExpressionSequence(mc.Arguments));
 
     protected override int VisitLambda(LambdaExpression l)
     {
@@ -108,18 +105,24 @@ namespace Xtensive.Linq
 
     protected override int VisitMemberInit(MemberInitExpression mi)
     {
-      var result = Visit(mi.NewExpression);
-      foreach (var b in mi.Bindings)
-        result ^= b.BindingType.GetHashCode() ^ b.Member.GetHashCode();
-      return result;
+      HashCode hashCode = new();
+      hashCode.Add(Visit(mi.NewExpression));
+      foreach (var b in mi.Bindings) {
+        hashCode.Add(b.BindingType);
+        hashCode.Add(b.Member);
+      }
+      return hashCode.ToHashCode();
     }
 
     protected override int VisitListInit(ListInitExpression li)
     {
-      var result = VisitNew(li.NewExpression);
-      foreach (var e in li.Initializers)
-        result ^= e.AddMethod.GetHashCode() ^ HashExpressionSequence(e.Arguments);
-      return result;
+      HashCode hashCode = new();
+      hashCode.Add(VisitNew(li.NewExpression));
+      foreach (var e in li.Initializers) {
+        hashCode.Add(e.AddMethod);
+        hashCode.Add(HashExpressionSequence(e.Arguments));
+      }
+      return hashCode.ToHashCode();
     }
 
     protected override int VisitNewArray(NewArrayExpression na)

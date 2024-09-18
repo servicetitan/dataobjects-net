@@ -21,7 +21,7 @@ namespace Xtensive.Orm
     public ConnectionErrorEventData(Exception exception, DbConnection connection, bool reconnect = false)
       : base(connection, reconnect)
     {
-      ArgumentValidator.EnsureArgumentNotNull(exception, nameof(exception));
+      ArgumentNullException.ThrowIfNull(exception);
       Exception = exception;
     }
   }

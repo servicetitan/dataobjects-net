@@ -35,10 +35,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return Equals(obj as Node);
     }
 
-    public override int GetHashCode()
-    {
-      return Path.GetHashCode();
-    }
+    public override int GetHashCode() => Path.GetHashCode();
 
     public override string ToString()
     {

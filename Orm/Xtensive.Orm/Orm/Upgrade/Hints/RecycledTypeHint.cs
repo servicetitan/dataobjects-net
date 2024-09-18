@@ -40,14 +40,7 @@ namespace Xtensive.Orm.Upgrade
     public override bool Equals(UpgradeHint other) => Equals(other as RecycledTypeHint);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = base.GetHashCode();
-        result = (result * 397) ^ (Type != null ? Type.GetHashCode() : 0);
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), Type);
 
     /// <inheritdoc/>
     public override string ToString() => $"Recycled type: {Type}";
@@ -61,7 +54,7 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="type">The recycled type.</param>
     public RecycledTypeHint(Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
+      ArgumentNullException.ThrowIfNull(type);
 
       Type = type;
 

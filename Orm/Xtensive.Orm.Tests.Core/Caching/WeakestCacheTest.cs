@@ -36,10 +36,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
         return Equals(obj as Item);
       }
 
-      public override int GetHashCode()
-      {
-        return (Value != null ? Value.GetHashCode() : 0);
-      }
+      public override int GetHashCode() => Value?.GetHashCode() ?? 0;
 
       public override string ToString()
       {

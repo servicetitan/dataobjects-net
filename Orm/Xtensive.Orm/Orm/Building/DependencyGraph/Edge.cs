@@ -20,12 +20,7 @@ namespace Xtensive.Orm.Building.DependencyGraph
     public EdgeWeight Weight { get; }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        return (Tail.GetHashCode() * 397) ^ Head.GetHashCode();
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(Tail, Head);
 
     /// <inheritdoc/>
     public bool Equals(Edge<TValue> obj) =>

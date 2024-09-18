@@ -219,11 +219,13 @@ namespace System.Linq.Dynamic
     public Signature(IEnumerable<DynamicProperty> properties)
     {
       this.properties = properties.ToArray();
-      hashCode = 0;
+      HashCode hc = new();
       foreach (DynamicProperty p in properties)
       {
-        hashCode ^= p.Name.GetHashCode() ^ p.Type.GetHashCode();
+        hc.Add(p.Name);
+        hc.Add(p.Type);
       }
+      hashCode = hc.ToHashCode();
     }
 
     #region IEquatable<Signature> Members
@@ -241,10 +243,7 @@ namespace System.Linq.Dynamic
 
     #endregion
 
-    public override int GetHashCode()
-    {
-      return hashCode;
-    }
+    public override int GetHashCode() => hashCode;
 
     public override bool Equals(object obj)
     {

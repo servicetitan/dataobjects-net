@@ -75,10 +75,7 @@ namespace JetBrains.Annotations
     /// Returns the hash code for this instance.
     /// </summary>
     /// <returns>A hash code for the current <see cref="LocalizationRequiredAttribute"/>.</returns>
-    public override int GetHashCode()
-    {
-      return base.GetHashCode();
-    }
+    public override int GetHashCode() => base.GetHashCode();
   }
 
   /// <summary>

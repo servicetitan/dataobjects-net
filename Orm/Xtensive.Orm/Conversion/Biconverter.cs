@@ -57,12 +57,7 @@ namespace Xtensive.Conversion
       obj is Biconverter<TFrom, TTo> other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        return ((ConvertForward!=null ? ConvertForward.GetHashCode() : 0) * 397) ^ (ConvertBackward!=null ? ConvertBackward.GetHashCode() : 0);
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(ConvertForward, ConvertBackward);
 
     #endregion
 

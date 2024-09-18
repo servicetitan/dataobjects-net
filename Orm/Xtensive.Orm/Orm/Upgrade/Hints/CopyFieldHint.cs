@@ -57,17 +57,7 @@ namespace Xtensive.Orm.Upgrade
     public override bool Equals(UpgradeHint other) => Equals(other as CopyFieldHint);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = base.GetHashCode();
-        result = (result * 397) ^ (SourceType != null ? SourceType.GetHashCode() : 0);
-        result = (result * 397) ^ (SourceField != null ? SourceField.GetHashCode() : 0);
-        result = (result * 397) ^ (TargetType != null ? TargetType.GetHashCode() : 0);
-        result = (result * 397) ^ (TargetField != null ? TargetField.GetHashCode() : 0);
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), SourceType, SourceField, TargetType, TargetField);
 
     /// <inheritdoc/>
     public override string ToString() =>
@@ -87,7 +77,7 @@ namespace Xtensive.Orm.Upgrade
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourceTypeName, nameof(sourceTypeName));
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourceFieldName, nameof(sourceFieldName));
-      ArgumentValidator.EnsureArgumentNotNull(targetType, nameof(targetType));
+      ArgumentNullException.ThrowIfNull(targetType);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(targetFieldName, nameof(targetFieldName));
       SourceType = sourceTypeName;
       SourceField = sourceFieldName;
@@ -115,9 +105,9 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="targetFieldName">The target field name.</param>
     public CopyFieldHint(Type sourceType, string sourceFieldName, Type targetType, string targetFieldName)
     {
-      ArgumentValidator.EnsureArgumentNotNull(sourceType, nameof(sourceType));
+      ArgumentNullException.ThrowIfNull(sourceType);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourceFieldName, nameof(sourceFieldName));
-      ArgumentValidator.EnsureArgumentNotNull(targetType, nameof(targetType));
+      ArgumentNullException.ThrowIfNull(targetType);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(targetFieldName, nameof(targetFieldName));
       
       SourceType = sourceType.FullName;

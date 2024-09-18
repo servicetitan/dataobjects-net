@@ -53,15 +53,15 @@ namespace Xtensive.Orm.Upgrade.Internals
       IReadOnlyList<StoredTypeInfo> currentNonConnectorTypes,
       IReadOnlyList<StoredTypeInfo> extractedNonConnectorTypes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(hints, nameof(hints));
-      ArgumentValidator.EnsureArgumentNotNull(typeMapping, nameof(typeMapping));
-      ArgumentValidator.EnsureArgumentNotNull(reverseTypeMapping, nameof(reverseTypeMapping));
-      ArgumentValidator.EnsureArgumentNotNull(fieldMapping, nameof(fieldMapping));
-      ArgumentValidator.EnsureArgumentNotNull(reverseFieldMapping, nameof(reverseFieldMapping));
-      ArgumentValidator.EnsureArgumentNotNull(currentModelTypes, nameof(currentModelTypes));
-      ArgumentValidator.EnsureArgumentNotNull(suspiciousTypes, nameof(suspiciousTypes));
-      ArgumentValidator.EnsureArgumentNotNull(currentNonConnectorTypes, nameof(suspiciousTypes));
-      ArgumentValidator.EnsureArgumentNotNull(extractedNonConnectorTypes, nameof(suspiciousTypes));
+      ArgumentNullException.ThrowIfNull(hints);
+      ArgumentNullException.ThrowIfNull(typeMapping);
+      ArgumentNullException.ThrowIfNull(reverseTypeMapping);
+      ArgumentNullException.ThrowIfNull(fieldMapping);
+      ArgumentNullException.ThrowIfNull(reverseFieldMapping);
+      ArgumentNullException.ThrowIfNull(currentModelTypes);
+      ArgumentNullException.ThrowIfNull(suspiciousTypes);
+      ArgumentNullException.ThrowIfNull(currentNonConnectorTypes, nameof(suspiciousTypes));
+      ArgumentNullException.ThrowIfNull(extractedNonConnectorTypes, nameof(suspiciousTypes));
 
       Hints = hints;
       TypeMapping = typeMapping;

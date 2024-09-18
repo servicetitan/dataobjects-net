@@ -121,20 +121,7 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = (Type != null ? Type.GetHashCode() : 0);
-        result = (result * 397) ^ (IsNullable ? 1 : 0);
-        if (Length.HasValue)
-          result = (result * 397) ^ Length.Value;
-        if (Scale.HasValue)
-          result = (result * 397) ^ Scale.Value;
-        if (Precision.HasValue)
-          result = (result * 397) ^ Precision.Value;
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(Type, IsNullable, Length, Scale, Precision);
 
     /// <summary>
     /// Implements the operator ==.
@@ -242,7 +229,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="isNullable">Indicates whether type is nullable.</param>
     public StorageTypeInfo(Type type, SqlValueType nativeType, bool isNullable)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       if (isNullable && type.IsValueType && !type.IsNullable())
         ArgumentValidator.EnsureArgumentIsInRange(true, false, false, "isNullable");
       Type = type;

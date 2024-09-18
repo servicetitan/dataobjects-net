@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Services
     /// </summary>
     public static SessionStateAccessor Get(Session source) 
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       return new SessionStateAccessor(source);
     }
 
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Services
     /// </summary>
     public static PersistentStateAccessor Get(Persistent source) 
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       return new PersistentStateAccessor(source);
     }
     
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Services
     /// </summary>
     public static EntitySetStateAccessor Get(EntitySetBase source) 
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       return new EntitySetStateAccessor(source);
     }
   }

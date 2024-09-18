@@ -56,16 +56,7 @@ namespace Xtensive.Orm.Security
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = (Type != null ? Type.GetHashCode() : 0);
-        result = (result*397) ^ CanRead.GetHashCode();
-        result = (result*397) ^ CanWrite.GetHashCode();
-        result = (result*397) ^ (Query != null ? Query.GetHashCode() : 0);
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(Type, CanRead, CanWrite, Query);
 
     #endregion
 

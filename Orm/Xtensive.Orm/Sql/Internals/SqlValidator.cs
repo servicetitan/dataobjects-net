@@ -60,7 +60,7 @@ namespace Xtensive.Sql
 
     public static void EnsureIsRowValueConstructor(SqlExpression node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node, "expression");
+      ArgumentNullException.ThrowIfNull(node, "expression");
       if (!(IsArithmeticExpression(node) || node is SqlRow || node is SqlSubQuery))
         throw new ArgumentException(Strings.ExInvalidExpressionType);
     }
@@ -73,14 +73,14 @@ namespace Xtensive.Sql
 
     public static void EnsureIsSubSelect(SqlExpression node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node, "expression");
+      ArgumentNullException.ThrowIfNull(node, "expression");
       if (!(node is SqlSubQuery))
         throw new ArgumentException(Strings.ExInvalidExpressionType);
     }
 
     public static void EnsureIsLimitOffsetArgument(SqlExpression node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node, "node");
+      ArgumentNullException.ThrowIfNull(node);
       if (!IsLimitOffsetArgument(node))
         throw new InvalidOperationException(Strings.ExOnlySqlLiteralOrSqlPlaceholderCanBeUsedInLimitOffset);
     }

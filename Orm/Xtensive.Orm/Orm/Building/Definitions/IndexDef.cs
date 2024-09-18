@@ -170,7 +170,7 @@ namespace Xtensive.Orm.Building.Definitions
 
     internal IndexDef(TypeDef type, Validator validator)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       Type = type;
       this.validator = validator;
     }

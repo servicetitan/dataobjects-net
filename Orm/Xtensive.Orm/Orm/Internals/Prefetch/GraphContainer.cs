@@ -115,10 +115,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public override int GetHashCode()
     {
-      if (cachedHashCode == null)
-        unchecked {
-          cachedHashCode = (Key.GetHashCode() * 397) ^ Type.GetHashCode();
-        }
+      cachedHashCode ??= HashCode.Combine(Key, Type);
       return cachedHashCode.Value;
     }
 
@@ -186,9 +183,9 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public GraphContainer(Key key, TypeInfo type, bool exactType, PrefetchManager manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNull(manager, "processor");
+      ArgumentNullException.ThrowIfNull(key);
+      ArgumentNullException.ThrowIfNull(type);
+      ArgumentNullException.ThrowIfNull(manager, "processor");
 
       Key = key;
       Type = type;

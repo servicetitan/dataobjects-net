@@ -68,10 +68,7 @@ namespace Xtensive.Tuples.Transform
     }
 
     /// <inheritdoc/>
-    public sealed override int GetHashCode()
-    {
-      return origin.GetHashCode();
-    }
+    public sealed override int GetHashCode() => origin.GetHashCode();
 
 
     // Constructors
@@ -82,7 +79,7 @@ namespace Xtensive.Tuples.Transform
     /// <param name="tuple">Tuple to provide the wrapper for.</param>
     protected WrappingTransformTupleBase(Tuple tuple)
     {
-      ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
+      ArgumentNullException.ThrowIfNull(tuple);
       origin = tuple;
     }
   }

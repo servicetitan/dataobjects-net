@@ -57,7 +57,7 @@ namespace Xtensive.Collections
     public void Register(Type type)
     {
       EnsureNotLocked();
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       if (!isProcessingPendingActions)
         Register(new TypeRegistration(type));
       else if (typeSet.Add(type)) {
@@ -78,7 +78,7 @@ namespace Xtensive.Collections
     public void Register(Assembly assembly)
     {
       EnsureNotLocked();
-      ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
+      ArgumentNullException.ThrowIfNull(assembly);
       Register(new TypeRegistration(assembly));
     }
 
@@ -95,7 +95,7 @@ namespace Xtensive.Collections
     public void Register(Assembly assembly, string @namespace)
     {
       EnsureNotLocked();
-      ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
+      ArgumentNullException.ThrowIfNull(assembly);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(@namespace, "@namespace");
       Register(new TypeRegistration(assembly, @namespace));
     }
@@ -109,7 +109,7 @@ namespace Xtensive.Collections
     public bool Register(TypeRegistration action)
     {
       EnsureNotLocked();
-      ArgumentValidator.EnsureArgumentNotNull(action, "action");
+      ArgumentNullException.ThrowIfNull(action);
       if (actionSet.Contains(action))
         return false;
       actionSet.Add(action);
@@ -197,7 +197,7 @@ namespace Xtensive.Collections
     /// <param name="processor">The registry action processor.</param>
     public TypeRegistry(ITypeRegistrationProcessor processor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(processor, "processor");
+      ArgumentNullException.ThrowIfNull(processor);
       this.processor = processor;
     }
 

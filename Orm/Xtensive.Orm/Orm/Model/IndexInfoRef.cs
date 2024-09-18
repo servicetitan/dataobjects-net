@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Model
     public override bool Equals(object obj) => obj is IndexInfo other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode() => HashCode.Combine(IndexName,TypeName);
+    public override int GetHashCode() => HashCode.Combine(IndexName, TypeName);
 
     /// <summary>
     /// Implements the operator ==.

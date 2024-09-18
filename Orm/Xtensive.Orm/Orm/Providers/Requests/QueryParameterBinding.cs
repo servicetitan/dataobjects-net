@@ -25,12 +25,12 @@ namespace Xtensive.Orm.Providers
       ParameterTransmissionType transmissionType, QueryParameterBindingType bindingType)
       : base(typeMapping, transmissionType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(valueAccessor, "valueAccessor");
+      ArgumentNullException.ThrowIfNull(valueAccessor);
 
       switch (bindingType) {
       case QueryParameterBindingType.Regular:
       case QueryParameterBindingType.SmartNull:
-        ArgumentValidator.EnsureArgumentNotNull(typeMapping, "typeMapping");
+        ArgumentNullException.ThrowIfNull(typeMapping);
         break;
       }
 

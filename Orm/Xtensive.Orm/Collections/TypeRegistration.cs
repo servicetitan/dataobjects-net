@@ -69,15 +69,7 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = (type!=null ? type.GetHashCode() : 0);
-        result = (result * 397) ^ (assembly!=null ? assembly.GetHashCode() : 0);
-        result = (result * 397) ^ (@namespace!=null ? @namespace.GetHashCode() : 0);
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(type, assembly, @namespace);
 
     /// <inheritdoc/>
     public static bool operator ==(TypeRegistration left, TypeRegistration right)
@@ -102,7 +94,7 @@ namespace Xtensive.Collections
     /// <param name="type">The type to register.</param>
     public TypeRegistration(Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       this.type = type;
     }
 
@@ -112,7 +104,7 @@ namespace Xtensive.Collections
     /// <param name="assembly">The assembly to register.</param>
     public TypeRegistration(Assembly assembly)
     {
-      ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
+      ArgumentNullException.ThrowIfNull(assembly);
       this.assembly = assembly;
     }
 
@@ -124,7 +116,7 @@ namespace Xtensive.Collections
     public TypeRegistration(Assembly assembly, string @namespace)
       : this(assembly)
     {
-      ArgumentValidator.EnsureArgumentNotNull(@namespace, "@namespace");
+      ArgumentNullException.ThrowIfNull(@namespace, "@namespace");
       this.@namespace = @namespace;
     }
   }

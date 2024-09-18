@@ -61,14 +61,7 @@ namespace Xtensive.Core
       obj is HasVersion<TValue, TVersion> other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        return 
-          ((Value!=null ? Value.GetHashCode() : 0) * 397) ^ 
-          (Version!=null ? Version.GetHashCode() : 0);
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(Value, Version);
 
     /// <summary>
     /// Checks specified objects for equality.

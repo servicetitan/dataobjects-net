@@ -56,10 +56,7 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return Name.GetHashCode();
-    }
+    public override int GetHashCode() => Name.GetHashCode();
 
     /// <summary>
     /// Implements the operator ==.

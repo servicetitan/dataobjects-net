@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Building
 
     internal BuildingContext(DomainBuilderConfiguration builderConfiguration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(builderConfiguration, "builderConfiguration");
+      ArgumentNullException.ThrowIfNull(builderConfiguration);
 
       BuilderConfiguration = builderConfiguration;
       PairedAssociations = new List<Pair<AssociationInfo, string>>();

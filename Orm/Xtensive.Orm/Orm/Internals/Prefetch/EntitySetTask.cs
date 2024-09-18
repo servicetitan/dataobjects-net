@@ -42,10 +42,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       ReferencingField = referencingField;
       ItemCountLimit = itemCountLimit;
-      unchecked {
-        cachedHashCode = (ReferencingField.GetHashCode() * 397)
-                         ^ (ItemCountLimit.HasValue ? 1 : 0);
-      }
+      cachedHashCode = HashCode.Combine(ReferencingField, ItemCountLimit.HasValue);
     }
   }
 
@@ -260,8 +257,8 @@ namespace Xtensive.Orm.Internals.Prefetch
     public EntitySetTask(Key ownerKey, in PrefetchFieldDescriptor referencingFieldDescriptor, bool isOwnerCached,
       PrefetchManager manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(ownerKey, "ownerKey");
-      ArgumentValidator.EnsureArgumentNotNull(manager, "processor");
+      ArgumentNullException.ThrowIfNull(ownerKey);
+      ArgumentNullException.ThrowIfNull(manager, "processor");
 
       this.ownerKey = ownerKey;
       this.referencingFieldDescriptor = referencingFieldDescriptor;

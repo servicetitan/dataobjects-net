@@ -46,15 +46,7 @@ namespace Xtensive.Orm.Upgrade
     public override bool Equals(UpgradeHint other) => Equals(other as RenameTypeHint);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = base.GetHashCode();
-        result = (result * 397) ^ (NewType != null ? NewType.GetHashCode() : 0);
-        result = (result * 397) ^ (OldType != null ? OldType.GetHashCode() : 0);
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), NewType, OldType);
 
     /// <inheritdoc/>
     public override string ToString() =>
@@ -70,7 +62,7 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="newType">The new type.</param>
     public RenameTypeHint(string oldType, Type newType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(newType, nameof(newType));
+      ArgumentNullException.ThrowIfNull(newType);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(oldType, nameof(oldType));
 
       if (!oldType.Contains(".", StringComparison.Ordinal))

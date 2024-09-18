@@ -45,7 +45,7 @@ namespace Xtensive.Tuples
     /// <param name="tuple">The tuple to wrap.</param>
     public TupleUpdater(Tuple tuple)
     {
-      ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
+      ArgumentNullException.ThrowIfNull(tuple);
       this.tuple = tuple;
     }
   }

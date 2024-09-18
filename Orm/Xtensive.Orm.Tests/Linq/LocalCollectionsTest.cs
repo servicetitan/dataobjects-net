@@ -54,10 +54,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
       return Equals((Poco<T>) obj);
     }
 
-    public override int GetHashCode()
-    {
-      return Value.GetHashCode();
-    }
+    public override int GetHashCode() => Value.GetHashCode();
   }
 
   public class Poco<T1, T2>
@@ -85,12 +82,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
       return Equals((Poco<T1, T2>) obj);
     }
 
-    public override int GetHashCode()
-    {
-      unchecked {
-        return (Value1.GetHashCode() * 397) ^ Value2.GetHashCode();
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(Value1, Value2);
 
     public Poco(T1 Value1, T2 Value2)
     {
@@ -137,15 +129,7 @@ namespace Xtensive.Orm.Tests.Linq.LocalCollectionsTest_Model
       return Equals((Poco<T1, T2, T3>) obj);
     }
 
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = Value1.GetHashCode();
-        result = (result * 397) ^ Value2.GetHashCode();
-        result = (result * 397) ^ Value3.GetHashCode();
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(Value1, Value2, Value3);
 
     public Poco()
     {
