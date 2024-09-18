@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Linq
       Translate(expression, Session.CompilationService.CreateConfiguration(Session));
 
     internal TranslatedQuery Translate(Expression expression,
-      CompilerConfiguration compilerConfiguration)
+      in CompilerConfiguration compilerConfiguration)
     {
       try {
         var compiledQueryScope = CompiledQueryProcessingScope.Current;

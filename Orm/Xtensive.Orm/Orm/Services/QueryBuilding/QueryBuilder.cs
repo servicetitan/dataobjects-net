@@ -37,8 +37,7 @@ namespace Xtensive.Orm.Services
     {
       ArgumentNullException.ThrowIfNull(query);
 
-      var configuration = Session.CompilationService.CreateConfiguration(Session);
-      configuration.PrepareRequest = false;
+      var configuration = Session.CompilationService.CreateConfiguration(Session) with { PrepareRequest = false };
       var translated = queryProvider.Translate(query.Expression, configuration);
 
       var sqlProvider = translated.DataSource as SqlProvider;

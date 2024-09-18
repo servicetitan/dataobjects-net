@@ -17,10 +17,7 @@ namespace Xtensive.Orm.Providers.SqlServer
   public class DomainHandler : Providers.DomainHandler
   {
     /// <inheritdoc/>
-    protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
-    {
-      return new SqlCompiler(Handlers, configuration);
-    }
+    protected override ICompiler CreateCompiler(CompilerConfiguration configuration) => new SqlCompiler(Handlers, configuration);
 
     /// <inheritdoc/>
     protected override SearchConditionCompiler CreateSearchConditionVisitor()

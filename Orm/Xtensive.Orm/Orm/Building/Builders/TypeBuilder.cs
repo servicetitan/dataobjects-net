@@ -485,18 +485,18 @@ namespace Xtensive.Orm.Building.Builders
       var keyFields = root.Fields
         .Where(static field => field.IsPrimaryKey)
         .OrderBy(static field => field.MappingInfo.Offset)
-        .ToList();
+        .ToArray();
 
       var keyColumns = keyFields
         .Where(static field => field.Column != null)
         .Select(static field => field.Column)
-        .ToList();
+        .ToArray();
 
       var keyTupleDescriptor = TupleDescriptor.Create(
-        keyColumns.Select(static c => c.ValueType).ToArray(keyColumns.Count));
+        keyColumns.Select(static c => c.ValueType).ToArray(keyColumns.Length));
       var typeIdColumnIndex = -1;
       if (hierarchyDef.IncludeTypeId) {
-        for (var i = 0; i < keyColumns.Count; i++) {
+        for (var i = 0; i < keyColumns.Length; i++) {
           if (keyColumns[i].Field.IsTypeId) {
             typeIdColumnIndex = i;
           }

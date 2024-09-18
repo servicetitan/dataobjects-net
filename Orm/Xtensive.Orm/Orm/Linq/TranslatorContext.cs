@@ -25,14 +25,14 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed class TranslatorContext
   {
-    private readonly AliasGenerator resultAliasGenerator;
-    private readonly AliasGenerator columnAliasGenerator;
+    private AliasGenerator resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
+    private AliasGenerator columnAliasGenerator = AliasGenerator.Create(new[] {"c01umn"});
     private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters;
     private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
     private readonly Dictionary<ParameterExpression, ItemProjectorExpression> boundItemProjectors;
     private readonly Dictionary<MemberInfo, int> queryReuses;
 
-    public CompilerConfiguration RseCompilerConfiguration { get; }
+    public readonly CompilerConfiguration RseCompilerConfiguration;
 
     public ProviderInfo ProviderInfo { get; }
 
@@ -124,11 +124,7 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    public void RegisterPossibleQueryReuse(MemberInfo memberInfo)
-    {
-      if (!queryReuses.ContainsKey(memberInfo))
-        queryReuses.Add(memberInfo, 0);
-    }
+    public void RegisterPossibleQueryReuse(MemberInfo memberInfo) => queryReuses.TryAdd(memberInfo, 0);
 
     public bool CheckIfQueryReusePossible(MemberInfo memberInfo)
     {
@@ -148,11 +144,10 @@ namespace Xtensive.Orm.Linq
 
     // Constructors
 
-    public TranslatorContext(Session session, CompilerConfiguration rseCompilerConfiguration, Expression query,
+    public TranslatorContext(Session session, in CompilerConfiguration rseCompilerConfiguration, Expression query,
       CompiledQueryProcessingScope compiledQueryScope)
     {
       ArgumentNullException.ThrowIfNull(session);
-      ArgumentNullException.ThrowIfNull(rseCompilerConfiguration);
       ArgumentNullException.ThrowIfNull(query);
 
       Domain = session.Domain;
@@ -173,8 +168,6 @@ namespace Xtensive.Orm.Linq
       query = PersistentIndexerRewriter.Rewrite(query, this);
       Query = query;
 
-      resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
-      columnAliasGenerator = AliasGenerator.Create(new[] {"c01umn"});
       CustomCompilerProvider = Domain.Handler.GetMemberCompilerProvider<Expression>();
       Model = Domain.Model;
       TypeIdRegistry = session.StorageNode.TypeIdRegistry;

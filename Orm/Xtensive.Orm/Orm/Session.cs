@@ -242,7 +242,7 @@ namespace Xtensive.Orm
 
     internal RemovalProcessor RemovalProcessor { get; private set; }
 
-    internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
+    internal CompilationService CompilationService => Handlers.DomainHandler.CompilationService;
 
     internal IReadOnlyList<string> Tags => tags;
 
@@ -344,10 +344,8 @@ namespace Xtensive.Orm
       return storageNode;
     }
 
-    internal ExecutableProvider Compile(CompilableProvider provider)
-    {
-      return CompilationService.Compile(provider, CompilationService.CreateConfiguration(this));
-    }
+    internal ExecutableProvider Compile(CompilableProvider provider) =>
+      CompilationService.Compile(provider, CompilationService.CreateConfiguration(this));
 
     internal ExecutableProvider Compile(CompilableProvider provider, CompilerConfiguration configuration)
     {

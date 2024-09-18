@@ -594,7 +594,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
+    public SqlCompiler(HandlerAccessor handlers, in CompilerConfiguration configuration)
     {
       Handlers = handlers;
       OuterReferences = new BindingCollection<ApplyParameter, Pair<SqlProvider, bool>>();

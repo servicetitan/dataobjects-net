@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Providers.Oracle
 
     // Constructors
     
-    public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
+    public SqlCompiler(HandlerAccessor handlers, in CompilerConfiguration configuration)
       : base(handlers, configuration)
     {
     }
