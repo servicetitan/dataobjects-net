@@ -28,11 +28,11 @@ public class SqlDataRecordList(IReadOnlyList<Tuple> tuples, SqlDbType sqlDbType)
         HashSet<long> added = new();
         foreach (var valueObj in tuples.Select(t => t.GetValueOrDefault(0)).Where(o => o != null)) {
           long castValue = valueObj switch {
-            byte n => (long) n,
-            short n => (long) n,
-            ushort n => (long) n,
-            int n => (long) n,
-            uint n => (long) n,
+            byte n => n,
+            short n => n,
+            ushort n => n,
+            int n => n,
+            uint n => n,
             long n => n,
             decimal d => (long) d,
             Enum e => Convert.ToInt64(e),
