@@ -19,21 +19,19 @@ namespace Xtensive.Orm.Model
   /// </summary>
   [Serializable]
   [DebuggerDisplay("IndexName = {IndexName}, TypeName = {TypeName}")]
-  public sealed class IndexInfoRef
+  public readonly struct IndexInfoRef(IndexInfo indexInfo)
   {
-    private const string ToStringFormat = "Index '{0}' @ {1}";
-
     /// <summary>
     /// Name of the index.
     /// </summary>
-    public string IndexName { get; private set; }
+    public string IndexName { get; } = indexInfo.Name;
 
     /// <summary>
     /// Name of the reflecting type.
     /// </summary>
-    public string TypeName { get; private set; }
+    public string TypeName { get; } = indexInfo.ReflectedType.Name;
 
-    public TupleDescriptor KeyTupleDescriptor { get; private set; }
+    public TupleDescriptor KeyTupleDescriptor { get; } = indexInfo.KeyTupleDescriptor;
 
     /// <summary>
     /// Resolves this instance to <see cref="IndexInfo"/> object within specified <paramref name="model"/>.
@@ -41,59 +39,31 @@ namespace Xtensive.Orm.Model
     /// <param name="model">Domain model.</param>
     public IndexInfo Resolve(DomainModel model)
     {
-      TypeInfo type;
-      if (!model.Types.TryGetValue(TypeName, out type))
+      if (!model.Types.TryGetValue(TypeName, out var type))
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "type", TypeName));
-      IndexInfo index;
-      if (!type.Indexes.TryGetValue(IndexName, out index)) {
-        var hierarchy = type.Hierarchy;
-        if (hierarchy != null && hierarchy.InheritanceSchema == InheritanceSchema.SingleTable && hierarchy.Root.Indexes.TryGetValue(IndexName, out index)) 
+      if (!type.Indexes.TryGetValue(IndexName, out var index)) {
+        if (type.Hierarchy is { } hierarchy && hierarchy.InheritanceSchema == InheritanceSchema.SingleTable && hierarchy.Root.Indexes.TryGetValue(IndexName, out index)) 
           return index;
         throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "index", IndexName));
       }
-
       return index;
     }
 
     /// <summary>
     /// Creates reference for <see cref="IndexInfo"/>.
     /// </summary>
-    public static implicit operator IndexInfoRef (IndexInfo indexInfo)
-    {
-      return new IndexInfoRef(indexInfo);
-    }
+    public static implicit operator IndexInfoRef (IndexInfo indexInfo) => new(indexInfo);
 
     #region Equality members, ==, !=
 
     /// <inheritdoc/>
-    public bool Equals(IndexInfoRef other)
-    {
-      if (other is null)
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return 
-        other.IndexName==IndexName && 
-        other.TypeName==TypeName;
-    }
+    public bool Equals(IndexInfoRef other) => IndexName == other.IndexName && TypeName == other.TypeName;
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(this, obj))
-        return true;
-      return Equals(obj as IndexInfoRef);
-    }
+    public override bool Equals(object obj) => obj is IndexInfo other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        return 
-          ((IndexName!=null ? IndexName.GetHashCode() : 0) * 397) ^ 
-          (TypeName!=null ? TypeName.GetHashCode() : 0);
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(IndexName,TypeName);
 
     /// <summary>
     /// Implements the operator ==.
@@ -103,10 +73,7 @@ namespace Xtensive.Orm.Model
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator ==(IndexInfoRef x, IndexInfoRef y)
-    {
-      return Equals(x, y);
-    }
+    public static bool operator ==(IndexInfoRef x, IndexInfoRef y) => x.Equals(y);
 
     /// <summary>
     /// Implements the operator !=.
@@ -116,31 +83,11 @@ namespace Xtensive.Orm.Model
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator !=(IndexInfoRef x, IndexInfoRef y)
-    {
-      return !Equals(x, y);
-    }
+    public static bool operator !=(IndexInfoRef x, IndexInfoRef y) => !x.Equals(y);
 
     #endregion
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format(ToStringFormat, IndexName, TypeName);
-    }
-
-
-    // Constructors
-
-    /// <summary>
-    ///   Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="indexInfo"><see cref="IndexInfo"/> object to make reference for.</param>
-    public IndexInfoRef(IndexInfo indexInfo)
-    {
-      IndexName = indexInfo.Name;      
-      TypeName = indexInfo.ReflectedType.Name;
-      KeyTupleDescriptor = indexInfo.KeyTupleDescriptor;
-    }
+    public override string ToString() => $"Index '{IndexName}' @ {TypeName}";
   }
 }
