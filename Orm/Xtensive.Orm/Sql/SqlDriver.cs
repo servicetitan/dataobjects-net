@@ -14,6 +14,7 @@ using Xtensive.Reflection;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
+using ISqlExecutor = Xtensive.Orm.Providers.ISqlExecutor;
 
 namespace Xtensive.Sql
 {
@@ -60,7 +61,7 @@ namespace Xtensive.Sql
     /// <returns>Result of compilation.</returns>
     public SqlCompilationResult Compile(ISqlCompileUnit statement)
     {
-      ArgumentValidator.EnsureArgumentNotNull(statement, nameof(statement));
+      ArgumentNullException.ThrowIfNull(statement);
       return CreateCompiler().Compile(statement, new SqlCompilerConfiguration(), null);
     }
 
@@ -73,8 +74,8 @@ namespace Xtensive.Sql
     /// <returns>Result of compilation.</returns>
     public SqlCompilationResult Compile(ISqlCompileUnit statement, SqlCompilerConfiguration configuration, TypeIdRegistry typeIdRegistry = null)
     {
-      ArgumentValidator.EnsureArgumentNotNull(statement, nameof(statement));
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(statement);
+      ArgumentNullException.ThrowIfNull(configuration);
       ValidateCompilerConfiguration(configuration);
       return CreateCompiler().Compile(statement, configuration, typeIdRegistry);
     }
@@ -86,7 +87,7 @@ namespace Xtensive.Sql
     /// <returns><see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.</returns>
     public DefaultSchemaInfo GetDefaultSchema(SqlConnection connection)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
+      ArgumentNullException.ThrowIfNull(connection);
       if (connection.Driver != this) {
         throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
       }
@@ -104,7 +105,7 @@ namespace Xtensive.Sql
     /// <returns><see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.</returns>
     public Task<DefaultSchemaInfo> GetDefaultSchemaAsync(SqlConnection connection, CancellationToken token)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
+      ArgumentNullException.ThrowIfNull(connection);
       if (connection.Driver != this) {
         throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
       }
@@ -120,8 +121,8 @@ namespace Xtensive.Sql
     /// <returns>Extracted catalogs.</returns>
     public SqlExtractionResult Extract(SqlConnection connection, IEnumerable<SqlExtractionTask> tasks)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
-      ArgumentValidator.EnsureArgumentNotNull(tasks, nameof(tasks));
+      ArgumentNullException.ThrowIfNull(connection);
+      ArgumentNullException.ThrowIfNull(tasks);
 
       if (connection.Driver != this) {
         throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
@@ -167,8 +168,8 @@ namespace Xtensive.Sql
     public async Task<SqlExtractionResult> ExtractAsync(SqlConnection connection, IEnumerable<SqlExtractionTask> tasks,
       CancellationToken token = default)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
-      ArgumentValidator.EnsureArgumentNotNull(tasks, nameof(tasks));
+      ArgumentNullException.ThrowIfNull(connection);
+      ArgumentNullException.ThrowIfNull(tasks);
 
       if (connection.Driver != this) {
         throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
@@ -372,6 +373,8 @@ namespace Xtensive.Sql
     protected virtual void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
     {
     }
+
+    public virtual Task CreateTypesIfNotExistAsync(ISqlExecutor executor) => Task.CompletedTask;
 
     #region Private / internal methods
 

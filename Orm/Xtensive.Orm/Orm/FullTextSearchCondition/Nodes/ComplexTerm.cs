@@ -25,7 +25,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
     internal ComplexTerm(IOperator source, IOperand operandsSequenceRoot)
       : base(SearchConditionNodeType.ComplexTerm, source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(operandsSequenceRoot, "operandsSequenceRoot");
+      ArgumentNullException.ThrowIfNull(operandsSequenceRoot);
       RootOperand = operandsSequenceRoot;
     }
   }

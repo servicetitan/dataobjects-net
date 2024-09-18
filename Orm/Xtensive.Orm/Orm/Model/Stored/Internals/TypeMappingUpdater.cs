@@ -9,8 +9,8 @@ namespace Xtensive.Orm.Model.Stored.Internals
   {
     public void UpdateMappings(StoredDomainModel model, NodeConfiguration nodeConfiguration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(model, "model");
-      ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, "nodeConfiguration");
+      ArgumentNullException.ThrowIfNull(model);
+      ArgumentNullException.ThrowIfNull(nodeConfiguration);
 
       foreach (var storedType in model.Types) {
         if (!storedType.MappingDatabase.IsNullOrEmpty())

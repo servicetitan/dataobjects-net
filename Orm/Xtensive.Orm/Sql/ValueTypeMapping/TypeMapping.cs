@@ -18,29 +18,13 @@ namespace Xtensive.Sql
     private readonly Action<DbParameter, object> valueBinder;
     private readonly Func<int?, int?, int?, SqlValueType> mapper;
 
-    public Type Type { get; private set; }
-    public bool ParameterCastRequired { get; private set; }
+    public Type Type { get; }
+    public bool ParameterCastRequired { get; }
 
-    public object ReadValue(DbDataReader reader, int index)
-    {
-      return ValueReader.Invoke(reader, index);
-    }
-
-    public void BindValue(DbParameter parameter, object value)
-    {
-      valueBinder.Invoke(parameter, value);
-    }
-
-    public SqlValueType MapType()
-    {
-      return mapper.Invoke(null, null, null);
-    }
-
-    public SqlValueType MapType(int? length, int? precision, int? scale)
-    {
-      return mapper.Invoke(length, precision, scale);
-    }
-
+    public object ReadValue(DbDataReader reader, int index) => ValueReader(reader, index);
+    public void BindValue(DbParameter parameter, object value) => valueBinder(parameter, value);
+    public SqlValueType MapType() => mapper(null, null, null);
+    public SqlValueType MapType(int? length, int? precision, int? scale) => mapper(length, precision, scale);
 
     // Constructors
 

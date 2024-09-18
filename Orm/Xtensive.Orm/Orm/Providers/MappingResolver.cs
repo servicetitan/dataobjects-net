@@ -43,9 +43,9 @@ namespace Xtensive.Orm.Providers
     public static MappingResolver Create(DomainConfiguration configuration, NodeConfiguration nodeConfiguration,
       DefaultSchemaInfo defaultSchemaInfo)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-      ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, "nodeConfiguration");
-      ArgumentValidator.EnsureArgumentNotNull(defaultSchemaInfo, "defaultSchemaInfo");
+      ArgumentNullException.ThrowIfNull(configuration);
+      ArgumentNullException.ThrowIfNull(nodeConfiguration);
+      ArgumentNullException.ThrowIfNull(defaultSchemaInfo);
 
       if (configuration.IsMultidatabase)
         return new MultidatabaseMappingResolver(configuration, nodeConfiguration);

@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Rse.Providers
     public StoreProvider(RecordSetHeader header, string name)
       : base (ProviderType.Store)
     {
-      ArgumentValidator.EnsureArgumentNotNull(header, "header");
+      ArgumentNullException.ThrowIfNull(header);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 
       Name = name;
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Rse.Providers
     public StoreProvider(CompilableProvider source, string name)
       : base(ProviderType.Store, source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 
       Name = name;
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Rse.Providers
     public StoreProvider(CompilableProvider source)
       : base(ProviderType.Store, source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentNullException.ThrowIfNull(source);
 
       Name = Guid.NewGuid().ToString();
       Source = source;

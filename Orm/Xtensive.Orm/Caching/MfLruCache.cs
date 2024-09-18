@@ -153,7 +153,7 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public override TItem Add(TItem item, bool replaceIfExists)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      ArgumentNullException.ThrowIfNull(item);
       OnOperation2();
       var key = KeyExtractor(item);
       CachedItem cached;
@@ -409,7 +409,7 @@ namespace Xtensive.Caching
         ArgumentValidator.EnsureArgumentIsInRange(lruCapacity , 1, int.MaxValue, "lruCapacity");
       if (mfuCapacity < 0)
         ArgumentValidator.EnsureArgumentIsInRange(lruCapacity , 0, int.MaxValue, "mfuCapacity");
-      ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
+      ArgumentNullException.ThrowIfNull(keyExtractor);
       this.lruCapacity = lruCapacity;
       this.mfuCapacity = mfuCapacity;
       capacity = lruCapacity + mfuCapacity;

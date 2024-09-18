@@ -87,7 +87,7 @@ namespace Xtensive.Caching
     [SecuritySafeCritical]
     public override TItem Add(TItem item, bool replaceIfExists)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, nameof(item));
+      ArgumentNullException.ThrowIfNull(item);
       RegisterOperation(2);
       var key = KeyExtractor(item);
       if (items == null) {
@@ -225,7 +225,7 @@ namespace Xtensive.Caching
     /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     public WeakCache(bool trackResurrection, Converter<TItem, TKey> keyExtractor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
+      ArgumentNullException.ThrowIfNull(keyExtractor);
       this.trackResurrection = trackResurrection;
       this.KeyExtractor = keyExtractor;
     }

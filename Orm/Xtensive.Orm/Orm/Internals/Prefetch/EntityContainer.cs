@@ -88,8 +88,8 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     protected EntityContainer(Key key, TypeInfo type, bool exactType, PrefetchManager manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNull(manager, "processor");
+      ArgumentNullException.ThrowIfNull(type);
+      ArgumentNullException.ThrowIfNull(manager, "processor");
       Key = key;
       Type = type;
       ExactType = exactType;

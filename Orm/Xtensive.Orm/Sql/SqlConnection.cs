@@ -56,7 +56,7 @@ namespace Xtensive.Sql
     {
       get => connectionInfo;
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
         EnsureIsNotDisposed();
 
         UnderlyingConnection.ConnectionString = Driver.GetConnectionString(value);

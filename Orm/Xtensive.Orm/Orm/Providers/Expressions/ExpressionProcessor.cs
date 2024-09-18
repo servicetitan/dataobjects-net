@@ -478,9 +478,9 @@ namespace Xtensive.Orm.Providers
     public ExpressionProcessor(
       LambdaExpression lambda, HandlerAccessor handlers, SqlCompiler compiler, params IReadOnlyList<SqlExpression>[] sourceColumns)
     {
-      ArgumentValidator.EnsureArgumentNotNull(lambda, "lambda");
-      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(sourceColumns, "sourceColumns");
+      ArgumentNullException.ThrowIfNull(lambda);
+      ArgumentNullException.ThrowIfNull(handlers);
+      ArgumentNullException.ThrowIfNull(sourceColumns);
 
       this.compiler = compiler; // This might be null, check before use!
       this.lambda = lambda;
