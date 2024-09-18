@@ -170,7 +170,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => sectionName;
       set {
-        ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
+        ArgumentException.ThrowIfNullOrEmpty(value);
         if (sectionNameIsDefined) {
           throw Exceptions.AlreadyInitialized(nameof(SectionName));
         }

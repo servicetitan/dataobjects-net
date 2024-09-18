@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Rse
     /// <returns>Aliased collection of columns.</returns>
     public ColumnCollection Alias(string alias)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(alias, "alias");
+      ArgumentException.ThrowIfNullOrEmpty(alias);
       return new ColumnCollection(this.Select(column => column.Clone(alias + "." + column.Name)).ToArray(Count));
     }
 

@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Validation
     public ValidationResult(IValidator source, string errorMessage, FieldInfo field = null, object value = null)
     {
       ArgumentNullException.ThrowIfNull(source);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(errorMessage, "errorMessage");
+      ArgumentException.ThrowIfNullOrEmpty(errorMessage);
 
       isError = true;
 

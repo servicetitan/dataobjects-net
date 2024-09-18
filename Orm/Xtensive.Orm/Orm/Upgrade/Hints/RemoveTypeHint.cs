@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="typeName">Full name of type.</param>
     public RemoveTypeHint(string typeName)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, nameof(typeName));
+      ArgumentException.ThrowIfNullOrEmpty(typeName);
       Type = typeName;
       AffectedTables = Array.Empty<string>();
     }

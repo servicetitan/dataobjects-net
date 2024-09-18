@@ -305,7 +305,7 @@ namespace Xtensive.Orm.Configuration
     /// <param name="name">Value for <see cref="Name"/>.</param>
     public SessionConfiguration(string name, SessionOptions sessionOptions)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
 
       Name = name;
       Options = sessionOptions;

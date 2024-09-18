@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Configuration
 
     private void EnsureItemIsValid(SessionConfiguration item)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(item.Name, "SessionConfiguration.Name");
+      ArgumentException.ThrowIfNullOrEmpty(item.Name, "SessionConfiguration.Name");
       var current = this[item.Name];
       if (current != null)
         throw new InvalidOperationException(string.Format(Strings.ExConfigurationWithXNameAlreadyRegistered, current.Name));

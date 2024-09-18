@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Providers
     {
       ArgumentNullException.ThrowIfNull(mapping);
       ArgumentNullException.ThrowIfNull(closureObject);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, "fieldName");
+      ArgumentException.ThrowIfNullOrEmpty(fieldName);
 
       Mapping = mapping;
       ClosureObject = closureObject;

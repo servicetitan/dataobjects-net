@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Rse.Providers
       : base (ProviderType.Store)
     {
       ArgumentNullException.ThrowIfNull(header);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
 
       Name = name;
 
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Rse.Providers
       : base(ProviderType.Store, source)
     {
       ArgumentNullException.ThrowIfNull(source);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
 
       Name = name;
       Source = source;

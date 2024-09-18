@@ -352,7 +352,7 @@ namespace Xtensive.Reflection
       where TDelegate : class
     {
       ArgumentNullException.ThrowIfNull(type);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(methodName, "methodName");
+      ArgumentException.ThrowIfNullOrEmpty(methodName);
       ArgumentNullException.ThrowIfNull(genericArgumentTypes);
       Type delegateType = typeof (TDelegate);
       if (!WellKnownTypes.Delegate.IsAssignableFrom(delegateType))
@@ -399,7 +399,7 @@ namespace Xtensive.Reflection
       where TDelegate : class
     {
       ArgumentNullException.ThrowIfNull(type);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(methodName, "methodName");
+      ArgumentException.ThrowIfNullOrEmpty(methodName);
       ArgumentNullException.ThrowIfNull(genericArgumentVariants);
       Type delegateType = typeof (TDelegate);
       if (!WellKnownTypes.Delegate.IsAssignableFrom(delegateType))

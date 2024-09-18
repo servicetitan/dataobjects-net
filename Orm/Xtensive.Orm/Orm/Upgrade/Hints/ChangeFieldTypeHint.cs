@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Upgrade
     public ChangeFieldTypeHint(Type type, string fieldName)
     {
       ArgumentNullException.ThrowIfNull(type);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, nameof(fieldName));
+      ArgumentException.ThrowIfNullOrEmpty(fieldName);
 
       Type = type;
       FieldName = fieldName;

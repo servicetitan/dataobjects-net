@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Upgrade
     public RenameTypeHint(string oldType, Type newType)
     {
       ArgumentNullException.ThrowIfNull(newType);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(oldType, nameof(oldType));
+      ArgumentException.ThrowIfNullOrEmpty(oldType);
 
       if (!oldType.Contains(".", StringComparison.Ordinal))
         oldType = newType.Namespace + "." + oldType;

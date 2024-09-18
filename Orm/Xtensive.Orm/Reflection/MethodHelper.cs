@@ -45,7 +45,7 @@ namespace Xtensive.Reflection
     public static MethodInfo GetMethodEx(this Type type, string name, BindingFlags bindingFlags, string[] genericArgumentNames, object[] parameterTypes)
     {
       ArgumentNullException.ThrowIfNull(type);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
 
       if (genericArgumentNames == null) {
         genericArgumentNames = Array.Empty<string>();

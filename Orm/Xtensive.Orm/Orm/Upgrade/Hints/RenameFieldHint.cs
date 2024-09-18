@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Upgrade
     public RenameFieldHint(Type targetType, string oldFieldName, string newFieldName)
     {
       ArgumentNullException.ThrowIfNull(targetType);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(oldFieldName, "oldFieldName");
+      ArgumentException.ThrowIfNullOrEmpty(oldFieldName);
       ArgumentNullException.ThrowIfNull(newFieldName);
 
       TargetType = targetType;
