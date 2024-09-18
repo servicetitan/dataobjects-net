@@ -27,12 +27,8 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
       public override bool Equals(object obj) => obj is CompilerKey other && Equals(other);
 
-      public override int GetHashCode()
-      {
-        unchecked {
-          return module == null ? metadataToken : (module.GetHashCode() * 397) ^ metadataToken;
-        }
-      }
+      public override int GetHashCode() =>
+          module == null ? metadataToken : HashCode.Combine(module, metadataToken);
 
       public CompilerKey(MemberInfo memberInfo)
       {

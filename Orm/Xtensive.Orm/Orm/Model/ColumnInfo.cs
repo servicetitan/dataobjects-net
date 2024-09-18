@@ -236,10 +236,7 @@ namespace Xtensive.Orm.Model
       || obj is ColumnInfo other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return field.GetHashCode();
-    }
+    public override int GetHashCode() => field.GetHashCode();
 
     #endregion
 

@@ -333,12 +333,7 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      int result = keys.GetHashCode();
-      result = 29*result + flags.GetHashCode();
-      return result;
-    }
+    public override int GetHashCode() => HashCode.Combine(keys, flags);
 
     #endregion
 

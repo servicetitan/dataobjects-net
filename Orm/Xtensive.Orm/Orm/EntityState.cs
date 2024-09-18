@@ -304,10 +304,7 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return Key.GetHashCode();
-    }
+    public override int GetHashCode() => Key.GetHashCode();
 
     /// <inheritdoc/>
     public bool Equals(EntityState other)

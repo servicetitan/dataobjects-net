@@ -45,15 +45,7 @@ namespace Xtensive.Orm
     #region GetHashCode, Equals, ==, !=
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = (Provider!=null ? Provider.GetHashCode() : 0);
-        result = (result * 397) ^ (ConnectionString!=null ? ConnectionString.GetHashCode() : 0);
-        result = (result * 397) ^ (ConnectionUrl!=null ? ConnectionUrl.GetHashCode() : 0);
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(Provider, ConnectionString, ConnectionUrl);
 
     /// <inheritdoc/>
     public override bool Equals(object obj)

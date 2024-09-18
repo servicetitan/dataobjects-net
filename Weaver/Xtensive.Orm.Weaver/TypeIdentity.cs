@@ -37,14 +37,9 @@ namespace Xtensive.Orm.Weaver
         && WeavingHelper.TypeNameComparer.Equals(TypeName, other.TypeName);
     }
 
-    public override int GetHashCode()
-    {
-      unchecked {
-        var typeNameHash = TypeName!=null ? WeavingHelper.TypeNameComparer.GetHashCode(TypeName) : 0;
-        var assemblyNameHash = AssemblyName!=null ? WeavingHelper.AssemblyNameComparer.GetHashCode(AssemblyName) : 0;
-        return assemblyNameHash * 397 ^ typeNameHash;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(
+      TypeName != null ? WeavingHelper.TypeNameComparer.GetHashCode(TypeName) : 0,
+      AssemblyName != null ? WeavingHelper.AssemblyNameComparer.GetHashCode(AssemblyName) : 0);
 
     public static bool operator ==(TypeIdentity left, TypeIdentity right)
     {

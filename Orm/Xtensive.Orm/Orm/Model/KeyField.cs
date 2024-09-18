@@ -22,10 +22,7 @@ namespace Xtensive.Orm.Model
     public Direction Direction { get; private set; }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return Name.GetHashCode() ^ Direction.GetHashCode();
-    }
+    public override int GetHashCode() => HashCode.Combine(Name, Direction);
 
     /// <inheritdoc/>
     public override bool Equals(object obj) =>

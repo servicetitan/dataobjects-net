@@ -69,15 +69,7 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = (type!=null ? type.GetHashCode() : 0);
-        result = (result * 397) ^ (assembly!=null ? assembly.GetHashCode() : 0);
-        result = (result * 397) ^ (@namespace!=null ? @namespace.GetHashCode() : 0);
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(type, assembly, @namespace);
 
     /// <inheritdoc/>
     public static bool operator ==(TypeRegistration left, TypeRegistration right)

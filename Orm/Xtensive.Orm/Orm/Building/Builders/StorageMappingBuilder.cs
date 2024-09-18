@@ -31,12 +31,7 @@ namespace Xtensive.Orm.Building.Builders
       public override bool Equals(object obj) =>
         obj is MappingRequest other && Equals(other);
 
-      public override int GetHashCode()
-      {
-        unchecked {
-          return (Assembly.GetHashCode() * 397) ^ Namespace.GetHashCode();
-        }
-      }
+      public override int GetHashCode() => HashCode.Combine(Assembly, Namespace);
 
       public static bool operator ==(MappingRequest left, MappingRequest right)
       {

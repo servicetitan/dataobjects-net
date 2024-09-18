@@ -36,10 +36,7 @@ namespace Xtensive.Orm.Upgrade.Model
       return Equals((PartialIndexFilterInfo)obj);
     }
 
-    public override int GetHashCode()
-    {
-      return Expression.GetHashCode();
-    }
+    public override int GetHashCode() => Expression.GetHashCode();
 
     #endregion
 

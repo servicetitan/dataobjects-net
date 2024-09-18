@@ -404,10 +404,7 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return (url!=null ? url.GetHashCode() : 0);
-    }
+    public override int GetHashCode() => url?.GetHashCode() ?? 0;
 
     /// <summary>
     /// Checks specified objects for equality.

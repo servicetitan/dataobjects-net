@@ -27,10 +27,7 @@ namespace Xtensive.Orm.Upgrade
         || obj is UpgradeHint other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return base.GetHashCode();
-    }
+    public override int GetHashCode() => base.GetHashCode();
 
 
     // Constructors

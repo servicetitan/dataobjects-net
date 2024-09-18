@@ -23,7 +23,7 @@ namespace Xtensive.Comparison
   {
     private readonly ComparisonRule    value;
     private readonly ComparisonRules[] composite;
-    private volatile int cachedHashCode;
+    private long cachedHashCode;
 
     /// <summary>
     /// Predefined rules with <see cref="Direction"/> = <see cref="Direction.None"/>.
@@ -199,18 +199,20 @@ namespace Xtensive.Comparison
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      if (cachedHashCode==0) lock (composite) if (cachedHashCode==0) {
+      var h = Volatile.Read(ref cachedHashCode);
+      if (h == 0) {
         int tailIndex = TailIndex;
-        int result = value.GetHashCode();
-        if (tailIndex==0 && IsRecursive)
-          result ^= 29 * 22; // Hash affection by IsRecursive
+        HashCode hc = new();
+        hc.Add(value);
+        if (tailIndex == 0 && IsRecursive)
+          hc.Add(1); // Hash affection by IsRecursive
         else
-          result ^= 29 * composite[tailIndex].GetHashCode();
+          hc.Add(composite[tailIndex]);
         for (int i = 0; i < tailIndex; i++)
-          result ^= (composite[i].GetHashCode() << i);
-        cachedHashCode = result;
+          hc.Add(composite[i]);
+        Volatile.Write(ref cachedHashCode, (long)hc.ToHashCode() | (1L << 63)); // Set the highest bit as HasValue flag even when `hashCode == 0`
       }
-      return cachedHashCode;
+      return (int) h;
     }
 
     #endregion

@@ -68,10 +68,7 @@ namespace Xtensive.Tuples.Transform
     }
 
     /// <inheritdoc/>
-    public sealed override int GetHashCode()
-    {
-      return origin.GetHashCode();
-    }
+    public sealed override int GetHashCode() => origin.GetHashCode();
 
 
     // Constructors
