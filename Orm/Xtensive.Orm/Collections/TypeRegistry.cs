@@ -106,7 +106,7 @@ namespace Xtensive.Collections
     /// <param name="action">The type registration to register.</param>
     /// <returns><see langword="true" /> if specified registration was successfully added;
     /// otherwise, <see langword="false" />.</returns>
-    public bool Register(TypeRegistration action)
+    public bool Register(in TypeRegistration action)
     {
       EnsureNotLocked();
       ArgumentNullException.ThrowIfNull(action);

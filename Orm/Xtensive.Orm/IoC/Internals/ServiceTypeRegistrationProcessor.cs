@@ -14,7 +14,7 @@ namespace Xtensive.IoC
   {
     public override Type BaseType => WellKnownTypes.Object;
 
-    protected override bool IsAcceptable(TypeRegistration registration, Type type)
+    protected override bool IsAcceptable(in TypeRegistration registration, Type type)
     {
       return true;
     }
