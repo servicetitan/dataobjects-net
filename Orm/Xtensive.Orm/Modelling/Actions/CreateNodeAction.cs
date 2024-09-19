@@ -43,7 +43,7 @@ namespace Xtensive.Modelling.Actions
     public string Name {
       get { return name; }
       set {
-        ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
+        ArgumentException.ThrowIfNullOrEmpty(value);
         EnsureNotLocked();
         name = value;
       }

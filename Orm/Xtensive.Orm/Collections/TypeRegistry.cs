@@ -96,7 +96,7 @@ namespace Xtensive.Collections
     {
       EnsureNotLocked();
       ArgumentNullException.ThrowIfNull(assembly);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(@namespace, "@namespace");
+      ArgumentException.ThrowIfNullOrEmpty(@namespace);
       Register(new TypeRegistration(assembly, @namespace));
     }
 

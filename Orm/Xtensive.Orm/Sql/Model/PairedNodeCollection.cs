@@ -87,7 +87,7 @@ namespace Xtensive.Sql.Model
       : base(capacity)
     {
       ArgumentNullException.ThrowIfNull(owner);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(property, "property");
+      ArgumentException.ThrowIfNullOrEmpty(property);
       this.owner = owner;
       this.property = property;
     }
@@ -103,7 +103,7 @@ namespace Xtensive.Sql.Model
       : base(capacity, equalityComparer)
     {
       ArgumentNullException.ThrowIfNull(owner);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(property, nameof(property));
+      ArgumentException.ThrowIfNullOrEmpty(property);
       ArgumentNullException.ThrowIfNull(equalityComparer);
 
       this.owner = owner;

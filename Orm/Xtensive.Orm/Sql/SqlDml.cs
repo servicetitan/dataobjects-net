@@ -1429,7 +1429,7 @@ namespace Xtensive.Sql
 
     public static SqlNative Native(string value)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
+      ArgumentException.ThrowIfNullOrEmpty(value);
       return new SqlNative(value);
     }
 
@@ -1452,7 +1452,7 @@ namespace Xtensive.Sql
 
     public static SqlCursor Cursor(string name, ISqlQueryExpression query)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       return new SqlCursor(name, query);
     }
 
@@ -1464,7 +1464,7 @@ namespace Xtensive.Sql
 
     public static SqlParameterRef ParameterRef(string name)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       return new SqlParameterRef(name);
     }
 
@@ -1962,7 +1962,7 @@ namespace Xtensive.Sql
     public static SqlTableColumn TableColumn(SqlTable sqlTable, string name)
     {
       ArgumentNullException.ThrowIfNull(sqlTable, "table");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       return new SqlTableColumn(sqlTable, name);
     }
 
@@ -2069,14 +2069,14 @@ namespace Xtensive.Sql
     public static SqlTableRef TableRef(DataTable dataTable, string name)
     {
       ArgumentNullException.ThrowIfNull(dataTable);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       return new SqlTableRef(dataTable, name);
     }
 
     public static SqlTableRef TableRef(DataTable dataTable, string name, IEnumerable<string> columnNames)
     {
       ArgumentNullException.ThrowIfNull(dataTable);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       ArgumentNullException.ThrowIfNull(columnNames);
       return new SqlTableRef(dataTable, name, columnNames.ToArray());
     }
@@ -2090,7 +2090,7 @@ namespace Xtensive.Sql
     public static SqlQueryRef QueryRef(ISqlQueryExpression query, string alias)
     {
       ArgumentNullException.ThrowIfNull(query);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(alias, "alias");
+      ArgumentException.ThrowIfNullOrEmpty(alias);
       return new SqlQueryRef(query, alias);
     }
 
@@ -2172,25 +2172,25 @@ namespace Xtensive.Sql
 
     public static SqlVariable Variable(string name, SqlValueType type)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       return new SqlVariable(name, type);
     }
 
     public static SqlVariable Variable(string name, SqlType type)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       return new SqlVariable(name, new SqlValueType(type));
     }
 
     public static SqlVariable Variable(string name, SqlType type, int size)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       return new SqlVariable(name, new SqlValueType(type, size));
     }
 
     public static SqlVariable Variable(string name, SqlType type, short precision, short scale)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       return new SqlVariable(name, new SqlValueType(type, precision, scale));
     }
 
@@ -2228,7 +2228,7 @@ namespace Xtensive.Sql
 
     public static SqlNativeHint NativeHint(string hintText)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(hintText, "hintText");
+      ArgumentException.ThrowIfNullOrEmpty(hintText);
       return new SqlNativeHint(hintText);
     }
 

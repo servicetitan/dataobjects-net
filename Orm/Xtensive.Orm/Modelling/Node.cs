@@ -428,7 +428,7 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">newName!=newIndex for <see cref="IUnnamedNode"/>.</exception>
     protected virtual void ValidateMove(Node newParent, string newName, int newIndex)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(newName, nameof(newName));
+      ArgumentException.ThrowIfNullOrEmpty(newName);
       if (this is IModel) {
         ArgumentValidator.EnsureArgumentIsInRange(newIndex, 0, 0, nameof(newIndex));
         return;
@@ -1012,7 +1012,7 @@ namespace Xtensive.Modelling
       }
 
       if (!(this is IUnnamedNode)) {
-        ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, nameof(name));
+        ArgumentException.ThrowIfNullOrEmpty(name);
       }
 
       Initialize();

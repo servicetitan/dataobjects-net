@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Rse.Providers
       : base(ProviderType.Include, source)
     {
       ArgumentNullException.ThrowIfNull(filterDataSource);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(resultColumnName, "resultColumnName");
+      ArgumentException.ThrowIfNullOrEmpty(resultColumnName);
       ArgumentNullException.ThrowIfNull(filteredColumns);
       Algorithm = algorithm;
       IsInlined = isInlined;

@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Configuration
     /// <returns>Loaded configuration.</returns>
     public static LoggingConfiguration Load(string sectionName)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, "sectionName");
+      ArgumentException.ThrowIfNullOrEmpty(sectionName);
 
       var section = (ConfigurationSection)ConfigurationManager.GetSection(sectionName);
       if (section==null)
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Configuration
     public static LoggingConfiguration Load(System.Configuration.Configuration configuration, string sectionName)
     {
       ArgumentNullException.ThrowIfNull(configuration);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, "sectionName");
+      ArgumentException.ThrowIfNullOrEmpty(sectionName);
 
       var section = (ConfigurationSection) configuration.GetSection(sectionName);
       if (section==null)

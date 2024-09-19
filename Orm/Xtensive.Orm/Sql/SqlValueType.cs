@@ -220,7 +220,7 @@ namespace Xtensive.Sql
       if (precision.HasValue!=scale.HasValue)
         throw new ArgumentException(Strings.ExInvalidArgumentsScaleAndPrecisionShouldBeUsedTogether);
       if (typeName!=null)
-        ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, "typeName");
+        ArgumentException.ThrowIfNullOrEmpty(typeName);
       if (length!=null)
         ArgumentValidator.EnsureArgumentIsGreaterThan(length.Value, 0, "length");
       if (precision!=null)

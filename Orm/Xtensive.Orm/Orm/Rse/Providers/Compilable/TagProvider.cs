@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Rse.Providers
     public TagProvider(CompilableProvider source, string tag)
       : base(ProviderType.Tag, source)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmptyOrWhiteSpace(tag, "tag");
+      ArgumentException.ThrowIfNullOrWhiteSpace(tag);
       Tag = tag;
       Initialize();
     }

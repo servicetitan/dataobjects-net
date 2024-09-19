@@ -93,8 +93,8 @@ namespace Xtensive.Orm
     /// <param name="connectionString">A value for <see cref="ConnectionString"/>.</param>
     public ConnectionInfo(string provider, string connectionString)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(provider, "provider");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(connectionString, "connectionString");
+      ArgumentException.ThrowIfNullOrEmpty(provider);
+      ArgumentException.ThrowIfNullOrEmpty(connectionString);
 
       ConnectionString = connectionString;
       Provider = provider.ToLowerInvariant();

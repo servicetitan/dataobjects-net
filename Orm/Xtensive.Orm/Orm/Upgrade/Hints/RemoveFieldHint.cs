@@ -70,8 +70,8 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="fieldName">Removing field name.</param>
     public RemoveFieldHint(string typeName, string fieldName)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, nameof(typeName));
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, nameof(fieldName));
+      ArgumentException.ThrowIfNullOrEmpty(typeName);
+      ArgumentException.ThrowIfNullOrEmpty(fieldName);
       Type = typeName;
       Field = fieldName;
       AffectedColumns = Array.Empty<string>();
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Upgrade
     public RemoveFieldHint(Type type, string fieldName)
     {
       ArgumentNullException.ThrowIfNull(type);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, nameof(fieldName));
+      ArgumentException.ThrowIfNullOrEmpty(fieldName);
 
       Type = type.FullName;
       Field = fieldName;
