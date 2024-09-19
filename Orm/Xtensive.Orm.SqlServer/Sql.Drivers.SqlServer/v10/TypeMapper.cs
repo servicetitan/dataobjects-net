@@ -39,7 +39,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     {
       var sqlParameter = (SqlParameter) parameter;
       sqlParameter.SqlDbType = SqlDbType.Structured;
-      sqlParameter.Value = new SqlDataRecordList((List<Tuple>) value, sqlDbType) switch { var o => o.Count == 0 ? null : o };
+      sqlParameter.Value = new SqlDataRecordList((List<Tuple>) value, sqlDbType) switch { var o => o.IsEmpty ? null : o };
       sqlParameter.TypeName = sqlDbType == SqlDbType.BigInt ? LongListTypeName : StringListTypeName;
     }
 

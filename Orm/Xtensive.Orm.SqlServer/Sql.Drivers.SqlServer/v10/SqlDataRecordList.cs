@@ -1,46 +1,62 @@
-using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Data;
-using System.Linq;
 using Microsoft.Data.SqlClient.Server;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v10;
 
-public class SqlDataRecordList : List<SqlDataRecord>
+public class SqlDataRecordList(IReadOnlyList<Tuple> tuples, SqlDbType sqlDbType) : IEnumerable<SqlDataRecord>
 {
+  public bool IsEmpty { get; } = !tuples.Any(t => t.GetValueOrDefault(0) != null);
+
   public override string ToString() =>
     $"[{string.Join(", ", this.Select(o => o.GetValue(0) switch {
       string s => $"\"{s}\"",
       var ns => ns.ToString()
     }))}]";
 
-  public SqlDataRecordList(IReadOnlyList<Tuple> tuples, SqlDbType sqlDbType)
-    : base(tuples.Count)
+  IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+  public IEnumerator<SqlDataRecord> GetEnumerator()
   {
-    SqlMetaData[] metaDatas = null;
-    HashSet<object> added = new();
-    foreach (var valueObj in tuples.Select(t => t.GetValueOrDefault(0)).Where(o => o != null)) {
-      metaDatas ??= [
-        sqlDbType == SqlDbType.BigInt
-          ? new SqlMetaData("Value", sqlDbType)
-          : new SqlMetaData("Value", sqlDbType, tuples.Max(t => (t.GetValueOrDefault(0) as string)?.Length ?? 20))
-      ];
-      var castValue = valueObj switch {
-        byte n => (long) n,
-        short n => (long) n,
-        ushort n => (long) n,
-        int n => (long) n,
-        uint n => (long) n,
-        decimal d => (long) d,
-        Enum e => Convert.ToInt64(e),
-        var o => o
-      };
-      if (added.Add(castValue)) {
-        SqlDataRecord record = new(metaDatas);
-        record.SetValue(0, castValue);
-        Add(record);
-      }
+    if (IsEmpty) {
+      yield break;
+    }
+    switch (sqlDbType) {
+      case SqlDbType.BigInt: {
+        SqlMetaData[] metaData = [new("Value", sqlDbType)];
+        SqlDataRecord record = new(metaData);
+        HashSet<long> added = new();
+        foreach (var valueObj in tuples.Select(t => t.GetValueOrDefault(0)).Where(o => o != null)) {
+          long castValue = valueObj switch {
+            byte n => n,
+            short n => n,
+            ushort n => n,
+            int n => n,
+            uint n => n,
+            long n => n,
+            decimal d => (long) d,
+            Enum e => Convert.ToInt64(e),
+            _ => throw new NotSupportedException($"type {valueObj.GetType()} is not supported")
+          };
+          if (added.Add(castValue)) {
+            record.SetSqlInt64(0, castValue);
+            yield return record;
+          }
+        }
+      } break;
+      case SqlDbType.NVarChar: {
+        SqlMetaData[] metaData = [new("Value", sqlDbType, tuples.Max(t => (t.GetValueOrDefault(0) as string)?.Length ?? 20))];
+        SqlDataRecord record = new(metaData);
+        HashSet<string> added = new();
+        foreach (var valueObj in tuples.Select(t => t.GetValueOrDefault(0)).Where(o => o != null)) {
+          string castValue = (string) valueObj;
+          if (added.Add(castValue)) {
+            record.SetSqlString(0, castValue);
+            yield return record;
+          }
+        }
+      } break;
     }
   }
 }
