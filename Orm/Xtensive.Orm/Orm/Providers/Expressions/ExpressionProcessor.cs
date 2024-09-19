@@ -37,8 +37,7 @@ namespace Xtensive.Orm.Providers
     private readonly Dictionary<ParameterExpression, IReadOnlyList<SqlExpression>> sourceMapping;
     private readonly SqlCompiler compiler;
 
-    private readonly Dictionary<QueryParameterIdentity, QueryParameterBinding> bindingsWithIdentity
-      = new Dictionary<QueryParameterIdentity, QueryParameterBinding>();
+    private readonly Dictionary<QueryParameterIdentity, QueryParameterBinding> bindingsWithIdentity = new();
     private readonly List<QueryParameterBinding> otherBindings = new List<QueryParameterBinding>();
 
     private readonly bool fixBooleanExpressions;

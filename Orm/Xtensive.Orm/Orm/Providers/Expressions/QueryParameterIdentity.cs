@@ -10,43 +10,28 @@ using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
 {
-  internal sealed class QueryParameterIdentity : IEquatable<QueryParameterIdentity>
+  internal readonly struct QueryParameterIdentity : IEquatable<QueryParameterIdentity>
   {
-    public TypeMapping Mapping { get; private set; }
+    public TypeMapping Mapping { get; }
 
-    public object ClosureObject { get; private set; }
+    public object ClosureObject { get; }
 
-    public string FieldName { get; private set; }
+    public string FieldName { get; }
 
-    public QueryParameterBindingType BindingType { get; private set; }
+    public QueryParameterBindingType BindingType { get; }
 
-    public bool Equals(QueryParameterIdentity other)
-    {
-      if (other is null)
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return string.Equals(FieldName, other.FieldName)
+    public bool Equals(QueryParameterIdentity other) =>
+      string.Equals(FieldName, other.FieldName)
         && ClosureObject.Equals(other.ClosureObject)
-        && BindingType==other.BindingType
+        && BindingType == other.BindingType
         && Mapping.Equals(other.Mapping);
-    }
 
     public override int GetHashCode() => HashCode.Combine(FieldName, ClosureObject, BindingType, Mapping);
 
-    public static bool operator ==(QueryParameterIdentity left, QueryParameterIdentity right)
-    {
-      return Equals(left, right);
-    }
+    public static bool operator ==(in QueryParameterIdentity left, in QueryParameterIdentity right) => left.Equals(right);
+    public static bool operator !=(in QueryParameterIdentity left, in QueryParameterIdentity right) => !left.Equals(right);
 
-    public static bool operator !=(QueryParameterIdentity left, QueryParameterIdentity right)
-    {
-      return !Equals(left, right);
-    }
-
-    public override bool Equals(object obj) =>
-      ReferenceEquals(this, obj)
-        || obj is QueryParameterIdentity other && Equals(other);
+    public override bool Equals(object obj) => obj is QueryParameterIdentity other && Equals(other);
 
     // Constructors
 
