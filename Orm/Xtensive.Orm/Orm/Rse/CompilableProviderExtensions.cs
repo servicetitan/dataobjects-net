@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Rse
 
     public static CompilableProvider Alias(this CompilableProvider source, string alias)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(alias, "alias");
+      ArgumentException.ThrowIfNullOrEmpty(alias);
       return new AliasProvider(source, alias);
     }
 

@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <returns></returns>
     public FieldDef DefineField(string name, Type valueType)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, nameof(name));
+      ArgumentException.ThrowIfNullOrEmpty(name);
       ArgumentNullException.ThrowIfNull(valueType);
 
       var field = builder.DefineField(UnderlyingType, name, valueType);

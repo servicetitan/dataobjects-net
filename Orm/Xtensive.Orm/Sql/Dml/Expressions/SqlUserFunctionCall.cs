@@ -32,14 +32,14 @@ namespace Xtensive.Sql.Dml
     internal SqlUserFunctionCall(string name, IReadOnlyList<SqlExpression> arguments)
       : base(SqlFunctionType.UserDefined, arguments)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       Name = name;
     }
 
     internal SqlUserFunctionCall(string name, params SqlExpression[] arguments)
       : base(SqlFunctionType.UserDefined, arguments)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       Name = name;
     }
 

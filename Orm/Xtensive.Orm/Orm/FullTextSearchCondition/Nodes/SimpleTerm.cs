@@ -30,7 +30,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
     internal SimpleTerm(IOperator source, string term)
       : base(SearchConditionNodeType.SimpleTerm, source)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmptyOrWhiteSpace(term, "term");
+      ArgumentException.ThrowIfNullOrWhiteSpace(term);
       Term = term;
     }
   }

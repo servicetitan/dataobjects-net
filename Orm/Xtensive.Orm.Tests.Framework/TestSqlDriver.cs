@@ -24,14 +24,14 @@ namespace Xtensive.Orm.Tests
 
     public static SqlDriver Create(string connectionUrl)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(connectionUrl, "connectionUrl");
+      ArgumentException.ThrowIfNullOrEmpty(connectionUrl);
       return BuildDriver(new ConnectionInfo(connectionUrl));
     }
 
     public static SqlDriver Create(string provider, string connectionString)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(provider, "provider");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(connectionString, "connectionString");
+      ArgumentException.ThrowIfNullOrEmpty(provider);
+      ArgumentException.ThrowIfNullOrEmpty(connectionString);
       return BuildDriver(new ConnectionInfo(provider, connectionString));
     }
 

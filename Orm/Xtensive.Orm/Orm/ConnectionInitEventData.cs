@@ -20,7 +20,7 @@ namespace Xtensive.Orm
     public ConnectionInitEventData(string initializationScript, DbConnection connection, bool reconnect = false)
       : base(connection, reconnect)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(initializationScript, nameof(initializationScript));
+      ArgumentException.ThrowIfNullOrEmpty(initializationScript);
       InitializationScript = initializationScript;
     }
   }

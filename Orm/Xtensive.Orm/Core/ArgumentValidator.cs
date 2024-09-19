@@ -38,43 +38,6 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Ensures argument (<paramref name="value"/>) is not
-    /// <see langoword="null"/> or <see cref="string.Empty"/> string.
-    /// </summary>
-    /// <param name="value">Value to check.</param>
-    /// <param name="parameterName">Name of the method parameter.</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#if NET7_0_OR_GREATER
-    [Obsolete("Use ArgumentException.ThrowIfNullOrEmpty()")]
-#endif
-    internal static void EnsureArgumentNotNullOrEmpty(string value, [InvokerParameterName] string parameterName)
-    {
-#if NET7_0_OR_GREATER
-      ArgumentException.ThrowIfNullOrEmpty(value, parameterName);
-#else
-      ArgumentNullException.ThrowIfNull(value, parameterName);
-      if (value.Length == 0) {
-        throw new ArgumentException(Strings.ExArgumentCannotBeEmptyString, parameterName);
-      }
-#endif
-    }
-
-    [Obsolete("Use CommunityToolkit.Diagnostics.Guard.IsNotNullOrWhiteSpace()")]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void EnsureArgumentNotNullOrEmptyOrWhiteSpace(string value, [InvokerParameterName] string parameterName)
-    {
-      ArgumentNullException.ThrowIfNull(value, parameterName);
-
-      if (value.Length==0) {
-        throw new ArgumentException(Strings.ExArgumentCannotBeEmptyString, parameterName);
-      }
-
-      if (value.Trim().Length==0) {
-        throw new ArgumentException(Strings.ExArgumentCannotBeWhiteSpacesOnlyString, parameterName);
-      }
-    }
-
-    /// <summary>
     /// Ensures argument (<paramref name="value"/>) is not <see langword="null"/>
     /// and of <typeparamref name="T"/> type.
     /// </summary>

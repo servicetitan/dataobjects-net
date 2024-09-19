@@ -365,7 +365,7 @@ namespace Xtensive.Sql
       DbConnection connection, DbTransaction transaction)
     {
       ArgumentNullException.ThrowIfNull(connection);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(queryText, nameof(queryText));
+      ArgumentException.ThrowIfNullOrEmpty(queryText);
 
       using var command = connection.CreateCommand();
       command.CommandText = queryText;
@@ -393,7 +393,7 @@ namespace Xtensive.Sql
       DbConnection connection, DbTransaction transaction, CancellationToken token)
     {
       ArgumentNullException.ThrowIfNull(connection);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(queryText, nameof(queryText));
+      ArgumentException.ThrowIfNullOrEmpty(queryText);
 
       var command = connection.CreateCommand();
       await using (command.ConfigureAwaitFalse()) {

@@ -38,8 +38,8 @@ namespace Xtensive.Orm.Configuration
     /// <param name="mappedName"></param>
     public void Add([NotNull] string originalName, [NotNull] string mappedName)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(originalName, "originalName");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(mappedName, "mappedName");
+      ArgumentException.ThrowIfNullOrEmpty(originalName);
+      ArgumentException.ThrowIfNullOrEmpty(mappedName);
       EnsureNotLocked();
       items[originalName] = mappedName;
     }
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Configuration
     /// <param name="originalName"></param>
     public bool Remove([NotNull] string originalName)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(originalName, "originalName");
+      ArgumentException.ThrowIfNullOrEmpty(originalName);
       EnsureNotLocked();
       return items.Remove(originalName);
     }
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Configuration
     /// <param name="name">Mapped name for <paramref name="name"/>.</param>
     public string Apply([NotNull] string name)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       string result;
       if (items.TryGetValue(name, out result))
         return result;

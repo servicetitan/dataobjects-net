@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Logging
     /// <returns>Founded log or default.</returns>
     public BaseLog GetLog(string logName)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(logName, "logName");
+      ArgumentException.ThrowIfNullOrEmpty(logName);
 
       lock (syncObj) {
         if (provider==null)

@@ -302,7 +302,7 @@ namespace Xtensive.Sql
     public static SqlRenameTable Rename(Table table, string newName)
     {
       ArgumentNullException.ThrowIfNull(table);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(newName, "newName");
+      ArgumentException.ThrowIfNullOrEmpty(newName);
       if (table.Name==newName)
         throw new ArgumentException(Strings.ExTableAlreadyHasSpecifiedName);
       return new SqlRenameTable(table, newName);
@@ -311,7 +311,7 @@ namespace Xtensive.Sql
     public static SqlAlterTable Rename(TableColumn column, string newName)
     {
       ArgumentNullException.ThrowIfNull(column, "table");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(newName, "newName");
+      ArgumentException.ThrowIfNullOrEmpty(newName);
       if (column.Name==newName)
         throw new ArgumentException(Strings.ExColumnAlreadyHasSpecifiedName);
       return Alter(column.Table, new SqlRenameColumn(column, newName));

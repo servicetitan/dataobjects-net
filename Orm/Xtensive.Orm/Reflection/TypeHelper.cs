@@ -427,7 +427,7 @@ namespace Xtensive.Reflection
     /// <returns><see cref="Type"/> object of newly created type.</returns>
     public static Type CreateDummyType(string namePrefix, Type inheritFrom, bool implementProtectedConstructorAccessor)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(namePrefix, nameof(namePrefix));
+      ArgumentException.ThrowIfNullOrEmpty(namePrefix);
       ArgumentNullException.ThrowIfNull(inheritFrom);
 
 
@@ -448,7 +448,7 @@ namespace Xtensive.Reflection
     public static Type CreateInheritedDummyType(string typeName, Type inheritFrom,
       bool implementProtectedConstructorAccessor)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, nameof(typeName));
+      ArgumentException.ThrowIfNullOrEmpty(typeName);
       ArgumentNullException.ThrowIfNull(inheritFrom);
       EnsureEmitInitialized();
       lock (EmitLock) {
@@ -556,7 +556,7 @@ namespace Xtensive.Reflection
       params object[] arguments)
     {
       ArgumentNullException.ThrowIfNull(assembly);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, nameof(typeName));
+      ArgumentException.ThrowIfNullOrEmpty(typeName);
       var type = assembly.GetType(typeName, false);
       return type == null ? null : Activate(type, genericArguments, arguments);
     }

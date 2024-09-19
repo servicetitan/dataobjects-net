@@ -30,7 +30,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
     internal PrefixTerm(IOperator source, string prefix)
       : base(SearchConditionNodeType.Prefix, source)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmptyOrWhiteSpace(prefix, "prefix");
+      ArgumentException.ThrowIfNullOrWhiteSpace(prefix);
       Prefix = prefix;
     }
   }

@@ -76,10 +76,10 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="targetFieldName">The target field name.</param>
     public MoveFieldHint(string sourceTypeName, string sourceFieldName, Type targetType, string targetFieldName)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourceTypeName, nameof(sourceTypeName));
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourceFieldName, nameof(sourceFieldName));
+      ArgumentException.ThrowIfNullOrEmpty(sourceTypeName);
+      ArgumentException.ThrowIfNullOrEmpty(sourceFieldName);
       ArgumentNullException.ThrowIfNull(targetType);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(targetFieldName, nameof(targetFieldName));
+      ArgumentException.ThrowIfNullOrEmpty(targetFieldName);
       SourceType = sourceTypeName;
       SourceField = sourceFieldName;
       TargetType = targetType;
@@ -107,9 +107,9 @@ namespace Xtensive.Orm.Upgrade
     public MoveFieldHint(Type sourceType, string sourceFieldName, Type targetType, string targetFieldName)
     {
       ArgumentNullException.ThrowIfNull(sourceType);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourceFieldName, nameof(sourceFieldName));
+      ArgumentException.ThrowIfNullOrEmpty(sourceFieldName);
       ArgumentNullException.ThrowIfNull(targetType);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(targetFieldName, nameof(targetFieldName));
+      ArgumentException.ThrowIfNullOrEmpty(targetFieldName);
 
       SourceType = sourceType.FullName;
       SourceField = sourceFieldName;

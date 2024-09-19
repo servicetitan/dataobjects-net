@@ -372,7 +372,7 @@ namespace Xtensive.Modelling
     protected NodeCollection(Node parent, string name)
     {
       ArgumentNullException.ThrowIfNull(parent);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       this.name = name;
       this.parent = parent;
       Initialize();
@@ -394,4 +394,3 @@ namespace Xtensive.Modelling
     }
   }
 }
-

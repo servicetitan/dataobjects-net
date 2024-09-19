@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Upgrade
 
     public AssemblyMetadata(string name, string version)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       Name = name;
       Version = version;
     }

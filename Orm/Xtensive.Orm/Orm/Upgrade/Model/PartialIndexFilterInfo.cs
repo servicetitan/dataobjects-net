@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     public PartialIndexFilterInfo(string expression)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(expression, "expression");
+      ArgumentException.ThrowIfNullOrEmpty(expression);
       Expression = expression;
     }
   }

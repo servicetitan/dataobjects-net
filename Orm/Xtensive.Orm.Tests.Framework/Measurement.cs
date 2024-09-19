@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Tests
       get { return name; }
       [DebuggerStepThrough]
       set {
-        ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
+        ArgumentException.ThrowIfNullOrEmpty(value);
         name = value;
         UpdateFullName();
       }
