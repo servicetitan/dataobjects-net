@@ -24,7 +24,8 @@ public class SqlDataRecordList(IReadOnlyList<Tuple> tuples, SqlDbType sqlDbType)
     }
     switch (sqlDbType) {
       case SqlDbType.BigInt: {
-        SqlMetaData[] metaDatas = [new("Value", sqlDbType)];
+        SqlMetaData[] metaData = [new("Value", sqlDbType)];
+        SqlDataRecord record = new(metaData);
         HashSet<long> added = new();
         foreach (var valueObj in tuples.Select(t => t.GetValueOrDefault(0)).Where(o => o != null)) {
           long castValue = valueObj switch {
@@ -39,19 +40,18 @@ public class SqlDataRecordList(IReadOnlyList<Tuple> tuples, SqlDbType sqlDbType)
             _ => throw new NotSupportedException($"type {valueObj.GetType()} is not supported")
           };
           if (added.Add(castValue)) {
-            SqlDataRecord record = new(metaDatas);
             record.SetSqlInt64(0, castValue);
             yield return record;
           }
         }
       } break;
       case SqlDbType.NVarChar: {
-        SqlMetaData[] metaDatas = [new("Value", sqlDbType, tuples.Max(t => (t.GetValueOrDefault(0) as string)?.Length ?? 20))];
+        SqlMetaData[] metaData = [new("Value", sqlDbType, tuples.Max(t => (t.GetValueOrDefault(0) as string)?.Length ?? 20))];
+        SqlDataRecord record = new(metaData);
         HashSet<string> added = new();
         foreach (var valueObj in tuples.Select(t => t.GetValueOrDefault(0)).Where(o => o != null)) {
           string castValue = (string) valueObj;
           if (added.Add(castValue)) {
-            SqlDataRecord record = new(metaDatas);
             record.SetSqlString(0, castValue);
             yield return record;
           }
