@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Linq
       public void Add(Type type)
       {
         count++;
-        types = types==null ? EnumerableUtils.One(type) : types.Concat(EnumerableUtils.One(type));
+        types = types==null ? [type] : types.Concat([type]);
       }
 
       public void AddRange(IReadOnlyCollection<Type> newTypes)

@@ -49,8 +49,8 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// </summary>
     protected DataHint(string sourceTablePath,  IReadOnlyList<IdentityPair> identities)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourceTablePath, "sourceTablePath");
-      ArgumentValidator.EnsureArgumentNotNull(identities, "pairs");
+      ArgumentException.ThrowIfNullOrEmpty(sourceTablePath);
+      ArgumentNullException.ThrowIfNull(identities, "pairs");
       
       SourceTablePath = sourceTablePath;
       Identities = identities.AsSafeWrapper();

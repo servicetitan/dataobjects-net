@@ -59,8 +59,8 @@ namespace Xtensive.Orm.Validation
     /// <param name="value">Validated value.</param>
     public ValidationResult(IValidator source, string errorMessage, FieldInfo field = null, object value = null)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(errorMessage, "errorMessage");
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentException.ThrowIfNullOrEmpty(errorMessage);
 
       isError = true;
 

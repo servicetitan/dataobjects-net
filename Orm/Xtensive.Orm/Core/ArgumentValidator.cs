@@ -23,27 +23,6 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="value">Value to compare with <see langword="null"/>.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#if NET6_0_OR_GREATER
-    [Obsolete("Use ArgumentNullException.ThrowIfNull()")]
-#endif
-    internal static void EnsureArgumentNotNull(object value, [InvokerParameterName] string parameterName)
-    {
-#if NET6_0_OR_GREATER
-      ArgumentNullException.ThrowIfNull(value, parameterName);
-#else      
-      if (value == null) {
-        throw new ArgumentNullException(parameterName);
-      }
-#endif
-    }
-
-    /// <summary>
-    /// Ensures argument (<paramref name="value"/>) is not
-    /// <see langoword="null"/>.
-    /// </summary>
-    /// <param name="value">Value to compare with <see langword="null"/>.</param>
-    /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The type of default value.</typeparam>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void EnsureArgumentIsNotDefault<T>(T value, [InvokerParameterName] string parameterName)
@@ -55,43 +34,6 @@ namespace Xtensive.Core
       }
       else if (AdvancedComparerStruct<T>.System.Equals(value, default)) {
         throw Exceptions.InvalidArgument(value, parameterName);
-      }
-    }
-
-    /// <summary>
-    /// Ensures argument (<paramref name="value"/>) is not
-    /// <see langoword="null"/> or <see cref="string.Empty"/> string.
-    /// </summary>
-    /// <param name="value">Value to check.</param>
-    /// <param name="parameterName">Name of the method parameter.</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#if NET7_0_OR_GREATER
-    [Obsolete("Use ArgumentException.ThrowIfNullOrEmpty()")]
-#endif
-    internal static void EnsureArgumentNotNullOrEmpty(string value, [InvokerParameterName] string parameterName)
-    {
-#if NET7_0_OR_GREATER
-      ArgumentException.ThrowIfNullOrEmpty(value, parameterName);
-#else
-      ArgumentNullException.ThrowIfNull(value, parameterName);
-      if (value.Length == 0) {
-        throw new ArgumentException(Strings.ExArgumentCannotBeEmptyString, parameterName);
-      }
-#endif
-    }
-
-    [Obsolete("Use CommunityToolkit.Diagnostics.Guard.IsNotNullOrWhiteSpace()")]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void EnsureArgumentNotNullOrEmptyOrWhiteSpace(string value, [InvokerParameterName] string parameterName)
-    {
-      ArgumentNullException.ThrowIfNull(value, parameterName);
-
-      if (value.Length==0) {
-        throw new ArgumentException(Strings.ExArgumentCannotBeEmptyString, parameterName);
-      }
-
-      if (value.Trim().Length==0) {
-        throw new ArgumentException(Strings.ExArgumentCannotBeWhiteSpacesOnlyString, parameterName);
       }
     }
 
@@ -110,7 +52,7 @@ namespace Xtensive.Core
       if (value is T result) {
         return result;
       }
-      EnsureArgumentNotNull(value, parameterName);
+      ArgumentNullException.ThrowIfNull(value, parameterName);
       throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, typeof(T)), parameterName);
     }
 
@@ -124,7 +66,7 @@ namespace Xtensive.Core
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void EnsureArgumentIs(object value, Type type, [InvokerParameterName] string parameterName)
     {
-      EnsureArgumentNotNull(value, parameterName);
+      ArgumentNullException.ThrowIfNull(value, parameterName);
       if (!type.IsInstanceOfType(value)) {
         throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, type), parameterName);
       }

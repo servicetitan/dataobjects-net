@@ -481,7 +481,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       set {
         EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentNotNull(value, "Parent");
+        ArgumentNullException.ThrowIfNull(value, "Parent");
         parent = value;
         parent.Fields.Add(this);
         reflectedType = value.ReflectedType;
@@ -555,12 +555,9 @@ namespace Xtensive.Orm.Model
           return associations[0];
       }
 
-      var ordered = IsLocked
-        ? associations
-        : associations.Reorder();
-
-      return ordered.FirstOrDefault(
-        a => a.TargetType.UnderlyingType.IsAssignableFrom(targetType.UnderlyingType));
+      var ordered = IsLocked ? associations : associations.Reorder();
+      var targetTypeUnderlyingType = targetType.UnderlyingType;
+      return ordered.FirstOrDefault(a => a.TargetType.UnderlyingType.IsAssignableFrom(targetTypeUnderlyingType));
     }
 
     public IReadOnlyList<AssociationInfo> Associations => (IReadOnlyList<AssociationInfo>)associations ?? Array.Empty<AssociationInfo>();
@@ -655,8 +652,8 @@ namespace Xtensive.Orm.Model
         result.Add(Column);
       else
         if (!IsPrimitive)
-        foreach (var item in Fields.Where(f => f.Column != null).Select(f => f.Column))
-          result.Add(item);
+          foreach (var item in Fields.Where(f => f.Column != null).Select(f => f.Column))
+            result.Add(item);
     }
 
     /// <inheritdoc/>
@@ -665,8 +662,7 @@ namespace Xtensive.Orm.Model
       base.UpdateState();
 
       Fields.UpdateState();
-      if (column != null)
-        column.UpdateState();
+      column?.UpdateState();
       columns?.Clear();           // To prevent event handler leak
       columns = null;
 

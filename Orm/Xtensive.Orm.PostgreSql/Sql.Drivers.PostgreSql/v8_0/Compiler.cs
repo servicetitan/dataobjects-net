@@ -14,6 +14,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal class Compiler : SqlCompiler
   {
+    private static readonly SqlValueType
+      VarChar2Type = new(SqlType.VarChar, 2),
+      VarChar3Type = new(SqlType.VarChar, 3),
+      VarChar7Type = new(SqlType.VarChar, 7);
+
     private const string DateTimeIsoFormat = "YYYY-MM-DD\"T\"HH24:MI:SS";
     private const string DateFormat = "YYYY-MM-DD";
     private const string TimeFormat = "HH24:MI:SS.US0";
@@ -67,7 +72,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           }
         }
         else {
-          var row = SqlDml.Row(right.GetValues().Select(value => SqlDml.Literal(value)).ToArray());
+          var row = SqlDml.Row(right.GetValues().Select(SqlDml.Literal).ToArray());
           base.Visit(node.NodeType == SqlNodeType.In ? SqlDml.In(node.Left, row) : SqlDml.NotIn(node.Left, row));
         }
         return;
@@ -429,10 +434,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       // we cannot add hours, minutes and other parts to 00:00:00.000000 time
       // because hours might step over 24 hours and start counting from 0.
       // Starting from v10 new function is in use, which controlls overflow
-      var hourString = SqlDml.Cast(hour, new SqlValueType(SqlType.VarChar, 3));
-      var minuteString = SqlDml.Cast(minute, new SqlValueType(SqlType.VarChar, 2));
-      var secondString = SqlDml.Cast(second, new SqlValueType(SqlType.VarChar, 2));
-      var microsecondString = SqlDml.Cast(microsecond, new SqlValueType(SqlType.VarChar, 7));
+      var hourString = SqlDml.Cast(hour, VarChar3Type);
+      var minuteString = SqlDml.Cast(minute, VarChar2Type);
+      var secondString = SqlDml.Cast(second, VarChar2Type);
+      var microsecondString = SqlDml.Cast(microsecond, VarChar7Type);
       var composedTimeString = SqlDml.Concat(hourString, SqlDml.Literal(":"), minuteString, SqlDml.Literal(":"), secondString, SqlDml.Literal("."), microsecondString);
       return SqlDml.Cast(composedTimeString, SqlType.Time);
     }

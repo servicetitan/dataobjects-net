@@ -364,8 +364,8 @@ namespace Xtensive.Sql
     public static DefaultSchemaInfo ReadDatabaseAndSchema(string queryText,
       DbConnection connection, DbTransaction transaction)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(queryText, nameof(queryText));
+      ArgumentNullException.ThrowIfNull(connection);
+      ArgumentException.ThrowIfNullOrEmpty(queryText);
 
       using var command = connection.CreateCommand();
       command.CommandText = queryText;
@@ -392,8 +392,8 @@ namespace Xtensive.Sql
     public static async Task<DefaultSchemaInfo> ReadDatabaseAndSchemaAsync(string queryText,
       DbConnection connection, DbTransaction transaction, CancellationToken token)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(queryText, nameof(queryText));
+      ArgumentNullException.ThrowIfNull(connection);
+      ArgumentException.ThrowIfNullOrEmpty(queryText);
 
       var command = connection.CreateCommand();
       await using (command.ConfigureAwaitFalse()) {

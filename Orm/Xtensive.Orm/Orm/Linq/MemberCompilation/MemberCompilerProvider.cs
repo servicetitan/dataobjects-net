@@ -27,12 +27,8 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
       public override bool Equals(object obj) => obj is CompilerKey other && Equals(other);
 
-      public override int GetHashCode()
-      {
-        unchecked {
-          return module == null ? metadataToken : (module.GetHashCode() * 397) ^ metadataToken;
-        }
-      }
+      public override int GetHashCode() =>
+          module == null ? metadataToken : HashCode.Combine(module, metadataToken);
 
       public CompilerKey(MemberInfo memberInfo)
       {
@@ -48,7 +44,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     public Delegate GetUntypedCompiler(MemberInfo target)
     {
-      ArgumentValidator.EnsureArgumentNotNull(target, nameof(target));
+      ArgumentNullException.ThrowIfNull(target);
 
       return compilers.GetValueOrDefault(GetCompilerKey(target));
     }
@@ -66,7 +62,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     public void RegisterCompilers(Type compilerContainer, ConflictHandlingMethod conflictHandlingMethod)
     {
-      ArgumentValidator.EnsureArgumentNotNull(compilerContainer, "compilerContainer");
+      ArgumentNullException.ThrowIfNull(compilerContainer);
       EnsureNotLocked();
 
       if (compilerContainer.IsGenericType)
@@ -87,7 +83,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     public void RegisterCompilers(IEnumerable<KeyValuePair<MemberInfo, Func<MemberInfo, T, T[], T>>> compilerDefinitions, ConflictHandlingMethod conflictHandlingMethod)
     {
-      ArgumentValidator.EnsureArgumentNotNull(compilerDefinitions, "compilerDefinitions");
+      ArgumentNullException.ThrowIfNull(compilerDefinitions);
       EnsureNotLocked();
 
       var newItems = compilerDefinitions.Select(item => (item.Key, (Delegate) item.Value));

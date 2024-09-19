@@ -7,38 +7,31 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals
 {
+  public readonly struct PinnerDisposableRemover(HashSet<EntityState> roots, EntityState state) : IDisposable
+  {
+    public void Dispose() => roots?.Remove(state);
+  }
+
   internal sealed class Pinner : SessionBound
   {
-    private class DisposableRemover : IDisposable
-    {
-      public Pinner Pinner { get; init; }
-      public EntityState State { get; init; }
-
-      public void Dispose() => Pinner.roots.Remove(State);
-    }
-
-    private readonly HashSet<EntityState> roots = new HashSet<EntityState>();
+    private readonly HashSet<EntityState> roots = new();
 
     private EntityChangeRegistry activeRegistry;
     private HashSet<EntityState> pinnedItems;
 
-    public int RootCount { get { return roots.Count; } }
+    public int RootCount => roots.Count;
 
     public EntityChangeRegistry PinnedItems { get; private set; }
     public EntityChangeRegistry PersistableItems { get; private set; }
     
-    public IDisposable RegisterRoot(EntityState state) =>
-      roots.Add(state) ? new DisposableRemover { Pinner = this, State = state } : null;
+    public PinnerDisposableRemover RegisterRoot(EntityState state) =>
+      roots.Add(state) ? new(roots, state) : default;
 
-    public void ClearRoots()
-    {
-      roots.Clear();
-    }
+    public void ClearRoots() => roots.Clear();
 
     public void Process(EntityChangeRegistry registry)
     {

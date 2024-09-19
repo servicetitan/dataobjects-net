@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Services
     /// <returns>A string containing formatted query.</returns>
     public string ToSqlString<T>(IQueryable<T> query)
     {
-      ArgumentValidator.EnsureArgumentNotNull(query, "query");
+      ArgumentNullException.ThrowIfNull(query);
 
       var part = GetCommandPart(query);
       return part!=default ? part.Statement : string.Empty;
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Services
     /// <returns>A string containing formatted query.</returns>
     public string ToString<T>(IQueryable<T> query)
     {
-      ArgumentValidator.EnsureArgumentNotNull(query, "query");
+      ArgumentNullException.ThrowIfNull(query);
 
       return query.Expression.ToString(true);
     }
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Services
     /// <returns>A <see cref="DbCommand"/>.</returns>
     public DbCommand ToDbCommand<T>(IQueryable<T> query)
     {
-      ArgumentValidator.EnsureArgumentNotNull(query, "query");
+      ArgumentNullException.ThrowIfNull(query);
 
       var part = GetCommandPart(query);
       if (part==null)
@@ -69,8 +69,7 @@ namespace Xtensive.Orm.Services
 
     private CommandPart GetCommandPart<T>(IQueryable<T> query)
     {
-      var compilerConfiguration = Session.CompilationService.CreateConfiguration(Session);
-      compilerConfiguration.PreferTypeIdAsParameter = false;
+      var compilerConfiguration = Session.CompilationService.CreateConfiguration(Session) with { PreferTypeIdAsParameter = false };
 
       var translatedQuery = Session.Query.Provider.Translate(query.Expression, compilerConfiguration);
       var sqlProvider = translatedQuery.DataSource as SqlProvider;

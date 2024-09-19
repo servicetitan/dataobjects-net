@@ -31,12 +31,7 @@ namespace Xtensive.Orm.Building.Builders
       public override bool Equals(object obj) =>
         obj is DatabaseReference other && Equals(other);
 
-      public override int GetHashCode()
-      {
-        unchecked {
-          return (TargetDatabase.GetHashCode() * 397) ^ OwnerDatabase.GetHashCode();
-        }
-      }
+      public override int GetHashCode() => HashCode.Combine(TargetDatabase, OwnerDatabase);
 
       public static bool operator ==(DatabaseReference left, DatabaseReference right)
       {

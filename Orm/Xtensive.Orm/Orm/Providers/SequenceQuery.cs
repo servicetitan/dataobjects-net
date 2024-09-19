@@ -32,9 +32,9 @@ namespace Xtensive.Orm.Providers
 
     public SequenceQuery(string deleteQuery, string insertQuery, string selectQuery, SequenceQueryCompartment compartment)
     {
-      ArgumentValidator.EnsureArgumentNotNull(deleteQuery, "deleteQuery");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(insertQuery, "insertQuery");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(selectQuery, "selectQuery");
+      ArgumentNullException.ThrowIfNull(deleteQuery);
+      ArgumentException.ThrowIfNullOrEmpty(insertQuery);
+      ArgumentException.ThrowIfNullOrEmpty(selectQuery);
 
       DeleteQuery = deleteQuery;
       InsertQuery = insertQuery;
@@ -44,8 +44,8 @@ namespace Xtensive.Orm.Providers
 
     public SequenceQuery(string insertQuery, string selectQuery, SequenceQueryCompartment compartment)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(insertQuery, "insertQuery");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(selectQuery, "selectQuery");
+      ArgumentException.ThrowIfNullOrEmpty(insertQuery);
+      ArgumentException.ThrowIfNullOrEmpty(selectQuery);
 
       InsertQuery = insertQuery;
       SelectQuery = selectQuery;
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Providers
 
     public SequenceQuery(string selectQuery, SequenceQueryCompartment compartment)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(selectQuery, "selectQuery");
+      ArgumentException.ThrowIfNullOrEmpty(selectQuery);
       SelectQuery = selectQuery;
       Compartment = compartment;
     }

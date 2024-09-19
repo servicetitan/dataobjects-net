@@ -37,6 +37,8 @@ namespace Xtensive.Orm.Upgrade
         await ExtractMetadataAsync(services, executor, result, task, token).ConfigureAwaitFalse();
       }
 
+      await services.StorageDriver.CreateTypesIfNotExistAsync(executor);
+
       return result;
     }
 

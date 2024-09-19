@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Configuration
       get { return name; }
       set
       {
-        ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
+        ArgumentException.ThrowIfNullOrEmpty(value);
         EnsureNotLocked();
         name = value;
       }
@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Configuration
     /// <param name="name">Database name.</param>
     public DatabaseConfiguration(string name)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       Name = name;
       minTypeId = TypeInfo.MinTypeId;
       maxTypeId = int.MaxValue;

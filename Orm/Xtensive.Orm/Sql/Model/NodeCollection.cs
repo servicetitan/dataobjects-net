@@ -34,8 +34,9 @@ namespace Xtensive.Sql.Model
     public override void Add(TNode item)
     {
       base.Add(item);
-      if (!string.IsNullOrEmpty(item.GetNameInternal()))
-        nameIndex.Add(item.GetNameInternal(), item);
+      var name = item.GetNameInternal();
+      if (!string.IsNullOrEmpty(name))
+        nameIndex.Add(name, item);
     }
 
     /// <inheritdoc/>
@@ -67,14 +68,9 @@ namespace Xtensive.Sql.Model
     /// <summary>
     /// Gets the <typeparamref name="TNode"/> at the specified index.
     /// </summary>
-    public TNode this[string index] {
-      get {
-        if (string.IsNullOrEmpty(index))
-          return default(TNode);
-        TNode result;
-        return nameIndex.TryGetValue(index, out result) ? result : default(TNode);
-      }
-    }
+    public TNode this[string index] => string.IsNullOrEmpty(index)
+      ? default
+      : nameIndex.TryGetValue(index, out var result) ? result : default(TNode);
 
 
     // Constructors

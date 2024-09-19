@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Building.Builders
 
     public static void BuildFilter(IndexInfo index)
     {
-      ArgumentValidator.EnsureArgumentNotNull(index, "index");
+      ArgumentNullException.ThrowIfNull(index);
       var builder = new PartialIndexFilterBuilder(index);
       var body = builder.Visit(index.FilterExpression.Body);
       var filter = new PartialIndexFilterInfo {
@@ -94,13 +94,9 @@ namespace Xtensive.Orm.Building.Builders
 
       return base.VisitBinary(b);
 
-      static bool EnumRewritableOperations(BinaryExpression b)
-      {
-        var nt = b.NodeType;
-        return nt == ExpressionType.Equal || nt == ExpressionType.NotEqual
-          || nt == ExpressionType.GreaterThan || nt == ExpressionType.GreaterThanOrEqual
-          || nt == ExpressionType.LessThan || nt == ExpressionType.LessThanOrEqual;
-      }
+      static bool EnumRewritableOperations(BinaryExpression b) =>
+        b.NodeType is ExpressionType.Equal or ExpressionType.NotEqual or ExpressionType.GreaterThan or ExpressionType.GreaterThanOrEqual
+          or ExpressionType.LessThan or ExpressionType.LessThanOrEqual;
     }
 
     protected override Expression VisitMember(MemberExpression originalMemberAccess)
@@ -142,7 +138,7 @@ namespace Xtensive.Orm.Building.Builders
       }
       if (field.IsPrimitive) {
         EnsureCanBeUsedInFilter(originalMemberAccess, field);
-        return BuildFieldAccess(field, false);
+        return BuildFieldAccess(field, field.ValueType);
       }
       throw UnableToTranslate(originalMemberAccess, Strings.OnlyPrimitiveAndReferenceFieldsAreSupported);
     }
@@ -156,10 +152,9 @@ namespace Xtensive.Orm.Building.Builders
         throw UnableToTranslate(expression, string.Format(Strings.FieldXDoesNotExistInTableForY, field.Name, field.ReflectedType));
     }
 
-    private Expression BuildFieldAccess(FieldInfo field, bool addNullability)
+    private Expression BuildFieldAccess(FieldInfo field, Type valueType)
     {
       var fieldIndex = usedFields.Count;
-      var valueType = addNullability ? field.ValueType.ToNullable() : field.ValueType;
       usedFields.Add(field);
       return Expression.Call(Parameter,
         WellKnownMembers.Tuple.GenericAccessor.CachedMakeGenericMethod(valueType),
@@ -168,18 +163,12 @@ namespace Xtensive.Orm.Building.Builders
 
     private Expression BuildFieldCheck(FieldInfo field, ExpressionType nodeType)
     {
-      return Expression.MakeBinary(nodeType, BuildFieldAccess(field, true), Expression.Constant(null, field.ValueType.ToNullable()));
+      var nullableValueType = field.ValueType.ToNullable();
+      return Expression.MakeBinary(nodeType, BuildFieldAccess(field, nullableValueType), Expression.Constant(null, nullableValueType));
     }
 
-    private Expression BuildEntityCheck(FieldInfo field, ExpressionType nodeType)
-    {
-      var fields = field.Fields.Where(f => f.Column!=null).ToList();
-      if (fields.Count==0)
-        throw new InvalidOperationException();
-      return fields
-        .Skip(1)
-        .Aggregate(BuildFieldCheck(fields[0], nodeType), (c, f) => Expression.AndAlso(c, BuildFieldCheck(f, nodeType)));
-    }
+    private Expression BuildEntityCheck(FieldInfo field, ExpressionType nodeType) =>
+      field.Fields.Where(f => f.Column != null).Select(f => BuildFieldCheck(f, nodeType)).Aggregate(Expression.AndAlso);
 
     private bool IsNull(Expression expression)
     {

@@ -230,7 +230,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Provides context for <see cref="CommandProcessor"/>.
     /// </summary>
-    public CommandProcessorContextProvider CommandProcessorContextProvider { get; private set; }
+    internal CommandProcessorContextProvider CommandProcessorContextProvider = new();
 
     #region Private / internal members
 
@@ -242,7 +242,7 @@ namespace Xtensive.Orm
 
     internal RemovalProcessor RemovalProcessor { get; private set; }
 
-    internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
+    internal CompilationService CompilationService => Handlers.DomainHandler.CompilationService;
 
     internal IReadOnlyList<string> Tags => tags;
 
@@ -344,10 +344,8 @@ namespace Xtensive.Orm
       return storageNode;
     }
 
-    internal ExecutableProvider Compile(CompilableProvider provider)
-    {
-      return CompilationService.Compile(provider, CompilationService.CreateConfiguration(this));
-    }
+    internal ExecutableProvider Compile(CompilableProvider provider) =>
+      CompilationService.Compile(provider, CompilationService.CreateConfiguration(this));
 
     internal ExecutableProvider Compile(CompilableProvider provider, CompilerConfiguration configuration)
     {
@@ -555,12 +553,9 @@ namespace Xtensive.Orm
       // Caches, registry
       EntityStateCache = CreateSessionCache(configuration);
       EntityChangeRegistry = new EntityChangeRegistry(this);
-      EntitySetChangeRegistry = new EntitySetChangeRegistry(this);
-      ReferenceFieldsChangesRegistry = new ReferenceFieldsChangesRegistry(this);
       entitySetsWithInvalidState = new HashSet<EntitySetBase>();
 
       // Events
-      EntityEvents = new EntityEventBroker();
       Events = new SessionEventAccessor(this, false);
       SystemEvents = new SessionEventAccessor(this, true);
 
@@ -569,8 +564,7 @@ namespace Xtensive.Orm
       RemovalProcessor = new RemovalProcessor(this);
       pinner = new Pinner(this);
       Operations = new OperationRegistry(this);
-      NonPairedReferencesRegistry = new NonPairedReferenceChangesRegistry(this);
-      CommandProcessorContextProvider = new CommandProcessorContextProvider(this);
+      NonPairedReferencesRegistry = new(this);
 
       // Validation context
       ValidationContext = Configuration.Supports(SessionOptions.ValidateEntities)
@@ -581,7 +575,7 @@ namespace Xtensive.Orm
       Services = CreateServices();
 
       disposableSet = new DisposableSet();
-      remapper = new KeyRemapper(this);
+      remapper = new(this);
 
       disableAutoSaveChanges = !configuration.Supports(SessionOptions.AutoSaveChanges);
       if (configuration.Supports(SessionOptions.NonTransactionalReads)) {
@@ -647,7 +641,7 @@ namespace Xtensive.Orm
         else {
           Handler?.Dispose();
         }
-        CommandProcessorContextProvider = null;
+        CommandProcessorContextProvider = default;
 
         Domain.ReleaseSingleConnection();
 
@@ -655,10 +649,10 @@ namespace Xtensive.Orm
         disposableSet = null;
 
         EntityChangeRegistry = null;
-        EntitySetChangeRegistry = null;
+        EntitySetChangeRegistry = default;
         EntityStateCache = null;
-        ReferenceFieldsChangesRegistry = null;
-        NonPairedReferencesRegistry = null;
+        ReferenceFieldsChangesRegistry = default;
+        NonPairedReferencesRegistry = default;
         extensions?.Clear();
       }
       finally {

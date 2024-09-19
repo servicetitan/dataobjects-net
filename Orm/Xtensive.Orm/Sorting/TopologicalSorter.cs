@@ -75,8 +75,8 @@ namespace Xtensive.Sorting
       Predicate<TNodeItem, TNodeItem> connector,
       out List<Node<TNodeItem, object>> loops)
     {
-      ArgumentValidator.EnsureArgumentNotNull(items, "items");
-      ArgumentValidator.EnsureArgumentNotNull(connector, "connector");
+      ArgumentNullException.ThrowIfNull(items);
+      ArgumentNullException.ThrowIfNull(connector);
       var nodes = GetNodes(items, connector);
       return Sort(nodes, out loops);
     }
@@ -100,8 +100,8 @@ namespace Xtensive.Sorting
       Predicate<TNodeItem, TNodeItem> connector,
       out List<Node<TNodeItem, object>> loops)
     {
-      ArgumentValidator.EnsureArgumentNotNull(items, "items");
-      ArgumentValidator.EnsureArgumentNotNull(connector, "connector");
+      ArgumentNullException.ThrowIfNull(items);
+      ArgumentNullException.ThrowIfNull(connector);
       var nodes = GetNodes(items, connector);
       return SortToList(nodes, out loops);
     }
@@ -161,8 +161,8 @@ namespace Xtensive.Sorting
       Predicate<TNodeItem, TNodeItem> connector,
       out List<NodeConnection<TNodeItem, object>> removedEdges, bool removeWholeNode)
     {
-      ArgumentValidator.EnsureArgumentNotNull(items, "items");
-      ArgumentValidator.EnsureArgumentNotNull(connector, "connector");
+      ArgumentNullException.ThrowIfNull(items);
+      ArgumentNullException.ThrowIfNull(connector);
       var nodes = GetNodes(items, connector);
       return Sort(nodes, out removedEdges, removeWholeNode);
     }
@@ -186,8 +186,8 @@ namespace Xtensive.Sorting
       Predicate<TNodeItem, TNodeItem> connector,
       out List<NodeConnection<TNodeItem, object>> removedEdges, bool removeWholeNode)
     {
-      ArgumentValidator.EnsureArgumentNotNull(items, "items");
-      ArgumentValidator.EnsureArgumentNotNull(connector, "connector");
+      ArgumentNullException.ThrowIfNull(items);
+      ArgumentNullException.ThrowIfNull(connector);
       var nodes = GetNodes(items, connector);
       return SortToList(GetNodes(items, connector), out removedEdges, removeWholeNode);
     }
@@ -302,7 +302,7 @@ namespace Xtensive.Sorting
     private static (IEnumerable<TNodeItem> sorted, int count) SortInternal<TNodeItem, TConnectionItem>(
       IEnumerable<Node<TNodeItem, TConnectionItem>> nodes, out List<NodeConnection<TNodeItem, TConnectionItem>> removedEdges, bool removeWholeNode)
     {
-      ArgumentValidator.EnsureArgumentNotNull(nodes, "nodes");
+      ArgumentNullException.ThrowIfNull(nodes);
       var head = new Queue<TNodeItem>();
       var tail = new Queue<TNodeItem>();
       removedEdges = new List<NodeConnection<TNodeItem, TConnectionItem>>();
@@ -375,7 +375,7 @@ namespace Xtensive.Sorting
     private static (IEnumerable<TNodeItem>sorted, int count) SortInternal<TNodeItem, TConnectionItem>(
       List<Node<TNodeItem, TConnectionItem>> nodes, out List<Node<TNodeItem, TConnectionItem>> loops)
     {
-      ArgumentValidator.EnsureArgumentNotNull(nodes, "nodes");
+      ArgumentNullException.ThrowIfNull(nodes);
       var head = new Queue<TNodeItem>();
       var tail = new Queue<TNodeItem>();
       var nodeList = nodes.ToList();

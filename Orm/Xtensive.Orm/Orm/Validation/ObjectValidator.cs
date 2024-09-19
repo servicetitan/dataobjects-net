@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Validation
     /// <param name="innerException">An <see cref="Exception"/> instance to be used as inner exception.</param>
     protected void ThrowConfigurationError(string message, Exception innerException = null)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(message, "message");
+      ArgumentException.ThrowIfNullOrEmpty(message);
 
       var exceptionMessage = string.Format(
         Strings.ExValidatorXConfigurationFailedOnTypeYWithMessageZ,

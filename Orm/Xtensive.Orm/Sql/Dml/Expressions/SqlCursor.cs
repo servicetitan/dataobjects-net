@@ -15,7 +15,7 @@ namespace Xtensive.Sql.Dml
     private bool scroll;
     private ISqlQueryExpression query;
     private bool readOnly = false;
-    private readonly SqlColumnCollection columns = new SqlColumnCollection();
+    private readonly SqlColumnCollection columns = new();
     private bool withHold;
     private bool withReturn;
 
@@ -59,7 +59,7 @@ namespace Xtensive.Sql.Dml
       get { return query; }
       set
       {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         query = value;
       }
     }
@@ -133,7 +133,7 @@ namespace Xtensive.Sql.Dml
         throw new ArgumentException(Strings.ExInvalidUsageOfTheOrientationArgument, "option");
       if (target != null)
         for (int i = 0, l = target.Length; i < l; i++)
-          ArgumentValidator.EnsureArgumentNotNull(target[i], "target");
+          ArgumentNullException.ThrowIfNull(target[i], "target");
       return new SqlFetch(option, rowCount, this, target);
     }
 

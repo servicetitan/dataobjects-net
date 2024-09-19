@@ -61,16 +61,9 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return hashCode;
-    }
+    public override int GetHashCode() => hashCode;
 
-    private int CalculateHashCode()
-    {
-      return Type.GetHashCode() ^ Kind.GetHashCode() ^ ValidateVersion.GetHashCode()
-        ^ HashBits(AvailableFields) ^ HashBits(ChangedFields);
-    }
+    private int CalculateHashCode() => HashCode.Combine(Type, Kind, ValidateVersion, HashBits(AvailableFields), HashBits(ChangedFields));
 
     private int HashBits(BitArray bits)
     {

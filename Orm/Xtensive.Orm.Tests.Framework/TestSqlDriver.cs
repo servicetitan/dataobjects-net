@@ -18,26 +18,26 @@ namespace Xtensive.Orm.Tests
 
     public static SqlDriver Create(UrlInfo connectionUrl)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connectionUrl, "connectionUrl");
+      ArgumentNullException.ThrowIfNull(connectionUrl);
       return BuildDriver(new ConnectionInfo(connectionUrl));
     }
 
     public static SqlDriver Create(string connectionUrl)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(connectionUrl, "connectionUrl");
+      ArgumentException.ThrowIfNullOrEmpty(connectionUrl);
       return BuildDriver(new ConnectionInfo(connectionUrl));
     }
 
     public static SqlDriver Create(string provider, string connectionString)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(provider, "provider");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(connectionString, "connectionString");
+      ArgumentException.ThrowIfNullOrEmpty(provider);
+      ArgumentException.ThrowIfNullOrEmpty(connectionString);
       return BuildDriver(new ConnectionInfo(provider, connectionString));
     }
 
     public static SqlDriver Create(ConnectionInfo connectionInfo)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connectionInfo, "connectionInfo");
+      ArgumentNullException.ThrowIfNull(connectionInfo);
       return BuildDriver(connectionInfo);
     }
 

@@ -45,7 +45,7 @@ namespace Xtensive.Sql.Dml.Collections
     /// -or- <paramref name="row"/> is empty.</exception>
     public void Add(Dictionary<SqlColumn, SqlExpression> row)
     {
-      ArgumentNullException.ThrowIfNull(row, nameof(row));
+      ArgumentNullException.ThrowIfNull(row);
       if (row.Count == 0) {
         throw new ArgumentException("Empty row is not allowed.");
       }
@@ -53,28 +53,21 @@ namespace Xtensive.Sql.Dml.Collections
       if (rows.Count == 0) {
         // save columns order as header for further rows to match;
         columns = row.Keys.ToList();
-        rows.Add(SqlDml.Row(row.Values.ToList()));
+        rows.Add(SqlDml.Row(row.Values.ToArray()));
       }
       else {
         if (columns.Count != row.Count)
           throw new ArgumentException("Inconsistent row length.");
         if (row.Keys.SequenceEqual(columns)) {
           //fast addition
-          rows.Add(SqlDml.Row(row.Values.ToList()));
+          rows.Add(SqlDml.Row(row.Values.ToArray()));
         }
         else {
           //re-arrange values to be the same order
           //and also make sure all columns exist
-          var rowList = new List<SqlExpression>();
-          foreach (var column in columns) {
-            if (row.TryGetValue(column, out var value)) {
-              rowList.Add(value);
-            }
-            else {
-              throw new ArgumentException(string.Format("There is no mentioning of column '{0}' in previously added rows.", column.Name));
-            }
-          }
-
+          var rowList = columns.Select(column =>
+            row.GetValueOrDefault(column) ??
+            throw new ArgumentException($"There is no mentioning of column '{column.Name}' in previously added rows.")).ToArray();
           rows.Add(SqlDml.Row(rowList));
         }
       }

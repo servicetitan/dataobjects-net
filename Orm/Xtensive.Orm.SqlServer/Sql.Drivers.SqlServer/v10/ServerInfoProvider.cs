@@ -19,6 +19,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       return result;
     }
 
+    public override QueryInfo GetQueryInfo()
+    {
+      var info = base.GetQueryInfo();
+      info.Features |= QueryFeatures.TableValuedParameters;
+      return info;
+    }
+
     public override DataTypeCollection GetDataTypesInfo()
     {
       var types = base.GetDataTypesInfo();

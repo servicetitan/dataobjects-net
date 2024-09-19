@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Configuration
 
     private void EnsureItemIsValid(SessionConfiguration item)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(item.Name, "SessionConfiguration.Name");
+      ArgumentException.ThrowIfNullOrEmpty(item.Name, "SessionConfiguration.Name");
       var current = this[item.Name];
       if (current != null)
         throw new InvalidOperationException(string.Format(Strings.ExConfigurationWithXNameAlreadyRegistered, current.Name));
@@ -124,16 +124,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = (Default!=null ? Default.GetHashCode() : 0);
-        result = (result * 397) ^ (System!=null ? System.GetHashCode() : 0);
-        result = (result * 397) ^ (Service!=null ? Service.GetHashCode() : 0);
-        result = (result * 397) ^ (KeyGenerator!=null ? KeyGenerator.GetHashCode() : 0);
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(Default, System, Service, KeyGenerator);
  
     #endregion
 

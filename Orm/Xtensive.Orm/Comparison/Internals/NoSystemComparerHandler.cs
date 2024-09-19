@@ -36,13 +36,11 @@ namespace Xtensive.Comparison
     }
 
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() =>
       throw new NotSupportedException(string.Format(
         Strings.ExTypeXMustImplementY,
         typeof(T).GetShortName(),
         typeof(IEquatable<T>).GetShortName()));
-    }
 
 
     // Constructors

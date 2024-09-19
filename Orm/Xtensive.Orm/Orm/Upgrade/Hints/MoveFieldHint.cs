@@ -58,17 +58,7 @@ namespace Xtensive.Orm.Upgrade
     public override bool Equals(UpgradeHint other) => Equals(other as MoveFieldHint);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = base.GetHashCode();
-        result = (result * 397) ^ (SourceType != null ? SourceType.GetHashCode() : 0);
-        result = (result * 397) ^ (SourceField != null ? SourceField.GetHashCode() : 0);
-        result = (result * 397) ^ (TargetType != null ? TargetType.GetHashCode() : 0);
-        result = (result * 397) ^ (TargetField != null ? TargetField.GetHashCode() : 0);
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), SourceType, SourceField, TargetType, TargetField);
 
     /// <inheritdoc/>
     public override string ToString() =>
@@ -86,10 +76,10 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="targetFieldName">The target field name.</param>
     public MoveFieldHint(string sourceTypeName, string sourceFieldName, Type targetType, string targetFieldName)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourceTypeName, nameof(sourceTypeName));
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourceFieldName, nameof(sourceFieldName));
-      ArgumentValidator.EnsureArgumentNotNull(targetType, nameof(targetType));
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(targetFieldName, nameof(targetFieldName));
+      ArgumentException.ThrowIfNullOrEmpty(sourceTypeName);
+      ArgumentException.ThrowIfNullOrEmpty(sourceFieldName);
+      ArgumentNullException.ThrowIfNull(targetType);
+      ArgumentException.ThrowIfNullOrEmpty(targetFieldName);
       SourceType = sourceTypeName;
       SourceField = sourceFieldName;
       TargetType = targetType;
@@ -116,10 +106,10 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="targetFieldName">The target field name.</param>
     public MoveFieldHint(Type sourceType, string sourceFieldName, Type targetType, string targetFieldName)
     {
-      ArgumentValidator.EnsureArgumentNotNull(sourceType, nameof(sourceType));
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sourceFieldName, nameof(sourceFieldName));
-      ArgumentValidator.EnsureArgumentNotNull(targetType, nameof(targetType));
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(targetFieldName, nameof(targetFieldName));
+      ArgumentNullException.ThrowIfNull(sourceType);
+      ArgumentException.ThrowIfNullOrEmpty(sourceFieldName);
+      ArgumentNullException.ThrowIfNull(targetType);
+      ArgumentException.ThrowIfNullOrEmpty(targetFieldName);
 
       SourceType = sourceType.FullName;
       SourceField = sourceFieldName;

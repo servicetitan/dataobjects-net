@@ -6,6 +6,7 @@
 
 using Xtensive.Orm.Configuration;
 using Xtensive.Tuples;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm
 {

@@ -25,8 +25,8 @@ namespace Xtensive.Orm
     private bool persistingIsFailed;
 
     internal bool DisableAutoSaveChanges { get { return disableAutoSaveChanges; } }
-    internal NonPairedReferenceChangesRegistry NonPairedReferencesRegistry { get; private set; }
-    internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry { get; private set; }
+    internal NonPairedReferenceChangesRegistry NonPairedReferencesRegistry;
+    internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry = new();
 
     /// <summary>
     /// Saves all modified instances immediately to the database.
@@ -244,12 +244,12 @@ namespace Xtensive.Orm
     /// and automatic saving of changes is enabled (<see cref="SessionOptions.AutoSaveChanges"/>),
     /// otherwise <see langword="null"/>.
     /// </returns>
-    public IDisposable DisableSaveChanges(IEntity target)
+    public PinnerDisposableRemover DisableSaveChanges(IEntity target)
     {
       EnsureNotDisposed();
-      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentNullException.ThrowIfNull(target);
       if (!Configuration.Supports(SessionOptions.AutoSaveChanges))
-        return null; // No need to pin in this case
+        return new(null, default); // No need to pin in this case
 
       var targetEntity = (Entity) target;
       targetEntity.EnsureNotRemoved();
@@ -366,8 +366,8 @@ namespace Xtensive.Orm
 
     private void ProcessChangesOfEntitySets(Action<EntitySetState> action)
     {
-      if (EntitySetChangeRegistry is not null) {
-        foreach (var entitySet in EntitySetChangeRegistry.GetItems())
+      if (EntitySetChangeRegistry.GetItems() is { } items) {
+        foreach (var entitySet in items)
           action.Invoke(entitySet);
       }
     }

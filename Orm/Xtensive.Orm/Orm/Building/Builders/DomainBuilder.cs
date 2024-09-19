@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Building.Builders
     /// <returns>Built domain.</returns>
     public static Domain Run(DomainBuilderConfiguration builderConfiguration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(builderConfiguration, nameof(builderConfiguration));
+      ArgumentNullException.ThrowIfNull(builderConfiguration);
 
       var context = new BuildingContext(builderConfiguration);
       using (BuildLog.InfoRegion(nameof(Strings.LogBuildingX), typeof(Domain).Name)) {
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Building.Builders
         handlers.SequenceQueryBuilder = new SequenceQueryBuilder(handlers.StorageDriver);
 
         // StorageNodeRegistry
-        handlers.StorageNodeRegistry = new StorageNodeRegistry();
+        handlers.StorageNodeRegistry = new();
 
         // DomainHandler
         handlers.DomainHandler = handlers.Create<DomainHandler>();

@@ -900,7 +900,7 @@ namespace Xtensive.Orm.Upgrade
 
       // Create new columns
       var newTypeInfo = targetColumn.Type;
-      var newSqlType = (SqlValueType) newTypeInfo.NativeType;
+      var newSqlType = newTypeInfo.NativeType;
       var newColumn = table.CreateColumn(originalName, newSqlType);
 
       newColumn.IsNullable = newTypeInfo.IsNullable;
@@ -1089,8 +1089,7 @@ namespace Xtensive.Orm.Upgrade
       var node = resolver.Resolve(sqlModel, sequenceInfo.Name);
       var sequenceTable = node.Schema.CreateTable(node.Name);
       createdTables.Add(sequenceTable);
-      var idColumn = sequenceTable.CreateColumn(WellKnown.GeneratorColumnName,
-        (SqlValueType) sequenceInfo.Type.NativeType);
+      var idColumn = sequenceTable.CreateColumn(WellKnown.GeneratorColumnName, sequenceInfo.Type.NativeType);
       idColumn.SequenceDescriptor =
         new SequenceDescriptor(
           idColumn,
@@ -1328,14 +1327,14 @@ namespace Xtensive.Orm.Upgrade
       ActionSequence actions, SchemaExtractionResult sqlModel, StorageModel sourceModel, StorageModel targetModel,
       List<string> enforceChangedColumns, bool allowCreateConstraints)
     {
-      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(sqlExecutor, "sqlExecutor");
-      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
-      ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
-      ArgumentValidator.EnsureArgumentNotNull(sqlModel, "sqlModel");
-      ArgumentValidator.EnsureArgumentNotNull(sourceModel, "sourceModel");
-      ArgumentValidator.EnsureArgumentNotNull(targetModel, "targetModel");
-      ArgumentValidator.EnsureArgumentNotNull(enforceChangedColumns, "enforceChangedColumns");
+      ArgumentNullException.ThrowIfNull(handlers);
+      ArgumentNullException.ThrowIfNull(sqlExecutor);
+      ArgumentNullException.ThrowIfNull(resolver);
+      ArgumentNullException.ThrowIfNull(actions);
+      ArgumentNullException.ThrowIfNull(sqlModel);
+      ArgumentNullException.ThrowIfNull(sourceModel);
+      ArgumentNullException.ThrowIfNull(targetModel);
+      ArgumentNullException.ThrowIfNull(enforceChangedColumns);
 
       driver = handlers.StorageDriver;
       providerInfo = handlers.ProviderInfo;

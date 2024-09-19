@@ -17,16 +17,6 @@ namespace Xtensive.Collections
   public static class EnumerableUtils
   {
     /// <summary>
-    /// Gets the enumerable with one element.
-    /// </summary>
-    /// <typeparam name="TItem">The type of enumerated item.</typeparam>
-    /// <returns>Sequence with value inside.</returns>
-    public static IEnumerable<TItem> One<TItem>(TItem value)
-    {
-      yield return value;
-    }
-
-    /// <summary>
     /// Unfolds the whole sequence from its <paramref name="first"/> item.
     /// If <paramref name="first"/> is <see langword="null" />,
     /// an empty sequence is returned.
@@ -39,7 +29,7 @@ namespace Xtensive.Collections
     /// starting from the <paramref name="first"/> one.</returns>
     public static IEnumerable<TItem> Unfold<TItem>(TItem first, Func<TItem, TItem> next)
     {
-      ArgumentValidator.EnsureArgumentNotNull(next, "next");
+      ArgumentNullException.ThrowIfNull(next);
       var current = first;
       while (current!=null) {
         yield return current;
@@ -62,7 +52,7 @@ namespace Xtensive.Collections
     /// </returns>
     public static IEnumerable<TItem> Unfold<TItem>(TItem first, Func<TItem, bool> include, Func<TItem, TItem> next)
     {
-      ArgumentValidator.EnsureArgumentNotNull(next, "next");
+      ArgumentNullException.ThrowIfNull(next);
       var current = first;
       while (include.Invoke(current)) {
         yield return current;

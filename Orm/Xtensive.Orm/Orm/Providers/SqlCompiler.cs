@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Providers
     private readonly ProviderInfo providerInfo;
     private readonly HashSet<Column> rootColumns;
     private readonly bool temporaryTablesSupported;
+    private readonly bool tableValuedParametersSupported;
     private readonly bool forceApplyViaReference;
     private readonly bool useParameterForTypeId;
 
@@ -593,7 +594,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
+    public SqlCompiler(HandlerAccessor handlers, in CompilerConfiguration configuration)
     {
       Handlers = handlers;
       OuterReferences = new BindingCollection<ApplyParameter, Pair<SqlProvider, bool>>();
@@ -604,6 +605,7 @@ namespace Xtensive.Orm.Providers
 
       providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;
+      tableValuedParametersSupported = providerInfo.Supports(ProviderFeatures.TableValuedParameters);
       forceApplyViaReference = Handlers.StorageDriver.ServerInfo.Query.Features.HasFlag(Sql.Info.QueryFeatures.CrossApplyForSubqueriesOnly);
       useParameterForTypeId = configuration.PreferTypeIdAsParameter && Driver.ServerInfo.Query.Features.HasFlag(Sql.Info.QueryFeatures.ParameterAsColumn);
 

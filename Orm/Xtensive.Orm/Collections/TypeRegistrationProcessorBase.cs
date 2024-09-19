@@ -34,7 +34,7 @@ namespace Xtensive.Collections
       var types =
         registration.Type==null
           ? FindTypes(registration.Assembly, BaseType, (type, typeFilter) => IsAcceptable(registration, type))
-          : EnumerableUtils.One(registration.Type).Where(t => IsAcceptable(registration, t));
+          : IsAcceptable(registration, registration.Type) ? [registration.Type] : [];
       foreach (var type in types)
         Process(registry, registration, type);
     }
@@ -45,7 +45,7 @@ namespace Xtensive.Collections
     /// <param name="registry">The type registry.</param>
     /// <param name="registration">The registration.</param>
     /// <param name="type">The type.</param>
-    protected virtual void Process(TypeRegistry registry, TypeRegistration registration, Type type)
+    protected virtual void Process(TypeRegistry registry, in TypeRegistration registration, Type type)
     {
       registry.Register(type);
     }
@@ -59,7 +59,7 @@ namespace Xtensive.Collections
     ///   <see langword="true"/> if the specified type is acceptable for registration;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    protected virtual bool IsAcceptable(TypeRegistration registration, Type type)
+    protected virtual bool IsAcceptable(in TypeRegistration registration, Type type)
     {
       string ns = registration.Namespace;
       return type.IsSubclassOf(BaseType) && (ns.IsNullOrEmpty() || (type.FullName.IndexOf(ns + ".", StringComparison.InvariantCulture) >= 0));
@@ -67,8 +67,8 @@ namespace Xtensive.Collections
 
     private static IList<Type> FindTypes(Assembly assembly, Type baseType, TypeFilter filter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
-      ArgumentValidator.EnsureArgumentNotNull(baseType, "baseType");
+      ArgumentNullException.ThrowIfNull(assembly);
+      ArgumentNullException.ThrowIfNull(baseType);
 
       Type[] allTypes;
       try {

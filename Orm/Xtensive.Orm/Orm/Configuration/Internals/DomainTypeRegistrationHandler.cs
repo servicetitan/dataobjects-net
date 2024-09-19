@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Configuration
       get { return objectType; }
     }
 
-    protected override bool IsAcceptable(TypeRegistration registration, Type type)
+    protected override bool IsAcceptable(in TypeRegistration registration, Type type)
     {
       // Disallow implicit (via assembly scan) registration of types in Orm.Providers namespace
       return base.IsAcceptable(registration, type)
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc/>
-    protected override void Process(TypeRegistry registry, TypeRegistration registration, Type type)
+    protected override void Process(TypeRegistry registry, in TypeRegistration registration, Type type)
     {
       if (type==null || registry.Contains(type))
         return;

@@ -227,7 +227,7 @@ namespace Xtensive.Orm.Model
 
     protected NodeCollection(Node owner, string name, Dictionary<string, TNode> nameIndex)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       NameIndex = nameIndex;
       Owner = owner;
       Name = name;

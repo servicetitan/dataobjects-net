@@ -949,9 +949,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           var newOrder = new Order();
           var orderDetail = new OrderDetail {Product = new Product()};
           session.SaveChanges();
-          var order = EnumerableUtils.One(newOrder).Prefetch(o => o.Details).First();
+          var order = new[] { newOrder }.Prefetch(o => o.Details).First();
           Assert.That(order, Is.Not.Null);
-          var product = EnumerableUtils.One(orderDetail).Prefetch(d => d.Product).First();
+          var product = new[] { orderDetail }.Prefetch(d => d.Product).First();
           Assert.That(product, Is.Not.Null);
           //Query.All<Order>().Prefetch(o => o.Details).First();
           t.Complete();

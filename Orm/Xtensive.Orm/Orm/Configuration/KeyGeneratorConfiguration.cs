@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Configuration
       get { return name; }
       set
       {
-        ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
+        ArgumentException.ThrowIfNullOrEmpty(value);
         EnsureNotLocked();
         name = value;
       }

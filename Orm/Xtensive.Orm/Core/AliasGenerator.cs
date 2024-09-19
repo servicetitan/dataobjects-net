@@ -12,7 +12,7 @@ namespace Xtensive.Core
   /// Universal alias generator.
   /// </summary>
   [Serializable]
-  public sealed class AliasGenerator
+  public struct AliasGenerator
   {
     /// <summary>
     /// Default alias template. Value is "{0}{1}". Where {0} - template parameter for prefix and {1} - template parameter for suffix.
@@ -93,7 +93,7 @@ namespace Xtensive.Core
 
     // Constructors
 
-    private AliasGenerator()
+    public AliasGenerator()
       : this (DefaultAliasTemplate)
     {}
 

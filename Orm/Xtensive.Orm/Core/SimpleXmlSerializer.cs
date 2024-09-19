@@ -24,7 +24,7 @@ namespace Xtensive.Core
     /// <returns>Deserialized instance.</returns>
     public T Deserialize(string value)
     {
-      ArgumentValidator.EnsureArgumentNotNull(value, "serialized");
+      ArgumentNullException.ThrowIfNull(value, "serialized");
 
       using (var reader = new StringReader(value))
         return (T) serializer.Deserialize(reader);
@@ -37,7 +37,7 @@ namespace Xtensive.Core
     /// <returns>Serialized instance.</returns>
     public string Serialize(T value)
     {
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      ArgumentNullException.ThrowIfNull(value);
 
       using (var writer = new StringWriter()) {
         serializer.Serialize(writer, value);

@@ -161,9 +161,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var tableRef = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
       var select = SqlDml.Select(tableRef);
       select.Columns.Add(SqlDml.Count());
-      var filter = SqlDml.DynamicFilter(dynamicFilterId);
+      var filter = SqlDml.DynamicFilter(dynamicFilterId, [tableRef["LastName"]]);
       select.Where = filter;
-      filter.Expressions.Add(tableRef["LastName"]);
       var result = sqlConnection.Driver.Compile(select);
       using (var command = sqlConnection.CreateCommand()) {
         var values = new List<string[]> {new[] {"'Achong'"}, new[] {"'Abel'"}};
@@ -181,10 +180,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var tableRef = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
       var select = SqlDml.Select(tableRef);
       select.Columns.Add(SqlDml.Count());
-      var filter = SqlDml.DynamicFilter(dynamicFilterId);
+      var filter = SqlDml.DynamicFilter(dynamicFilterId, [tableRef["FirstName"], tableRef["LastName"]]);
       select.Where = filter;
-      filter.Expressions.Add(tableRef["FirstName"]);
-      filter.Expressions.Add(tableRef["LastName"]);
       var result = sqlConnection.Driver.Compile(select);
       using (var command = sqlConnection.CreateCommand()) {
         var values = new List<string[]> {new[] {"'Gustavo'", "'Achong'"}, new[] {"'Catherine'", "'Abel'"}};

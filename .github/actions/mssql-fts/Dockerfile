@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/mssql/server:2022-CU10-ubuntu-22.04
+FROM mcr.microsoft.com/mssql/server:2022-CU14-ubuntu-22.04
 USER root
 
 ENV ACCEPT_EULA=Y \

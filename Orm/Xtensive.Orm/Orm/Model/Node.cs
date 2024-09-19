@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     protected Node(string name)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       Name = name;
     }
 

@@ -351,10 +351,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void GenerateCleanupByForeignKeyHints(StoredTypeInfo removedType, CleanupInfo cleanupInfo)
     {
-      var removedTypeAndAncestors = new HashSet<StoredTypeInfo>(removedType.AllAncestors.Length + 1);
-      foreach (var t in removedType.AllAncestors.Append(removedType)) {
-        removedTypeAndAncestors.Add(t);
-      }
+      var removedTypeAndAncestors = removedType.AllAncestors.Append(removedType).ToHashSet();
 
       var descendantsToHash = (cleanupInfo & CleanupInfo.ConflictByTable) != 0
         ? removedType.AllDescendants
@@ -842,7 +839,7 @@ namespace Xtensive.Orm.Upgrade
 
     private static IEnumerable<StoredTypeInfo> GetAffectedMappedTypes(StoredTypeInfo type, bool includeInheritors)
     {
-      var result = EnumerableUtils.One(type);
+      IEnumerable<StoredTypeInfo> result = [type];
       if (includeInheritors) {
         result = result.Concat(type.AllDescendants);
       }
@@ -855,7 +852,7 @@ namespace Xtensive.Orm.Upgrade
     private static StoredTypeInfo[] GetAffectedMappedTypesAsArray(StoredTypeInfo type, bool includeInheritors)
     {
       var count = 1;
-      var result = EnumerableUtils.One(type);
+      IEnumerable<StoredTypeInfo> result = [type];
       if (includeInheritors) {
         result = result.Concat(type.AllDescendants);
         count += type.AllDescendants.Length;
@@ -863,7 +860,6 @@ namespace Xtensive.Orm.Upgrade
       return type.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable
         ? result.Where(t => !t.IsAbstract).ToArray()
         : result.ToArray(count);
-
     }
 
     private IdentityPair CreateIdentityPair(StoredTypeInfo removedType, StoredTypeInfo updatedType, int? typeIdOverride = null)
@@ -1033,12 +1029,12 @@ namespace Xtensive.Orm.Upgrade
       StoredDomainModel currentDomainModel,
       StoredDomainModel extractedDomainModel)
     {
-      ArgumentValidator.EnsureArgumentNotNull(hintsProcessingResult, nameof(hintsProcessingResult));
-      ArgumentValidator.EnsureArgumentNotNull(handlers, nameof(handlers));
-      ArgumentValidator.EnsureArgumentNotNull(resolver, nameof(resolver));
-      ArgumentValidator.EnsureArgumentNotNull(extractedStorageModel, nameof(extractedStorageModel));
-      ArgumentValidator.EnsureArgumentNotNull(currentDomainModel, nameof(currentDomainModel));
-      ArgumentValidator.EnsureArgumentNotNull(extractedDomainModel, nameof(extractedDomainModel));
+      ArgumentNullException.ThrowIfNull(hintsProcessingResult);
+      ArgumentNullException.ThrowIfNull(handlers);
+      ArgumentNullException.ThrowIfNull(resolver);
+      ArgumentNullException.ThrowIfNull(extractedStorageModel);
+      ArgumentNullException.ThrowIfNull(currentDomainModel);
+      ArgumentNullException.ThrowIfNull(extractedDomainModel);
 
       typeMapping = hintsProcessingResult.TypeMapping;
       reverseTypeMapping = hintsProcessingResult.ReverseTypeMapping;

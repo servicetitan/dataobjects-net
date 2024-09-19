@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="name">A value for <see cref="Name"/>.</param>
     public TemporaryTableDescriptor(string name)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentException.ThrowIfNullOrEmpty(name);
       Name = name;
     }
   }

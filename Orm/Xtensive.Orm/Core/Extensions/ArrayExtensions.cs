@@ -46,7 +46,7 @@ namespace Xtensive.Core
     /// <returns>An array of converted elements.</returns>
     public static TNewItem[] Convert<TItem, TNewItem>(this TItem[] source, Converter<TItem, TNewItem> converter)
     {
-      ArgumentValidator.EnsureArgumentNotNull(converter, "converter");
+      ArgumentNullException.ThrowIfNull(converter);
       var items = new TNewItem[source.Length];
       int i = 0;
       foreach (TItem item in source)
@@ -69,7 +69,7 @@ namespace Xtensive.Core
     /// </returns>
     public static int IndexOf<TItem>(this TItem[] items, TItem item) 
     {
-      ArgumentValidator.EnsureArgumentNotNull(items, "items");
+      ArgumentNullException.ThrowIfNull(items);
       for (int i = 0; i < items.Length; i++)
         if (AdvancedComparerStruct<TItem>.System.Equals(item, items[i]))
           return i;
@@ -86,7 +86,7 @@ namespace Xtensive.Core
     /// <returns>An enumerable iterating through the segment.</returns>
     public static IEnumerable<TItem> Segment<TItem>(this TItem[] items, int offset, int length)
     {
-      ArgumentValidator.EnsureArgumentNotNull(items, "items");
+      ArgumentNullException.ThrowIfNull(items);
       int lastIndex = offset + length;
       if (offset<0)
         offset = 0;
@@ -114,7 +114,7 @@ namespace Xtensive.Core
     /// <exception cref="InvalidOperationException">Value type is passed instead of class.</exception>
     public static int IndexOf<TItem>(this TItem[] items, TItem item, bool byReference) 
     {
-      ArgumentValidator.EnsureArgumentNotNull(items, "items");
+      ArgumentNullException.ThrowIfNull(items);
       if (!byReference)
         return IndexOf(items, item);
       if (typeof(TItem).IsValueType)
@@ -171,26 +171,6 @@ namespace Xtensive.Core
       var result = new TItem[items.Length + 1];
       Array.Copy(items, 0, result, 1, items.Length);
       result[0] = item;
-      return result;
-    }
-
-    /// <summary>
-    /// Creates new array consisting of <paramref name="items"/>
-    /// and <paramref name="item"/> added after array elements.
-    /// If <paramref name="items"/> is <see langword="null"/>
-    /// returns array that contains just <paramref name="item"/>.
-    /// </summary>
-    /// <typeparam name="TItem">The type of the item.</typeparam>
-    /// <param name="items">The items.</param>
-    /// <param name="item">The prefix item.</param>
-    /// <returns>Result array.</returns>
-    public static TItem[] Append<TItem>(this TItem[] items, TItem item)
-    {
-      if (items == null || items.Length == 0)
-        return new [] {item};
-      var result = new TItem[items.Length + 1];
-      Array.Copy(items, result, items.Length);
-      result[items.Length] = item;
       return result;
     }
 

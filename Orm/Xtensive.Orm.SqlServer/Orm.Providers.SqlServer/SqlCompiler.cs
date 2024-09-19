@@ -15,7 +15,7 @@ using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Providers.SqlServer
 {
-  internal class SqlCompiler : Providers.SqlCompiler
+  internal class SqlCompiler(HandlerAccessor handlers, in CompilerConfiguration configuration) : Providers.SqlCompiler(handlers, configuration)
   {
     private static readonly Type ByteType = typeof(byte);
     private static readonly Type Int16Type = typeof(short);
@@ -148,13 +148,6 @@ namespace Xtensive.Orm.Providers.SqlServer
         || type == Int16Type
         || type == DecimalType
         || type == FloatType;
-    }
-
-    // Constructors
-
-    public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
-      : base(handlers, configuration)
-    {
     }
   }
 }

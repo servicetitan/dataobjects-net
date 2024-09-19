@@ -30,6 +30,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     protected const string WeekdayPart = "WEEKDAY";
     #endregion
 
+    private static readonly SqlValueType
+      VarChar2Type = new(SqlType.VarChar, 2),
+      VarChar3Type = new(SqlType.VarChar, 3),
+      VarChar7Type = new(SqlType.VarChar, 7);
+
     protected const long NanosecondsPerDay = 86400000000000;
     protected const long NanosecondsPerHour = 3600000000000;
     protected const long NanosecondsPerMinute = 60000000000;
@@ -531,10 +536,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       // we cannot add hours, minutes and other parts to 00:00:00.000000 time
       // because hours might step over 24 hours and start counting from 0.
       // Starting from v11 built-in function with hour overflow control is used.
-      var hourString = SqlDml.Cast(hour, new SqlValueType(SqlType.VarChar, 3));
-      var minuteString = SqlDml.Cast(minute, new SqlValueType(SqlType.VarChar, 2));
-      var secondString = SqlDml.Cast(second, new SqlValueType(SqlType.VarChar, 2));
-      var microsecondString = SqlDml.Cast(microsecond, new SqlValueType(SqlType.VarChar, 7));
+      var hourString = SqlDml.Cast(hour, VarChar3Type);
+      var minuteString = SqlDml.Cast(minute, VarChar2Type);
+      var secondString = SqlDml.Cast(second, VarChar2Type);
+      var microsecondString = SqlDml.Cast(microsecond, VarChar7Type);
       var composedTimeString = SqlDml.Concat(hourString, SqlDml.Literal(":"), minuteString, SqlDml.Literal(":"), secondString, SqlDml.Literal("."), microsecondString);
       return SqlDml.Cast(composedTimeString, SqlType.Time);
     }

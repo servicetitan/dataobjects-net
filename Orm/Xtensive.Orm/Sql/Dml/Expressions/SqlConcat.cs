@@ -31,10 +31,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlConcat>(expression);
-      expressions.Clear();
-      foreach (var e in replacingExpression)
-        expressions.Add(e);
+      expressions = ArgumentValidator.EnsureArgumentIs<SqlConcat>(expression).expressions;
     }
     
     public override void AcceptVisitor(ISqlVisitor visitor)
@@ -45,7 +42,7 @@ namespace Xtensive.Sql.Dml
 
     // Constructors
 
-    internal SqlConcat(IList<SqlExpression> expressions)
+    internal SqlConcat(IReadOnlyList<SqlExpression> expressions)
       : base(SqlNodeType.Concat, expressions)
     {
     }

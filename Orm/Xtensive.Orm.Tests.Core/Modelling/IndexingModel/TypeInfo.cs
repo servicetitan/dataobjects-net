@@ -100,19 +100,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      unchecked {
-        int result = (Type!=null ? Type.GetHashCode() : 0);
-        result = (result * 397) ^ (IsNullable ? 1 : 0);
-        result = (result * 397) ^ Length;
-        result = (result * 397) ^ Scale;
-        result = (result * 397) ^ Precision;
-        if (Culture!=null)
-          result = (result * 397) ^ Culture.GetHashCode();
-        return result;
-      }
-    }
+    public override int GetHashCode() => HashCode.Combine(Type, IsNullable, Length, Scale, Precision, Culture);
 
     /// <summary>
     /// Implements the operator ==.
@@ -188,7 +176,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 
     public TypeInfo(Type type, bool isNullable)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentNullException.ThrowIfNull(type);
       if (isNullable && type.IsValueType && !type.IsNullable())
         ArgumentValidator.EnsureArgumentIsInRange(true, false, false, "isNullable");
       Type = type;
@@ -205,7 +193,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     public TypeInfo(Type type, bool isNullable, int length, CultureInfo culture)
       : this(type, isNullable, length)
     {
-      ArgumentValidator.EnsureArgumentNotNull(culture, "culture");
+      ArgumentNullException.ThrowIfNull(culture);
       Culture = culture;
     }
 

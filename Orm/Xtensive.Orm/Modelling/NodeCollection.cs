@@ -371,8 +371,8 @@ namespace Xtensive.Modelling
     /// <param name="name"><see cref="Name"/> property value.</param>
     protected NodeCollection(Node parent, string name)
     {
-      ArgumentValidator.EnsureArgumentNotNull(parent, "parent");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentNullException.ThrowIfNull(parent);
+      ArgumentException.ThrowIfNullOrEmpty(name);
       this.name = name;
       this.parent = parent;
       Initialize();
@@ -394,4 +394,3 @@ namespace Xtensive.Modelling
     }
   }
 }
-

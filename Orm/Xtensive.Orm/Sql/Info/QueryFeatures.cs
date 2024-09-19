@@ -166,5 +166,7 @@ namespace Xtensive.Sql.Info
     /// Indicates that RDBMS supports batches for both DDL and DML statements.
     /// </summary>
     Batches = DdlBatches | DmlBatches,
+
+    TableValuedParameters = 1 << 28,
   }
 }

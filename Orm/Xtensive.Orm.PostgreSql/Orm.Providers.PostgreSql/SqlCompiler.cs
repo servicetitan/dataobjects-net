@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       return result;
     }
 
-    public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
+    public SqlCompiler(HandlerAccessor handlers, in CompilerConfiguration configuration)
       : base(handlers, configuration)
     {
     }

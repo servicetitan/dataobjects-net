@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Upgrade
 
     public static Domain Build(DomainConfiguration configuration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(configuration);
 
       if (configuration.ShareQueryCacheOverNodes && !configuration.ShareStorageSchemaOverNodes) {
         throw new InvalidOperationException($"{nameof(configuration.ShareQueryCacheOverNodes)} options cannot be set without {nameof(configuration.ShareStorageSchemaOverNodes)} option");
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Upgrade
 
     public static async Task<Domain> BuildAsync(DomainConfiguration configuration, CancellationToken token)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(configuration);
 
       if (configuration.ConnectionInfo==null) {
         throw new ArgumentException(Strings.ExConnectionInfoIsMissing, nameof(configuration));
@@ -90,8 +90,8 @@ namespace Xtensive.Orm.Upgrade
 
     public static StorageNode BuildNode(Domain parentDomain, NodeConfiguration nodeConfiguration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(parentDomain, nameof(parentDomain));
-      ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, nameof(nodeConfiguration));
+      ArgumentNullException.ThrowIfNull(parentDomain);
+      ArgumentNullException.ThrowIfNull(nodeConfiguration);
 
       nodeConfiguration.Validate(parentDomain.Configuration);
       if (!nodeConfiguration.IsLocked) {
@@ -110,8 +110,8 @@ namespace Xtensive.Orm.Upgrade
     public static async Task<StorageNode> BuildNodeAsync(
       Domain parentDomain, NodeConfiguration nodeConfiguration, CancellationToken token)
     {
-      ArgumentValidator.EnsureArgumentNotNull(parentDomain, nameof(parentDomain));
-      ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, nameof(nodeConfiguration));
+      ArgumentNullException.ThrowIfNull(parentDomain);
+      ArgumentNullException.ThrowIfNull(nodeConfiguration);
 
       nodeConfiguration.Validate(parentDomain.Configuration);
       if (!nodeConfiguration.IsLocked) {

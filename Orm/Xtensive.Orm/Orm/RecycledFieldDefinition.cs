@@ -55,16 +55,16 @@ namespace Xtensive.Orm
     public RecycledFieldDefinition(Type ownerType, string fieldName, Type fieldType, string originalFieldName)
     {
       Initialize(ownerType, fieldName, fieldType);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(originalFieldName, "originalFieldName");
+      ArgumentException.ThrowIfNullOrEmpty(originalFieldName);
 
       OriginalFieldName = originalFieldName;
     }
 
     private void Initialize(Type ownerType, string fieldName, Type fieldType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(ownerType, "ownerType");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, "fieldName");
-      ArgumentValidator.EnsureArgumentNotNull(fieldType, "fieldType");
+      ArgumentNullException.ThrowIfNull(ownerType);
+      ArgumentException.ThrowIfNullOrEmpty(fieldName);
+      ArgumentNullException.ThrowIfNull(fieldType);
 
       OwnerType = ownerType;
       FieldName = fieldName;

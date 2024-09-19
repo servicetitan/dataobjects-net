@@ -45,10 +45,7 @@ namespace Xtensive.Arithmetic
       obj is ArithmeticRules other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return ((byte)overflowBehavior << 8) | (byte)nullBehavior;
-    }
+    public override int GetHashCode() => ((byte) overflowBehavior << 8) | (byte) nullBehavior;
 
 
     // Constructors

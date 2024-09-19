@@ -87,8 +87,8 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     public static void AddArray<T>(this SerializationInfo info, string key, T[] array)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(key, "key");
-      ArgumentValidator.EnsureArgumentNotNull(array, "array");
+      ArgumentException.ThrowIfNullOrEmpty(key);
+      ArgumentNullException.ThrowIfNull(array);
 
       info.AddValue($"{key}Count", array.Length);
       for (int i = 0; i < array.Length; i++)
@@ -97,7 +97,7 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     public static T[] GetArrayFromSerializableForm<T>(this SerializationInfo info, string key)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(key, "key");
+      ArgumentException.ThrowIfNullOrEmpty(key);
 
       var count = info.GetInt32($"{key}Count");
       var array = new T[count];

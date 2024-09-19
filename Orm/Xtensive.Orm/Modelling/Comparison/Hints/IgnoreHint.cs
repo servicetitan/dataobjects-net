@@ -44,7 +44,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <param name="path">The ignored node path.</param>
     public IgnoreHint(string path)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(path, "path");
+      ArgumentException.ThrowIfNullOrEmpty(path);
       Path = path;
     }
   }

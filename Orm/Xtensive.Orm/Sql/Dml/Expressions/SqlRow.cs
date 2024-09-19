@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Linq;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
@@ -15,40 +15,19 @@ namespace Xtensive.Sql.Dml
     internal override SqlRow Clone(SqlNodeCloneContext? context = null)
     {
       SqlNodeCloneContext ctx = context ?? new();
-
-      if (ctx.TryGet(this) is SqlRow value) {
-        return value;
-      }
-
-      var expressionsClone = new List<SqlExpression>(expressions.Count);
-      foreach (var e in expressions)
-        expressionsClone.Add(e.Clone(ctx));
-
-      var clone = new SqlRow(expressionsClone);
-      return clone;
+      return (ctx.TryGet(this) as SqlRow) ?? new(expressions.Select(e => e.Clone(ctx)).ToArray());
     }
 
+    public override void ReplaceWith(SqlExpression expression) =>
+      expressions = ArgumentValidator.EnsureArgumentIs<SqlRow>(expression).expressions;
 
-    public override void ReplaceWith(SqlExpression expression)
-    {
-      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlRow>(expression);
-      expressions.Clear();
-      foreach (SqlExpression e in replacingExpression)
-        expressions.Add(e);
-    }
-
-    public override void AcceptVisitor(ISqlVisitor visitor)
-    {
-      visitor.Visit(this);
-    }
-
+    public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
 
     // Constructors
 
-    internal SqlRow(IList<SqlExpression> expressions)
+    internal SqlRow(IReadOnlyList<SqlExpression> expressions)
       : base(SqlNodeType.Row, expressions)
     {
-      this.expressions = expressions;
     }
   }
 }
