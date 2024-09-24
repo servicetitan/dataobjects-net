@@ -21,6 +21,9 @@ namespace Xtensive.Orm.Security.Cryptography
     protected override HashAlgorithm GetHashAlgorithm() => new SHA384Managed();
 #pragma warning restore SYSLIB0021 // Type or member is obsolete
 
+    /// <inheritdoc />
+    protected override int HashSizeInBytes => SHA384.HashSizeInBytes;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="SHA384HashingService"/> class.
     /// </summary>
