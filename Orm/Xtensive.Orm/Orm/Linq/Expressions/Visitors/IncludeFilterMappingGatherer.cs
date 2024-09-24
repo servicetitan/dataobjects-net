@@ -12,7 +12,7 @@ using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
-  internal sealed class IncludeFilterMappingGatherer(Expression filterDataTuple, ApplyParameter filteredTuple, ArraySegment<IncludeFilterMappingGatherer.MappingEntry> resultMapping)
+  internal sealed class IncludeFilterMappingGatherer(Expression filterDataTuple, ApplyParameter filteredTuple, ArraySegment<IncludeFilterMappingGatherer.MappingEntry?> resultMapping)
     : ExtendedExpressionVisitor
   {
     public readonly struct MappingEntry
@@ -36,11 +36,11 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     private static readonly ParameterExpression CalculatedColumnParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "filteredRow");
     private static readonly IReadOnlyList<ParameterExpression> CalculatedColumnParameters = [CalculatedColumnParameter];
 
-    public static void Gather(Expression filterExpression, Expression filterDataTuple, ApplyParameter filteredTuple, ArraySegment<MappingEntry> mapping)
+    public static void Gather(Expression filterExpression, Expression filterDataTuple, ApplyParameter filteredTuple, ArraySegment<MappingEntry?> mapping)
     {
       var visitor = new IncludeFilterMappingGatherer(filterDataTuple, filteredTuple, mapping);
       _ = visitor.Visit(filterExpression);
-      if (mapping.Contains(default))
+      if (mapping.Contains(null))
         throw Exceptions.InternalError("Failed to gather mappings for IncludeProvider", OrmLog.Instance);
     }
 

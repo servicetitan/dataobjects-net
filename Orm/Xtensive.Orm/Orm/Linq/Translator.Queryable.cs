@@ -1532,13 +1532,13 @@ namespace Xtensive.Orm.Linq
         var filteredColumns = new ColNum[filterColumnCount];
 
         // Mapping from filter data column to expression that requires filtering
-        var filteredColumnMappings = ArrayPool<IncludeFilterMappingGatherer.MappingEntry>.Shared.Rent(filterColumnCount);
+        var filteredColumnMappings = ArrayPool<IncludeFilterMappingGatherer.MappingEntry?>.Shared.Rent(filterColumnCount);
         try {
           IncludeFilterMappingGatherer.Gather(predicateLambda.Body, predicateLambda.Parameters[0], filteredTuple, new(filteredColumnMappings, 0, filterColumnCount));
 
           // Mapping from filter data column to filtered column
           for (var i = 0; i < filterColumnCount; i++) {
-            var mapping = filteredColumnMappings[i];
+            var mapping = filteredColumnMappings[i].Value;
             filteredColumns[i] = mapping.ColumnIndex >= 0
               ? mapping.ColumnIndex
               : AddCalculatedColumn(outerParameter, CreateCalculatedColumnDescriptor(mapping.CalculatedColumn), mapping.CalculatedColumn.Body.Type)
@@ -1546,7 +1546,7 @@ namespace Xtensive.Orm.Linq
           }
         }
         finally {
-          ArrayPool<IncludeFilterMappingGatherer.MappingEntry>.Shared.Return(filteredColumnMappings, true);
+          ArrayPool<IncludeFilterMappingGatherer.MappingEntry?>.Shared.Return(filteredColumnMappings, true);
         }
 
         var contextBindings = context.Bindings;
