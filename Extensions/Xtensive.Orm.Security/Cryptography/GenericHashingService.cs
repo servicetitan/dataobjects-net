@@ -4,9 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2011.06.10
 
-using System;
 using System.Buffers;
 using System.Buffers.Text;
+using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -75,6 +75,9 @@ namespace Xtensive.Orm.Security.Cryptography
 
     private void ComputeHashInternal(string password, ReadOnlySpan<byte> salt, Span<byte> hash)
     {
+      Debug.Assert(hash.Length == HashSizeInBytes);
+      Debug.Assert(salt.Length == SaltSize);
+
       var encoding = Encoding.UTF8;
       var buffer = ArrayPool<byte>.Shared.Rent(salt.Length + encoding.GetMaxByteCount(password.Length));
       try {
@@ -82,8 +85,9 @@ namespace Xtensive.Orm.Security.Cryptography
         var written = encoding.GetBytes(password.AsSpan(), buffer.AsSpan(salt.Length));
 
         using var hasher = GetHashAlgorithm();
-        _ = hasher.TryComputeHash(new ReadOnlySpan<byte>(buffer, 0, salt.Length + written), hash, out _);
+        var isSuccess = hasher.TryComputeHash(new ReadOnlySpan<byte>(buffer, 0, salt.Length + written), hash, out var bytesWritten);
 
+        Debug.Assert(isSuccess && bytesWritten == HashSizeInBytes);
       }
       finally {
         ArrayPool<byte>.Shared.Return(buffer);
