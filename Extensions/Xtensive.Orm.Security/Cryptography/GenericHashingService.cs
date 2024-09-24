@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Security.Cryptography
         Debug.Assert(isSuccess && bytesWritten == HashSizeInBytes);
       }
       finally {
-        ArrayPool<byte>.Shared.Return(buffer);
+        ArrayPool<byte>.Shared.Return(buffer, true);
       }
     }
 
