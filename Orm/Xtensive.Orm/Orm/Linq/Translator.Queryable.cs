@@ -1539,14 +1539,10 @@ namespace Xtensive.Orm.Linq
           // Mapping from filter data column to filtered column
           for (var i = 0; i < filterColumnCount; i++) {
             var mapping = filteredColumnMappings[i];
-            if (mapping.ColumnIndex >= 0) {
-              filteredColumns[i] = mapping.ColumnIndex;
-            }
-            else {
-              var descriptor = CreateCalculatedColumnDescriptor(mapping.CalculatedColumn);
-              var column = AddCalculatedColumn(outerParameter, descriptor, mapping.CalculatedColumn.Body.Type);
-              filteredColumns[i] = column.Mapping.Offset;
-            }
+            filteredColumns[i] = mapping.ColumnIndex >= 0
+              ? mapping.ColumnIndex
+              : AddCalculatedColumn(outerParameter, CreateCalculatedColumnDescriptor(mapping.CalculatedColumn), mapping.CalculatedColumn.Body.Type)
+                  .Mapping.Offset;
           }
         }
         finally {
