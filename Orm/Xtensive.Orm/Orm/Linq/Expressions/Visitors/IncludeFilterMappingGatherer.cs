@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
   internal sealed class IncludeFilterMappingGatherer : ExtendedExpressionVisitor
   {
-    public sealed class MappingEntry
+    public readonly struct MappingEntry
     {
       public ColNum ColumnIndex { get; }
 
@@ -39,17 +39,14 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
     private readonly Expression filterDataTuple;
     private readonly ApplyParameter filteredTuple;
-    private readonly MappingEntry[] resultMapping;
+    private readonly ArraySegment<MappingEntry> resultMapping;
 
-    public static MappingEntry[] Gather(Expression filterExpression, Expression filterDataTuple, ApplyParameter filteredTuple, int columnCount)
+    public static void Gather(Expression filterExpression, Expression filterDataTuple, ApplyParameter filteredTuple, ArraySegment<MappingEntry> mapping)
     {
-      var mapping = Enumerable.Repeat((MappingEntry) null, columnCount).ToArray();
       var visitor = new IncludeFilterMappingGatherer(filterDataTuple, filteredTuple, mapping);
       _ = visitor.Visit(filterExpression);
-      if (mapping.Contains(null)) {
+      if (mapping.Contains(default))
         throw Exceptions.InternalError("Failed to gather mappings for IncludeProvider", OrmLog.Instance);
-      }
-      return mapping;
     }
 
     protected override Expression VisitBinary(BinaryExpression b)
@@ -71,7 +68,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       }
 
       var filterDataIndex = filterDataAccessor.StripCasts().GetTupleAccessArgument();
-      if (resultMapping.Length <= filterDataIndex) {
+      if (resultMapping.Count <= filterDataIndex) {
         return result;
       }
       resultMapping[filterDataIndex] = CreateMappingEntry(filteredExpression);
@@ -101,7 +98,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return new MappingEntry(FastExpression.Lambda(expression, CalculatedColumnParameters));
     }
 
-    private IncludeFilterMappingGatherer(Expression filterDataTuple, ApplyParameter filteredTuple, MappingEntry[] resultMapping)
+    private IncludeFilterMappingGatherer(Expression filterDataTuple, ApplyParameter filteredTuple, ArraySegment<MappingEntry> resultMapping)
     {
       this.filterDataTuple = filterDataTuple;
       this.filteredTuple = filteredTuple;
