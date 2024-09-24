@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Upgrade.Model
   [Serializable]
   public sealed class SecondaryIndexInfo : StorageIndexInfo
   {
-    private PartialIndexFilterInfo filter;
+    private PartialIndexFilterInfo? filter;
 
     /// <summary>
     /// Gets value columns.
@@ -37,9 +37,9 @@ namespace Xtensive.Orm.Upgrade.Model
     /// Gets filter expression for partial index.
     /// </summary>
     [Property(Priority = -90)]
-    public PartialIndexFilterInfo Filter
+    public PartialIndexFilterInfo? Filter
     {
-      get { return filter; }
+      get => filter;
       set
       {
         EnsureIsEditable();

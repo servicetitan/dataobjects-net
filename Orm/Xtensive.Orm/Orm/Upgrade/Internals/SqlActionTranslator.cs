@@ -1079,8 +1079,8 @@ namespace Xtensive.Orm.Upgrade
       index.NonkeyColumns.AddRange(
         indexInfo.IncludedColumns
           .Select(cr => FindColumn(table, cr.Value.Name)).ToArray());
-      if (indexInfo.Filter!=null)
-        index.Where = SqlDml.Native(indexInfo.Filter.Expression);
+      if (indexInfo.Filter != null)
+        index.Where = SqlDml.Native(indexInfo.Filter.Value.Expression);
       return index;
     }
 
