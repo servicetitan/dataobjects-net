@@ -21,6 +21,8 @@ namespace Xtensive.Orm
   /// </summary>
   public static partial class QueryableExtensions
   {
+    private static readonly object BoxedZero = 0;
+
     /// <summary>
     /// Asynchronously determines whether all the elements of a sequence satisfy a condition.
     /// </summary>
@@ -34,14 +36,8 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains true
     /// if every element of the source sequence passes the test in the specified predicate;
     /// otherwise, false. </returns>
-    public static async Task<bool> AllAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(predicate);
-
-      return await ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.All, source, predicate, cancellationToken);
-    }
+    public static Task<bool> AllAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.All, source, predicate, cancellationToken);
 
     /// <summary>
     /// Asynchronously determines whether a sequence contains any elements.
@@ -54,13 +50,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains true
     /// if the source sequence contains any elements; otherwise, false.</returns>
-    public static async Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return await ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.Any, source, cancellationToken);
-    }
+    public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.Any, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously determines whether any element of a sequence satisfies a condition.
@@ -75,15 +66,8 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains true
     /// if any elements in the source sequence pass the test in the specified predicate;
     /// otherwise, false.</returns>
-    public static async Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(predicate);
-
-      return await ExecuteScalarAsync<TSource, bool>(
-        WellKnownMembers.Queryable.AnyWithPredicate, source, predicate, cancellationToken);
-    }
+    public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.AnyWithPredicate, source, predicate, cancellationToken);
 
     // Average<int>
 
@@ -97,14 +81,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the sequence of values.</returns>
-    public static Task<double> AverageAsync(this IQueryable<int> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<int, double>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Int32], source, cancellationToken);
-    }
+    public static Task<double> AverageAsync(this IQueryable<int> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<int, double>(WellKnownMembers.Queryable.AverageInt32, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values.
@@ -116,14 +94,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the sequence of values.</returns>
-    public static Task<double?> AverageAsync(this IQueryable<int?> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<int?, double?>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableInt32], source, cancellationToken);
-    }
+    public static Task<double?> AverageAsync(this IQueryable<int?> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<int?, double?>(WellKnownMembers.Queryable.AverageNullableInt32, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values that is obtained
@@ -138,16 +110,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the projected values.</returns>
-    public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, double>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.Int32],
-        source, selector, cancellationToken);
-    }
+    public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, double>(WellKnownMembers.Queryable.AverageWithSelectorInt32, source, selector, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values that is obtained
@@ -162,16 +126,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the projected values.</returns>
-    public static Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, double?>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.NullableInt32],
-        source, selector, cancellationToken);
-    }
+    public static Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, double?>(WellKnownMembers.Queryable.AverageWithSelectorNullableInt32, source, selector, cancellationToken);
 
     // Average<long>
 
@@ -185,14 +141,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the sequence of values.</returns>
-    public static Task<double> AverageAsync(this IQueryable<long> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<long, double>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Int64], source, cancellationToken);
-    }
+    public static Task<double> AverageAsync(this IQueryable<long> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<long, double>(WellKnownMembers.Queryable.AverageInt64, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values.
@@ -204,14 +154,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the sequence of values.</returns>
-    public static Task<double?> AverageAsync(this IQueryable<long?> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<long?, double?>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableInt64], source, cancellationToken);
-    }
+    public static Task<double?> AverageAsync(this IQueryable<long?> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<long?, double?>(WellKnownMembers.Queryable.AverageNullableInt64, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values that is obtained
@@ -226,16 +170,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the projected values.</returns>
-    public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, double>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.Int64],
-        source, selector, cancellationToken);
-    }
+    public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, double>(WellKnownMembers.Queryable.AverageWithSelectorInt64, source, selector, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values that is obtained
@@ -250,16 +186,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the projected values.</returns>
-    public static Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, double?>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.NullableInt64],
-        source, selector, cancellationToken);
-    }
+    public static Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, double?>(WellKnownMembers.Queryable.AverageWithSelectorNullableInt64, source, selector, cancellationToken);
 
     // Average<double>
 
@@ -273,14 +201,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the sequence of values.</returns>
-    public static Task<double> AverageAsync(this IQueryable<double> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<double, double>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Double], source, cancellationToken);
-    }
+    public static Task<double> AverageAsync(this IQueryable<double> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<double, double>(WellKnownMembers.Queryable.AverageDouble, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values.
@@ -292,14 +214,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the sequence of values.</returns>
-    public static Task<double?> AverageAsync(this IQueryable<double?> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<double?, double?>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableDouble], source, cancellationToken);
-    }
+    public static Task<double?> AverageAsync(this IQueryable<double?> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<double?, double?>(WellKnownMembers.Queryable.AverageNullableDouble, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values that is obtained
@@ -314,16 +230,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the projected values.</returns>
-    public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, double>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.Double],
-        source, selector, cancellationToken);
-    }
+    public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, double>(WellKnownMembers.Queryable.AverageWithSelectorDouble, source, selector, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values that is obtained
@@ -338,16 +246,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the projected values.</returns>
-    public static Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, double?>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.NullableDouble],
-        source, selector, cancellationToken);
-    }
+    public static Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, double?>(WellKnownMembers.Queryable.AverageWithSelectorNullableDouble, source, selector, cancellationToken);
 
     // Average<float>
 
@@ -361,14 +261,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the sequence of values.</returns>
-    public static Task<float> AverageAsync(this IQueryable<float> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<float, float>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Single], source, cancellationToken);
-    }
+    public static Task<float> AverageAsync(this IQueryable<float> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<float, float>(WellKnownMembers.Queryable.AverageSingle, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values.
@@ -380,14 +274,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the sequence of values.</returns>
-    public static Task<float?> AverageAsync(this IQueryable<float?> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<float?, float?>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableSingle], source, cancellationToken);
-    }
+    public static Task<float?> AverageAsync(this IQueryable<float?> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<float?, float?>(WellKnownMembers.Queryable.AverageNullableSingle, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values that is obtained
@@ -402,16 +290,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the projected values.</returns>
-    public static Task<float> AverageAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, float>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.Single],
-        source, selector, cancellationToken);
-    }
+    public static Task<float> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, float>(WellKnownMembers.Queryable.AverageWithSelectorSingle, source, selector, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values that is obtained
@@ -426,16 +306,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the projected values.</returns>
-    public static Task<float?> AverageAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, float?>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.NullableSingle],
-        source, selector, cancellationToken);
-    }
+    public static Task<float?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, float?>(WellKnownMembers.Queryable.AverageWithSelectorNullableSingle, source, selector, cancellationToken);
 
     // Average<decimal>
 
@@ -449,14 +321,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the sequence of values.</returns>
-    public static Task<decimal> AverageAsync(this IQueryable<decimal> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<decimal, decimal>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Decimal], source, cancellationToken);
-    }
+    public static Task<decimal> AverageAsync(this IQueryable<decimal> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<decimal, decimal>(WellKnownMembers.Queryable.AverageDecimal, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values.
@@ -468,14 +334,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the sequence of values.</returns>
-    public static Task<decimal?> AverageAsync(this IQueryable<decimal?> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<decimal?, decimal?>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableDecimal], source, cancellationToken);
-    }
+    public static Task<decimal?> AverageAsync(this IQueryable<decimal?> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<decimal?, decimal?>(WellKnownMembers.Queryable.AverageNullableDecimal, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values that is obtained
@@ -490,16 +350,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the projected values.</returns>
-    public static Task<decimal> AverageAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, decimal>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.Decimal],
-        source, selector, cancellationToken);
-    }
+    public static Task<decimal> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, decimal>(WellKnownMembers.Queryable.AverageWithSelectorDecimal, source, selector, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the average of a sequence of values that is obtained
@@ -514,16 +366,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// average of the projected values.</returns>
-    public static Task<decimal?> AverageAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, decimal?>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.NullableDecimal],
-        source, selector, cancellationToken);
-    }
+    public static Task<decimal?> AverageAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, decimal?>(WellKnownMembers.Queryable.AverageWithSelectorNullableDecimal, source, selector, cancellationToken);
 
     // Contains
 
@@ -539,14 +383,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains true
     /// if the input sequence contains the specified value; otherwise, false.</returns>
-    public static Task<bool> ContainsAsync<TSource>(this IQueryable<TSource> source, TSource item,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.Contains,
-        source, Expression.Constant(item, typeof(TSource)), cancellationToken);
-    }
+    public static Task<bool> ContainsAsync<TSource>(this IQueryable<TSource> source, TSource item, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.Contains, source, Expression.Constant(item, typeof(TSource)), cancellationToken);
 
     // Count
 
@@ -561,13 +399,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// number of elements in the input sequence.</returns>
-    public static async Task<int> CountAsync<TSource>(this IQueryable<TSource> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return await ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.Count, source, cancellationToken);
-    }
+    public static Task<int> CountAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.Count, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously returns the number of elements in a sequence that satisfy a condition.
@@ -581,15 +414,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// number of elements in the sequence that satisfy the condition in the predicate function.</returns>
-    public static async Task<int> CountAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(predicate);
-
-      return await ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.CountWithPredicate,
-        source, predicate, cancellationToken);
-    }
+    public static Task<int> CountAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.CountWithPredicate, source, predicate, cancellationToken);
 
     // First
 
@@ -604,13 +430,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     ///  first element in source.</returns>
-    public static Task<TSource> FirstAsync<TSource>(this IQueryable<TSource> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.First, source, cancellationToken);
-    }
+    public static Task<TSource> FirstAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.First, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously returns the first element of a sequence that satisfies a specified condition.
@@ -624,15 +445,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     ///  first element in source that passes the test in predicate.</returns>
-    public static Task<TSource> FirstAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(predicate);
-
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstWithPredicate,
-        source, predicate, cancellationToken);
-    }
+    public static Task<TSource> FirstAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstWithPredicate, source, predicate, cancellationToken);
 
     // FirstOrDefault
 
@@ -648,13 +462,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains default
     /// (TSource) if source is empty; otherwise, the first element in source.</returns>
-    public static Task<TSource> FirstOrDefaultAsync<TSource>(this IQueryable<TSource> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstOrDefault, source, cancellationToken);
-    }
+    public static Task<TSource> FirstOrDefaultAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstOrDefault, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously returns the first element of a sequence that satisfies a specified
@@ -670,15 +479,8 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains default
     /// (TSource) if source is empty or if no element passes the test specified by predicate;
     /// otherwise, the first element in source that passes the test specified by predicate.</returns>
-    public static Task<TSource> FirstOrDefaultAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(predicate);
-
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstOrDefaultWithPredicate,
-        source, predicate, cancellationToken);
-    }
+    public static Task<TSource> FirstOrDefaultAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstOrDefaultWithPredicate, source, predicate, cancellationToken);
 
     // Last
 
@@ -693,13 +495,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// last element in source.</returns>
-    public static Task<TSource> LastAsync<TSource>(this IQueryable<TSource> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Last, source, cancellationToken);
-    }
+    public static Task<TSource> LastAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Last, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously returns the last element of a sequence.
@@ -713,15 +510,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// last element in source.</returns>
-    public static Task<TSource> LastAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(predicate);
-
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.LastWithPredicate,
-        source, predicate, cancellationToken);
-    }
+    public static Task<TSource> LastAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.LastWithPredicate, source, predicate, cancellationToken);
 
     // LastOrDefault
 
@@ -737,13 +527,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains default
     /// (TSource) if source is empty; otherwise, the last element in source.</returns>
-    public static Task<TSource> LastOrDefaultAsync<TSource>(this IQueryable<TSource> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.LastOrDefault, source, cancellationToken);
-    }
+    public static Task<TSource> LastOrDefaultAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.LastOrDefault, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously returns the last element of a sequence that satisfies a specified
@@ -759,15 +544,8 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains default
     /// (TSource) if source is empty or if no element passes the test specified by predicate;
     /// otherwise, the last element in source that passes the test specified by predicate.</returns>
-    public static Task<TSource> LastOrDefaultAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(predicate);
-
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.LastOrDefaultWithPredicate,
-        source, predicate, cancellationToken);
-    }
+    public static Task<TSource> LastOrDefaultAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.LastOrDefaultWithPredicate, source, predicate, cancellationToken);
 
     // LongCount
 
@@ -783,13 +561,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// number of elements in the input sequence.</returns>
-    public static Task<long> LongCountAsync<TSource>(this IQueryable<TSource> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<TSource, long>(WellKnownMembers.Queryable.LongCount, source, cancellationToken);
-    }
+    public static Task<long> LongCountAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, long>(WellKnownMembers.Queryable.LongCount, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously returns an System.Int64 that represents the number of elements
@@ -805,15 +578,8 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// number of elements in the sequence that satisfy the condition in the predicate
     /// function.</returns>
-    public static Task<long> LongCountAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(predicate);
-
-      return ExecuteScalarAsync<TSource, long>(WellKnownMembers.Queryable.LongCountWithPredicate,
-        source, predicate, cancellationToken);
-    }
+    public static Task<long> LongCountAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, long>(WellKnownMembers.Queryable.LongCountWithPredicate, source, predicate, cancellationToken);
 
     // Max
 
@@ -828,13 +594,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// maximum value in the sequence.</returns>
-    public static Task<TSource> MaxAsync<TSource>(this IQueryable<TSource> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Max, source, cancellationToken);
-    }
+    public static Task<TSource> MaxAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Max, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously invokes a projection function on each element of a sequence and
@@ -850,15 +611,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// maximum value in the sequence.</returns>
-    public static Task<TResult> MaxAsync<TSource, TResult>(this IQueryable<TSource> source,
-      Expression<Func<TSource, TResult>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, TResult>(WellKnownMembers.Queryable.MaxWithSelector,
-        source, selector, cancellationToken);
-    }
+    public static Task<TResult> MaxAsync<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TResult>(WellKnownMembers.Queryable.MaxWithSelector, source, selector, cancellationToken);
 
     // Min
 
@@ -872,13 +626,8 @@ namespace Xtensive.Orm
     /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains the elements ot determine the minimum of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public static Task<TSource> MinAsync<TSource>(this IQueryable<TSource> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Min, source, cancellationToken);
-    }
+    public static Task<TSource> MinAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Min, source, cancellationToken);
 
     /// <summary>
     /// synchronously invokes a projection function on each element of a sequence and
@@ -893,15 +642,8 @@ namespace Xtensive.Orm
     /// <param name="selector">A projection function to apply to each element.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public static Task<TResult> MinAsync<TSource, TResult>(this IQueryable<TSource> source,
-      Expression<Func<TSource, TResult>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, TResult>(WellKnownMembers.Queryable.MinWithSelector,
-        source, selector, cancellationToken);
-    }
+    public static Task<TResult> MinAsync<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TResult>(WellKnownMembers.Queryable.MinWithSelector, source, selector, cancellationToken);
 
     // Single
 
@@ -917,13 +659,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// single element of the input sequence that satisfies the condition in predicate.</returns>
-    public static Task<TSource> SingleAsync<TSource>(this IQueryable<TSource> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Single, source, cancellationToken);
-    }
+    public static Task<TSource> SingleAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Single, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously returns the only element of a sequence that satisfies a specified
@@ -938,15 +675,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// single element of the input sequence that satisfies the condition in predicate.</returns>
-    public static Task<TSource> SingleAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(predicate);
-
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleWithPredicate,
-        source, predicate, cancellationToken);
-    }
+    public static Task<TSource> SingleAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleWithPredicate, source, predicate, cancellationToken);
 
     // SingleOrDefault
 
@@ -964,14 +694,8 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// single element of the input sequence, or default (TSource) if the sequence contains
     /// no elements.</returns>
-    public static Task<TSource> SingleOrDefaultAsync<TSource>(this IQueryable<TSource> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleOrDefault, source,
-        cancellationToken);
-    }
+    public static Task<TSource> SingleOrDefaultAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleOrDefault, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously returns the only element of a sequence, or a default value if
@@ -988,15 +712,8 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// single element of the input sequence that satisfies the condition in predicate,
     /// or default (TSource) if no such element is found.</returns>
-    public static Task<TSource> SingleOrDefaultAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(predicate);
-
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleOrDefaultWithPredicate,
-        source, predicate, cancellationToken);
-    }
+    public static Task<TSource> SingleOrDefaultAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleOrDefaultWithPredicate, source, predicate, cancellationToken);
 
     // Sum<int>
 
@@ -1010,14 +727,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the values in the sequence.</returns>
-    public static Task<int> SumAsync(this IQueryable<int> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<int, int>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Int32], source, cancellationToken);
-    }
+    public static Task<int> SumAsync(this IQueryable<int> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<int, int>(WellKnownMembers.Queryable.SumInt32, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the sum of a sequence of values.
@@ -1029,14 +740,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the values in the sequence.</returns>
-    public static Task<int?> SumAsync(this IQueryable<int?> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<int?, int?>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableInt32], source, cancellationToken);
-    }
+    public static Task<int?> SumAsync(this IQueryable<int?> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<int?, int?>(WellKnownMembers.Queryable.SumNullableInt32, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the sum of the sequence of values that is obtained by
@@ -1051,16 +756,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the projected values.</returns>
-    public static Task<int> SumAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, int>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.Int32],
-        source, selector, cancellationToken);
-    }
+    public static Task<int> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.SumWithSelectorInt32, source, selector, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the sum of the sequence of values that is obtained by
@@ -1075,16 +772,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the projected values.</returns>
-    public static Task<int?> SumAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, int?>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.NullableInt32],
-        source, selector, cancellationToken);
-    }
+    public static Task<int?> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, int?>(WellKnownMembers.Queryable.SumWithSelectorNullableInt32, source, selector, cancellationToken);
 
     // Sum<long>
 
@@ -1098,14 +787,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the values in the sequence.</returns>
-    public static Task<long> SumAsync(this IQueryable<long> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<long, long>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Int64], source, cancellationToken);
-    }
+    public static Task<long> SumAsync(this IQueryable<long> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<long, long>(WellKnownMembers.Queryable.SumInt64, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the sum of a sequence of values.
@@ -1117,14 +800,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the values in the sequence.</returns>
-    public static Task<long?> SumAsync(this IQueryable<long?> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<long?, long?>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableInt64], source, cancellationToken);
-    }
+    public static Task<long?> SumAsync(this IQueryable<long?> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<long?, long?>(WellKnownMembers.Queryable.SumNullableInt64, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the sum of the sequence of values that is obtained by
@@ -1139,16 +816,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the projected values.</returns>
-    public static Task<long> SumAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, long>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.Int64],
-        source, selector, cancellationToken);
-    }
+    public static Task<long> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, long>(WellKnownMembers.Queryable.SumWithSelectorInt64, source, selector, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the sum of the sequence of values that is obtained by
@@ -1163,16 +832,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the projected values.</returns>
-    public static Task<long?> SumAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, long?>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.NullableInt64],
-        source, selector, cancellationToken);
-    }
+    public static Task<long?> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, long?>(WellKnownMembers.Queryable.SumWithSelectorNullableInt64, source, selector, cancellationToken);
 
     // Sum<double>
 
@@ -1186,14 +847,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the values in the sequence.</returns>
-    public static Task<double> SumAsync(this IQueryable<double> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<double, double>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Double], source, cancellationToken);
-    }
+    public static Task<double> SumAsync(this IQueryable<double> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<double, double>(WellKnownMembers.Queryable.SumDouble, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the sum of a sequence of values.
@@ -1205,14 +860,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the values in the sequence.</returns>
-    public static Task<double?> SumAsync(this IQueryable<double?> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<double?, double?>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableDouble], source, cancellationToken);
-    }
+    public static Task<double?> SumAsync(this IQueryable<double?> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<double?, double?>(WellKnownMembers.Queryable.SumNullableDouble, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the sum of the sequence of values that is obtained by
@@ -1227,16 +876,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the projected values.</returns>
-    public static Task<double> SumAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, double>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.Double],
-        source, selector, cancellationToken);
-    }
+    public static Task<double> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, double>(WellKnownMembers.Queryable.SumWithSelectorDouble, source, selector, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the sum of the sequence of values that is obtained by
@@ -1251,16 +892,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the projected values.</returns>
-    public static Task<double?> SumAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, double?>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.NullableDouble],
-        source, selector, cancellationToken);
-    }
+    public static Task<double?> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, double?>(WellKnownMembers.Queryable.SumWithSelectorNullableDouble, source, selector, cancellationToken);
 
     // Sum<float>
 
@@ -1274,14 +907,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the values in the sequence.</returns>
-    public static Task<float> SumAsync(this IQueryable<float> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<float, float>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Single], source, cancellationToken);
-    }
+    public static Task<float> SumAsync(this IQueryable<float> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<float, float>(WellKnownMembers.Queryable.SumSingle, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the sum of a sequence of values.
@@ -1293,14 +920,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the values in the sequence.</returns>
-    public static Task<float?> SumAsync(this IQueryable<float?> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<float?, float?>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableSingle], source, cancellationToken);
-    }
+    public static Task<float?> SumAsync(this IQueryable<float?> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<float?, float?>(WellKnownMembers.Queryable.SumNullableSingle, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the sum of the sequence of values that is obtained by
@@ -1315,16 +936,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the projected values.</returns>
-    public static Task<float> SumAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, float>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.Single],
-        source, selector, cancellationToken);
-    }
+    public static Task<float> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, float>(WellKnownMembers.Queryable.SumWithSelectorSingle, source, selector, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the sum of the sequence of values that is obtained by
@@ -1339,16 +952,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the projected values.</returns>
-    public static Task<float?> SumAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, float?>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.NullableSingle],
-        source, selector, cancellationToken);
-    }
+    public static Task<float?> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, float?>(WellKnownMembers.Queryable.SumWithSelectorNullableSingle, source, selector, cancellationToken);
 
     // Sum<decimal>
 
@@ -1362,14 +967,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the values in the sequence.</returns>
-    public static Task<decimal> SumAsync(this IQueryable<decimal> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<decimal, decimal>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Decimal], source, cancellationToken);
-    }
+    public static Task<decimal> SumAsync(this IQueryable<decimal> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<decimal, decimal>(WellKnownMembers.Queryable.SumDecimal, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the sum of a sequence of values.
@@ -1381,14 +980,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the values in the sequence.</returns>
-    public static Task<decimal?> SumAsync(this IQueryable<decimal?> source,
-      CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-
-      return ExecuteScalarAsync<decimal?, decimal?>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableDecimal], source, cancellationToken);
-    }
+    public static Task<decimal?> SumAsync(this IQueryable<decimal?> source, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<decimal?, decimal?>(WellKnownMembers.Queryable.SumNullableDecimal, source, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the sum of the sequence of values that is obtained by
@@ -1403,16 +996,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the projected values.</returns>
-    public static Task<decimal> SumAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, decimal>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.Decimal],
-        source, selector, cancellationToken);
-    }
+    public static Task<decimal> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, decimal>(WellKnownMembers.Queryable.SumWithSelectorDecimal, source, selector, cancellationToken);
 
     /// <summary>
     /// Asynchronously computes the sum of the sequence of values that is obtained by
@@ -1427,16 +1012,8 @@ namespace Xtensive.Orm
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
     /// sum of the projected values.</returns>
-    public static Task<decimal?> SumAsync<TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(selector);
-
-      return ExecuteScalarAsync<TSource, decimal?>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.NullableDecimal],
-        source, selector, cancellationToken);
-    }
+    public static Task<decimal?> SumAsync<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default) =>
+      ExecuteScalarAsync<TSource, decimal?>(WellKnownMembers.Queryable.SumWithSelectorNullableDecimal, source, selector, cancellationToken);
 
     // Collection methods
 
@@ -1666,25 +1243,34 @@ namespace Xtensive.Orm
 
     // Private methods
 
-    private static Task<TResult> ExecuteScalarAsync<TSource, TResult>(MethodInfo operation,
-      IQueryable<TSource> source, CancellationToken cancellationToken) =>
-      ExecuteScalarAsync<TSource, TResult>(operation, source, null, cancellationToken);
+    private static MethodInfo NormalizeOperation<TSource, TResult>(MethodInfo operation) =>
+      !operation.IsGenericMethod
+        ? operation
+        : operation.GetGenericArguments().Length == 2 ? operation.CachedMakeGenericMethod(typeof(TSource), typeof(TResult))
+        : operation.CachedMakeGenericMethod(typeof(TSource));
+
+    private static async Task<TResult> ExecuteScalarAsync<TSource, TResult>(MethodInfo operation,
+      IQueryable<TSource> source, CancellationToken cancellationToken)
+    {
+      ArgumentNullException.ThrowIfNull(source);
+      operation = NormalizeOperation<TSource, TResult>(operation);
+      return source.Provider is QueryProvider provider
+        ? await provider.ExecuteScalarAsync<TResult>(Expression.Call(null, operation, [source.Expression]), cancellationToken)
+        : (TResult) operation.Invoke(BoxedZero, [source]);
+    }
 
     private static async Task<TResult> ExecuteScalarAsync<TSource, TResult>(MethodInfo operation,
       IQueryable<TSource> source,
       Expression expression,
       CancellationToken cancellationToken = default)
     {
-      if (operation.IsGenericMethod) {
-        operation = operation.GetGenericArguments().Length == 2
-            ? operation.CachedMakeGenericMethod(typeof(TSource), typeof(TResult))
-            : operation.CachedMakeGenericMethod(typeof(TSource));
-      }
-      if (source.Provider is QueryProvider provider) {
-        var arguments = expression == null ? new[] {source.Expression} : new[] {source.Expression, expression};
-        return await provider.ExecuteScalarAsync<TResult>(Expression.Call(null, operation, arguments), cancellationToken);
-      }
-      return (TResult) operation.Invoke(0, expression == null ? new object[] { source } : new object[] { source, expression });
+      ArgumentNullException.ThrowIfNull(source);
+      ArgumentNullException.ThrowIfNull(expression);
+
+      operation = NormalizeOperation<TSource, TResult>(operation);
+      return source.Provider is QueryProvider provider
+        ? await provider.ExecuteScalarAsync<TResult>(Expression.Call(null, operation, [source.Expression, expression]), cancellationToken)
+        : (TResult) operation.Invoke(BoxedZero, [source, expression]);
     }
   }
 }
