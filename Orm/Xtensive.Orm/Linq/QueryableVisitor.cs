@@ -89,6 +89,7 @@ public abstract class QueryableVisitor : ExpressionVisitor
   public static QueryableMethodKind? GetQueryableMethod(MethodCallExpression call) =>
     call?.Method.DeclaringType is { } declaringType
     && (declaringType == WellKnownTypes.Queryable || declaringType == WellKnownTypes.Enumerable)
-      ? QueryableMethodKindFromName.GetValueOrDefault(call.Method.Name)
+    && QueryableMethodKindFromName.TryGetValue(call.Method.Name, out var v)
+      ? v
       : null;
 }
