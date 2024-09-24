@@ -66,14 +66,12 @@ public abstract class QueryableVisitor : ExpressionVisitor
   };
 
   /// <inheritdoc/>
-  protected override Expression VisitMethodCall(MethodCallExpression mc)
-  {
-    var mcArguments = mc.Arguments;
-    return (mcArguments.Count > 0 && mcArguments[0].Type == WellKnownTypes.String)
-           || !(GetQueryableMethod(mc) is { } method)
+  protected override Expression VisitMethodCall(MethodCallExpression mc) =>
+    mc.Arguments is var mcArguments
+    && (mcArguments.Count > 0 && mcArguments[0].Type == WellKnownTypes.String)
+    || !(GetQueryableMethod(mc) is { } method)
       ? base.VisitMethodCall(mc)
       : VisitQueryableMethod(mc, method);
-  }
 
   /// <summary>
   /// Visits method of <see cref="IQueryable"/> or <see cref="IEnumerable{T}"/>.
