@@ -89,21 +89,10 @@ namespace Xtensive.Linq
     /// <param name="call">A call to process.</param>
     /// <returns><see cref="QueryableMethodKind"/> for the specified expression,
     /// or null if method is not a LINQ method.</returns>
-    public static QueryableMethodKind? GetQueryableMethod(MethodCallExpression call)
-    {
-      if (call == null) {
-        return null;
-      }
-
-      var declaringType = call.Method.DeclaringType;
-      if (declaringType == WellKnownTypes.Queryable || declaringType == WellKnownTypes.Enumerable) {
-        return ParseQueryableMethodKind(call.Method.Name);
-      }
-
-      return null;
-    }
-
-    private static QueryableMethodKind? ParseQueryableMethodKind(string methodName) =>
-      QueryableMethodKindFromName.GetValueOrDefault(methodName);
+    public static QueryableMethodKind? GetQueryableMethod(MethodCallExpression call) =>
+      call?.Method.DeclaringType is { } declaringType
+      && (declaringType == WellKnownTypes.Queryable || declaringType == WellKnownTypes.Enumerable)
+        ? QueryableMethodKindFromName.GetValueOrDefault(call.Method.Name)
+        : null;
   }
 }
