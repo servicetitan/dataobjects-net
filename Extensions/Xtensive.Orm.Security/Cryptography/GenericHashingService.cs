@@ -4,8 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2011.06.10
 
-using System;
-using System.Linq;
+using System.Buffers;
+using System.Buffers.Text;
+using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -28,64 +29,71 @@ namespace Xtensive.Orm.Security.Cryptography
     protected abstract HashAlgorithm GetHashAlgorithm();
 
     /// <summary>
-    /// Gets the salt.
+    /// Gets hash size in bytes for the hash algorithm.
     /// </summary>
-    /// <returns>The salt.</returns>
-    protected byte[] GetSalt()
-    {
-      var salt = new byte[SaltSize];
-      using (var rng = RandomNumberGenerator.Create()) {
-        rng.GetBytes(salt);
-        return salt;
-      }
-    }
+    protected abstract int HashSizeInBytes { get; }
 
     /// <summary>
-    /// Computes the hash.
+    /// Fills provided Span with salt.
     /// </summary>
-    /// <param name="password">The password.</param>
-    /// <param name="salt">The salt.</param>
-    /// <returns>String representation of hash.</returns>
-    protected string ComputeHash(byte[] password, byte[] salt)
-    {
-      using (var hasher = GetHashAlgorithm()) {
-        var hash = hasher.ComputeHash(salt.Concat(password).ToArray());
-        return Convert.ToBase64String(hash.Concat(salt).ToArray());
-      }
-    }
+    protected void FillSalt(Span<byte> salt) => RandomNumberGenerator.Fill(salt);
 
     #region IHashingService Members
 
     /// <inheritdoc/>
     public string ComputeHash(string password)
     {
-      return ComputeHash(Encoding.UTF8.GetBytes(password), GetSalt());
+      Span<byte> hashWithSalt = stackalloc byte[HashSizeInBytes + SaltSize];
+      var salt = hashWithSalt.Slice(HashSizeInBytes);
+
+      FillSalt(salt);
+      ComputeHashInternal(password, salt, hashWithSalt.Slice(0, HashSizeInBytes));
+      return Convert.ToBase64String(hashWithSalt);
     }
 
     /// <inheritdoc/>
     public bool VerifyHash(string password, string hash)
     {
-      byte[] source;
-      try {
-        source = Convert.FromBase64String(hash);
-      }
-      catch (FormatException) {
+      if (hash.Length != Base64.GetMaxEncodedToUtf8Length(HashSizeInBytes + SaltSize)) {
         return false;
       }
 
-      int hashSize;
-      using (var hasher = GetHashAlgorithm())
-        hashSize = hasher.HashSize / 8;
+      Span<byte> hashWithSalt = stackalloc byte[HashSizeInBytes + SaltSize];
 
-      if (source.Length < hashSize)
+      if (!Convert.TryFromBase64String(hash, hashWithSalt, out var written) || written != hashWithSalt.Length) {
         return false;
+      }
 
-      var salt = source.Skip(hashSize).ToArray();
-      var currentHash = ComputeHash(Encoding.UTF8.GetBytes(password), salt);
-      return StringComparer.Ordinal.Compare(hash, currentHash)==0;
+      var salt = hashWithSalt.Slice(HashSizeInBytes);
+      Span<byte> currentHash = stackalloc byte[HashSizeInBytes];
+
+      ComputeHashInternal(password, salt, currentHash);
+      return currentHash.SequenceEqual(hashWithSalt.Slice(0, HashSizeInBytes));
     }
 
     #endregion
+
+    private void ComputeHashInternal(string password, ReadOnlySpan<byte> salt, Span<byte> hash)
+    {
+      Debug.Assert(hash.Length == HashSizeInBytes);
+      Debug.Assert(salt.Length == SaltSize);
+
+      var encoding = Encoding.UTF8;
+      var buffer = ArrayPool<byte>.Shared.Rent(salt.Length + encoding.GetMaxByteCount(password.Length));
+      try {
+        salt.CopyTo(buffer);
+        var written = encoding.GetBytes(password.AsSpan(), buffer.AsSpan(salt.Length));
+
+        using var hasher = GetHashAlgorithm();
+        var isSuccess = hasher.TryComputeHash(new ReadOnlySpan<byte>(buffer, 0, salt.Length + written), hash, out var bytesWritten);
+        if (!isSuccess || bytesWritten != HashSizeInBytes) {
+          throw new InvalidOperationException("Internal error: unable to compute hash.");
+        }
+      }
+      finally {
+        ArrayPool<byte>.Shared.Return(buffer, true);
+      }
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GenericHashingService"/> class.

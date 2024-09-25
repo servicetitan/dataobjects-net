@@ -16,15 +16,9 @@ namespace Xtensive.Orm.Security.Cryptography
   public class PlainHashingService : IHashingService
   {
     /// <inheritdoc/>
-    public string ComputeHash(string password)
-    {
-      return password;
-    }
+    public string ComputeHash(string password) => password;
 
     /// <inheritdoc/>
-    public bool VerifyHash(string password, string hash)
-    {
-      return StringComparer.Ordinal.Compare(password, hash) == 0;
-    }
+    public bool VerifyHash(string password, string hash) => StringComparer.Ordinal.Equals(password, hash);
   }
 }
