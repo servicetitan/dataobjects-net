@@ -121,7 +121,7 @@ namespace Xtensive.Orm
 
     internal DomainHandler Handler { get { return Handlers.DomainHandler; } }
 
-    internal HandlerAccessor Handlers { get; private set; }
+    internal HandlerAccessor Handlers { get; }
 
     internal ConcurrentDictionary<TypeInfo, GenericKeyFactory> GenericKeyFactories { get; private set; }
 

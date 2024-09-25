@@ -1352,10 +1352,10 @@ namespace Xtensive.Orm.Linq
       }
 
       Expression result = null;
-      bool propertyFilter(PersistentFieldExpression f)
-      {
-        return f.Name == context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) member);
-      }
+
+      string builtFieldName = null;
+      bool propertyFilter(PersistentFieldExpression f) =>
+        f.Name == (builtFieldName ??= context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) member));
 
       switch (extendedExpression.ExtendedType) {
         case ExtendedExpressionType.FullText:
