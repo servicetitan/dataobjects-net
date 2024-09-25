@@ -86,8 +86,9 @@ namespace Xtensive.Orm.Security.Cryptography
 
         using var hasher = GetHashAlgorithm();
         var isSuccess = hasher.TryComputeHash(new ReadOnlySpan<byte>(buffer, 0, salt.Length + written), hash, out var bytesWritten);
-
-        Debug.Assert(isSuccess && bytesWritten == HashSizeInBytes);
+        if (!isSuccess || bytesWritten != HashSizeInBytes) {
+          throw new InvalidOperationException("Internal error: unable to compute hash.");
+        }
       }
       finally {
         ArrayPool<byte>.Shared.Return(buffer, true);
