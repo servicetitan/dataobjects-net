@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         indexInfo.IncludedColumns
           .Select(cr => FindColumn(table, cr.Value.Name)).ToArray());
       if (indexInfo.Filter!=null)
-        index.Where = SqlDml.Native(indexInfo.Filter.Expression);
+        index.Where = SqlDml.Native(indexInfo.Filter.Value.Expression);
     }
 
     private void CreateFullTextIndex(TableInfo tableInfo, Table table, StorageFullTextIndexInfo fullTextIndexInfo)

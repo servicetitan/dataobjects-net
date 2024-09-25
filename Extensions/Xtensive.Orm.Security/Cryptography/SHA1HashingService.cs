@@ -20,6 +20,9 @@ namespace Xtensive.Orm.Security.Cryptography
     // direct creation is more efficient than SHA1.Create()
     protected override HashAlgorithm GetHashAlgorithm() => new SHA1Managed();
 #pragma warning restore SYSLIB0021 // Type or member is obsolete
+    
+    /// <inheritdoc />
+    protected override int HashSizeInBytes => SHA1.HashSizeInBytes;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SHA1HashingService"/> class.

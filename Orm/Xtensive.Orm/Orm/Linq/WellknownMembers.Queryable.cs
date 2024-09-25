@@ -20,8 +20,6 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo AnyWithPredicate;
       // public static readonly MethodInfo Append;
       public static readonly MethodInfo AsQueryable;
-      public static readonly IReadOnlyDictionary<Type, MethodInfo> AverageMethodInfos;
-      public static readonly IReadOnlyDictionary<Type, MethodInfo> AverageWithSelectorMethodInfos;
       public static readonly MethodInfo Cast;
       public static readonly MethodInfo Concat;
       public static readonly MethodInfo Contains;
@@ -67,8 +65,51 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo Skip;
       public static readonly MethodInfo SkipLast;
       public static readonly MethodInfo SkipWhile;
-      public static readonly IReadOnlyDictionary<Type, MethodInfo> SumMethodInfos;
-      public static readonly IReadOnlyDictionary<Type, MethodInfo> SumWithSelectorMethodInfos;
+
+      public static readonly MethodInfo SumInt32;
+      public static readonly MethodInfo SumNullableInt32;
+      public static readonly MethodInfo SumInt64;
+      public static readonly MethodInfo SumNullableInt64;
+      public static readonly MethodInfo SumSingle;
+      public static readonly MethodInfo SumNullableSingle;
+      public static readonly MethodInfo SumDouble;
+      public static readonly MethodInfo SumNullableDouble;
+      public static readonly MethodInfo SumDecimal;
+      public static readonly MethodInfo SumNullableDecimal;
+
+      public static readonly MethodInfo SumWithSelectorInt32;
+      public static readonly MethodInfo SumWithSelectorNullableInt32;
+      public static readonly MethodInfo SumWithSelectorInt64;
+      public static readonly MethodInfo SumWithSelectorNullableInt64;
+      public static readonly MethodInfo SumWithSelectorSingle;
+      public static readonly MethodInfo SumWithSelectorNullableSingle;
+      public static readonly MethodInfo SumWithSelectorDouble;
+      public static readonly MethodInfo SumWithSelectorNullableDouble;
+      public static readonly MethodInfo SumWithSelectorDecimal;
+      public static readonly MethodInfo SumWithSelectorNullableDecimal;
+
+      public static readonly MethodInfo AverageInt32;
+      public static readonly MethodInfo AverageNullableInt32;
+      public static readonly MethodInfo AverageInt64;
+      public static readonly MethodInfo AverageNullableInt64;
+      public static readonly MethodInfo AverageSingle;
+      public static readonly MethodInfo AverageNullableSingle;
+      public static readonly MethodInfo AverageDouble;
+      public static readonly MethodInfo AverageNullableDouble;
+      public static readonly MethodInfo AverageDecimal;
+      public static readonly MethodInfo AverageNullableDecimal;
+
+      public static readonly MethodInfo AverageWithSelectorInt32;
+      public static readonly MethodInfo AverageWithSelectorNullableInt32;
+      public static readonly MethodInfo AverageWithSelectorInt64;
+      public static readonly MethodInfo AverageWithSelectorNullableInt64;
+      public static readonly MethodInfo AverageWithSelectorSingle;
+      public static readonly MethodInfo AverageWithSelectorNullableSingle;
+      public static readonly MethodInfo AverageWithSelectorDouble;
+      public static readonly MethodInfo AverageWithSelectorNullableDouble;
+      public static readonly MethodInfo AverageWithSelectorDecimal;
+      public static readonly MethodInfo AverageWithSelectorNullableDecimal;
+
       public static readonly MethodInfo Take;
       public static readonly MethodInfo TakeLast;
       public static readonly MethodInfo TakeWhile;
@@ -90,10 +131,11 @@ namespace Xtensive.Orm.Linq
 
       static Queryable()
       {
-        var averageMethodInfos = new Dictionary<Type, MethodInfo>();
-        var averageWithSelectorMethodInfos = new Dictionary<Type, MethodInfo>();
-        var sumMethodInfos = new Dictionary<Type, MethodInfo>();
-        var sumWithSelectorMethodInfos = new Dictionary<Type, MethodInfo>();
+        Dictionary<Type, MethodInfo>
+          sumMethodInfos = new(10),
+          sumWithSelectorMethodInfos = new(10),
+          averageMethodInfos = new(10),
+          averageWithSelectorMethodInfos = new(10);
 
         var queryableMethods = typeof(System.Linq.Queryable)
           .GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
@@ -443,10 +485,50 @@ namespace Xtensive.Orm.Linq
               break;
           }
         }
-        AverageMethodInfos = new ReadOnlyDictionary<Type, MethodInfo>(averageMethodInfos);
-        AverageWithSelectorMethodInfos = new ReadOnlyDictionary<Type, MethodInfo>(averageWithSelectorMethodInfos);
-        SumMethodInfos = new ReadOnlyDictionary<Type, MethodInfo>(sumMethodInfos);
-        SumWithSelectorMethodInfos = new ReadOnlyDictionary<Type, MethodInfo>(sumWithSelectorMethodInfos);
+
+        SumInt32 = sumMethodInfos[WellKnownTypes.Int32];
+        SumNullableInt32 = sumMethodInfos[WellKnownTypes.NullableInt32];
+        SumInt64 = sumMethodInfos[WellKnownTypes.Int64];
+        SumNullableInt64 = sumMethodInfos[WellKnownTypes.NullableInt64];
+        SumSingle = sumMethodInfos[WellKnownTypes.Single];
+        SumNullableSingle = sumMethodInfos[WellKnownTypes.NullableSingle];
+        SumDouble = sumMethodInfos[WellKnownTypes.Double];
+        SumNullableDouble = sumMethodInfos[WellKnownTypes.NullableDouble];
+        SumDecimal = sumMethodInfos[WellKnownTypes.Decimal];
+        SumNullableDecimal = sumMethodInfos[WellKnownTypes.NullableDecimal];
+
+        SumWithSelectorInt32 = sumWithSelectorMethodInfos[WellKnownTypes.Int32];
+        SumWithSelectorNullableInt32 = sumWithSelectorMethodInfos[WellKnownTypes.NullableInt32];
+        SumWithSelectorInt64 = sumWithSelectorMethodInfos[WellKnownTypes.Int64];
+        SumWithSelectorNullableInt64 = sumWithSelectorMethodInfos[WellKnownTypes.NullableInt64];
+        SumWithSelectorSingle = sumWithSelectorMethodInfos[WellKnownTypes.Single];
+        SumWithSelectorNullableSingle = sumWithSelectorMethodInfos[WellKnownTypes.NullableSingle];
+        SumWithSelectorDouble = sumWithSelectorMethodInfos[WellKnownTypes.Double];
+        SumWithSelectorNullableDouble = sumWithSelectorMethodInfos[WellKnownTypes.NullableDouble];
+        SumWithSelectorDecimal = sumWithSelectorMethodInfos[WellKnownTypes.Decimal];
+        SumWithSelectorNullableDecimal = sumWithSelectorMethodInfos[WellKnownTypes.NullableDecimal];
+
+        AverageInt32 = averageMethodInfos[WellKnownTypes.Int32];
+        AverageNullableInt32 = averageMethodInfos[WellKnownTypes.NullableInt32];
+        AverageInt64 = averageMethodInfos[WellKnownTypes.Int64];
+        AverageNullableInt64 = averageMethodInfos[WellKnownTypes.NullableInt64];
+        AverageSingle = averageMethodInfos[WellKnownTypes.Single];
+        AverageNullableSingle = averageMethodInfos[WellKnownTypes.NullableSingle];
+        AverageDouble = averageMethodInfos[WellKnownTypes.Double];
+        AverageNullableDouble = averageMethodInfos[WellKnownTypes.NullableDouble];
+        AverageDecimal = averageMethodInfos[WellKnownTypes.Decimal];
+        AverageNullableDecimal = averageMethodInfos[WellKnownTypes.NullableDecimal];
+
+        AverageWithSelectorInt32 = averageWithSelectorMethodInfos[WellKnownTypes.Int32];
+        AverageWithSelectorNullableInt32 = averageWithSelectorMethodInfos[WellKnownTypes.NullableInt32];
+        AverageWithSelectorInt64 = averageWithSelectorMethodInfos[WellKnownTypes.Int64];
+        AverageWithSelectorNullableInt64 = averageWithSelectorMethodInfos[WellKnownTypes.NullableInt64];
+        AverageWithSelectorSingle = averageWithSelectorMethodInfos[WellKnownTypes.Single];
+        AverageWithSelectorNullableSingle = averageWithSelectorMethodInfos[WellKnownTypes.NullableSingle];
+        AverageWithSelectorDouble = averageWithSelectorMethodInfos[WellKnownTypes.Double];
+        AverageWithSelectorNullableDouble = averageWithSelectorMethodInfos[WellKnownTypes.NullableDouble];
+        AverageWithSelectorDecimal = averageWithSelectorMethodInfos[WellKnownTypes.Decimal];
+        AverageWithSelectorNullableDecimal = averageWithSelectorMethodInfos[WellKnownTypes.NullableDecimal];
       }
 
       private static Type[] GetLambdaFuncGenericArguments(Type selectorType)

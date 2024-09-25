@@ -199,13 +199,13 @@ namespace Xtensive.Orm.Upgrade
       return secondaryIndexInfo;
     }
 
-    private PartialIndexFilterInfo GetFilter(Index index)
+    private PartialIndexFilterInfo? GetFilter(Index index)
     {
       var tableName = resolver.GetNodeName(index.DataTable);
       var result = partialIndexMap.FindIndex(tableName, index.DbName);
-      if (result==null)
-        return null;
-      return new PartialIndexFilterInfo(result.Filter);
+      return result == null
+        ? null
+        : new PartialIndexFilterInfo(result.Filter);
     }
 
     /// <inheritdoc/>

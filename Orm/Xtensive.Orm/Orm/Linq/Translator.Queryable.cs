@@ -51,54 +51,34 @@ namespace Xtensive.Orm.Linq
 
     protected override Expression VisitQueryableMethod(MethodCallExpression mc, QueryableMethodKind methodKind)
     {
+      var mcArguments = mc.Arguments;
+      var argsCount = mcArguments.Count;
       using (CreateScope(new TranslatorState(State))) {
         switch (methodKind) {
           case QueryableMethodKind.Cast:
-            return VisitCast(mc.Arguments[0], mc.Method.GetGenericArguments()[0],
-              mc.Arguments[0].Type.GetGenericArguments()[0]);
+            return VisitCast(mcArguments[0], mc.Method.GetGenericArguments()[0],
+              mcArguments[0].Type.GetGenericArguments()[0]);
           case QueryableMethodKind.AsQueryable:
-            return VisitAsQueryable(mc.Arguments[0]);
-          case QueryableMethodKind.AsEnumerable:
-            break;
-          case QueryableMethodKind.ToArray:
-            break;
-          case QueryableMethodKind.ToList:
-            break;
-          case QueryableMethodKind.Aggregate:
-            break;
+            return VisitAsQueryable(mcArguments[0]);
           case QueryableMethodKind.ElementAt:
-            return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, false);
+            return VisitElementAt(mcArguments[0], mcArguments[1], context.IsRoot(mc), mc.Method.ReturnType, false);
           case QueryableMethodKind.ElementAtOrDefault:
-            return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, true);
-          case QueryableMethodKind.Last:
-            break;
-          case QueryableMethodKind.LastOrDefault:
-            break;
+            return VisitElementAt(mcArguments[0], mcArguments[1], context.IsRoot(mc), mc.Method.ReturnType, true);
           case QueryableMethodKind.Except:
           case QueryableMethodKind.Intersect:
           case QueryableMethodKind.Concat:
           case QueryableMethodKind.Union:
             using (CreateScope(new TranslatorState(State) { BuildingProjection = false })) {
-              return VisitSetOperations(mc.Arguments[0], mc.Arguments[1], methodKind, mc.Method.GetGenericArguments()[0]);
+              return VisitSetOperations(mcArguments[0], mcArguments[1], methodKind, mc.Method.GetGenericArguments()[0]);
             }
-          case QueryableMethodKind.Reverse:
-            break;
-          case QueryableMethodKind.SequenceEqual:
-            break;
-          case QueryableMethodKind.DefaultIfEmpty:
-            break;
-          case QueryableMethodKind.SkipWhile:
-            break;
-          case QueryableMethodKind.TakeWhile:
-            break;
           case QueryableMethodKind.All:
-            if (mc.Arguments.Count == 2) {
-              return VisitAll(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
+            if (argsCount == 2) {
+              return VisitAll(mcArguments[0], mcArguments[1].StripQuotes(), context.IsRoot(mc));
             }
 
             break;
           case QueryableMethodKind.OfType:
-            var source = mc.Arguments[0];
+            var source = mcArguments[0];
             var targetType = mc.Method.GetGenericArguments()[0];
             var sourceType = source.Type;
             if (sourceType.IsGenericType) {
@@ -112,24 +92,24 @@ namespace Xtensive.Orm.Linq
               throw new NotSupportedException();
             }
           case QueryableMethodKind.Any:
-            if (mc.Arguments.Count == 1) {
-              return VisitAny(mc.Arguments[0], null, context.IsRoot(mc));
+            if (argsCount == 1) {
+              return VisitAny(mcArguments[0], null, context.IsRoot(mc));
             }
 
-            if (mc.Arguments.Count == 2) {
-              return VisitAny(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
+            if (argsCount == 2) {
+              return VisitAny(mcArguments[0], mcArguments[1].StripQuotes(), context.IsRoot(mc));
             }
 
             break;
           case QueryableMethodKind.Contains:
-            if (mc.Arguments.Count == 2) {
-              return VisitContains(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc));
+            if (argsCount == 2) {
+              return VisitContains(mcArguments[0], mcArguments[1], context.IsRoot(mc));
             }
 
             break;
           case QueryableMethodKind.Distinct:
-            if (mc.Arguments.Count == 1) {
-              return VisitDistinct(mc.Arguments[0]);
+            if (argsCount == 1) {
+              return VisitDistinct(mcArguments[0]);
             }
 
             break;
@@ -139,13 +119,13 @@ namespace Xtensive.Orm.Linq
           case QueryableMethodKind.FirstOrDefault:
           case QueryableMethodKind.Single:
           case QueryableMethodKind.SingleOrDefault:
-            if (mc.Arguments.Count == 1) {
-              return VisitFirstSingle(mc.Arguments[0], null, mc.Method, context.IsRoot(mc));
+            if (argsCount == 1) {
+              return VisitFirstSingle(mcArguments[0], null, mc.Method, context.IsRoot(mc));
             }
 
-            if (mc.Arguments.Count == 2) {
-              var predicate = (mc.Arguments[1].StripQuotes());
-              return VisitFirstSingle(mc.Arguments[0], predicate, mc.Method, context.IsRoot(mc));
+            if (argsCount == 2) {
+              var predicate = (mcArguments[1].StripQuotes());
+              return VisitFirstSingle(mcArguments[0], predicate, mc.Method, context.IsRoot(mc));
             }
 
             break;
@@ -160,21 +140,21 @@ namespace Xtensive.Orm.Linq
             }
           case QueryableMethodKind.GroupJoin:
             using (CreateScope(new TranslatorState(State) { BuildingProjection = false })) {
-              return VisitGroupJoin(mc.Arguments[0],
-                mc.Arguments[1],
-                mc.Arguments[2].StripQuotes(),
-                mc.Arguments[3].StripQuotes(),
-                mc.Arguments[4].StripQuotes(),
-                mc.Arguments.Count > 5 ? mc.Arguments[5] : null,
+              return VisitGroupJoin(mcArguments[0],
+                mcArguments[1],
+                mcArguments[2].StripQuotes(),
+                mcArguments[3].StripQuotes(),
+                mcArguments[4].StripQuotes(),
+                argsCount > 5 ? mcArguments[5] : null,
                 mc);
             }
           case QueryableMethodKind.Join:
             using (CreateScope(new TranslatorState(State) { BuildingProjection = false })) {
-              return VisitJoin(mc.Arguments[0],
-                mc.Arguments[1],
-                mc.Arguments[2].StripQuotes(),
-                mc.Arguments[3].StripQuotes(),
-                mc.Arguments[4].StripQuotes(),
+              return VisitJoin(mcArguments[0],
+                mcArguments[1],
+                mcArguments[2].StripQuotes(),
+                mcArguments[3].StripQuotes(),
+                mcArguments[4].StripQuotes(),
                 false,
                 mc);
             }
@@ -184,19 +164,19 @@ namespace Xtensive.Orm.Linq
               return VisitSort(mc);
             }
           case QueryableMethodKind.Select:
-            return VisitSelect(mc.Arguments[0], mc.Arguments[1].StripQuotes());
+            return VisitSelect(mcArguments[0], mcArguments[1].StripQuotes());
           case QueryableMethodKind.SelectMany:
-            if (mc.Arguments.Count == 2) {
-              return VisitSelectMany(mc.Arguments[0],
-                mc.Arguments[1].StripQuotes(),
+            if (argsCount == 2) {
+              return VisitSelectMany(mcArguments[0],
+                mcArguments[1].StripQuotes(),
                 null,
                 mc);
             }
 
-            if (mc.Arguments.Count == 3) {
-              return VisitSelectMany(mc.Arguments[0],
-                mc.Arguments[1].StripQuotes(),
-                mc.Arguments[2].StripQuotes(),
+            if (argsCount == 3) {
+              return VisitSelectMany(mcArguments[0],
+                mcArguments[1].StripQuotes(),
+                mcArguments[2].StripQuotes(),
                 mc);
             }
 
@@ -207,24 +187,24 @@ namespace Xtensive.Orm.Linq
           case QueryableMethodKind.Min:
           case QueryableMethodKind.Sum:
           case QueryableMethodKind.Average:
-            if (mc.Arguments.Count == 1) {
-              return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc), mc);
+            if (argsCount == 1) {
+              return VisitAggregate(mcArguments[0], mc.Method, null, context.IsRoot(mc), mc);
             }
 
-            if (mc.Arguments.Count == 2) {
-              return VisitAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes(), context.IsRoot(mc), mc);
+            if (argsCount == 2) {
+              return VisitAggregate(mcArguments[0], mc.Method, mcArguments[1].StripQuotes(), context.IsRoot(mc), mc);
             }
 
             break;
           case QueryableMethodKind.Skip:
-            if (mc.Arguments.Count == 2) {
-              return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
+            if (argsCount == 2) {
+              return VisitSkip(mcArguments[0], mcArguments[1]);
             }
 
             break;
           case QueryableMethodKind.Take:
-            if (mc.Arguments.Count == 2) {
-              return VisitTake(mc.Arguments[0], mc.Arguments[1]);
+            if (argsCount == 2) {
+              return VisitTake(mcArguments[0], mcArguments[1]);
             }
 
             break;
@@ -235,8 +215,20 @@ namespace Xtensive.Orm.Linq
             }
           case QueryableMethodKind.Where:
             using (CreateScope(new TranslatorState(State) { BuildingProjection = false })) {
-              return VisitWhere(mc.Arguments[0], mc.Arguments[1].StripQuotes());
+              return VisitWhere(mcArguments[0], mcArguments[1].StripQuotes());
             }
+          case QueryableMethodKind.AsEnumerable
+            or QueryableMethodKind.ToArray
+            or QueryableMethodKind.ToList
+            or QueryableMethodKind.Aggregate
+            or QueryableMethodKind.Last
+            or QueryableMethodKind.LastOrDefault
+            or QueryableMethodKind.Reverse
+            or QueryableMethodKind.SequenceEqual
+            or QueryableMethodKind.DefaultIfEmpty
+            or QueryableMethodKind.SkipWhile
+            or QueryableMethodKind.TakeWhile:
+            break;
           default:
             throw new ArgumentOutOfRangeException(nameof(methodKind));
         }
@@ -247,14 +239,17 @@ namespace Xtensive.Orm.Linq
 
     private Expression VisitAsQueryable(Expression source) => VisitSequence(source);
 
-    private Expression VisitLeftJoin(MethodCallExpression mc) =>
-      VisitJoin(mc.Arguments[0],
-        mc.Arguments[1],
-        mc.Arguments[2].StripQuotes(),
-        mc.Arguments[3].StripQuotes(),
-        mc.Arguments[4].StripQuotes(),
+    private Expression VisitLeftJoin(MethodCallExpression mc)
+    {
+      var mcArguments = mc.Arguments;
+      return VisitJoin(mcArguments[0],
+        mcArguments[1],
+        mcArguments[2].StripQuotes(),
+        mcArguments[3].StripQuotes(),
+        mcArguments[4].StripQuotes(),
         true,
         mc);
+    }
 
     private Expression VisitLock(MethodCallExpression expression)
     {
