@@ -35,11 +35,12 @@ namespace Xtensive.Reflection
 
       public int GetHashCode((Type, Type[]) obj)
       {
-        var hash = obj.Item1.GetHashCode();
+        var hashCode = new HashCode();
+        hashCode.Add(obj.Item1);
         for (int i = obj.Item2.Length; i-- > 0;) {
-          hash = HashCode.Combine(hash, obj.Item2[i]);
+          hashCode.Add(obj.Item2[i]);
         }
-        return hash;
+        return hashCode.ToHashCode();
       }
     }
 
@@ -49,7 +50,7 @@ namespace Xtensive.Reflection
     private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
     private static readonly int ValueTuple1MetadataToken = typeof(ValueTuple<>).MetadataToken;
     private static readonly int ValueTuple8MetadataToken = typeof(ValueTuple<,,,,,,,>).MetadataToken;
-    private static readonly Module SystemCoreLibModule = WellKnownTypes.NullableOfT.Module;
+    private static readonly ModuleHandle SystemCoreLibModuleHandle = WellKnownTypes.NullableOfT.Module.ModuleHandle;
     private static readonly Type CompilerGeneratedAttributeType = typeof(CompilerGeneratedAttribute);
     private static readonly string TypeHelperNamespace = typeof(TypeHelper).Namespace;
 
@@ -69,14 +70,14 @@ namespace Xtensive.Reflection
 
     private static readonly ConcurrentDictionary<(Type, Type), InterfaceMapping> interfaceMaps = new();
 
-    private static readonly ConcurrentDictionary<(MethodInfo, Type), MethodInfo> GenericMethodInstances1 = new();
+    private static readonly ConcurrentDictionary<(int, ModuleHandle, Type), MethodInfo> GenericMethodInstances1 = new();
 
-    private static readonly ConcurrentDictionary<(MethodInfo, Type, Type), MethodInfo> GenericMethodInstances2 = new();
+    private static readonly ConcurrentDictionary<(int, ModuleHandle, Type, Type), MethodInfo> GenericMethodInstances2 = new();
 #if NET8_0_OR_GREATER
 
-    private static readonly ConcurrentDictionary<(MethodInfo, Type), MethodInvoker> GenericMethodInvokers1 = new();
+    private static readonly ConcurrentDictionary<(int, ModuleHandle, Type), MethodInvoker> GenericMethodInvokers1 = new();
 
-    private static readonly ConcurrentDictionary<(MethodInfo, Type, Type), MethodInvoker> GenericMethodInvokers2 = new();
+    private static readonly ConcurrentDictionary<(int, ModuleHandle, Type, Type), MethodInvoker> GenericMethodInvokers2 = new();
 #endif
 
     // .NET8+ caches GenericTypeDefinition
@@ -86,11 +87,11 @@ namespace Xtensive.Reflection
 
     private static readonly ConcurrentDictionary<(Type, Type, Type), Type> GenericTypeInstances2 = new();
 
-    private static readonly Func<(MethodInfo genericDefinition, Type typeArgument), MethodInfo> GenericMethodFactory1 =
-      key => key.genericDefinition.MakeGenericMethod(key.typeArgument);
+    private static readonly Func<(int token, ModuleHandle module, Type typeArgument), MethodInfo, MethodInfo> GenericMethodFactory1 =
+      (key, genericDefinition) => genericDefinition.MakeGenericMethod(key.typeArgument);
 
-    private static readonly Func<(MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2), MethodInfo> GenericMethodFactory2 =
-      key => key.genericDefinition.MakeGenericMethod(key.typeArgument1, key.typeArgument2);
+    private static readonly Func<(int token, ModuleHandle module, Type typeArgument1, Type typeArgument2), MethodInfo, MethodInfo> GenericMethodFactory2 =
+      (key, genericDefinition) => genericDefinition.MakeGenericMethod(key.typeArgument1, key.typeArgument2);
 
     private static readonly Func<(Type genericDefinition, Type typeArgument), Type> GenericTypeFactory1 =
       key => key.genericDefinition.MakeGenericType(key.typeArgument);
@@ -99,11 +100,11 @@ namespace Xtensive.Reflection
       key => key.genericDefinition.MakeGenericType(key.typeArgument1, key.typeArgument2);
 #if NET8_0_OR_GREATER
 
-    private static readonly Func<(MethodInfo genericDefinition, Type typeArgument), MethodInvoker> GenericMethodInvokerFactory1 =
-      key => MethodInvoker.Create(key.genericDefinition.MakeGenericMethod(key.typeArgument));
+    private static readonly Func<(int token, ModuleHandle module, Type typeArgument), MethodInfo, MethodInvoker> GenericMethodInvokerFactory1 =
+      (key, genericDefinition) => MethodInvoker.Create(genericDefinition.MakeGenericMethod(key.typeArgument));
 
-    private static readonly Func<(MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2), MethodInvoker> GenericMethodInvokerFactory2 =
-      key => MethodInvoker.Create(key.genericDefinition.MakeGenericMethod(key.typeArgument1, key.typeArgument2));
+    private static readonly Func<(int token, ModuleHandle module, Type typeArgument1, Type typeArgument2), MethodInfo, MethodInvoker> GenericMethodInvokerFactory2 =
+      (key, genericDefinition) => MethodInvoker.Create(genericDefinition.MakeGenericMethod(key.typeArgument1, key.typeArgument2));
 #endif
 
     #endregion
@@ -935,7 +936,7 @@ namespace Xtensive.Reflection
     /// <returns><see langword="True"/> if type is nullable type;
     /// otherwise, <see langword="false"/>.</returns>
     public static bool IsNullable(this Type type) =>
-      (type.MetadataToken ^ NullableTypeMetadataToken) == 0 && ReferenceEquals(type.Module, SystemCoreLibModule);
+      (type.MetadataToken ^ NullableTypeMetadataToken) == 0 && type.Module.ModuleHandle == SystemCoreLibModuleHandle;
 
     /// <summary>
     /// Indicates whether <typeparamref name="T"/> type is a <see cref="Nullable{T}"/> type.
@@ -999,7 +1000,7 @@ namespace Xtensive.Reflection
     /// <param name="typeArgument">Type argument for final generic method.</param>
     /// <returns>Newly created instance or already existing one.</returns>
     public static MethodInfo CachedMakeGenericMethod(this MethodInfo genericDefinition, Type typeArgument) =>
-      GenericMethodInstances1.GetOrAdd((genericDefinition, typeArgument), GenericMethodFactory1);
+      GenericMethodInstances1.GetOrAdd((genericDefinition.MetadataToken, genericDefinition.Module.ModuleHandle, typeArgument), GenericMethodFactory1, genericDefinition);
 
     /// <summary>
     /// Makes generic <see cref="MethodInfo"/> for given definition and type arguments
@@ -1010,7 +1011,7 @@ namespace Xtensive.Reflection
     /// <param name="typeArgument2">Second type argument for final generic method.</param>
     /// <returns>Newly created instance or already existing one.</returns>
     public static MethodInfo CachedMakeGenericMethod(this MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2) =>
-      GenericMethodInstances2.GetOrAdd((genericDefinition, typeArgument1, typeArgument2), GenericMethodFactory2);
+      GenericMethodInstances2.GetOrAdd((genericDefinition.MetadataToken, genericDefinition.Module.ModuleHandle, typeArgument1, typeArgument2), GenericMethodFactory2, genericDefinition);
 
 #if NET8_0_OR_GREATER
     /// <summary>
@@ -1021,7 +1022,7 @@ namespace Xtensive.Reflection
     /// <param name="typeArgument">Type argument for final generic method.</param>
     /// <returns>Newly created instance or already existing one.</returns>
     public static MethodInvoker CachedMakeGenericMethodInvoker(this MethodInfo genericDefinition, Type typeArgument) =>
-      GenericMethodInvokers1.GetOrAdd((genericDefinition, typeArgument), GenericMethodInvokerFactory1);
+      GenericMethodInvokers1.GetOrAdd((genericDefinition.MetadataToken, genericDefinition.Module.ModuleHandle, typeArgument), GenericMethodInvokerFactory1, genericDefinition);
 
     /// <summary>
     /// Makes <see cref="MethodInvoker"/> for generic <see cref="MethodInfo"/> for given definition and type arguments
@@ -1032,7 +1033,7 @@ namespace Xtensive.Reflection
     /// <param name="typeArgument2">Second type argument for final generic method.</param>
     /// <returns>Newly created instance or already existing one.</returns>
     public static MethodInvoker CachedMakeGenericMethodInvoker(this MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2) =>
-      GenericMethodInvokers2.GetOrAdd((genericDefinition, typeArgument1, typeArgument2), GenericMethodInvokerFactory2);
+      GenericMethodInvokers2.GetOrAdd((genericDefinition.MetadataToken, genericDefinition.Module.ModuleHandle, typeArgument1, typeArgument2), GenericMethodInvokerFactory2, genericDefinition);
 #endif
 
     /// <summary>
@@ -1276,7 +1277,7 @@ namespace Xtensive.Reflection
       // go one after another.
       var currentToken = type.MetadataToken;
       return ((currentToken >= ValueTuple1MetadataToken) && currentToken <= ValueTuple8MetadataToken)
-        && ReferenceEquals(type.Module, SystemCoreLibModule);
+        && type.Module.ModuleHandle == SystemCoreLibModuleHandle;
     }
 
     #region Private \ internal methods
