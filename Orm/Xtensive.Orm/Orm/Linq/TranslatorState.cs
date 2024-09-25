@@ -28,18 +28,11 @@ namespace Xtensive.Orm.Linq
       SkipNullableColumnsDetectionInGroupBy = 1 << 9
     }
 
-    internal readonly struct TranslatorScope : IDisposable
+    internal readonly struct TranslatorScope(Translator translator) : IDisposable
     {
-      private readonly TranslatorState previousState;
-      private readonly Translator translator;
+      private readonly TranslatorState previousState = translator.State;
 
       public void Dispose() => translator.RestoreState(previousState);
-
-      public TranslatorScope(Translator translator)
-      {
-        this.translator = translator;
-        previousState = translator.State;
-      }
     }
 
     public static readonly TranslatorState InitState = new TranslatorState {

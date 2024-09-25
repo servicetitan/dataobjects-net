@@ -4,8 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2009.11.16
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
@@ -14,9 +12,10 @@ using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
-  internal sealed class IncludeFilterMappingGatherer : ExtendedExpressionVisitor
+  internal sealed class IncludeFilterMappingGatherer(Expression filterDataTuple, ApplyParameter filteredTuple, ArraySegment<IncludeFilterMappingGatherer.MappingEntry?> resultMapping)
+    : ExtendedExpressionVisitor
   {
-    public sealed class MappingEntry
+    public readonly struct MappingEntry
     {
       public ColNum ColumnIndex { get; }
 
@@ -37,19 +36,12 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     private static readonly ParameterExpression CalculatedColumnParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "filteredRow");
     private static readonly IReadOnlyList<ParameterExpression> CalculatedColumnParameters = [CalculatedColumnParameter];
 
-    private readonly Expression filterDataTuple;
-    private readonly ApplyParameter filteredTuple;
-    private readonly MappingEntry[] resultMapping;
-
-    public static MappingEntry[] Gather(Expression filterExpression, Expression filterDataTuple, ApplyParameter filteredTuple, int columnCount)
+    public static void Gather(Expression filterExpression, Expression filterDataTuple, ApplyParameter filteredTuple, ArraySegment<MappingEntry?> mapping)
     {
-      var mapping = Enumerable.Repeat((MappingEntry) null, columnCount).ToArray();
       var visitor = new IncludeFilterMappingGatherer(filterDataTuple, filteredTuple, mapping);
       _ = visitor.Visit(filterExpression);
-      if (mapping.Contains(null)) {
+      if (mapping.Contains(null))
         throw Exceptions.InternalError("Failed to gather mappings for IncludeProvider", OrmLog.Instance);
-      }
-      return mapping;
     }
 
     protected override Expression VisitBinary(BinaryExpression b)
@@ -57,10 +49,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       var result = (BinaryExpression) base.VisitBinary(b);
       var expressions = new[] {result.Left, result.Right};
 
-      var filterDataAccessor = expressions.FirstOrDefault(e => {
-        var tupleAccess = e.StripCasts().AsTupleAccess();
-        return tupleAccess != null && tupleAccess.Object == filterDataTuple;
-      });
+      var filterDataAccessor = expressions.FirstOrDefault(e => e.StripCasts().AsTupleAccess() is { } tupleAccess && tupleAccess.Object == filterDataTuple);
       if (filterDataAccessor == null) {
         return result;
       }
@@ -71,41 +60,23 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       }
 
       var filterDataIndex = filterDataAccessor.StripCasts().GetTupleAccessArgument();
-      if (resultMapping.Length <= filterDataIndex) {
+      if (resultMapping.Count <= filterDataIndex) {
         return result;
       }
       resultMapping[filterDataIndex] = CreateMappingEntry(filteredExpression);
       return result;
     }
 
-    protected override Expression VisitMember(MemberExpression m)
-    {
-      var target = m.Expression;
-      if (target == null) {
-        return base.VisitMember(m);
-      }
+    protected override Expression VisitMember(MemberExpression m) =>
+      m.Expression is { } target
+          && target.NodeType == ExpressionType.Constant
+          && ((ConstantExpression) target).Value == filteredTuple
+      ? CalculatedColumnParameter
+      : base.VisitMember(m);
 
-      if (target.NodeType == ExpressionType.Constant && ((ConstantExpression) target).Value == filteredTuple) {
-        return CalculatedColumnParameter;
-      }
-      return base.VisitMember(m);
-    }
-
-    private MappingEntry CreateMappingEntry(Expression expression)
-    {
-      var tupleAccess = expression.StripCasts().AsTupleAccess();
-      if (tupleAccess != null) {
-        return new MappingEntry(tupleAccess.GetTupleAccessArgument());
-      }
-      expression = ExpressionReplacer.Replace(expression, filterDataTuple, CalculatedColumnParameter);
-      return new MappingEntry(FastExpression.Lambda(expression, CalculatedColumnParameters));
-    }
-
-    private IncludeFilterMappingGatherer(Expression filterDataTuple, ApplyParameter filteredTuple, MappingEntry[] resultMapping)
-    {
-      this.filterDataTuple = filterDataTuple;
-      this.filteredTuple = filteredTuple;
-      this.resultMapping = resultMapping;
-    }
+    private MappingEntry CreateMappingEntry(Expression expression) =>
+      expression.StripCasts().AsTupleAccess() is { } tupleAccess
+        ? new(tupleAccess.GetTupleAccessArgument())
+        : new(FastExpression.Lambda(ExpressionReplacer.Replace(expression, filterDataTuple, CalculatedColumnParameter), CalculatedColumnParameters));
   }
 }

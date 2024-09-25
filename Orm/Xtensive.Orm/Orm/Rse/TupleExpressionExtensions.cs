@@ -26,22 +26,15 @@ namespace Xtensive.Orm.Rse
     /// <param name="expression">Expression to check.</param>
     /// <param name="tupleParameter">Tuple parameter that access must be on.</param>
     /// <returns></returns>
-    public static bool IsTupleAccess(this Expression expression, ParameterExpression tupleParameter)
-    {
-      if (tupleParameter==null)
-        return expression.AsTupleAccess()!=null;
-      return expression.AsTupleAccess(tupleParameter)!=null;
-    }
+    public static bool IsTupleAccess(this Expression expression, ParameterExpression tupleParameter) =>
+      (tupleParameter == null ? expression.AsTupleAccess() : expression.AsTupleAccess(tupleParameter)) != null;
 
     /// <summary>
     /// Checks if expression is access to tuple.
     /// </summary>
     /// <param name="expression">Expression to check.</param>
     /// <returns></returns>
-    public static bool IsTupleAccess(this Expression expression)
-    {
-      return expression.IsTupleAccess(null);
-    }
+    public static bool IsTupleAccess(this Expression expression) => expression.IsTupleAccess(null);
 
     /// <summary>
     /// If <paramref name="expression"/> is an access to tuple element
@@ -50,16 +43,13 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="expression">An expression to check.</param>
     /// <returns></returns>
-    public static MethodCallExpression AsTupleAccess(this Expression expression)
-    {
-      if (expression.NodeType==ExpressionType.Call) {
-        var mc = (MethodCallExpression) expression;
-        if (mc.Object!=null && mc.Object.Type==WellKnownOrmTypes.Tuple)
-          if (mc.Method.Name==Reflection.WellKnown.Tuple.GetValue || mc.Method.Name==Reflection.WellKnown.Tuple.GetValueOrDefault)
-            return mc;
-      }
-      return null;
-    }
+    public static MethodCallExpression AsTupleAccess(this Expression expression) =>
+      expression.NodeType == ExpressionType.Call
+          && (MethodCallExpression) expression is var mc
+          && mc.Object?.Type == WellKnownOrmTypes.Tuple
+          && mc.Method.Name is Reflection.WellKnown.Tuple.GetValue or Reflection.WellKnown.Tuple.GetValueOrDefault
+        ? mc
+        : null;
 
     /// <summary>
     /// If <paramref name="expression"/> is an access to tuple element.
@@ -70,16 +60,11 @@ namespace Xtensive.Orm.Rse
     /// <param name="expression">An expression to check.</param>
     /// <param name="currentParameter"><see cref="ParameterExpression"/> considered as current parameter.</param>
     /// <returns></returns>
-    public static MethodCallExpression AsTupleAccess(this Expression expression, ParameterExpression currentParameter)
-    {
-      var tupleAccess = expression.AsTupleAccess();
-      if (tupleAccess==null)
-        return null;
-      var target = tupleAccess.Object;
-      if (target==currentParameter || GetApplyParameterExpression(tupleAccess)!=null)
-        return tupleAccess;
-      return null;
-    }
+    public static MethodCallExpression AsTupleAccess(this Expression expression, ParameterExpression currentParameter) =>
+      expression.AsTupleAccess() is { } tupleAccess
+          && (tupleAccess.Object == currentParameter || GetApplyParameterExpression(tupleAccess) != null)
+        ? tupleAccess
+        : null;
 
     /// <summary>
     /// If <paramref name="expression"/> is an access to tuple element.
@@ -90,29 +75,22 @@ namespace Xtensive.Orm.Rse
     /// <param name="expression">An expression to check.</param>
     /// <param name="currentParameters"><see cref="ParameterExpression"/>s  considered as current parameters.</param>
     /// <returns></returns>
-    public static MethodCallExpression AsTupleAccess(this Expression expression, IEnumerable<ParameterExpression> currentParameters)
-    {
-      var tupleAccess = expression.AsTupleAccess();
-      if (tupleAccess==null)
-        return null;
-      var target = tupleAccess.Object as ParameterExpression;
-      if (target!=null && currentParameters.Contains(target) || GetApplyParameterExpression(tupleAccess)!=null)
-        return tupleAccess;
-      return null;
-    }
+    public static MethodCallExpression AsTupleAccess(this Expression expression, IEnumerable<ParameterExpression> currentParameters) =>
+      expression.AsTupleAccess() is { } tupleAccess
+          && (tupleAccess.Object is ParameterExpression target && currentParameters.Contains(target)
+              || GetApplyParameterExpression(tupleAccess) != null)
+        ? tupleAccess
+        : null;
 
     /// <summary>
     /// Gets the tuple access argument (column index).
     /// </summary>
     /// <param name="expression">An expression describing an access to tuple element.</param>
     /// <returns></returns>
-    public static ColNum GetTupleAccessArgument(this Expression expression)
-    {
-      var mc = expression.AsTupleAccess();
-      if (mc==null)
-        throw new ArgumentException(string.Format(Strings.ExParameterXIsNotATupleAccessExpression, "expression"));
-      return (ColNum)Evaluate<int>(mc.Arguments[0]);
-    }
+    public static ColNum GetTupleAccessArgument(this Expression expression) =>
+      expression.AsTupleAccess() is { } mc
+        ? (ColNum) Evaluate<int>(mc.Arguments[0])
+        : throw new ArgumentException(string.Format(Strings.ExParameterXIsNotATupleAccessExpression, "expression"));
 
     /// <summary>
     /// Tries to extract apply parameter from <paramref name="expression"/>.
@@ -121,26 +99,20 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="expression">The expression describing an access to outer tuple.</param>
     /// <returns></returns>
-    public static ApplyParameter GetApplyParameter(this Expression expression)
-    {
-      var e = GetApplyParameterExpression(expression);
-      return e==null ? null : Evaluate<ApplyParameter>(e);
-    }
+    public static ApplyParameter GetApplyParameter(this Expression expression) =>
+      GetApplyParameterExpression(expression) is { } e
+        ? Evaluate<ApplyParameter>(e)
+        : null;
 
-    private static Expression GetApplyParameterExpression(Expression expression)
-    {
-      var tupleAccess = expression.AsTupleAccess();
-      if (tupleAccess==null)
-        return null;
-      if (tupleAccess.Object==null || tupleAccess.Object.NodeType!=ExpressionType.MemberAccess)
-        return null;
-      var memberAccess = (MemberExpression) tupleAccess.Object;
-      if (memberAccess.Expression==null ||
-        memberAccess.Expression.Type!=WellKnownOrmTypes.ApplyParameter ||
-        memberAccess.Member.Name!="Value")
-        return null;
-      return memberAccess.Expression;
-    }
+    private static Expression GetApplyParameterExpression(Expression expression) =>
+      expression.AsTupleAccess()?.Object is { } tupleAccessObject
+          && tupleAccessObject.NodeType == ExpressionType.MemberAccess
+          && (MemberExpression) tupleAccessObject is var memberAccess
+          && memberAccess.Expression is { } memberAccessExpression
+          && memberAccessExpression.Type == WellKnownOrmTypes.ApplyParameter
+          && memberAccess.Member.Name == "Value"
+      ? memberAccessExpression
+      : null;
 
     private static T Evaluate<T>(Expression expression)
     {

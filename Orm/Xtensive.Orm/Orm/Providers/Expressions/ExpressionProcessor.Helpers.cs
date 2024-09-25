@@ -255,7 +255,7 @@ namespace Xtensive.Orm.Providers
     private static SqlExpression ConvertIntConstantToSingleCharString(Expression expression)
     {
       var value = (int) ((ConstantExpression) expression).Value;
-      return SqlDml.Literal(new string(new[] {(char) value}));
+      return SqlDml.Literal(((char) value).ToString());
     }
 
     private static Expression GetOperand(Expression expression)

@@ -4,9 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.27
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Buffers;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Collections;
@@ -1518,50 +1516,49 @@ namespace Xtensive.Orm.Linq
 
         var predicateLambda = predicateExpression.ToLambda(context);
 
-        RawProvider rawProvider;
-        if (visitedSource.ItemProjector.DataSource is StoreProvider storeProvider) {
-          rawProvider = (RawProvider) storeProvider.Source;
-        }
-        else {
-          var joinProvider = (JoinProvider) visitedSource.ItemProjector.DataSource;
-          rawProvider = (RawProvider) ((StoreProvider) joinProvider.Left).Source;
-        }
+        var rawProvider = (RawProvider)
+          (visitedSource.ItemProjector.DataSource as StoreProvider
+            ?? (StoreProvider) ((JoinProvider) visitedSource.ItemProjector.DataSource).Left
+          ).Source;
 
         var filterColumnCount = rawProvider.Header.Length;
         var filteredTuple = context.GetApplyParameter(context.Bindings[outerParameter]);
 
-        // Mapping from filter data column to expression that requires filtering
-        var filteredColumnMappings = IncludeFilterMappingGatherer.Gather(
-          predicateLambda.Body, predicateLambda.Parameters[0], filteredTuple, filterColumnCount);
-
-        // Mapping from filter data column to filtered column
         var filteredColumns = new ColNum[filterColumnCount];
-        for (var i = 0; i < filterColumnCount; i++) {
-          var mapping = filteredColumnMappings[i];
-          if (mapping.ColumnIndex >= 0) {
-            filteredColumns[i] = mapping.ColumnIndex;
-          }
-          else {
-            var descriptor = CreateCalculatedColumnDescriptor(mapping.CalculatedColumn);
-            var column = AddCalculatedColumn(outerParameter, descriptor, mapping.CalculatedColumn.Body.Type);
-            filteredColumns[i] = column.Mapping.Offset;
+
+        // Mapping from filter data column to expression that requires filtering
+        var filteredColumnMappings = ArrayPool<IncludeFilterMappingGatherer.MappingEntry?>.Shared.Rent(filterColumnCount);
+        try {
+          IncludeFilterMappingGatherer.Gather(predicateLambda.Body, predicateLambda.Parameters[0], filteredTuple, new(filteredColumnMappings, 0, filterColumnCount));
+
+          // Mapping from filter data column to filtered column
+          for (var i = 0; i < filterColumnCount; i++) {
+            var mapping = filteredColumnMappings[i].Value;
+            filteredColumns[i] = mapping.ColumnIndex >= 0
+              ? mapping.ColumnIndex
+              : AddCalculatedColumn(outerParameter, CreateCalculatedColumnDescriptor(mapping.CalculatedColumn), mapping.CalculatedColumn.Body.Type)
+                  .Mapping.Offset;
           }
         }
+        finally {
+          ArrayPool<IncludeFilterMappingGatherer.MappingEntry?>.Shared.Return(filteredColumnMappings, true);
+        }
 
-        var outerResult = context.Bindings[outerParameter];
-        var columnIndex = outerResult.ItemProjector.DataSource.Header.Length;
-        var newDataSource = outerResult.ItemProjector.DataSource
+        var contextBindings = context.Bindings;
+        var outerResult = contextBindings[outerParameter];
+        var outerResultItemProjector = outerResult.ItemProjector;
+        var outerResultItemProjectorDataSource = outerResultItemProjector.DataSource;
+        var columnIndex = outerResultItemProjectorDataSource.Header.Length;
+        var newDataSource = outerResultItemProjectorDataSource
           .Include(State.IncludeAlgorithm, true, rawProvider.Source, context.GetNextAlias(), filteredColumns);
 
-        var newItemProjector = outerResult.ItemProjector.Remap(newDataSource, 0);
+        var newItemProjector = outerResultItemProjector.Remap(newDataSource, 0);
         var newOuterResult = outerResult.Apply(newItemProjector);
-        context.Bindings.ReplaceBound(outerParameter, newOuterResult);
+        contextBindings.ReplaceBound(outerParameter, newOuterResult);
         Expression resultExpression = ColumnExpression.Create(WellKnownTypes.Bool, columnIndex);
-        if (notExists) {
-          resultExpression = Expression.Not(resultExpression);
-        }
-
-        return resultExpression;
+        return notExists
+          ? Expression.Not(resultExpression)
+          : resultExpression;
       }
     }
 
