@@ -16,12 +16,12 @@ namespace Xtensive.Orm.Model.Stored
   {
     private static readonly FrozenDictionary<string, Multiplicity> MultiplicityMap = Enum.GetValues<Multiplicity>().ToFrozenDictionary(o => o.ToString());
 
-    private static readonly Dictionary<string, InheritanceSchema> InheritanceSchemaMap = new() {
+    private static readonly FrozenDictionary<string, InheritanceSchema> InheritanceSchemaMap = new Dictionary<string, InheritanceSchema> {
       [nameof(InheritanceSchema.Default)] = InheritanceSchema.Default,
       [nameof(InheritanceSchema.ClassTable)] = InheritanceSchema.ClassTable,
       [nameof(InheritanceSchema.SingleTable)] = InheritanceSchema.SingleTable,
       [nameof(InheritanceSchema.ConcreteTable)] = InheritanceSchema.ConcreteTable
-    };
+    }.ToFrozenDictionary();
 
     private Dictionary<string, StoredTypeInfo> types;
     private Dictionary<string, StoredAssociationInfo> associations;
