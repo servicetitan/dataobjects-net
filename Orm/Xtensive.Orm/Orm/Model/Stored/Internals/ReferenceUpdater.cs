@@ -14,8 +14,14 @@ namespace Xtensive.Orm.Model.Stored
 {
   internal class ReferenceUpdater
   {
-    private static readonly Dictionary<string, InheritanceSchema> InheritanceSchemaMap = Enum.GetValues<InheritanceSchema>().ToDictionary(o => o.ToString());
     private static readonly Dictionary<string, Multiplicity> MultiplicityMap = Enum.GetValues<Multiplicity>().ToDictionary(o => o.ToString());
+
+    private static readonly Dictionary<string, InheritanceSchema> InheritanceSchemaMap = new() {
+      [nameof(InheritanceSchema.Default)] = InheritanceSchema.Default,
+      [nameof(InheritanceSchema.ClassTable)] = InheritanceSchema.ClassTable,
+      [nameof(InheritanceSchema.SingleTable)] = InheritanceSchema.SingleTable,
+      [nameof(InheritanceSchema.ConcreteTable)] = InheritanceSchema.ConcreteTable
+    };
 
     private Dictionary<string, StoredTypeInfo> types;
     private Dictionary<string, StoredAssociationInfo> associations;
