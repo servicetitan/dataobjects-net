@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
@@ -52,7 +53,7 @@ namespace Xtensive.Orm.Model
     private static volatile int CurrentSharedId = 0;
     private static readonly ConcurrentDictionary<Type, int> TypeToSharedId = new();
 
-    private static readonly ImmutableHashSet<TypeInfo> EmptyTypes = ImmutableHashSet.Create<TypeInfo>();
+    private static readonly IReadOnlySet<TypeInfo> EmptyTypes = ImmutableHashSet.Create<TypeInfo>();
 
     private readonly ColumnInfoCollection columns;
     private readonly FieldMap fieldMap;
@@ -133,7 +134,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     /// <returns>The ancestor</returns>
     public IReadOnlySet<TypeInfo> Ancestors =>
-      ancestors ??= AncestorChain.Reverse().ToHashSet().AsSafeWrapper();
+      ancestors ??= AncestorChain.Reverse().ToFrozenSet();
 
     /// <summary>
     /// Gets direct descendants of this instance.
@@ -144,22 +145,10 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets all descendants (both direct and nested) of this instance.
     /// </summary>
-    public IReadOnlySet<TypeInfo> AllDescendants
-    {
-      get {
-        if (allDescendants == null) {
-          if (DirectDescendants.Count == 0) {
-            allDescendants = DirectDescendants;
-          }
-          else {
-            var set = new HashSet<TypeInfo>(DirectDescendants);
-            set.UnionWith(DirectDescendants.SelectMany(static o => o.AllDescendants));
-            allDescendants = set;
-          }
-        }
-        return allDescendants;
-      }
-    }
+    public IReadOnlySet<TypeInfo> AllDescendants =>
+      allDescendants ??= DirectDescendants.Count == 0
+        ? DirectDescendants
+        : DirectDescendants.Union(DirectDescendants.SelectMany(static o => o.AllDescendants)).ToFrozenSet();
 
     /// <summary>
     /// Gets the persistent interfaces this instance implements directly.
@@ -172,7 +161,7 @@ namespace Xtensive.Orm.Model
     public IReadOnlySet<TypeInfo> AllInterfaces =>
       allInterfaces ??= IsInterface
         ? DirectInterfaces
-        : DirectInterfaces.Concat(AncestorChain.SelectMany(static o => o.DirectInterfaces)).ToHashSet().AsSafeWrapper();
+        : DirectInterfaces.Concat(AncestorChain.SelectMany(static o => o.DirectInterfaces)).ToFrozenSet();
 
     /// <summary>
     /// Gets the direct implementors of this instance.
@@ -198,7 +187,7 @@ namespace Xtensive.Orm.Model
                   _ = allSet.Add(descendant);
               }
             }
-            allImplementors = allSet.AsSafeWrapper();
+            allImplementors = allSet.ToFrozenSet();
           }
         }
         return allImplementors;
@@ -206,20 +195,10 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// Gets all ancestors, all interfaces with this instacne included.
+    /// Gets all ancestors, all interfaces with this instance included.
     /// </summary>
-    internal IReadOnlySet<TypeInfo> TypeWithAncestorsAndInterfaces
-    {
-      get {
-        if (typeWithAncestorsAndInterfaces == null) {
-          var candidates = new HashSet<TypeInfo>(Ancestors);
-          candidates.UnionWith(AllInterfaces);
-          _ = candidates.Add(this);
-          typeWithAncestorsAndInterfaces = candidates;
-        }
-        return typeWithAncestorsAndInterfaces;
-      }
-    }
+    internal IReadOnlySet<TypeInfo> TypeWithAncestorsAndInterfaces =>
+      typeWithAncestorsAndInterfaces ??= Ancestors.Concat(AllInterfaces).Append(this).ToFrozenSet();
 
     #endregion
 
@@ -675,7 +654,7 @@ namespace Xtensive.Orm.Model
       columns.UpdateState();
       fields.UpdateState();
 
-      structureFieldMapping = BuildStructureFieldMapping();
+      structureFieldMapping = BuildStructureFieldMapping().ToFrozenDictionary();
 
       if (IsEntity) {
         if (HasVersionRoots) {
@@ -793,9 +772,9 @@ namespace Xtensive.Orm.Model
       if (!recursive)
         return;
 
-      directDescendants = directDescendants?.AsSafeWrapper() ?? EmptyTypes;
-      directInterfaces = directInterfaces?.AsSafeWrapper() ?? EmptyTypes;
-      directImplementors = directImplementors?.AsSafeWrapper() ?? EmptyTypes;
+      directDescendants = directDescendants?.ToFrozenSet() ?? EmptyTypes;
+      directInterfaces = directInterfaces?.ToFrozenSet() ?? EmptyTypes;
+      directImplementors = directImplementors?.ToFrozenSet() ?? EmptyTypes;
 
       affectedIndexes.Lock(true);
       indexes.Lock(true);

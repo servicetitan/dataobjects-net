@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
@@ -26,7 +27,7 @@ namespace Xtensive.Collections
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly List<Type> types = new List<Type>();
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private readonly HashSet<Type> typeSet = new HashSet<Type>();
+    private ISet<Type> typeSet = new HashSet<Type>();
     private readonly List<TypeRegistration> actions = new List<TypeRegistration>();
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly HashSet<TypeRegistration> actionSet = new HashSet<TypeRegistration>();
@@ -145,6 +146,7 @@ namespace Xtensive.Collections
       EnsureNotLocked();
       ProcessPendingActions();
       Assemblies = Assemblies.AsSafeWrapper();
+      typeSet = typeSet.ToFrozenSet();
       base.Lock(recursive);
     }
 

@@ -2,10 +2,7 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Core;
+using System.Collections.Frozen;
 using Xtensive.Reflection;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Internals;
@@ -14,7 +11,7 @@ namespace Xtensive.Sql
 {
   internal static class SqlValidator
   {
-    private static readonly IReadOnlySet<Type> supportedTypes = new HashSet<Type> {
+    private static readonly FrozenSet<Type> supportedTypes = new HashSet<Type> {
         WellKnownTypes.Bool,
         WellKnownTypes.Char,
         WellKnownTypes.SByte,
@@ -37,7 +34,7 @@ namespace Xtensive.Sql
         WellKnownTypes.ByteArray,
         WellKnownTypes.Guid,
         WellKnownOrmTypes.TypeInfo
-    };
+    }.ToFrozenSet();
 
     public static void EnsureAreSqlRowArguments(IReadOnlyList<SqlExpression> nodes)
     {

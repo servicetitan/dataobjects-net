@@ -4,11 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.03
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Core;
+using System.Collections.Frozen;
 using Xtensive.Reflection;
 
 namespace Xtensive.Sql
@@ -47,7 +44,7 @@ namespace Xtensive.Sql
     public TypeMappingRegistry(IEnumerable<TypeMapping> mappings, IEnumerable<KeyValuePair<SqlType, Type>> reverseMappings, TypeMapper mapper)
     {
       this.mappings = new(mappings.Select(m => KeyValuePair.Create(m.Type, m)));
-      ReverseMappings = reverseMappings.ToDictionary(r => r.Key, r => r.Value).AsSafeWrapper();
+      ReverseMappings = reverseMappings.ToFrozenDictionary(r => r.Key, r => r.Value);
       Mapper = mapper;
     }
   }
