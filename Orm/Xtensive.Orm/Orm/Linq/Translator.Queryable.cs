@@ -27,6 +27,8 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator : QueryableVisitor
   {
+    private static readonly Dictionary<string, ResultAccessMethod> ResultAccessMethodMap = Enum.GetValues<ResultAccessMethod>().ToDictionary(o => o.ToString());
+
     private static readonly IReadOnlySet<int> EmptyIntSet = new HashSet<int>();
 
     private static readonly Type IEnumerableOfKeyType = typeof(IEnumerable<Key>);
@@ -555,7 +557,7 @@ namespace Xtensive.Orm.Linq
           break;
       }
 
-      var resultType = (ResultAccessMethod) Enum.Parse(typeof(ResultAccessMethod), method.Name);
+      var resultType = ResultAccessMethodMap[method.Name];
       if (isRoot) {
         var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, rightDataSource, context);
         return new ProjectionExpression(

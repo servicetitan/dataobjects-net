@@ -14,6 +14,9 @@ namespace Xtensive.Orm.Model.Stored
 {
   internal class ReferenceUpdater
   {
+    private static readonly Dictionary<string, InheritanceSchema> InheritanceSchemaMap = Enum.GetValues<InheritanceSchema>().ToDictionary(o => o.ToString());
+    private static readonly Dictionary<string, Multiplicity> MultiplicityMap = Enum.GetValues<Multiplicity>().ToDictionary(o => o.ToString());
+
     private Dictionary<string, StoredTypeInfo> types;
     private Dictionary<string, StoredAssociationInfo> associations;
     private Dictionary<string, StoredFieldInfo> fieldMap;
@@ -165,7 +168,7 @@ namespace Xtensive.Orm.Model.Stored
 
     private void UpdateHierarchySchema(StoredHierarchyInfo hierarchy)
     {
-      hierarchy.InheritanceSchema = (InheritanceSchema) Enum.Parse(typeof (InheritanceSchema), hierarchy.Root.HierarchyRoot);
+      hierarchy.InheritanceSchema = InheritanceSchemaMap[hierarchy.Root.HierarchyRoot];
     }
 
     private void UpdateHierarchyTypes(StoredHierarchyInfo hierarchy)
@@ -195,9 +198,8 @@ namespace Xtensive.Orm.Model.Stored
 
     private void UpdateAssociationMultiplicity(StoredAssociationInfo association)
     {
-      if (string.IsNullOrEmpty(association.MultiplicityName))
-        throw new ArgumentException();
-      association.Multiplicity = (Multiplicity) Enum.Parse(typeof (Multiplicity), association.MultiplicityName);
+      ArgumentException.ThrowIfNullOrEmpty(association.MultiplicityName);
+      association.Multiplicity = MultiplicityMap[association.MultiplicityName];
     }
 
     private void UpdateAssociationReferencingField(StoredAssociationInfo association)
