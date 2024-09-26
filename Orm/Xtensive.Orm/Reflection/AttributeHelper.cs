@@ -8,7 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
-using PerAttributeKey = System.ValueTuple<int, System.ModuleHandle, Xtensive.Reflection.AttributeSearchOptions>;
+using PerAttributeKey = System.ValueTuple<int, System.Reflection.Module, Xtensive.Reflection.AttributeSearchOptions>;
 
 namespace Xtensive.Reflection
 {
@@ -69,7 +69,7 @@ namespace Xtensive.Reflection
       }
 
       public static TAttribute[] Get(MemberInfo member, AttributeSearchOptions options) =>
-        Dictionary.GetOrAdd(new PerAttributeKey(member.MetadataToken, member.Module.ModuleHandle, options), ExtractAttributesByKey, member);
+        Dictionary.GetOrAdd(new PerAttributeKey(member.MetadataToken, member.Module, options), ExtractAttributesByKey, member);
     }
 
     /// <summary>

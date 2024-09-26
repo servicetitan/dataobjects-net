@@ -21,6 +21,7 @@ using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Weaving;
 using Xtensive.Reflection;
+using Module = System.Reflection.Module;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
@@ -39,14 +40,14 @@ namespace Xtensive.Orm.Providers
     private const string ReferenceForeignKeyFormat = "FK_{0}_{1}_{2}";
     private const string HierarchyForeignKeyFormat = "FK_{0}_{1}";
 
-    private static readonly Func<(int, ModuleHandle), PropertyInfo, string> fieldNameCacheValueFactory =
+    private static readonly Func<(int, Module), PropertyInfo, string> fieldNameCacheValueFactory =
       (key, prop) => prop.GetAttribute<OverrideFieldNameAttribute>()?.Name ?? prop.Name;
 
     private readonly int maxIdentifierLength;
     private readonly NamingConvention namingConvention;
     private readonly bool isMultidatabase;
     private readonly string defaultDatabase;
-    private readonly ConcurrentDictionary<(int, ModuleHandle), string> fieldNameCache = new();
+    private readonly ConcurrentDictionary<(int, Module), string> fieldNameCache = new();
 
     /// <summary>
     /// Gets the <see cref="Entity.TypeId"/> column name.
@@ -194,7 +195,7 @@ namespace Xtensive.Orm.Providers
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private string BuildFieldNameInternal(PropertyInfo propertyInfo)
-      => fieldNameCache.GetOrAdd((propertyInfo.MetadataToken, propertyInfo.Module.ModuleHandle), fieldNameCacheValueFactory, propertyInfo);
+      => fieldNameCache.GetOrAdd((propertyInfo.MetadataToken, propertyInfo.Module), fieldNameCacheValueFactory, propertyInfo);
 
     /// <summary>
     /// Builds the name of the field.
