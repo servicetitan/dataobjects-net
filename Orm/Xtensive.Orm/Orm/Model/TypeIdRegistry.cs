@@ -148,8 +148,8 @@ namespace Xtensive.Orm.Model
 
     public override void Lock(bool recursive)
     {
-      mapping = mapping.ToFrozenDictionary();
-      reverseMapping = reverseMapping.ToFrozenDictionary();
+      mapping = mapping?.ToFrozenDictionary();
+      reverseMapping = reverseMapping?.ToFrozenDictionary();
       base.Lock(recursive);
     }
 
