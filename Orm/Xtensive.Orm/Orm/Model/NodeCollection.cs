@@ -4,11 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2007.07.30
 
-using System;
-using System.Collections.Generic;
+using System.Collections.Frozen;
 using System.Diagnostics;
 using Xtensive.Collections;
-using Xtensive.Core;
 
 namespace Xtensive.Orm.Model
 {
@@ -26,7 +24,7 @@ namespace Xtensive.Orm.Model
     [NonSerialized, DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private EventHandler<ChangeNotifierEventArgs> itemChangingHandler;
 
-    protected readonly Dictionary<string, TNode> NameIndex;
+    protected IDictionary<string, TNode> NameIndex;
     
     /// <summary>
     /// Gets empty collection.
@@ -206,6 +204,7 @@ namespace Xtensive.Orm.Model
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
+      NameIndex = NameIndex.ToFrozenDictionary();
       if (recursive) {
         foreach (var item in this) {
           item.Lock(true);

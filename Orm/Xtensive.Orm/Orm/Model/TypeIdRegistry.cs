@@ -5,6 +5,7 @@
 // Created:    2014.03.13
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -24,8 +25,8 @@ namespace Xtensive.Orm.Model
     private UInt16[] sharedIdToTypeId;
 
     // For backward compatibility: TypeId may be >= 65536 because of some DB manipulations
-    private Dictionary<TypeInfo, int> mapping;
-    private Dictionary<int, TypeInfo> reverseMapping;
+    private IDictionary<TypeInfo, int> mapping;
+    private IDictionary<int, TypeInfo> reverseMapping;
 
     /// <summary>
     /// Gets collection of registered types.
@@ -129,8 +130,8 @@ namespace Xtensive.Orm.Model
           typeIdToSharedId[typeId] = (UInt16) type.SharedId;
           return;
         }
-        mapping = new();
-        reverseMapping = new();
+        mapping = new Dictionary<TypeInfo, int>();
+        reverseMapping = new Dictionary<int, TypeInfo>();
         if (typeIdToSharedId is not null) {
           for (var sharedId = 1; sharedId < sharedIdToTypeId.Length; ++sharedId) {
             var tid = sharedIdToTypeId[sharedId];
@@ -143,6 +144,13 @@ namespace Xtensive.Orm.Model
       }
       mapping[type] = typeId;
       reverseMapping[typeId] = type;
+    }
+
+    public override void Lock(bool recursive)
+    {
+      mapping = mapping.ToFrozenDictionary();
+      reverseMapping = reverseMapping.ToFrozenDictionary();
+      base.Lock(recursive);
     }
 
     public TypeIdRegistry(IReadOnlyList<TypeInfo> sharedIdToTypeInfo)

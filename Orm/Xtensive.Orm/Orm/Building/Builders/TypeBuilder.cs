@@ -4,9 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.10.02
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Frozen;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
@@ -29,7 +27,7 @@ namespace Xtensive.Orm.Building.Builders
     private readonly HashSet<string> processedKeyGenerators = new HashSet<string>();
     private readonly Dictionary<string, object> keyEqualityIdentifiers = new Dictionary<string, object>();
     private readonly Dictionary<string, SequenceInfo> sequences = new Dictionary<string, SequenceInfo>();
-    private readonly Dictionary<string, KeyGeneratorConfiguration> keyGeneratorConfigurations;
+    private readonly FrozenDictionary<string, KeyGeneratorConfiguration> keyGeneratorConfigurations;
 
     /// <summary>
     /// Builds the <see cref="TypeInfo"/> instance, its key fields and <see cref="HierarchyInfo"/> for hierarchy root.
@@ -637,7 +635,7 @@ namespace Xtensive.Orm.Building.Builders
       this.context = context;
 
       keyGeneratorConfigurations = context.Configuration.KeyGenerators
-        .ToDictionary(configuration => context.NameBuilder.BuildKeyGeneratorName(configuration));
+        .ToFrozenDictionary(configuration => context.NameBuilder.BuildKeyGeneratorName(configuration));
     }
   }
 }
