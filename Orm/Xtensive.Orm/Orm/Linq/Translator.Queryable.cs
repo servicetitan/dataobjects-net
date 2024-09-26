@@ -5,6 +5,7 @@
 // Created:    2009.02.27
 
 using System.Buffers;
+using System.Collections.Frozen;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Collections;
@@ -27,6 +28,8 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator : QueryableVisitor
   {
+    private static readonly FrozenDictionary<string, ResultAccessMethod> ResultAccessMethodMap = Enum.GetValues<ResultAccessMethod>().ToFrozenDictionary(o => o.ToString());
+
     private static readonly IReadOnlySet<int> EmptyIntSet = new HashSet<int>();
 
     private static readonly Type IEnumerableOfKeyType = typeof(IEnumerable<Key>);
@@ -555,7 +558,7 @@ namespace Xtensive.Orm.Linq
           break;
       }
 
-      var resultType = (ResultAccessMethod) Enum.Parse(typeof(ResultAccessMethod), method.Name);
+      var resultType = ResultAccessMethodMap[method.Name];
       if (isRoot) {
         var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, rightDataSource, context);
         return new ProjectionExpression(
