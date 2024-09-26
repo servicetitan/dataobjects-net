@@ -5,6 +5,7 @@
 // Created:    2009.02.27
 
 using System.Buffers;
+using System.Collections.Frozen;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Collections;
