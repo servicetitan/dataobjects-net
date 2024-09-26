@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator : QueryableVisitor
   {
-    private static readonly Dictionary<string, ResultAccessMethod> ResultAccessMethodMap = Enum.GetValues<ResultAccessMethod>().ToDictionary(o => o.ToString());
+    private static readonly FrozenDictionary<string, ResultAccessMethod> ResultAccessMethodMap = Enum.GetValues<ResultAccessMethod>().ToFrozenDictionary(o => o.ToString());
 
     private static readonly IReadOnlySet<int> EmptyIntSet = new HashSet<int>();
 
