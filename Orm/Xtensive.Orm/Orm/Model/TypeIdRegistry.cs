@@ -148,9 +148,9 @@ namespace Xtensive.Orm.Model
 
     public override void Lock(bool recursive)
     {
+      base.Lock(recursive);
       mapping = mapping?.ToFrozenDictionary();
       reverseMapping = reverseMapping?.ToFrozenDictionary();
-      base.Lock(recursive);
     }
 
     public TypeIdRegistry(IReadOnlyList<TypeInfo> sharedIdToTypeInfo)
