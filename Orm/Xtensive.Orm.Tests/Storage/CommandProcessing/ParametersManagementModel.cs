@@ -163,8 +163,8 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
       var maxcount = originalCount;
 
 #if DO_MAX_1000_COLUMNS
-      if (maxcount > 989) {
-        maxcount = 989;
+      if (maxcount > Math.Min((int)FieldInfo.MaxFieldId, 989)) {
+        maxcount = Math.Min((int) FieldInfo.MaxFieldId, 989);
       }
 #else
       if (maxcount > 1024) {
