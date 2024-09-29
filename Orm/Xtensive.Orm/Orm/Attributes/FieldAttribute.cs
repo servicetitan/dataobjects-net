@@ -17,8 +17,8 @@ namespace Xtensive.Orm
   public sealed class FieldAttribute : StorageAttribute
   {
     internal int? length;
-    internal int? scale;
-    internal int? precision;
+    internal sbyte? scale;
+    internal sbyte? precision;
     internal bool? nullable;
     internal bool? nullableOnUpgrade;
     internal bool? indexed;
@@ -51,10 +51,10 @@ namespace Xtensive.Orm
     /// <remarks>
     /// This property can be specified for <see cref="decimal"/> type.
     /// </remarks>
-    public int Scale
+    public sbyte Scale
     {
-      get { return scale ?? 0; }
-      set { scale = value; }
+      get => scale ?? 0;
+      set => scale = value;
     }
 
     /// <summary>
@@ -63,10 +63,10 @@ namespace Xtensive.Orm
     /// <remarks>
     /// This property can be specified for <see cref="decimal"/> type.
     /// </remarks>
-    public int Precision
+    public sbyte Precision
     {
-      get { return precision ?? 0; }
-      set { precision = value; }
+      get => precision ?? 0;
+      set => precision = value;
     }
 
     /// <summary>

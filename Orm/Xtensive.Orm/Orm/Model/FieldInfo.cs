@@ -34,19 +34,20 @@ namespace Xtensive.Orm.Model
     /// "No <see cref="NoFieldId"/>" value (<see cref="NoFieldId"/> is unknown or undefined).
     /// Value is <see langword="0" />.
     /// </summary>
-    public const int NoFieldId = 0;
+    public const byte NoFieldId = 0;
 
     /// <summary>
     /// Minimal possible <see cref="FieldId"/> value.
     /// Value is <see langword="100" />.
     /// </summary>
-    public const int MinFieldId = 1;
+    public const byte MinFieldId = 1;    
+    public const byte MaxFieldId = 255;
 
     private PropertyInfo underlyingProperty;
     private Type valueType;
     private int? length;
-    private int? scale;
-    private int? precision;
+    private sbyte? scale;
+    private sbyte? precision;
     private object defaultValue;
     private string defaultSqlExpression;
     private TypeInfo reflectedType;
@@ -57,9 +58,9 @@ namespace Xtensive.Orm.Model
     private Type itemType;
     private string originalName;
     internal SegmentTransform valueExtractor;
-    private int adapterIndex = -1;
+    private byte adapterIndex = 255;
     private ColumnInfoCollection columns;
-    private int fieldId;
+    private byte fieldId;
     private long cachedHashCode;
 
     private Segment<ColNum> mappingInfo;
@@ -71,10 +72,10 @@ namespace Xtensive.Orm.Model
     /// in <see cref="TypeInfo.Fields"/> collection of <see cref="ReflectedType"/>.
     /// </summary>
     /// <exception cref="NotSupportedException">Property is already initialized.</exception>
-    public int FieldId
+    public byte FieldId
     {
       [DebuggerStepThrough]
-      get { return fieldId; }
+      get => fieldId;
       set {
         if (fieldId != NoFieldId)
           throw Exceptions.AlreadyInitialized("FieldId");
@@ -383,10 +384,10 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets the scale of the field.
     /// </summary>
-    public int? Scale
+    public sbyte? Scale
     {
       [DebuggerStepThrough]
-      get { return scale; }
+      get => scale;
       [DebuggerStepThrough]
       set {
         EnsureNotLocked();
@@ -397,10 +398,10 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets the precision of the field.
     /// </summary>
-    public int? Precision
+    public sbyte? Precision
     {
       [DebuggerStepThrough]
-      get { return precision; }
+      get => precision;
       [DebuggerStepThrough]
       set {
         EnsureNotLocked();
@@ -586,11 +587,11 @@ namespace Xtensive.Orm.Model
     public int AdapterIndex
     {
       [DebuggerStepThrough]
-      get { return adapterIndex; }
+      get => adapterIndex == 255 ? -1 : adapterIndex;
       [DebuggerStepThrough]
-      set {
+      internal set {
         EnsureNotLocked();
-        adapterIndex = value;
+        adapterIndex = (byte)value;
       }
     }
 
