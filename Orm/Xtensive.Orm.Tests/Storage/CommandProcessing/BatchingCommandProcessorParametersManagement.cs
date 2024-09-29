@@ -895,8 +895,11 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
           var result = (await session.Query.All<ALotOfFieldsEntityValid>().ExecuteAsync()).ToArray().Length;
           Assert.That(result, Is.EqualTo(countBefore + 3));
         }
-
+#if DO_MAX_255_FIELDS
+        Assert.That(counter.Count, Is.EqualTo(1));
+#else
         Assert.That(counter.Count, Is.EqualTo(2));
+#endif
       }
     }
 
@@ -1049,7 +1052,11 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
           var result = session.Query.All<ALotOfFieldsEntityValid>().ToArray();
           Assert.That(result.Length, Is.EqualTo(countBefore + batchSize + 1));
         }
+#if DO_MAX_255_FIELDS
+        Assert.That(counter.Count, Is.EqualTo(4));
+#else
         Assert.That(counter.Count, Is.EqualTo(13));
+#endif
       }
     }
 
@@ -1119,7 +1126,11 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
           session.SaveChanges();
         }
 
+#if DO_MAX_255_FIELDS
+        Assert.That(counter.Count, Is.EqualTo(1));
+#else
         Assert.That(counter.Count, Is.EqualTo(2));
+#endif
       }
     }
   }

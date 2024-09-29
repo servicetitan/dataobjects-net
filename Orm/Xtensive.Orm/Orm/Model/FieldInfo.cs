@@ -41,7 +41,6 @@ namespace Xtensive.Orm.Model
     /// Value is <see langword="100" />.
     /// </summary>
     public const byte MinFieldId = 1;    
-    public const byte MaxFieldId = 255;
 
     private PropertyInfo underlyingProperty;
     private Type valueType;
@@ -58,12 +57,22 @@ namespace Xtensive.Orm.Model
     private Type itemType;
     private string originalName;
     internal SegmentTransform valueExtractor;
-    private byte adapterIndex = 255;
     private ColumnInfoCollection columns;
-    private byte fieldId;
     private long cachedHashCode;
-
     private Segment<ColNum> mappingInfo;
+
+#if DO_MAX_255_FIELDS
+    public const byte MaxFieldId = 255;
+    public const byte NoAdapterIndex = 255;
+    private byte fieldId;
+    private byte adapterIndex = 255;
+#else
+    public const byte MaxFieldId = 32767;
+    public const byte NoAdapterIndex = -1;
+    private short fieldId;
+    private short adapterIndex = -1;
+#endif
+
 
     #region IsXxx properties
 
@@ -72,7 +81,11 @@ namespace Xtensive.Orm.Model
     /// in <see cref="TypeInfo.Fields"/> collection of <see cref="ReflectedType"/>.
     /// </summary>
     /// <exception cref="NotSupportedException">Property is already initialized.</exception>
+#if DO_MAX_255_FIELDS
     public byte FieldId
+#else
+    public short FieldId
+#endif
     {
       [DebuggerStepThrough]
       get => fieldId;
@@ -587,7 +600,7 @@ namespace Xtensive.Orm.Model
     public int AdapterIndex
     {
       [DebuggerStepThrough]
-      get => adapterIndex == 255 ? -1 : adapterIndex;
+      get => adapterIndex == NoAdapterIndex ? -1 : adapterIndex;
       [DebuggerStepThrough]
       internal set {
         EnsureNotLocked();
