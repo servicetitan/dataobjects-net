@@ -867,7 +867,11 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
           Assert.That(session.Query.All<ALotOfFieldsEntityValid>().Count(), Is.EqualTo(countBefore + 3));
         }
 
+#if DO_MAX_255_FIELDS
+        Assert.That(counter.Count, Is.EqualTo(1));
+#else
         Assert.That(counter.Count, Is.EqualTo(2));
+#endif
       }
     }
 
