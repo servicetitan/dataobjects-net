@@ -67,8 +67,8 @@ namespace Xtensive.Orm.Model
     private byte fieldId;
     private byte adapterIndex = 255;
 #else
-    public const byte MaxFieldId = 32767;
-    public const byte NoAdapterIndex = -1;
+    public const short MaxFieldId = 32767;
+    public const short NoAdapterIndex = -1;
     private short fieldId;
     private short adapterIndex = -1;
 #endif
