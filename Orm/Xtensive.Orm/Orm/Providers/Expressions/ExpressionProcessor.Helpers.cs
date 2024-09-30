@@ -289,7 +289,7 @@ namespace Xtensive.Orm.Providers
       }
 
       // Check for closure member access
-      if (expression.NodeType == ExpressionType.MemberAccess) {
+      if (expression.NodeType != ExpressionType.MemberAccess) {
         return null;
       }
 
