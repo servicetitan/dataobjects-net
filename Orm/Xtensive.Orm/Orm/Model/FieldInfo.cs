@@ -60,7 +60,8 @@ namespace Xtensive.Orm.Model
     private string originalName;
     internal SegmentTransform valueExtractor;
     private ColumnInfoCollection columns;
-    private long cachedHashCode;
+    private volatile bool cachedHashCodeHasValue;
+    private volatile int cachedHashCode;
     private Segment<ColNum> mappingInfo;
 
 #if DO_MAX_255_FIELDS
@@ -745,14 +746,11 @@ namespace Xtensive.Orm.Model
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      var h = Volatile.Read(ref cachedHashCode);
-      if (h == 0) {
-        h = (uint)HashCode.Combine(declaringType, valueType, Name);
-        if (IsLocked) {
-          Volatile.Write(ref cachedHashCode, h | (1L << 63)); // Set the highest bit as HasValue flag even when `hashCode == 0`
-        }
+      if (!cachedHashCodeHasValue) {
+        cachedHashCode = HashCode.Combine(declaringType, valueType, Name);
+        cachedHashCodeHasValue = IsLocked;
       }
-      return (int)h;
+      return cachedHashCode;
     }
 
     #endregion
@@ -760,10 +758,7 @@ namespace Xtensive.Orm.Model
     #region ICloneable methods
 
     /// <inheritdoc/>
-    object ICloneable.Clone()
-    {
-      return Clone();
-    }
+    object ICloneable.Clone() => Clone();
 
     /// <summary>
     /// Clones this instance.
