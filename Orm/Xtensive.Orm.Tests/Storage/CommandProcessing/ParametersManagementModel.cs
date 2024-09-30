@@ -163,9 +163,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
       var maxcount = originalCount;
 
 #if DO_MAX_1000_COLUMNS
-      if (maxcount > 989) {
-        maxcount = 989;
-      }
+      maxcount = Math.Clamp(maxcount, 1, Math.Min((int) FieldInfo.MaxFieldId - 11, 989));
 #else
       if (maxcount > 1024) {
         maxcount = 1000;
@@ -193,7 +191,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
         _ = t.DefineField(fieldName, typeof(int));
       }
 
-      // each entitity field count is valid
+      // each entity field count is valid
       // overall entity field count is valid
       var types = new TypeDef[] {
         model.Types[typeof(SeveralPersistActionsEntityValidA)],
@@ -226,7 +224,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
       currentFieldCount = 0;
       var fieldsCount = 2100;
 #if DO_MAX_1000_COLUMNS
-      fieldsCount = 990;
+      fieldsCount = Math.Min(990, FieldInfo.MaxFieldId - 11);
 #endif
       foreach (var fieldName in GetFieldNames(fieldsCount)) {
         _ = types[indexToWrite].DefineField(fieldName, typeof(int));

@@ -638,7 +638,9 @@ namespace Xtensive.Orm.Model
     {
       base.UpdateState();
 
-      var adapterIndex = 0;
+      if (Fields.Count > FieldInfo.MaxFieldId)
+        throw new NotSupportedException($"Max number of supported fields is {FieldInfo.MaxFieldId}");
+      byte adapterIndex = 0;
       foreach (var field in Fields) {
         if (field.IsStructure || field.IsEntitySet) {
           field.AdapterIndex = adapterIndex++;
@@ -757,7 +759,9 @@ namespace Xtensive.Orm.Model
     {
       base.Lock(recursive);
 
-      int currentFieldId = FieldInfo.MinFieldId;
+      if (fields.Count > FieldInfo.MaxFieldId)
+        throw new NotSupportedException($"Max number of supported fields is {FieldInfo.MaxFieldId}");
+      byte currentFieldId = FieldInfo.MinFieldId;
       foreach (var field in fields)
         field.FieldId = currentFieldId++;
       isLeaf = GetIsLeaf();

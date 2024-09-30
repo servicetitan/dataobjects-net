@@ -492,18 +492,18 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     private void ChangeFieldTypeTest(
       string fieldName, Type newColumnType, object expectedValue,
-      DomainUpgradeMode mode, int? newLength, int? newPresicion, int? newScale) =>
-      ChangeFieldTypeTest(fieldName, newColumnType, expectedValue, mode, newLength, newPresicion, newScale, null);
+      DomainUpgradeMode mode, int? newLength, sbyte? newPrecision, sbyte? newScale) =>
+      ChangeFieldTypeTest(fieldName, newColumnType, expectedValue, mode, newLength, newPrecision, newScale, null);
 
     private Task ChangeFieldTypeAsyncTest(string fieldName,
       Type newColumnType,
       object expectedValue,
       DomainUpgradeMode mode,
       int? newLength,
-      int? newPresicion,
-      int? newScale)
+      sbyte? newPrecision,
+      sbyte? newScale)
     {
-      return ChangeFieldTypeAsyncTest(fieldName, newColumnType, expectedValue, mode, newLength, newPresicion, newScale, null);
+      return ChangeFieldTypeAsyncTest(fieldName, newColumnType, expectedValue, mode, newLength, newPrecision, newScale, null);
     }
 
     private void ChangeFieldTypeTest(string fieldName,
@@ -511,8 +511,8 @@ namespace Xtensive.Orm.Tests.Upgrade
       object expectedValue,
       DomainUpgradeMode mode,
       int? newLength,
-      int? newPrecision,
-      int? newScale,
+      sbyte? newPrecision,
+      sbyte? newScale,
       bool? isNullable)
     {
       using (FieldTypeChanger.Enable(newColumnType, fieldName, newLength, newPrecision, newScale, isNullable)) {
@@ -531,8 +531,8 @@ namespace Xtensive.Orm.Tests.Upgrade
       object expectedValue,
       DomainUpgradeMode mode,
       int? newLength,
-      int? newPrecision,
-      int? newScale,
+      sbyte? newPrecision,
+      sbyte? newScale,
       bool? isNullable)
     {
       using (FieldTypeChanger.Enable(newColumnType, fieldName, newLength, newPrecision, newScale, isNullable)) {
@@ -633,13 +633,13 @@ namespace Xtensive.Orm.Tests.Upgrade
     private static Type ColumnType { get; set; }
     private static string ColumnName { get; set; }
     private static int? ColumnLength { get; set; }
-    private static int? ColumnScale { get; set; }
-    private static int? ColumnPrecision { get; set; }
+    private static sbyte? ColumnScale { get; set; }
+    private static sbyte? ColumnPrecision { get; set; }
     private static bool? ColumnNullable { get; set; }
     private static bool isEnabled;
 
     /// <exception cref="InvalidOperationException">Handler is already enabled.</exception>
-    public static IDisposable Enable(Type newType, string fieldName, int? length, int? precision, int? scale, bool? isNullable)
+    public static IDisposable Enable(Type newType, string fieldName, int? length, sbyte? precision, sbyte? scale, bool? isNullable)
     {
       if (isEnabled) {
         throw new InvalidOperationException();
