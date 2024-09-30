@@ -40,13 +40,15 @@ namespace Xtensive.Orm.Model
     /// Minimal possible <see cref="FieldId"/> value.
     /// Value is <see langword="100" />.
     /// </summary>
-    public const byte MinFieldId = 1;    
+    public const byte MinFieldId = 1;
+
+    public const sbyte NoScalePrecision = -128;
 
     private PropertyInfo underlyingProperty;
     private Type valueType;
     private int? length;
-    private sbyte? scale;
-    private sbyte? precision;
+    private sbyte scale = NoScalePrecision;
+    private sbyte precision = NoScalePrecision;
     private object defaultValue;
     private string defaultSqlExpression;
     private TypeInfo reflectedType;
@@ -400,11 +402,11 @@ namespace Xtensive.Orm.Model
     public sbyte? Scale
     {
       [DebuggerStepThrough]
-      get => scale;
+      get => scale == NoScalePrecision ? null : scale;
       [DebuggerStepThrough]
       set {
         EnsureNotLocked();
-        scale = value;
+        scale = value ?? NoScalePrecision;
       }
     }
 
@@ -414,11 +416,11 @@ namespace Xtensive.Orm.Model
     public sbyte? Precision
     {
       [DebuggerStepThrough]
-      get => precision;
+      get => precision == NoScalePrecision ? null : precision;
       [DebuggerStepThrough]
       set {
         EnsureNotLocked();
-        precision = value;
+        precision = value ?? NoScalePrecision;
       }
     }
 
