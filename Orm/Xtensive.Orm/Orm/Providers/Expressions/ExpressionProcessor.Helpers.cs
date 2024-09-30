@@ -23,10 +23,12 @@ namespace Xtensive.Orm.Providers
     {
       var expressionLeft = expression.Left;
       var expressionRight = expression.Right;
+      var expressionLeftNodeType = expressionLeft.NodeType;
+      var expressionRightNodeType = expressionRight.NodeType;
 
       bool isGoodExpression =
-        expressionLeft.NodeType==ExpressionType.Call && expressionRight.NodeType==ExpressionType.Constant ||
-        expressionRight.NodeType==ExpressionType.Call && expressionLeft.NodeType==ExpressionType.Constant;
+        expressionLeftNodeType == ExpressionType.Call && expressionRightNodeType == ExpressionType.Constant ||
+        expressionRightNodeType == ExpressionType.Call && expressionLeftNodeType == ExpressionType.Constant;
 
       if (!isGoodExpression)
         return null;
@@ -35,7 +37,7 @@ namespace Xtensive.Orm.Providers
       ConstantExpression constantExpression;
       bool swapped;
 
-      if (expressionLeft.NodeType == ExpressionType.Call) {
+      if (expressionLeftNodeType == ExpressionType.Call) {
         callExpression = (MethodCallExpression) expressionLeft;
         constantExpression = (ConstantExpression) expressionRight;
         swapped = false;
@@ -276,7 +278,7 @@ namespace Xtensive.Orm.Providers
       return enumType.IsEnum && Enum.GetUnderlyingType(enumType)==numericType;
     }
 
-    private static QueryParameterIdentity GetParameterIdentity(TypeMapping mapping,
+    private static QueryParameterIdentity? GetParameterIdentity(TypeMapping mapping,
       Expression<Func<ParameterContext, object>> accessor, QueryParameterBindingType bindingType)
     {
       var expression = accessor.Body;
@@ -293,35 +295,28 @@ namespace Xtensive.Orm.Providers
 
       var memberAccess = (MemberExpression) expression;
       var operand = memberAccess.Expression;
-      if (operand == null || !operand.Type.IsClosure()) {
-        return null;
-      }
+      if (operand?.Type.IsClosure() == true) {
+        var fieldName = memberAccess.Member.Name;
+        switch (operand.NodeType) {
+          case ExpressionType.Constant:
+            // Check for raw closure
+            return new(mapping, ((ConstantExpression) operand).Value, fieldName, bindingType);
+          case ExpressionType.Call:
+            // Check for parameterized closure
+            var callExpression = (MethodCallExpression) operand;
+            if (string.Equals(callExpression.Method.Name, nameof(ParameterContext.GetValue), StringComparison.Ordinal)) {
+              operand = callExpression.Object;
+              if (operand?.Type == WellKnownOrmTypes.ParameterContext) {
+                operand = callExpression.Arguments[0];
+              }
+            }
 
-      var fieldName = memberAccess.Member.Name;
-
-      // Check for raw closure
-      if (operand.NodeType == ExpressionType.Constant) {
-        var closureObject = ((ConstantExpression) operand).Value;
-        return new QueryParameterIdentity(mapping, closureObject, fieldName, bindingType);
-      }
-
-      // Check for parameterized closure
-      if (operand.NodeType==ExpressionType.Call) {
-        var callExpression = (MethodCallExpression) operand;
-        if (string.Equals(callExpression.Method.Name, nameof(ParameterContext.GetValue), StringComparison.Ordinal)) {
-          operand = callExpression.Object;
-          if (operand!=null && WellKnownOrmTypes.ParameterContext == operand.Type) {
-            operand = callExpression.Arguments[0];
-          }
-        }
-
-        var isParameter = operand != null && operand.NodeType == ExpressionType.Constant;
-        if (isParameter) {
-          var parameterObject = ((ConstantExpression) operand).Value;
-          return new QueryParameterIdentity(mapping, parameterObject, fieldName, bindingType);
+            var isParameter = operand?.NodeType == ExpressionType.Constant == true;
+            return isParameter
+              ? new(mapping, ((ConstantExpression) operand).Value, fieldName, bindingType)
+              : null;
         }
       }
-
       return null;
     }
 
@@ -331,17 +326,17 @@ namespace Xtensive.Orm.Providers
       QueryParameterBinding result;
       var identity = GetParameterIdentity(mapping, accessor, bindingType);
 
-      if (identity==null) {
+      if (identity == null) {
         result = new QueryParameterBinding(mapping, accessor.CachingCompile(), bindingType);
         otherBindings.Add(result);
         return result;
       }
 
-      if (bindingsWithIdentity.TryGetValue(identity, out result))
+      if (bindingsWithIdentity.TryGetValue(identity.Value, out result))
         return result;
 
       result = new QueryParameterBinding(mapping, accessor.CachingCompile(), bindingType);
-      bindingsWithIdentity.Add(identity, result);
+      bindingsWithIdentity.Add(identity.Value, result);
       return result;
     }
   }
