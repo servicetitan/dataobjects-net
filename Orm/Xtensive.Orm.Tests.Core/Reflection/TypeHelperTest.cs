@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Tests.Core.Reflection
     }
 
     [Test]
-    public void OverridenAssociateTest()
+    public void OverriddenAssociateTest()
     {
       // Checking class E associates
       o = TypeHelper.CreateAssociate<EAAssociate>(typeof (EA), out foundFor, associateSuffix,  Array.Empty<object>());

@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Model
     private KeyInfo key;
     private bool hasVersionRoots;
     private IReadOnlyDictionary<(FieldInfo, FieldInfo), FieldInfo> structureFieldMapping;
-    private List<AssociationInfo> overridenAssociations;
+    private List<AssociationInfo> overriddenAssociations;
     private FieldInfo typeIdField;
 
 
@@ -698,18 +698,18 @@ namespace Xtensive.Orm.Model
         return;
       }
 
-      overridenAssociations = associations
+      overriddenAssociations = associations
         .Where(a =>
           (a.Ancestors.Count > 0 && ((a.OwnerType == this && a.Ancestors.All(an => an.OwnerType != this) || (a.TargetType == this && a.Ancestors.All(an => an.TargetType != this))))) ||
           (a.Reversed != null && (a.Reversed.Ancestors.Count > 0 && ((a.Reversed.OwnerType == this && a.Reversed.Ancestors.All(an => an.OwnerType != this) || (a.Reversed.TargetType == this && a.Reversed.Ancestors.All(an => an.TargetType != this)))))))
         .SelectMany(a => a.Ancestors.Concat(a.Reversed == null ? Enumerable.Empty<AssociationInfo>() : a.Reversed.Ancestors))
         .ToList();
       var ancestor = Ancestor;
-      if (ancestor != null && ancestor.overridenAssociations != null) {
-        overridenAssociations.AddRange(ancestor.overridenAssociations);
+      if (ancestor != null && ancestor.overriddenAssociations != null) {
+        overriddenAssociations.AddRange(ancestor.overriddenAssociations);
       }
 
-      foreach (var ancestorAssociation in overridenAssociations) {
+      foreach (var ancestorAssociation in overriddenAssociations) {
         associations.Remove(ancestorAssociation);
       }
 

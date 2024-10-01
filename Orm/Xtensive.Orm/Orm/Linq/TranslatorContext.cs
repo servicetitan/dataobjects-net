@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Linq
         parameter = new ApplyParameter(providerType.IsGenericType ? providerType.GetShortName() : providerType.Name);
         // parameter = new ApplyParameter(provider.ToString()); 
         // ENABLE ONLY FOR DEBUGGING! 
-        // May lead TO entity.ToString() calls, while ToString can be overriden.
+        // May lead TO entity.ToString() calls, while ToString can be overridden.
         applyParameters.Add(provider, parameter);
       }
       return parameter;
