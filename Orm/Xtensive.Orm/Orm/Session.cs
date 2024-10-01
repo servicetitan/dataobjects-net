@@ -620,6 +620,10 @@ namespace Xtensive.Orm
       }
 
       try {
+        // ensure all event listeners are released
+        using var se = SystemEvents;
+        using var e = Events;
+
         if (IsDebugEventLoggingEnabled) {
           OrmLog.Debug(nameof(Strings.LogSessionXDisposing), this);
         }

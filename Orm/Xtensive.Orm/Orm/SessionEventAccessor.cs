@@ -19,12 +19,12 @@ namespace Xtensive.Orm
   /// <summary>
   /// Provides access to <see cref="Session"/>-level events.
   /// </summary>
-  public sealed class SessionEventAccessor
+  public sealed class SessionEventAccessor : IDisposable
   {
     /// <summary>
     /// Gets the session this instance is bound to.
     /// </summary>
-    public Session Session { get; private set; }
+    public Session Session { get; }
 
     /// <summary>
     /// Gets indicates whether this accessor describes system events (<see cref="Orm.Session.SystemEvents"/>).
@@ -533,6 +533,53 @@ namespace Xtensive.Orm
       return SystemEvents || !Session.IsSystemLogicOnly;
     }
 
+    public void Dispose()
+    {
+      DbCommandExecuting = null;
+      DbCommandExecuted = null;
+      DbCommandCanceled = null;
+      QueryExecuting = null;
+      QueryExecuted = null;
+      Disposing = null;
+      Persisting = null;
+      Persisted = null;
+      ChangesCanceling = null;
+      ChangesCanceled = null;
+      KeyGenerated = null;
+      EntityMaterialized = null;
+      EntityCreated = null;
+      EntityChanging = null;
+      EntityVersionInfoChanging = null;
+      EntityVersionInfoChanged = null;
+      EntityFieldValueGetting = null;
+      EntityFieldValueGet = null;
+      EntityFieldValueGetCompleted = null;
+      EntityFieldValueSettingAttempt = null;
+      EntityFieldValueSetting = null;
+      EntityFieldValueSet = null;
+      EntityFieldValueSetCompleted = null;
+      EntityRemoving = null;
+      EntityRemove = null;
+      EntityRemoveCompleted = null;
+      EntitySetItemRemoving = null;
+      EntitySetItemRemove = null;
+      EntitySetItemRemoveCompleted = null;
+      EntitySetItemAdding = null;
+      EntitySetItemAdd = null;
+      EntitySetItemAddCompleted = null;
+      EntitySetClearing = null;
+      EntitySetClear = null;
+      EntitySetClearCompleted = null;
+      TransactionOpening = null;
+      TransactionOpened = null;
+      TransactionPrecommitting = null;
+      TransactionCommitting = null;
+      TransactionCommitted = null;
+      TransactionRollbacking = null;
+      TransactionRollbacked = null;
+      RecordsetEnumerating = null;
+      RecordsetEnumerated = null;
+    }
 
     // Constructors
 
