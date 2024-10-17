@@ -53,8 +53,9 @@ namespace Xtensive.Orm.Model
       var names = (fieldNames ?? Array.Empty<string>()).Prepend(fieldName);
 
       var fields = new List<FieldInfo>();
+      var reflectedTypeFields = primaryIndex.ReflectedType.Fields;
       foreach (var name in names) {
-        if (primaryIndex.ReflectedType.Fields.TryGetValue(name, out var field)) {
+        if (reflectedTypeFields.TryGetValue(name, out var field)) {
           fields.Add(field);
         }
       }
