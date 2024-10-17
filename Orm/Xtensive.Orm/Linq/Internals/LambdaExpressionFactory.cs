@@ -59,7 +59,7 @@ namespace Xtensive.Linq
 
     public LambdaExpression CreateLambda(Expression body, IReadOnlyList<ParameterExpression> parameters)
     {
-      var delegateType = DelegateHelper.MakeDelegateType(body.Type, parameters.Select(p => p.Type));
+      var delegateType = DelegateHelper.MakeDelegateType(body.Type, parameters.Select(p => p.Type), parameters.Count);
       return CreateLambda(delegateType, body, parameters);
     }
 

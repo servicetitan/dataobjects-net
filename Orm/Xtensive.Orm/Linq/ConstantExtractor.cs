@@ -10,7 +10,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Core;
-
 using Xtensive.Reflection;
 
 namespace Xtensive.Linq
@@ -76,7 +75,7 @@ namespace Xtensive.Linq
     private static Type FixDelegateType(Type delegateType) =>
       Memoizer.Get(delegateType, static t =>
         DelegateHelper.GetDelegateSignature(t) switch {
-          var signature => DelegateHelper.MakeDelegateType(signature.First, signature.Second.Prepend(ConstantParameter.Type))
+          var signature => DelegateHelper.MakeDelegateType(signature.First, signature.Second.Prepend(ConstantParameter.Type), signature.Second.Length + 1)
         });
 
     private static bool DefaultConstantFilter(ConstantExpression constant)

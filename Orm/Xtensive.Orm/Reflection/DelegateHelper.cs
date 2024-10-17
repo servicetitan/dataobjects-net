@@ -472,29 +472,15 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="returnType">Type of return value.</param>
     /// <param name="parameterTypes">Types of parameters.</param>
+    /// /// <param name="n">Length of <paramref name="parameterTypes" />.</param>
     /// <returns>Created delegate type.</returns>
-    public static Type MakeDelegateType(Type returnType, params Type[] parameterTypes)
+    internal static Type MakeDelegateType(Type returnType, IEnumerable<Type> parameterTypes, int n)
     {
-      ArgumentNullException.ThrowIfNull(parameterTypes);
-      var n = parameterTypes.Length;
       ArgumentOutOfRangeException.ThrowIfGreaterThan(n, MaxNumberOfGenericDelegateParameters);
-      if (returnType == WellKnownTypes.Void || returnType == null) {
-        return n == 0 ? ActionTypes[0] : ActionTypes[n].MakeGenericType(parameterTypes);
-      }
-      var funcGenericParameters = parameterTypes.Append(returnType).ToArray();
-      return FuncTypes[funcGenericParameters.Length - 1].MakeGenericType(funcGenericParameters);
-    }
-
-    /// <summary>
-    /// Creates a delegate type that represents a delegate that calls a method with specified signature.
-    /// </summary>
-    /// <param name="returnType">Type of return value.</param>
-    /// <param name="parameterTypes">Types of parameters.</param>
-    /// <returns>Created delegate type.</returns>
-    public static Type MakeDelegateType(Type returnType, IEnumerable<Type> parameterTypes)
-    {
-      ArgumentNullException.ThrowIfNull(parameterTypes);
-      return MakeDelegateType(returnType, parameterTypes.ToArray());
+      return returnType != WellKnownTypes.Void && returnType != null
+        ? FuncTypes[n].MakeGenericType(parameterTypes.Append(returnType).ToArray())
+        : n == 0 ? ActionTypes[0]
+        : ActionTypes[n].MakeGenericType(parameterTypes.ToArray());
     }
 
     /// <summary>
