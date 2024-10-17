@@ -84,8 +84,8 @@ namespace Xtensive.Orm.Model
 
       void columnsExtractor(IEnumerable<FieldInfo> fieldsToExtract) {
         foreach (var field in fieldsToExtract) {
-          if (field.Column != null) {
-            columns.Add(field.Column);
+          if (field.Column is { } column) {
+            columns.Add(column);
           }
           else if (field.IsEntity || field.IsStructure) {
             columnsExtractor(field.Fields);
@@ -97,9 +97,10 @@ namespace Xtensive.Orm.Model
       var columnNumber = columns.Count;
 
       var candidates = this
-        .Where(i => i.KeyColumns.Take(columnNumber)
-          .Select((pair, index) => (column: pair.Key, columnIndex: index))
-          .All(p => p.column == columns[p.columnIndex]))
+        .Where(i => i.KeyColumns
+          .Take(columnNumber)
+          .Select((pair, index) => pair.Key == columns[index])
+          .All(o => o))
         .OrderByDescending(i => i.Attributes).ToList();
 
       return candidates.Where(c => c.KeyColumns.Count == columnNumber).FirstOrDefault() ?? candidates.FirstOrDefault();
