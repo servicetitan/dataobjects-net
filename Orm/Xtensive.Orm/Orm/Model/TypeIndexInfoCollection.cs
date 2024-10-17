@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Model
 
     private IndexInfo GetIndex(IEnumerable<FieldInfo> fields)
     {
-      Action<IEnumerable<FieldInfo>, IList<ColumnInfo>> columnsExtractor = null;
+      Action<IEnumerable<FieldInfo>, List<ColumnInfo>> columnsExtractor = null;
       columnsExtractor = ((fieldsToExtract, extractedColumns) => {
         foreach (var field in fieldsToExtract) {
           if (field.Column==null) {
@@ -97,10 +97,9 @@ namespace Xtensive.Orm.Model
       var columnNumber = columns.Count;
 
       var candidates = this
-        .Where(i => i.KeyColumns
-          .TakeWhile((_, index) => index < columns.Count)
+        .Where(i => i.KeyColumns.Take(columnNumber)
           .Select((pair, index) => (column: pair.Key, columnIndex: index))
-          .All(p => p.column==columns[p.columnIndex]))
+          .All(p => p.column == columns[p.columnIndex]))
         .OrderByDescending(i => i.Attributes).ToList();
 
       var result = candidates.Where(c => c.KeyColumns.Count==columnNumber).FirstOrDefault();
