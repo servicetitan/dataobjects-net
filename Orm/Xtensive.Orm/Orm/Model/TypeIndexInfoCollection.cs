@@ -80,17 +80,16 @@ namespace Xtensive.Orm.Model
 
     private IndexInfo GetIndex(IEnumerable<FieldInfo> fields)
     {
-      Action<IEnumerable<FieldInfo>, List<ColumnInfo>> columnsExtractor = null;
-      columnsExtractor = ((fieldsToExtract, extractedColumns) => {
+      void columnsExtractor(IEnumerable<FieldInfo> fieldsToExtract, List<ColumnInfo> extractedColumns) {
         foreach (var field in fieldsToExtract) {
-          if (field.Column==null) {
-            if (field.IsEntity || field.IsStructure)
-              columnsExtractor(field.Fields, extractedColumns);
-          }
-          else
+          if (field.Column != null) {
             extractedColumns.Add(field.Column);
+          }
+          else if (field.IsEntity || field.IsStructure) {
+            columnsExtractor(field.Fields, extractedColumns);
+          }
         }
-      });
+      }
 
       var columns = new List<ColumnInfo>();
       columnsExtractor(fields, columns);
