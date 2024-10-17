@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
-using Xtensive.Core;
-
 using Xtensive.Reflection;
+using Expr = Xtensive.Core.Expr;
+using Memoizer = Xtensive.Core.Memoizer;
 
 namespace Xtensive.Linq
 {
