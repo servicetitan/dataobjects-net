@@ -80,19 +80,20 @@ namespace Xtensive.Orm.Model
 
     private IndexInfo GetIndex(IEnumerable<FieldInfo> fields)
     {
-      void columnsExtractor(IEnumerable<FieldInfo> fieldsToExtract, List<ColumnInfo> extractedColumns) {
+      var columns = new List<ColumnInfo>();
+
+      void columnsExtractor(IEnumerable<FieldInfo> fieldsToExtract) {
         foreach (var field in fieldsToExtract) {
           if (field.Column != null) {
-            extractedColumns.Add(field.Column);
+            columns.Add(field.Column);
           }
           else if (field.IsEntity || field.IsStructure) {
-            columnsExtractor(field.Fields, extractedColumns);
+            columnsExtractor(field.Fields);
           }
         }
       }
 
-      var columns = new List<ColumnInfo>();
-      columnsExtractor(fields, columns);
+      columnsExtractor(fields);
       var columnNumber = columns.Count;
 
       var candidates = this
@@ -101,9 +102,7 @@ namespace Xtensive.Orm.Model
           .All(p => p.column == columns[p.columnIndex]))
         .OrderByDescending(i => i.Attributes).ToList();
 
-      var result = candidates.Where(c => c.KeyColumns.Count==columnNumber).FirstOrDefault();
-
-      return result ?? candidates.FirstOrDefault();
+      return candidates.Where(c => c.KeyColumns.Count == columnNumber).FirstOrDefault() ?? candidates.FirstOrDefault();
     }
 
     /// <summary>
