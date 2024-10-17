@@ -76,7 +76,7 @@ namespace Xtensive.Linq
     private static Type FixDelegateType(Type delegateType) =>
       Memoizer.Get(delegateType, static t =>
         DelegateHelper.GetDelegateSignature(t) switch {
-          var signature => DelegateHelper.MakeDelegateType(signature.First, signature.Second.Prepend(ConstantParameter.Type))
+          var signature => DelegateHelper.MakeDelegateType(signature.First, signature.Second.Prepend(ConstantParameter.Type), signature.Second.Length + 1)
         });
 
     private static bool DefaultConstantFilter(ConstantExpression constant)
