@@ -66,12 +66,8 @@ namespace Xtensive.Orm.Model
       return GetIndex(fields);
     }
 
-    public IndexInfo GetIndex(FieldInfo field, params FieldInfo[] fields)
-    {
-      var fieldInfos = new List<FieldInfo> {field};
-      fieldInfos.AddRange(fields);
-      return GetIndex(fieldInfos);
-    }
+    public IndexInfo GetIndex(FieldInfo field, params FieldInfo[] fields) =>
+      GetIndex(fields.Prepend(field));
 
     /// <inheritdoc/>
     public override void UpdateState()
