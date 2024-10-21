@@ -13,8 +13,8 @@ namespace Xtensive.Linq
 {
   internal sealed class ExpressionComparer
   {
-    private readonly ParameterExpressionRegistry leftParameters = new ParameterExpressionRegistry();
-    private readonly ParameterExpressionRegistry rightParameters = new ParameterExpressionRegistry();
+    private readonly ParameterExpressionRegistry leftParameters = new();
+    private readonly ParameterExpressionRegistry rightParameters = new();
 
     public bool AreEqual(Expression x, Expression y)
     {

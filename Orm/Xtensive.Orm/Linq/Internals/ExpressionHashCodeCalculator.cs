@@ -4,10 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.06
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 
@@ -16,7 +12,7 @@ namespace Xtensive.Linq
   internal sealed class ExpressionHashCodeCalculator : ExpressionVisitor<int>
   {
     private const int NullHashCode = 0x7abf3456;
-    private readonly ParameterExpressionRegistry parameters = new ParameterExpressionRegistry();
+    private readonly ParameterExpressionRegistry parameters = new();
 
     public int CalculateHashCode(Expression expression)
     {
