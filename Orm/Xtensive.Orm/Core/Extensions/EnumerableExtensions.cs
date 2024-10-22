@@ -433,24 +433,20 @@ namespace Xtensive.Core
       }
       while (enumerator.MoveNext()) {
         currentCount = 0;
-        var buffer = ArrayPool<T>.Shared.Rent(currentBatchSize);
-        try {
-          do {
-            buffer[currentCount++] = enumerator.Current;
-          } while (currentCount < currentBatchSize && enumerator.MoveNext());
+        using PooledArray<T> pooled = new(currentBatchSize, true);
+        var buffer = pooled.Array;
+        do {
+          buffer[currentCount++] = enumerator.Current;
+        } while (currentCount < currentBatchSize && enumerator.MoveNext());
 
-          if (currentBatchSize < maximalBatchSize) {
-            currentBatchSize *= 2;
-            if (currentBatchSize > maximalBatchSize) {
-              currentBatchSize = maximalBatchSize;
-            }
+        if (currentBatchSize < maximalBatchSize) {
+          currentBatchSize *= 2;
+          if (currentBatchSize > maximalBatchSize) {
+            currentBatchSize = maximalBatchSize;
           }
+        }
 
-          yield return buffer.Take(currentCount);
-        }
-        finally {
-          ArrayPool<T>.Shared.Return(buffer, true);
-        }
+        yield return buffer.Take(currentCount);
       }
     }
 
