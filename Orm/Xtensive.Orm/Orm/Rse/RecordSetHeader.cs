@@ -4,10 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2007.09.13
 
-using System;
 using System.Buffers;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
@@ -154,38 +151,34 @@ namespace Xtensive.Orm.Rse
     /// <returns>A new header containing only specified columns.</returns>
     public RecordSetHeader Select(IReadOnlyList<ColNum> columns)
     {
-      var columnsMap = ArrayPool<ColNum>.Shared.Rent(Columns.Count);
-      try {
-        Array.Fill(columnsMap, (ColNum) (-1));
-        for (ColNum newIndex = 0, n = (ColNum) columns.Count; newIndex < n; newIndex++) {
-          var oldIndex = columns[newIndex];
-          columnsMap[oldIndex] = newIndex;
-        }
-
-        var resultOrder = new DirectionCollection<ColNum>(
-          Order
-            .Select(o => new KeyValuePair<ColNum, Direction>(columnsMap[o.Key], o.Value))
-            .TakeWhile(o => o.Key >= 0));
-
-        var resultGroups = ColumnGroups
-          .Where(g => g.Keys.All(k => columnsMap[k] >= 0))
-          .Select(g => new ColumnGroup(
-            g.TypeInfoRef,
-            g.Keys.Select(k => columnsMap[k]).ToArray(g.Keys.Count),
-            g.Columns
-              .Select(c => columnsMap[c])
-              .Where(c => c >= 0).ToList()));
-
-        return new RecordSetHeader(
-          TupleDescriptor.CreateFromNormalized(columns.Select(i => TupleDescriptor[i]).ToArray(columns.Count)),
-          columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum) newIndex)).ToArray(columns.Count),
-          resultGroups.ToList(),
-          null,
-          resultOrder);
+      using PooledArray<ColNum> columnsArray = new(columns.Count);
+      ColNum[] columnsMap = columnsArray;
+      Array.Fill(columnsMap, (ColNum) (-1));
+      for (ColNum newIndex = 0, n = (ColNum) columns.Count; newIndex < n; newIndex++) {
+        var oldIndex = columns[newIndex];
+        columnsMap[oldIndex] = newIndex;
       }
-      finally {
-        ArrayPool<ColNum>.Shared.Return(columnsMap);
-      }
+
+      var resultOrder = new DirectionCollection<ColNum>(
+        Order
+          .Select(o => new KeyValuePair<ColNum, Direction>(columnsMap[o.Key], o.Value))
+          .TakeWhile(o => o.Key >= 0));
+
+      var resultGroups = ColumnGroups
+        .Where(g => g.Keys.All(k => columnsMap[k] >= 0))
+        .Select(g => new ColumnGroup(
+          g.TypeInfoRef,
+          g.Keys.Select(k => columnsMap[k]).ToArray(g.Keys.Count),
+          g.Columns
+            .Select(c => columnsMap[c])
+            .Where(c => c >= 0).ToList()));
+
+      return new RecordSetHeader(
+        TupleDescriptor.CreateFromNormalized(columns.Select(i => TupleDescriptor[i]).ToArray(columns.Count)),
+        columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum) newIndex)).ToArray(columns.Count),
+        resultGroups.ToList(),
+        null,
+        resultOrder);
     }
 
     /// <summary>
