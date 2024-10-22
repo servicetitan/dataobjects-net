@@ -151,7 +151,7 @@ namespace Xtensive.Orm.Rse
     /// <returns>A new header containing only specified columns.</returns>
     public RecordSetHeader Select(IReadOnlyList<ColNum> columns)
     {
-      using PooledArray<ColNum> columnsArray = new(columns.Count);
+      using PooledArray<ColNum> columnsArray = new(Columns.Count);
       ColNum[] columnsMap = columnsArray;
       Array.Fill(columnsMap, (ColNum) (-1));
       for (ColNum newIndex = 0, n = (ColNum) columns.Count; newIndex < n; newIndex++) {
