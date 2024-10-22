@@ -4,14 +4,12 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.06
 
-using System;
-using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 
 namespace Xtensive.Linq
 {
-  internal sealed class ExpressionComparer
+  internal readonly struct ExpressionComparer()
   {
     private readonly ParameterExpressionRegistry leftParameters = new();
     private readonly ParameterExpressionRegistry rightParameters = new();
@@ -35,14 +33,13 @@ namespace Xtensive.Linq
     {
       if (ReferenceEquals(x, y))
         return true;
-      if (x==null || y==null)
+      if (x == null || y == null)
         return false;
-      if (x.NodeType!=y.NodeType)
-        return false;
-      if (x.Type!=y.Type)
+      var nodeType = x.NodeType;
+      if (nodeType != y.NodeType || x.Type != y.Type)
         return false;
 
-      switch (x.NodeType) {
+      switch (nodeType) {
       case ExpressionType.Negate:
       case ExpressionType.NegateChecked:
       case ExpressionType.Not:
@@ -108,11 +105,12 @@ namespace Xtensive.Linq
 
     private bool VisitListInit(ListInitExpression x, ListInitExpression y)
     {
+      var self = this;    // To allow struct's methods inside closures
       return VisitNew(x.NewExpression, y.NewExpression)
         && x.Initializers.Count==y.Initializers.Count
         && x.Initializers
           .Zip(y.Initializers, (first, second) => new Pair<ElementInit>(first, second))
-          .All(p => VisitElementInit(p.First, p.Second));
+          .All(p => self.VisitElementInit(p.First, p.Second));
     }
 
     /// <summary>
@@ -123,19 +121,21 @@ namespace Xtensive.Linq
     /// <returns></returns>
     private bool VisitMemberInit(MemberInitExpression x, MemberInitExpression y)
     {
+      var self = this;    // To allow struct's methods inside closures
       return VisitNew(x.NewExpression, y.NewExpression)
         && x.Bindings.Count==y.Bindings.Count
         && x.Bindings
           .Zip(y.Bindings, (first, second) => new Pair<MemberBinding>(first, second))
-          .All(p => VisitMemberBinding(p.First, p.Second));
+          .All(p => self.VisitMemberBinding(p.First, p.Second));
     }
 
     private bool VisitMemberBinding(MemberBinding x, MemberBinding y)
     {
-      var result = x.BindingType==y.BindingType && x.Member==y.Member;
-      if (!result)
+      var bindingType = x.BindingType;
+      if (bindingType != y.BindingType || x.Member != y.Member)
         return false;
-      switch (x.BindingType) {
+      var self = this;    // To allow struct's methods inside closures
+      switch (bindingType) {
         case MemberBindingType.Assignment:
           var ax = (MemberAssignment)x;
           var ay = (MemberAssignment)y;
@@ -146,14 +146,14 @@ namespace Xtensive.Linq
           return mbx.Bindings.Count==mby.Bindings.Count
                  && mbx.Bindings
                     .Zip(mby.Bindings, (first, second) => new Pair<MemberBinding>(first, second))
-                    .All(p => VisitMemberBinding(p.First, p.Second));
+                    .All(p => self.VisitMemberBinding(p.First, p.Second));
         case MemberBindingType.ListBinding:
           var mlx = (MemberListBinding)x;
           var mly = (MemberListBinding)y;
           return mlx.Initializers.Count==mly.Initializers.Count
                  && mlx.Initializers
                     .Zip(mly.Initializers, (first, second) => new Pair<ElementInit>(first, second))
-                    .All(p => VisitElementInit(p.First, p.Second));
+                    .All(p => self.VisitElementInit(p.First, p.Second));
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -164,42 +164,38 @@ namespace Xtensive.Linq
       return x.AddMethod==y.AddMethod && CompareExpressionSequences(x.Arguments, y.Arguments);
     }
 
-    private bool VisitInvocation(InvocationExpression x, InvocationExpression y)
-    {
-      return Visit(x.Expression, y.Expression) && CompareExpressionSequences(x.Arguments, y.Arguments);
-    }
+    private bool VisitInvocation(InvocationExpression x, InvocationExpression y) =>
+      Visit(x.Expression, y.Expression) && CompareExpressionSequences(x.Arguments, y.Arguments);
 
-    private bool VisitNewArray(NewArrayExpression x, NewArrayExpression y)
-    {
-      return CompareExpressionSequences(x.Expressions, y.Expressions);
-    }
+    private bool VisitNewArray(NewArrayExpression x, NewArrayExpression y) =>
+      CompareExpressionSequences(x.Expressions, y.Expressions);
 
     private bool VisitNew(NewExpression x, NewExpression y)
     {
-      if (x.Constructor!=y.Constructor)
+      if (x.Constructor!=y.Constructor || !CompareExpressionSequences(x.Arguments, y.Arguments))
         return false;
-      if (!CompareExpressionSequences(x.Arguments, y.Arguments))
+      var xMembers = x.Members;
+      var yMembers = y.Members;
+      if (xMembers == null)
+        return yMembers == null;
+      if (yMembers == null)
         return false;
-      if (x.Members == null)
-        if (y.Members == null)
-          return true;
-        else
-          return false;
-      if (y.Members == null)
+      var count = xMembers.Count;
+      if (count != yMembers.Count)
         return false;
-      if (x.Members.Count != y.Members.Count)
-        return false;
-      for (int i = 0; i < x.Members.Count; i++)
-        if (x.Members[i] != y.Members[i])
+      for (int i = 0; i < count; i++)
+        if (xMembers[i] != yMembers[i])
           return false;
       return true;
     }
 
     private bool VisitLambda(LambdaExpression x, LambdaExpression y)
     {
-      leftParameters.AddRange(x.Parameters);
-      rightParameters.AddRange(y.Parameters);
-      return CompareExpressionSequences(x.Parameters, y.Parameters) && Visit(x.Body, y.Body);
+      var xParameters = x.Parameters;
+      var yParameters = y.Parameters;
+      leftParameters.AddRange(xParameters);
+      rightParameters.AddRange(yParameters);
+      return CompareExpressionSequences(xParameters, yParameters) && Visit(x.Body, y.Body);
     }
 
     private bool VisitMethodCall(MethodCallExpression x, MethodCallExpression y)
@@ -219,11 +215,10 @@ namespace Xtensive.Linq
 
     private bool VisitConstant(ConstantExpression x, ConstantExpression y)
     {
-      if (ReferenceEquals(x.Value, y.Value))
-        return true;
-      if (x.Value == null || y.Value == null)
-        return false;
-      return x.Value.Equals(y.Value);
+      var xValue = x.Value;
+      var yValue = y.Value;
+      return ReferenceEquals(xValue, yValue)
+             || xValue != null && yValue != null && xValue.Equals(yValue);
     }
 
     private bool VisitConditional(ConditionalExpression x, ConditionalExpression y)
@@ -251,9 +246,10 @@ namespace Xtensive.Linq
       System.Collections.ObjectModel.ReadOnlyCollection<T> y)
       where T : Expression
     {
-      if (x.Count != y.Count)
+      var count = x.Count;
+      if (count != y.Count)
         return false;
-      for (int i = 0; i < x.Count; i++)
+      for (int i = 0; i < count; i++)
         if (!Visit(x[i], y[i]))
           return false;
       return true;
