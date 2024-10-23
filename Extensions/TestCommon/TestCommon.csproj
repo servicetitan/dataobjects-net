@@ -10,6 +10,8 @@
   <Import Project="$(SolutionDir)MSBuild\DataObjects.Net.InternalBuild.targets" />
   <ItemGroup>
     <PackageReference Include="System.Configuration.ConfigurationManager" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Xml" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit3TestAdapter" />

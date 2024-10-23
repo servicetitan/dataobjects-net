@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Sql.Model;
@@ -10,16 +10,10 @@ namespace Xtensive.Sql.Ddl
   [Serializable]
   public class SqlCreateSchema : SqlStatement, ISqlCompileUnit
   {
-    private Schema schema;
-
-    public Schema Schema {
-      get {
-        return schema;
-      }
-    }
+    public Schema Schema { get; }
 
     internal override SqlCreateSchema Clone(SqlNodeCloneContext? context = null) =>
-      context.GetOrAdd(this, static (t, c) => new(t.schema));
+      context.GetOrAdd(this, static (t, c) => new(t.Schema));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -28,7 +22,7 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlCreateSchema(Schema schema) : base(SqlNodeType.Create)
     {
-      this.schema = schema;
+      Schema = schema;
     }
   }
 }

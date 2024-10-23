@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
@@ -36,6 +36,9 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
   </PropertyGroup>
+  <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+  </PropertyGroup>
   <ItemGroup Label="Build order">
     <ProjectReference Include="$(SolutionDir)Weaver\Xtensive.Orm.Weaver\Xtensive.Orm.Weaver.csproj" ReferenceOutputAssembly="false">
       <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
@@ -54,6 +57,8 @@
   <ItemGroup>
     <PackageReference Include="System.Configuration.ConfigurationManager" />
     <PackageReference Include="BitFaster.Caching" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
   </ItemGroup>
   <ItemGroup Label="T4 templates">
     <None Include="Arithmetic\Internal\PrimitiveArithmetics.tt">

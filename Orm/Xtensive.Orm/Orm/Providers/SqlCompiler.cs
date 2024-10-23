@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2022 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Vakhtina Elena
@@ -23,6 +23,8 @@ namespace Xtensive.Orm.Providers
 {
   public partial class SqlCompiler : Compiler<SqlProvider>
   {
+    protected readonly Stack<Pair<SqlProvider, bool>> outerReferenceStack = new Stack<Pair<SqlProvider, bool>>();
+
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
     private readonly ProviderInfo providerInfo;
@@ -77,12 +79,14 @@ namespace Xtensive.Orm.Providers
       SqlSelect sourceSelect = source.Request.Statement;
       var sqlSelect = sourceSelect.ShallowClone();
       var sqlSelectColumns = sqlSelect.Columns;
-      var columns = sqlSelectColumns.ToList();
+      var tempColumns = new SqlColumn[sqlSelectColumns.Count];
+      sqlSelectColumns.CopyTo(tempColumns, 0);
+
       sqlSelectColumns.Clear();
-      for (int i = 0; i < columns.Count; i++) {
+      for (int i = 0; i < tempColumns.Length; i++) {
         var columnName = provider.Header.Columns[i].Name;
         columnName = ProcessAliasedName(columnName);
-        switch (columns[i]) {
+        switch (tempColumns[i]) {
           case SqlColumnRef columnRef:
             sqlSelectColumns.Add(SqlDml.ColumnRef(columnRef.SqlColumn, columnName));
             break;
@@ -114,7 +118,7 @@ namespace Xtensive.Orm.Providers
       var sourceColumns = ExtractColumnExpressions(sqlSelect);
       var allBindings = Enumerable.Empty<QueryParameterBinding>();
       foreach (var column in provider.CalculatedColumns) {
-        var result = ProcessExpression(column.Expression, sourceColumns);
+        var result = ProcessExpression(column.Expression, true, sourceColumns);
         var predicate = result.First;
         var bindings = result.Second;
         if (column.Type.StripNullable()==WellKnownTypes.Bool)
@@ -153,7 +157,7 @@ namespace Xtensive.Orm.Providers
       var query = ExtractSqlSelect(provider, source);
 
       var sourceColumns = ExtractColumnExpressions(query);
-      var result = ProcessExpression(provider.Predicate, sourceColumns);
+      var result = ProcessExpression(provider.Predicate, true, sourceColumns);
       var predicate = result.First;
       var bindings = result.Second;
 
@@ -264,7 +268,7 @@ namespace Xtensive.Orm.Providers
 
       var joinType = provider.JoinType==JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin;
 
-      var result = ProcessExpression(provider.Predicate, leftExpressions, rightExpressions);
+      var result = ProcessExpression(provider.Predicate, false, leftExpressions, rightExpressions);
       var joinExpression = result.First;
       var bindings = result.Second;
 
@@ -304,12 +308,13 @@ namespace Xtensive.Orm.Providers
         pair => ((MappedColumn) provider.Header.Columns[pair.Key]).ColumnInfoRef.ColumnName!=typeIdColumnName;
       var keyColumns = provider.Header.Order
         .Where(filterNonTypeId)
-        .ToList();
+        .ToList(provider.Header.Order.Count);
 
-      for (int i = 0; i < keyColumns.Count; i++) {
+      parameterBindings.Capacity = keyColumns.Count;
+      for (int i = 0, count = keyColumns.Count; i < count; i++) {
         int columnIndex = keyColumns[i].Key;
         var sqlColumn = query.Columns[columnIndex];
-        var column = provider.Header.Columns[columnIndex];
+        var column = headerColumns[columnIndex];
         TypeMapping typeMapping = Driver.GetTypeMapping(column.Type);
         var binding = new QueryParameterBinding(typeMapping, GetSeekKeyElementAccessor(provider.Key, i));
         parameterBindings.Add(binding);
@@ -458,7 +463,7 @@ namespace Xtensive.Orm.Providers
       var result = SqlDml.Intersect(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
 
-      SqlSelect query = SqlDml.Select(queryRef);
+      var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
@@ -482,7 +487,7 @@ namespace Xtensive.Orm.Providers
 
       var result = SqlDml.Except(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
-      SqlSelect query = SqlDml.Select(queryRef);
+      var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
@@ -506,7 +511,7 @@ namespace Xtensive.Orm.Providers
 
       var result = SqlDml.UnionAll(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
-      SqlSelect query = SqlDml.Select(queryRef);
+      var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
@@ -530,7 +535,7 @@ namespace Xtensive.Orm.Providers
 
       var result = SqlDml.Union(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
-      SqlSelect query = SqlDml.Select(queryRef);
+      var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
@@ -538,14 +543,15 @@ namespace Xtensive.Orm.Providers
 
     internal protected override SqlProvider VisitRowNumber(RowNumberProvider provider)
     {
-      var directionCollection = provider.Header.Order;
+      var header = provider.Header;
+      var directionCollection = header.Order;
       if (directionCollection.Count == 0)
         directionCollection = new(1);
       var source = Compile(provider.Source);
 
       var query = ExtractSqlSelect(provider, source);
       var rowNumber = SqlDml.RowNumber();
-      query.Columns.Add(rowNumber, provider.Header.Columns.Last().Name);
+      query.Columns.Add(rowNumber, header.Columns.Last().Name);
       var columns = ExtractColumnExpressions(query);
       foreach (var order in directionCollection)
         rowNumber.OrderBy.Add(columns[order.Key], order.Value==Direction.Positive);
@@ -600,13 +606,13 @@ namespace Xtensive.Orm.Providers
       OuterReferences = new BindingCollection<ApplyParameter, Pair<SqlProvider, bool>>();
       var storageNode = configuration.StorageNode;
       Mapping = storageNode.Mapping;
-      TypeIdRegistry = configuration.StorageNode.TypeIdRegistry;
+      TypeIdRegistry = storageNode.TypeIdRegistry;
       NodeConfiguration = storageNode.Configuration;
 
       providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;
       tableValuedParametersSupported = providerInfo.Supports(ProviderFeatures.TableValuedParameters);
-      forceApplyViaReference = Handlers.StorageDriver.ServerInfo.Query.Features.HasFlag(Sql.Info.QueryFeatures.CrossApplyForSubqueriesOnly);
+      forceApplyViaReference = providerInfo.ProviderName.Equals(WellKnown.Provider.PostgreSql);
       useParameterForTypeId = configuration.PreferTypeIdAsParameter && Driver.ServerInfo.Query.Features.HasFlag(Sql.Info.QueryFeatures.ParameterAsColumn);
 
       if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions)) {

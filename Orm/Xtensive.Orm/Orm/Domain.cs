@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -131,6 +131,8 @@ namespace Xtensive.Orm
        new ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>>();
 
     internal FastConcurrentLruCache<object, Pair<object, ParameterizedQuery>> QueryCache { get; }
+
+    internal ConcurrentDictionary<Type, System.Linq.Expressions.MethodCallExpression> RootCallExpressionsCache { get; private set; }
 
     internal object UpgradeContextCookie { get; private set; }
 
@@ -413,6 +415,7 @@ namespace Xtensive.Orm
       EntityDataReader = new EntityDataReader(this);
       KeyGenerators = new KeyGeneratorRegistry();
       QueryCache = new FastConcurrentLruCache<object, Pair<object, ParameterizedQuery>>(Configuration.QueryCacheSize, k => k.First);
+      RootCallExpressionsCache = new ConcurrentDictionary<Type, System.Linq.Expressions.MethodCallExpression>();
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
       Extensions = new ExtensionCollection();
       UpgradeContextCookie = upgradeContextCookie;

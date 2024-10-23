@@ -1,13 +1,19 @@
 <Project>
   <PropertyGroup>
-    <MSExtVersion Condition="'$(TargetFramework)' == 'net9.0'">9.0.0-preview.1</MSExtVersion>
+    <MSExtVersion Condition="'$(TargetFramework)' == 'net9.0'">9.0.0</MSExtVersion>
     <MSExtVersion Condition="'$(TargetFramework)' == 'net8.0'">8.0.0</MSExtVersion>
-    <MSExtVersion Condition="'$(TargetFramework)' == 'net7.0'">7.0.0</MSExtVersion>
   </PropertyGroup>
   <ItemGroup Label="Nupkg Versions">
     <PackageVersion Include="System.CodeDom"                            Version="$(MSExtVersion)" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="$(MSExtVersion)" />
+
+    <PackageVersion Include="Microsoft.Extensions.Configuration"        Version="$(MSExtVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="$(MSExtVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="$(MSExtVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json"   Version="$(MSExtVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Xml"    Version="$(MSExtVersion)" />
     <PackageVersion Include="System.Data.SQLite.Core"                   Version="1.0.109.2"   />
+    <PackageVersion Include="System.Dynamic.Runtime"                    Version="4.3.0"   />
     <PackageVersion Include="System.Spatial"                            Version="5.8.5"       />
     <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions"    Version="2.2.0"       />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Abstractions"     Version="2.2.0"       />

@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -35,7 +35,7 @@ namespace Xtensive.Sql.Compiler
 
     public override void Visit(TextNode node)
     {
-      result.Append(node.Text);
+      _ = result.Append(node.Text);
     }
 
     public override void Visit(VariantNode node)
@@ -70,7 +70,7 @@ namespace Xtensive.Sql.Compiler
 
     public override void Visit(CycleItemNode node)
     {
-      result.Append(currentCycleItem[node.Index]);
+      _ = result.Append(currentCycleItem[node.Index]);
     }
 
     public override void Visit(CycleNode node)
@@ -81,14 +81,10 @@ namespace Xtensive.Sql.Compiler
         VisitNodes(node.EmptyCase);
         return;
       }
-
-      var count = items.Count;
-      for (int i = 0; i < count; i++) {
+      for (int i = 0, count = items.Count; i < count - 1; i++) {
         currentCycleItem = items[i];
         VisitNodes(node.Body);
-        if (i < count - 1) {
-          result.Append(node.Delimiter);
-        }
+        _ = result.Append(node.Delimiter);
       }
     }
 

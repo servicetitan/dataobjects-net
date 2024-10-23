@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -27,6 +27,8 @@ namespace Xtensive.Orm.Linq
 
     private sealed class OwnerWrapper<TOwner>
     {
+      public static readonly Type GenericDef = typeof(OwnerWrapper<>);
+
       public TOwner Owner { get; set; }
 
       public OwnerWrapper(TOwner owner)
@@ -38,13 +40,14 @@ namespace Xtensive.Orm.Linq
     private static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
     private static readonly IReadOnlyList<ParameterExpression> TupleParameters = [TupleParameter];
 
+    private static readonly PropertyInfo TupleValueProperty = WellKnownOrmTypes.ParameterOfTuple
+      .GetProperty(nameof(Parameter<Tuple>.Value), WellKnownOrmTypes.Tuple);
+
     public static Expression<Func<Tuple, bool>> BuildFilterLambda(int startIndex, IReadOnlyList<Type> keyColumnTypes, Parameter<Tuple> keyParameter)
     {
       Expression filterExpression = null;
-      var valueProperty = WellKnownOrmTypes.ParameterOfTuple
-        .GetProperty(nameof(Parameter<Tuple>.Value), WellKnownOrmTypes.Tuple);
-      var keyValue = Expression.Property(Expression.Constant(keyParameter), valueProperty);
-      for (var i = 0; i < keyColumnTypes.Count; i++) {
+      var keyValue = Expression.Property(Expression.Constant(keyParameter), TupleValueProperty);
+      for (int i = 0, count = keyColumnTypes.Count; i < count; i++) {
         var getValueMethod = WellKnownMembers.Tuple.GenericAccessor.CachedMakeGenericMethod(keyColumnTypes[i]);
         var tupleParameterFieldAccess = Expression.Call(
           TupleParameter,
@@ -63,10 +66,9 @@ namespace Xtensive.Orm.Linq
       return FastExpression.Lambda<Func<Tuple, bool>>(filterExpression, TupleParameters);
     }
 
-    private static Expression CreateEntityQuery(Type elementType)
+    private static Expression CreateEntityQuery(Type elementType, Domain domain)
     {
-      var queryAll = WellKnownMembers.Query.All.CachedMakeGenericMethod(elementType);
-      return Expression.Call(null, queryAll);
+      return domain.RootCallExpressionsCache.GetOrAdd(elementType, (t) => Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(elementType)));
     }
 
     public static bool IsDirectEntitySetQuery(Expression entitySet)
@@ -77,9 +79,8 @@ namespace Xtensive.Orm.Linq
       if (owner.NodeType!=ExpressionType.MemberAccess)
         return false;
       var wrapper = ((MemberExpression) owner).Expression;
-      return wrapper.NodeType == ExpressionType.Constant
-        && wrapper.Type.IsGenericType
-        && wrapper.Type.GetGenericTypeDefinition() == typeof(OwnerWrapper<>);
+      return wrapper.NodeType==ExpressionType.Constant
+        && wrapper.Type.IsOwnerWrapper();
     }
 
     public static Expression CreateDirectEntitySetQuery(EntitySetBase entitySet)
@@ -87,19 +88,27 @@ namespace Xtensive.Orm.Linq
       // A hack making expression to look like regular parameter
       // (ParameterExtractor.IsParameter => true)
       var owner = entitySet.Owner;
+      var ownerType = owner.TypeInfo.UnderlyingType;
       var wrapper = Activator.CreateInstance(
-        typeof (OwnerWrapper<>).CachedMakeGenericType(owner.GetType()), owner);
-      var wrappedOwner = Expression.Property(Expression.Constant(wrapper), "Owner");
+        OwnerWrapper<int>.GenericDef.CachedMakeGenericType(ownerType), owner);
+      var wrappedOwner = Expression.Property(Expression.Constant(wrapper), nameof(OwnerWrapper<int>.Owner));
       if (!entitySet.Field.IsDynamicallyDefined) {
         return Expression.Property(wrappedOwner, entitySet.Field.UnderlyingProperty);
       }
-      var indexers = owner.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+      //fast way to get indexer getter method
+      var indexerGetter = ownerType.GetMethod(Reflection.WellKnown.IndexerPropertyGetterName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+      if (indexerGetter.Attributes.HasFlag(MethodAttributes.SpecialName)
+          && (indexerGetter.DeclaringType == WellKnownOrmTypes.Persistent || indexerGetter.DeclaringType == WellKnownOrmTypes.Entity))
+        return Expression.Convert(Expression.Call(Expression.Constant(owner), indexerGetter, new[] { Expression.Constant(entitySet.Field.Name) }), entitySet.Field.ValueType);
+
+      // old-fashion slow way, if something went wrong
+      var indexers = ownerType.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
         .Where(p => p.GetIndexParameters().Any())
         .Select(p => p.GetGetMethod());
       return Expression.Convert(Expression.Call(Expression.Constant(owner),indexers.Single(), new []{Expression.Constant(entitySet.Field.Name)}), entitySet.Field.ValueType);
     }
 
-    public static Expression CreateEntitySetQuery(Expression ownerEntity, FieldInfo field)
+    public static Expression CreateEntitySetQuery(Expression ownerEntity, FieldInfo field, Domain domain)
     {
       var isDynamicallyDefined = field.IsDynamicallyDefined; 
       if (!isDynamicallyDefined && !field.UnderlyingProperty.PropertyType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT)) {
@@ -125,7 +134,7 @@ namespace Xtensive.Orm.Linq
           );
         return Expression.Call(
           WellKnownMembers.Queryable.Where.CachedMakeGenericMethod(elementType),
-          CreateEntityQuery(elementType),
+          CreateEntityQuery(elementType, domain),
           FastExpression.Lambda(whereExpression, whereParameter)
           );
       }
@@ -150,7 +159,7 @@ namespace Xtensive.Orm.Linq
 
       var outerQuery = Expression.Call(
         WellKnownMembers.Queryable.Where.CachedMakeGenericMethod(connectorType),
-        CreateEntityQuery(connectorType),
+        CreateEntityQuery(connectorType, domain),
         FastExpression.Lambda(filterExpression, filterParameter)
         );
 
@@ -162,9 +171,8 @@ namespace Xtensive.Orm.Linq
       var innerSelector = FastExpression.Lambda(innerSelectorParameter, innerSelectorParameter);
       var resultSelector = FastExpression.Lambda(innerSelectorParameter, outerSelectorParameter, innerSelectorParameter);
 
-      var innerQuery = CreateEntityQuery(elementType);
-      var joinMethodInfo = WellKnownTypes.Queryable.GetMethods()
-        .Single(mi => mi.Name==Xtensive.Reflection.WellKnown.Queryable.Join && mi.IsGenericMethod && mi.GetParameters().Length==5)
+      var innerQuery = CreateEntityQuery(elementType, domain);
+      var joinMethodInfo = WellKnownMembers.Queryable.Join
         .MakeGenericMethod(new[] {
           connectorType,
           elementType,
@@ -212,5 +220,9 @@ namespace Xtensive.Orm.Linq
       }
       return Expression.Property(parameter, field.DeclaringField.UnderlyingProperty);
     }
+
+    private static bool IsOwnerWrapper(this Type type) =>
+      (type.MetadataToken ^ OwnerWrapper<int>.GenericDef.MetadataToken) == 0
+        && ReferenceEquals(type.Module, OwnerWrapper<int>.GenericDef.Module);
   }
 }

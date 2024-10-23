@@ -12,15 +12,24 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(ExtensionsKeyFile)</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
+  </PropertyGroup>
   <Import Project="$(SolutionDir)MSBuild\DataObjects.Net.InternalBuild.targets" />
   <ItemGroup>
     <PackageReference Include="System.Configuration.ConfigurationManager" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Readme.txt" />
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
+  </ItemGroup>
+  <ItemGroup Label="Nuget content">
+    <Content Include="$(ProjectDir)NuGetContent\**">
+      <PackagePath>.</PackagePath>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
