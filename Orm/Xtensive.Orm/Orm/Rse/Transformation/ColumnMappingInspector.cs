@@ -2,9 +2,6 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -111,9 +108,10 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       mappings[provider.Source] = Merge(mappings[provider], mappingsGatherer.Gather(provider.Predicate));
       var newSourceProvider = VisitCompilable(provider.Source);
-      mappings[provider] = mappings[provider.Source];
+      var colMap = mappings[provider.Source];
+      mappings[provider] = colMap;
 
-      var predicate = TranslateLambda(provider, provider.Predicate);
+      var predicate = TranslateLambda(colMap, provider.Predicate);
       return newSourceProvider == provider.Source && predicate == provider.Predicate
         ? provider
         : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) predicate);
@@ -276,29 +274,29 @@ namespace Xtensive.Orm.Rse.Transformation
 
     internal protected override CompilableProvider VisitCalculate(CalculateProvider provider)
     {
-      var sourceLength = provider.Source.Header.Length;
+      var providerSource = provider.Source;
+      var sourceLength = providerSource.Header.Length;
       var usedColumns = mappings[provider];
       var sourceMapping = Merge(
         mappings[provider].Where(i => i < sourceLength),
         provider.CalculatedColumns.SelectMany(c => mappingsGatherer.Gather(c.Expression)));
 
-      mappings[provider.Source] = sourceMapping;
-      var newSourceProvider = VisitCompilable(provider.Source);
-      mappings[provider] = mappings[provider.Source];
+      mappings[providerSource] = sourceMapping;
+      var newSourceProvider = VisitCompilable(providerSource);
+      mappings[provider] = mappings[providerSource];
 
       var translated = false;
       var descriptors = new List<CalculatedColumnDescriptor>(usedColumns.Count);
       var currentMapping = mappings[provider];
-      for (ColNum calculatedColumnIndex = 0; calculatedColumnIndex < provider.CalculatedColumns.Length; calculatedColumnIndex++) {
-        if (usedColumns.Contains(provider.CalculatedColumns[calculatedColumnIndex].Index)) {
-          currentMapping.Add((ColNum)(provider.Source.Header.Length + calculatedColumnIndex));
-          var column = provider.CalculatedColumns[calculatedColumnIndex];
-          var expression = TranslateLambda(provider, column.Expression);
-          if (expression != column.Expression) {
-            translated = true;
-          }
-          var ccd = new CalculatedColumnDescriptor(column.Name, column.Type, (Expression<Func<Tuple, object>>) expression);
-          descriptors.Add(ccd);
+      var calculatedColumns = provider.CalculatedColumns;
+      var providerSourceHeaderLength = providerSource.Header.Length;
+      for (ColNum calculatedColumnIndex = 0; calculatedColumnIndex < calculatedColumns.Length; calculatedColumnIndex++) {
+        var column = calculatedColumns[calculatedColumnIndex];
+        if (usedColumns.Contains(column.Index)) {
+          currentMapping.Add((ColNum)(providerSourceHeaderLength + calculatedColumnIndex));
+          var expression = TranslateLambda(currentMapping, column.Expression);
+          translated |= (expression != column.Expression);
+          descriptors.Add(new CalculatedColumnDescriptor(column.Name, column.Type, (Expression<Func<Tuple, object>>) expression));
         }
       }
       mappings[provider] = currentMapping;
@@ -306,7 +304,7 @@ namespace Xtensive.Orm.Rse.Transformation
         return newSourceProvider;
       }
 
-      return !translated && newSourceProvider == provider.Source && descriptors.Count == provider.CalculatedColumns.Length
+      return !translated && newSourceProvider == providerSource && descriptors.Count == provider.CalculatedColumns.Length
         ? provider
         : new CalculateProvider(newSourceProvider, descriptors);
     }
@@ -466,9 +464,9 @@ namespace Xtensive.Orm.Rse.Transformation
       return result < 0 ? value : result;
     }
 
-    private Expression TranslateLambda(Provider originalProvider, LambdaExpression expression)
+    private Expression TranslateLambda(IReadOnlyList<ColNum> colMap, LambdaExpression expression)
     {
-      var replacer = new TupleAccessRewriter(mappings[originalProvider], ResolveOuterMapping, true);
+      var replacer = new TupleAccessRewriter(colMap, ResolveOuterMapping, true);
       return replacer.Rewrite(expression, expression.Parameters[0]);
     }
 
