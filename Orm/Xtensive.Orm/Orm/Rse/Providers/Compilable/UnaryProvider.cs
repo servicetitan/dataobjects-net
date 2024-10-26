@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Source provider.
     /// </summary>
-    public CompilableProvider Source { get; private set; }
+    public CompilableProvider Source { get; }
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
