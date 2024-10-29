@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Rse
     public static CompilableProvider Calculate(this CompilableProvider source, bool isInlined,
       IEnumerable<CalculatedColumnDescriptor> columns)
     {
-      return new CalculateProvider(source, isInlined, columns);
+      return new CalculateProvider(source, columns, isInlined);
     }
 
     public static CompilableProvider RowNumber(this CompilableProvider source, string columnName)
