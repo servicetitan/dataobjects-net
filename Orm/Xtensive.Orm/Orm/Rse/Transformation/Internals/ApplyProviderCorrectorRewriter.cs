@@ -391,24 +391,19 @@ namespace Xtensive.Orm.Rse.Transformation
       return new AggregateProvider(source, provider.GroupColumnIndexes, provider.AggregateColumns);
     }
 
-    private static CalculateProvider RecreateCalculate(CalculateProvider provider, CompilableProvider source)
-    {
-      var ccds = provider.CalculatedColumns
-        .SelectToArray(
-          column => new CalculatedColumnDescriptor(column.Name, column.Type, column.Expression));
-      return new CalculateProvider(source, (IReadOnlyList<CalculatedColumnDescriptor>) ccds);
-    }
+    private static CalculateProvider RecreateCalculate(CalculateProvider provider, CompilableProvider source) =>
+      new(source, provider.CalculatedColumns.Select(column => new CalculatedColumnDescriptor(column.Name, column.Type, column.Expression)));
 
     private CalculateProvider RewriteCalculateColumnExpressions(
       in (CalculateProvider, ColumnCollection) providerPair, CompilableProvider source)
     {
       var calculateProvider = providerPair.Item1;
       var columnCollection = providerPair.Item2;
-      var ccd = calculateProvider.CalculatedColumns.SelectToArray(
+      var sourceHeaderColumns = source.Header.Columns;
+      var ccd = calculateProvider.CalculatedColumns.Select(
         column => {
           var newColumnExpression = (Expression<Func<Tuple, object>>) calculateExpressionRewriter
-            .Rewrite(column.Expression, column.Expression.Parameters[0], columnCollection,
-              source.Header.Columns);
+            .Rewrite(column.Expression, column.Expression.Parameters[0], columnCollection, sourceHeaderColumns);
           var currentName = columnCollection.Single(c => c.Index==column.Index).Name;
           return new CalculatedColumnDescriptor(currentName, column.Type, newColumnExpression);
         });
