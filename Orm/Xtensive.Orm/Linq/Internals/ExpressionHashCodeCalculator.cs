@@ -27,77 +27,44 @@ namespace Xtensive.Linq
 
     #region ExpressionVisitor<int> implementation
 
-    protected override int Visit(Expression e)
-    {
-      if (e==null)
-        return NullHashCode;
-      var hash = (uint) (base.Visit(e) ^ (int) e.NodeType ^ e.Type.GetHashCode());
-      // transform bytes 0123 -> 1302
-      hash = (hash & 0xFF00) >> 8 | (hash & 0xFF000000) >> 16 | (hash & 0xFF) << 16 | (hash & 0xFF0000) << 8;
-      return (int) hash;
-    }
+    protected override int Visit(Expression e) =>
+      e == null ? NullHashCode : HashCode.Combine(base.Visit(e), e.NodeType, e.Type);
 
-    protected override int VisitUnary(UnaryExpression u)
-    {
-      return Visit(u.Operand) ^ (u.Method == null ? 0 : u.Method.GetHashCode());
-    }
+    protected override int VisitUnary(UnaryExpression u) =>
+      HashCode.Combine(Visit(u.Operand), u.Method);
 
-    protected override int VisitBinary(BinaryExpression b)
-    {
-      return Visit(b.Left) ^ Visit(b.Right) ^ (b.Method == null ? 0 : b.Method.GetHashCode());
-    }
+    protected override int VisitBinary(BinaryExpression b) =>
+      HashCode.Combine(Visit(b.Left), Visit(b.Right), b.Method);
 
-    protected override int VisitTypeIs(TypeBinaryExpression tb)
-    {
-      return Visit(tb.Expression) ^ tb.TypeOperand.GetHashCode();
-    }
+    protected override int VisitTypeIs(TypeBinaryExpression tb) =>
+      HashCode.Combine(Visit(tb.Expression), tb.TypeOperand);
 
-    protected override int VisitConstant(ConstantExpression c)
-    {
-      return c.Value != null ? c.Value.GetHashCode() : NullHashCode;
-    }
+    protected override int VisitConstant(ConstantExpression c) =>
+      c.Value?.GetHashCode() ?? NullHashCode;
 
-    protected override int VisitDefault(DefaultExpression d)
-    {
-      if (d.Type.IsValueType) {
-        return d.ToConstantExpression().Value.GetHashCode();
-      }
-      else {
-        return NullHashCode;
-      }
-    }
+    protected override int VisitDefault(DefaultExpression d) =>
+      d.Type.IsValueType
+        ? d.ToConstantExpression().Value.GetHashCode()
+        : NullHashCode;
 
-    protected override int VisitConditional(ConditionalExpression c)
-    {
-      return Visit(c.Test) ^ Visit(c.IfTrue) ^ Visit(c.IfFalse);
-    }
+    protected override int VisitConditional(ConditionalExpression c) =>
+      HashCode.Combine(Visit(c.Test), Visit(c.IfTrue), Visit(c.IfFalse));
 
-    protected override int VisitParameter(ParameterExpression p)
-    {
-      return parameters.GetIndex(p);
-    }
+    protected override int VisitParameter(ParameterExpression p) => parameters.GetIndex(p);
 
-    protected override int VisitMemberAccess(MemberExpression m)
-    {
-      return Visit(m.Expression) ^ m.Member.GetHashCode();
-    }
+    protected override int VisitMemberAccess(MemberExpression m) =>
+      HashCode.Combine(Visit(m.Expression), m.Member);
 
     protected override int VisitMethodCall(MethodCallExpression mc) => HashCode.Combine(Visit(mc.Object), mc.Method, HashExpressionSequence(mc.Arguments));
 
     protected override int VisitLambda(LambdaExpression l)
     {
       parameters.AddRange(l.Parameters);
-      return HashExpressionSequence(l.Parameters.Cast<Expression>()) ^ Visit(l.Body);
+      return HashCode.Combine(HashExpressionSequence(l.Parameters.Cast<Expression>()), Visit(l.Body));
     }
 
-    protected override int VisitNew(NewExpression n)
-    {
-      int result = 0;
-      result ^= n.Constructor!=null ? n.Constructor.GetHashCode() : NullHashCode;
-      result ^= n.Members != null ? n.Members.CalculateHashCode() : NullHashCode;
-      result ^= HashExpressionSequence(n.Arguments);
-      return result;
-    }
+    protected override int VisitNew(NewExpression n) =>
+      HashCode.Combine(n.Constructor, n.Members.CalculateHashCode(), HashExpressionSequence(n.Arguments));
 
     protected override int VisitMemberInit(MemberInitExpression mi)
     {
@@ -121,20 +88,13 @@ namespace Xtensive.Linq
       return hashCode.ToHashCode();
     }
 
-    protected override int VisitNewArray(NewArrayExpression na)
-    {
-      return HashExpressionSequence(na.Expressions);
-    }
+    protected override int VisitNewArray(NewArrayExpression na) =>
+      HashExpressionSequence(na.Expressions);
 
-    protected override int VisitInvocation(InvocationExpression i)
-    {
-      return HashExpressionSequence(i.Arguments) ^ Visit(i.Expression);
-    }
+    protected override int VisitInvocation(InvocationExpression i) =>
+      HashCode.Combine(HashExpressionSequence(i.Arguments), Visit(i.Expression));
 
-    protected override int VisitUnknown(Expression e)
-    {
-      return e.GetHashCode();
-    }
+    protected override int VisitUnknown(Expression e) => e.GetHashCode();
 
     #endregion
 
@@ -142,10 +102,10 @@ namespace Xtensive.Linq
 
     private int HashExpressionSequence(IEnumerable<Expression> expressions)
     {
-      int result = 0;
+      HashCode hashCode = new();
       foreach (var e in expressions)
-        result ^= Visit(e);
-      return result;
+        hashCode.Add(Visit(e));
+      return hashCode.ToHashCode();
     }
 
     #endregion
