@@ -13,7 +13,7 @@
     <AssemblyOriginatorKeyFile>$(ExtensionsKeyFile)</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
-    <PackageReadmeFile>NugetContent\ReadMe.md</PackageReadmeFile>
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup Label="Nuget content">
     <Content Include="$(ProjectDir)NuGetContent\**">
