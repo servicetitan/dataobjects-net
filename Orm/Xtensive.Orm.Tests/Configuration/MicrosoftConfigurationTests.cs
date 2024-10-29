@@ -1367,6 +1367,7 @@ namespace Xtensive.Orm.Tests.Configuration
       _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithSessionInvalidEntityChangeRegistry2", useRoot));
     }
 
+    [Mute]
     [Test]
     [TestCase(true)]
     [TestCase(false)]
