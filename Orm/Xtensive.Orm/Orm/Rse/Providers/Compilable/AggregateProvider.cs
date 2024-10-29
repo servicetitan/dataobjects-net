@@ -206,6 +206,7 @@ namespace Xtensive.Orm.Rse.Providers
       AggregateColumns = columnDescriptors
         .Select((d, i) => new AggregateColumn(d, (ColNum)(baseIndex + i), GetAggregateColumnType(columns[d.SourceIndex].Type, d.AggregateType)))
         .ToArray();
+      Initialize();
     }
 
     /// <summary>

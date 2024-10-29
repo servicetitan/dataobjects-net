@@ -210,15 +210,13 @@ namespace Xtensive.Orm.Providers
       var discriminatorMap = type.Hierarchy.TypeDiscriminatorMap;
       var filterByTypes = index.FilterByTypes;
       var filterByTypesCount = filterByTypes.Count;
-      var containsDefault = filterByTypes.Contains(discriminatorMap.Default);
       if (underlyingIndex.IsTyped && discriminatorMap != null) {
-        var columnType = discriminatorMap.Column.ValueType;
         var discriminatorColumnIndex = underlyingIndex.Columns
           .Where(c => !c.Field.IsTypeId)
           .Select((c, i) => (c, i))
-          .Where(p => p.c == discriminatorMap.Column)
-          .Single().i;
+          .Single(p => p.c == discriminatorMap.Column).i;
         var discriminatorColumn = baseQuery.From.Columns[discriminatorColumnIndex];
+        var containsDefault = filterByTypes.Contains(discriminatorMap.Default);
         if (filterByTypesCount == 1) {
           var discriminatorValue = GetDiscriminatorValue(discriminatorMap, filterByTypes.First().TypeDiscriminatorValue);
           filter = discriminatorColumn == SqlDml.Literal(discriminatorValue);
