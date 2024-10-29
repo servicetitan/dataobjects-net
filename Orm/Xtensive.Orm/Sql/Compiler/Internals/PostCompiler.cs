@@ -81,10 +81,12 @@ namespace Xtensive.Sql.Compiler
         VisitNodes(node.EmptyCase);
         return;
       }
-      for (int i = 0, count = items.Count; i < count - 1; i++) {
+      for (int i = 0, count = items.Count; i < count; i++) {
         currentCycleItem = items[i];
         VisitNodes(node.Body);
-        _ = result.Append(node.Delimiter);
+        if (i < count - 1) {
+          _ = result.Append(node.Delimiter);
+        }
       }
     }
 
