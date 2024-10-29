@@ -346,7 +346,7 @@ namespace Xtensive.Orm.Configuration
         return null;
       }
       // this handles only root properties of domain configuration
-      var domainConfigurationOptions = context.CurrentSection.Get<Options.DomainConfigurationOptions>();
+      var domainConfigurationOptions = context.CurrentSection.Get<Options.DomainConfigurationOptions>(options => options.ErrorOnUnknownConfiguration = true);
       if (domainConfigurationOptions == null) {
         return null;
       }

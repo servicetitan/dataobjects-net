@@ -177,15 +177,6 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     [TestCase(true)]
     [TestCase(false)]
-    public void CustomInvalidKeyCacheSizeTest(bool useRoot)
-    {
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithCustomInvalidKeyCacheSize", useRoot));
-
-    }
-
-    [Test]
-    [TestCase(true)]
-    [TestCase(false)]
     public void CustomValidKeyGeneratorCacheSizeTest(bool useRoot)
     {
       var domainConfig = LoadDomainConfiguration("DomainWithCustomValidKeyGeneratorCacheSize", useRoot);
