@@ -488,8 +488,8 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private ColNum ResolveOuterMapping(ApplyParameter parameter, ColNum value)
     {
-      var result = (ColNum)outerColumnUsages[parameter].IndexOf(value);
-      return result < 0 ? value : result;
+      var result = GetOuterColumnUsage(parameter).IndexOf(value);
+      return result < 0 ? value : (ColNum) result;
     }
 
     private Expression TranslateLambda(IReadOnlyList<ColNum> colMap, LambdaExpression expression)

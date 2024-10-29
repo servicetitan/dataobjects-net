@@ -27,13 +27,13 @@ namespace Xtensive.Orm.Rse
     public static CompilableProvider Calculate(this CompilableProvider source,
       params CalculatedColumnDescriptor[] columns)
     {
-      return new CalculateProvider(source, (IReadOnlyList<CalculatedColumnDescriptor>) columns);
+      return new CalculateProvider(source, columns);
     }
 
     public static CompilableProvider Calculate(this CompilableProvider source, bool isInlined,
       IEnumerable<CalculatedColumnDescriptor> columns)
     {
-      return new CalculateProvider(source, (IReadOnlyList<CalculatedColumnDescriptor>) columns, isInlined);
+      return new CalculateProvider(source, isInlined, columns);
     }
 
     public static CompilableProvider RowNumber(this CompilableProvider source, string columnName)

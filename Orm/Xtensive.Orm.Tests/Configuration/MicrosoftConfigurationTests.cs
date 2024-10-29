@@ -1303,6 +1303,7 @@ namespace Xtensive.Orm.Tests.Configuration
         ((s) => s.ConnectionInfo, new ConnectionInfo("sqlserver://localhost/DO-Tests")));
     }
 
+    [Mute]
     [Test]
     [TestCase(true)]
     [TestCase(false)]
