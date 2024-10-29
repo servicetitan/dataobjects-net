@@ -132,7 +132,7 @@ namespace Xtensive.Orm
 
     internal FastConcurrentLruCache<object, Pair<object, ParameterizedQuery>> QueryCache { get; }
 
-    internal ConcurrentDictionary<Type, System.Linq.Expressions.MethodCallExpression> RootCallExpressionsCache { get; private set; }
+    internal ConcurrentDictionary<Type, System.Linq.Expressions.MethodCallExpression> RootCallExpressionsCache { get; } = new();
 
     internal object UpgradeContextCookie { get; private set; }
 
