@@ -1667,7 +1667,7 @@ namespace Xtensive.Orm.Linq
         var queryToJoin = indexToJoin.GetQuery().Alias(context.GetNextAlias());
         var keySegment = entityExpression.Key.Mapping.GetItems();
         var keyPairs = keySegment
-          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+          .Select((leftIndex, rightIndex) => (leftIndex, (ColNum) rightIndex))
           .ToArray();
 
         // Replace recordset.
@@ -1732,7 +1732,6 @@ namespace Xtensive.Orm.Linq
       var originalItemProjector = entityFieldExpression.OuterParameter == null
         ? context.Bindings[State.Parameters[0]].ItemProjector
         : context.Bindings[entityFieldExpression.OuterParameter].ItemProjector;
-      ColNum offset = originalItemProjector.DataSource.Header.Length;
       var oldDataSource = originalItemProjector.DataSource;
       var offset = oldDataSource.Header.Length;
       var shouldUseLeftJoin = false;

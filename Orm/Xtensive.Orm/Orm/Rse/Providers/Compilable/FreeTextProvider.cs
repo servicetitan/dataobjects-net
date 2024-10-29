@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Rse.Providers
           .ToArray(primaryIndexKeyColumns.Count + 1);
         var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
         var columns = primaryIndexKeyColumns
-          .Select(static (c, i) => (Column) new MappedColumn("KEY", i, c.Key.ValueType))
+          .Select(static (c, i) => (Column) new MappedColumn("KEY", (ColNum) i, c.Key.ValueType))
           .Append(new MappedColumn("RANK", tupleDescriptor.Count, WellKnownTypes.Double))
           .ToArray(primaryIndexKeyColumns.Count + 1);
         indexHeader = new RecordSetHeader(tupleDescriptor, columns);

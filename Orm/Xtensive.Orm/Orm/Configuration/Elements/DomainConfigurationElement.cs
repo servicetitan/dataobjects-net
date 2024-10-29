@@ -118,16 +118,6 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[NamingConventionElementName] = value; }
     }
 
-    /// <summary>
-    /// <see cref="DomainConfiguration.KeyCacheSize" />
-    /// </summary>
-    [ConfigurationProperty(KeyCacheSizeElementName, DefaultValue = DomainConfiguration.DefaultKeyCacheSize)]
-    [IntegerValidator(MinValue = 1, MaxValue = int.MaxValue)]
-    public int KeyCacheSize
-    {
-      get { return (int) this[KeyCacheSizeElementName]; }
-      set { this[KeyCacheSizeElementName] = value; }
-    }
 
     /// <summary>
     /// <see cref="DomainConfiguration.KeyGeneratorCacheSize" />

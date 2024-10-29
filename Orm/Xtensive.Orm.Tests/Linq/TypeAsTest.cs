@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Tests.Linq
       public static Expression Visit(Expression expression, Func<Expression, Func<Expression, Expression>, Expression> visit) =>
         new CustomExpressionReplacer(visit).Visit(expression);
 
-      protected override Expression Visit(Expression exp) => visit(exp, base.Visit);
+      public override Expression Visit(Expression exp) => visit(exp, base.Visit);
 
       private CustomExpressionReplacer(Func<Expression, Func<Expression, Expression>, Expression> visit)
       {

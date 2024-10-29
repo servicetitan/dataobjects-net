@@ -32,8 +32,9 @@ namespace Xtensive.Orm.Providers
       sqlSelect.Columns.Clear();
 
       var groupColumnIndexes = provider.GroupColumnIndexes;
-      sqlSelect.Columns.Capacity = groupColumnIndexes.Length + provider.AggregateColumns.Length;
-      for (int i = 0, length = groupColumnIndexes.Length; i < length; i++) {
+      var length = groupColumnIndexes.Count;
+      sqlSelect.Columns.Capacity = length + provider.AggregateColumns.Length;
+      for (int i = 0; i < length; i++) {
         var columnIndex = provider.GroupColumnIndexes[i];
         var column = columns[columnIndex];
         sqlSelect.GroupBy.Add(column);

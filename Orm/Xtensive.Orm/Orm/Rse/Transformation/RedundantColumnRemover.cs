@@ -35,11 +35,11 @@ namespace Xtensive.Orm.Rse.Transformation
         return base.OverrideRightApplySource(applyProvider, provider, requestedMapping);
       var selectingRequestedMapping = requestedMapping.ToArray();
       for (int i = 0, count = requestedMapping.Count; i < count; i++) {
-        selectingRequestedMapping[i] = currentMapping.IndexOf(selectingRequestedMapping[i]);
+        selectingRequestedMapping[i] = (ColNum) currentMapping.IndexOf(selectingRequestedMapping[i]);
       }
 
       var selectProvider = new SelectProvider(provider, selectingRequestedMapping);
-      return new Pair<CompilableProvider, List<int>>(selectProvider, requestedMapping);
+      return (selectProvider, requestedMapping);
     }
 
     internal protected override RawProvider VisitRaw(RawProvider provider)

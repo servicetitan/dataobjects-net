@@ -177,16 +177,6 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     [TestCase(true)]
     [TestCase(false)]
-    public void CustomValidKeyCacheSizeTest(bool useRoot)
-    {
-      var domainConfig = LoadDomainConfiguration("DomainWithCustomValidKeyCacheSize", useRoot);
-
-      ValidateAllDefaultExcept(domainConfig, ((d) => d.KeyCacheSize, 192));
-    }
-
-    [Test]
-    [TestCase(true)]
-    [TestCase(false)]
     public void CustomInvalidKeyCacheSizeTest(bool useRoot)
     {
       _ = Assert.Throws<ArgumentOutOfRangeException>(() => LoadDomainConfiguration("DomainWithCustomInvalidKeyCacheSize", useRoot));
@@ -2018,7 +2008,6 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(domainConfiguration.IncludeSqlInExceptions, Is.EqualTo(DomainConfiguration.DefaultIncludeSqlInExceptions));
       Assert.That(domainConfiguration.IsMultidatabase, Is.False);
       Assert.That(domainConfiguration.IsMultischema, Is.False);
-      Assert.That(domainConfiguration.KeyCacheSize, Is.EqualTo(DomainConfiguration.DefaultKeyCacheSize));
       Assert.That(domainConfiguration.KeyGeneratorCacheSize, Is.EqualTo(DomainConfiguration.DefaultKeyGeneratorCacheSize));
       Assert.That(domainConfiguration.MultidatabaseKeys, Is.EqualTo(DomainConfiguration.DefaultMultidatabaseKeys));
       Assert.That(domainConfiguration.Options, Is.EqualTo(DomainConfiguration.DefaultDomainOptions));
@@ -2227,9 +2216,6 @@ namespace Xtensive.Orm.Tests.Configuration
 
       if (!nameof(domainConfiguration.IsMultischema).In(excludedProperties))
         Assert.That(domainConfiguration.IsMultischema, Is.False);
-
-      if (!nameof(domainConfiguration.KeyCacheSize).In(excludedProperties))
-        Assert.That(domainConfiguration.KeyCacheSize, Is.EqualTo(DomainConfiguration.DefaultKeyCacheSize));
 
       if (!nameof(domainConfiguration.KeyGeneratorCacheSize).In(excludedProperties))
         Assert.That(domainConfiguration.KeyGeneratorCacheSize, Is.EqualTo(DomainConfiguration.DefaultKeyGeneratorCacheSize));

@@ -96,8 +96,7 @@ namespace Xtensive.Orm.Providers
     private IReadOnlyCollection<PersistRequest> GetOrBuildRequest(StorageNode node, PersistRequestBuilderTask task)
     {
       var cache = node.PersistRequestCache;
-      IReadOnlyCollection<PersistRequest> result;
-      if (cache.TryGetValue(task, out result))
+      if (cache.TryGetValue(task, out var result))
         return result;
       result = requestBuilder.Build(node, task);
       return cache.TryAdd(task, result) ? result : cache[task];

@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Linq
         var resultProvider = new SelectProvider(originProvider, usedColumns);
         using var columnMap = new ColumnMap(usedColumns);
         var itemProjector = origin.ItemProjector.Remap(resultProvider, columnMap);
-        var result = origin.Apply(itemProjector);
+        var result = origin.ApplyItemProjector(itemProjector);
         return result;
       }
       return origin;

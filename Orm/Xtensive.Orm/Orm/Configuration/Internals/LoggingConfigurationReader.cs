@@ -23,8 +23,8 @@ namespace Xtensive.Orm.Configuration
     /// <inheritdoc/>
     public LoggingConfiguration Read(IConfigurationRoot configurationRoot, string sectionName)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, nameof(sectionName));
+      ArgumentNullException.ThrowIfNull(configurationRoot);
+      ArgumentNullException.ThrowIfNullOrEmpty(sectionName);
 
       return Read(configurationRoot.GetSection(sectionName));
     }
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Configuration
     /// <inheritdoc/>
     public LoggingConfiguration Read(IConfigurationRoot configurationRoot)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
+      ArgumentNullException.ThrowIfNull(configurationRoot);
 
       return Read(configurationRoot.GetSection(WellKnown.DefaultConfigurationSection));
     }
@@ -40,8 +40,8 @@ namespace Xtensive.Orm.Configuration
     /// <inheritdoc/>
     public LoggingConfiguration Read(IConfigurationRoot configurationRoot, string sectionName, string nameOfConfiguration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationRoot, nameof(configurationRoot));
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, nameof(sectionName));
+      ArgumentNullException.ThrowIfNull(configurationRoot);
+      ArgumentNullException.ThrowIfNullOrEmpty(sectionName);
 
       return Read(configurationRoot.GetSection(sectionName));
     }
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Configuration
     /// <inheritdoc/>
     public LoggingConfiguration Read(IConfigurationSection configurationSection)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configurationSection, nameof(configurationSection));
+      ArgumentNullException.ThrowIfNull(configurationSection);
 
       var ormConfigurationSection = configurationSection;
 

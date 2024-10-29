@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Configuration
         if (isIndexed)
           return children;
         else
-          return EnumerableUtils.One(section);
+          return [section];
       }
       return children;
     }

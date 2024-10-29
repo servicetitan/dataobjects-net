@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Rse.Transformation
     private readonly Dictionary<ApplyParameter, List<ColNum>> outerColumnUsages = new();
     private readonly CompilableProviderVisitor outerColumnUsageVisitor;
     private readonly CompilableProvider rootProvider;
-    private readonly Stack<List<int>> outerColumnUsageStack;
+    private readonly Stack<List<ColNum>> outerColumnUsageStack = new();
 
     private bool hasGrouping;
 
@@ -510,8 +510,8 @@ namespace Xtensive.Orm.Rse.Transformation
     }
 
     private void VisitJoin(
-      ref List<int> leftMapping, ref CompilableProvider left,
-      ref List<int> rightMapping, ref CompilableProvider right, bool skipSort)
+      ref List<ColNum> leftMapping, ref CompilableProvider left,
+      ref List<ColNum> rightMapping, ref CompilableProvider right, bool skipSort)
     {
       if (!skipSort) {
         leftMapping = leftMapping.Distinct().ToList(leftMapping.Count);
@@ -543,7 +543,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private void RestoreMappings(Dictionary<Provider, List<ColNum>> savedMappings) => mappings = savedMappings;
 
-    private IDisposable SetOuterColumnUsage(ApplyParameter parameter, List<int> usages)
+    private IDisposable SetOuterColumnUsage(ApplyParameter parameter, List<ColNum> usages)
     {
       outerColumnUsages.Add(parameter, usages);
       outerColumnUsageStack.Push(usages);
@@ -555,7 +555,7 @@ namespace Xtensive.Orm.Rse.Transformation
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private List<int> GetOuterColumnUsage(ApplyParameter parameter) =>
+    private List<ColNum> GetOuterColumnUsage(ApplyParameter parameter) =>
       outerColumnUsages.TryGetValue(parameter, out var result) ? result : outerColumnUsageStack.Peek();
 
     #endregion

@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    private static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
+    public static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
     private static readonly IReadOnlyList<ParameterExpression> TupleParameters = [TupleParameter];
 
     private static readonly PropertyInfo TupleValueProperty = WellKnownOrmTypes.ParameterOfTuple

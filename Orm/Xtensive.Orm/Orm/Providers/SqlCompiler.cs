@@ -304,8 +304,9 @@ namespace Xtensive.Orm.Providers
       var query = source.ShallowClone();
       var parameterBindings = new List<QueryParameterBinding>();
       var typeIdColumnName = Handlers.NameBuilder.TypeIdColumnName;
+      var headerColumns = provider.Header.Columns;
       Func<KeyValuePair<ColNum, Direction>, bool> filterNonTypeId =
-        pair => ((MappedColumn) provider.Header.Columns[pair.Key]).ColumnInfoRef.ColumnName!=typeIdColumnName;
+        pair => ((MappedColumn) headerColumns[pair.Key]).ColumnInfoRef.ColumnName!=typeIdColumnName;
       var keyColumns = provider.Header.Order
         .Where(filterNonTypeId)
         .ToList(provider.Header.Order.Count);

@@ -33,8 +33,7 @@ namespace Xtensive.Orm.Linq
     private static readonly IReadOnlySet<int> EmptyIntSet = new HashSet<int>();
 
     private static readonly Type IEnumerableOfKeyType = typeof(IEnumerable<Key>);
-    private static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
-    private static readonly IReadOnlyList<ParameterExpression> TupleParameters = [TupleParameter];
+    private static readonly IReadOnlyList<ParameterExpression> TupleParameters = [QueryHelper.TupleParameter];
     private static readonly IReadOnlyList<ParameterExpression> ParameterContextContextParameters = [Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context")];
     private static readonly Type GenericFuncDefType = typeof(Func<>);
     private static readonly ParameterExpression ParameterContextContextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
@@ -308,7 +307,8 @@ namespace Xtensive.Orm.Linq
           source is MemberExpression { Expression: { } } memberExpression && context.Model.Types.Contains(memberExpression.Expression.Type)
             ? memberExpression.Expression
             : (Expression) entitySetExpression.Owner,
-          entitySetExpression.Field
+          entitySetExpression.Field,
+          context.Domain
         );
 
         visitedSource = (ProjectionExpression) Visit(entitySetQuery);
@@ -1617,6 +1617,7 @@ namespace Xtensive.Orm.Linq
       var innerItemProjector = inner.ItemProjector.RemoveOwner();
       var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
       var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
+      ColNum[] outerColumns, innerColumns;
       if (!outerColumnList.Except(innerColumnList).Any() && outerColumnList.Count == innerColumnList.Count) {
         var outerColumnListCopy = outerColumnList.ToArray();
         Array.Sort(outerColumnListCopy);

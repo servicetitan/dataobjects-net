@@ -144,41 +144,11 @@ namespace Xtensive.Orm.Providers
             configuration.PlaceholderValues.Add(binding, stringValue);
           }
           continue;
-        case QueryParameterBindingType.RowFilter:
-          var filterData = (List<Tuple>) parameterValue;
-          if (filterData is null) {
-            _ = configuration.AlternativeBranches.Add(binding);
-            continue;
-          }
-          var rowTypeMapping = ((QueryRowFilterParameterBinding) binding).RowTypeMapping;
-          var commonPrefix = GetParameterName(parameterNamePrefix, ref parameterIndex);
-          var filterValues = new List<string[]>(filterData.Count);
-          for (int tupleIndex = 0, overallCount = filterData.Count; tupleIndex < overallCount; tupleIndex++) {
-            var tuple = filterData[tupleIndex];
-            var parameterReferences = new string[tuple.Count];
-            for (int fieldIndex = 0, fieldCount = tuple.Count; fieldIndex < fieldCount; fieldIndex++) {
-              var name = $"{commonPrefix}_{tupleIndex.ToString("G")}_{fieldIndex.ToString("G")}";
-              var value = tuple.GetValueOrDefault(fieldIndex);
-              parameterReferences[fieldIndex] = Driver.BuildParameterReference(name);
-              AddRegularParameter(result, rowTypeMapping[fieldIndex], name, value);
-            }
-            break;
-          case QueryParameterBindingType.NonZeroLimitOffset:
-            // Like "LimitOffset" but we handle zero value specially
-            // We replace value with 1 and activate special branch that evaluates "where" part to "false"
-            var stringValue = parameterValue.ToString();
-            if (stringValue == "0") {
-              configuration.PlaceholderValues.Add(binding, "1");
-              configuration.AlternativeBranches.Add(binding);
-            }
-            else
-              configuration.PlaceholderValues.Add(binding, stringValue);
-            continue;
           case QueryParameterBindingType.RowFilter:
             var filterData = (List<Tuple>) parameterValue;
             var rowFilterParameterBinding = (QueryRowFilterParameterBinding) binding;
             if (filterData == null) {
-              configuration.AlternativeBranches.Add(binding);
+              _ = configuration.AlternativeBranches.Add(binding);
             }
             else if (rowFilterParameterBinding.TvpTypeMapping != null
                             && filterData.Count > Session.Domain.Configuration.MaxNumberOfConditions) {
@@ -201,7 +171,7 @@ namespace Xtensive.Orm.Providers
                 var tuple = filterData[tupleIndex];
                 var parameterReferences = new string[tuple.Count];
                 for (int fieldIndex = 0; fieldIndex < tuple.Count; fieldIndex++) {
-                  var name = $"{commonPrefix}_{tupleIndex}_{fieldIndex}";
+                  var name = $"{commonPrefix}_{tupleIndex.ToString("G")}_{fieldIndex.ToString("G")}";
                   var value = tuple.GetValueOrDefault(fieldIndex);
                   parameterReferences[fieldIndex] = Driver.BuildParameterReference(name);
                   AddRegularParameter(result, rowTypeMapping[fieldIndex], name, value);

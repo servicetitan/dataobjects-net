@@ -36,11 +36,6 @@ namespace Xtensive.Orm.Configuration.Options
     public TypeRegistrationOptions[] Types { get; set; } = Array.Empty<TypeRegistrationOptions>();
 
     /// <summary>
-    /// Size of the key cache. Default value is <see cref="DomainConfiguration.DefaultKeyCacheSize"/>
-    /// </summary>
-    public int KeyCacheSize { get; set; } = DomainConfiguration.DefaultKeyCacheSize;
-
-    /// <summary>
     /// Size of the key generator cache size.
     /// Default value is <see cref="DomainConfiguration.DefaultKeyGeneratorCacheSize"/>
     /// </summary>
@@ -210,7 +205,6 @@ namespace Xtensive.Orm.Configuration.Options
         Name = Name,
         ConnectionInfo = ConnectionInfoParser.GetConnectionInfo(connectionStrings,
           ConnectionUrl, Provider, ConnectionString),
-        KeyCacheSize = KeyCacheSize,
         KeyGeneratorCacheSize = KeyGeneratorCacheSize,
         QueryCacheSize = QueryCacheSize,
         RecordSetMappingCacheSize = RecordSetMappingCacheSize,

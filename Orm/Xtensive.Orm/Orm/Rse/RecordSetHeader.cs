@@ -109,27 +109,6 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <summary>
-    /// Adds the specified columns to header.
-    /// </summary>
-    /// <param name="columns">The columns to add.</param>
-    /// <returns>The constructed header.</returns>
-    public RecordSetHeader Add(IReadOnlyList<Column> columns)
-    {
-      var newColumns = new List<Column>(Columns.Count + columns.Count);
-      newColumns.AddRange(Columns);
-      newColumns.AddRange(columns);
-
-      var newTupleDescriptor = CreateTupleDescriptor(newColumns);
-
-      return new RecordSetHeader(
-        TupleDescriptor.Create(newFieldTypes),
-        newColumns,
-        ColumnGroups,
-        OrderTupleDescriptor,
-        Order);
-    }
-
-    /// <summary>
     /// Joins the header with the specified one.
     /// </summary>
     /// <param name="joined">The header to join.</param>
@@ -193,17 +172,17 @@ namespace Xtensive.Orm.Rse
 
       var resultOrder = new DirectionCollection<ColNum>(
         Order
-          .Select(o => new KeyValuePair<int, Direction>(columnsMap[o.Key], o.Value))
+          .Select(o => new KeyValuePair<ColNum, Direction>(columnsMap[o.Key], o.Value))
           .TakeWhile(static o => o.Key >= 0));
 
       var resultGroups = ColumnGroups
         .Where(g => g.Keys.All(k => columnsMap[k] >= 0))
         .Select(g => new ColumnGroup(
             g.TypeInfoRef,
-            g.Keys.Select(k => columnsMap[k]),
+            g.Keys.Select(k => columnsMap[k]).ToArray(g.Keys.Count),
             g.Columns
               .Select(c => columnsMap[c])
-              .Where(static c => c >= 0)));
+              .Where(static c => c >= 0).ToList()));
 
       return new RecordSetHeader(
         TupleDescriptor.CreateFromNormalized(columns.Select(i => TupleDescriptor[i]).ToArray(columns.Count)),
@@ -247,24 +226,24 @@ namespace Xtensive.Orm.Rse
       var resultFieldTypes = indexInfoColumns.Select(columnInfo => columnInfo.ValueType).ToArray(indexInfoColumns.Count);
       var resultTupleDescriptor = TupleDescriptor.Create(resultFieldTypes);
 
-      var keyOrderEnumerable = indexInfoKeyColumns.Select(static (p, i) => new KeyValuePair<int, Direction>(i, p.Value));
+      var keyOrderEnumerable = indexInfoKeyColumns.Select(static (p, i) => new KeyValuePair<ColNum, Direction>((ColNum) i, p.Value));
       if (!indexInfo.IsPrimary) {
         var pkKeys = indexInfo.ReflectedType.Indexes.PrimaryIndex.KeyColumns;
         var offset = indexInfoKeyColumns.Count;
         keyOrderEnumerable = keyOrderEnumerable
           .Concat(indexInfo.ValueColumns
-            .Select((c, i) => new Pair<ColumnInfo, int>(c, i + offset))
+            .Select((c, i) => new Pair<ColumnInfo, ColNum>(c, (ColNum) (i + offset)))
             .Where(static pair => pair.First.IsPrimaryKey)
-            .Select(pair => new KeyValuePair<int, Direction>(pair.Second, pkKeys[pair.First])));
+            .Select(pair => new KeyValuePair<ColNum, Direction>(pair.Second, pkKeys[pair.First])));
       }
-      var order = new DirectionCollection<int>(keyOrderEnumerable);
+      var order = new DirectionCollection<ColNum>(keyOrderEnumerable);
 
       var keyFieldTypes = indexInfoKeyColumns
         .SelectToArray(static columnInfo => columnInfo.Key.ValueType);
       var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
 
       var resultColumns = indexInfoColumns
-        .Select(static (c,i) => (Column) new MappedColumn(new ColumnInfoRef(c), i, c.ValueType))
+        .Select(static (c,i) => (Column) new MappedColumn(new ColumnInfoRef(c), (ColNum) i, c.ValueType))
         .ToArray(indexInfoColumns.Count);
       var resultGroups = new[]{indexInfo.Group};
 
@@ -277,10 +256,11 @@ namespace Xtensive.Orm.Rse
     }
 
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
-    private static TupleDescriptor CreateTupleDescriptor(List<Column> newColumns)
+    private static TupleDescriptor CreateTupleDescriptor(IReadOnlyList<Column> newColumns)
     {
-      var newFieldTypes = new Type[newColumns.Count];
-      for (var i = 0; i < newColumns.Count; i++) {
+      var n = newColumns.Count;
+      var newFieldTypes = new Type[n];
+      for (var i = 0; i < n; i++) {
         newFieldTypes[i] = newColumns[i].Type;
       }
       return TupleDescriptor.Create(newFieldTypes);

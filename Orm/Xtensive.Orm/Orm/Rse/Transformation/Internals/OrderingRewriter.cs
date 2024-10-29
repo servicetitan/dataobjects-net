@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Rse.Transformation
         result = new AggregateProvider(source, provider.GroupColumnIndexes, provider.AggregateColumns);
       }
       if (sortOrder.Count > 0) {
-        var selectOrdering = new DirectionCollection<int>();
+        var selectOrdering = new DirectionCollection<ColNum>();
         var groupColumnIndexes = result.GroupColumnIndexes;
         foreach (var pair in sortOrder) {
           var columnIndex = groupColumnIndexes.IndexOf(pair.Key);
@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Rse.Transformation
               selectOrdering.Clear();
             break;
           }
-          selectOrdering.Add(columnIndex, pair.Value);
+          selectOrdering.Add((ColNum) columnIndex, pair.Value);
         }
         sortOrder = selectOrdering;
       }

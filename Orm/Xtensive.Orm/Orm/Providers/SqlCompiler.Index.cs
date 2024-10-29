@@ -43,10 +43,6 @@ namespace Xtensive.Orm.Providers
 
     private TypeMapping int32TypeMapping;
 
-    internal protected override SqlProvider VisitFreeText(FreeTextProvider provider) => throw new NotSupportedException();
-
-    internal protected override SqlProvider VisitContainsTable(ContainsTableProvider provider) => throw new NotSupportedException();
-
     /// <inheritdoc/>
     internal protected override SqlProvider VisitIndex(IndexProvider provider)
     {
@@ -214,6 +210,7 @@ namespace Xtensive.Orm.Providers
       var discriminatorMap = type.Hierarchy.TypeDiscriminatorMap;
       var filterByTypes = index.FilterByTypes;
       var filterByTypesCount = filterByTypes.Count;
+      var containsDefault = filterByTypes.Contains(discriminatorMap.Default);
       if (underlyingIndex.IsTyped && discriminatorMap != null) {
         var columnType = discriminatorMap.Column.ValueType;
         var discriminatorColumnIndex = underlyingIndex.Columns

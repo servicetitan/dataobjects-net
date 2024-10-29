@@ -11,7 +11,6 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm;
-using Xtensive.Collections;
 
 namespace Xtensive.Orm.Rse.Transformation
 {
@@ -58,7 +57,7 @@ namespace Xtensive.Orm.Rse.Transformation
           var headerCount = visitedProvider.Header.Length - 1;
           visitedProvider = new SelectProvider(
             visitedProvider,
-            CollectionUtils.RangeToArray(0, headerCount));
+            CollectionUtils.ColNumRange(headerCount));
         }
 
         return visitedProvider;

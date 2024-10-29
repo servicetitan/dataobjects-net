@@ -100,12 +100,12 @@ namespace Xtensive.Orm.Rse.Providers
     public CalculateProvider(CompilableProvider source, IReadOnlyList<CalculatedColumnDescriptor> columnDescriptors, bool isInlined = false)
       : base(ProviderType.Calculate, source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(columnDescriptors, nameof(columnDescriptors));
+      ArgumentNullException.ThrowIfNull(columnDescriptors);
 
       IsInlined = isInlined;
       var columns = new CalculatedColumn[columnDescriptors.Count];
       for (int i = 0, count = columnDescriptors.Count; i < count; i++) {
-        var col = new CalculatedColumn(columnDescriptors[i], Source.Header.Length + i);
+        var col = new CalculatedColumn(columnDescriptors[i], (ColNum) (Source.Header.Length + i));
         columns.SetValue(col, i);
       }
       CalculatedColumns = columns;

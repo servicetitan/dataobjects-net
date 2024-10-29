@@ -35,10 +35,9 @@ namespace Xtensive.Orm.Linq.Materialization
     private static readonly MethodInfo GetParameterValueMethod = WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
     private static readonly PropertyInfo ParameterContextProperty = WellKnownOrmTypes.ItemMaterializationContext.GetProperty(nameof(ItemMaterializationContext.ParameterContext));
     private static readonly MethodInfo GetTupleParameterValueMethod = GetParameterValueMethod.CachedMakeGenericMethod(WellKnownOrmTypes.Tuple);
-    private static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
-    private static readonly IReadOnlyList<ParameterExpression> TupleParameters = [TupleParameter];
+    private static readonly IReadOnlyList<ParameterExpression> TupleParameters = [QueryHelper.TupleParameter];
     private static readonly ParameterExpression MaterializationContextParameter = Expression.Parameter(WellKnownOrmTypes.ItemMaterializationContext, "mc");
-    private static readonly IReadOnlyList<ParameterExpression> TupleAndMaterializationContextParameters = [TupleParameter, MaterializationContextParameter];
+    private static readonly IReadOnlyList<ParameterExpression> TupleAndMaterializationContextParameters = [QueryHelper.TupleParameter, MaterializationContextParameter];
     private static readonly ConstantExpression TypeReferenceAccuracyConstantExpression = Expression.Constant(TypeReferenceAccuracy.BaseType);
     private static readonly MethodInfo GetTypeInfoMethod = typeof(ItemMaterializationContext).GetMethod(nameof(ItemMaterializationContext.GetTypeInfo));
 

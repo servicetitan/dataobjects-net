@@ -57,6 +57,7 @@ namespace Xtensive.Orm.Model
       }
       else
         reversedMap.Add(typeField, new HashSet<FieldInfo> { interfaceField });
+      return true;
     }
 
     public void Add(FieldInfo interfaceField, FieldInfo typeField)

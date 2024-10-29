@@ -41,9 +41,7 @@ namespace Xtensive.Orm.Configuration.Options
       };
 
       foreach (var namespaceSynonym in NamespaceSynonyms) {
-        if (namespaceSynonym.Namespace.IsNullOrEmpty()) {
-          ArgumentValidator.EnsureArgumentNotNullOrEmpty(namespaceSynonym.Namespace, namespaceSynonym.Namespace);
-        }
+        ArgumentNullException.ThrowIfNullOrEmpty(namespaceSynonym.Namespace);
         if (!result.NamespaceSynonyms.TryAdd(namespaceSynonym.Namespace, namespaceSynonym.Synonym)) {
           throw new Exception($"Synonym for namespace '{namespaceSynonym.Namespace}' has already been assigned.");
         }

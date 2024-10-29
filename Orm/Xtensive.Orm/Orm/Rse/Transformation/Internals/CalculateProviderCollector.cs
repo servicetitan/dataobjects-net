@@ -112,9 +112,13 @@ namespace Xtensive.Orm.Rse.Transformation
       return result;
     }
 
-    private static bool ContainsAccessToTupleField(IEnumerable<int> tupleAccesses,
-        CalculateProvider calculateProvider, FilterProvider provider) =>
-      tupleAccesses.Any(i => calculateProvider.Header.Columns.Contains(provider.Header.Columns[i]));
+    private static bool ContainsAccessToTupleField(IEnumerable<ColNum> tupleAccesses,
+        CalculateProvider calculateProvider, FilterProvider provider)
+    {
+      var calculateProviderHeaderColumns = calculateProvider.Header.Columns;
+      var providerHeaderColumns = provider.Header.Columns;
+      return tupleAccesses.Any(i => calculateProviderHeaderColumns.Contains(providerHeaderColumns[i]));
+    }
 
     private void AddCalculateFilter(CalculateProvider calculateProvider, FilterProvider filterProvider)
     {
