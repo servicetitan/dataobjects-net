@@ -1657,7 +1657,7 @@ namespace Xtensive.Orm.Linq
 
       var tupleParameterBindings = outer.TupleParameterBindings.Union(inner.TupleParameterBindings)
         .ToDictionary(pair => pair.Key, pair => pair.Value);
-      using var columnMap = new ColumnMap(outerColumnList);
+      using var columnMap = new ColumnMap(outerColumns);
       var itemProjector = outerItemProjector.Remap(recordSet, columnMap);
       return new ProjectionExpression(outer.Type, itemProjector, tupleParameterBindings);
     }
