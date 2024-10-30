@@ -163,7 +163,8 @@ namespace Xtensive.Tuples
       return hashCode.ToHashCode();
     }
 
-    public static bool operator ==(in TupleDescriptor left, in TupleDescriptor right) => left.Equals(right);
+    public static bool operator ==(in TupleDescriptor left, in TupleDescriptor right) =>
+      (left is null && right is null) || left?.Equals(right) == true;
 
     public static bool operator !=(in TupleDescriptor left, in TupleDescriptor right) => !(left == right);
 
