@@ -25,7 +25,7 @@ namespace Xtensive.Tuples
   [Serializable]
   public class TupleDescriptor : IEquatable<TupleDescriptor>, IReadOnlyList<Type>, ISerializable
   {
-    private static readonly TupleDescriptor EmptyDescriptor = new TupleDescriptor(Array.Empty<Type>());
+    public static readonly TupleDescriptor Empty = new TupleDescriptor(Array.Empty<Type>());
 
     private class LazyData
     {
@@ -90,18 +90,6 @@ namespace Xtensive.Tuples
     [field: NonSerialized]
     private Type[] FieldTypes { get; }
 
-    private ColNum FieldCount => (ColNum)FieldTypes.Length;
-
-    /// <summary>
-    /// Gets the empty tuple descriptor.
-    /// </summary>
-    /// <value>The empty tuple descriptor.</value>
-    public static TupleDescriptor Empty
-    {
-      [DebuggerStepThrough]
-      get => EmptyDescriptor;
-    }
-
     #region IList members
 
     /// <inheritdoc/>
@@ -115,15 +103,15 @@ namespace Xtensive.Tuples
     public ColNum Count
     {
       [DebuggerStepThrough]
-      get => FieldCount;
+      get => (ColNum) FieldTypes.Length;
     }
 
-    int IReadOnlyCollection<Type>.Count => FieldCount;
+    int IReadOnlyCollection<Type>.Count => Count;
 
     /// <inheritdoc/>
     public IEnumerator<Type> GetEnumerator()
     {
-      for (var index = 0; index < FieldCount; index++) {
+      for (int index = 0, count = Count; index < count; index++) {
         yield return FieldTypes[index];
       }
     }
@@ -170,13 +158,12 @@ namespace Xtensive.Tuples
     public override int GetHashCode()
     {
       HashCode hashCode = new();
-      for (int i = FieldCount; i-- > 0;)
+      for (int i = Count; i-- > 0;)
         hashCode.Add(FieldTypes[i]);
       return hashCode.ToHashCode();
     }
 
-    public static bool operator ==(in TupleDescriptor left, in TupleDescriptor right) =>
-      (left is null && right is null) || left?.Equals(right) == true;
+    public static bool operator ==(in TupleDescriptor left, in TupleDescriptor right) => left.Equals(right);
 
     public static bool operator !=(in TupleDescriptor left, in TupleDescriptor right) => !(left == right);
 
@@ -184,22 +171,22 @@ namespace Xtensive.Tuples
 
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      info.AddValue("ValuesLength", ValuesLength);
-      info.AddValue("ObjectsLength", ObjectsLength);
+      info.AddValue(nameof(ValuesLength), ValuesLength);
+      info.AddValue(nameof(ObjectsLength), ObjectsLength);
 
       var typeNames = new string[FieldTypes.Length];
       for (var i = 0; i < typeNames.Length; i++)
         typeNames[i] = FieldTypes[i].ToSerializableForm();
 
-      info.AddValue("FieldTypes", typeNames);
-      info.AddValue("FieldDescriptors", FieldDescriptors);
+      info.AddValue(nameof(FieldTypes), typeNames);
+      info.AddValue(nameof(FieldDescriptors), FieldDescriptors);
     }
 
     /// <inheritdoc/>
     public override string ToString()
     {
       var sb = new ValueStringBuilder(stackalloc char[4096]);
-      for (int i = 0; i < FieldCount; i++) {
+      for (int i = 0, count = Count; i < count; i++) {
         if (i > 0)
           sb.Append(", ");
         sb.Append(FieldTypes[i].GetShortName());
@@ -224,13 +211,13 @@ namespace Xtensive.Tuples
     public static TupleDescriptor Create(Type[] fieldTypes)
     {
       ArgumentNullException.ThrowIfNull(fieldTypes);
-      return fieldTypes.Length == 0 ? EmptyDescriptor : new(fieldTypes);
+      return fieldTypes.Length == 0 ? Empty : new(fieldTypes);
     }
 
     internal static TupleDescriptor CreateFromNormalized(Type[] normalizedFieldTypes)
     {
       ArgumentNullException.ThrowIfNull(normalizedFieldTypes);
-      return normalizedFieldTypes.Length == 0 ? EmptyDescriptor : new(normalizedFieldTypes, true);
+      return normalizedFieldTypes.Length == 0 ? Empty : new(normalizedFieldTypes, true);
     }
 
     /// <summary>
@@ -329,7 +316,7 @@ namespace Xtensive.Tuples
 
     public TupleDescriptor(SerializationInfo info, StreamingContext context)
     {
-      var typeNames = (string[]) info.GetValue("FieldTypes", typeof(string[]));
+      var typeNames = (string[]) info.GetValue(nameof(FieldTypes), typeof(string[]));
       FieldTypes = new Type[typeNames.Length];
       for (var i = 0; i < typeNames.Length; i++) {
         FieldTypes[i] = typeNames[i].GetTypeFromSerializableForm();
