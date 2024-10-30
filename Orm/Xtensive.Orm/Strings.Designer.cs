@@ -151,6 +151,15 @@ namespace Xtensive {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Comparison of two entity fields is not supported..
+        /// </summary>
+        internal static string ComparisonOfTwoEntityFieldsIsNotSupported {
+            get {
+                return ResourceManager.GetString("ComparisonOfTwoEntityFieldsIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ComparisonRule({0}, {1}).
         /// </summary>
         internal static string ComparisonRuleFormat {
@@ -2571,6 +2580,24 @@ namespace Xtensive {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Inner and outer selector expressions have the same parameter instance. Probably you use the same lambda expression for both selectors, which is currently not supported..
+        /// </summary>
+        internal static string ExJoinHasSameInnerAndOuterParameterInstances {
+            get {
+                return ResourceManager.GetString("ExJoinHasSameInnerAndOuterParameterInstances", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Key already exists..
+        /// </summary>
+        internal static string ExKeyAlreadyExists {
+            get {
+                return ResourceManager.GetString("ExKeyAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The Key belongs to different storage node..
         /// </summary>
         internal static string ExKeyBelongsToDifferentStorageNode {
@@ -4678,6 +4705,24 @@ namespace Xtensive {
             }
         }
 
+        /// <summary>
+        ///   Looks up a localized string similar to The type &apos;{0}&apos;,which contains renaming field &apos;{1}&apos;, doesn&apos;t exist in storage model..
+        /// </summary>
+        internal static string ExTypeXWhichContainsRenamingFieldYDoesntExistInStorageModel {
+            get {
+                return ResourceManager.GetString("ExTypeXWhichContainsRenamingFieldYDoesntExistInStorageModel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to activate EntitySet for &apos;{0}&apos; field because it does not has association..
+        /// </summary>
+        internal static string ExUnableToActivateEntitySetWithoutAssociation {
+            get {
+                return ResourceManager.GetString("ExUnableToActivateEntitySetWithoutAssociation", resourceCulture);
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized string similar to Unable to apply VersionAttribute with VersionMode.Auto or Version.Mode.Manual mode set on field {0} of type {1}. Only VersionMode.Skip is allowed..
         /// </summary>
