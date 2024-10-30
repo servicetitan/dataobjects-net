@@ -311,7 +311,7 @@ namespace Xtensive.Orm.Tests.Linq
         var authors = session1.Query.All<Author>()
           .Where(author => author.Books.Any(book => book.Name.Equals("something")))
           .ToArray();
-        
+
         var authorsExecutedWithTag = session1.Query.All<Author>()
           .Where(author => author.Books.Tag("sample tag").Any(book => book.Name.Equals("something")))
           .ToArray();

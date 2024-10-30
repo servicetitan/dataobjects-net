@@ -278,8 +278,15 @@ namespace Xtensive.Orm.Linq
       ProjectionExpression visitedSource;
       if (visitedSourceRaw.IsEntitySetExpression()) {
         var entitySetExpression = (EntitySetExpression) visitedSourceRaw;
-        var entitySetQuery =
-          QueryHelper.CreateEntitySetQuery((Expression) entitySetExpression.Owner, entitySetExpression.Field, context.Domain);
+        var entitySetQuery = QueryHelper.CreateEntitySetQuery(
+          source is MemberExpression { Expression: { } } memberExpression
+          && memberExpression.Expression is var memberExpressionExpression
+          && context.Model.Types.Contains(memberExpressionExpression.Type)
+            ? memberExpressionExpression
+            : (Expression) entitySetExpression.Owner,
+          entitySetExpression.Field,
+          context.Domain
+        );
         visitedSource = (ProjectionExpression) Visit(entitySetQuery);
       }
       else {
@@ -304,8 +311,10 @@ namespace Xtensive.Orm.Linq
       if (visitedSourceRaw.IsEntitySetExpression()) {
         var entitySetExpression = (EntitySetExpression) visitedSourceRaw;
         var entitySetQuery = QueryHelper.CreateEntitySetQuery(
-          source is MemberExpression { Expression: { } } memberExpression && context.Model.Types.Contains(memberExpression.Expression.Type)
-            ? memberExpression.Expression
+          source is MemberExpression { Expression: { } } memberExpression
+          && memberExpression.Expression is var memberExpressionExpression
+          && context.Model.Types.Contains(memberExpressionExpression.Type)
+            ? memberExpressionExpression
             : (Expression) entitySetExpression.Owner,
           entitySetExpression.Field,
           context.Domain
