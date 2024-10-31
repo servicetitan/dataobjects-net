@@ -44,7 +44,9 @@ namespace Xtensive.Orm.Linq
 
     private bool isAlreadyTagged;
 
-    internal TranslatorState State { get; private set; } = TranslatorState.InitState;
+    internal TranslatorState State { get; private set; } = new(TranslatorState.InitState) {
+      NonVisitableExpressions = new()
+    };
 
     protected override Expression VisitConstant(ConstantExpression c) =>
       c.Value is IQueryable rootPoint
