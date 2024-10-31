@@ -43,7 +43,6 @@ namespace Xtensive.Orm.Linq
       CurrentLambda = null,
       IncludeAlgorithm = IncludeAlgorithm.Auto,
       TypeOfEntityStoredInKey = null,
-      NonVisitableExpressions = new HashSet<Expression>(),
     };
 
     private readonly TranslatorStateFlags flags;
@@ -63,7 +62,7 @@ namespace Xtensive.Orm.Linq
 
 
     /// <summary>
-    /// Expessions that were constructed during original expression translation
+    /// Expressions that were constructed during original expression translation
     /// and aim to replace original parts so they are avoidable to visit by Linq translator.
     /// </summary>
     /// <remarks>
