@@ -5,6 +5,7 @@
 // Created:    2009.06.01
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
@@ -58,7 +59,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the supported types.
     /// </summary>
-    public IReadOnlySet<Type> SupportedTypes { get; private set; }
+    public IReadOnlySet<Type> SupportedTypes { get; }
 
     /// <summary>
     /// Gets max query parameter count.
@@ -98,7 +99,7 @@ namespace Xtensive.Orm.Providers
       DefaultDatabase = defaultDatabase;
       DefaultSchema = defaultSchema;
 
-      SupportedTypes = new HashSet<Type>(supportedTypes).AsSafeWrapper();
+      SupportedTypes = supportedTypes.ToFrozenSet();
       MaxQueryParameterCount = maxQueryParameterCount;
     }
   }

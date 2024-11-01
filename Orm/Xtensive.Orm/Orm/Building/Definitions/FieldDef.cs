@@ -30,8 +30,8 @@ namespace Xtensive.Orm.Building.Definitions
     private OnRemoveAction?                 onOwnerRemove;
     private string                          pairTo;
     private int?                            length;
-    private int?                            scale;
-    private int?                            precision;
+    private sbyte?                          scale;
+    private sbyte?                          precision;
     private object                          defaultValue;
     private string                          defaultSqlExpression;
     private Validator                       validator;
@@ -53,9 +53,9 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets or sets the scale of the field.
     /// </summary>
-    public int? Scale
+    public sbyte? Scale
     {
-      get { return scale; }
+      get => scale;
       set
       {
         if (value.HasValue)
@@ -67,9 +67,9 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets or sets the precision of the field.
     /// </summary>
-    public int? Precision
+    public sbyte? Precision
     {
-      get { return precision; }
+      get => precision;
       set
       {
         if (value.HasValue)

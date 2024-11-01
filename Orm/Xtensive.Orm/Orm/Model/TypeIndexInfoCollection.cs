@@ -53,8 +53,9 @@ namespace Xtensive.Orm.Model
       var names = (fieldNames ?? Array.Empty<string>()).Prepend(fieldName);
 
       var fields = new List<FieldInfo>();
+      var reflectedTypeFields = primaryIndex.ReflectedType.Fields;
       foreach (var name in names) {
-        if (primaryIndex.ReflectedType.Fields.TryGetValue(name, out var field)) {
+        if (reflectedTypeFields.TryGetValue(name, out var field)) {
           fields.Add(field);
         }
       }
@@ -65,12 +66,8 @@ namespace Xtensive.Orm.Model
       return GetIndex(fields);
     }
 
-    public IndexInfo GetIndex(FieldInfo field, params FieldInfo[] fields)
-    {
-      var fieldInfos = new List<FieldInfo> {field};
-      fieldInfos.AddRange(fields);
-      return GetIndex(fieldInfos);
-    }
+    public IndexInfo GetIndex(FieldInfo field, params FieldInfo[] fields) =>
+      GetIndex(fields.Prepend(field));
 
     /// <inheritdoc/>
     public override void UpdateState()
@@ -83,32 +80,30 @@ namespace Xtensive.Orm.Model
 
     private IndexInfo GetIndex(IEnumerable<FieldInfo> fields)
     {
-      Action<IEnumerable<FieldInfo>, IList<ColumnInfo>> columnsExtractor = null;
-      columnsExtractor = ((fieldsToExtract, extractedColumns) => {
-        foreach (var field in fieldsToExtract) {
-          if (field.Column==null) {
-            if (field.IsEntity || field.IsStructure)
-              columnsExtractor(field.Fields, extractedColumns);
-          }
-          else
-            extractedColumns.Add(field.Column);
-        }
-      });
-
       var columns = new List<ColumnInfo>();
-      columnsExtractor(fields, columns);
+
+      void columnsExtractor(IEnumerable<FieldInfo> fieldsToExtract) {
+        foreach (var field in fieldsToExtract) {
+          if (field.Column is { } column) {
+            columns.Add(column);
+          }
+          else if (field.IsEntity || field.IsStructure) {
+            columnsExtractor(field.Fields);
+          }
+        }
+      }
+
+      columnsExtractor(fields);
       var columnNumber = columns.Count;
 
       var candidates = this
         .Where(i => i.KeyColumns
-          .TakeWhile((_, index) => index < columns.Count)
-          .Select((pair, index) => (column: pair.Key, columnIndex: index))
-          .All(p => p.column==columns[p.columnIndex]))
+          .Take(columnNumber)
+          .Select((pair, index) => pair.Key == columns[index])
+          .All(o => o))
         .OrderByDescending(i => i.Attributes).ToList();
 
-      var result = candidates.Where(c => c.KeyColumns.Count==columnNumber).FirstOrDefault();
-
-      return result ?? candidates.FirstOrDefault();
+      return candidates.Where(c => c.KeyColumns.Count == columnNumber).FirstOrDefault() ?? candidates.FirstOrDefault();
     }
 
     /// <summary>

@@ -288,7 +288,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         //finding new field
         var newField = (renameHint != null)
           ? newFields.GetValueOrDefault(renameHint.NewFieldName)
-          : CheckPropertyNameWasOverriden(oldField)
+          : CheckPropertyNameWasOverridden(oldField)
             ? newFields.GetValueOrDefault(oldField.Name) ?? newFields.GetValueOrDefault(oldField.PropertyName)
             : newFields.GetValueOrDefault(oldField.Name);
 
@@ -583,7 +583,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       return $"{genericDefinitionTypeName.Replace("<>", string.Empty)}<{genericArgumentNames.ToCommaDelimitedString()}>";
     }
 
-    private static bool CheckPropertyNameWasOverriden(StoredFieldInfo fieldInfo)
+    private static bool CheckPropertyNameWasOverridden(StoredFieldInfo fieldInfo)
     {
       // if there is no real property then there is nothing to put OverrideFieldNameAttribute on
       if (string.IsNullOrEmpty(fieldInfo.PropertyName)) {

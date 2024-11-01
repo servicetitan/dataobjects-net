@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2022 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -173,8 +173,7 @@ namespace Xtensive.Orm.Building.Builders
       foreach (var type in context.Model.Types.Entities) {
         var associations = type.GetOwnerAssociations()
           .Where(static a => a.OnOwnerRemove is OnRemoveAction.Cascade or OnRemoveAction.Clear);
-        var action = new PrefetchActionContainer(type).BuildPrefetchAction(associations);
-        if (action != null) {
+        if (PrefetchActionContainer.BuildPrefetchAction(type, associations) is { } action) {
           domain.PrefetchActionMap.Add(type, action);
         }
       }
@@ -486,16 +485,16 @@ namespace Xtensive.Orm.Building.Builders
         var descendantTypes = type.AllDescendants;
         if (typeImplementors.Any()) {
           foreach (var implementor in typeImplementors)
-            if (referenceRegistrator.ContainsKey(implementor))
-              referenceRegistrator[implementor] += 1;
+            if (referenceRegistrator.TryGetValue(implementor, out var refCount))
+              referenceRegistrator[implementor] = refCount + 1;
         }
         else {
-          if (referenceRegistrator.ContainsKey(type))
-            referenceRegistrator[type] += 1;
+          if (referenceRegistrator.TryGetValue(type, out var refCount))
+            referenceRegistrator[type] = refCount + 1;
           if (descendantTypes.Any()) {
             foreach (var descendant in descendantTypes) {
-              if (referenceRegistrator.ContainsKey(descendant))
-                referenceRegistrator[descendant] += 1;
+              if (referenceRegistrator.TryGetValue(descendant, out var refCount1))
+                referenceRegistrator[descendant] = refCount1 + 1;
             }
           }
         }

@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Linq
         parameter = new ApplyParameter(providerType.IsGenericType ? providerType.GetShortName() : providerType.Name);
         // parameter = new ApplyParameter(provider.ToString()); 
         // ENABLE ONLY FOR DEBUGGING! 
-        // May lead TO entity.ToString() calls, while ToString can be overriden.
+        // May lead TO entity.ToString() calls, while ToString can be overridden.
         applyParameters.Add(provider, parameter);
       }
       return parameter;
@@ -124,7 +124,10 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    public void RegisterPossibleQueryReuse(MemberInfo memberInfo) => queryReuses.TryAdd(memberInfo, 0);
+    public void RegisterPossibleQueryReuse(MemberInfo memberInfo)
+    {
+      _ = queryReuses.TryAdd(memberInfo, 0);
+    }
 
     public bool CheckIfQueryReusePossible(MemberInfo memberInfo)
     {

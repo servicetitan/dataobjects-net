@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.25
 
+using System.Collections.Frozen;
 using System.Linq.Expressions;
 using Xtensive.Reflection;
 
@@ -15,7 +16,7 @@ namespace Xtensive.Linq;
 [Serializable]
 public abstract class QueryableVisitor : ExpressionVisitor
 {
-  private static readonly Dictionary<string, QueryableMethodKind> QueryableMethodKindFromName = new() {
+  private static readonly FrozenDictionary<string, QueryableMethodKind> QueryableMethodKindFromName = new Dictionary<string, QueryableMethodKind>() {
     [nameof(Queryable.Aggregate)] = QueryableMethodKind.Aggregate,
     [nameof(Queryable.All)] = QueryableMethodKind.All,
     [nameof(Queryable.Any)] = QueryableMethodKind.Any,
@@ -63,7 +64,7 @@ public abstract class QueryableVisitor : ExpressionVisitor
     ["ToList"] = QueryableMethodKind.ToList,
     [nameof(Queryable.Union)] = QueryableMethodKind.Union,
     [nameof(Queryable.Where)] = QueryableMethodKind.Where
-  };
+  }.ToFrozenDictionary();
 
   /// <inheritdoc/>
   protected override Expression VisitMethodCall(MethodCallExpression mc) =>

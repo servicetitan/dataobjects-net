@@ -34,19 +34,21 @@ namespace Xtensive.Orm.Model
     /// "No <see cref="NoFieldId"/>" value (<see cref="NoFieldId"/> is unknown or undefined).
     /// Value is <see langword="0" />.
     /// </summary>
-    public const int NoFieldId = 0;
+    public const byte NoFieldId = 0;
 
     /// <summary>
     /// Minimal possible <see cref="FieldId"/> value.
     /// Value is <see langword="100" />.
     /// </summary>
-    public const int MinFieldId = 1;
+    public const byte MinFieldId = 1;
+
+    public const sbyte NoScalePrecision = -128;
 
     private PropertyInfo underlyingProperty;
     private Type valueType;
     private int? length;
-    private int? scale;
-    private int? precision;
+    private sbyte scale = NoScalePrecision;
+    private sbyte precision = NoScalePrecision;
     private object defaultValue;
     private string defaultSqlExpression;
     private TypeInfo reflectedType;
@@ -57,12 +59,23 @@ namespace Xtensive.Orm.Model
     private Type itemType;
     private string originalName;
     internal SegmentTransform valueExtractor;
-    private int adapterIndex = -1;
     private ColumnInfoCollection columns;
-    private int fieldId;
-    private long cachedHashCode;
-
+    private volatile bool cachedHashCodeHasValue;
+    private volatile int cachedHashCode;
     private Segment<ColNum> mappingInfo;
+
+#if DO_MAX_255_FIELDS
+    public const byte MaxFieldId = 255;
+    public const byte NoAdapterIndex = 255;
+    private byte fieldId;
+    private byte adapterIndex = 255;
+#else
+    public const short MaxFieldId = 32767;
+    public const short NoAdapterIndex = -1;
+    private short fieldId;
+    private short adapterIndex = -1;
+#endif
+
 
     #region IsXxx properties
 
@@ -71,10 +84,14 @@ namespace Xtensive.Orm.Model
     /// in <see cref="TypeInfo.Fields"/> collection of <see cref="ReflectedType"/>.
     /// </summary>
     /// <exception cref="NotSupportedException">Property is already initialized.</exception>
-    public int FieldId
+#if DO_MAX_255_FIELDS
+    public byte FieldId
+#else
+    public short FieldId
+#endif
     {
       [DebuggerStepThrough]
-      get { return fieldId; }
+      get => fieldId;
       set {
         if (fieldId != NoFieldId)
           throw Exceptions.AlreadyInitialized("FieldId");
@@ -383,28 +400,28 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets the scale of the field.
     /// </summary>
-    public int? Scale
+    public sbyte? Scale
     {
       [DebuggerStepThrough]
-      get { return scale; }
+      get => scale == NoScalePrecision ? null : scale;
       [DebuggerStepThrough]
       set {
         EnsureNotLocked();
-        scale = value;
+        scale = value ?? NoScalePrecision;
       }
     }
 
     /// <summary>
     /// Gets or sets the precision of the field.
     /// </summary>
-    public int? Precision
+    public sbyte? Precision
     {
       [DebuggerStepThrough]
-      get { return precision; }
+      get => precision == NoScalePrecision ? null : precision;
       [DebuggerStepThrough]
       set {
         EnsureNotLocked();
-        precision = value;
+        precision = value ?? NoScalePrecision;
       }
     }
 
@@ -586,11 +603,11 @@ namespace Xtensive.Orm.Model
     public int AdapterIndex
     {
       [DebuggerStepThrough]
-      get { return adapterIndex; }
+      get => adapterIndex == NoAdapterIndex ? -1 : adapterIndex;
       [DebuggerStepThrough]
-      set {
+      internal set {
         EnsureNotLocked();
-        adapterIndex = value;
+        adapterIndex = (byte)value;
       }
     }
 
@@ -729,14 +746,11 @@ namespace Xtensive.Orm.Model
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      var h = Volatile.Read(ref cachedHashCode);
-      if (h == 0) {
-        h = (uint)HashCode.Combine(declaringType, valueType, Name);
-        if (IsLocked) {
-          Volatile.Write(ref cachedHashCode, h | (1L << 63)); // Set the highest bit as HasValue flag even when `hashCode == 0`
-        }
+      if (!cachedHashCodeHasValue) {
+        cachedHashCode = HashCode.Combine(declaringType, valueType, Name);
+        cachedHashCodeHasValue = IsLocked;
       }
-      return (int)h;
+      return cachedHashCode;
     }
 
     #endregion
@@ -744,10 +758,7 @@ namespace Xtensive.Orm.Model
     #region ICloneable methods
 
     /// <inheritdoc/>
-    object ICloneable.Clone()
-    {
-      return Clone();
-    }
+    object ICloneable.Clone() => Clone();
 
     /// <summary>
     /// Clones this instance.

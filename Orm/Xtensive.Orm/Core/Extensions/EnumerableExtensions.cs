@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -433,24 +433,20 @@ namespace Xtensive.Core
       }
       while (enumerator.MoveNext()) {
         currentCount = 0;
-        var buffer = ArrayPool<T>.Shared.Rent(currentBatchSize);
-        try {
-          do {
-            buffer[currentCount++] = enumerator.Current;
-          } while (currentCount < currentBatchSize && enumerator.MoveNext());
+        using PooledArray<T> pooled = new(currentBatchSize, true);
+        var buffer = pooled.Array;
+        do {
+          buffer[currentCount++] = enumerator.Current;
+        } while (currentCount < currentBatchSize && enumerator.MoveNext());
 
-          if (currentBatchSize < maximalBatchSize) {
-            currentBatchSize *= 2;
-            if (currentBatchSize > maximalBatchSize) {
-              currentBatchSize = maximalBatchSize;
-            }
+        if (currentBatchSize < maximalBatchSize) {
+          currentBatchSize *= 2;
+          if (currentBatchSize > maximalBatchSize) {
+            currentBatchSize = maximalBatchSize;
           }
+        }
 
-          yield return buffer.Take(currentCount);
-        }
-        finally {
-          ArrayPool<T>.Shared.Return(buffer, true);
-        }
+        yield return buffer.Take(currentCount);
       }
     }
 
@@ -598,7 +594,7 @@ namespace Xtensive.Core
           if (edgeTester.Invoke(left.Value, right.Value))
             new Edge(left, right);
       var result = TopologicalSorter.Sort(graph);
-      return result.HasLoops ? null : result.SortedNodes.Select(node => node.Value).ToList();
+      return result.HasLoops ? null : result.SortedNodes.SelectToList(node => node.Value);
     }
   }
 }

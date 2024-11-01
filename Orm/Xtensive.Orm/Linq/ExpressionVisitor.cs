@@ -183,9 +183,10 @@ namespace Xtensive.Linq
       IEnumerable<Expression> initializers = VisitExpressionList(naExpressions);
       if (initializers == naExpressions)
         return na;
-      if (na.NodeType == ExpressionType.NewArrayInit)
-        return Expression.NewArrayInit(na.Type.GetElementType(), initializers);
-      return Expression.NewArrayBounds(na.Type.GetElementType(), initializers);
+      var elementType = na.Type.GetElementType();
+      return na.NodeType == ExpressionType.NewArrayInit
+        ? Expression.NewArrayInit(elementType, initializers)
+        : Expression.NewArrayBounds(elementType, initializers);
     }
 
     /// <inheritdoc/>

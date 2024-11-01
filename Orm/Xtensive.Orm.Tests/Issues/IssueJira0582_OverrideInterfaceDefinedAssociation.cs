@@ -301,7 +301,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     [Test]
     [Ignore("Bug hasn't been fixed yet")]
-    public void AssociationDefinedInInterfaceAndOverridenByImplementor()
+    public void AssociationDefinedInInterfaceAndOverriddenByImplementor()
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;

@@ -53,8 +53,12 @@ namespace Xtensive.Orm.Rse.Transformation
           visitedProvider = new SkipProvider(visitedProvider, State.Skip);
 
         // add select removing RowNumber column
-        if (requiresRowNumber)
-          visitedProvider = new SelectProvider(visitedProvider, CollectionUtils.ColNumRange(visitedProvider.Header.Length));
+        if (requiresRowNumber) {
+          var headerCount = visitedProvider.Header.Length - 1;
+          visitedProvider = new SelectProvider(
+            visitedProvider,
+            CollectionUtils.ColNumRange(headerCount));
+        }
 
         return visitedProvider;
       }

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Elena Vakhtina
 // Created:    2008.09.09
 
@@ -11,6 +11,7 @@ using Xtensive.Core;
 
 using Xtensive.Tuples.Transform;
 using Xtensive.Collections;
+using System.Collections.Generic;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -24,12 +25,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets a value indicating whether calculated columns should be inlined.
     /// </summary>
-    public bool IsInlined { get; private set; }
+    public bool IsInlined { get; }
 
     /// <summary>
     /// Gets the calculated columns.
     /// </summary>
-    public CalculatedColumn[] CalculatedColumns { get; private set; }
+    public CalculatedColumn[] CalculatedColumns { get; }
 
     /// <summary>
     /// Gets header resize transform.
@@ -54,8 +55,9 @@ namespace Xtensive.Orm.Rse.Providers
     {
       base.Initialize();
       var columnIndexes = new ColNum[Header.Length];
+      var sourceHeaderLength = Source.Header.Length;
       for (ColNum i = 0; i < columnIndexes.Length; i++)
-        columnIndexes[i] = (i < Source.Header.Length) ? i : MapTransform.NoMapping;
+        columnIndexes[i] = i < sourceHeaderLength ? i : MapTransform.NoMapping;
       ResizeTransform = new MapTransform(false, Header.TupleDescriptor, columnIndexes);
     }
 
@@ -64,24 +66,15 @@ namespace Xtensive.Orm.Rse.Providers
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
-    /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
-    public CalculateProvider(CompilableProvider source, IEnumerable<CalculatedColumnDescriptor> columnDescriptors)
-      : this(source, false, columnDescriptors)
-    {
-    }
-
-    /// <summary>
     /// 	Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="isInlined">The <see cref="IsInlined"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
-    public CalculateProvider(CompilableProvider source, bool isInlined, IEnumerable<CalculatedColumnDescriptor> columnDescriptors)
+    public CalculateProvider(CompilableProvider source, IEnumerable<CalculatedColumnDescriptor> columnDescriptors, bool isInlined = false)
       : base(ProviderType.Calculate, source)
     {
+      ArgumentNullException.ThrowIfNull(columnDescriptors);
       IsInlined = isInlined;
       var baseIndex = Source.Header.Length;
       CalculatedColumns = columnDescriptors.Select((desc, i) => new CalculatedColumn(desc, (ColNum) (baseIndex + i))).ToArray();

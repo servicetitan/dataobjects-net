@@ -70,7 +70,7 @@ namespace Xtensive.Linq
     /// </summary>
     /// <param name="expression">The expression to convert.</param>
     /// <returns>Expression tree that wraps <paramref name="expression"/>.</returns>
-    public static ExpressionTree ToExpressionTree(this Expression expression) => new ExpressionTree(expression);
+    internal static ExpressionTree ToExpressionTree(this Expression expression) => new(expression);
 
 
     // Type initializer

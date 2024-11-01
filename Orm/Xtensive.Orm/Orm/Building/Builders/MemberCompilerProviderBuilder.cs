@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Building.Builders
 
       if (isStatic)
         return (_, _this, parameters) => substitution.BindParameters(parameters);
-      return (_, _this, parameters) => substitution.BindParameters(parameters.Prepend(_this));
+      return (_, _this, parameters) => substitution.BindParameters(parameters.Prepend(_this).ToArray());
     }
 
 

@@ -1,11 +1,9 @@
-// Copyright (C) 2010-2020 Xtensive LLC.
+// Copyright (C) 2010-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Linq.Expressions;
@@ -22,6 +20,7 @@ namespace Xtensive.Orm.Rse.Transformation
     private readonly Dictionary<ApplyParameter, List<ColNum>> outerColumnUsages = new();
     private readonly CompilableProviderVisitor outerColumnUsageVisitor;
     private readonly CompilableProvider rootProvider;
+    private readonly Stack<List<ColNum>> outerColumnUsageStack = new();
 
     private bool hasGrouping;
 
@@ -111,9 +110,10 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       mappings[provider.Source] = Merge(mappings[provider], mappingsGatherer.Gather(provider.Predicate));
       var newSourceProvider = VisitCompilable(provider.Source);
-      mappings[provider] = mappings[provider.Source];
+      var colMap = mappings[provider.Source];
+      mappings[provider] = colMap;
 
-      var predicate = TranslateLambda(provider, provider.Predicate);
+      var predicate = TranslateLambda(colMap, provider.Predicate);
       return newSourceProvider == provider.Source && predicate == provider.Predicate
         ? provider
         : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) predicate);
@@ -196,9 +196,9 @@ namespace Xtensive.Orm.Rse.Transformation
       var applyParameter = provider.ApplyParameter;
       var currentOuterUsages = new List<ColNum>();
 
-      outerColumnUsages.Add(applyParameter, currentOuterUsages);
-      _ = outerColumnUsageVisitor.VisitCompilable(provider.Right);
-      _ = outerColumnUsages.Remove(applyParameter);
+      using (SetOuterColumnUsage(applyParameter, currentOuterUsages)) {
+        _ = outerColumnUsageVisitor.VisitCompilable(provider.Right);
+      }
 
       leftMapping = Merge(leftMapping, currentOuterUsages);
 
@@ -213,9 +213,10 @@ namespace Xtensive.Orm.Rse.Transformation
       leftMapping = mappings[provider.Left];
 
       _ = ReplaceMappings(provider.Right, rightMapping);
-      outerColumnUsages.Add(applyParameter, leftMapping);
-      var newRightProvider = VisitCompilable(provider.Right);
-      _ = outerColumnUsages.Remove(applyParameter);
+      CompilableProvider newRightProvider;
+      using (SetOuterColumnUsage(applyParameter, leftMapping)) {
+        newRightProvider = VisitCompilable(provider.Right);
+      }
 
       var pair = OverrideRightApplySource(provider, newRightProvider, rightMapping);
       IReadOnlyList<ColNum> readOnlyRightMapping;
@@ -276,29 +277,29 @@ namespace Xtensive.Orm.Rse.Transformation
 
     internal protected override CompilableProvider VisitCalculate(CalculateProvider provider)
     {
-      var sourceLength = provider.Source.Header.Length;
+      var providerSource = provider.Source;
+      var sourceLength = providerSource.Header.Length;
       var usedColumns = mappings[provider];
       var sourceMapping = Merge(
         mappings[provider].Where(i => i < sourceLength),
         provider.CalculatedColumns.SelectMany(c => mappingsGatherer.Gather(c.Expression)));
 
-      mappings[provider.Source] = sourceMapping;
-      var newSourceProvider = VisitCompilable(provider.Source);
-      mappings[provider] = mappings[provider.Source];
+      mappings[providerSource] = sourceMapping;
+      var newSourceProvider = VisitCompilable(providerSource);
+      mappings[provider] = mappings[providerSource];
 
       var translated = false;
       var descriptors = new List<CalculatedColumnDescriptor>(usedColumns.Count);
       var currentMapping = mappings[provider];
-      for (ColNum calculatedColumnIndex = 0; calculatedColumnIndex < provider.CalculatedColumns.Length; calculatedColumnIndex++) {
-        if (usedColumns.Contains(provider.CalculatedColumns[calculatedColumnIndex].Index)) {
-          currentMapping.Add((ColNum)(provider.Source.Header.Length + calculatedColumnIndex));
-          var column = provider.CalculatedColumns[calculatedColumnIndex];
-          var expression = TranslateLambda(provider, column.Expression);
-          if (expression != column.Expression) {
-            translated = true;
-          }
-          var ccd = new CalculatedColumnDescriptor(column.Name, column.Type, (Expression<Func<Tuple, object>>) expression);
-          descriptors.Add(ccd);
+      var calculatedColumns = provider.CalculatedColumns;
+      var providerSourceHeaderLength = providerSource.Header.Length;
+      for (ColNum calculatedColumnIndex = 0; calculatedColumnIndex < calculatedColumns.Length; calculatedColumnIndex++) {
+        var column = calculatedColumns[calculatedColumnIndex];
+        if (usedColumns.Contains(column.Index)) {
+          currentMapping.Add((ColNum)(providerSourceHeaderLength + calculatedColumnIndex));
+          var expression = TranslateLambda(currentMapping, column.Expression);
+          translated |= (expression != column.Expression);
+          descriptors.Add(new CalculatedColumnDescriptor(column.Name, column.Type, (Expression<Func<Tuple, object>>) expression));
         }
       }
       mappings[provider] = currentMapping;
@@ -306,7 +307,7 @@ namespace Xtensive.Orm.Rse.Transformation
         return newSourceProvider;
       }
 
-      return !translated && newSourceProvider == provider.Source && descriptors.Count == provider.CalculatedColumns.Length
+      return !translated && newSourceProvider == providerSource && descriptors.Count == provider.CalculatedColumns.Length
         ? provider
         : new CalculateProvider(newSourceProvider, descriptors);
     }
@@ -427,6 +428,31 @@ namespace Xtensive.Orm.Rse.Transformation
     private static List<ColNum> Merge(IEnumerable<ColNum> left, IEnumerable<ColNum> right) =>
       left.Union(right).OrderBy(i => i).ToList();
 
+    private static List<int> Merge(IEnumerable<int> left, IEnumerable<int> right)
+    {
+      var hs = new HashSet<int>(left);
+      foreach (var r in right) {
+        _ = hs.Add(r);
+      }
+      var resultList = hs.ToList(hs.Count);
+      resultList.Sort();
+      return resultList;
+    }
+
+    private static List<int> Merge(List<int> leftMap, IEnumerable<int> rightMap)
+    {
+      var preReturn = leftMap.Union(rightMap).ToList(leftMap.Count * 2);
+      preReturn.Sort();
+      return preReturn;
+    }
+
+    private static List<int> Merge(List<int> leftMap, IList<int> rightMap)
+    {
+      var preReturn = leftMap.Union(rightMap).ToList(leftMap.Count + rightMap.Count);
+      preReturn.Sort();
+      return preReturn;
+    }
+
     private static List<ColNum> MergeMappings(Provider originalLeft, IReadOnlyList<ColNum> leftMap, IReadOnlyList<ColNum> rightMap)
     {
       var leftCount = originalLeft.Header.Length;
@@ -462,13 +488,13 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private ColNum ResolveOuterMapping(ApplyParameter parameter, ColNum value)
     {
-      var result = (ColNum)outerColumnUsages[parameter].IndexOf(value);
-      return result < 0 ? value : result;
+      var result = GetOuterColumnUsage(parameter).IndexOf(value);
+      return result < 0 ? value : (ColNum) result;
     }
 
-    private Expression TranslateLambda(Provider originalProvider, LambdaExpression expression)
+    private Expression TranslateLambda(IReadOnlyList<ColNum> colMap, LambdaExpression expression)
     {
-      var replacer = new TupleAccessRewriter(mappings[originalProvider], ResolveOuterMapping, true);
+      var replacer = new TupleAccessRewriter(colMap, ResolveOuterMapping, true);
       return replacer.Rewrite(expression, expression.Parameters[0]);
     }
 
@@ -481,12 +507,15 @@ namespace Xtensive.Orm.Rse.Transformation
         expression.Parameters[1]);
     }
 
-    private void VisitJoin(ref List<ColNum> leftMapping, ref CompilableProvider left, ref List<ColNum> rightMapping,
-      ref CompilableProvider right, bool sourceMappingsAreOrdered)
+    private void VisitJoin(
+      ref List<ColNum> leftMapping, ref CompilableProvider left,
+      ref List<ColNum> rightMapping, ref CompilableProvider right, bool skipSort)
     {
-      if (!sourceMappingsAreOrdered) {
-        leftMapping = leftMapping.Distinct().OrderBy(i => i).ToList();
-        rightMapping = rightMapping.Distinct().OrderBy(i => i).ToList();
+      if (!skipSort) {
+        leftMapping = leftMapping.Distinct().ToList(leftMapping.Count);
+        leftMapping.Sort();
+        rightMapping = rightMapping.Distinct().ToList(rightMapping.Count);
+        rightMapping.Sort();
       }
 
       // visit
@@ -511,6 +540,21 @@ namespace Xtensive.Orm.Rse.Transformation
     }
 
     private void RestoreMappings(Dictionary<Provider, List<ColNum>> savedMappings) => mappings = savedMappings;
+
+    private IDisposable SetOuterColumnUsage(ApplyParameter parameter, List<ColNum> usages)
+    {
+      outerColumnUsages.Add(parameter, usages);
+      outerColumnUsageStack.Push(usages);
+      return new Disposable(
+        x => { 
+          _ = outerColumnUsages.Remove(parameter);
+          _ = outerColumnUsageStack.Pop();
+        });
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private List<ColNum> GetOuterColumnUsage(ApplyParameter parameter) =>
+      outerColumnUsages.TryGetValue(parameter, out var result) ? result : outerColumnUsageStack.Peek();
 
     #endregion
 

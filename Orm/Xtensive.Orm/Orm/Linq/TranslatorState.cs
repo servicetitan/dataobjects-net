@@ -28,18 +28,11 @@ namespace Xtensive.Orm.Linq
       SkipNullableColumnsDetectionInGroupBy = 1 << 9
     }
 
-    internal readonly struct TranslatorScope : IDisposable
+    internal readonly struct TranslatorScope(Translator translator) : IDisposable
     {
-      private readonly TranslatorState previousState;
-      private readonly Translator translator;
+      private readonly TranslatorState previousState = translator.State;
 
       public void Dispose() => translator.RestoreState(previousState);
-
-      public TranslatorScope(Translator translator)
-      {
-        this.translator = translator;
-        previousState = translator.State;
-      }
     }
 
     public static readonly TranslatorState InitState = new TranslatorState {
@@ -66,6 +59,16 @@ namespace Xtensive.Orm.Linq
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetFlag(TranslatorStateFlags f) => (flags & f) != 0;
+
+
+    /// <summary>
+    /// Expressions that were constructed during original expression translation
+    /// and aim to replace original parts so they are avoidable to visit by Linq translator.
+    /// </summary>
+    /// <remarks>
+    /// Not all expression that constructed by us should be skipped when visiting.
+    /// </remarks>
+    public HashSet<Expression> NonVisitableExpressions { get; init; }
 
     public bool JoinLocalCollectionEntity
     {

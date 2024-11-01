@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Model.NameBuilderTestModel
     public string Field3 { get; set; }
 
     [Field]
-    [OverrideFieldName("Field4Overriden")]
+    [OverrideFieldName("Field4Overridden")]
     public string Field4 { get; set; }
   }
 
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Tests.Model.NameBuilderTestModel
     public string Field5 { get; set; }
 
     [Field]
-    [OverrideFieldName("Field6Overriden")]
+    [OverrideFieldName("Field6Overridden")]
     public string Field6 { get; set; }
   }
 
@@ -144,8 +144,8 @@ namespace Xtensive.Orm.Tests.Model
 
       var name = nameBuilder.BuildFieldName(ownProperty);
       Assert.That(name, Is.Not.EqualTo(nameof (RootEntity.Field2)));
-      var overridenName = ownProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
-      Assert.That(name, Is.EqualTo(overridenName));
+      var overriddenName = ownProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
+      Assert.That(name, Is.EqualTo(overriddenName));
     }
 
     [Test]
@@ -170,8 +170,8 @@ namespace Xtensive.Orm.Tests.Model
 
       var name = nameBuilder.BuildFieldName(inheritedProperty);
       Assert.That(name, Is.Not.EqualTo(nameof (MidEntity.Field2)));
-      var overridenName = inheritedProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
-      Assert.That(name, Is.EqualTo(overridenName));
+      var overriddenName = inheritedProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
+      Assert.That(name, Is.EqualTo(overriddenName));
     }
 
     [Test]
@@ -196,8 +196,8 @@ namespace Xtensive.Orm.Tests.Model
 
       var name = nameBuilder.BuildFieldName(ownProperty);
       Assert.That(name, Is.Not.EqualTo(nameof (MidEntity.Field4)));
-      var overridenName = ownProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
-      Assert.That(name, Is.EqualTo(overridenName));
+      var overriddenName = ownProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
+      Assert.That(name, Is.EqualTo(overriddenName));
     }
 
     [Test]
@@ -222,8 +222,8 @@ namespace Xtensive.Orm.Tests.Model
 
       var name = nameBuilder.BuildFieldName(inheritedProperty);
       Assert.That(name, Is.Not.EqualTo(nameof (LeafEntity.Field2)));
-      var overridenName = inheritedProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
-      Assert.That(name, Is.EqualTo(overridenName));
+      var overriddenName = inheritedProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
+      Assert.That(name, Is.EqualTo(overriddenName));
     }
 
     [Test]
@@ -248,8 +248,8 @@ namespace Xtensive.Orm.Tests.Model
 
       var name = nameBuilder.BuildFieldName(inheritedProperty);
       Assert.That(name, Is.Not.EqualTo(nameof (MidEntity.Field4)));
-      var overridenName = inheritedProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
-      Assert.That(name, Is.EqualTo(overridenName));
+      var overriddenName = inheritedProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
+      Assert.That(name, Is.EqualTo(overriddenName));
     }
 
     [Test]
@@ -274,8 +274,8 @@ namespace Xtensive.Orm.Tests.Model
 
       var name = nameBuilder.BuildFieldName(ownProperty);
       Assert.That(name, Is.Not.EqualTo(nameof (LeafEntity.Field6)));
-      var overridenName = ownProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
-      Assert.That(name, Is.EqualTo(overridenName));
+      var overriddenName = ownProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
+      Assert.That(name, Is.EqualTo(overriddenName));
     }
 
     [Test]
@@ -302,8 +302,8 @@ namespace Xtensive.Orm.Tests.Model
       var fieldDef = CreateFieldDef(ownProperty);
       var name = nameBuilder.BuildFieldName(fieldDef);
       Assert.That(name, Is.Not.EqualTo(nameof (RootEntity.Field2)));
-      var overridenName = ownProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
-      Assert.That(name, Is.EqualTo(overridenName));
+      var overriddenName = ownProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
+      Assert.That(name, Is.EqualTo(overriddenName));
     }
 
     [Test]
@@ -330,8 +330,8 @@ namespace Xtensive.Orm.Tests.Model
       var fieldDef = CreateFieldDef(inheritedProperty);
       var name = nameBuilder.BuildFieldName(fieldDef);
       Assert.That(name, Is.Not.EqualTo(nameof (MidEntity.Field2)));
-      var overridenName = inheritedProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
-      Assert.That(name, Is.EqualTo(overridenName));
+      var overriddenName = inheritedProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
+      Assert.That(name, Is.EqualTo(overriddenName));
     }
 
     [Test]
@@ -358,8 +358,8 @@ namespace Xtensive.Orm.Tests.Model
       var fieldDef = CreateFieldDef(ownProperty);
       var name = nameBuilder.BuildFieldName(fieldDef);
       Assert.That(name, Is.Not.EqualTo(nameof (MidEntity.Field4)));
-      var overridenName = ownProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
-      Assert.That(name, Is.EqualTo(overridenName));
+      var overriddenName = ownProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
+      Assert.That(name, Is.EqualTo(overriddenName));
     }
 
     [Test]
@@ -386,8 +386,8 @@ namespace Xtensive.Orm.Tests.Model
       var fieldDef = CreateFieldDef(inheritedProperty);
       var name = nameBuilder.BuildFieldName(fieldDef);
       Assert.That(name, Is.Not.EqualTo(nameof (LeafEntity.Field2)));
-      var overridenName = inheritedProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
-      Assert.That(name, Is.EqualTo(overridenName));
+      var overriddenName = inheritedProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
+      Assert.That(name, Is.EqualTo(overriddenName));
     }
 
     [Test]
@@ -414,8 +414,8 @@ namespace Xtensive.Orm.Tests.Model
       var fieldDef = CreateFieldDef(inheritedProperty);
       var name = nameBuilder.BuildFieldName(fieldDef);
       Assert.That(name, Is.Not.EqualTo(nameof (MidEntity.Field4)));
-      var overridenName = inheritedProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
-      Assert.That(name, Is.EqualTo(overridenName));
+      var overriddenName = inheritedProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
+      Assert.That(name, Is.EqualTo(overriddenName));
     }
 
     [Test]
@@ -442,8 +442,8 @@ namespace Xtensive.Orm.Tests.Model
       var fieldDef = CreateFieldDef(ownProperty);
       var name = nameBuilder.BuildFieldName(fieldDef);
       Assert.That(name, Is.Not.EqualTo(nameof (LeafEntity.Field6)));
-      var overridenName = ownProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
-      Assert.That(name, Is.EqualTo(overridenName));
+      var overriddenName = ownProperty.GetAttribute<OverrideFieldNameAttribute>().Name;
+      Assert.That(name, Is.EqualTo(overriddenName));
     }
 
     [Test]
@@ -459,8 +459,8 @@ namespace Xtensive.Orm.Tests.Model
       var nameByProp = nameBuilder.BuildFieldName(property);
 
       Assert.That(nameByDef, Is.Not.EqualTo(nameof (RootEntity.Field1)));
-      var overridenName = property.GetAttribute<OverrideFieldNameAttribute>().Name;
-      Assert.That(nameByDef, Is.EqualTo(overridenName));
+      var overriddenName = property.GetAttribute<OverrideFieldNameAttribute>().Name;
+      Assert.That(nameByDef, Is.EqualTo(overriddenName));
       Assert.That(nameByProp, Is.EqualTo(nameByDef));
     }
 
@@ -477,8 +477,8 @@ namespace Xtensive.Orm.Tests.Model
       var nameByDef = nameBuilder.BuildFieldName(fieldDef);
 
       Assert.That(nameByDef, Is.Not.EqualTo(nameof (RootEntity.Field1)));
-      var overridenName = property.GetAttribute<OverrideFieldNameAttribute>().Name;
-      Assert.That(nameByDef, Is.EqualTo(overridenName));
+      var overriddenName = property.GetAttribute<OverrideFieldNameAttribute>().Name;
+      Assert.That(nameByDef, Is.EqualTo(overriddenName));
       Assert.That(nameByProp, Is.EqualTo(nameByDef));
     }
 

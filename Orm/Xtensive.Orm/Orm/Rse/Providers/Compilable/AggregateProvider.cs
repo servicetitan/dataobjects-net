@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Elena Vakhtina
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Rse.Providers
           return sourceColumnType;
         if (sourceColumnType == WellKnownTypes.DateOnly || sourceColumnType == WellKnownTypes.TimeOnly)
           return sourceColumnType;
-          throw AggregateNotSupported(sourceColumnType, aggregateType);
+        throw AggregateNotSupported(sourceColumnType, aggregateType);
       }
     }
 
@@ -196,7 +196,6 @@ namespace Xtensive.Orm.Rse.Providers
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
-    /// <param name="columnDescriptors">The descriptors of <see cref="AggregateColumns"/>.</param>
     /// <param name="groupIndexes">The column indexes to group by.</param>
     public AggregateProvider(CompilableProvider source, IReadOnlyList<ColNum> groupIndexes, IEnumerable<AggregateColumnDescriptor> columnDescriptors)
       : base(ProviderType.Aggregate, source)
@@ -207,6 +206,29 @@ namespace Xtensive.Orm.Rse.Providers
       AggregateColumns = columnDescriptors
         .Select((d, i) => new AggregateColumn(d, (ColNum)(baseIndex + i), GetAggregateColumnType(columns[d.SourceIndex].Type, d.AggregateType)))
         .ToArray();
+      Initialize();
+    }
+
+    /// <summary>
+    /// Initializes a new instance of this class. Internal use only!
+    /// </summary>
+    /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
+    /// <param name="groupIndexes">The column indexes to group by.</param>
+    /// <param name="descriptorSource">Columns of old AggregateProvider as source of descriptors.</param>
+    internal AggregateProvider(CompilableProvider source, IReadOnlyList<ColNum> groupIndexes, IReadOnlyList<AggregateColumn> descriptorSource)
+      : base(ProviderType.Aggregate, source)
+    {
+      // Having this dedicated ctor saves some resources on not having to make
+      // an array just to pass descriptors for simple enumeration
+      GroupColumnIndexes = groupIndexes ?? Array.Empty<ColNum>();
+      var baseIndex = GroupColumnIndexes.Count;
+      var columns = Source.Header.Columns;
+      AggregateColumns = descriptorSource
+        .Select((ds, i) => {
+          var sourceDescriptor = ds.Descriptor;
+          AggregateColumnDescriptor d = new(sourceDescriptor.Name, sourceDescriptor.SourceIndex, sourceDescriptor.AggregateType);
+          return new AggregateColumn(d, (ColNum) (baseIndex + i), GetAggregateColumnType(columns[d.SourceIndex].Type, d.AggregateType));
+        }).ToArray();
       Initialize();
     }
   }

@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.06
 
-using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core;
@@ -16,10 +15,10 @@ namespace Xtensive.Linq
   /// that can be used for comparing expression trees and calculating their hash codes.
   /// </summary>
   [DebuggerDisplay("{expression}")]
-  public readonly struct ExpressionTree : IEquatable<ExpressionTree>
+  internal readonly struct ExpressionTree(Expression expr) : IEquatable<ExpressionTree>
   {
-    private readonly int hashCode;
-    private readonly Expression expression;
+    private readonly Expression expression = expr;
+    private readonly int hashCode = new ExpressionHashCodeCalculator().CalculateHashCode(expr);
 
     /// <summary>
     /// Gets the underlying <see cref="Expression"/>.
@@ -49,7 +48,7 @@ namespace Xtensive.Linq
     /// <returns><see langword="true"/> if <paramref name="left"/> is equal to <paramref name="right"/>.
     /// Otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool operator == (ExpressionTree left, ExpressionTree right) => Equals(left, right);
+    public static bool operator == (ExpressionTree left, ExpressionTree right) => left.Equals(right);
 
     /// <summary>
     /// Implements the operator !=.
@@ -59,7 +58,7 @@ namespace Xtensive.Linq
     /// <returns><see langword="true"/> if <paramref name="left"/> is not equal to <paramref name="right"/>.
     /// Otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool operator != (ExpressionTree left, ExpressionTree right) => !Equals(left, right);
+    public static bool operator != (ExpressionTree left, ExpressionTree right) => !left.Equals(right);
 
     #endregion
 
@@ -78,14 +77,5 @@ namespace Xtensive.Linq
     /// <param name="expression">Expression to calculate hash code for.</param>
     /// <returns>Hash code for <paramref name="expression"/>.</returns>
     public static int GetHashCode(Expression expression) => new ExpressionHashCodeCalculator().CalculateHashCode(expression);
-
-
-    // Constructors
-
-    internal ExpressionTree(Expression expression)
-    {
-      this.expression = expression;
-      hashCode = new ExpressionHashCodeCalculator().CalculateHashCode(expression);
-    }
   }
 }

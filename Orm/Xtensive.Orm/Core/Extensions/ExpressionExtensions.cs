@@ -81,7 +81,8 @@ namespace Xtensive.Core
           lambdaExpression.ToString(true)));
       if (parameters.Length == 0)
         return lambdaExpression;
-      var convertedParameters = new Expression[parameters.Length];
+      using PooledArray<Expression> pooledConvertedParameters = new(parameters.Length);
+      var convertedParameters = pooledConvertedParameters.Array;
       for (int i = 0; i < lambdaExpressionParametersCount; i++) {
         var expressionParameter = lambdaExpressionParameters[i];
         var parameter = parameters[i];

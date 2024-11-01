@@ -234,7 +234,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
     private static List<byte[]> GetTestCases(bool forFast)
     {
-      byte basePresicion = 38;
+      byte basePrecision = 38;
       byte maxScale = 28;
       byte basePrecisionZeros = 0;
 
@@ -243,12 +243,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       for (byte scale = 0; scale < maxScale; scale++) {
         for (byte zerosInScale = 0; zerosInScale < scale; zerosInScale += 3) {
           if (!forFast) {
-            for (byte precisionZeros = 0; precisionZeros < basePresicion - scale - 1; precisionZeros += 3) {
-              list.Add(new[] { basePresicion, scale, precisionZeros, zerosInScale });
+            for (byte precisionZeros = 0; precisionZeros < basePrecision - scale - 1; precisionZeros += 3) {
+              list.Add(new[] { basePrecision, scale, precisionZeros, zerosInScale });
             }
           }
           else {
-            list.Add(new[] { basePresicion, scale, basePrecisionZeros, zerosInScale });
+            list.Add(new[] { basePrecision, scale, basePrecisionZeros, zerosInScale });
           }
         }
       }

@@ -155,26 +155,6 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Creates new array consisting of <paramref name="items"/>
-    /// and <paramref name="item"/> added before array elements.
-    /// If <paramref name="items"/> is <see langword="null"/>
-    /// returns array that contains just <paramref name="item"/>.
-    /// </summary>
-    /// <typeparam name="TItem">The type of the item.</typeparam>
-    /// <param name="items">The items.</param>
-    /// <param name="item">The prefix item.</param>
-    /// <returns>Result array.</returns>
-    public static TItem[] Prepend<TItem>(this TItem[] items, TItem item)
-    {
-      if (items == null || items.Length == 0)
-        return new [] {item};
-      var result = new TItem[items.Length + 1];
-      Array.Copy(items, 0, result, 1, items.Length);
-      result[0] = item;
-      return result;
-    }
-
-    /// <summary>
     /// Combines the specified source and target arrays into new one.
     /// </summary>
     /// <typeparam name="TItem">The type of the item.</typeparam>
