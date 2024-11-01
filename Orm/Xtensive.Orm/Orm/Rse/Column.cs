@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Rse
       Name = name;
       Index = index;
       Type = type;
-      Origin = originalColumn==null ? this : originalColumn.Origin;
+      Origin = originalColumn is null ? this : originalColumn.Origin;
     }
   }
 }
