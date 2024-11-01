@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
     {
       var field = Field;
       Key key = obj.GetReferenceKey(field);
-      if (key==null)
+      if (key is null)
         return default(T);
       return (T) (object) obj.Session.Query.SingleOrDefault(key);
     }

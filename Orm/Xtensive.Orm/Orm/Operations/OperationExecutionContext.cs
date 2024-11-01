@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Operations
     /// <returns>Remapped key</returns>
     public Key TryRemapKey(Key key)
     {
-      if (key==null)
+      if (key is null)
         return key;
       Key remappedKey;
       return KeyMapping.TryGetValue(key, out remappedKey) ? remappedKey : key;

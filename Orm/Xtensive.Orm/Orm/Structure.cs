@@ -289,7 +289,7 @@ namespace Xtensive.Orm
     protected override sealed Pair<Key, Delegate> GetSubscription(object eventKey)
     {
       var entityKey = GetOwnerEntityKey(Owner);
-      if (entityKey!=null)
+      if (entityKey is not null)
         return new Pair<Key, Delegate>(entityKey,
           Session.EntityEvents.GetSubscriber(entityKey, Field, eventKey));
       return new Pair<Key, Delegate>(null, null);

@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
     {
       var field = Field;
       var key = (Key) (object) value;
-      obj.Tuple.SetValue(field.MappingInfo.Offset, key==null ? null : key.Format());
+      obj.Tuple.SetValue(field.MappingInfo.Offset, key is null ? null : key.Format());
     }
   }
 }

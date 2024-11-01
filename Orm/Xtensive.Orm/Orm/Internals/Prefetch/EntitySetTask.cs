@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       foreach (var record in records) {
         for (var i = 0; i < record.Count; i++) {
           var key = record.GetKey(i);
-          if (key == null) {
+          if (key is null) {
             continue;
           }
           var tuple = record.GetTuple(i);

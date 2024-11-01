@@ -88,7 +88,7 @@ namespace Xtensive.Orm
               string identifier = pair.Key;
               var oldKey = pair.Value;
               var newKey = identifierToKey.GetValueOrDefault(identifier);
-              if (newKey!=null)
+              if (newKey is not null)
                 executionContext.AddKeyMapping(oldKey, newKey);
             }
           }

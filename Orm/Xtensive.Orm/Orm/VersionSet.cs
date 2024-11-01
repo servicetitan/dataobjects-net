@@ -83,12 +83,7 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="key">The key to check for containment.</param>
     /// <returns>Check result.</returns>
-    public bool Contains(Key key)
-    {
-      if (key==null)
-        return false;
-      return versions.ContainsKey(key);
-    }
+    public bool Contains(Key key) => key is not null && versions.ContainsKey(key);
 
     #region Validate methods
 

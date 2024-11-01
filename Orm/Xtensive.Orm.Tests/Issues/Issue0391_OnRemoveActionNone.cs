@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0391_OnRemoveActionNone_Model
     public bool HasCustomerKey()
     {
       var field = GetTypeInfo().Fields["Customer"];
-      return GetReferenceKey(field)!=null;
+      return GetReferenceKey(field) is not null;
     }
   }
 }

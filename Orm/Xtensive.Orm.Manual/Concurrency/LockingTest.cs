@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Manual.Concurrency.Locking
       using (var session = GetDomain().OpenSession())
       using (var tx = session.OpenTransaction()) {
         Counter counter;
-        if (counterKey==null) {
+        if (counterKey is null) {
           counter = new Counter(session, LockingTestName);
           counterKey = counter.Key;
         }

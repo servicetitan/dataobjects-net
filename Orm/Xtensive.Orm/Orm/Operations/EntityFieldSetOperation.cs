@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Operations
       var key = context.TryRemapKey(Key);
       var valueKey = context.TryRemapKey(ValueKey);
       var entity = session.Query.Single(key);
-      var value = ValueKey != null ? session.Query.Single(valueKey) : Value;
+      var value = ValueKey is not null ? session.Query.Single(valueKey) : Value;
       entity.SetFieldValue(Field, value);
     }
 
@@ -143,7 +143,7 @@ namespace Xtensive.Orm.Operations
       var structureValue = Value as Structure;
       if (WellKnownOrmInterfaces.Entity.IsAssignableFrom(Field.ValueType)) {
         // serializing entity value as key
-        if (ValueKey != null)
+        if (ValueKey is not null)
           info.AddValue("value", ValueKey.Format());
         else
           info.AddValue("value", string.Empty);

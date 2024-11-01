@@ -786,7 +786,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           var titleType = Domain.Model.Types[typeof(Model.Title)];
           await foreach (var book in prefetcher) {
             var titleKey = book.GetReferenceKey(titleField);
-            if (titleKey != null) {
+            if (titleKey is not null) {
               PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(titleKey, titleType, session);
             }
           }
@@ -813,7 +813,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
             count++;
             if (book != null) {
               var titleKey = book.GetReferenceKey(titleField);
-              if (titleKey != null) {
+              if (titleKey is not null) {
                 PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(titleKey, titleType, session);
               }
             }
@@ -843,7 +843,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
             count++;
             if (book != null) {
               var titleKey = book.GetReferenceKey(titleField);
-              if (titleKey != null) {
+              if (titleKey is not null) {
                 PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(titleKey, titleType, session);
               }
             }

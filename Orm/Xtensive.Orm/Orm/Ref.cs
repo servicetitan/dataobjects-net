@@ -82,7 +82,7 @@ namespace Xtensive.Orm
       };
 
     /// <inheritdoc/>
-    public override int GetHashCode() => Key!=null ? Key.GetHashCode() : 0;
+    public override int GetHashCode() => Key?.GetHashCode() ?? 0;
 
     #endregion
 

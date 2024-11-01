@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       var entity = (Entity) target;
       var referenceKey = entity.GetReferenceKey(Field);
-      return referenceKey == null
+      return referenceKey is null
         ? Array.Empty<Key>()
         : new[] {referenceKey};
     }
