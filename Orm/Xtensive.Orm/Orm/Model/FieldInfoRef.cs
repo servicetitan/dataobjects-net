@@ -61,10 +61,7 @@ namespace Xtensive.Orm.Model
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator !=(FieldInfoRef x, FieldInfoRef y)
-    {
-      return !Equals(x, y);
-    }
+    public static bool operator !=(FieldInfoRef x, FieldInfoRef y) => !(x == y);
 
     /// <summary>
     /// Implements the operator ==.
@@ -74,28 +71,14 @@ namespace Xtensive.Orm.Model
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator ==(FieldInfoRef x, FieldInfoRef y)
-    {
-      return Equals(x, y);
-    }
+    public static bool operator ==(FieldInfoRef x, FieldInfoRef y) => x?.Equals(y) ?? y is null;
 
     /// <inheritdoc/>
-    public bool Equals(FieldInfoRef other)
-    {
-      if (other is null)
-        return false;
-      return 
-        TypeRef==other.TypeRef
-        && FieldName==other.FieldName;
-    }
+    public bool Equals(FieldInfoRef other) =>
+      other is not null && TypeRef==other.TypeRef && FieldName==other.FieldName;
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(this, obj))
-        return true;
-      return Equals(obj as FieldInfoRef);
-    }
+    public override bool Equals(object obj) => obj is FieldInfoRef other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode() => HashCode.Combine(FieldName, TypeRef);
