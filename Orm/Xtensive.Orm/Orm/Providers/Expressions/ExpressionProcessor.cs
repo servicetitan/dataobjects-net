@@ -446,7 +446,7 @@ namespace Xtensive.Orm.Providers
       }
       var body = Visit(l.Body);
       var sqlContainer = body as SqlContainer;
-      if (sqlContainer!=null)
+      if (sqlContainer is not null)
         return TryUnwrapEnum(sqlContainer);
       return body;
     }

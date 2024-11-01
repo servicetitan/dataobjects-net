@@ -62,12 +62,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
       var vector = ((Translator) translator).GetFulltextVector(context, fullTextIndex);
       var tableName = translator.QuoteIdentifier(node.TargetTable.Name);
       var internalColumnIndex = 0;
-      while (node.Columns["column" + internalColumnIndex] != null) {
+      while (node.Columns["column" + internalColumnIndex] is not null) {
         internalColumnIndex++;
       }
       var vectorName = translator.QuoteIdentifier("column" + internalColumnIndex);
       internalColumnIndex++;
-      while (node.Columns["column" + internalColumnIndex] != null) {
+      while (node.Columns["column" + internalColumnIndex] is not null) {
         internalColumnIndex++;
       }
 

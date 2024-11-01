@@ -84,7 +84,7 @@ namespace Xtensive.Sql
 
     public static bool IsBooleanExpression(SqlExpression node)
     {
-      if (node == null)
+      if (node is null)
         return true;
       switch (node.NodeType) {
         case SqlNodeType.And:
@@ -135,7 +135,7 @@ namespace Xtensive.Sql
 
     public static bool IsArithmeticExpression(SqlExpression node)
     {
-      if (node == null) {
+      if (node is null) {
         return true;
       }
 
@@ -190,7 +190,7 @@ namespace Xtensive.Sql
 
     public static bool IsCharacterExpression(SqlExpression node)
     {
-      if (node == null)
+      if (node is null)
         return true;
       if (node is SqlBinary)
         return true; // Allow easy operation for SQLite

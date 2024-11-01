@@ -150,7 +150,7 @@ namespace Xtensive.Orm.Providers
     {
       var stringValue = value as SqlLiteral<string>;
 
-      if (stringValue == null || !stringValue.Value.Equals("o", StringComparison.OrdinalIgnoreCase))
+      if (stringValue is null || !stringValue.Value.Equals("o", StringComparison.OrdinalIgnoreCase))
         throw new NotSupportedException(Strings.ExTranslationOfTimeOnlyToStringWithArbitraryArgumentIsNotSupported);
 
       return SqlDml.TimeToString(_this);

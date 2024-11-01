@@ -270,7 +270,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           Translate(context, index.DataTable);
           return;
         case CreateIndexSection.ColumnsEnter:
-          if (node.Index.Columns[0].Expression != null) {
+          if (node.Index.Columns[0].Expression is not null) {
             if (node.Index.Columns.Count > 1) {
               _ = SqlHelper.NotSupported("expression index with multiple column");
             }

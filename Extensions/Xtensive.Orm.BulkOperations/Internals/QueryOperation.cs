@@ -170,13 +170,13 @@ namespace Xtensive.Orm.BulkOperations
         var rightColumn = sqlTableRef == null
           ? GetStatementTable(statement).Columns[columnInfo.Name]
           : sqlTableRef.Columns[columnInfo.Name];
-        if (leftColumn == null || rightColumn == null) {
+        if (leftColumn is null || rightColumn is null) {
           throw new InvalidOperationException("Source query doesn't contain one of key columns of updated table.");
         }
 
         var columnEqualityExpression =
           SqlDml.Equals(queryRef.Columns[columnInfo.Name], sqlTableRef.Columns[columnInfo.Name]);
-        whereExpression = whereExpression == null
+        whereExpression = whereExpression is null
           ? columnEqualityExpression
           : SqlDml.And(whereExpression, columnEqualityExpression);
       }

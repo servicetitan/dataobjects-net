@@ -380,7 +380,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
       _ = output.Append(", ");
       node.SearchCondition.AcceptVisitor(this);
-      if (node.TopNByRank!=null) {
+      if (node.TopNByRank is not null) {
         _ = output.Append(", ");
         node.TopNByRank.AcceptVisitor(this);
       }
@@ -406,7 +406,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
       _ = output.Append(", ");
       node.FreeText.AcceptVisitor(this);
-      if (node.TopNByRank != null) {
+      if (node.TopNByRank is not null) {
         _ = context.Output.Append(", ");
         node.TopNByRank.AcceptVisitor(this);
       }

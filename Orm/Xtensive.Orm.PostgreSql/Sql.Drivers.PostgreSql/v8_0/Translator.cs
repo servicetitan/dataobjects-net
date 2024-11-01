@@ -540,7 +540,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         }
         else { //(!whenNotNeeded)
                //Check if any row element is NULL
-          _ = @case.Add(when == null ? true : when, true);
+          _ = @case.Add(when is null ? true : when, true);
           subQueryNeeded = true;
         }
       }
@@ -569,7 +569,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         //c.Add(Sql.Exists(q1), true);
         @case.Else = SqlDml.Exists(subquery);
       }
-      if (@case.Else == null) {
+      if (@case.Else is null) {
         @case.Else = false;
       }
       if (existsNull) {
@@ -714,7 +714,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             _ = c3.Add(SqlDml.IsNull(row[i]), true);
             c3.Else = row[i] == columns[i];
 
-            where = where == null ? c3 : where && c3;
+            where = where is null ? c3 : where && c3;
           }
           if (node.Unique) {
             var c4 = SqlDml.Case();
@@ -729,7 +729,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         }
         @case.Else = SqlDml.Exists(subQuery);
       }
-      if (@case.Else == null) {
+      if (@case.Else is null) {
         @case.Else = false;
       }
       if (allNull) {

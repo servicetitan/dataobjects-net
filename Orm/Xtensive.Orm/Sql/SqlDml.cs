@@ -1752,7 +1752,7 @@ namespace Xtensive.Sql
       ArgumentNullException.ThrowIfNull(start);
       SqlValidator.EnsureIsCharacterExpression(operand);
       SqlValidator.EnsureIsArithmeticExpression(start);
-      if (length != null) {
+      if (length is not null) {
         SqlValidator.EnsureIsArithmeticExpression(length);
         return new SqlFunctionCall(SqlFunctionType.Substring, operand, start, length);
       }

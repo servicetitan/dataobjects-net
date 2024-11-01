@@ -460,13 +460,13 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       var sign = '+';
       var offsetAsInt = offset as SqlLiteral<int>;
       var offsetAsDouble = offset as SqlLiteral<double>;
-      if (offsetAsInt != null) {
+      if (offsetAsInt is not null) {
         if (offsetAsInt.Value < 0) {
           sign = '-';
           offset = -offset;
         }
       }
-      else if (offsetAsDouble != null) {
+      else if (offsetAsDouble is not null) {
         if (offsetAsDouble.Value < 0) {
           sign = '-';
           offset = -offset;

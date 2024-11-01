@@ -578,7 +578,7 @@ namespace Xtensive.Orm.Providers
       if (!isDecimal) {
         return SqlDml.Round(value, digits, TypeCode.Double, midpointRounding);
       }
-      if (digits == null) {
+      if (digits is null) {
         return TryCastToDecimalPS(SqlDml.Round(value, digits, TypeCode.Decimal, midpointRounding), 28, 0);
       }
       if (!(digits is SqlLiteral<int> scale)) {
@@ -592,7 +592,7 @@ namespace Xtensive.Orm.Providers
       if (!isDecimal) {
         return SqlDml.Round(value, digits, TypeCode.Double, MidpointRounding.ToEven);
       }
-      if (digits == null) {
+      if (digits is null) {
         return TryCastToDecimalPS(SqlDml.Round(value, digits, TypeCode.Decimal, MidpointRounding.ToEven), 28, 0);
       }
       if (!(digits is SqlLiteral<int> scale)) {

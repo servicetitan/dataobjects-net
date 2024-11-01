@@ -307,7 +307,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     protected static SqlExpression NpgsqlTypeExtractPoint(SqlExpression expression, SqlExpression numberPoint)
     {
       var numberPointAsInt = numberPoint as SqlLiteral<int>;
-      var valueNumberPoint = numberPointAsInt != null ? numberPointAsInt.Value : 0;
+      var valueNumberPoint = numberPointAsInt is not null ? numberPointAsInt.Value : 0;
 
       return SqlDml.RawConcat(
         SqlDml.Native("("),
@@ -550,19 +550,19 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private bool TryDivideOffsetIntoParts(SqlExpression offsetInMinutes, ref int hours , ref int minutes)
     {
       var offsetToDouble = offsetInMinutes as SqlLiteral<double>;
-      if (offsetToDouble != null) {
+      if (offsetToDouble is not null) {
         hours = (int) offsetToDouble.Value / 60;
         minutes = Math.Abs((int) offsetToDouble.Value % 60);
         return true;
       }
       var offsetToInt = offsetInMinutes as SqlLiteral<int>;
-      if (offsetToInt != null) {
+      if (offsetToInt is not null) {
         hours = offsetToInt.Value / 60;
         minutes = Math.Abs(offsetToInt.Value % 60);
         return true;
       }
       var offsetToTimeSpan = offsetInMinutes as SqlLiteral<TimeSpan>;
-      if (offsetToTimeSpan != null) {
+      if (offsetToTimeSpan is not null) {
         var totalMinutes = offsetToTimeSpan.Value.TotalMinutes;
         hours = (int) totalMinutes / 60;
         minutes = Math.Abs((int)totalMinutes % 60);
