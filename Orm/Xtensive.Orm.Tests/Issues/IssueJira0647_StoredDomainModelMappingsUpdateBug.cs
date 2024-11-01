@@ -565,7 +565,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     private ConnectionInfo ComposeConnectionToMasterDatabase(ConnectionInfo baseConnectionInfo)
     {
-      if (baseConnectionInfo.ConnectionUrl == null) {
+      if (baseConnectionInfo.ConnectionUrl is null) {
         throw new InvalidOperationException("Can't convert connection string based ConnectionInfo");
       }
 
