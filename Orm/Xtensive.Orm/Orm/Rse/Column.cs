@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Rse
 
     /// <inheritdoc/>
     public bool Equals(Column other) =>
-      other != null && (ReferenceEquals(this, other) || Name == other.Name);
+      other is not null && (ReferenceEquals(this, other) || Name == other.Name);
 
     /// <inheritdoc/>
     public override bool Equals(object obj) => obj is Column other && Equals(other);
