@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Providers
         throw new InvalidOperationException(Strings.ExCannotApplyNodeConfigurationSettingsConnectionIsInUse);
       }
 
-      if (nodeConfiguration.ConnectionInfo != null) {
+      if (nodeConfiguration.ConnectionInfo is not null) {
         connection.ConnectionInfo = nodeConfiguration.ConnectionInfo;
       }
 
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Providers
       var sessionConfiguration = GetConfiguration(session);
       connection.CommandTimeout = sessionConfiguration.DefaultCommandTimeout;
       var connectionInfo = GetConnectionInfo(session) ?? sessionConfiguration.ConnectionInfo;
-      if (connectionInfo != null) {
+      if (connectionInfo is not null) {
         connection.ConnectionInfo = connectionInfo;
       }
 
