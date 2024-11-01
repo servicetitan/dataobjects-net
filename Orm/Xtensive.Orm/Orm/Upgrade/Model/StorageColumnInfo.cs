@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
-        if (Type==null) {
+        if (Type is null) {
           ea.Execute(() => {
             throw new ValidationException(
               string.Format(Strings.ExUndefinedTypeOfColumnX, Name),
