@@ -22,35 +22,16 @@ namespace Xtensive.Sql.Dml
 
     #region Equality members
 
-    public bool Equals(SqlCustomFunctionType other)
-    {
-      if (other is null)
-        return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return string.Equals(Name, other.Name);
-    }
+    public bool Equals(SqlCustomFunctionType other) =>
+      (other is not null) && (ReferenceEquals(this, other) || string.Equals(Name, other.Name));
 
-    public override bool Equals(object obj)
-    {
-      if (obj is null)
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return Equals((SqlCustomFunctionType) obj);
-    }
+    public override bool Equals(object obj) => obj is SqlCustomFunctionType other && Equals(other);
 
     public override int GetHashCode() => Name.GetHashCode();
 
-    public static bool operator ==(SqlCustomFunctionType left, SqlCustomFunctionType right)
-    {
-      return Equals(left, right);
-    }
+    public static bool operator ==(SqlCustomFunctionType left, SqlCustomFunctionType right) => left?.Equals(right) ?? right is null;
 
-    public static bool operator !=(SqlCustomFunctionType left, SqlCustomFunctionType right)
-    {
-      return !Equals(left, right);
-    }
+    public static bool operator !=(SqlCustomFunctionType left, SqlCustomFunctionType right) => !(left == right);
 
     #endregion
 
