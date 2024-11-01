@@ -594,6 +594,21 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual("Leonie", result2[0]);
     }
 
+    // Related to https://github.com/DataObjects-NET/dataobjects-net/issues/402
+    [Explicit]
+    [Test]
+    public void UnusedLetImpactsQueryTest()
+    {
+      int[] existingIds = Session.Query.All<Invoice>().Select(o => o.InvoiceId).Take(2).ToArray();
+      int[] nonExistingIds = [Session.Query.All<Invoice>().Max(o => o.InvoiceId) + 1];
+      var count = (from invoice in Session.Query.All<Invoice>()
+          let foo = invoice.InvoiceId.In(nonExistingIds)
+          where invoice.InvoiceId.In(existingIds)
+          select invoice
+        ).Count();
+      Assert.Greater(count, 0);
+    }
+
     private IEnumerable<Customer> GetCustomers(params string[] customerNames)
     {
       return Session.Query.Execute(qe => qe.All<Customer>().Where(customer => customer.FirstName.In(customerNames)));
