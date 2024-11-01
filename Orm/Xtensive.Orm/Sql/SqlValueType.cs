@@ -66,7 +66,7 @@ namespace Xtensive.Sql
 
     /// <inheritdoc/>
     public bool Equals(SqlValueType other) =>
-      other != null &&
+      other is not null &&
       other.Type == Type &&
       other.TypeName == TypeName &&
       other.Length == Length &&
@@ -82,8 +82,7 @@ namespace Xtensive.Sql
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator ==(SqlValueType left, SqlValueType right) =>
-      ReferenceEquals(left, right) || left?.Equals(right) == true;
+    public static bool operator ==(SqlValueType left, SqlValueType right) => left?.Equals(right) ?? right is null;
 
     /// <summary>
     /// Implements the operator !=.

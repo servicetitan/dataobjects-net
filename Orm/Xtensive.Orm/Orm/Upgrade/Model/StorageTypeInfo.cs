@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Upgrade.Model
         sb.Append(string.Format(Strings.PropertyPairFormat, Strings.Precision, Precision));
       }
 
-      if (NativeType != null) {
+      if (NativeType is not null) {
         sb.Append(Strings.Comma);
         sb.Append(string.Format(Strings.PropertyPairFormat, Strings.NativeType, NativeType));
       }
