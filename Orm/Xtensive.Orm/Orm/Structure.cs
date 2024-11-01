@@ -299,7 +299,7 @@ namespace Xtensive.Orm
 
     #region Equals & GetHashCode
 
-    public static bool operator==(Structure left, Structure right) => left is null ? right is null : left.Equals(right);
+    public static bool operator==(Structure left, Structure right) => left?.Equals(right) ?? right is null;
 
     public static bool operator !=(Structure left, Structure rigth) => !(left == rigth);
 
