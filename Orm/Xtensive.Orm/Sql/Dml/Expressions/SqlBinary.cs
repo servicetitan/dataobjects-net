@@ -27,8 +27,8 @@ namespace Xtensive.Sql.Dml
 
     public static bool operator true(SqlBinary operand) =>
       operand.NodeType switch {
-        SqlNodeType.Equals => (object) operand.Right == (object) operand.Left,
-        SqlNodeType.NotEquals => (object) operand.Right != (object) operand.Left,
+        SqlNodeType.Equals => ReferenceEquals(operand.Left, operand.Right),
+        SqlNodeType.NotEquals => !ReferenceEquals(operand.Left, operand.Right),
         SqlNodeType.And => ((SqlBinary)operand.Left ? true : false) && ((SqlBinary)operand.Right ? true : false),
         SqlNodeType.Or => ((SqlBinary)operand.Left ? true : false) || ((SqlBinary)operand.Right ? true : false),
         _ =>  false
@@ -36,8 +36,8 @@ namespace Xtensive.Sql.Dml
 
     public static bool operator false(SqlBinary operand) =>
       operand.NodeType switch {
-        SqlNodeType.Equals => (object) operand.Right != (object) operand.Left,
-        SqlNodeType.NotEquals => (object) operand.Right == (object) operand.Left,
+        SqlNodeType.Equals => !ReferenceEquals(operand.Left, operand.Right),
+        SqlNodeType.NotEquals => ReferenceEquals(operand.Left, operand.Right),
         SqlNodeType.And => !((SqlBinary) operand.Left ? true : false) && ((SqlBinary) operand.Right ? true : false),
         SqlNodeType.Or => !((SqlBinary) operand.Left ? true : false) || ((SqlBinary) operand.Right ? true : false),
         _ => false
