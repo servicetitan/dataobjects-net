@@ -25,61 +25,23 @@ namespace Xtensive.Sql.Dml
     /// <value>The right operand of the binary operator.</value>
     public SqlExpression Right { get; private set; }
 
-    public static bool operator true(SqlBinary operand)
-    {
-      switch (operand.NodeType) {
-        case SqlNodeType.Equals:
-          if (((object)operand.Right)==((object)operand.Left))
-            return true;
-          else
-            return false;
-        case SqlNodeType.NotEquals:
-          if (((object)operand.Right)!=((object)operand.Left))
-            return true;
-          else
-            return false;
-        case SqlNodeType.And:
-          if (((SqlBinary)operand.Left ? true : false) && ((SqlBinary)operand.Right ? true : false))
-            return true;
-          else
-            return false;
-        case SqlNodeType.Or:
-          if (((SqlBinary)operand.Left ? true : false) || ((SqlBinary)operand.Right ? true : false))
-            return true;
-          else
-            return false;
-        default:
-          return false;
-      }
-    }
+    public static bool operator true(SqlBinary operand) =>
+      operand.NodeType switch {
+        SqlNodeType.Equals => (object) operand.Right == (object) operand.Left,
+        SqlNodeType.NotEquals => (object) operand.Right != (object) operand.Left,
+        SqlNodeType.And => ((SqlBinary)operand.Left ? true : false) && ((SqlBinary)operand.Right ? true : false),
+        SqlNodeType.Or => ((SqlBinary)operand.Left ? true : false) || ((SqlBinary)operand.Right ? true : false),
+        _ =>  false
+      };
 
-    public static bool operator false(SqlBinary operand)
-    {
-      switch (operand.NodeType) {
-        case SqlNodeType.Equals:
-          if (((object)operand.Right)==((object)operand.Left))
-            return false;
-          else
-            return true;
-        case SqlNodeType.NotEquals:
-          if (((object)operand.Right)!=((object)operand.Left))
-            return false;
-          else
-            return true;
-        case SqlNodeType.And:
-          if (((SqlBinary)operand.Left ? true : false) && ((SqlBinary)operand.Right ? true : false))
-            return false;
-          else
-            return true;
-        case SqlNodeType.Or:
-          if (((SqlBinary)operand.Left ? true : false) || ((SqlBinary)operand.Right ? true : false))
-            return false;
-          else
-            return true;
-        default:
-          return false;
-      }
-    }
+    public static bool operator false(SqlBinary operand) =>
+      operand.NodeType switch {
+        SqlNodeType.Equals => (object) operand.Right != (object) operand.Left,
+        SqlNodeType.NotEquals => (object) operand.Right == (object) operand.Left,
+        SqlNodeType.And => !((SqlBinary) operand.Left ? true : false) && ((SqlBinary) operand.Right ? true : false),
+        SqlNodeType.Or => !((SqlBinary) operand.Left ? true : false) || ((SqlBinary) operand.Right ? true : false),
+        _ => false
+      };
 
     public override void ReplaceWith(SqlExpression expression)
     {
