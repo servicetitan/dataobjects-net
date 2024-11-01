@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Operations
         else
           info.AddValue("value", string.Empty);
       }
-      else if (structureValue != null) {
+      else if (structureValue is not null) {
         // serializing structure value as tuple
         info.AddValue("value", structureValue.Tuple.ToRegular(), WellKnownOrmTypes.Tuple);
       }
