@@ -19,8 +19,6 @@ namespace Xtensive.Orm.Configuration
     private string nodeId;
     private string connectionInitializationSql;
     private ConnectionInfo connectionInfo;
-    private NameMappingCollection schemaMapping = new NameMappingCollection();
-    private NameMappingCollection databaseMapping = new NameMappingCollection();
     private DomainUpgradeMode upgradeMode = DomainUpgradeMode.Default;
     public TypeIdRegistry TypeIdRegistry { get; set; }
 
@@ -79,25 +77,19 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets schema mapping.
     /// </summary>
-    public NameMappingCollection SchemaMapping
-    {
-      get { return schemaMapping; }
-    }
+    public NameMappingCollection SchemaMapping { get; init; }  = new();
 
     /// <summary>
     /// Gets database mapping.
     /// </summary>
-    public NameMappingCollection DatabaseMapping
-    {
-      get { return databaseMapping; }
-    }
+    public NameMappingCollection DatabaseMapping { get; init; }  = new();
 
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
 
-      schemaMapping.Lock();
-      databaseMapping.Lock();
+      SchemaMapping.Lock();
+      DatabaseMapping.Lock();
     }
 
     /// <summary>
@@ -109,8 +101,8 @@ namespace Xtensive.Orm.Configuration
         nodeId = nodeId,
         connectionInfo = connectionInfo,
         connectionInitializationSql = connectionInitializationSql,
-        databaseMapping = databaseMapping.Clone(),
-        schemaMapping = schemaMapping.Clone(),
+        DatabaseMapping = DatabaseMapping.Clone(),
+        SchemaMapping = SchemaMapping.Clone(),
         TypeIdRegistry = TypeIdRegistry,
       };
 
@@ -121,10 +113,10 @@ namespace Xtensive.Orm.Configuration
       if (string.IsNullOrEmpty(nodeId))
         throw new InvalidOperationException(Strings.ExInvalidNodeIdentifier);
 
-      if (schemaMapping.Count > 0 && !configuration.IsMultischema)
+      if (SchemaMapping.Count > 0 && !configuration.IsMultischema)
         throw new InvalidOperationException(Strings.ExSchemaMappingRequiresMultischemaDomainConfiguration);
 
-      if (databaseMapping.Count > 0 && !configuration.IsMultidatabase)
+      if (DatabaseMapping.Count > 0 && !configuration.IsMultidatabase)
         throw new InvalidOperationException(Strings.ExDatabaseMappingRequiresMultidatabaseDomainConfiguration);
     }
 

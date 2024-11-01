@@ -18,14 +18,10 @@ namespace Xtensive.Orm.Configuration
       return nodeConfiguration.SchemaMapping.Apply(schema.GetNameInternal());
     }
 
-    public static IReadOnlyDictionary<string, string> GetDatabaseMapping(this NodeConfiguration nodeConfiguration)
-    {
-      return nodeConfiguration.DatabaseMapping.ToDictionary(key => key.Key, value => value.Value);
-    }
+    public static IReadOnlyDictionary<string, string> GetDatabaseMapping(this NodeConfiguration nodeConfiguration) =>
+      nodeConfiguration.DatabaseMapping.AsReadOnlyDictionary;
 
-    public static IReadOnlyDictionary<string, string> GetSchemaMapping(this NodeConfiguration nodeConfiguration)
-    {
-      return nodeConfiguration.SchemaMapping.ToDictionary(key => key.Key, value => value.Value);
-    }
+    public static IReadOnlyDictionary<string, string> GetSchemaMapping(this NodeConfiguration nodeConfiguration) =>
+      nodeConfiguration.SchemaMapping.AsReadOnlyDictionary;
   }
 }

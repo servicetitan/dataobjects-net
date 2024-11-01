@@ -21,14 +21,16 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets empty <see cref="NameMappingCollection"/>.
     /// </summary>
-    public static readonly NameMappingCollection Empty = new NameMappingCollection();
+    public static readonly NameMappingCollection Empty = new();
 
-    private readonly Dictionary<string, string> items = new Dictionary<string, string>();
+    private readonly Dictionary<string, string> items = new();
+
+    public IReadOnlyDictionary<string, string> AsReadOnlyDictionary => items;
 
     /// <summary>
     /// Gets number of elements in this collection.
     /// </summary>
-    public int Count { get { return items.Count; } }
+    public int Count => items.Count;
 
     /// <summary>
     /// Adds mapping between <paramref name="originalName"/>
@@ -62,10 +64,7 @@ namespace Xtensive.Orm.Configuration
     public string Apply([NotNull] string name)
     {
       ArgumentException.ThrowIfNullOrEmpty(name);
-      string result;
-      if (items.TryGetValue(name, out result))
-        return result;
-      return name;
+      return items.GetValueOrDefault(name, name);
     }
 
     /// <summary>
@@ -90,10 +89,7 @@ namespace Xtensive.Orm.Configuration
     /// Returns an enumerator that iterates through a collection.
     /// </summary>
     /// <returns>An <see cref="IEnumerator"/> object that can be used to iterate through the collection.</returns>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
     /// Creates clone of this instance.
