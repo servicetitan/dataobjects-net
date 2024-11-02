@@ -599,14 +599,15 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void UnusedLetImpactsQueryTest()
     {
-      int[] existingIds = Session.Query.All<Invoice>().Select(o => o.InvoiceId).Take(2).ToArray();
-      int[] nonExistingIds = [Session.Query.All<Invoice>().Max(o => o.InvoiceId) + 1];
+      var maxId = Session.Query.All<Invoice>().Max(o => o.InvoiceId);
+      int[] existingIds = [maxId];
+      int[] nonExistingIds = [maxId + 1, maxId + 2];
       var count = (from invoice in Session.Query.All<Invoice>()
           let foo = invoice.InvoiceId.In(nonExistingIds)
           where invoice.InvoiceId.In(existingIds)
           select invoice
         ).Count();
-      Assert.Greater(count, 0);
+      Assert.AreEqual(1, count);
     }
 
     private IEnumerable<Customer> GetCustomers(params string[] customerNames)
