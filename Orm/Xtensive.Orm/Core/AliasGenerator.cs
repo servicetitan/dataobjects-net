@@ -4,8 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.10
 
-using System;
-
 namespace Xtensive.Core
 {
   /// <summary>
@@ -57,19 +55,13 @@ namespace Xtensive.Core
     /// Creates generator with default settings.
     /// </summary>
     /// <returns></returns>
-    public static AliasGenerator Create()
-    {
-      return new AliasGenerator();
-    }
+    public static AliasGenerator Create() => new();
 
     /// <summary>
     /// Creates generator using specified alias template.
     /// </summary>
     /// <param name="aliasTemplate">Alias template. Could use two template parameters: {0} - for prefix and {1} for suffix.</param>
-    public static AliasGenerator Create(string aliasTemplate)
-    {
-      return new AliasGenerator(aliasTemplate);
-    }
+    public static AliasGenerator Create(string aliasTemplate) => new(DefaultPrefixSequence, aliasTemplate);
 
     /// <summary>
     /// Creates generator using specified prefix sequence.
@@ -88,18 +80,10 @@ namespace Xtensive.Core
     // Constructors
 
     public AliasGenerator()
-      : this (DefaultAliasTemplate)
+      : this (DefaultPrefixSequence, DefaultAliasTemplate)
     {}
 
-    private AliasGenerator(string aliasTemplate)
-      : this (DefaultPrefixSequence, aliasTemplate)
-    {}
-
-    private AliasGenerator(IReadOnlyList<string> prefixes)
-      : this (prefixes, DefaultAliasTemplate)
-    {}
-
-    private AliasGenerator(IReadOnlyList<string> prefixes, string aliasTemplate)
+    private AliasGenerator(IReadOnlyList<string> prefixes, string aliasTemplate = DefaultAliasTemplate)
     {
       prefixSequence = prefixes;
       this.aliasTemplate = aliasTemplate;
