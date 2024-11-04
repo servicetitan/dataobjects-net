@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Rse
     public static int IndexOf(this RecordSetHeader header, string columnName)
     {
       var column = (MappedColumn) header.Columns[columnName];
-      return column==null ? -1 : column.Index;
+      return column is null ? -1 : column.Index;
     }
 
     /// <summary>

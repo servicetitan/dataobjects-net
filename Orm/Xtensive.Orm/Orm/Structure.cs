@@ -289,7 +289,7 @@ namespace Xtensive.Orm
     protected override sealed Pair<Key, Delegate> GetSubscription(object eventKey)
     {
       var entityKey = GetOwnerEntityKey(Owner);
-      if (entityKey!=null)
+      if (entityKey is not null)
         return new Pair<Key, Delegate>(entityKey,
           Session.EntityEvents.GetSubscriber(entityKey, Field, eventKey));
       return new Pair<Key, Delegate>(null, null);
@@ -299,17 +299,9 @@ namespace Xtensive.Orm
 
     #region Equals & GetHashCode
 
-    public static bool operator==(Structure left, Structure right)
-    {
-      if (left is not null)
-        return left.Equals(right);
-      return right is null;
-    }
+    public static bool operator==(Structure left, Structure right) => left?.Equals(right) ?? right is null;
 
-    public static bool operator !=(Structure left, Structure rigth)
-    {
-      return !(left==rigth);
-    }
+    public static bool operator !=(Structure left, Structure rigth) => !(left == rigth);
 
     /// <inheritdoc/>
     public override bool Equals(object obj) =>
@@ -318,7 +310,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public bool Equals(Structure other)
     {
-      if (other==null)
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;

@@ -109,16 +109,7 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (IsTypeUndefined)
-        return false;
-      if (obj is null)
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return obj is StorageTypeInfo otherStorageTypeInfo && Equals(otherStorageTypeInfo);
-    }
+    public override bool Equals(object obj) => obj is StorageTypeInfo other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode() => HashCode.Combine(Type, IsNullable, Length, Scale, Precision);
@@ -129,10 +120,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator ==(StorageTypeInfo left, StorageTypeInfo right)
-    {
-      return Equals(left, right);
-    }
+    public static bool operator ==(StorageTypeInfo left, StorageTypeInfo right) => left?.Equals(right) ?? right is null;
 
     /// <summary>
     /// Implements the operator !=.
@@ -140,10 +128,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator !=(StorageTypeInfo left, StorageTypeInfo right)
-    {
-      return !Equals(left, right);
-    }
+    public static bool operator !=(StorageTypeInfo left, StorageTypeInfo right) => !(left == right);
 
     #endregion
 
@@ -173,7 +158,7 @@ namespace Xtensive.Orm.Upgrade.Model
         sb.Append(string.Format(Strings.PropertyPairFormat, Strings.Precision, Precision));
       }
 
-      if (NativeType != null) {
+      if (NativeType is not null) {
         sb.Append(Strings.Comma);
         sb.Append(string.Format(Strings.PropertyPairFormat, Strings.NativeType, NativeType));
       }

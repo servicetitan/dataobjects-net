@@ -395,7 +395,7 @@ namespace Xtensive.Orm.Tests.Sql
       }
 
       Assert.AreEqual(s.Limit, sClone.Limit);
-      if (s.Where!=null) {
+      if (s.Where is not null) {
         Assert.AreNotEqual(s.Where, sClone.Where);
         Assert.AreEqual(s.Where.NodeType, sClone.Where.NodeType);
       }
@@ -421,7 +421,7 @@ namespace Xtensive.Orm.Tests.Sql
         Assert.AreNotEqual(s.From, sClone.From);
         Assert.AreEqual(s.From.NodeType, sClone.From.NodeType);
       }
-      if (s.Having!=null) {
+      if (s.Having is not null) {
         Assert.AreNotEqual(s.Having, sClone.Having);
         Assert.AreEqual(s.Having.NodeType, sClone.Having.NodeType);
       }
@@ -440,7 +440,7 @@ namespace Xtensive.Orm.Tests.Sql
       }
 
       Assert.AreEqual(s.Limit, sClone.Limit);
-      if (s.Where!=null) {
+      if (s.Where is not null) {
         Assert.AreNotEqual(s.Where, sClone.Where);
         Assert.AreEqual(s.Where.NodeType, sClone.Where.NodeType);
       }
@@ -634,7 +634,7 @@ namespace Xtensive.Orm.Tests.Sql
         Assert.IsFalse(uClone.Values.ContainsKey(p.Key));
         Assert.IsFalse(uClone.Values.ContainsValue(p.Value));
       }
-      if (u.Where!=null) {
+      if (u.Where is not null) {
         Assert.AreNotEqual(u.Where, uClone.Where);
         Assert.AreEqual(u.Where.NodeType, uClone.Where.NodeType);
       }

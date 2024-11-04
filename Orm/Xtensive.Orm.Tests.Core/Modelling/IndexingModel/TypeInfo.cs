@@ -88,16 +88,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (obj is null)
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      if (obj.GetType()!=typeof (TypeInfo))
-        return false;
-      return Equals((TypeInfo) obj);
-    }
+    public override bool Equals(object obj) => obj is TypeInfo other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode() => HashCode.Combine(Type, IsNullable, Length, Scale, Precision, Culture);
@@ -108,10 +99,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator ==(TypeInfo left, TypeInfo right)
-    {
-      return Equals(left, right);
-    }
+    public static bool operator ==(TypeInfo left, TypeInfo right) => left?.Equals(right) ?? right is null;
 
     /// <summary>
     /// Implements the operator !=.
@@ -119,10 +107,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     /// <param name="left">The left.</param>
     /// <param name="right">The right.</param>
     /// <returns>The result of the operator.</returns>
-    public static bool operator !=(TypeInfo left, TypeInfo right)
-    {
-      return !Equals(left, right);
-    }
+    public static bool operator !=(TypeInfo left, TypeInfo right) => !(left == right);
 
     #endregion
 

@@ -155,7 +155,7 @@ namespace Xtensive.Orm
     /// The result of the operator.
     /// </returns>
     [DebuggerStepThrough]
-    public static bool operator ==(Key left, Key right) => Equals(left, right);
+    public static bool operator ==(Key left, Key right) => left?.Equals(right) ?? right is null;
 
     /// <summary>
     /// Implements the operator !=.
@@ -166,7 +166,7 @@ namespace Xtensive.Orm
     /// The result of the operator.
     /// </returns>
     [DebuggerStepThrough]
-    public static bool operator !=(Key left, Key right) => !Equals(left, right);
+    public static bool operator !=(Key left, Key right) => !(left == right);
 
     /// <inheritdoc/>
     public override int GetHashCode() =>

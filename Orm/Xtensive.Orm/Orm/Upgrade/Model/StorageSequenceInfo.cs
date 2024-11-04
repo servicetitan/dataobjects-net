@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Upgrade.Model
               Path);
           });
         }
-        if (Type==null) {
+        if (Type is null) {
           ea.Execute(() => {
             throw new ValidationException(
               string.Format(string.Format(Strings.ExUndefinedTypeOfSequenceX, Name)),

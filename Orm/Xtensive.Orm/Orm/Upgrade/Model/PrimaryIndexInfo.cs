@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Upgrade.Model
           ea.Execute(() => {
             throw new ValidationException(Strings.ExEmptyKeyColumnsCollection, Path);
           });
-        if (keys.Where(ci => ci.Type == null || ci.Type.IsNullable).Count() > 0)
+        if (keys.Where(ci => ci.Type is null || ci.Type.IsNullable).Count() > 0)
           ea.Execute(() => {
             throw new ValidationException(Strings.ExPrimaryKeyColumnCanNotBeNullable, Path);
           });

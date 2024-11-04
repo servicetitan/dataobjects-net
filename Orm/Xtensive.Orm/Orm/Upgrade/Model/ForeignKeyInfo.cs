@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     private static bool CompareTypes(StorageTypeInfo first, StorageTypeInfo second)
     {
-      if (first==null || second==null)
+      if (first is null || second is null)
         return false;
       if (first.IsTypeUndefined || second.IsTypeUndefined)
         return true;

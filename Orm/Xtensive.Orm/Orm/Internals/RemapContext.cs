@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Internals
     /// <returns>Real key</returns>
     public Key TryRemapKey(Key oldKey)
     {
-      if (oldKey==null)
+      if (oldKey is null)
         return oldKey;
       Key newKey;
       return keyMap.TryGetValue(oldKey, out newKey) ? newKey : oldKey;

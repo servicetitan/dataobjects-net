@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Operations
         return;
 
       var existingKey = KeyByIdentifier.GetValueOrDefault(identifier);
-      if (existingKey != null) {
+      if (existingKey is not null) {
         KeyByIdentifier.Remove(identifier);
         IdentifierByKey.Remove(existingKey);
       }

@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public override EntityGroupTask GetTask()
     {
-      if (Key!=null && Task==null)
+      if (Key is not null && Task is null)
         return null;
 
       if (Task!=null)

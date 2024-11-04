@@ -393,15 +393,7 @@ namespace Xtensive.Orm
     #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (obj is null)
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-
-      return obj is UrlInfo otherUrlInfo && Equals(otherUrlInfo);
-    }
+    public override bool Equals(object obj) => obj is UrlInfo other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode() => url?.GetHashCode() ?? 0;
@@ -412,10 +404,7 @@ namespace Xtensive.Orm
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator ==(UrlInfo left, UrlInfo right)
-    {
-      return Equals(left, right);
-    }
+    public static bool operator ==(UrlInfo left, UrlInfo right) => left?.Equals(right) ?? right is null;
 
     /// <summary>
     /// Checks specified objects for inequality.
@@ -423,10 +412,7 @@ namespace Xtensive.Orm
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator !=(UrlInfo left, UrlInfo right)
-    {
-      return !Equals(left, right);
-    }
+    public static bool operator !=(UrlInfo left, UrlInfo right) => !(left == right);
 
     #endregion
 

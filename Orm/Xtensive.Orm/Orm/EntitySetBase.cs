@@ -436,7 +436,7 @@ namespace Xtensive.Orm
     protected Pair<Key, Delegate> GetSubscription(object eventKey)
     {
       var entityKey = GetOwnerKey(Owner);
-      if (entityKey != null) {
+      if (entityKey is not null) {
         return new Pair<Key, Delegate>(entityKey,
           Session.EntityEvents.GetSubscriber(entityKey, Field, eventKey));
       }

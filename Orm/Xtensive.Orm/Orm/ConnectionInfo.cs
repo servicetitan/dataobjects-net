@@ -37,7 +37,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override string ToString()
     {
-      return ConnectionUrl!=null
+      return ConnectionUrl is not null
         ? ConnectionUrl.ToString()
         : string.Format(ToStringFormat, Provider, ConnectionString);
     }
@@ -48,38 +48,22 @@ namespace Xtensive.Orm
     public override int GetHashCode() => HashCode.Combine(Provider, ConnectionString, ConnectionUrl);
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (obj is null)
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return Equals((ConnectionInfo) obj);
-    }
+    public override bool Equals(object obj) => obj is ConnectionInfo other && Equals(other);
 
     /// <inheritdoc/>
     public bool Equals(ConnectionInfo other)
     {
       if (other is null)
         return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return Equals(other.Provider, Provider)
-        && Equals(other.ConnectionString, ConnectionString)
-        && Equals(other.ConnectionUrl, ConnectionUrl);
+      return ReferenceEquals(this, other)
+             || Equals(other.Provider, Provider) && Equals(other.ConnectionString, ConnectionString) && Equals(other.ConnectionUrl, ConnectionUrl);
     }
 
     /// <inheritdoc/>
-    public static bool operator ==(ConnectionInfo left, ConnectionInfo right)
-    {
-      return Equals(left, right);
-    }
+    public static bool operator ==(ConnectionInfo left, ConnectionInfo right) => left?.Equals(right) ?? right is null;
 
     /// <inheritdoc/>
-    public static bool operator !=(ConnectionInfo left, ConnectionInfo right)
-    {
-      return !Equals(left, right);
-    }
+    public static bool operator !=(ConnectionInfo left, ConnectionInfo right) => !(left == right);
 
     #endregion
 

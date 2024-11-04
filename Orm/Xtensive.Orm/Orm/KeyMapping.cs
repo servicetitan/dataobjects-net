@@ -33,7 +33,7 @@ namespace Xtensive.Orm
     /// <param name="key">The key to remap.</param>
     /// <returns>The mapped storage <see cref="Key"/>.</returns>
     public Key TryRemapKey(Key key) =>
-      key!=null && Map.TryGetValue(key, out var remappedKey) ? remappedKey : key;
+      key is not null && Map.TryGetValue(key, out var remappedKey) ? remappedKey : key;
 
     /// <summary>
     /// Remaps the keys of cached entities

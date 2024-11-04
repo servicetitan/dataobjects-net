@@ -36,10 +36,10 @@ namespace Xtensive.Sql.Dml
       if (ReferenceEquals(comment1, comment2))
         return comment1;
 
-      if (comment1 == null && comment2 == null)
+      if (comment1 is null && comment2 is null)
         return null;
-      if (comment1 != null) {
-        if (comment2 != null)
+      if (comment1 is not null) {
+        if (comment2 is not null)
           comment1.Text += $" {comment2.Text}";
         return comment1;
       }

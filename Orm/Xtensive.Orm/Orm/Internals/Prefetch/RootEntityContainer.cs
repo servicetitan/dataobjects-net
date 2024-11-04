@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public void NotifyOwnerAboutKeyWithUnknownType()
     {
-      if (Task != null && ownerKey != null)
+      if (Task is not null && ownerKey is not null)
         referencingFieldDescriptor.NotifySubscriber(ownerKey, Key);
     }
     

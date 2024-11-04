@@ -87,8 +87,8 @@ namespace Xtensive.Orm.Upgrade
           action => {
             var sourceType = action.Difference.Source as StorageTypeInfo;
             var targetType = action.Difference.Target as StorageTypeInfo;
-            return sourceType==null || targetType==null || sourceType.IsTypeUndefined
-                   || sourceType.Type.ToNullable()!=targetType.Type.ToNullable();
+            return sourceType is null || targetType is null || sourceType.IsTypeUndefined
+                   || sourceType.Type.ToNullable() != targetType.Type.ToNullable();
           })
         .ToList();
 

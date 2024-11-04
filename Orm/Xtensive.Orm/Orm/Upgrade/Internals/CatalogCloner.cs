@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         CopyDbName(newDomain, sourceDomain);
         if (sourceDomain.Collation!=null)
           newDomain.Collation = collationsMap[sourceDomain.Collation];
-        if (sourceDomain.DefaultValue!=null)
+        if (sourceDomain.DefaultValue is not null)
           newDomain.DefaultValue = sourceDomain.DefaultValue.Clone();
         foreach (var domainConstraint in sourceDomain.DomainConstraints) {
           var newConstraint = newDomain.CreateConstraint(domainConstraint.Name, domainConstraint.Condition.Clone());
@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         var newView = newSchema.CreateView(sourceView.Name);
         CopyDbName(newView, sourceView);
         newView.CheckOptions = sourceView.CheckOptions;
-        if (sourceView.Definition != null) {
+        if (sourceView.Definition is not null) {
           newView.Definition = sourceView.Definition.Clone();
         }
         CloneViewColumns(newView, sourceView);
@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         var newColumn = newTable.CreateColumn(sourceTableColumn.Name, sourceTableColumn.DataType);
         CopyDbName(newColumn, sourceTableColumn);
 
-        if (sourceTableColumn.DefaultValue!=null)
+        if (sourceTableColumn.DefaultValue is not null)
           newColumn.DefaultValue = sourceTableColumn.DefaultValue.Clone();
 
         var schema = newTable.Schema;
@@ -196,7 +196,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         }
         if (sourceTableColumn.Domain!=null)
           newColumn.Domain = schema.Domains[sourceTableColumn.Domain.Name];
-        if (sourceTableColumn.Expression!=null)
+        if (sourceTableColumn.Expression is not null)
           newColumn.Expression = sourceTableColumn.Expression.Clone();
         newColumn.IsNullable = sourceTableColumn.IsNullable;
         newColumn.IsPersisted = sourceTableColumn.IsPersisted;
@@ -251,7 +251,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         ft.IsClustered = ftIndex.IsClustered;
         ft.IsUnique = ftIndex.IsUnique;
         ft.UnderlyingUniqueIndex = ftIndex.UnderlyingUniqueIndex;
-        if (ftIndex.Where!=null)
+        if (ftIndex.Where is not null)
           ft.Where = ftIndex.Where.Clone();
         ClonePartitionDescriptor(ft, sourceIndex);
         return;
@@ -269,7 +269,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         spatial.IsBitmap = spatialIndex.IsBitmap;
         spatial.IsClustered = spatialIndex.IsClustered;
         spatial.IsUnique = spatialIndex.IsUnique;
-        if (spatialIndex.Where!=null)
+        if (spatialIndex.Where is not null)
           spatial.Where = spatialIndex.Where.Clone();
         ClonePartitionDescriptor(spatialIndex, sourceIndex);
         return;
@@ -283,7 +283,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       index.FillFactor = sourceIndex.FillFactor;
       index.IsUnique = sourceIndex.IsUnique;
       index.IsClustered = sourceIndex.IsClustered;
-      if (sourceIndex.Where!=null)
+      if (sourceIndex.Where is not null)
         index.Where = sourceIndex.Where.Clone();
       index.NonkeyColumns.AddRange(GetNonKeyColumns(newTable, sourceIndex));
       index.IsBitmap = sourceIndex.IsBitmap;

@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Internals
           value = entity.Key;
         }
         var key = value as Key;
-        if (key!=null) {
+        if (key is not null) {
           if (key.TypeReference.Type.Hierarchy==type.Hierarchy)
             typeIdIndex = -1; // Key must be fully copied in this case
           for (int keyIndex = 0; keyIndex < key.Value.Count; keyIndex++) {

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2013 Xtensive LLC.
+// Copyright (C) 2003-2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Providers
     private static SqlExpression GetSqlLiterExpression(SqlExpression expression)
     {
       var container = expression as SqlContainer;
-      if (container != null) {
+      if (container is not null) {
         var containeredValue = (container).Value as Enum;
         if (containeredValue!=null)
           return SqlDml.Literal(Convert.ChangeType(containeredValue,Enum.GetUnderlyingType(containeredValue.GetType())));

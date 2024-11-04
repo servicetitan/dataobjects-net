@@ -469,7 +469,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
         }
       }
 
-      if (expression == null) {
+      if (expression is null) {
         var column = state.Table.TableColumns[reader.GetString(6).Trim()];
         var isDescending = ReadBool(reader, 4);
         _ = state.Index.CreateIndexColumn(column, !isDescending);

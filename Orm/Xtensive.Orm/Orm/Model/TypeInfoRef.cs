@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Model
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator !=(TypeInfoRef x, TypeInfoRef y) => !Equals(x, y);
+    public static bool operator !=(TypeInfoRef x, TypeInfoRef y) => !x.Equals(y);
 
     /// <summary>
     /// Implements the operator ==.
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Model
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator ==(TypeInfoRef x, TypeInfoRef y) => Equals(x, y);
+    public static bool operator ==(TypeInfoRef x, TypeInfoRef y) => x.Equals(y);
 
     /// <inheritdoc/>
     public bool Equals(TypeInfoRef other) =>

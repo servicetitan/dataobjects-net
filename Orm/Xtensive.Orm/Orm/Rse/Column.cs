@@ -40,20 +40,11 @@ namespace Xtensive.Orm.Rse
     #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
-    public bool Equals(Column other)
-    {
-      if (other==null)
-        return false;
-      return Name==other.Name;
-    }
+    public bool Equals(Column other) =>
+      other is not null && (ReferenceEquals(this, other) || Name == other.Name);
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(this, obj))
-        return true;
-      return Equals(obj as Column);
-    }
+    public override bool Equals(object obj) => obj is Column other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode() => Name.GetHashCode();
@@ -66,10 +57,7 @@ namespace Xtensive.Orm.Rse
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator ==(Column left, Column right)
-    {
-      return Equals(left, right);
-    }
+    public static bool operator ==(Column left, Column right) => left?.Equals(right) ?? right is null;
 
     /// <summary>
     /// Implements the operator !=.
@@ -79,10 +67,7 @@ namespace Xtensive.Orm.Rse
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator !=(Column left, Column right)
-    {
-      return !Equals(left, right);
-    }
+    public static bool operator !=(Column left, Column right) => !(left == right);
 
     #endregion
 
@@ -121,7 +106,7 @@ namespace Xtensive.Orm.Rse
       Name = name;
       Index = index;
       Type = type;
-      Origin = originalColumn==null ? this : originalColumn.Origin;
+      Origin = originalColumn is null ? this : originalColumn.Origin;
     }
   }
 }
