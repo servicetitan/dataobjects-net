@@ -28,7 +28,7 @@ namespace Xtensive.Core
         "w", "x", "y", "z"
       };
 
-    private readonly string[] prefixSequence;
+    private readonly IReadOnlyList<string> prefixSequence;
     private readonly string aliasTemplate;
     private byte prefixIndex;
     private int suffixNumber;
@@ -47,7 +47,7 @@ namespace Xtensive.Core
 
     private void VerifyState()
     {
-      if (prefixIndex >= prefixSequence.Length) {
+      if (prefixIndex >= prefixSequence.Count) {
         prefixIndex = 0;
         suffixNumber++;
       }
@@ -75,20 +75,14 @@ namespace Xtensive.Core
     /// Creates generator using specified prefix sequence.
     /// </summary>
     /// <param name="overriddenPrefixes">The overridden prefix sequence.</param>
-    public static AliasGenerator Create(string [] overriddenPrefixes)
-    {
-      return new AliasGenerator(overriddenPrefixes);
-    }
+    public static AliasGenerator Create(IReadOnlyList<string> overriddenPrefixes) => new(overriddenPrefixes);
 
     /// <summary>
     /// Creates generator using specified <paramref name="overriddenPrefixes"/> and <paramref name="aliasTemplate"/>.
     /// </summary>
     /// <param name="overriddenPrefixes">The overridden prefix sequence.</param>
     /// <param name="aliasTemplate">The alias template.</param>
-    public static AliasGenerator Create(string[] overriddenPrefixes, string aliasTemplate)
-    {
-      return new AliasGenerator(overriddenPrefixes, aliasTemplate);
-    }
+    public static AliasGenerator Create(IReadOnlyList<string> overriddenPrefixes, string aliasTemplate) => new(overriddenPrefixes, aliasTemplate);
 
 
     // Constructors
@@ -101,11 +95,11 @@ namespace Xtensive.Core
       : this (DefaultPrefixSequence, aliasTemplate)
     {}
 
-    private AliasGenerator(string[] prefixes)
+    private AliasGenerator(IReadOnlyList<string> prefixes)
       : this (prefixes, DefaultAliasTemplate)
     {}
 
-    private AliasGenerator(string[] prefixes, string aliasTemplate)
+    private AliasGenerator(IReadOnlyList<string> prefixes, string aliasTemplate)
     {
       prefixSequence = prefixes;
       this.aliasTemplate = aliasTemplate;
