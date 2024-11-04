@@ -67,7 +67,7 @@ namespace Xtensive.Core
     /// Creates generator using specified prefix sequence.
     /// </summary>
     /// <param name="overriddenPrefixes">The overridden prefix sequence.</param>
-    public static AliasGenerator Create(IReadOnlyList<string> overriddenPrefixes) => new(overriddenPrefixes);
+    public static AliasGenerator Create(IReadOnlyList<string> overriddenPrefixes) => new(overriddenPrefixes, DefaultAliasTemplate);
 
     /// <summary>
     /// Creates generator using specified <paramref name="overriddenPrefixes"/> and <paramref name="aliasTemplate"/>.
@@ -83,7 +83,7 @@ namespace Xtensive.Core
       : this (DefaultPrefixSequence, DefaultAliasTemplate)
     {}
 
-    private AliasGenerator(IReadOnlyList<string> prefixes, string aliasTemplate = DefaultAliasTemplate)
+    private AliasGenerator(IReadOnlyList<string> prefixes, string aliasTemplate)
     {
       prefixSequence = prefixes;
       this.aliasTemplate = aliasTemplate;
