@@ -1331,8 +1331,8 @@ namespace Xtensive.Orm.Linq
         if (collectionSelector.Body.NodeType == ExpressionType.Call) {
           var call = (MethodCallExpression) collectionSelector.Body;
           var method = call.Method;
-          isOuter = method.IsGenericMethodSpecificationOf(WellKnownMembers.Queryable.DefaultIfEmpty)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Enumerable.DefaultIfEmpty);
+          isOuter = method.IsGenericMethodSpecificationOf(WellKnownMembers.Queryable.DefaultIfEmptyParams)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Enumerable.DefaultIfEmptyParams);
           if (isOuter) {
             collectionSelector = FastExpression.Lambda(call.Arguments[0], outerParameter);
           }

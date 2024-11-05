@@ -111,9 +111,10 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
     private static MethodBase GetCanonicalMethod(MethodBase inputMethod, MethodBase[] possibleCanonicalMethods)
     {
+      var metadataToken = inputMethod.MetadataToken;
+      var module = inputMethod.Module;
       foreach (var candidate in possibleCanonicalMethods) {
-        if (inputMethod.MetadataToken == candidate.MetadataToken
-          && (ReferenceEquals(inputMethod.Module, candidate.Module) || inputMethod.Module == candidate.Module)) {
+        if (metadataToken == candidate.MetadataToken && module == candidate.Module) {
           return candidate;
         }
       }

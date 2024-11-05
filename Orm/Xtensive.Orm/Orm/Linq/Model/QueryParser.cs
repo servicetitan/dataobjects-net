@@ -17,27 +17,27 @@ namespace Xtensive.Orm.Linq.Model
     {
       var method = mc.Method;
 
-      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupBy))
+      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByParams))
         return new GroupByQuery {
           Source = mc.Arguments[0],
           KeySelector = mc.Arguments[1].StripQuotes(),
         };
 
-      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementSelector))
+      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementSelectorParams))
         return new GroupByQuery {
           Source = mc.Arguments[0],
           KeySelector = mc.Arguments[1].StripQuotes(),
           ElementSelector = mc.Arguments[2].StripQuotes(),
         };
 
-      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithResultSelector))
+      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithResultSelectorParams))
         return new GroupByQuery {
             Source = mc.Arguments[0],
             KeySelector = mc.Arguments[1].StripQuotes(),
             ResultSelector = mc.Arguments[2].StripQuotes(),
           };
 
-      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementAndResultSelectors))
+      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementAndResultSelectorsParams))
         return new GroupByQuery {
           Source = mc.Arguments[0],
           KeySelector = mc.Arguments[1].StripQuotes(),

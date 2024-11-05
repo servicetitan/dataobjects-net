@@ -4,13 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.03.24
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Collections;
-using Xtensive.Core;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;
 using Xtensive.Orm.FullTextSearchCondition.Nodes;
 using Xtensive.Orm.Internals;
@@ -21,6 +16,11 @@ using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq
 {
+  public readonly record struct MethodInfoParams(int MetadataToken, Module Module, bool IsGenericMethodDefinition)
+  {
+    public MethodInfoParams(MethodInfo mi) : this(mi.MetadataToken, mi.Module, mi.IsGenericMethodDefinition) { }
+  }
+
   internal static partial class WellKnownMembers
   {
 #pragma warning disable 612,618
@@ -35,40 +35,56 @@ namespace Xtensive.Orm.Linq
       private static readonly MethodInfo[] SingleOrDefaultMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name == nameof(Orm.Query.SingleOrDefault) && m.IsGenericMethod).ToArray();
 
       public static readonly MethodInfo All = typeof(Orm.Query).GetMethod(nameof(Orm.Query.All), Array.Empty<Type>());
+      internal static readonly MethodInfoParams AllParams = new(All);
 
       public static readonly MethodInfo FreeTextString = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 1 && ft.GetParameterTypes()[0] == WellKnownTypes.String);
+      internal static readonly MethodInfoParams FreeTextStringParams = new(FreeTextString);
 
       public static readonly MethodInfo FreeTextStringTopNByRank = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 2 && ft.GetParameterTypes()[0] == WellKnownTypes.String && ft.GetParameterTypes()[1] == WellKnownTypes.Int32);
+      internal static readonly MethodInfoParams FreeTextStringTopNByRankParams = new(FreeTextStringTopNByRank);
 
       public static readonly MethodInfo FreeTextExpression = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 1 && ft.GetParameterTypes()[0] == typeof(Expression<Func<string>>));
+      internal static readonly MethodInfoParams FreeTextExpressionParams = new(FreeTextExpression);
 
       public static readonly MethodInfo FreeTextExpressionTopNByRank = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 2 && ft.GetParameterTypes()[0] == typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1] == WellKnownTypes.Int32);
+      internal static readonly MethodInfoParams FreeTextExpressionTopNByRankParams = new(FreeTextExpressionTopNByRank);
 
       public static readonly MethodInfo ContainsTableExpr = containsTableMethods
           .Single(g => g.ParameterTypes.Length == 1 && g.ParameterTypes[0] == typeof(Expression<Func<ConditionEndpoint, IOperand>>)).Method;
+      internal static readonly MethodInfoParams ContainsTableExprParams = new(ContainsTableExpr);
 
       public static readonly MethodInfo ContainsTableExprWithColumns = containsTableMethods
           .Single(g => g.ParameterTypes.Length == 2 &&
                        g.ParameterTypes[0] == typeof(Expression<Func<ConditionEndpoint, IOperand>>) &&
                        g.ParameterTypes[1].IsArray).Method;
+      internal static readonly MethodInfoParams ContainsTableExprWithColumnsParams = new(ContainsTableExprWithColumns);
 
       public static readonly MethodInfo ContainsTableExprTopNByRank = containsTableMethods
           .Single(g => g.ParameterTypes.Length == 2 && g.ParameterTypes[0] == typeof(Expression<Func<ConditionEndpoint, IOperand>>) && g.ParameterTypes[1] == WellKnownTypes.Int32).Method;
+      internal static readonly MethodInfoParams ContainsTableExprTopNByRankParams = new(ContainsTableExprTopNByRank);
 
       public static readonly MethodInfo ContainsTableExprWithColumnsTopNByRank = containsTableMethods
           .Single(g => g.ParameterTypes.Length == 3 &&
                        g.ParameterTypes[0] == typeof(Expression<Func<ConditionEndpoint, IOperand>>) &&
                        g.ParameterTypes[1].IsArray &&
                        g.ParameterTypes[2] == WellKnownTypes.Int32).Method;
+      internal static readonly MethodInfoParams ContainsTableExprWithColumnsTopNByRankParams = new(ContainsTableExprWithColumnsTopNByRank);
 
       public static readonly MethodInfo SingleKey = SingleMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
+      internal static readonly MethodInfoParams SingleKeyParams = new(SingleKey);
+
       public static readonly MethodInfo SingleArray = SingleMethods.Single(ft => ft.GetParameterTypes()[0] == WellKnownTypes.ObjectArray);
+      internal static readonly MethodInfoParams SingleArrayParams = new(SingleArray);
+
       public static readonly MethodInfo SingleOrDefaultKey = SingleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
+      internal static readonly MethodInfoParams SingleOrDefaultKeyParams = new(SingleOrDefaultKey);
+
       public static readonly MethodInfo SingleOrDefaultArray = SingleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == WellKnownTypes.ObjectArray);
+      internal static readonly MethodInfoParams SingleOrDefaultArrayParams = new(SingleOrDefaultArray);
     }
 
     public static class QueryEndpoint
@@ -82,41 +98,59 @@ namespace Xtensive.Orm.Linq
       private static readonly MethodInfo[] SingleOrDefaultMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == nameof(Orm.QueryEndpoint.SingleOrDefault) && m.IsGenericMethod).ToArray();
 
       public static readonly MethodInfo All = typeof(Orm.QueryEndpoint).GetMethod(nameof(Orm.QueryEndpoint.All), Array.Empty<Type>());
+      internal static readonly MethodInfoParams AllParams = new(All);
 
       public static readonly MethodInfo FreeTextString = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 1 && ft.GetParameterTypes()[0] == WellKnownTypes.String);
+      internal static readonly MethodInfoParams FreeTextStringParams = new(FreeTextString);
 
       public static readonly MethodInfo FreeTextStringTopNByRank = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 2 && ft.GetParameterTypes()[0] == WellKnownTypes.String && ft.GetParameterTypes()[1] == WellKnownTypes.Int32);
+      internal static readonly MethodInfoParams FreeTextStringTopNByRankParams = new(FreeTextStringTopNByRank);
 
       public static readonly MethodInfo FreeTextExpression = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 1 && ft.GetParameterTypes()[0] == typeof(Expression<Func<string>>));
+      internal static readonly MethodInfoParams FreeTextExpressionParams = new(FreeTextExpression);
 
       public static readonly MethodInfo FreeTextExpressionTopNByRank = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 2 && ft.GetParameterTypes()[0] == typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1] == WellKnownTypes.Int32);
+      internal static readonly MethodInfoParams FreeTextExpressionTopNByRankParams = new(FreeTextExpressionTopNByRank);
 
       public static readonly MethodInfo ContainsTableExpr = containsTableMethods
           .Single(g => g.ParameterTypes.Length == 1 && g.ParameterTypes[0] == typeof(Expression<Func<ConditionEndpoint, IOperand>>)).Method;
+      internal static readonly MethodInfoParams ContainsTableExprParams = new(ContainsTableExpr);
 
       public static readonly MethodInfo ContainsTableExprWithColumns = containsTableMethods
           .Single(g => g.ParameterTypes.Length == 2 &&
                        g.ParameterTypes[0] == typeof(Expression<Func<ConditionEndpoint, IOperand>>) &&
                        g.ParameterTypes[1].IsArray).Method;
+      internal static readonly MethodInfoParams ContainsTableExprWithColumnsParams = new(ContainsTableExprWithColumns);
 
       public static readonly MethodInfo ContainsTableExprTopNByRank = containsTableMethods
           .Single(g => g.ParameterTypes.Length == 2 && g.ParameterTypes[0] == typeof(Expression<Func<ConditionEndpoint, IOperand>>) && g.ParameterTypes[1] == WellKnownTypes.Int32).Method;
+      internal static readonly MethodInfoParams ContainsTableExprTopNByRankParams = new(ContainsTableExprTopNByRank);
 
       public static readonly MethodInfo ContainsTableExprWithColumnsTopNByRank = containsTableMethods
           .Single(g => g.ParameterTypes.Length == 3 &&
                        g.ParameterTypes[0] == typeof(Expression<Func<ConditionEndpoint, IOperand>>) &&
                        g.ParameterTypes[1].IsArray &&
                        g.ParameterTypes[2] == WellKnownTypes.Int32).Method;
+      internal static readonly MethodInfoParams ContainsTableExprWithColumnsTopNByRankParams = new(ContainsTableExprWithColumnsTopNByRank);
 
       public static readonly MethodInfo SingleKey = SingleMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
+      internal static readonly MethodInfoParams SingleKeyParams = new(SingleKey);
+
       public static readonly MethodInfo SingleArray = SingleMethods.Single(ft => ft.GetParameterTypes()[0] == WellKnownTypes.ObjectArray);
+      internal static readonly MethodInfoParams SingleArrayParams = new(SingleArray);
+
       public static readonly MethodInfo SingleOrDefaultKey = SingleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
+      internal static readonly MethodInfoParams SingleOrDefaultKeyParams = new(SingleOrDefaultKey);
+
       public static readonly MethodInfo SingleOrDefaultArray = SingleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == WellKnownTypes.ObjectArray);
+      internal static readonly MethodInfoParams SingleOrDefaultArrayParams = new(SingleOrDefaultArray);
+
       public static readonly MethodInfo Items = typeof(Orm.QueryEndpoint).GetMethod(nameof(Orm.QueryEndpoint.Items));
+      internal static readonly MethodInfoParams ItemsParams = new(Items);
     }
 #pragma warning restore 612,618
 
@@ -193,7 +227,7 @@ namespace Xtensive.Orm.Linq
           .First(m => m.Name == nameof(System.Linq.Enumerable.SingleOrDefault) && m.GetParameters().Length == 1);
 
       public static readonly Type OfTuple = WellKnownInterfaces.EnumerableOfT.CachedMakeGenericType(typeof(Xtensive.Tuples.Tuple));
-      public static readonly MethodInfo DefaultIfEmpty = typeof(System.Linq.Enumerable).GetMethods().First(m => m.Name == nameof(System.Linq.Enumerable.DefaultIfEmpty));
+      public static readonly MethodInfoParams DefaultIfEmptyParams = new(typeof(System.Linq.Enumerable).GetMethods().First(m => m.Name == nameof(System.Linq.Enumerable.DefaultIfEmpty)));
       public static readonly MethodInfo Contains = GetMethod(typeof(System.Linq.Enumerable), nameof(System.Linq.Enumerable.Contains), 1, 2);
       public static readonly MethodInfo Cast = GetMethod(typeof(System.Linq.Enumerable), nameof(System.Linq.Enumerable.Cast), 1, 1);
     }

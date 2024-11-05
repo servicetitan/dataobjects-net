@@ -446,29 +446,29 @@ namespace Xtensive.Orm.Linq
 #pragma warning disable 612,618
         if (methodDeclaringType == WellKnownOrmTypes.Query) {
           // Query.All<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.All)) {
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.AllParams)) {
             return ConstructQueryable(mc);
           }
 
           // Query.FreeText<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextString)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextExpression)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextExpressionTopNByRank)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextStringTopNByRank)) {
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextStringParams)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextExpressionParams)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextExpressionTopNByRankParams)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextStringTopNByRankParams)) {
             return ConstructFreeTextQueryRoot(method.GetGenericArguments()[0], mc.Arguments);
           }
 
           // Query.ContainsTable<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExpr)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprWithColumns)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprTopNByRank)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprWithColumnsTopNByRank)) {
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprParams)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprWithColumnsParams)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprTopNByRankParams)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprWithColumnsTopNByRankParams)) {
             return ConstructContainsTableQueryRoot(method.GetGenericArguments()[0], mc.Arguments);
           }
 
           // Query.Single<T> & Query.SingleOrDefault<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.SingleKey)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.SingleOrDefaultKey)) {
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.SingleKeyParams)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.SingleOrDefaultKeyParams)) {
             return VisitQuerySingle(mc);
           }
 
@@ -477,33 +477,33 @@ namespace Xtensive.Orm.Linq
         // Visit QueryEndpoint.
         if (methodDeclaringType == WellKnownOrmTypes.QueryEndpoint) {
           // Query.All<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.All)) {
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.AllParams)) {
             return ConstructQueryable(mc);
           }
 
           // Query.FreeText<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextString)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextExpression)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextExpressionTopNByRank)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextStringTopNByRank)) {
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextStringParams)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextExpressionParams)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextExpressionTopNByRankParams)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextStringTopNByRankParams)) {
             return ConstructFreeTextQueryRoot(method.GetGenericArguments()[0], mc.Arguments);
           }
 
           // Query.ContainsTable<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExpr)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprWithColumns)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprTopNByRank)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprWithColumnsTopNByRank)) {
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprParams)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprWithColumnsParams)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprTopNByRankParams)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprWithColumnsTopNByRankParams)) {
             return ConstructContainsTableQueryRoot(method.GetGenericArguments()[0], mc.Arguments);
           }
 
           // Query.Single<T> & Query.SingleOrDefault<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.SingleKey)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.SingleOrDefaultKey)) {
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.SingleKeyParams)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.SingleOrDefaultKeyParams)) {
             return VisitQuerySingle(mc);
           }
 
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.Items)) {
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ItemsParams)) {
             return VisitSequence(mc.Arguments[0].StripQuotes().Body, mc);
           }
 
