@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.12.11
 
-using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -17,28 +16,29 @@ namespace Xtensive.Orm.Linq.Model
     {
       var method = mc.Method;
       var mcArguments = mc.Arguments;
+      MethodInfoParams methodInfoParams = new(method, false);
 
-      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByParams))
+      if (methodInfoParams.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByParams))
         return new GroupByQuery {
           Source = mcArguments[0],
           KeySelector = mcArguments[1].StripQuotes(),
         };
 
-      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementSelectorParams))
+      if (methodInfoParams.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementSelectorParams))
         return new GroupByQuery {
           Source = mcArguments[0],
           KeySelector = mcArguments[1].StripQuotes(),
           ElementSelector = mcArguments[2].StripQuotes(),
         };
 
-      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithResultSelectorParams))
+      if (methodInfoParams.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithResultSelectorParams))
         return new GroupByQuery {
             Source = mcArguments[0],
             KeySelector = mcArguments[1].StripQuotes(),
             ResultSelector = mcArguments[2].StripQuotes(),
           };
 
-      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementAndResultSelectorsParams))
+      if (methodInfoParams.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementAndResultSelectorsParams))
         return new GroupByQuery {
           Source = mcArguments[0],
           KeySelector = mcArguments[1].StripQuotes(),

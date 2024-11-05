@@ -16,9 +16,10 @@ using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq
 {
-  public readonly record struct MethodInfoParams(int MetadataToken, Module Module, bool IsGenericMethodDefinition)
+  public readonly record struct MethodInfoParams(int MetadataToken, Module Module, bool IsGeneric)
   {
-    public MethodInfoParams(MethodInfo mi) : this(mi.MetadataToken, mi.Module, mi.IsGenericMethodDefinition) { }
+    public MethodInfoParams(MethodInfo mi, bool fromDefinition = true)
+      : this(mi.MetadataToken, mi.Module, fromDefinition ? mi.IsGenericMethodDefinition : mi.IsGenericMethod) { }
   }
 
   internal static partial class WellKnownMembers
