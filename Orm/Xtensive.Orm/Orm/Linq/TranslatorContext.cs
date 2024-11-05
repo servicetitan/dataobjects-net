@@ -25,12 +25,14 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed class TranslatorContext
   {
+    private static readonly IReadOnlyList<string> ColumnAliasPrefixes = ["c01umn"];
+
     private AliasGenerator resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
-    private AliasGenerator columnAliasGenerator = AliasGenerator.Create(new[] {"c01umn"});
-    private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters;
-    private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
-    private readonly Dictionary<ParameterExpression, ItemProjectorExpression> boundItemProjectors;
-    private readonly Dictionary<MemberInfo, int> queryReuses;
+    private AliasGenerator columnAliasGenerator = AliasGenerator.Create(ColumnAliasPrefixes);
+    private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters = new();
+    private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters = new();
+    private readonly Dictionary<ParameterExpression, ItemProjectorExpression> boundItemProjectors = new();
+    private readonly Dictionary<MemberInfo, int> queryReuses = new();
 
     public readonly CompilerConfiguration RseCompilerConfiguration;
 
@@ -52,7 +54,7 @@ namespace Xtensive.Orm.Linq
 
     public ParameterExtractor ParameterExtractor { get; }
 
-    public LinqBindingCollection Bindings { get; }
+    public LinqBindingCollection Bindings { get; } = new();
 
     public IReadOnlyList<string> SessionTags { get; private set; }
 
@@ -177,11 +179,6 @@ namespace Xtensive.Orm.Linq
       ProviderInfo = Domain.Handlers.ProviderInfo;
       Translator = new Translator(this, compiledQueryScope);
       ParameterExtractor = new ParameterExtractor(Evaluator);
-      Bindings = new LinqBindingCollection();
-      applyParameters = new Dictionary<CompilableProvider, ApplyParameter>();
-      tupleParameters = new Dictionary<ParameterExpression, Parameter<Tuple>>();
-      boundItemProjectors = new Dictionary<ParameterExpression, ItemProjectorExpression>();
-      queryReuses = new Dictionary<MemberInfo, int>();
     }
   }
 }
