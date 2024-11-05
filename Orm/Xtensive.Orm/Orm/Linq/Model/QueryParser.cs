@@ -16,33 +16,34 @@ namespace Xtensive.Orm.Linq.Model
     public static GroupByQuery ParseGroupBy(MethodCallExpression mc)
     {
       var method = mc.Method;
+      var mcArguments = mc.Arguments;
 
       if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByParams))
         return new GroupByQuery {
-          Source = mc.Arguments[0],
-          KeySelector = mc.Arguments[1].StripQuotes(),
+          Source = mcArguments[0],
+          KeySelector = mcArguments[1].StripQuotes(),
         };
 
       if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementSelectorParams))
         return new GroupByQuery {
-          Source = mc.Arguments[0],
-          KeySelector = mc.Arguments[1].StripQuotes(),
-          ElementSelector = mc.Arguments[2].StripQuotes(),
+          Source = mcArguments[0],
+          KeySelector = mcArguments[1].StripQuotes(),
+          ElementSelector = mcArguments[2].StripQuotes(),
         };
 
       if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithResultSelectorParams))
         return new GroupByQuery {
-            Source = mc.Arguments[0],
-            KeySelector = mc.Arguments[1].StripQuotes(),
-            ResultSelector = mc.Arguments[2].StripQuotes(),
+            Source = mcArguments[0],
+            KeySelector = mcArguments[1].StripQuotes(),
+            ResultSelector = mcArguments[2].StripQuotes(),
           };
 
       if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementAndResultSelectorsParams))
         return new GroupByQuery {
-          Source = mc.Arguments[0],
-          KeySelector = mc.Arguments[1].StripQuotes(),
-          ElementSelector = mc.Arguments[2].StripQuotes(),
-          ResultSelector = mc.Arguments[3].StripQuotes()
+          Source = mcArguments[0],
+          KeySelector = mcArguments[1].StripQuotes(),
+          ElementSelector = mcArguments[2].StripQuotes(),
+          ResultSelector = mcArguments[3].StripQuotes()
         };
 
       throw new NotSupportedException(string.Format(
