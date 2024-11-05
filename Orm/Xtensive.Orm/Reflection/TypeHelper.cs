@@ -971,11 +971,11 @@ namespace Xtensive.Reflection
     /// Determines whether given <paramref name="method"/> is a specification
     /// of the provided <paramref name="genericMethodDefinition"/>.
     /// </summary>
-    /// <param name="method">The <see cref="MethodInfo"/> to check.</param>
-    /// <param name="genericMethodDefinition">The <see cref="MethodInfo"/> of the generic method definition
+    /// <param name="methodParams">The <see cref="MethodInfoParams"/> to check.</param>
+    /// <param name="genericMethodDefinitionParams">The <see cref="MethodInfoParams"/> of the generic method definition
     /// to check against.</param>
-    /// <returns><see langword="true"/> if the specified <paramref name="method"/> is a specification
-    /// of the provided <paramref name="genericMethodDefinition"/>.</returns>
+    /// <returns><see langword="true"/> if the specified <paramref name="methodParams"/> is a specification
+    /// of the provided <paramref name="genericMethodDefinitionParams"/>.</returns>
     public static bool IsGenericMethodSpecificationOf(this in MethodInfoParams methodParams, in MethodInfoParams genericMethodDefinitionParams) =>
       methodParams.MetadataToken == genericMethodDefinitionParams.MetadataToken
       && methodParams.Module == genericMethodDefinitionParams.Module
