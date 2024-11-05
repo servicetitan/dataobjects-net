@@ -976,10 +976,10 @@ namespace Xtensive.Reflection
     /// to check against.</param>
     /// <returns><see langword="true"/> if the specified <paramref name="method"/> is a specification
     /// of the provided <paramref name="genericMethodDefinition"/>.</returns>
-    public static bool IsGenericMethodSpecificationOf(this MethodInfo method, in MethodInfoParams genericMethodDefinitionPaarams) =>
-      method.MetadataToken == genericMethodDefinitionPaarams.MetadataToken
-      && method.Module == genericMethodDefinitionPaarams.Module
-      && method.IsGenericMethod && genericMethodDefinitionPaarams.IsGenericMethodDefinition;
+    public static bool IsGenericMethodSpecificationOf(this MethodInfo method, in MethodInfoParams genericMethodDefinitionParams) =>
+      method.MetadataToken == genericMethodDefinitionParams.MetadataToken
+      && method.Module == genericMethodDefinitionParams.Module
+      && method.IsGenericMethod && genericMethodDefinitionParams.IsGenericMethodDefinition;
 
     public static Type CachedGetGenericTypeDefinition(this Type type) =>
       GenericTypeDefinitions?.GetOrAdd(type, static t => t.GetGenericTypeDefinition()) ?? type.GetGenericTypeDefinition();
