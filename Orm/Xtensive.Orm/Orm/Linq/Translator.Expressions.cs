@@ -441,11 +441,11 @@ namespace Xtensive.Orm.Linq
 
         var methodDeclaringType = method.DeclaringType;
         var methodName = method.Name;
-        GenericMethodHandle methodInfoHandle = new(method);
 
         // Visit Query. Deprecated.
 #pragma warning disable 612,618
         if (methodDeclaringType == WellKnownOrmTypes.Query) {
+          GenericMethodHandle methodInfoHandle = new(method);
           // Query.All<T>
           if (methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.AllHandle)) {
             return ConstructQueryable(mc);
@@ -477,6 +477,7 @@ namespace Xtensive.Orm.Linq
         }
         // Visit QueryEndpoint.
         if (methodDeclaringType == WellKnownOrmTypes.QueryEndpoint) {
+          GenericMethodHandle methodInfoHandle = new(method);
           // Query.All<T>
           if (methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.AllHandle)) {
             return ConstructQueryable(mc);
