@@ -16,7 +16,7 @@ using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq
 {
-  public readonly record struct GenericMethodHandle(int MetadataToken, ModuleHandle ModuleHandle)
+  internal readonly record struct GenericMethodHandle(int MetadataToken, ModuleHandle ModuleHandle)
   {
     public GenericMethodHandle(MethodInfo mi)
       : this(mi.MetadataToken, mi.Module.ModuleHandle)
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Linq
     }
   }
 
-  public readonly record struct GenericMethodDefinitionHandle(int MetadataToken, ModuleHandle ModuleHandle)
+  internal readonly record struct GenericMethodDefinitionHandle(int MetadataToken, ModuleHandle ModuleHandle)
   {
     public GenericMethodDefinitionHandle(MethodInfo mi)
       : this(mi.MetadataToken, mi.Module.ModuleHandle)
