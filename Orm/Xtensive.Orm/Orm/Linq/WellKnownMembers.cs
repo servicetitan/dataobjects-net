@@ -78,30 +78,30 @@ namespace Xtensive.Orm.Linq
           .Single(g => g.ParameterTypes.Length == 2 &&
                        g.ParameterTypes[0] == typeof(Expression<Func<ConditionEndpoint, IOperand>>) &&
                        g.ParameterTypes[1].IsArray).Method;
-      internal static readonly GenericMethodDefinitionHandle ContainsTableExprWithColumnsParams = new(ContainsTableExprWithColumns);
+      internal static readonly GenericMethodDefinitionHandle ContainsTableExprWithColumnsHandle = new(ContainsTableExprWithColumns);
 
       public static readonly MethodInfo ContainsTableExprTopNByRank = containsTableMethods
           .Single(g => g.ParameterTypes.Length == 2 && g.ParameterTypes[0] == typeof(Expression<Func<ConditionEndpoint, IOperand>>) && g.ParameterTypes[1] == WellKnownTypes.Int32).Method;
-      internal static readonly GenericMethodDefinitionHandle ContainsTableExprTopNByRankParams = new(ContainsTableExprTopNByRank);
+      internal static readonly GenericMethodDefinitionHandle ContainsTableExprTopNByRankHandle = new(ContainsTableExprTopNByRank);
 
       public static readonly MethodInfo ContainsTableExprWithColumnsTopNByRank = containsTableMethods
           .Single(g => g.ParameterTypes.Length == 3 &&
                        g.ParameterTypes[0] == typeof(Expression<Func<ConditionEndpoint, IOperand>>) &&
                        g.ParameterTypes[1].IsArray &&
                        g.ParameterTypes[2] == WellKnownTypes.Int32).Method;
-      internal static readonly GenericMethodDefinitionHandle ContainsTableExprWithColumnsTopNByRankParams = new(ContainsTableExprWithColumnsTopNByRank);
+      internal static readonly GenericMethodDefinitionHandle ContainsTableExprWithColumnsTopNByRankHandle = new(ContainsTableExprWithColumnsTopNByRank);
 
       public static readonly MethodInfo SingleKey = SingleMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
-      internal static readonly GenericMethodDefinitionHandle SingleKeyParams = new(SingleKey);
+      internal static readonly GenericMethodDefinitionHandle SingleKeyHandle = new(SingleKey);
 
       public static readonly MethodInfo SingleArray = SingleMethods.Single(ft => ft.GetParameterTypes()[0] == WellKnownTypes.ObjectArray);
-      internal static readonly GenericMethodDefinitionHandle SingleArrayParams = new(SingleArray);
+      internal static readonly GenericMethodDefinitionHandle SingleArrayHandle = new(SingleArray);
 
       public static readonly MethodInfo SingleOrDefaultKey = SingleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
-      internal static readonly GenericMethodDefinitionHandle SingleOrDefaultKeyParams = new(SingleOrDefaultKey);
+      internal static readonly GenericMethodDefinitionHandle SingleOrDefaultKeyHandle = new(SingleOrDefaultKey);
 
       public static readonly MethodInfo SingleOrDefaultArray = SingleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == WellKnownTypes.ObjectArray);
-      internal static readonly GenericMethodDefinitionHandle SingleOrDefaultArrayParams = new(SingleOrDefaultArray);
+      internal static readonly GenericMethodDefinitionHandle SingleOrDefaultArrayHandle = new(SingleOrDefaultArray);
     }
 
     public static class QueryEndpoint

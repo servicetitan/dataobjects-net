@@ -461,15 +461,15 @@ namespace Xtensive.Orm.Linq
 
           // Query.ContainsTable<T>
           if (methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprHandle)
-              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprWithColumnsParams)
-              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprTopNByRankParams)
-              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprWithColumnsTopNByRankParams)) {
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprWithColumnsHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprTopNByRankHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprWithColumnsTopNByRankHandle)) {
             return ConstructContainsTableQueryRoot(method.GetGenericArguments()[0], mc.Arguments);
           }
 
           // Query.Single<T> & Query.SingleOrDefault<T>
-          if (methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.SingleKeyParams)
-              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.SingleOrDefaultKeyParams)) {
+          if (methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.SingleKeyHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.SingleOrDefaultKeyHandle)) {
             return VisitQuerySingle(mc);
           }
 
