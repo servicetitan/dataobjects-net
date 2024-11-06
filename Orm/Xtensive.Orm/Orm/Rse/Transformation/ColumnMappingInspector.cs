@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2024 Xtensive LLC.
+&// Copyright (C) 2010-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -113,8 +113,10 @@ namespace Xtensive.Orm.Rse.Transformation
       var colMap = mappings[provider.Source];
       mappings[provider] = colMap;
 
+      if (newSourceProvider == provider.Source)
+        return provider;
       var predicate = TranslateLambda(colMap, provider.Predicate);
-      return newSourceProvider == provider.Source && predicate == provider.Predicate
+      return predicate == provider.Predicate
         ? provider
         : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) predicate);
     }
