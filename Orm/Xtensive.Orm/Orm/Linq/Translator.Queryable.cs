@@ -1330,11 +1330,13 @@ namespace Xtensive.Orm.Linq
         var isOuter = false;
         if (collectionSelector.Body.NodeType == ExpressionType.Call) {
           var call = (MethodCallExpression) collectionSelector.Body;
-          GenericMethodHandle methodInfoHandle = new(call.Method);
-          isOuter = methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Queryable.DefaultIfEmptyHandle)
-                    || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Enumerable.DefaultIfEmptyHandle);
-          if (isOuter) {
-            collectionSelector = FastExpression.Lambda(call.Arguments[0], outerParameter);
+          if (call.Method.IsGenericMethod) {
+            GenericMethodHandle methodInfoHandle = new(call.Method);
+            isOuter = methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Queryable.DefaultIfEmptyHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Enumerable.DefaultIfEmptyHandle);
+            if (isOuter) {
+              collectionSelector = FastExpression.Lambda(call.Arguments[0], outerParameter);
+            }
           }
         }
 
