@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -16,29 +16,29 @@ namespace Xtensive.Orm.Linq.Model
     {
       var method = mc.Method;
       var mcArguments = mc.Arguments;
-      MethodInfoParams methodInfoParams = new(method, false);
+      GenericMethodHandle methodInfoHandle = new(method);
 
-      if (methodInfoParams.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByParams))
+      if (methodInfoHandle.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByHandle))
         return new GroupByQuery {
           Source = mcArguments[0],
           KeySelector = mcArguments[1].StripQuotes(),
         };
 
-      if (methodInfoParams.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementSelectorParams))
+      if (methodInfoHandle.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementSelectorHandle))
         return new GroupByQuery {
           Source = mcArguments[0],
           KeySelector = mcArguments[1].StripQuotes(),
           ElementSelector = mcArguments[2].StripQuotes(),
         };
 
-      if (methodInfoParams.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithResultSelectorParams))
+      if (methodInfoHandle.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithResultSelectorHandle))
         return new GroupByQuery {
             Source = mcArguments[0],
             KeySelector = mcArguments[1].StripQuotes(),
             ResultSelector = mcArguments[2].StripQuotes(),
           };
 
-      if (methodInfoParams.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementAndResultSelectorsParams))
+      if (methodInfoHandle.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementAndResultSelectorsHandle))
         return new GroupByQuery {
           Source = mcArguments[0],
           KeySelector = mcArguments[1].StripQuotes(),

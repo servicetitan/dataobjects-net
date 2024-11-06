@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo Count;
       public static readonly MethodInfo CountWithPredicate;
 
-      internal static readonly MethodInfoParams DefaultIfEmptyParams;
+      internal static readonly GenericMethodDefinitionHandle DefaultIfEmptyHandle;
 
       public static readonly MethodInfo DefaultIfEmptyWithDefaultValue;
       public static readonly MethodInfo Distinct;
@@ -208,7 +208,7 @@ namespace Xtensive.Orm.Linq
             case nameof(System.Linq.Queryable.DefaultIfEmpty):
               switch (parameters.Length) {
                 case 1:
-                  DefaultIfEmptyParams = new(methodInfo);
+                  DefaultIfEmptyHandle = new(methodInfo);
                   break;
                 case 2:
                   DefaultIfEmptyWithDefaultValue = methodInfo;
