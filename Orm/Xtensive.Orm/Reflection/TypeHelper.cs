@@ -4,20 +4,16 @@
 // Created by: Nick Svetlov
 // Created:    2007.06.13
 
-using System;
 using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Threading;
 using Xtensive.Collections;
-using System.Linq;
 using Xtensive.Core;
-
+using Xtensive.Orm.Linq;
 using Xtensive.Sorting;
 using JetBrains.Annotations;
 
@@ -975,16 +971,14 @@ namespace Xtensive.Reflection
     /// Determines whether given <paramref name="method"/> is a specification
     /// of the provided <paramref name="genericMethodDefinition"/>.
     /// </summary>
-    /// <param name="method">The <see cref="MethodInfo"/> to check.</param>
-    /// <param name="genericMethodDefinition">The <see cref="MethodInfo"/> of the generic method definition
+    /// <param name="methodHandle">The <see cref="GenericMethodDefinitionHandle"/> to check.</param>
+    /// <param name="definitionHandle">The <see cref="GenericMethodDefinitionHandle"/> of the generic method definition
     /// to check against.</param>
-    /// <returns><see langword="true"/> if the specified <paramref name="method"/> is a specification
-    /// of the provided <paramref name="genericMethodDefinition"/>.</returns>
-    public static bool IsGenericMethodSpecificationOf(this MethodInfo method, MethodInfo genericMethodDefinition) =>
-      method.MetadataToken == genericMethodDefinition.MetadataToken
-      && (ReferenceEquals(method.Module, genericMethodDefinition.Module)
-        || method.Module == genericMethodDefinition.Module)
-      && method.IsGenericMethod && genericMethodDefinition.IsGenericMethodDefinition;
+    /// <returns><see langword="true"/> if the specified <paramref name="methodHandle"/> is a specification
+    /// of the provided <paramref name="definitionHandle"/>.</returns>
+    internal static bool IsGenericMethodSpecificationOf(this in GenericMethodHandle methodHandle, in GenericMethodDefinitionHandle definitionHandle) =>
+      methodHandle.MetadataToken == definitionHandle.MetadataToken
+      && methodHandle.ModuleHandle == definitionHandle.ModuleHandle;
 
     public static Type CachedGetGenericTypeDefinition(this Type type) =>
       GenericTypeDefinitions?.GetOrAdd(type, static t => t.GetGenericTypeDefinition()) ?? type.GetGenericTypeDefinition();

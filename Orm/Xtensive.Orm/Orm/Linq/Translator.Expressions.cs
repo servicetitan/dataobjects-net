@@ -445,30 +445,31 @@ namespace Xtensive.Orm.Linq
         // Visit Query. Deprecated.
 #pragma warning disable 612,618
         if (methodDeclaringType == WellKnownOrmTypes.Query) {
+          GenericMethodHandle methodInfoHandle = new(method);
           // Query.All<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.All)) {
+          if (methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.AllHandle)) {
             return ConstructQueryable(mc);
           }
 
           // Query.FreeText<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextString)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextExpression)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextExpressionTopNByRank)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextStringTopNByRank)) {
+          if (methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextStringHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextExpressionHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextExpressionTopNByRankHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextStringTopNByRankHandle)) {
             return ConstructFreeTextQueryRoot(method.GetGenericArguments()[0], mc.Arguments);
           }
 
           // Query.ContainsTable<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExpr)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprWithColumns)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprTopNByRank)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprWithColumnsTopNByRank)) {
+          if (methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprWithColumnsHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprTopNByRankHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprWithColumnsTopNByRankHandle)) {
             return ConstructContainsTableQueryRoot(method.GetGenericArguments()[0], mc.Arguments);
           }
 
           // Query.Single<T> & Query.SingleOrDefault<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.SingleKey)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.SingleOrDefaultKey)) {
+          if (methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.SingleKeyHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.Query.SingleOrDefaultKeyHandle)) {
             return VisitQuerySingle(mc);
           }
 
@@ -476,34 +477,35 @@ namespace Xtensive.Orm.Linq
         }
         // Visit QueryEndpoint.
         if (methodDeclaringType == WellKnownOrmTypes.QueryEndpoint) {
+          GenericMethodHandle methodInfoHandle = new(method);
           // Query.All<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.All)) {
+          if (methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.AllHandle)) {
             return ConstructQueryable(mc);
           }
 
           // Query.FreeText<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextString)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextExpression)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextExpressionTopNByRank)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextStringTopNByRank)) {
+          if (methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextStringHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextExpressionHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextExpressionTopNByRankHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextStringTopNByRankHandle)) {
             return ConstructFreeTextQueryRoot(method.GetGenericArguments()[0], mc.Arguments);
           }
 
           // Query.ContainsTable<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExpr)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprWithColumns)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprTopNByRank)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprWithColumnsTopNByRank)) {
+          if (methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprWithColumnsHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprTopNByRankHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprWithColumnsTopNByRankHandle)) {
             return ConstructContainsTableQueryRoot(method.GetGenericArguments()[0], mc.Arguments);
           }
 
           // Query.Single<T> & Query.SingleOrDefault<T>
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.SingleKey)
-            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.SingleOrDefaultKey)) {
+          if (methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.SingleKeyHandle)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.SingleOrDefaultKeyHandle)) {
             return VisitQuerySingle(mc);
           }
 
-          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.Items)) {
+          if (methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ItemsHandle)) {
             return VisitSequence(mc.Arguments[0].StripQuotes().Body, mc);
           }
 
