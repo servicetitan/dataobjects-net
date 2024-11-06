@@ -595,7 +595,6 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     // Related to https://github.com/DataObjects-NET/dataobjects-net/issues/402
-    [Explicit]
     [Test]
     public void UnusedLetImpactsQueryTest()
     {
