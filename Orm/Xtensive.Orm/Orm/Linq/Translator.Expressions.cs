@@ -493,7 +493,7 @@ namespace Xtensive.Orm.Linq
           // Query.ContainsTable<T>
           if (methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprHandle)
               || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprWithColumnsHandle)
-              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprTopNByRankParams)
+              || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprTopNByRankHandle)
               || methodInfoHandle.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprWithColumnsTopNByRankHandle)) {
             return ConstructContainsTableQueryRoot(method.GetGenericArguments()[0], mc.Arguments);
           }

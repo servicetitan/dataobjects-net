@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Linq
 
       public static readonly MethodInfo ContainsTableExprTopNByRank = containsTableMethods
           .Single(g => g.ParameterTypes.Length == 2 && g.ParameterTypes[0] == typeof(Expression<Func<ConditionEndpoint, IOperand>>) && g.ParameterTypes[1] == WellKnownTypes.Int32).Method;
-      internal static readonly GenericMethodDefinitionHandle ContainsTableExprTopNByRankParams = new(ContainsTableExprTopNByRank);
+      internal static readonly GenericMethodDefinitionHandle ContainsTableExprTopNByRankHandle = new(ContainsTableExprTopNByRank);
 
       public static readonly MethodInfo ContainsTableExprWithColumnsTopNByRank = containsTableMethods
           .Single(g => g.ParameterTypes.Length == 3 &&
