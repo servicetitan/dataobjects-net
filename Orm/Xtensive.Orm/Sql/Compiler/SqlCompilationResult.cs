@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Diagnostics;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Sql.Compiler
@@ -66,6 +67,7 @@ namespace Xtensive.Sql.Compiler
         return resultText;
       string result = PostCompiler.Process(resultNodes, configuration, lastResultLength);
       lastResultLength = result.Length;
+      Metrics.SqlLength.Record(lastResultLength);
       return result;
     }
 
