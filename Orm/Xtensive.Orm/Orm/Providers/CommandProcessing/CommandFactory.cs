@@ -151,7 +151,7 @@ namespace Xtensive.Orm.Providers
               _ = configuration.AlternativeBranches.Add(binding);
             }
             else if (rowFilterParameterBinding.TvpTypeMapping != null
-                            && filterData.Count > Session.Domain.Configuration.MaxNumberOfConditions) {
+                && (rowFilterParameterBinding.EnforceTvp || filterData.Count > Session.Domain.Configuration.MaxNumberOfConditions)) {
               configuration.AlternativeBranches.Add(binding);
               string paramName = GetParameterName(parameterNamePrefix, ref parameterIndex);
               var parameterReference = Driver.BuildParameterReference(paramName);

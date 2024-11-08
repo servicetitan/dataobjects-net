@@ -615,12 +615,32 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void TemporaryTableInTest()
+    public void Both_TemporaryTable_Auto_InTest()
     {
       var ids = Enumerable.Range(0, 2000).ToArray();
       var query = from track in Session.Query.All<Track>()
                   where track.TrackId.In(IncludeAlgorithm.TemporaryTable, ids)
                   where track.TrackId.In(IncludeAlgorithm.Auto, ids)
+                  select track;
+      query.ToList();
+    }
+
+    [Test]
+    public void TableValuedParameter_Many_InTest()
+    {
+      var ids = Enumerable.Range(0, 2000).ToArray();
+      var query = from track in Session.Query.All<Track>()
+                  where track.TrackId.In(IncludeAlgorithm.TableValuedParameter, ids)
+                  select track;
+      query.ToList();
+    }
+
+    [Test]
+    public void TableValuedParameter_Few_InTest()
+    {
+      var ids = Enumerable.Range(0, 2).ToArray();
+      var query = from track in Session.Query.All<Track>()
+                  where track.TrackId.In(IncludeAlgorithm.TableValuedParameter, ids)
                   select track;
       query.ToList();
     }

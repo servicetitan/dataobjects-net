@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Providers
         case IncludeAlgorithm.Auto:
           if (tvpType != null) {
             parameterAccessor = BuildComplexConditionRowFilterParameterAccessor(filterDataSource);
-            (var alternative, extraBinding) = CreateIncludeViaTableValuedParameter(provider, mappings, parameterAccessor, sourceColumns, tvpType);
+            (var alternative, extraBinding) = CreateIncludeViaTableValuedParameter(provider, mappings, parameterAccessor, sourceColumns, tvpType, false);
             (var complexConditionExpression, extraBinding) = CreateIncludeViaComplexConditionExpression(provider, mappings, parameterAccessor, sourceColumns, extraBinding);
             resultExpression = SqlDml.Variant(extraBinding, complexConditionExpression, alternative);
           }
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Providers
           break;
         case IncludeAlgorithm.TableValuedParameter:
           parameterAccessor = BuildComplexConditionRowFilterParameterAccessor(filterDataSource);
-          (resultExpression, extraBinding) = CreateIncludeViaTableValuedParameter(provider, mappings, parameterAccessor, sourceColumns, tvpType);
+          (resultExpression, extraBinding) = CreateIncludeViaTableValuedParameter(provider, mappings, parameterAccessor, sourceColumns, tvpType, true);
           break;
         default:
           throw new ArgumentOutOfRangeException("provider.Algorithm");
@@ -94,18 +94,20 @@ namespace Xtensive.Orm.Providers
       IncludeProvider provider, IReadOnlyList<TypeMapping> mappings, Func<ParameterContext, object> valueAccessor,
       IReadOnlyList<SqlExpression> sourceColumns, QueryParameterBinding binding = null)
     {
-      binding ??= new QueryRowFilterParameterBinding(mappings, valueAccessor, null);
+      binding ??= new QueryRowFilterParameterBinding(mappings, valueAccessor, null, false);
       return (SqlDml.DynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding);
     }
 
     protected (SqlExpression, QueryParameterBinding) CreateIncludeViaTableValuedParameter(
       IncludeProvider provider, IReadOnlyList<TypeMapping> mappings, Func<ParameterContext, object> valueAccessor,
-      IReadOnlyList<SqlExpression> sourceColumns, Type tableValuedParameterType)
+      IReadOnlyList<SqlExpression> sourceColumns,
+      Type tableValuedParameterType,
+      bool enforceTvp)
     {
       var tvpMapping = Driver.GetTypeMapping(tableValuedParameterType == WellKnownTypes.String
         ? typeof(List<string>)
         : typeof(List<long>));
-      QueryRowFilterParameterBinding binding = new(mappings, valueAccessor, tvpMapping);
+      QueryRowFilterParameterBinding binding = new(mappings, valueAccessor, tvpMapping, enforceTvp);
       return (SqlDml.TvpDynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding);
     }
 
