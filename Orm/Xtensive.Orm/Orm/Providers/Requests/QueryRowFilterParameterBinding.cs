@@ -16,7 +16,11 @@ namespace Xtensive.Orm.Providers;
 /// <summary>
 /// A special version of <see cref="QueryParameterBinding"/> used for complex filters.
 /// </summary>
-public class QueryRowFilterParameterBinding(IReadOnlyList<TypeMapping> rowTypeMapping, Func<ParameterContext, object> valueAccessor, TypeMapping tvpTypeMapping)
+internal class QueryRowFilterParameterBinding(
+  IReadOnlyList<TypeMapping> rowTypeMapping,
+  Func<ParameterContext, object> valueAccessor,
+  TypeMapping tvpTypeMapping,
+  bool enforceTvp)
   : QueryParameterBinding(null, valueAccessor, QueryParameterBindingType.RowFilter)
 {
   /// <summary>
@@ -25,4 +29,5 @@ public class QueryRowFilterParameterBinding(IReadOnlyList<TypeMapping> rowTypeMa
   public IReadOnlyList<TypeMapping> RowTypeMapping => rowTypeMapping;
 
   public TypeMapping TvpTypeMapping => tvpTypeMapping;
+  public bool EnforceTvp => enforceTvp;
 }

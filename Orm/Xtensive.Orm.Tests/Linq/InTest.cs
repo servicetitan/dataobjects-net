@@ -594,6 +594,11 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual("Leonie", result2[0]);
     }
 
+    private IEnumerable<Customer> GetCustomers(params string[] customerNames)
+    {
+      return Session.Query.Execute(qe => qe.All<Customer>().Where(customer => customer.FirstName.In(customerNames)));
+    }
+
     // Related to https://github.com/DataObjects-NET/dataobjects-net/issues/402
     [Test]
     public void UnusedLetImpactsQueryTest()
@@ -609,9 +614,37 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual(1, count);
     }
 
-    private IEnumerable<Customer> GetCustomers(params string[] customerNames)
+    [Test]
+    public void Both_TemporaryTable_Auto_InTest()
     {
-      return Session.Query.Execute(qe => qe.All<Customer>().Where(customer => customer.FirstName.In(customerNames)));
+      var ids = Enumerable.Range(0, 2000).ToArray();
+      var query = from track in Session.Query.All<Track>()
+                  where track.TrackId.In(IncludeAlgorithm.TemporaryTable, ids)
+                  where track.TrackId.In(IncludeAlgorithm.Auto, ids)
+                  select track;
+      query.ToList();
+    }
+
+    [Test]
+    [MutePostgreSql]
+    public void TableValuedParameter_Many_InTest()
+    {
+      var ids = Enumerable.Range(0, 2000).ToArray();
+      var query = from track in Session.Query.All<Track>()
+                  where track.TrackId.In(IncludeAlgorithm.TableValuedParameter, ids)
+                  select track;
+      query.ToList();
+    }
+
+    [Test]
+    [MutePostgreSql]
+    public void TableValuedParameter_Few_InTest()
+    {
+      var ids = Enumerable.Range(0, 2).ToArray();
+      var query = from track in Session.Query.All<Track>()
+                  where track.TrackId.In(IncludeAlgorithm.TableValuedParameter, ids)
+                  select track;
+      query.ToList();
     }
   }
 }
