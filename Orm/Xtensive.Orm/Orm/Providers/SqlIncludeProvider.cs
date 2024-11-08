@@ -54,6 +54,9 @@ namespace Xtensive.Orm.Providers
       var parameterContext = ((EnumerationContext) context).ParameterContext;
       switch (Origin.Algorithm) {
         case IncludeAlgorithm.Auto:
+          if (tableDescriptor is null) {
+            break;
+          }
           var filterData = filterDataSource.Invoke(parameterContext).ToList();
           if (filterData.Count > DomainHandler.Domain.Configuration.MaxNumberOfConditions) {
             LockAndStore(context, filterData);
@@ -80,6 +83,9 @@ namespace Xtensive.Orm.Providers
       var parameterContext = ((EnumerationContext) context).ParameterContext;
       switch (Origin.Algorithm) {
         case IncludeAlgorithm.Auto:
+          if (tableDescriptor is null) {
+            break;
+          }
           var filterData = filterDataSource.Invoke(parameterContext).ToList();
           if (filterData.Count > DomainHandler.Domain.Configuration.MaxNumberOfConditions)
             await LockAndStoreAsync(context, filterData, token).ConfigureAwaitFalse();

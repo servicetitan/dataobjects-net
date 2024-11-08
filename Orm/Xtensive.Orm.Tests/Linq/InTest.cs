@@ -598,5 +598,53 @@ namespace Xtensive.Orm.Tests.Linq
     {
       return Session.Query.Execute(qe => qe.All<Customer>().Where(customer => customer.FirstName.In(customerNames)));
     }
+
+    // Related to https://github.com/DataObjects-NET/dataobjects-net/issues/402
+    [Test]
+    public void UnusedLetImpactsQueryTest()
+    {
+      var maxId = Session.Query.All<Invoice>().Max(o => o.InvoiceId);
+      int[] existingIds = [maxId];
+      int[] nonExistingIds = [maxId + 1, maxId + 2];
+      var count = (from invoice in Session.Query.All<Invoice>()
+          let foo = invoice.InvoiceId.In(nonExistingIds)
+          where invoice.InvoiceId.In(existingIds)
+          select invoice
+        ).Count();
+      Assert.AreEqual(1, count);
+    }
+
+    [Test]
+    public void Both_TemporaryTable_Auto_InTest()
+    {
+      var ids = Enumerable.Range(0, 2000).ToArray();
+      var query = from track in Session.Query.All<Track>()
+                  where track.TrackId.In(IncludeAlgorithm.TemporaryTable, ids)
+                  where track.TrackId.In(IncludeAlgorithm.Auto, ids)
+                  select track;
+      query.ToList();
+    }
+
+    [Test]
+    [MutePostgreSql]
+    public void TableValuedParameter_Many_InTest()
+    {
+      var ids = Enumerable.Range(0, 2000).ToArray();
+      var query = from track in Session.Query.All<Track>()
+                  where track.TrackId.In(IncludeAlgorithm.TableValuedParameter, ids)
+                  select track;
+      query.ToList();
+    }
+
+    [Test]
+    [MutePostgreSql]
+    public void TableValuedParameter_Few_InTest()
+    {
+      var ids = Enumerable.Range(0, 2).ToArray();
+      var query = from track in Session.Query.All<Track>()
+                  where track.TrackId.In(IncludeAlgorithm.TableValuedParameter, ids)
+                  select track;
+      query.ToList();
+    }
   }
 }
