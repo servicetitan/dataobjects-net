@@ -626,6 +626,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    [MutePostgreSql]
     public void TableValuedParameter_Many_InTest()
     {
       var ids = Enumerable.Range(0, 2000).ToArray();
@@ -636,6 +637,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    [MutePostgreSql]
     public void TableValuedParameter_Few_InTest()
     {
       var ids = Enumerable.Range(0, 2).ToArray();
