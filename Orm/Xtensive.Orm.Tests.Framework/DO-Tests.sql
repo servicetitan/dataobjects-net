@@ -1,4 +1,4 @@
-﻿-- Dropping the database
+-- Dropping the database
 USE master
 GO
 if exists (select * from sysdatabases where name='DO-Tests')
@@ -12,13 +12,11 @@ GO
 USE [DO-Tests]
 GO
 
-ALTER DATABASE [DO-Tests]
-SET ALLOW_SNAPSHOT_ISOLATION ON
-
-ALTER DATABASE [DO-Tests]
-SET READ_COMMITTED_SNAPSHOT ON
+ALTER DATABASE [DO-Tests] SET RECOVERY SIMPLE
+ALTER DATABASE [DO-Tests] SET DELAYED_DURABILITY = FORCED
+ALTER DATABASE [DO-Tests] SET ALLOW_SNAPSHOT_ISOLATION ON
+ALTER DATABASE [DO-Tests] SET READ_COMMITTED_SNAPSHOT ON
 GO
-
 
 -- Enabling full-text indexing there
 IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
