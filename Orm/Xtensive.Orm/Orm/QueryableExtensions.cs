@@ -247,8 +247,6 @@ namespace Xtensive.Orm
     public static IQueryable<TSource> Lock<TSource>(this IQueryable<TSource> source, LockMode lockMode, LockBehavior lockBehavior)
     {
       ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(lockMode);
-      ArgumentNullException.ThrowIfNull(lockBehavior);
 
       var providerType = source.Provider.GetType();
       if (providerType!=WellKnownOrmTypes.QueryProvider) {

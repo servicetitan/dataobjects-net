@@ -110,7 +110,6 @@ namespace Xtensive.Collections
     public bool Register(in TypeRegistration action)
     {
       EnsureNotLocked();
-      ArgumentNullException.ThrowIfNull(action);
       if (actionSet.Contains(action))
         return false;
       actionSet.Add(action);

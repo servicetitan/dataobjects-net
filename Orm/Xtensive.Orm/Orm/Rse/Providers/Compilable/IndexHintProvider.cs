@@ -30,7 +30,6 @@ namespace Xtensive.Orm.Rse.Providers
     public IndexHintProvider(CompilableProvider source, IndexInfoRef index)
       : base(ProviderType.IndexHint, source)
     {
-      ArgumentNullException.ThrowIfNull(index);
       Index = index;
       Initialize();
     }
