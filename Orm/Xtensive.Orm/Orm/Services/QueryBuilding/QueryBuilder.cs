@@ -106,8 +106,6 @@ namespace Xtensive.Orm.Services
     /// <returns>Created command.</returns>
     public QueryCommand CreateCommand(QueryRequest request)
     {
-      ArgumentNullException.ThrowIfNull(request);
-
       var command = commandFactory.CreateCommand();
       var session = Session;
       command.AddPart(commandFactory.CreateQueryPart(request.RealRequest, new ParameterContext()));

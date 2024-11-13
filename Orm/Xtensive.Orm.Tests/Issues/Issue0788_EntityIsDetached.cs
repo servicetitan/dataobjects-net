@@ -27,18 +27,18 @@ namespace Xtensive.Orm.Tests.Issues.Issue0788_EntityIsDetached_Model
     public string Token { get; private set; }
 
     [Field]
-    public Lock LockObject { get; private set; }
+    public LockEntity LockEntityObject { get; private set; }
 
     public bool Signalled
     {
-      get { return (null==LockObject); }
+      get { return (null==LockEntityObject); }
     }
 
     protected SyncObject(string token, Guid requestorId, bool signalled)
       : base(token)
     {
       if (!signalled) {
-        //  Подпорка
+        //  Hello
         //LockObject = new Lock(token, requestorId, this);
       }
     }
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0788_EntityIsDetached_Model
 
   [KeyGenerator(KeyGeneratorKind.None)]
   [HierarchyRoot]
-  internal class Lock : Entity
+  internal class LockEntity : Entity
   {
     [Field(Length = 128)]
     [Key]
@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0788_EntityIsDetached_Model
     /// </summary>
     /// <param name="token">Token</param>
     /// <param name="requestorId">Requestor Id</param>
-    public Lock(string token, Guid requestorId)
+    public LockEntity(string token, Guid requestorId)
       : base(token)
     {
       RequestorId = requestorId;
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0788_EntityIsDetached_Model
     /// <param name="token">Token</param>
     /// <param name="requestorId">Requestor Id</param>
     /// <param name="owner">Owning <see cref="SyncObject"/></param>
-    public Lock(string token, Guid requestorId, SyncObject owner)
+    public LockEntity(string token, Guid requestorId, SyncObject owner)
       : base(token)
     {
       //using(Session.Pin(this))
@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Lock).Assembly, typeof (Lock).Namespace);
+      config.Types.Register(typeof (LockEntity).Assembly, typeof (LockEntity).Namespace);
       return config;
     }
 
@@ -116,12 +116,12 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession()) {
         Guid key = new Guid("{0AF02FA4-F6C6-4A78-A569-9E5225281E27}");
         Event evt = null;
-        Lock evtLock;
+        LockEntity evtLockEntity;
 
         using (var transactionScope = session.OpenTransaction()) {
           evt = new Event("dep", key, false);
-          evtLock = new Lock("dep", key, null);
-          evtLock.OwnerObject = evt;
+          evtLockEntity = new LockEntity("dep", key, null);
+          evtLockEntity.OwnerObject = evt;
           transactionScope.Complete();
         }
       }
