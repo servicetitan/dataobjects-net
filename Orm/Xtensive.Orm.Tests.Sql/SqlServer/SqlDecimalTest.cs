@@ -211,12 +211,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
     private string GetDecimalValue(int precision, int scale, int zerosInPrecision, int zerosInScale)
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(precision, 1, "precision");
-      ArgumentValidator.EnsureArgumentIsLessThanOrEqual(precision, 38, "precision");
-      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(scale, 0, "scale");
-      ArgumentValidator.EnsureArgumentIsLessThanOrEqual(scale, precision - 1, "scale");
-      ArgumentValidator.EnsureArgumentIsLessThanOrEqual(zerosInPrecision, precision - scale, "zerosInPrecision");
-      ArgumentValidator.EnsureArgumentIsLessThanOrEqual(zerosInScale, scale, "zerosInScale");
+      ArgumentOutOfRangeException.ThrowIfLessThan(precision, 1);
+      ArgumentOutOfRangeException.ThrowIfGreaterThan(precision, 38);
+      ArgumentOutOfRangeException.ThrowIfNegative(scale);
+      ArgumentOutOfRangeException.ThrowIfGreaterThan(scale, precision - 1);
+      ArgumentOutOfRangeException.ThrowIfGreaterThan(zerosInPrecision, precision - scale);
+      ArgumentOutOfRangeException.ThrowIfGreaterThan(zerosInScale, scale);
 
       if (zerosInScale > scale) {
         throw new ArgumentException("", "zerosInScale");

@@ -2240,7 +2240,7 @@ namespace Xtensive.Sql
 
     public static SqlFastFirstRowsHint FastFirstRowsHint(int amount)
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThan(amount, 0, "amount");
+      ArgumentOutOfRangeException.ThrowIfNegativeOrZero(amount);
       return new SqlFastFirstRowsHint(amount);
     }
 

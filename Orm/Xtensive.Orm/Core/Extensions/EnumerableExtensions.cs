@@ -262,7 +262,7 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException"><paramref name="length"/> is negative.</exception>
     public static T[] ToArray<T>(this IEnumerable<T> sequence, int length)
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(length, 0, nameof(length));
+      ArgumentOutOfRangeException.ThrowIfNegative(length);
 
       if (length == 0) {
         return Array.Empty<T>();
@@ -286,7 +286,7 @@ namespace Xtensive.Core
     /// <returns>A <see cref="T:System.Collections.Generic.List`1" /> that contains elements from the input sequence.</returns>
     public static List<TItem> ToList<TItem>(this IEnumerable<TItem> source, int capacity)
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(capacity, 0, "capacity");
+      ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 
       var result = new List<TItem>(capacity);
       result.AddRange(source);
@@ -382,7 +382,7 @@ namespace Xtensive.Core
       ArgumentNullException.ThrowIfNull(source);
       ArgumentNullException.ThrowIfNull(keySelector);
       ArgumentNullException.ThrowIfNull(elementSelector);
-      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(capacity, 0, nameof(capacity));
+      ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 
       var dictionary = comparer != null
         ? new Dictionary<TKey, TValue>(capacity, comparer)

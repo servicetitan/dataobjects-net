@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Building.Definitions
       set
       {
         if (value.HasValue)
-          ArgumentValidator.EnsureArgumentIsGreaterThan(value.Value, 0, "Length");
+          ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value.Value, "Length");
         length = value;
       }
     }
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Building.Definitions
       set
       {
         if (value.HasValue)
-          ArgumentValidator.EnsureArgumentIsGreaterThan(value.Value, -1, "Scale");
+          ArgumentOutOfRangeException.ThrowIfNegative(value.Value, "Scale");
         scale = value;
       }
     }
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Building.Definitions
       set
       {
         if (value.HasValue)
-          ArgumentValidator.EnsureArgumentIsGreaterThan(value.Value, 0, "Precision");
+          ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value.Value, "Precision");
         precision = value;
       }
     }

@@ -15,7 +15,7 @@ namespace Xtensive.Core
   /// <summary>
   /// Helper class validation most common error conditions.
   /// </summary>
-  public static class ArgumentValidator
+  internal static class ArgumentValidator
   {
     /// <summary>
     /// Ensures argument (<paramref name="value"/>) is not
@@ -106,77 +106,6 @@ namespace Xtensive.Core
         throw new ArgumentOutOfRangeException(parameterName, value,
           string.Format(Strings.ExArgumentShouldBeInRange, lowerBoundary, upperBoundary));
       }
-    }
-
-    /// <summary>
-    /// Ensures argument (<paramref name="value"/>) is greater then the specified <paramref name="boundary"/> value.
-    /// </summary>
-    /// <param name="value">Value to compare check.</param>
-    /// <param name="boundary">Value boundary.</param>
-    /// <param name="parameterName">Name of the method parameter.</param>
-    /// <typeparam name="T">The type of value.</typeparam>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void EnsureArgumentIsGreaterThan<T>(T value, T boundary, [InvokerParameterName] string parameterName)
-      where T: struct, IComparable<T>
-    {
-      if (value.CompareTo(boundary) > 0)
-        return;
-      throw new ArgumentOutOfRangeException(parameterName, value,
-        string.Format(Strings.ExArgumentMustBeGreaterThanX, boundary));
-    }
-
-    /// <summary>
-    /// Ensures argument (<paramref name="value"/>) is greater then or equal
-    /// the specified <paramref name="boundary"/> value.
-    /// </summary>
-    /// <param name="value">Value to compare check.</param>
-    /// <param name="boundary">Value boundary.</param>
-    /// <param name="parameterName">Name of the method parameter.</param>
-    /// <typeparam name="T">The type of value.</typeparam>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void EnsureArgumentIsGreaterThanOrEqual<T>(T value, T boundary, [InvokerParameterName] string parameterName)
-      where T: struct, IComparable<T>
-    {
-      if (value.CompareTo(boundary) >= 0)
-        return;
-      throw new ArgumentOutOfRangeException(parameterName, value,
-        string.Format(Strings.ExArgumentMustBeGreaterThatOrEqualX, boundary));
-    }
-
-    /// <summary>
-    /// Ensures argument (<paramref name="value"/>) is less then
-    /// the specified <paramref name="boundary"/> value.
-    /// </summary>
-    /// <param name="value">Value to compare check.</param>
-    /// <param name="boundary">Value boundary.</param>
-    /// <param name="parameterName">Name of the method parameter.</param>
-    /// <typeparam name="T">The type of value.</typeparam>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void EnsureArgumentIsLessThan<T>(T value, T boundary, [InvokerParameterName] string parameterName)
-      where T: struct, IComparable<T>
-    {
-      if (value.CompareTo(boundary) < 0)
-        return;
-      throw new ArgumentOutOfRangeException(parameterName, value,
-        string.Format(Strings.ExArgumentMustBeLessThanX, boundary));
-    }
-
-    /// <summary>
-    /// Ensures argument (<paramref name="value"/>) is less then or equal
-    /// the specified <paramref name="boundary"/> value.
-    /// </summary>
-    /// <param name="value">Value to compare check.</param>
-    /// <param name="boundary">Value boundary.</param>
-    /// <param name="parameterName">Name of the method parameter.</param>
-    /// <typeparam name="T">The type of value.</typeparam>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal static void EnsureArgumentIsLessThanOrEqual<T>(T value, T boundary, [InvokerParameterName] string parameterName)
-      where T: struct, IComparable<T>
-    {
-      if (value.CompareTo(boundary) <= 0)
-        return;
-      throw new ArgumentOutOfRangeException(parameterName, value,
-        string.Format(Strings.ExArgumentMustBeLessThanOrEqualX, boundary));
     }
   }
 }

@@ -287,7 +287,7 @@ namespace Xtensive.Orm.Configuration
       get => keyGeneratorCacheSize;
       set {
         EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
         keyGeneratorCacheSize = value;
       }
     }
@@ -301,7 +301,7 @@ namespace Xtensive.Orm.Configuration
       get => queryCacheSize;
       set {
         EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
         queryCacheSize = value;
       }
     }
@@ -315,7 +315,7 @@ namespace Xtensive.Orm.Configuration
       get => recordSetMappingCacheSize;
       set {
         EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
         recordSetMappingCacheSize = value;
       }
     }

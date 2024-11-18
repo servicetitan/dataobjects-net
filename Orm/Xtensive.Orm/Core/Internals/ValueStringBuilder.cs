@@ -216,7 +216,7 @@ namespace Xtensive.Core
     {
       const uint ArrayMaxLength = 0x7FFFFFC7; // same as Array.MaxLength
 
-      ArgumentValidator.EnsureArgumentIsGreaterThan(additionalCapacityBeyondPos, 0, nameof(additionalCapacityBeyondPos));
+      ArgumentOutOfRangeException.ThrowIfNegativeOrZero(additionalCapacityBeyondPos);
 
       // Increase to at least the required size (_pos + additionalCapacityBeyondPos), but try
       // to double the size if possible, bounding the doubling to not go beyond the max array length.

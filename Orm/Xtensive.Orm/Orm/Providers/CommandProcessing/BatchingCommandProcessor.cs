@@ -343,7 +343,7 @@ namespace Xtensive.Orm.Providers
     public BatchingCommandProcessor(CommandFactory factory, int batchSize, int maxQueryParameterCount)
       : base(factory, maxQueryParameterCount)
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, nameof(batchSize));
+      ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(batchSize, 1);
       this.batchSize = batchSize;
       this.tasks = new Queue<SqlTask>(batchSize);
     }

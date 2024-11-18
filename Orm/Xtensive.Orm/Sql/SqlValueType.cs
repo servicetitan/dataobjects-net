@@ -221,7 +221,7 @@ namespace Xtensive.Sql
       if (typeName!=null)
         ArgumentException.ThrowIfNullOrEmpty(typeName);
       if (length!=null)
-        ArgumentValidator.EnsureArgumentIsGreaterThan(length.Value, 0, "length");
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(length.Value, "length");
       if (precision!=null)
         ArgumentValidator.EnsureArgumentIsInRange(scale.Value, 0, precision.Value, "scale");
       Type = type;

@@ -62,7 +62,7 @@ namespace Xtensive.Sql.Info
       params string[] nativeTypes)
     {
       ArgumentNullException.ThrowIfNull(valueRange);
-      ArgumentValidator.EnsureArgumentIsGreaterThan(maxPrecision, 0, "maxPrecision");
+      ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxPrecision);
       return new DataTypeInfo
         {
           Type = sqlType,
@@ -101,7 +101,7 @@ namespace Xtensive.Sql.Info
       int maxLength,
       params string[] nativeTypes)
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThan(maxLength, 0, "maxLength");
+      ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxLength);
       return new DataTypeInfo
         {
           Type = sqlType,

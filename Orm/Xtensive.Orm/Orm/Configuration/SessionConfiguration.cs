@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Configuration
       get { return cacheSize; }
       set {
         EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentIsGreaterThan(value, 1, "CacheSize");
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(value, 1, "CacheSize");
         cacheSize = value;
       }
     }
@@ -235,9 +235,9 @@ namespace Xtensive.Orm.Configuration
     /// <inheritdoc/>
     public override void Validate()
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(CacheSize, 0, "CacheSize");
+      ArgumentOutOfRangeException.ThrowIfNegative(CacheSize);
       if (DefaultCommandTimeout!=null)
-        ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(DefaultCommandTimeout.Value, 0, "DefaultCommandTimeout");
+        ArgumentOutOfRangeException.ThrowIfNegative(DefaultCommandTimeout.Value, "DefaultCommandTimeout");
     }
 
     /// <inheritdoc/>

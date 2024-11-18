@@ -71,7 +71,7 @@ namespace Xtensive.Caching
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxSize"/> is less than 3.</exception>
     public FastConcurrentLruCache(int maxSize, Converter<TItem, TKey> keyExtractor)
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(maxSize, 3, nameof(maxSize));
+      ArgumentOutOfRangeException.ThrowIfLessThan(maxSize, 3);
       MaxSize = maxSize;
       KeyExtractor = keyExtractor;
       realCache = new FastConcurrentLru<TKey, TItem>(maxSize);

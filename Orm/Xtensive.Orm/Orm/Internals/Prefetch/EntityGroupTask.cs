@@ -187,7 +187,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       ArgumentNullException.ThrowIfNull(type);
       ArgumentNullException.ThrowIfNull(columnIndexes);
-      ArgumentValidator.EnsureArgumentIsGreaterThan(columnIndexes.Count, 0, "columnIndexes.Length");
+      ArgumentOutOfRangeException.ThrowIfNegativeOrZero(columnIndexes.Count);
       ArgumentNullException.ThrowIfNull(manager);
 
       this.type = type;
