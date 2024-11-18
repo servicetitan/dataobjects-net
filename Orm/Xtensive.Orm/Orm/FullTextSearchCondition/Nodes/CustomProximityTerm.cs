@@ -48,7 +48,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
       if (proximityTerms.Count < 2)
         throw new ArgumentException(string.Format(Strings.ExCollectionShouldContainAtLeastXElements, 2));
       ArgumentNullException.ThrowIfNull(proximityTerms);
-      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(maxDistance, 0, "maxDistance");
+      ArgumentOutOfRangeException.ThrowIfNegative(maxDistance);
 
       Terms = proximityTerms.ToArray().AsSafeWrapper();
       MaxDistance = maxDistance;

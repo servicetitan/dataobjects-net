@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Configuration
       get { return minTypeId; }
       set
       {
-        ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(value, TypeInfo.MinTypeId, "value");
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, TypeInfo.MinTypeId);
         EnsureNotLocked();
         minTypeId = value;
       }
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Configuration
       get { return maxTypeId; }
       set
       {
-        ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(value, TypeInfo.MinTypeId, "value");
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, TypeInfo.MinTypeId);
         maxTypeId = value;
       }
     }

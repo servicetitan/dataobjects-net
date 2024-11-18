@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Configuration
       get { return cacheSize; }
       set
       {
-        ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
         EnsureNotLocked();
         cacheSize = value;
       }

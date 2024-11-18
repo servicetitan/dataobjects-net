@@ -25,7 +25,7 @@ namespace Xtensive.Collections
     /// <paramref name="start"/> + <paramref name="count"/> -1 is larger than <see cref="F:System.Int32.MaxValue"/>.</exception>
     public static int[] RangeToArray(int start, int count)
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(count, 0, "count");
+      ArgumentOutOfRangeException.ThrowIfNegative(count);
       var result = new int[count];
       var index = 0;
       foreach (var value in Enumerable.Range(start, count))
@@ -42,7 +42,7 @@ namespace Xtensive.Collections
     /// <paramref name="start"/> + <paramref name="count"/> -1 is larger than <see cref="F:System.Int32.MaxValue"/>.</exception>
     public static List<ColNum> RangeToList(ColNum start, ColNum count)
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(count, 0, "count");
+      ArgumentOutOfRangeException.ThrowIfNegative(count);
       var result = new List<ColNum>(count);
       result.AddRange(Enumerable.Range(start, count).Select(i => (ColNum) i));
       return result;
@@ -62,7 +62,7 @@ namespace Xtensive.Collections
     /// <paramref name="count"/> is less than 0.</exception>
     public static TResult[] RepeatToArray<TResult>(TResult element, int count)
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(count, 0, "count");
+      ArgumentOutOfRangeException.ThrowIfNegative(count);
       var result = new TResult[count];
       for (var i = 0; i < count; ++i)
         result[i] = element;
@@ -78,7 +78,7 @@ namespace Xtensive.Collections
     /// <paramref name="count"/> is less than 0.</exception>
     public static List<TResult> RepeatToList<TResult>(TResult element, int count)
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(count, 0, "count");
+      ArgumentOutOfRangeException.ThrowIfNegative(count );
       var result = new List<TResult>(count);
       for (var i = 0; i < count; ++i)
         result.Add(element);

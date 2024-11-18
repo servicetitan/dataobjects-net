@@ -116,7 +116,7 @@ namespace Xtensive.Orm
       where T : Entity
     {
       ArgumentNullException.ThrowIfNull(searchCriteria);
-      ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
+      ArgumentOutOfRangeException.ThrowIfNegativeOrZero(topNByRank);
       var method = WellKnownMembers.Query.FreeTextStringTopNByRank.CachedMakeGenericMethod(typeof (T));
       var expression = Expression.Call(method, Expression.Constant(searchCriteria), Expr.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
@@ -155,7 +155,7 @@ namespace Xtensive.Orm
       where T : Entity
     {
       ArgumentNullException.ThrowIfNull(searchCriteria);
-      ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
+      ArgumentOutOfRangeException.ThrowIfNegativeOrZero(topNByRank);
       var method = WellKnownMembers.Query.FreeTextExpressionTopNByRank.CachedMakeGenericMethod(typeof (T));
       var expression = Expression.Call(null, method, searchCriteria, Expr.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
@@ -218,7 +218,7 @@ namespace Xtensive.Orm
       where T : Entity
     {
       ArgumentNullException.ThrowIfNull(searchCriteria);
-      ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
+      ArgumentOutOfRangeException.ThrowIfNegativeOrZero(topNByRank);
       var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.CachedMakeGenericMethod(typeof(T));
       var expression = Expression.Call(null, method, searchCriteria, Expr.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
@@ -246,7 +246,7 @@ namespace Xtensive.Orm
     {
       ArgumentNullException.ThrowIfNull(searchCriteria);
       ArgumentNullException.ThrowIfNull(targetFields);
-      ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
+      ArgumentOutOfRangeException.ThrowIfNegativeOrZero(topNByRank);
       var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.CachedMakeGenericMethod(typeof(T));
       var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetFields), Expr.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);

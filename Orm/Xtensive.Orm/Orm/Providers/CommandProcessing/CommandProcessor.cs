@@ -163,7 +163,7 @@ namespace Xtensive.Orm.Providers
     protected CommandProcessor(CommandFactory factory, int maxQueryParameterCount)
     {
       ArgumentNullException.ThrowIfNull(factory);
-      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(maxQueryParameterCount, 0, "maxQueryParameterCount");
+      ArgumentOutOfRangeException.ThrowIfNegative(maxQueryParameterCount);
       Factory = factory;
       MaxQueryParameterCount = maxQueryParameterCount;
     }
