@@ -45,9 +45,9 @@ namespace Xtensive.Core
     [NonSerialized]
     private object highPriorityLocationsLock = new object();
 
-    private List<Pair<Assembly, string>> highPriorityLocations = new List<Pair<Assembly, string>>();
+    private List<(Assembly, string)> highPriorityLocations = new();
 
-    private List<Pair<Assembly, string>> HighPriorityLocations {
+    private List<(Assembly, string)> HighPriorityLocations {
       get {
         lock (highPriorityLocationsLock) {
           return highPriorityLocations;
@@ -97,8 +97,8 @@ namespace Xtensive.Core
     protected void AddHighPriorityLocation(Assembly assembly, string nameSpace, bool overriding)
     {
       lock (highPriorityLocationsLock) {
-        var newHighPriorityLocations = new List<Pair<Assembly, string>>(highPriorityLocations.Count + 1);
-        var newLocation = new Pair<Assembly, string>(assembly, nameSpace);
+        var newHighPriorityLocations = new List<(Assembly, string)>(highPriorityLocations.Count + 1);
+        var newLocation = (assembly, nameSpace);
 
         if (overriding) {
           newHighPriorityLocations.Add(newLocation);
@@ -209,12 +209,12 @@ namespace Xtensive.Core
     /// location isn't listed in <see cref="HighPriorityLocations"/> list.</returns>
     protected int GetAssociateLocationPosition<TAssociate>(TAssociate associate)
     {
-      var entry = new Pair<Assembly, string>(
+      var entry = (
         associate.GetType().Assembly,
         associate.GetType().Namespace);
       var hpl = HighPriorityLocations;
       for (var i = 0; i < hpl.Count; i++) {
-        if (AdvancedComparerStruct<Pair<Assembly, string>>.Default.Equals(hpl[i], entry)) {
+        if (AdvancedComparerStruct<(Assembly, string)>.Default.Equals(hpl[i], entry)) {
           return i;
         }
       }
@@ -304,8 +304,8 @@ namespace Xtensive.Core
 
       typeSuffixes = (string[]) info.GetValue(nameof(typeSuffixes), typeof(string[]));
 
-      var highPriorityLocationsSerializable = (List<Pair<string, string>>) info.GetValue(nameof(highPriorityLocations), typeof(List<Pair<string, string>>));
-      highPriorityLocations = highPriorityLocationsSerializable.SelectToList(ls => new Pair<Assembly, string>(Assembly.Load(ls.First), ls.Second));
+      var highPriorityLocationsSerializable = (List<(string, string)>) info.GetValue(nameof(highPriorityLocations), typeof(List<(string, string)>));
+      highPriorityLocations = highPriorityLocationsSerializable.SelectToList(ls => (Assembly.Load(ls.Item1), ls.Item2));
     }
 
     /// <summary>
@@ -333,7 +333,7 @@ namespace Xtensive.Core
       info.AddValue(nameof(constructorParams), constructorParamsExceptThis, constructorParams.GetType());
       info.AddValue(nameof(typeSuffixes), typeSuffixes, typeSuffixes.GetType());
 
-      var highPriorityLocationsSerializable = HighPriorityLocations.SelectToList(l => new Pair<string, string>(l.First.FullName, l.Second));
+      var highPriorityLocationsSerializable = HighPriorityLocations.SelectToList(l => (l.Item1.FullName, l.Item2));
       info.AddValue(nameof(highPriorityLocations), highPriorityLocationsSerializable, highPriorityLocationsSerializable.GetType());
     }
   }

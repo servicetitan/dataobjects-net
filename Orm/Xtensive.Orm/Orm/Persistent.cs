@@ -722,7 +722,7 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="eventKey">The event key.</param>
     /// <returns>Event subscription (delegate) for the specified event key.</returns>
-    protected abstract Pair<Key, Delegate> GetSubscription(object eventKey);
+    protected abstract (Key, Delegate) GetSubscription(object eventKey);
 
     #endregion
 

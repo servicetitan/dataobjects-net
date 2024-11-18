@@ -30,9 +30,9 @@ namespace Xtensive.IoC
     private static readonly Type iServiceContainerType = typeof(IServiceContainer);
 
 #if NET8_0_OR_GREATER
-    private static readonly Func<ServiceRegistration, Pair<ConstructorInvoker, ParameterInfo[]>> ConstructorFactory = serviceInfo => {
+    private static readonly Func<ServiceRegistration, (ConstructorInvoker, ParameterInfo[])> ConstructorFactory = serviceInfo => {
 #else
-    private static readonly Func<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> ConstructorFactory = serviceInfo => {
+    private static readonly Func<ServiceRegistration, (ConstructorInfo, ParameterInfo[])> ConstructorFactory = serviceInfo => {
 #endif
       var mappedType = serviceInfo.MappedType;
       var ctor = (
@@ -54,9 +54,9 @@ namespace Xtensive.IoC
       new ConcurrentDictionary<ServiceRegistration, Lazy<object>>();
 
 #if NET8_0_OR_GREATER
-    private readonly ConcurrentDictionary<ServiceRegistration, Pair<ConstructorInvoker, ParameterInfo[]>> constructorCache = new();
+    private readonly ConcurrentDictionary<ServiceRegistration, (ConstructorInvoker, ParameterInfo[])> constructorCache = new();
 #else
-    private readonly ConcurrentDictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> constructorCache = new();
+    private readonly ConcurrentDictionary<ServiceRegistration, (ConstructorInfo, ParameterInfo[])> constructorCache = new();
 #endif
 
     private readonly ConcurrentDictionary<(Type, int), bool> creating = new ConcurrentDictionary<(Type, int), bool>();

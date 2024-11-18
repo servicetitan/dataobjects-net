@@ -329,7 +329,7 @@ namespace Xtensive.Core
     /// by <see cref="RevertibleJoin"/>.
     /// </returns>
     /// <exception cref="ArgumentException"><paramref name="escape"/>==<paramref name="delimiter"/>.</exception>
-    public static Pair<string> RevertibleSplitFirstAndTail(this string source, char escape, char delimiter)
+    public static (string, string) RevertibleSplitFirstAndTail(this string source, char escape, char delimiter)
     {
       ArgumentNullException.ThrowIfNull(source);
       if (escape == delimiter) {
@@ -352,10 +352,10 @@ namespace Xtensive.Core
       }
 
       if (resultLength == 0) {
-        return new Pair<string>(string.Empty, secondString);
+        return (string.Empty, secondString);
       }
 
-      return new Pair<string>(string.Create(resultLength, (sourceMemory.Slice(0, sourceLength), escape), RevertibleSplitSpanAction), secondString);
+      return (string.Create(resultLength, (sourceMemory.Slice(0, sourceLength), escape), RevertibleSplitSpanAction), secondString);
     }
 
     private static (int escapeCount, bool tailDilimiter) RevertibleSplitTail(ref ReadOnlyMemory<char> source, char escape, char delimiter)

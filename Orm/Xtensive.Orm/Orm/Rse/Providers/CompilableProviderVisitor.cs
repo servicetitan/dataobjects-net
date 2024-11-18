@@ -204,7 +204,7 @@ namespace Xtensive.Orm.Rse.Providers
         );
       }
       var result = (Pair<ColNum[], AggregateColumnDescriptor[]>) resultParameters;
-      return new AggregateProvider(source, result.First, result.Second);
+      return new AggregateProvider(source, result.Item1, result.Item2);
     }
 
     /// <inheritdoc/>

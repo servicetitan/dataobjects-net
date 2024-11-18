@@ -621,7 +621,7 @@ namespace Xtensive.Orm.Building.Builders
         .OrderBy(a => typeOrder[a.index.ValueColumns.First().Field.ReflectedType]);
 
       var columnsToAdd = new List<ColumnInfo>();
-      var valueColumnMapping = new List<Pair<ColNum, List<ColNum>>>();
+      var valueColumnMapping = new List<(ColNum, List<ColNum>)>();
       foreach(var item in orderedIndexes) {
         if (valueColumnMapping.Count == 0)
           item.columns.InsertRange(0, CollectionUtils.ColNumRange(result.IncludedColumns.Count));
@@ -629,7 +629,7 @@ namespace Xtensive.Orm.Building.Builders
           var column = item.index.ValueColumns[columnIndex];
           columnsToAdd.Add(column);
         }
-        valueColumnMapping.Add(new Pair<ColNum, List<ColNum>>(item.i, item.columns));
+        valueColumnMapping.Add((item.i, item.columns));
       }
 
       result.ValueColumnsMap = valueColumnMapping;

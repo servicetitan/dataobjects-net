@@ -133,16 +133,16 @@ namespace Xtensive.Orm.Upgrade.Internals
         }
 
         foreach (var pair in oldGenericTypes.GetItems(oldGenericDefName)) {
-          var genericArgumentsMapping = new List<Pair<string, Type>>();
-          foreach (var oldGenericArgumentType in pair.Second) {
+          var genericArgumentsMapping = new List<(string, Type)>();
+          foreach (var oldGenericArgumentType in pair.Item2) {
             var newGenericArgumentType = GetNewType(oldGenericArgumentType, newTypesLookup, renamedTypesLookup);
             if (newGenericArgumentType == null) {
               break;
             }
 
-            genericArgumentsMapping.Add(new Pair<string, Type>(oldGenericArgumentType, newGenericArgumentType));
+            genericArgumentsMapping.Add((oldGenericArgumentType, newGenericArgumentType));
           }
-          if (genericArgumentsMapping.Count == pair.Second.Length) {
+          if (genericArgumentsMapping.Count == pair.Item2.Length) {
             genericTypeMapping.Add((oldGenericDefName, newGenericDefType, genericArgumentsMapping));
           }
         }
@@ -156,9 +156,9 @@ namespace Xtensive.Orm.Upgrade.Internals
     private void BuildRenameHintsForGenericTypes(IList<(string, Type, List<Pair<string, Type>>)> genericTypeMapping, ICollection<UpgradeHint> rewrittenHints)
     {
       foreach (var triplet in genericTypeMapping) {
-        var arrays = triplet.Item3.SelectToArrays(pair => pair.First, pair => pair.Second);
-        var oldGenericArguments = arrays.First;
-        var newGenericArguments = arrays.Second;
+        var arrays = triplet.Item3.SelectToArrays(pair => pair.Item1, pair => pair.Item2);
+        var oldGenericArguments = arrays.Item1;
+        var newGenericArguments = arrays.Item2;
 
         var oldTypeFullName = GetGenericTypeFullName(triplet.Item1, oldGenericArguments);
         var newType = triplet.Item2.MakeGenericType(newGenericArguments);
@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Upgrade.Internals
     /// of generic type.
     /// </summary>
     private void BuildRenameFieldHintsForGenericTypes(
-      IEnumerable<(string, Type, List<Pair<string, Type>>)> genericTypeMapping,
+      IEnumerable<(string, Type, List<(string, Type)>)> genericTypeMapping,
       IEnumerable<RenameFieldHint> renameFieldHints,
       ICollection<UpgradeHint> rewrittenHints)
     {
@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         var newGenericDefType = hint.TargetType;
         if (genericTypeDefLookup.TryGetValue(newGenericDefType, out var instanceGroup)) {
           foreach (var triplet in instanceGroup.Instances) {
-            var newGenericArguments = triplet.Item3.SelectToArray(pair => pair.Second);
+            var newGenericArguments = triplet.Item3.SelectToArray(pair => pair.Item2);
             rewrittenHints.Add(new RenameFieldHint(newGenericDefType.MakeGenericType(newGenericArguments),
               hint.OldFieldName, hint.NewFieldName));
           }
@@ -536,7 +536,7 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     public static ClassifiedCollection<string, Pair<string, string[]>> GetGenericTypes(StoredDomainModel model)
     {
-      var genericTypes = new ClassifiedCollection<string, Pair<string, string[]>>(pair => new[] { pair.First });
+      var genericTypes = new ClassifiedCollection<string, Pair<string, string[]>>(pair => new[] { pair.Item1 });
       foreach (var typeInfo in model.Types.Where(type => type.IsGeneric)) {
         var typeDefinitionName = typeInfo.GenericTypeDefinition;
         genericTypes.Add(new Pair<string, string[]>(typeDefinitionName, typeInfo.GenericArguments));
@@ -544,12 +544,12 @@ namespace Xtensive.Orm.Upgrade.Internals
       return genericTypes;
     }
 
-    public static ClassifiedCollection<Type, Pair<Type, Type[]>> GetGenericTypes(DomainModel model)
+    public static ClassifiedCollection<Type, (Type, Type[])> GetGenericTypes(DomainModel model)
     {
-      var genericTypes = new ClassifiedCollection<Type, Pair<Type, Type[]>>(pair => new[] { pair.First });
+      var genericTypes = new ClassifiedCollection<Type, (Type, Type[])>(pair => new[] { pair.Item1 });
       foreach (var typeInfo in model.Types.Where(type => type.UnderlyingType.IsGenericType)) {
         var typeDefinition = typeInfo.UnderlyingType.CachedGetGenericTypeDefinition();
-        genericTypes.Add(new Pair<Type, Type[]>(typeDefinition, typeInfo.UnderlyingType.GetGenericArguments()));
+        genericTypes.Add((typeDefinition, typeInfo.UnderlyingType.GetGenericArguments()));
       }
       return genericTypes;
     }

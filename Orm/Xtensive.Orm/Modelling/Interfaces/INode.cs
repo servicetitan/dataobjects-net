@@ -65,7 +65,7 @@ namespace Xtensive.Modelling
     /// <param name="nestedOnly">If set to <see langword="true"/>, only nested nodes will be returned;
     /// otherwise, <see langword="false" />.</param>
     /// <returns>Non-<see langword="null" /> property values of <see cref="IPathNode"/> type.</returns>
-    IEnumerable<Pair<string, IPathNode>> GetPathNodes(bool nestedOnly);
+    IEnumerable<(string, IPathNode)> GetPathNodes(bool nestedOnly);
 
     /// <summary>
     /// Moves the node.

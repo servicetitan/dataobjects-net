@@ -85,11 +85,11 @@ namespace Xtensive.Modelling.Actions
     }
 
     /// <inheritdoc/>
-    protected override void GetParameters(List<Pair<string>> parameters)
+    protected override void GetParameters(List<(string, string)> parameters)
     {
       base.GetParameters(parameters);
       if (!comment.IsNullOrEmpty())
-        parameters.Add(new Pair<string>("Comment", comment));
+        parameters.Add(("Comment", comment));
     }
 
     /// <inheritdoc/>

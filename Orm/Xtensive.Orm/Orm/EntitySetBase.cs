@@ -433,15 +433,15 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="eventKey">The event key.</param>
     /// <returns>Event subscription (delegate) for the specified event key.</returns>
-    protected Pair<Key, Delegate> GetSubscription(object eventKey)
+    protected (Key, Delegate) GetSubscription(object eventKey)
     {
       var entityKey = GetOwnerKey(Owner);
       if (entityKey is not null) {
-        return new Pair<Key, Delegate>(entityKey,
+        return (entityKey,
           Session.EntityEvents.GetSubscriber(entityKey, Field, eventKey));
       }
 
-      return new Pair<Key, Delegate>(null, null);
+      return (null, null);
     }
 
     #endregion
@@ -948,8 +948,8 @@ namespace Xtensive.Orm
       var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
 
       var map = Enumerable.Range(0, ownerDescriptor.Count)
-        .Select(i => new Pair<ColNum, ColNum>(0, (ColNum) i))
-        .Concat(itemColumnOffsets.Select(i => new Pair<ColNum, ColNum>(1, i)))
+        .Select(i => (0, (ColNum) i))
+        .Concat(itemColumnOffsets.Select(i => (1, i)))
         .ToArray(keyFieldCount);
       var seekTransform = new MapTransform(true, keyDescriptor, map);
 

@@ -202,10 +202,10 @@ namespace Xtensive.Orm.Internals
     }
 
     private ParameterizedQuery GetCachedQuery() =>
-      domain.QueryCache.TryGetItem(queryKey, true, out var item) ? item.Second : null;
+      domain.QueryCache.TryGetItem(queryKey, true, out var item) ? item.Item2 : null;
 
     private void PutQueryToCache(ParameterizedQuery parameterizedQuery) =>
-      domain.QueryCache.Add(new Pair<object, ParameterizedQuery>(queryKey, parameterizedQuery));
+      domain.QueryCache.Add((queryKey, parameterizedQuery));
 
     private ParameterContext CreateParameterContext(ParameterizedQuery query)
     {
@@ -229,7 +229,7 @@ namespace Xtensive.Orm.Internals
       var domainConfig = domain.Configuration;
       this.queryKey = domainConfig.ShareStorageSchemaOverNodes && domainConfig.PreferTypeIdsAsQueryParameters
         ? queryKey
-        : new Pair<object, string>(queryKey, session.StorageNodeId);
+        : (queryKey, session.StorageNodeId);
     }
   }
 }

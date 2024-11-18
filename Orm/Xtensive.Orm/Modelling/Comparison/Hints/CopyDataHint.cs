@@ -23,7 +23,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// Gets copied columns. The first value is source column path, 
     /// the second value is destination column path.
     /// </summary>
-    public IReadOnlyList<Pair<string>> CopiedColumns { get; private set; }
+    public IReadOnlyList<(string, string)> CopiedColumns { get; private set; }
     
     /// <inheritdoc/>
     public override List<HintTarget> GetTargets()
@@ -31,8 +31,8 @@ namespace Xtensive.Modelling.Comparison.Hints
       var targets = new List<HintTarget>(CopiedColumns.Count * 2 + Identities.Count + 1);
       targets.Add(new HintTarget(ModelType.Source, SourceTablePath));
       foreach (var pair in CopiedColumns) {
-        targets.Add(new HintTarget(ModelType.Source, pair.First));
-        targets.Add(new HintTarget(ModelType.Target, pair.Second));
+        targets.Add(new HintTarget(ModelType.Source, pair.Item1));
+        targets.Add(new HintTarget(ModelType.Target, pair.Item2));
       }
       foreach (var pair in Identities) {
         targets.Add(new HintTarget(ModelType.Source, pair.Source));
@@ -62,7 +62,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// Initializes new instance of this type.
     /// </summary>
     public CopyDataHint(string sourceTablePath,  IReadOnlyList<IdentityPair> identities,
-      IReadOnlyList<Pair<string>> copiedColumns)
+      IReadOnlyList<(string, string)> copiedColumns)
       : base(sourceTablePath, identities)
     {
       ArgumentNullException.ThrowIfNull(copiedColumns);

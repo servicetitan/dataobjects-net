@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Tests.Linq
         })
         .OrderBy(i => i.Name).ThenBy(i => i.Description);
 
-      return query.AsEnumerable().Select(i => new Pair<Product, string>(i.Product, i.Name)).ToList();
+      return query.AsEnumerable().Select(i => (i.Product, i.Name)).ToList();
     }
 
     [Test]

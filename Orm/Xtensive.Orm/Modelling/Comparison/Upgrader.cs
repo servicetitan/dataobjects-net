@@ -780,7 +780,7 @@ namespace Xtensive.Modelling.Comparison
             new IdentityPair(GetActualPath(pair.Source), pair.Target, pair.IsIdentifiedByConstant))
           .ToList();
         var copiedColumns = copyDataHint.CopiedColumns.Select(pair =>
-            new Pair<string>(GetActualPath(pair.First), pair.Second))
+            (GetActualPath(pair.First), pair.Second))
           .ToList();
         var newCopyDataHint = new CopyDataHint(sourceTablePath, identities, copiedColumns);
         Hints.Add(newCopyDataHint);

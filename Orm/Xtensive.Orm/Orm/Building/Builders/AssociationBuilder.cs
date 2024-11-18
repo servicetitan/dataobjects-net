@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Building.Builders
       field.AddAssociation(association);
 
       if (!fieldDef.PairTo.IsNullOrEmpty())
-        context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, fieldDef.PairTo));
+        context.PairedAssociations.Add((association, fieldDef.PairTo));
     }
 
     public static void BuildAssociation(BuildingContext context, AssociationInfo origin, FieldInfo field)
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Building.Builders
 
       var pairTo = context.PairedAssociations.Where(p => p.First==origin).FirstOrDefault();
       if (pairTo.First!=null)
-        context.PairedAssociations.Add(new Pair<AssociationInfo, string>(association, pairTo.Second));
+        context.PairedAssociations.Add((association, pairTo.Second));
     }
 
     public static void BuildReversedAssociation(BuildingContext context, AssociationInfo origin, string fieldName)

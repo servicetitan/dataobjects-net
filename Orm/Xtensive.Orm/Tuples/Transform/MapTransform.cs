@@ -26,7 +26,7 @@ namespace Xtensive.Tuples.Transform
     private readonly bool isReadOnly;
     private int sourceCount;
     internal IReadOnlyList<ColNum> singleSourceMap;
-    internal Pair<ColNum, ColNum>[] map;
+    internal (ColNum, ColNum)[] map;
 
     /// <summary>
     /// Means that no mapping is available for the specified field index.
@@ -59,7 +59,7 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Gets or sets destination-to-source field map.
     /// </summary>
-    public IReadOnlyList<Pair<ColNum, ColNum>> Map
+    public IReadOnlyList<(ColNum, ColNum)> Map
     {
       [DebuggerStepThrough] get => map.AsSafeWrapper();
     }
@@ -67,13 +67,13 @@ namespace Xtensive.Tuples.Transform
     protected void SetSingleSourceMap(IReadOnlyList<ColNum> singleSourceMap)
     {
       ArgumentNullException.ThrowIfNull(singleSourceMap);
-      var newMap = new Pair<ColNum, ColNum>[Descriptor.Count];
+      var newMap = new (ColNum, ColNum)[Descriptor.Count];
       var index = 0;
       for (; index < newMap.Length && index < singleSourceMap.Count; index++) {
-        newMap[index] = new Pair<ColNum, ColNum>(0, singleSourceMap[index]);
+        newMap[index] = (0, singleSourceMap[index]);
       }
       while (index < newMap.Length) {
-        newMap[index++] = new Pair<ColNum, ColNum>(0, NoMapping);
+        newMap[index++] = (0, NoMapping);
       }
 
       map = newMap;
@@ -81,16 +81,16 @@ namespace Xtensive.Tuples.Transform
       sourceCount = 1;
     }
 
-    protected void SetMap(Pair<ColNum, ColNum>[] map)
+    protected void SetMap((ColNum, ColNum)[] map)
     {
       ArgumentNullException.ThrowIfNull(map);
       ColNum[] newFirstSourceMap = new ColNum[map.Length];
       int index = 0;
       int newSourceCount = -1;
       foreach (var mappedTo in map) {
-        if (mappedTo.First>newSourceCount)
-          newSourceCount = mappedTo.First;
-        newFirstSourceMap[index++] = mappedTo.First==0 ? mappedTo.Second : (ColNum) (-1);
+        if (mappedTo.Item1>newSourceCount)
+          newSourceCount = mappedTo.Item1;
+        newFirstSourceMap[index++] = mappedTo.Item1==0 ? mappedTo.Item2 : (ColNum) (-1);
       }
       newSourceCount++;
       this.map = map;
@@ -267,7 +267,7 @@ namespace Xtensive.Tuples.Transform
     /// <param name="isReadOnly"><see cref="IsReadOnly"/> property value.</param>
     /// <param name="descriptor">Initial <see cref="TupleTransformBase.Descriptor"/> property value.</param>
     /// <param name="map"><see cref="Map"/> property value.</param>
-    public MapTransform(bool isReadOnly, TupleDescriptor descriptor, Pair<ColNum, ColNum>[] map)
+    public MapTransform(bool isReadOnly, TupleDescriptor descriptor, (ColNum, ColNum)[] map)
       : this(isReadOnly, descriptor)
     {
       SetMap(map);

@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Linq.Expressions
     public IReadOnlyList<ColNum> GetColumns(ColumnExtractionModes columnExtractionModes) =>
       ColumnGatherer.GetColumns(Item, columnExtractionModes);
 
-    public IReadOnlyList<Pair<ColNum, Expression>> GetColumnsAndExpressions(ColumnExtractionModes columnExtractionModes) =>
+    public IReadOnlyList<(ColNum, Expression)> GetColumnsAndExpressions(ColumnExtractionModes columnExtractionModes) =>
       ColumnGatherer.GetColumnsAndExpressions(Item, columnExtractionModes);
 
     public ItemProjectorExpression Remap(CompilableProvider dataSource, ColNum offset)

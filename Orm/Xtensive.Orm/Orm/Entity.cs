@@ -770,12 +770,12 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    protected override sealed Pair<Key, Delegate> GetSubscription(object eventKey)
+    protected override sealed (Key, Delegate) GetSubscription(object eventKey)
     {
       if (state==null || state.TryGetEntity()!=this)
-        return new Pair<Key, Delegate>();
+        return default;
       var entityKey = Key;
-      return new Pair<Key, Delegate>(entityKey,
+      return (entityKey,
         Session.EntityEvents.GetSubscriber(entityKey, eventKey));
     }
 

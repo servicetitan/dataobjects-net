@@ -185,8 +185,8 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       DomainUpgradeMode domainUpgradeMode, DomainUpgradeMode nodeUpgradeMode, string masterSchema, string slaveSchema)
     {
       var pair = BuildMultitnodeConfiguration(domainUpgradeMode, nodeUpgradeMode, masterSchema, slaveSchema);
-      var domain = Domain.Build(pair.First);
-      _ = domain.StorageNodeManager.AddNode(pair.Second);
+      var domain = Domain.Build(pair.Item1);
+      _ = domain.StorageNodeManager.AddNode(pair.Item2);
       return domain;
     }
 
@@ -194,8 +194,8 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       DomainUpgradeMode domainUpgradeMode, DomainUpgradeMode nodeUpgradeMode, string masterSchema, string slaveSchema)
     {
       var pair = BuildMultitnodeConfiguration(domainUpgradeMode, nodeUpgradeMode, masterSchema, slaveSchema);
-      var domain = await Domain.BuildAsync(pair.First);
-      _ = await domain.StorageNodeManager.AddNodeAsync(pair.Second);
+      var domain = await Domain.BuildAsync(pair.Item1);
+      _ = await domain.StorageNodeManager.AddNodeAsync(pair.Item2);
       return domain;
     }
 

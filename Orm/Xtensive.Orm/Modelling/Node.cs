@@ -164,7 +164,7 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    public IEnumerable<Pair<string, IPathNode>> GetPathNodes(bool nestedOnly)
+    public IEnumerable<(string, IPathNode)> GetPathNodes(bool nestedOnly)
     {
       foreach (var pair in propertyAccessors) {
         string propertyName = pair.Key;
@@ -178,7 +178,7 @@ namespace Xtensive.Modelling
         else
           propertyValue = accessor.HasGetter ? GetProperty(propertyName) as IPathNode : null;
         if (propertyValue!=null)
-          yield return new Pair<string, IPathNode>(propertyName, propertyValue);
+          yield return (propertyName, propertyValue);
       }
     }
 
@@ -682,7 +682,7 @@ namespace Xtensive.Modelling
 
       // Notifying children
       foreach (var pair in GetPathNodes(true)) {
-        var pathNode = pair.Second;
+        var pathNode = pair.Item2;
         if (pathNode is NodeCollection nodeCollection) {
           foreach (Node nestedNode in nodeCollection) {
             nestedNode.PerformRemove(source);

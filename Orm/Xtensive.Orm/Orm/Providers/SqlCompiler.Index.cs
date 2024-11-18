@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Providers
 
       var columns = new List<SqlColumn>();
       foreach (var map in index.ValueColumnsMap) {
-        var table = sourceTables[map.First];
+        var table = sourceTables[map.Item1];
         if (columns.Count==0) {
           var keyColumns = Enumerable
             .Range(0, keyColumnCount)
@@ -186,7 +186,7 @@ namespace Xtensive.Orm.Providers
             .Cast<SqlColumn>();
           columns.AddRange(keyColumns);
         }
-        var valueColumns = map.Second
+        var valueColumns = map.Item2
           .Select(columnIndex => table.Columns[columnIndex + keyColumnCount])
           .Cast<SqlColumn>();
         columns.AddRange(valueColumns);

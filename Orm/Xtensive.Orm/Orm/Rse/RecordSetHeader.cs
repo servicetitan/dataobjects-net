@@ -233,8 +233,8 @@ namespace Xtensive.Orm.Rse
         keyOrderEnumerable = keyOrderEnumerable
           .Concat(indexInfo.ValueColumns
             .Select((c, i) => new Pair<ColumnInfo, ColNum>(c, (ColNum) (i + offset)))
-            .Where(static pair => pair.First.IsPrimaryKey)
-            .Select(pair => new KeyValuePair<ColNum, Direction>(pair.Second, pkKeys[pair.First])));
+            .Where(static pair => pair.Item1.IsPrimaryKey)
+            .Select(pair => new KeyValuePair<ColNum, Direction>(pair.Item2, pkKeys[pair.Item1])));
       }
       var order = new DirectionCollection<ColNum>(keyOrderEnumerable);
 

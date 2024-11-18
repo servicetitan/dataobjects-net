@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Providers
       params IReadOnlyList<SqlExpression>[] sourceColumns)
     {
       var processor = new ExpressionProcessor(le, Handlers, this, preferCaseOverVariant, sourceColumns);
-      var result = new Pair<SqlExpression, IEnumerable<QueryParameterBinding>>(
+      var result = (
         processor.Translate(), processor.GetBindings());
       return result;
     }
@@ -351,8 +351,8 @@ namespace Xtensive.Orm.Providers
       if (!OuterReferences.TryGetValue(parameter, out var reference)) {
         reference = outerReferenceStack.Peek();
       }
-      var sqlProvider = reference.First;
-      var useQueryReference = reference.Second;
+      var sqlProvider = reference.Item1;
+      var useQueryReference = reference.Item2;
       return useQueryReference
         ? sqlProvider.PermanentReference[columnIndex]
         : ExtractColumnExpression(sqlProvider.Request.Statement.Columns[columnIndex]);

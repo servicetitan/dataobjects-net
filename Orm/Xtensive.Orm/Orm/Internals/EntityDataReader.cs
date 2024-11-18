@@ -75,11 +75,11 @@ namespace Xtensive.Orm.Internals
             (recordPartMapping, i) => ParseColumnGroup(tuple, context, i, recordPartMapping))
           );
 
-    private Pair<Key, Tuple> ParseColumnGroup(Tuple tuple, MaterializationContext context, int groupIndex, in RecordPartMapping mapping)
+    private (Key, Tuple) ParseColumnGroup(Tuple tuple, MaterializationContext context, int groupIndex, in RecordPartMapping mapping)
     {
       int typeId = ExtractTypeId(mapping.ApproximateType, context.TypeIdRegistry, tuple, mapping.TypeIdColumnIndex, out var accuracy);
       if (typeId == TypeInfo.NoTypeId) {
-        return new Pair<Key, Tuple>(null, null);
+        return (null, null);
       }
       var typeMapping = context.GetTypeMapping(groupIndex, mapping.ApproximateType, typeId, mapping.Columns);
 
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Internals
         keyIndexes = null;
       }
       var key = KeyFactory.Materialize(Domain, context.Session.StorageNodeId, typeMapping.Type, keyTuple, accuracy, keyIndexes);
-      return new Pair<Key, Tuple>(
+      return (
         key,
         accuracy == TypeReferenceAccuracy.ExactType
           ? typeMapping.Transform.Apply(TupleTransformType.Tuple, tuple)

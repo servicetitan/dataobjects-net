@@ -488,12 +488,12 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="delegateType">Type of the delegate.</param>
     /// <returns>A pair that contains return type as first element and parameter types as second arguments.</returns>
-    public static Pair<Type, Type[]> GetDelegateSignature(Type delegateType)
+    public static (Type, Type[]) GetDelegateSignature(Type delegateType)
     {
       ArgumentNullException.ThrowIfNull(delegateType);
       // check for non-generic Action
       if (delegateType == ActionTypes[0])
-        return new Pair<Type, Type[]>(WellKnownTypes.Void, Array.Empty<Type>());
+        return (WellKnownTypes.Void, Array.Empty<Type>());
       if (delegateType.IsGenericType) {
         var genericTypeDefinition = delegateType.GetGenericTypeDefinition();
         var genericArguments = delegateType.GetGenericArguments();
@@ -504,17 +504,17 @@ namespace Xtensive.Reflection
           && FuncTypes[genericArgumentsLength-1] == genericTypeDefinition) {
           var parameterTypes = new Type[genericArguments.Length - 1];
           Array.Copy(genericArguments, parameterTypes, parameterTypes.Length);
-          return new Pair<Type, Type[]>(genericArguments[genericArgumentsLength - 1], parameterTypes);
+          return (genericArguments[genericArgumentsLength - 1], parameterTypes);
         }
         // check for Action<>
         if (genericArgumentsLength >= 1
           && genericArgumentsLength <= MaxNumberOfGenericDelegateParameters
           && ActionTypes[genericArgumentsLength] == genericTypeDefinition)
-          return new Pair<Type, Type[]>(WellKnownTypes.Void, delegateType.GetGenericArguments());
+          return (WellKnownTypes.Void, delegateType.GetGenericArguments());
       }
       // universal (but slow) strategy - reflect "Invoke" method
       var method = delegateType.GetMethod("Invoke", BindingFlags.Public | BindingFlags.Instance);
-      return new Pair<Type, Type[]>(method.ReturnType, method.GetParameterTypes());
+      return (method.ReturnType, method.GetParameterTypes());
     }
 
     // Type initializer

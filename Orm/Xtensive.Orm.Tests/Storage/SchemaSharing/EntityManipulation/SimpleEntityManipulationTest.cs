@@ -155,14 +155,14 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       return configuration;
     }
 
-    protected Pair<string> GetDatabaseAndSchemaForType(Session session, Type type)
+    protected (string, string) GetDatabaseAndSchemaForType(Session session, Type type)
     {
       var storageNode = session.StorageNode;
       var typeInfo = session.Domain.Model.Types[type];
       var table = storageNode.Mapping[typeInfo];
       var schema = table.Schema.DbName;
       var database = table.Schema.Catalog.DbName;
-      return new Pair<string>(database, schema);
+      return (database, schema);
     }
 
     protected virtual void ApplyCustomSettingsToInitialConfiguration(DomainConfiguration configuration)

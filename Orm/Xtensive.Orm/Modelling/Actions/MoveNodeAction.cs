@@ -85,15 +85,15 @@ namespace Xtensive.Modelling.Actions
     }
 
     /// <inheritdoc/>
-    protected override void GetParameters(List<Pair<string>> parameters)
+    protected override void GetParameters(List<(string, string)> parameters)
     {
       base.GetParameters(parameters);
       if (parent!=null)
-        parameters.Add(new Pair<string>("Parent", parent));
+        parameters.Add(("Parent", parent));
       if (name!=null)
-        parameters.Add(new Pair<string>("Name", name));
+        parameters.Add(("Name", name));
       if (index.HasValue)
-        parameters.Add(new Pair<string>("Index", index.ToString()));
+        parameters.Add(("Index", index.ToString()));
     }
   }
 }

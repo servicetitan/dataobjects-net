@@ -111,15 +111,15 @@ namespace Xtensive.Modelling.Actions
     }
 
     /// <inheritdoc/>
-    protected override void GetParameters(List<Pair<string>> parameters)
+    protected override void GetParameters(List<(string, string)> parameters)
     {
       base.GetParameters(parameters);
-      parameters.Add(new Pair<string>("Type", type.GetShortName()));
-      parameters.Add(new Pair<string>("Name", name));
+      parameters.Add(("Type", type.GetShortName()));
+      parameters.Add(("Name", name));
       if (index.HasValue)
-        parameters.Add(new Pair<string>("Index", index.ToString()));
+        parameters.Add(("Index", index.ToString()));
       if (this.parameters!=null)
-        parameters.Add(new Pair<string>("Parameters", this.parameters.ToCommaDelimitedString()));
+        parameters.Add(("Parameters", this.parameters.ToCommaDelimitedString()));
     }
   }
 }

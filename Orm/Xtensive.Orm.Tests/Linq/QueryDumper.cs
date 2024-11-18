@@ -373,12 +373,12 @@ namespace Xtensive.Orm.Tests.Linq
         }
 
         var nodes = node.Clone().SelectNodes("//*[@depth=1]");
-        var helpList = new List<Pair<XmlNode, int>>();
-        var drawList = new List<Pair<XmlNode, int>>();
+        var helpList = new List<(XmlNode, int)>();
+        var drawList = new List<(XmlNode, int)>();
 
         for (int i = 0; i < nodes.Count; i++) {
           if (!nodes[i].HasChildNodes)
-            helpList.Add(new Pair<XmlNode, int>(nodes[i], 0));
+            helpList.Add((nodes[i], 0));
           else {
             var length = 0;
             for (int j = i - 1; j >= 0; j = j - 1) {
@@ -396,12 +396,12 @@ namespace Xtensive.Orm.Tests.Linq
           drawList.Clear();
           nodes = node.Clone().SelectNodes("//*[@depth=" + i + "]");
           for (int j = 0; j < nodes.Count; j++) {
-            var val = helpList.Where(v => v.First.InnerXml==nodes[j].ParentNode.InnerXml);
+            var val = helpList.Where(v => v.Item1.InnerXml==nodes[j].ParentNode.InnerXml);
             var value = val!=null ? val.First() : new Pair<XmlNode, int>(null, 0);
 
-            if (((j > 0) && nodes[j - 1].ParentNode.InnerXml!=value.First.InnerXml) || j==0)
-              drawList.Add(new Pair<XmlNode, int>(nodes[j], value.Second));
-            else if ((j > 0) && nodes[j - 1].ParentNode.InnerXml==value.First.InnerXml)
+            if (((j > 0) && nodes[j - 1].ParentNode.InnerXml!=value.Item1.InnerXml) || j==0)
+              drawList.Add(new Pair<XmlNode, int>(nodes[j], value.Item2));
+            else if ((j > 0) && nodes[j - 1].ParentNode.InnerXml==value.Item1.InnerXml)
               drawList.Add(new Pair<XmlNode, int>(nodes[j], 0));
           }
           DrawSingleLine(drawList);
@@ -410,15 +410,15 @@ namespace Xtensive.Orm.Tests.Linq
           helpList.Clear();
           for (int l = 0; l < nodes.Count; l++) {
             if (!nodes[l].HasChildNodes)
-              helpList.Add(new Pair<XmlNode, int>(nodes[l], drawList[l].Second));
+              helpList.Add(new Pair<XmlNode, int>(nodes[l], drawList[l].Item2));
             else {
               var length = 0;
               for (int j = l - 1; j >= 0; j = j - 1) {
                 if (nodes[j].HasChildNodes)
                   break;
-                length += drawList[j].Second + Int32.Parse(drawList[j].First.Attributes["length"].Value);
+                length += drawList[j].Item2 + Int32.Parse(drawList[j].Item1.Attributes["length"].Value);
               }
-              helpList.Add(new Pair<XmlNode, int>(nodes[l], length + drawList[l].Second));
+              helpList.Add(new Pair<XmlNode, int>(nodes[l], length + drawList[l].Item2));
             }
           }
         }
@@ -432,20 +432,20 @@ namespace Xtensive.Orm.Tests.Linq
       var separateLine = new StringBuilder("|");
       bool drawSeporateLine = false;
       foreach (var node in listOfNodes) {
-        if (!node.First.HasChildNodes) {
+        if (!node.Item1.HasChildNodes) {
           var partStr = new StringBuilder();
-          partStr.Append(CreateFillString(node.Second!=0 ? node.Second - 1 : 0, ' '))
-            .Append(node.Second!=0 ? "|  " : "  ")
-            .Append(node.First.Attributes["value"].Value).Append(CreateFillString(Int32.Parse
-              (node.First.Attributes["length"].Value) - node.First.Attributes["value"].Value.Length - 3, ' ')).Append("|");
+          partStr.Append(CreateFillString(node.Item2!=0 ? node.Item2 - 1 : 0, ' '))
+            .Append(node.Item2!=0 ? "|  " : "  ")
+            .Append(node.Item1.Attributes["value"].Value).Append(CreateFillString(Int32.Parse
+              (node.Item1.Attributes["length"].Value) - node.Item1.Attributes["value"].Value.Length - 3, ' ')).Append("|");
           separateLine.Append(CreateFillString(partStr.Length, ' '));
           str.Append(partStr);
         }
         else {
           var partStr = new StringBuilder();
           drawSeporateLine = true;
-          partStr.Append(CreateFillString(node.Second, ' '));
-          foreach (XmlNode o in node.First.ChildNodes) {
+          partStr.Append(CreateFillString(node.Item2, ' '));
+          foreach (XmlNode o in node.Item1.ChildNodes) {
             partStr.Append("  ").Append(o.Name).Append(CreateFillString(Int32.Parse
               (o.Attributes["length"].Value) - o.Name.Length - 3, ' ')).Append("|");
           }

@@ -57,8 +57,7 @@ namespace Xtensive.Orm.Building.Builders
     private readonly ModelDefBuilder modelDefBuilder;
 
     private readonly HashSet<TypeInfo> typesWithProcessedInheritedAssociations = new HashSet<TypeInfo>();
-    private readonly Dictionary<TypeInfo, List<Pair<AssociationInfo, string>>> pairedAssociationsToReverse
-      = new Dictionary<TypeInfo, List<Pair<AssociationInfo, string>>>();
+    private readonly Dictionary<TypeInfo, List<(AssociationInfo, string)>> pairedAssociationsToReverse = new();
 
     public static void Run(BuildingContext context)
     {
@@ -228,7 +227,7 @@ namespace Xtensive.Orm.Building.Builders
           }
 
           if (!parentIsPaired && !interfaceIsPaired) {
-            List<Pair<AssociationInfo, string>> pairedToReverse;
+            List<(AssociationInfo, string)> pairedToReverse;
             if (pairedAssociationsToReverse.TryGetValue(typeInfo, out pairedToReverse))
               foreach (var pair in pairedToReverse)
                 AssociationBuilder.BuildReversedAssociation(context, pair.First, pair.Second);
@@ -242,9 +241,9 @@ namespace Xtensive.Orm.Building.Builders
                 if (paired.First.TargetType.IsInterface || typesWithProcessedInheritedAssociations.Contains(paired.First.TargetType))
                   AssociationBuilder.BuildReversedAssociation(context, paired.First, paired.Second);
                 else {
-                  List<Pair<AssociationInfo, string>> pairs;
+                  List<(AssociationInfo, string)> pairs;
                   if (!pairedAssociationsToReverse.TryGetValue(paired.First.TargetType, out pairs)) {
-                    pairs = new List<Pair<AssociationInfo, string>>();
+                    pairs = new List<(AssociationInfo, string)>();
                     pairedAssociationsToReverse.Add(paired.First.TargetType, pairs);
                   }
                   pairs.Add(paired);
@@ -359,7 +358,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void BuildAuxiliaryTypes(IEnumerable<AssociationInfo> associations)
     {
-      var list = new List<Pair<AssociationInfo, TypeDef>>();
+      var list = new List<(AssociationInfo, TypeDef)>();
       foreach (var association in associations) {
         if (!association.IsMaster)
           continue;
@@ -410,7 +409,7 @@ namespace Xtensive.Orm.Building.Builders
 
         context.ModelDef.Hierarchies.Add(hierarchy);
         context.ModelDef.Types.Add(underlyingTypeDef);
-        list.Add(new Pair<AssociationInfo, TypeDef>(association, underlyingTypeDef));
+        list.Add((association, underlyingTypeDef));
       }
 
       InspectAndProcessGeneratedEntities();

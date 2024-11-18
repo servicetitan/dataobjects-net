@@ -219,24 +219,24 @@ namespace Xtensive.Orm.Upgrade
     {
       var hint = (CopyDataHint) action.DataHint;
       var copiedColumns = hint.CopiedColumns
-        .Select(pair => new Pair<StorageColumnInfo>(
-          sourceModel.Resolve(pair.First, true) as StorageColumnInfo,
-          targetModel.Resolve(pair.Second, true) as StorageColumnInfo)).ToArray();
+        .Select(pair => (
+          sourceModel.Resolve(pair.Item1, true) as StorageColumnInfo,
+          targetModel.Resolve(pair.Item2, true) as StorageColumnInfo)).ToArray();
       var identityColumns = hint.Identities
-        .Select(pair => new Pair<StorageColumnInfo>(
+        .Select(pair => (
           sourceModel.Resolve(pair.Source, true) as StorageColumnInfo,
           targetModel.Resolve(pair.Target, true) as StorageColumnInfo)).ToArray();
       if (copiedColumns.Length == 0 || identityColumns.Length == 0)
         throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
 
-      var fromTable = FindTable(copiedColumns[0].First.Parent);
-      var toTable = FindTable(copiedColumns[0].Second.Parent);
+      var fromTable = FindTable(copiedColumns[0].Item1.Parent);
+      var toTable = FindTable(copiedColumns[0].Item2.Parent);
       var toTableRef = SqlDml.TableRef(toTable);
       var update = SqlDml.Update(toTableRef);
 
       if (fromTable == toTable) {
         foreach (var pair in copiedColumns) {
-          update.Values[toTableRef[pair.Second.Name]] = toTableRef[pair.First.Name];
+          update.Values[toTableRef[pair.Item2.Name]] = toTableRef[pair.Item1.Name];
         }
         currentOutput.RegisterCommand(update);
         return;
@@ -796,15 +796,15 @@ namespace Xtensive.Orm.Upgrade
 
       var updatedColumns = hint.UpdateParameter
         .Select(pair => new Pair<StorageColumnInfo, object>(
-          sourceModel.Resolve(pair.First, true) as StorageColumnInfo,
-          pair.Second)).ToArray();
+          sourceModel.Resolve(pair.Item1, true) as StorageColumnInfo,
+          pair.Item2)).ToArray();
 
       if (updatedColumns.Length==0)
         throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
 
       foreach (var pair in updatedColumns) {
-        var column = pair.First;
-        var value = pair.Second;
+        var column = pair.Item1;
+        var value = pair.Item2;
 
         if (value==null) {
           if (providerInfo.Supports(ProviderFeatures.UpdateDefaultValues))
@@ -1215,8 +1215,8 @@ namespace Xtensive.Orm.Upgrade
             new Pair<StorageColumnInfo, string>(
               sourceModel.Resolve(pair.Source, true) as StorageColumnInfo,
               pair.Target)).ToArray();
-        var selectColumns = identityColumnPairs.Select(columnPair => columnPair.First)
-          .Concat(identityConstantPairs.Select(constantPair => constantPair.First)).ToArray();
+        var selectColumns = identityColumnPairs.Select(columnPair => columnPair.Item1)
+          .Concat(identityConstantPairs.Select(constantPair => constantPair.Item1)).ToArray();
         if (!selectColumns.Any())
           throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
 
@@ -1228,10 +1228,10 @@ namespace Xtensive.Orm.Upgrade
           select.Columns.Add(identifiedTableRef[column.Name]);
         }
         foreach (var pair in identityColumnPairs) {
-          select.Where &= identifiedTableRef[pair.First.Name]==table[pair.Second.Name];
+          select.Where &= identifiedTableRef[pair.Item1.Name]==table[pair.Item2.Name];
         }
         foreach (var pair in identityConstantPairs) {
-          select.Where &= identifiedTableRef[pair.First.Name]==SqlDml.Literal(pair.Second);
+          select.Where &= identifiedTableRef[pair.Item1.Name]==SqlDml.Literal(pair.Item2);
         }
         return SqlDml.Exists(select);
       }
@@ -1245,7 +1245,7 @@ namespace Xtensive.Orm.Upgrade
           throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
         SqlExpression expression = null;
         foreach (var pair in identityConstantPairs) {
-          expression &= table[pair.First.Name]==SqlDml.Literal(pair.Second);
+          expression &= table[pair.Item1.Name]==SqlDml.Literal(pair.Item2);
         }
         return expression;
       }

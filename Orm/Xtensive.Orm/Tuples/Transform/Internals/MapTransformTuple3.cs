@@ -36,20 +36,20 @@ namespace Xtensive.Tuples.Transform.Internals
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       var indexes = TypedTransform.map[fieldIndex];
-      return tuples[indexes.First].GetFieldState(indexes.Second);
+      return tuples[indexes.Item1].GetFieldState(indexes.Item2);
     }
 
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       var indexes = TypedTransform.map[fieldIndex];
-      tuples[indexes.First].SetFieldState(indexes.Second, fieldState);
+      tuples[indexes.Item1].SetFieldState(indexes.Item2, fieldState);
     }
 
     /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
-      Pair<ColNum, ColNum> indexes = TypedTransform.map[fieldIndex];
-      return tuples[indexes.First].GetValue(indexes.Second, out fieldState);
+      var indexes = TypedTransform.map[fieldIndex];
+      return tuples[indexes.Item1].GetValue(indexes.Item2, out fieldState);
     }
 
     /// <inheritdoc/>
@@ -57,8 +57,8 @@ namespace Xtensive.Tuples.Transform.Internals
     {
       if (Transform.IsReadOnly)
         throw Exceptions.ObjectIsReadOnly(null);
-      Pair<ColNum, ColNum> indexes = TypedTransform.map[fieldIndex];
-      tuples[indexes.First].SetValue(indexes.Second, fieldValue);
+      var indexes = TypedTransform.map[fieldIndex];
+      tuples[indexes.Item1].SetValue(indexes.Item2, fieldValue);
     }
 
     #endregion
@@ -68,7 +68,7 @@ namespace Xtensive.Tuples.Transform.Internals
       if (isWriting && Transform.IsReadOnly)
         throw Exceptions.ObjectIsReadOnly(null);
       var map = TypedTransform.map[fieldIndex];
-      return tuples[map.First].GetMappedContainer(map.Second, isWriting);
+      return tuples[map.Item1].GetMappedContainer(map.Item2, isWriting);
     }
 
 

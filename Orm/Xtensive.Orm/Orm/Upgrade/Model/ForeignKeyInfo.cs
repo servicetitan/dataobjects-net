@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
         if (pkColumns.Count!=pkColumns
           .Zip(fkColumns, (pkColumn, fkColumn) => new Pair<KeyColumnRef, ForeignKeyColumnRef>(pkColumn, fkColumn))
-          .Count(p => CompareKeyColumns(p.First, p.Second))) {
+          .Count(p => CompareKeyColumns(p.Item1, p.Item2))) {
           ea.Execute(() => {
             throw new ValidationException(
               Strings.ExInvalidForeignKeyStructure, Path);

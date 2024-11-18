@@ -451,7 +451,7 @@ namespace Xtensive.Orm.Linq
       //        offset = recordSet.Header.Columns.Count;
       //        var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
       //        var keyPairs = keySegment
-      //          .Select((leftIndex, rightIndex) => new Pair<ColNum>(leftIndex, rightIndex))
+      //          .Select((leftIndex, rightIndex) => (leftIndex, rightIndex))
       //          .ToArray();
       //        recordSet = recordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
       //      }
@@ -902,7 +902,7 @@ namespace Xtensive.Orm.Linq
       return null;
     }
 
-    private Pair<ProjectionExpression, ColNum> VisitAggregateSource(Expression source, LambdaExpression aggregateParameter,
+    private (ProjectionExpression, ColNum) VisitAggregateSource(Expression source, LambdaExpression aggregateParameter,
       AggregateType aggregateType, Expression visitedExpression)
     {
       // Process any selectors or filters specified via parameter to aggregating method.
@@ -918,7 +918,7 @@ namespace Xtensive.Orm.Linq
       if (aggregateType == AggregateType.Count) {
         aggregatedColumnIndex = 0;
         sourceProjection = aggregateParameter != null ? VisitWhere(source, aggregateParameter) : VisitSequence(source);
-        return new Pair<ProjectionExpression, ColNum>(sourceProjection, aggregatedColumnIndex);
+        return (sourceProjection, aggregatedColumnIndex);
       }
 
       IReadOnlyList<ColNum> columnList = null;
@@ -955,7 +955,7 @@ namespace Xtensive.Orm.Linq
       }
 
       aggregatedColumnIndex = columnList[0];
-      return new Pair<ProjectionExpression, ColNum>(sourceProjection, aggregatedColumnIndex);
+      return (sourceProjection, aggregatedColumnIndex);
     }
 
     private static void EnsureAggregateIsPossible(Type type, AggregateType aggregateType, Expression visitedExpression)
@@ -1820,13 +1820,13 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    private static IReadOnlySet<int> GetNullableGroupingExpressions(IReadOnlyList<Pair<ColNum, Expression>> keyFieldsRaw)
+    private static IReadOnlySet<int> GetNullableGroupingExpressions(IReadOnlyList<(ColNum, Expression)> keyFieldsRaw)
     {
       var nullableFields = new HashSet<int>();
 
       foreach (var pair in keyFieldsRaw) {
-        var index = pair.First;
-        var expression = pair.Second;
+        var index = pair.Item1;
+        var expression = pair.Item2;
 
         if (expression is FieldExpression fieldExpression && fieldExpression.Field.IsNullable) {
           _ = nullableFields.Add(index);

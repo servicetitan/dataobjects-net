@@ -57,8 +57,8 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     private void ValidateRenameFieldHints(IEnumerable<RenameFieldHint> hints)
     {
-      var sourceFields = new Dictionary<Pair<Type, string>, RenameFieldHint>();
-      var targetFields = new Dictionary<Pair<Type, string>, RenameFieldHint>();
+      var sourceFields = new Dictionary<(Type, string), RenameFieldHint>();
+      var targetFields = new Dictionary<(Type, string), RenameFieldHint>();
       foreach (var hint in hints) {
         // Both target and source fields should exist
         var targetTypeName = hint.TargetType.GetFullName();
@@ -75,8 +75,8 @@ namespace Xtensive.Orm.Upgrade.Internals
         // Each source field should be used only once
         // Each destination field should be used only once
         RenameFieldHint evilHint;
-        var sourceField = new Pair<Type, string>(hint.TargetType, hint.OldFieldName);
-        var targetField = new Pair<Type, string>(hint.TargetType, hint.NewFieldName);
+        var sourceField = (hint.TargetType, hint.OldFieldName);
+        var targetField = (hint.TargetType, hint.NewFieldName);
         if (sourceFields.TryGetValue(sourceField, out evilHint))
           throw HintConflict(hint, evilHint);
         if (targetFields.TryGetValue(targetField, out evilHint))

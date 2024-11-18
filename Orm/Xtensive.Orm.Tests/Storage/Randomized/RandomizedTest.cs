@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
 
     private readonly List<Key> entitySetCache = new();
 
-    private List<Pair<Key, int>> nodesData;
+    private List<(Key, int)> nodesData;
     private List<Action<Session>> actions;
     private Random randomProvider;
     private bool isSettingUp;
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
       Console.WriteLine("Seed: {0}", seed);
       randomProvider = new Random(seed);
       actions = new List<Action<Session>> {AddNode, RemoveNode, TransferNode, AddTree, /*RemoveTree*/};
-      nodesData = new List<Pair<Key, int>>();
+      nodesData = new List<(Key, int)>();
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction(IsolationLevel.ReadCommitted)) {
@@ -98,8 +98,8 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
         Assert.IsNull(current.Tree);
       }
 
-      var nodePair = nodesData.Where(pair => pair.First == current.Key).First();
-      Assert.AreEqual(current.Children.Count, nodePair.Second);
+      var nodePair = nodesData.Where(pair => pair.Item1 == current.Key).First();
+      Assert.AreEqual(current.Children.Count, nodePair.Item2);
 
       var result = current.Children.Count;
       if (current.Parent != null) {
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
       Key parentNodeKey;
       try {
         using (var tx = isSettingUp ? null : session.OpenTransaction()) {
-          parentNodeKey = nodesData[GetNodeIndex()].First;
+          parentNodeKey = nodesData[GetNodeIndex()].Item1;
           var parentNode = session.Query.Single<TreeNode>(parentNodeKey);
           var newNode = new TreeNode();
           _ = parentNode.Children.Add(newNode);
@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
       try {
         using (var tx = session.OpenTransaction()) {
           removedNodeIndex = GetNodeIndex();
-          removedNodeKey = nodesData[removedNodeIndex].First;
+          removedNodeKey = nodesData[removedNodeIndex].Item1;
           var removedNode = session.Query.Single<TreeNode>(removedNodeKey);
           if (removedNode.Parent == null) {
             return;
@@ -180,7 +180,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
           }
 
           var nodeIndex = GetNodeIndex();
-          var nodeKey = nodesData[nodeIndex].First;
+          var nodeKey = nodesData[nodeIndex].Item1;
           var node = session.Query.Single<TreeNode>(nodeKey);
           if (node.Parent == null) {
             return;
@@ -238,7 +238,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
           }
 
           var nodeIndex = GetNodeIndex();
-          var nodeKey = nodesData[nodeIndex].First;
+          var nodeKey = nodesData[nodeIndex].Item1;
           var node = session.Query.Single<TreeNode>(nodeKey);
           while (node.Tree == null) {
             node = node.Parent;
@@ -267,14 +267,14 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     {
       var index = FindNodeIndex(parentNodeKey);
       var pair = nodesData[index];
-      nodesData[index] = new Pair<Key, int>(parentNodeKey, pair.Second + increment);
+      nodesData[index] = new Pair<Key, int>(parentNodeKey, pair.Item2 + increment);
     }
 
     private int FindNodeIndex(Key key)
     {
       for (var i = 0; i < nodesData.Count; i++) {
         var pair = nodesData[i];
-        if (pair.First == key) {
+        if (pair.Item1 == key) {
           return i;
         }
       }

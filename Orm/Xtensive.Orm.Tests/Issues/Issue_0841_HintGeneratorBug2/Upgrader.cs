@@ -92,8 +92,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug2
             new IdentityPair(
               derivedTableColumnPath + "Id", baseTableColumnPath + "Id", false)
           },
-          new List<Pair<string>> {
-            new Pair<string>(
+          new List<(string, string)> {
+            (
               derivedTableColumnPath + "Text", baseTableColumnPath + "Text"),
           }));
       }

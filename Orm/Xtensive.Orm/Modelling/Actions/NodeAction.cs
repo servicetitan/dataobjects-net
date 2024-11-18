@@ -87,7 +87,7 @@ namespace Xtensive.Modelling.Actions
       if (this is GroupingNodeAction)
         sb.Append("[");
       sb.Append(GetActionName());
-      var parameters = new List<Pair<string>>();
+      var parameters = new List<(string, string)>();
       GetParameters(parameters);
       foreach (var kvp in parameters)
         sb.AppendFormat(", {0}={1}", kvp.First, kvp.Second);
@@ -112,10 +112,10 @@ namespace Xtensive.Modelling.Actions
     /// Gets the parameters for <see cref="ToString"/> formatting.
     /// </summary>
     /// <returns>The sequence of parameters.</returns>
-    protected virtual void GetParameters(List<Pair<string>> parameters)
+    protected virtual void GetParameters(List<(string, string)> parameters)
     {
       if (path!=null)
-        parameters.Add(new Pair<string>("Path", path));
+        parameters.Add(("Path", path));
     }
 
     /// <summary>

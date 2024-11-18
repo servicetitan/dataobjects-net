@@ -19,8 +19,8 @@ namespace Xtensive.Orm
   /// </summary>
   public readonly struct Record
   {
-    private readonly Pair<Key, Tuple> keyTuplePair;
-    private readonly Pair<Key, Tuple>[] keyTuplePairs;
+    private readonly (Key, Tuple) keyTuplePair;
+    private readonly (Key, Tuple)[] keyTuplePairs;
 
     /// <summary>
     /// Gets raw tuple this record is build from.
@@ -30,24 +30,24 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the first primary key in the <see cref="Record"/>.
     /// </summary>
-    public Key GetKey() => keyTuplePair.First;
+    public Key GetKey() => keyTuplePair.Item1;
 
     /// <summary>
     /// Gets the <see cref="Key"/> by specified index.
     /// </summary>
-    public Key GetKey(int index) => GetPair(index)?.First;
+    public Key GetKey(int index) => GetPair(index)?.Item1;
 
     /// <summary>
     /// Gets the first tuple in the <see cref="Record"/>.
     /// </summary>
-    public Tuple GetTuple() => keyTuplePair.Second;
+    public Tuple GetTuple() => keyTuplePair.Item2;
 
     /// <summary>
     /// Gets the <see cref="Tuple"/> by specified index.
     /// </summary>
-    public Tuple GetTuple(int index) => GetPair(index)?.Second;
+    public Tuple GetTuple(int index) => GetPair(index)?.Item2;
 
-    private Pair<Key, Tuple>? GetPair(int index) =>
+    private (Key, Tuple)? GetPair(int index) =>
       index == 0 ? keyTuplePair
       : keyTuplePairs == null || index < 0 || index >= keyTuplePairs.Length ? null
       : keyTuplePairs[index];
@@ -67,7 +67,7 @@ namespace Xtensive.Orm
       keyTuplePair = this.keyTuplePairs[0];
     }
 
-    internal Record(Tuple tuple, Pair<Key, Tuple> keyTuplePair)
+    internal Record(Tuple tuple, (Key, Tuple) keyTuplePair)
     {
       Source = tuple;
       keyTuplePairs = null;
