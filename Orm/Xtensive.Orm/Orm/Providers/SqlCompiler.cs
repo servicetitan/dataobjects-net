@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Providers
 {
   public partial class SqlCompiler : Compiler<SqlProvider>
   {
-    protected readonly Stack<Pair<SqlProvider, bool>> outerReferenceStack = new Stack<Pair<SqlProvider, bool>>();
+    protected readonly Stack<(SqlProvider, bool)> outerReferenceStack = new();
 
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets collection of outer references.
     /// </summary>
-    protected BindingCollection<ApplyParameter, Pair<SqlProvider, bool>> OuterReferences { get; private set; }
+    protected BindingCollection<ApplyParameter, (SqlProvider, bool)> OuterReferences { get; private set; }
 
     /// <summary>
     /// Gets node configuration on which query is compilling.
@@ -119,8 +119,8 @@ namespace Xtensive.Orm.Providers
       var allBindings = Enumerable.Empty<QueryParameterBinding>();
       foreach (var column in provider.CalculatedColumns) {
         var result = ProcessExpression(column.Expression, true, sourceColumns);
-        var predicate = result.First;
-        var bindings = result.Second;
+        var predicate = result.Item1;
+        var bindings = result.Item2;
         if (column.Type.StripNullable()==WellKnownTypes.Bool)
           predicate = GetBooleanColumnExpression(predicate);
         AddInlinableColumn(provider, column, sqlSelect, predicate);
@@ -158,8 +158,8 @@ namespace Xtensive.Orm.Providers
 
       var sourceColumns = ExtractColumnExpressions(query);
       var result = ProcessExpression(provider.Predicate, true, sourceColumns);
-      var predicate = result.First;
-      var bindings = result.Second;
+      var predicate = result.Item1;
+      var bindings = result.Item2;
 
       query.Where &= predicate;
 
@@ -269,8 +269,8 @@ namespace Xtensive.Orm.Providers
       var joinType = provider.JoinType==JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin;
 
       var result = ProcessExpression(provider.Predicate, false, leftExpressions, rightExpressions);
-      var joinExpression = result.First;
-      var bindings = result.Second;
+      var joinExpression = result.Item1;
+      var bindings = result.Item2;
 
       var joinedTable = SqlDml.Join(
         joinType,
@@ -604,7 +604,7 @@ namespace Xtensive.Orm.Providers
     public SqlCompiler(HandlerAccessor handlers, in CompilerConfiguration configuration)
     {
       Handlers = handlers;
-      OuterReferences = new BindingCollection<ApplyParameter, Pair<SqlProvider, bool>>();
+      OuterReferences = new BindingCollection<ApplyParameter, (SqlProvider, bool)>();
       var storageNode = configuration.StorageNode;
       Mapping = storageNode.Mapping;
       TypeIdRegistry = storageNode.TypeIdRegistry;

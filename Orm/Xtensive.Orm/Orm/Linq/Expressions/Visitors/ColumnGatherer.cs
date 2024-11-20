@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
   internal sealed class ColumnGatherer : PersistentExpressionVisitor
   {
     private readonly ColumnExtractionModes columnExtractionModes;
-    private readonly List<Pair<ColNum, Expression>> columns = new();
+    private readonly List<(ColNum, Expression)> columns = new();
     private SubQueryExpression topSubquery;
 
     private bool TreatEntityAsKey
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       get { return (columnExtractionModes & ColumnExtractionModes.OmitLazyLoad)!=ColumnExtractionModes.Default; }
     }
 
-    public static IReadOnlyList<Pair<ColNum, Expression>> GetColumnsAndExpressions(Expression expression, ColumnExtractionModes columnExtractionModes)
+    public static IReadOnlyList<(ColNum, Expression)> GetColumnsAndExpressions(Expression expression, ColumnExtractionModes columnExtractionModes)
     {
       var gatherer = new ColumnGatherer(columnExtractionModes);
       gatherer.Visit(expression);
@@ -62,8 +62,8 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       var gatherer = new ColumnGatherer(columnExtractionModes);
       gatherer.Visit(expression);
       var distinct = gatherer.DistinctValues
-        ? gatherer.columns.Select(p=>p.First).Distinct()
-        : gatherer.columns.Select(p=>p.First);
+        ? gatherer.columns.Select(p=>p.Item1).Distinct()
+        : gatherer.columns.Select(p=>p.Item1);
       var ordered = gatherer.OrderedValues
         ? distinct.OrderBy(i => i)
         : distinct;
@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
       Visit(subQueryExpression.ProjectionExpression.ItemProjector.Item);
       var visitor = new ApplyParameterAccessVisitor(topSubquery.ApplyParameter, (mc, index) => {
-        columns.Add(new Pair<ColNum, Expression>(index, mc));
+        columns.Add((index, mc));
         return mc;
       });
       var providerVisitor = new CompilableProviderVisitor((provider, expression) => visitor.Visit(expression));
@@ -225,7 +225,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       var isNotParametrized = topSubquery==null && parameterizedExpression.OuterParameter==null;
 
       if (isSubqueryParameter || isNotParametrized)
-        columns.AddRange(expressionColumns.Select(i=>new Pair<ColNum, Expression>(i, parameterizedExpression)));
+        columns.AddRange(expressionColumns.Select(i => (i, (Expression)parameterizedExpression)));
     }
 
     internal override Expression VisitFullTextExpression(FullTextExpression expression)

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Tests.Linq
       return configuration;
     }
 
-    private List<Pair<Product, string>> GetLocalizedProducts(Session session, string culture)
+    private List<(Product, string)> GetLocalizedProducts(Session session, string culture)
     {
       var query = session.Query.All<Product>()
         .Select(p => new {
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Tests.Linq
         })
         .OrderBy(i => i.Name).ThenBy(i => i.Description);
 
-      return query.AsEnumerable().Select(i => new Pair<Product, string>(i.Product, i.Name)).ToList();
+      return query.AsEnumerable().Select(i => (i.Product, i.Name)).ToList();
     }
 
     [Test]

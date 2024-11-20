@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Providers
           || left.Header.Columns.Count!=left.Request.Statement.Columns.Count;
       }
 
-      var outerReference = new Pair<SqlProvider, bool>(left, shouldUseQueryReference);
+      var outerReference = (left, shouldUseQueryReference);
       var binding = OuterReferences.Add(provider.ApplyParameter, outerReference);
 
       using (binding) {

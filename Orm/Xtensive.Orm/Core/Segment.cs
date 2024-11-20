@@ -44,26 +44,26 @@ namespace Xtensive.Core
     }
 
     /// <inheritdoc/>
-    public bool Equals(Pair<T> other)
+    public bool Equals((T, T) other)
     {
-      return AdvancedComparerStruct<T>.System.Equals(Offset, other.First) && 
-        AdvancedComparerStruct<T>.System.Equals(Length, other.Second);
+      return AdvancedComparerStruct<T>.System.Equals(Offset, other.Item1) &&
+        AdvancedComparerStruct<T>.System.Equals(Length, other.Item2);
     }
 
     /// <inheritdoc/>
-    public int CompareTo(Pair<T> other)
+    public int CompareTo((T, T) other)
     {
-      int result = AdvancedComparerStruct<T>.System.Compare(Offset, other.First);
+      int result = AdvancedComparerStruct<T>.System.Compare(Offset, other.Item1);
       if (result!=0)
         return result;
-      return AdvancedComparerStruct<T>.System.Compare(Length, other.Second);
+      return AdvancedComparerStruct<T>.System.Compare(Length, other.Item2);
     }
 
     #region Equals, GetHashCode
 
     /// <inheritdoc/>
     public override bool Equals(object obj) =>
-      obj is Pair<T> other && Equals(other);
+      obj is ValueTuple<T, T> other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode() => HashCode.Combine(Offset, Length);

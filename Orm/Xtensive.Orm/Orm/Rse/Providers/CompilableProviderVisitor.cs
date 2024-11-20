@@ -203,8 +203,8 @@ namespace Xtensive.Orm.Rse.Providers
           provider.AggregateColumns.Select(ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType))
         );
       }
-      var result = (Pair<ColNum[], AggregateColumnDescriptor[]>) resultParameters;
-      return new AggregateProvider(source, result.First, result.Second);
+      var result = (ValueTuple<ColNum[], AggregateColumnDescriptor[]>) resultParameters;
+      return new AggregateProvider(source, result.Item1, result.Item2);
     }
 
     /// <inheritdoc/>

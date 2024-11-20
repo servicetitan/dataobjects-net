@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Upgrade
         return targetModel;
 
       // Build hierarchy foreign keys
-      var indexPairs = new Dictionary<Pair<IndexInfo>, object>();
+      var indexPairs = new Dictionary<(IndexInfo, IndexInfo), object>();
       foreach (var type in domainModel.Types.Entities) {
         if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable)
           continue;
@@ -125,15 +125,15 @@ namespace Xtensive.Orm.Upgrade
             .ToList();
           for (int i = 0; i < realPrimaryIndexes.Count - 1; i++) {
             if (realPrimaryIndexes[i]!=realPrimaryIndexes[i + 1]) {
-              var pair = new Pair<IndexInfo>(realPrimaryIndexes[i], realPrimaryIndexes[i + 1]);
+              var pair = (realPrimaryIndexes[i], realPrimaryIndexes[i + 1]);
               indexPairs[pair] = null;
             }
           }
         }
       }
       foreach (var indexPair in indexPairs.Keys) {
-        var referencedIndex = indexPair.First;
-        var referencingIndex = indexPair.Second;
+        var referencedIndex = indexPair.Item1;
+        var referencingIndex = indexPair.Item2;
         var referencingTable = targetModel.Tables[resolver.GetNodeName(referencingIndex.ReflectedType)];
         var referencedTable = targetModel.Tables[resolver.GetNodeName(referencedIndex.ReflectedType)];
         var storageReferencingIndex = FindIndex(

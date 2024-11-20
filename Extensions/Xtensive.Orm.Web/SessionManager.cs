@@ -20,9 +20,9 @@ namespace Xtensive.Orm.Web
   public class SessionManager
   {
     private static SessionManager current;
-    private static Func<Pair<Session, IDisposable>> sessionProvider;
+    private static Func<(Session, IDisposable)> sessionProvider;
 
-    private static AsyncLocal<Pair<Session, IDisposable>> sessionAndTransactionPair = new AsyncLocal<Pair<Session, IDisposable>>();
+    private static AsyncLocal<(Session, IDisposable)> sessionAndTransactionPair = new AsyncLocal<(Session, IDisposable)>();
     private static readonly AsyncLocal<bool> hasErrors = new AsyncLocal<bool>();
 
     private readonly RequestDelegate nextMiddlewareRunner;
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Web
     /// <summary>
     /// Gets or sets a delegate which will be used to provide session instead of build-in mechanisms.
     /// </summary>
-    public static Func<Pair<Session, IDisposable>> SessionProvider
+    public static Func<(Session, IDisposable)> SessionProvider
     {
       protected get
       {
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Web
     /// </summary>
     public bool HasSession
     {
-      get { return sessionAndTransactionPair.Value.First != null; }
+      get { return sessionAndTransactionPair.Value.Item1 != null; }
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Web
       get
       {
         EnsureSessionIsProvided();
-        return sessionAndTransactionPair.Value.First;
+        return sessionAndTransactionPair.Value.Item1;
       }
     }
 
@@ -172,18 +172,18 @@ namespace Xtensive.Orm.Web
     {
       DisableSessionResolver();
       var pair = sessionAndTransactionPair.Value;
-      sessionAndTransactionPair.Value = new Pair<Session, IDisposable>(null, null);
+      sessionAndTransactionPair.Value = (null, null);
 
-      pair.Second.Dispose();
-      pair.First.Dispose();
+      pair.Item2.Dispose();
+      pair.Item1.Dispose();
     }
 
     private void ProvideSession(Domain domain, HttpContext context)
     {
-      if (sessionAndTransactionPair.Value.First!=null)
+      if (sessionAndTransactionPair.Value.Item1 != null)
         throw new InvalidOperationException("Session has already provided.");
 
-      Pair<Session, IDisposable> pair;
+      (Session, IDisposable) pair;
 
       if (sessionProvider == null)
         pair = ProvideSessionInternal(domain, context);
@@ -192,12 +192,12 @@ namespace Xtensive.Orm.Web
       sessionAndTransactionPair.Value = pair;
     }
 
-    private Pair<Session, IDisposable> ProvideSessionInternal(Domain domain, HttpContext context)
+    private (Session, IDisposable) ProvideSessionInternal(Domain domain, HttpContext context)
     {
       var newSession = domain.OpenSession(); // Open, but don't activate!
       var transactionScope = newSession.OpenTransaction();
       var newResource = transactionScope.Join(newSession);
-      return new Pair<Session, IDisposable>(newSession, new Disposable(disposing => {
+      return (newSession, new Disposable(disposing => {
         try
         {
           if (!HasErrors)
@@ -212,7 +212,7 @@ namespace Xtensive.Orm.Web
 
     private void EnsureSessionIsProvided()
     {
-      if (sessionAndTransactionPair.Value.First == null)
+      if (sessionAndTransactionPair.Value.Item1 == null)
         throw new InvalidOperationException("Session is not provided");
     }
 

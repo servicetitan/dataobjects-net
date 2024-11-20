@@ -291,7 +291,7 @@ namespace Xtensive.Orm.Tests.Linq
         from r in
           from t in tracks
           select new {
-            Value = new Pair<string>(t.Name, method),
+            Value = new ValueTuple<string, string>(t.Name, method),
             Method = method,
             t.Name
           }

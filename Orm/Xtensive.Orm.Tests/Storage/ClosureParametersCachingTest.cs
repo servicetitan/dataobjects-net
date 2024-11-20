@@ -434,7 +434,7 @@ namespace Xtensive.Orm.Tests.Storage
 {
   public class ClosureParametersCachingTest : AutoBuildTest
   {
-    private Pair<int> idsPair;
+    private (int, int) idsPair;
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -465,7 +465,7 @@ namespace Xtensive.Orm.Tests.Storage
           Amount = 16.0m
         };
 
-        idsPair = new Pair<int>((int)invoice1.Id, (int)invoice2.Id);
+        idsPair = ((int)invoice1.Id, (int)invoice2.Id);
         tx.Complete();
       }
     }
@@ -478,8 +478,8 @@ namespace Xtensive.Orm.Tests.Storage
         var tester = new InheritorValueTypeTester(-1);
 
         Domain.QueryCache.Clear();
-        Assert.That(tester.TestLocalVariable(session, idsPair.Second), Is.EqualTo(16.0m));
-        Assert.That(tester.TestLocalVariable(session, idsPair.First), Is.EqualTo(6.0m));
+        Assert.That(tester.TestLocalVariable(session, idsPair.Item2), Is.EqualTo(16.0m));
+        Assert.That(tester.TestLocalVariable(session, idsPair.Item1), Is.EqualTo(6.0m));
 
         Assert.That(Domain.QueryCache.Count, Is.EqualTo(1));
       }
@@ -493,8 +493,8 @@ namespace Xtensive.Orm.Tests.Storage
         var tester = new InheritorValueTypeTester(-1);
 
         Domain.QueryCache.Clear();
-        Assert.That(tester.TestMethodParameter(session, idsPair.Second), Is.EqualTo(16.0m));
-        Assert.That(tester.TestMethodParameter(session, idsPair.First), Is.EqualTo(6.0m));
+        Assert.That(tester.TestMethodParameter(session, idsPair.Item2), Is.EqualTo(16.0m));
+        Assert.That(tester.TestMethodParameter(session, idsPair.Item1), Is.EqualTo(6.0m));
 
         Assert.That(Domain.QueryCache.Count, Is.EqualTo(1));
       }
@@ -556,12 +556,12 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var tester = new InheritorValueTypeTester(-1);
-        InheritorValueTypeTester.StaticField = idsPair.First;
+        InheritorValueTypeTester.StaticField = idsPair.Item1;
 
         Domain.QueryCache.Clear();
         Assert.That(tester.TestStaticField(session), Is.EqualTo(6.0m));
 
-        InheritorValueTypeTester.StaticField = idsPair.Second;
+        InheritorValueTypeTester.StaticField = idsPair.Item2;
         Assert.That(tester.TestStaticField(session), Is.EqualTo(16.0m));
 
         Assert.That(Domain.QueryCache.Count, Is.EqualTo(1));
@@ -573,8 +573,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var first = new BaseValueTypeTester((long) idsPair.First) {PublicField = idsPair.First};
-        var second = new BaseValueTypeTester((long) idsPair.Second) {PublicField = idsPair.Second};
+        var first = new BaseValueTypeTester((long) idsPair.Item1) {PublicField = idsPair.Item1 };
+        var second = new BaseValueTypeTester((long) idsPair.Item2) {PublicField = idsPair.Item2 };
 
         Domain.QueryCache.Clear();
         var firstResult = first.TestPrivateField(session);
@@ -591,8 +591,8 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction())
       {
-        var first = new BaseValueTypeTester((long)idsPair.First) { PublicField = idsPair.First };
-        var second = new BaseValueTypeTester((long)idsPair.Second) { PublicField = idsPair.Second };
+        var first = new BaseValueTypeTester((long)idsPair.Item1) { PublicField = idsPair.Item1 };
+        var second = new BaseValueTypeTester((long)idsPair.Item2) { PublicField = idsPair.Item2 };
 
         Domain.QueryCache.Clear();
         var firstResult = first.TestPublicField(session);
@@ -608,8 +608,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var first = new BaseValueTypeTester(idsPair.First) { PublicProperty = idsPair.First };
-        var second = new BaseValueTypeTester(idsPair.Second) { PublicProperty = idsPair.Second };
+        var first = new BaseValueTypeTester(idsPair.Item1) { PublicProperty = idsPair.Item1 };
+        var second = new BaseValueTypeTester(idsPair.Item2) { PublicProperty = idsPair.Item2 };
 
         Domain.QueryCache.Clear();
         var firstResult = first.TestPrivateProperty(session);
@@ -625,8 +625,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var first = new BaseValueTypeTester(idsPair.First) { PublicProperty = idsPair.First };
-        var second = new BaseValueTypeTester(idsPair.Second) { PublicProperty = idsPair.Second };
+        var first = new BaseValueTypeTester(idsPair.Item1) { PublicProperty = idsPair.Item1 };
+        var second = new BaseValueTypeTester(idsPair.Item2) { PublicProperty = idsPair.Item2 };
 
         Domain.QueryCache.Clear();
         var firstResult = first.TestPublicProperty(session);
@@ -642,8 +642,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var first = new InheritorValueTypeTester((long) idsPair.First) {PublicField = idsPair.First};
-        var second = new InheritorValueTypeTester((long) idsPair.Second) {PublicField = idsPair.Second};
+        var first = new InheritorValueTypeTester((long)idsPair.Item1) { PublicField = idsPair.Item1 };
+        var second = new InheritorValueTypeTester((long) idsPair.Item2) {PublicField = idsPair.Item2};
 
         Domain.QueryCache.Clear();
         var firstResult = first.TestInheritedPublicField(session);
@@ -659,8 +659,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var first = new InheritorValueTypeTester(idsPair.First) {PublicProperty = idsPair.First};
-        var second = new InheritorValueTypeTester(idsPair.Second) {PublicProperty = idsPair.Second};
+        var first = new InheritorValueTypeTester(idsPair.Item1) {PublicProperty = idsPair.Item1};
+        var second = new InheritorValueTypeTester(idsPair.Item2) {PublicProperty = idsPair.Item2 };
 
         Domain.QueryCache.Clear();
         var firstResult = first.TestInheritedPublicProperty(session);
@@ -676,8 +676,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var first = new BaseValueTypeTester.NestedValueTypeTester((long) idsPair.First) {PublicField = idsPair.First};
-        var second = new BaseValueTypeTester.NestedValueTypeTester((long) idsPair.Second) {PublicField = idsPair.Second};
+        var first = new BaseValueTypeTester.NestedValueTypeTester((long) idsPair.Item1) {PublicField = idsPair.Item1 };
+        var second = new BaseValueTypeTester.NestedValueTypeTester((long) idsPair.Item2) {PublicField = idsPair.Item2};
 
         Domain.QueryCache.Clear();
         var firstResult = first.TestPrivateField(session);
@@ -693,8 +693,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var first = new BaseValueTypeTester.NestedValueTypeTester((long) idsPair.First) {PublicField = idsPair.First};
-        var second = new BaseValueTypeTester.NestedValueTypeTester((long) idsPair.Second) {PublicField = idsPair.Second};
+        var first = new BaseValueTypeTester.NestedValueTypeTester((long) idsPair.Item1) {PublicField = idsPair.Item1};
+        var second = new BaseValueTypeTester.NestedValueTypeTester((long) idsPair.Item2) {PublicField = idsPair.Item2 };
 
         Domain.QueryCache.Clear();
         var firstResult = first.TestPublicField(session);
@@ -710,8 +710,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var first = new BaseValueTypeTester.NestedValueTypeTester(idsPair.First) {PublicProperty = idsPair.First};
-        var second = new BaseValueTypeTester.NestedValueTypeTester(idsPair.Second) {PublicProperty = idsPair.Second};
+        var first = new BaseValueTypeTester.NestedValueTypeTester(idsPair.Item1) {PublicProperty = idsPair.Item1 };
+        var second = new BaseValueTypeTester.NestedValueTypeTester(idsPair.Item2) {PublicProperty = idsPair.Item2 };
 
         Domain.QueryCache.Clear();
         var firstResult = first.TestPrivateProperty(session);
@@ -727,8 +727,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var first = new BaseValueTypeTester.NestedValueTypeTester(idsPair.First) {PublicProperty = idsPair.First};
-        var second = new BaseValueTypeTester.NestedValueTypeTester(idsPair.Second) {PublicProperty = idsPair.Second};
+        var first = new BaseValueTypeTester.NestedValueTypeTester(idsPair.Item1) {PublicProperty = idsPair.Item1};
+        var second = new BaseValueTypeTester.NestedValueTypeTester(idsPair.Item2) {PublicProperty = idsPair.Item2 };
 
         Domain.QueryCache.Clear();
         var firstResult = first.TestPublicProperty(session);

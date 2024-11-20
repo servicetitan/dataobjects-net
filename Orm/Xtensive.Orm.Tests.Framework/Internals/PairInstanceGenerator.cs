@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Yakunin
@@ -11,11 +11,11 @@ using Xtensive.Core;
 namespace Xtensive.Orm.Tests
 {
   [Serializable]
-  internal class PairInstanceGenerator<T1, T2>: WrappingInstanceGenerator<Pair<T1, T2>, T1, T2>
+  internal class PairInstanceGenerator<T1, T2>: WrappingInstanceGenerator<(T1, T2), T1, T2>
   {
-    public override Pair<T1, T2> GetInstance(Random random)
+    public override (T1, T2) GetInstance(Random random)
     {
-      return new Pair<T1, T2>(
+      return (
         BaseGenerator1.GetInstance(random),
         BaseGenerator2.GetInstance(random));
     }

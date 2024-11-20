@@ -130,7 +130,7 @@ namespace Xtensive.Orm
     internal ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>> PrefetchFieldDescriptorCache { get; } =
        new ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>>();
 
-    internal FastConcurrentLruCache<object, Pair<object, ParameterizedQuery>> QueryCache { get; }
+    internal FastConcurrentLruCache<object, (object, ParameterizedQuery)> QueryCache { get; }
 
     internal ConcurrentDictionary<Type, System.Linq.Expressions.MethodCallExpression> RootCallExpressionsCache { get; } = new();
 
@@ -414,7 +414,7 @@ namespace Xtensive.Orm
       GenericKeyFactories = new ConcurrentDictionary<TypeInfo, GenericKeyFactory>();
       EntityDataReader = new EntityDataReader(this);
       KeyGenerators = new KeyGeneratorRegistry();
-      QueryCache = new FastConcurrentLruCache<object, Pair<object, ParameterizedQuery>>(Configuration.QueryCacheSize, k => k.First);
+      QueryCache = new FastConcurrentLruCache<object, (object, ParameterizedQuery)>(Configuration.QueryCacheSize, k => k.Item1);
       Extensions = new ExtensionCollection();
       UpgradeContextCookie = upgradeContextCookie;
       SingleConnection = singleConnection;

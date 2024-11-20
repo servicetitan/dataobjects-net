@@ -385,9 +385,9 @@ namespace Xtensive.Orm.Building.Builders
       foreach (var fieldName in source) {
         var result = ParseFieldName(fieldName);
 
-        context.Validator.ValidateName(result.First, ValidationRule.Column);
+        context.Validator.ValidateName(result.Item1, ValidationRule.Column);
 
-        if (!target.TryAdd(result.First, result.Second)) {
+        if (!target.TryAdd(result.Item1, result.Item2)) {
           throw new DomainBuilderException(
             string.Format(Strings.ExIndexAlreadyContainsField, fieldName));
         }
@@ -422,17 +422,17 @@ namespace Xtensive.Orm.Building.Builders
       index.FillFactor = attribute.FillFactor;
     }
 
-    private Pair<string, Direction> ParseFieldName(string fieldName)
+    private (string, Direction) ParseFieldName(string fieldName)
     {
       if (fieldName.EndsWith(":DESC", StringComparison.InvariantCultureIgnoreCase)) {
-        return new Pair<string, Direction>(fieldName.Substring(0, fieldName.Length - 5), Direction.Negative);
+        return (fieldName.Substring(0, fieldName.Length - 5), Direction.Negative);
       }
 
       if (fieldName.EndsWith(":ASC", StringComparison.InvariantCultureIgnoreCase)) {
         fieldName = fieldName.Substring(0, fieldName.Length - 4);
       }
 
-      return new Pair<string, Direction>(fieldName, Direction.Positive);
+      return (fieldName, Direction.Positive);
     }
 
     private LambdaExpression GetExpressionFromProvider(Type providerType, string providerMember, Type parameterType,

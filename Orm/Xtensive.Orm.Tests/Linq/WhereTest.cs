@@ -56,8 +56,8 @@ namespace Xtensive.Orm.Tests.Linq
     public void IndexerTest()
     {
       var query = Session.Query.All<Invoice>();
-      var kvp = new Pair<string, object>("Customer", Session.Query.All<Customer>().First());
-      query = query.Where(invoice => invoice[kvp.First]==kvp.Second);
+      var kvp = ("Customer", Session.Query.All<Customer>().First());
+      query = query.Where(invoice => invoice[kvp.Item1]==kvp.Item2);
       var r = query.ToList();
     }
 

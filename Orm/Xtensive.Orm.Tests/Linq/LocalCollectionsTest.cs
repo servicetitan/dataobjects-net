@@ -207,12 +207,12 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var pairs = Session.Query.All<Customer>()
-        .Select(customer => new Pair<string, int>(customer.LastName, (int)customer.Invoices.Count))
+        .Select(customer => new ValueTuple<string, int>(customer.LastName, (int)customer.Invoices.Count))
         .ToList();
       var query = Session.Query.All<Customer>()
-        .Join(pairs, customer => customer.LastName, pair => pair.First, (customer, pair) => new {customer, pair.Second});
+        .Join(pairs, customer => customer.LastName, pair => pair.Item1, (customer, pair) => new {customer, Second = pair.Item2});
       var expected = Customers
-        .Join(pairs, customer => customer.LastName, pair => pair.First, (customer, pair) => new {customer, pair.Second});
+        .Join(pairs, customer => customer.LastName, pair => pair.Item1, (customer, pair) => new {customer, Second = pair.Item2});
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
@@ -224,12 +224,12 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var pairs = Session.Query.All<Customer>()
-        .Select(customer => new Pair<string, int>(customer.LastName, (int)customer.Invoices.Count))
+        .Select(customer => new ValueTuple<string, int>(customer.LastName, (int)customer.Invoices.Count))
         .ToList();
       var query = Session.Query.All<Customer>()
-        .Join(pairs, customer => customer.LastName, pair => pair.First, (customer, pair) => pair.Second);
+        .Join(pairs, customer => customer.LastName, pair => pair.Item1, (customer, pair) => pair.Item2);
       var expected = Session.Query.All<Customer>().AsEnumerable()
-        .Join(pairs, customer => customer.LastName, pair => pair.First, (customer, pair) => pair.Second);
+        .Join(pairs, customer => customer.LastName, pair => pair.Item1, (customer, pair) => pair.Item2);
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);

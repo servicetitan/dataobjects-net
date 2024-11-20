@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Tests
     /// <param name="random">The random generator to use.</param>
     /// <param name="equalityProbability">The item equality probability.</param>
     /// <returns>Described sequence.</returns>
-    public static IEnumerable<Pair<T>> GetPairs(Random random, double equalityProbability)
+    public static IEnumerable<(T, T)> GetPairs(Random random, double equalityProbability)
     {
       return GetPairs(InstanceGeneratorProvider.Default.GetInstanceGenerator<T>(), random, equalityProbability);
     }
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Tests
     /// <param name="random">The random generator to use.</param>
     /// <param name="equalityProbability">The item equality probability.</param>
     /// <returns>Described sequence.</returns>
-    public static IEnumerable<Pair<T>> GetPairs(IInstanceGenerator<T> generator, Random random, double equalityProbability)
+    public static IEnumerable<(T, T)> GetPairs(IInstanceGenerator<T> generator, Random random, double equalityProbability)
     {
       bool isValueType = typeof (T).IsValueType;
       bool isCloneable = typeof(ICloneable).IsAssignableFrom(typeof(T));
@@ -50,10 +50,10 @@ namespace Xtensive.Orm.Tests
             y = (T) ((ICloneable)x).Clone();
           else
             y = x;
-          yield return new Pair<T>(x, x);
+          yield return (x, x);
         }
         else
-          yield return new Pair<T>(x, generator.GetInstance(random));
+          yield return (x, generator.GetInstance(random));
       }
     }
 

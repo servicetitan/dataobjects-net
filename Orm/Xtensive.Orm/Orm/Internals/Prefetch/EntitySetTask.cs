@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var entityKeys = new List<Key>(itemsQueryTask.Result.Count);
       var association = ReferencingField.Associations.Last();
       var auxEntities = (association.AuxiliaryType != null)
-        ? new List<Pair<Key, Tuple>>(itemsQueryTask.Result.Count)
+        ? new List<(Key, Tuple)>(itemsQueryTask.Result.Count)
         : null;
 
       foreach (var record in records) {
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Internals.Prefetch
           }
           if (association.AuxiliaryType != null) {
             if (i == 0) {
-              auxEntities.Add(new Pair<Key, Tuple>(key, tuple));
+              auxEntities.Add((key, tuple));
             }
             else {
               manager.SaveStrongReference(manager.Owner.UpdateState(key, tuple));

@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Building
   /// </summary>
   public sealed class BuildingContext
   {
-    internal List<Pair<AssociationInfo, string>> PairedAssociations { get; private set; }
+    internal List<(AssociationInfo, string)> PairedAssociations { get; private set; }
     internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
     internal ModelInspectionResult ModelInspectionResult { get; private set; }
     internal Graph<TypeDef> DependencyGraph { get; private set; }
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Building
       ArgumentNullException.ThrowIfNull(builderConfiguration);
 
       BuilderConfiguration = builderConfiguration;
-      PairedAssociations = new List<Pair<AssociationInfo, string>>();
+      PairedAssociations = new List<(AssociationInfo, string)>();
       DiscardedAssociations = new HashSet<AssociationInfo>();
       ModelInspectionResult = new ModelInspectionResult();
       DependencyGraph = new Graph<TypeDef>();

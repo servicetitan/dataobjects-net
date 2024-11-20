@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Tests.Core.Helpers
     public string[] RevertibleSplitFirstAndTailTest(string source, char escape, char delimiter)
     {
       var result = source.RevertibleSplitFirstAndTail(escape, delimiter);
-      return [result.First, result.Second];
+      return [result.Item1, result.Item2];
     }
 
     [TestCase("A", 0, false, ExpectedResult = "A")]

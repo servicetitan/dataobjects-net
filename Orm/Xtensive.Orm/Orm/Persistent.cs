@@ -86,7 +86,7 @@ namespace Xtensive.Orm
     {
       object value;
       var pair = fieldName.RevertibleSplitFirstAndTail(';', '.');
-      var field = TypeInfo.Fields[pair.First];
+      var field = TypeInfo.Fields[pair.Item1];
       // TODO: Improve (use DelegateHelper)
       if (field.UnderlyingProperty != null) {
         var mi = field.UnderlyingProperty.GetGetMethod(true);
@@ -98,11 +98,11 @@ namespace Xtensive.Orm
         value = mi.Invoke(this, null);
       }
       else
-        value = GetFieldValue(pair.First); // Untyped, since T might be wrong
-      if (pair.Second == null) // There is no tail, so we are going to return a value here
+        value = GetFieldValue(pair.Item1); // Untyped, since T might be wrong
+      if (pair.Item2 == null) // There is no tail, so we are going to return a value here
         return (T) value;
       var persistent = (Persistent) value;
-      return persistent.GetProperty<T>(pair.Second);
+      return persistent.GetProperty<T>(pair.Item2);
     }
 
     /// <summary>
@@ -120,8 +120,8 @@ namespace Xtensive.Orm
     public void SetProperty<T>(string fieldName, T value)
     {
       var pair = fieldName.RevertibleSplitFirstAndTail(';', '.');
-      if (pair.Second == null) { // There is no tail, so we are setting a value on the current instance
-        var field = TypeInfo.Fields[pair.First];
+      if (pair.Item2 == null) { // There is no tail, so we are setting a value on the current instance
+        var field = TypeInfo.Fields[pair.Item1];
         // TODO: Improve (use DelegateHelper)
         if (field.UnderlyingProperty != null) {
           var mi = field.UnderlyingProperty.GetSetMethod(true);
@@ -133,11 +133,11 @@ namespace Xtensive.Orm
           mi.Invoke(this, new object[] { value });
         }
         else
-          SetFieldValue(pair.First, (object) value); // Untyped, since T might be wrong
+          SetFieldValue(pair.Item1, (object) value); // Untyped, since T might be wrong
       }
       else {
-        var persistent = GetProperty<Persistent>(pair.First);
-        persistent.SetProperty(pair.Second, value);
+        var persistent = GetProperty<Persistent>(pair.Item1);
+        persistent.SetProperty(pair.Item2, value);
       }
     }
 
@@ -711,8 +711,8 @@ namespace Xtensive.Orm
     protected internal void NotifyPropertyChanged(string propertyName)
     {
       var subscription = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
-      if (subscription.Second != null) {
-        ((PropertyChangedEventHandler) subscription.Second)
+      if (subscription.Item2 != null) {
+        ((PropertyChangedEventHandler) subscription.Item2)
           .Invoke(this, new PropertyChangedEventArgs(propertyName));
       }
     }
@@ -722,7 +722,7 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="eventKey">The event key.</param>
     /// <returns>Event subscription (delegate) for the specified event key.</returns>
-    protected abstract Pair<Key, Delegate> GetSubscription(object eventKey);
+    protected abstract (Key, Delegate) GetSubscription(object eventKey);
 
     #endregion
 

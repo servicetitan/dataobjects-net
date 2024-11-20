@@ -153,7 +153,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
 
     private static void ClearCompilerCache()
     {
-      var type = typeof(Pair<>).Assembly.GetType("Xtensive.Linq.CachingExpressionCompiler");
+      var type = typeof(Session).Assembly.GetType("Xtensive.Linq.CachingExpressionCompiler");
       var instance = type.InvokeMember("Instance",
         BindingFlags.Public | BindingFlags.Static | BindingFlags.GetProperty,
         null, null, Array.Empty<object>());

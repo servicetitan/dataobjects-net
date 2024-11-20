@@ -113,7 +113,7 @@ namespace Xtensive.Tuples
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="map">Target-to-source field index map.
     /// Negative value in this map means "skip this element".</param>
-    public static void CopyTo(this Tuple[] sources, Tuple target, Pair<ColNum, ColNum>[] map)
+    public static void CopyTo(this Tuple[] sources, Tuple target, (ColNum, ColNum)[] map)
     {
       var haveSlowSource = false;
       var packedSources = new PackedTuple[sources.Length];
@@ -145,7 +145,7 @@ namespace Xtensive.Tuples
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="map">Target-to-source field index map.
     /// Negative value in this map means "skip this element".</param>
-    public static void CopyTo(this FixedList3<Tuple> sources, Tuple target, Pair<ColNum, ColNum>[] map)
+    public static void CopyTo(this FixedList3<Tuple> sources, Tuple target, (ColNum, ColNum)[] map)
     {
       var haveSlowSource = false;
       var packedSources = new FixedList3<PackedTuple>();
@@ -485,45 +485,45 @@ namespace Xtensive.Tuples
       }
     }
 
-    private static void CopyTupleArrayWithMappingSlow(Tuple[] sources, Tuple target, Pair<ColNum, ColNum>[] map)
+    private static void CopyTupleArrayWithMappingSlow(Tuple[] sources, Tuple target, (ColNum, ColNum)[] map)
     {
       for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];
-        var sourceTupleIndex = sourceInfo.First;
-        var sourceFieldIndex = sourceInfo.Second;
+        var sourceTupleIndex = sourceInfo.Item1;
+        var sourceFieldIndex = sourceInfo.Item2;
         if (sourceTupleIndex >= 0 && sourceFieldIndex >= 0)
           CopyValue(sources[sourceTupleIndex], sourceFieldIndex, target, targetIndex);
       }
     }
 
-    private static void CopyTupleArrayWithMappingFast(PackedTuple[] sources, PackedTuple target, Pair<ColNum, ColNum>[] map)
+    private static void CopyTupleArrayWithMappingFast(PackedTuple[] sources, PackedTuple target, (ColNum, ColNum)[] map)
     {
       for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];
-        var sourceTupleIndex = sourceInfo.First;
-        var sourceFieldIndex = sourceInfo.Second;
+        var sourceTupleIndex = sourceInfo.Item1;
+        var sourceFieldIndex = sourceInfo.Item2;
         if (sourceTupleIndex >= 0 && sourceFieldIndex >= 0)
           CopyPackedValue(sources[sourceTupleIndex], sourceFieldIndex, target, targetIndex);
       }
     }
 
-    private static void Copy3TuplesWithMappingSlow(FixedList3<Tuple> sources, Tuple target, Pair<ColNum, ColNum>[] map)
+    private static void Copy3TuplesWithMappingSlow(FixedList3<Tuple> sources, Tuple target, (ColNum, ColNum)[] map)
     {
       for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];
-        var sourceTupleIndex = sourceInfo.First;
-        var sourceFieldIndex = sourceInfo.Second;
+        var sourceTupleIndex = sourceInfo.Item1;
+        var sourceFieldIndex = sourceInfo.Item2;
         if (sourceTupleIndex >= 0 && sourceFieldIndex >= 0)
           CopyValue(sources[sourceTupleIndex], sourceFieldIndex, target, targetIndex);
       }
     }
 
-    private static void Copy3TuplesWithMappingFast(FixedList3<PackedTuple> sources, PackedTuple target, Pair<ColNum, ColNum>[] map)
+    private static void Copy3TuplesWithMappingFast(FixedList3<PackedTuple> sources, PackedTuple target, (ColNum, ColNum)[] map)
     {
       for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];
-        var sourceTupleIndex = sourceInfo.First;
-        var sourceFieldIndex = sourceInfo.Second;
+        var sourceTupleIndex = sourceInfo.Item1;
+        var sourceFieldIndex = sourceInfo.Item2;
         if (sourceTupleIndex >= 0 && sourceFieldIndex >= 0)
           CopyPackedValue(sources[sourceTupleIndex], sourceFieldIndex, target, targetIndex);
       }

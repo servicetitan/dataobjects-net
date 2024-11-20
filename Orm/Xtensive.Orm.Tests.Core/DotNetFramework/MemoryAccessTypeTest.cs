@@ -58,30 +58,30 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
     private void TestAccess(int size, int count, Func<int, IEnumerable<int>> generator, bool warmup)
     {
       size = size / 10 * 10;
-      Pair<int>[] pairs = new Pair<int>[size];
+      (int, int)[] pairs = new (int, int)[size];
       // Filling the data
       IEnumerable<int> nexts = generator.Invoke(size);
       int i = 0;
       foreach (int next in nexts)
-        pairs[i++] = new Pair<int>(i, next);
+        pairs[i++] = (i, next);
       // Test
-      Pair<int> current = new Pair<int>();
+      (int, int) current = new();
       TestHelper.CollectGarbage();
       using (warmup ? (IDisposable)new Disposable(delegate { }) : 
         new Measurement(
           string.Format("{0,6:F2} MB", (double)size * ItemSize / MbSize), 
           MeasurementOptions.Log, count)) {
         for (i = 0; i < count; i+=10) {
-          current = pairs[current.Second];
-          current = pairs[current.Second];
-          current = pairs[current.Second];
-          current = pairs[current.Second];
-          current = pairs[current.Second];
-          current = pairs[current.Second];
-          current = pairs[current.Second];
-          current = pairs[current.Second];
-          current = pairs[current.Second];
-          current = pairs[current.Second];
+          current = pairs[current.Item2];
+          current = pairs[current.Item2];
+          current = pairs[current.Item2];
+          current = pairs[current.Item2];
+          current = pairs[current.Item2];
+          current = pairs[current.Item2];
+          current = pairs[current.Item2];
+          current = pairs[current.Item2];
+          current = pairs[current.Item2];
+          current = pairs[current.Item2];
         }
       }
       pairs = null;

@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Model
   /// </summary>
   [Serializable]
   public sealed class TypeDiscriminatorMap : Node, 
-    IEnumerable<Pair<object, TypeInfo>>
+    IEnumerable<(object, TypeInfo)>
   {
     private TypeInfo @default;
     private readonly Dictionary<object, TypeInfo> map = new Dictionary<object, TypeInfo>();
@@ -93,10 +93,10 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public IEnumerator<Pair<object, TypeInfo>> GetEnumerator()
+    public IEnumerator<(object, TypeInfo)> GetEnumerator()
     {
       return map
-        .Select(kvp => new Pair<object, TypeInfo>(kvp.Key, kvp.Value))
+        .Select(kvp => (kvp.Key, kvp.Value))
         .ToList().GetEnumerator();
     }
   }

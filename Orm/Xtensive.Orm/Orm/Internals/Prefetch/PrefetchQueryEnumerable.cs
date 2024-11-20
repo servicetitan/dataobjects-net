@@ -20,8 +20,8 @@ namespace Xtensive.Orm.Internals.Prefetch
     private readonly IEnumerable<TItem> source;
     private readonly SinglyLinkedList<KeyExtractorNode<TItem>> nodes;
     private readonly Queue<Key> unknownTypeQueue;
-    private readonly Queue<Pair<IEnumerable<Key>, IHasNestedNodes>> prefetchQueue;
-    private readonly Dictionary<Pair<IHasNestedNodes, TypeInfo>, IReadOnlyList<PrefetchFieldDescriptor>> fieldDescriptorCache;
+    private readonly Queue<(IEnumerable<Key>, IHasNestedNodes)> prefetchQueue;
+    private readonly Dictionary<(IHasNestedNodes, TypeInfo), IReadOnlyList<PrefetchFieldDescriptor>> fieldDescriptorCache;
     private readonly SessionHandler sessionHandler;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Internals.Prefetch
           unknownTypeQueue.Enqueue(key);
         }
 
-        var cacheKey = new Pair<IHasNestedNodes, TypeInfo>(fieldContainer, type);
+        var cacheKey = (fieldContainer, type);
         if (!fieldDescriptorCache.TryGetValue(cacheKey, out var fieldDescriptors)) {
           fieldDescriptors = PrefetchHelper
             .GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, type)
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       var nestedContainers = fieldContainer.NestedNodes.OfType<IHasNestedNodes>();
       foreach (var nestedContainer in nestedContainers) {
-        prefetchQueue.Enqueue(new Pair<IEnumerable<Key>, IHasNestedNodes>(keys, nestedContainer));
+        prefetchQueue.Enqueue((keys, nestedContainer));
       }
       return container;
     }
@@ -103,8 +103,8 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
 
       while (prefetchQueue.TryDequeue(out var pair)) {
-        var parentKeys = pair.First;
-        var nestedNodes = pair.Second;
+        var parentKeys = pair.Item1;
+        var nestedNodes = pair.Item2;
         var keys = new List<Key>();
         foreach (var parentKey in parentKeys) {
           var entityState = session.EntityStateCache[parentKey, false];
@@ -132,8 +132,8 @@ namespace Xtensive.Orm.Internals.Prefetch
       this.nodes = nodes;
       sessionHandler = session.Handler;
       unknownTypeQueue = new Queue<Key>();
-      prefetchQueue = new Queue<Pair<IEnumerable<Key>, IHasNestedNodes>>();
-      fieldDescriptorCache = new Dictionary<Pair<IHasNestedNodes, TypeInfo>, IReadOnlyList<PrefetchFieldDescriptor>>();
+      prefetchQueue = new();
+      fieldDescriptorCache = new();
     }
   }
 }

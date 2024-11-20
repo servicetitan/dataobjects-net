@@ -26,14 +26,14 @@ namespace Xtensive.Conversion
     public  static readonly DateTime ZeroTime = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
     private static readonly AdvancedConverterProvider @default = new AdvancedConverterProvider();
 
-    private static readonly AsyncLocal<Dictionary<Pair<Type>, bool>> inProgressAsync = new AsyncLocal<Dictionary<Pair<Type>, bool>>();
+    private static readonly AsyncLocal<Dictionary<(Type, Type), bool>> inProgressAsync = new();
 
-    private static Dictionary<Pair<Type>, bool> InProgress
+    private static Dictionary<(Type, Type), bool> InProgress
     {
       get {
         var returnedValue = inProgressAsync.Value;
         if (returnedValue==null)
-          inProgressAsync.Value = returnedValue = new Dictionary<Pair<Type>, bool>();
+          inProgressAsync.Value = returnedValue = new Dictionary<(Type, Type), bool>();
         return returnedValue;
       }
     }
@@ -76,7 +76,7 @@ namespace Xtensive.Conversion
     /// <inheritdoc/>
     protected override TAssociate CreateCustomAssociate<TKey1, TKey2, TAssociate>()
     {
-      Pair<Type> keyTypePair = new Pair<Type>(typeof (TKey1), typeof(TKey2));
+      var keyTypePair = (typeof (TKey1), typeof(TKey2));
       if (!InProgress.TryAdd(keyTypePair, true)) {
         throw new InvalidOperationException(Strings.ExRecursiveAssociateLookupDetected);
       }

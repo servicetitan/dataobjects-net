@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Rse.Providers
   public abstract class EnumerationContext
   {
 
-    private readonly Dictionary<Pair<object, string>, object> cache = new Dictionary<Pair<object, string>, object>();
+    private readonly Dictionary<(object, string), object> cache = new();
 
     /// <summary>
     /// Gets the options of this context.
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="value">The value to cache.</param>
     public void SetValue<T>(object key, string name, T value)
     {
-      cache[new Pair<object, string>(key, name)] = value;
+      cache[(key, name)] = value;
     }
 
     /// <summary>
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Rse.Providers
     public T GetValue<T>(object key, string name)
     {
       object result;
-      cache.TryGetValue(new Pair<object, string>(key, name), out result);
+      cache.TryGetValue((key, name), out result);
       return result==null ? default(T) : (T) result;
     }
 

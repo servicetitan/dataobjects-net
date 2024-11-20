@@ -496,9 +496,9 @@ namespace Xtensive.Orm
           return;
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.RemovingEntityEventKey);
-        if (subscriptionInfo.Second!=null)
-          ((Action<Key>) subscriptionInfo.Second)
-            .Invoke(subscriptionInfo.First);
+        if (subscriptionInfo.Item2!= null)
+          ((Action<Key>) subscriptionInfo.Item2)
+            .Invoke(subscriptionInfo.Item1);
         OnRemoving();
       }
     }
@@ -513,8 +513,8 @@ namespace Xtensive.Orm
           return;
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntityEventKey);
-        if (subscriptionInfo.Second!=null)
-          ((Action<Key>) subscriptionInfo.Second).Invoke(subscriptionInfo.First);
+        if (subscriptionInfo.Item2 !=null)
+          ((Action<Key>) subscriptionInfo.Item2).Invoke(subscriptionInfo.Item1);
         OnRemove();
       }
     }
@@ -567,8 +567,8 @@ namespace Xtensive.Orm
       }
 
       var subscriptionInfo = GetSubscription(EntityEventBroker.InitializingPersistentEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key>) subscriptionInfo.Second).Invoke(subscriptionInfo.First);
+      if (subscriptionInfo.Item2 != null)
+        ((Action<Key>) subscriptionInfo.Item2).Invoke(subscriptionInfo.Item1);
     }
 
     internal override sealed void SystemInitialize(bool materialize)
@@ -582,8 +582,8 @@ namespace Xtensive.Orm
       // for this one, or system op. registration is already enabled.
 
       var subscriptionInfo = GetSubscription(EntityEventBroker.InitializePersistentEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key>) subscriptionInfo.Second).Invoke(subscriptionInfo.First);
+      if (subscriptionInfo.Item2 != null)
+        ((Action<Key>) subscriptionInfo.Item2).Invoke(subscriptionInfo.Item1);
 
       OnInitialize();
 
@@ -602,9 +602,9 @@ namespace Xtensive.Orm
       // for this one, or system op. registration is already enabled.
 
       var subscriptionInfo = GetSubscription(EntityEventBroker.InitializationErrorPersistentEventKey);
-      if (subscriptionInfo.Second!=null)
-        ((Action<Key>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First);
+      if (subscriptionInfo.Item2 != null)
+        ((Action<Key>) subscriptionInfo.Item2)
+          .Invoke(subscriptionInfo.Item1);
       OnInitializationError(error);
 
       if (State == null)
@@ -635,8 +635,8 @@ namespace Xtensive.Orm
           return;
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.GettingFieldEventKey);
-        if (subscriptionInfo.Second is Action<Key, FieldInfo> action) {
-          action(subscriptionInfo.First, field);
+        if (subscriptionInfo.Item2 is Action<Key, FieldInfo> action) {
+          action(subscriptionInfo.Item1, field);
         }
         OnGettingFieldValue(field);
       }
@@ -652,9 +652,9 @@ namespace Xtensive.Orm
           return;
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.GetFieldEventKey);
-        if (subscriptionInfo.Second!=null)
-          ((Action<Key, FieldInfo, object>) subscriptionInfo.Second)
-            .Invoke(subscriptionInfo.First, field, value);
+        if (subscriptionInfo.Item2 != null)
+          ((Action<Key, FieldInfo, object>) subscriptionInfo.Item2)
+            .Invoke(subscriptionInfo.Item1, field, value);
         OnGetFieldValue(field, value);
       }
     }
@@ -689,8 +689,8 @@ namespace Xtensive.Orm
           return;
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.SettingFieldAttemptEventKey);
-        if (subscriptionInfo.Second != null)
-          ((Action<Key, FieldInfo, object>)subscriptionInfo.Second).Invoke(subscriptionInfo.First, field, value);
+        if (subscriptionInfo.Item2 != null)
+          ((Action<Key, FieldInfo, object>)subscriptionInfo.Item2).Invoke(subscriptionInfo.Item1, field, value);
         OnSettingFieldValueAttempt(field, value);
         Session.ValidationContext.ValidateSetAttempt(this, field, value);
       }
@@ -712,8 +712,8 @@ namespace Xtensive.Orm
           return;
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.SettingFieldEventKey);
-        if (subscriptionInfo.Second!=null)
-          ((Action<Key, FieldInfo, object>) subscriptionInfo.Second).Invoke(subscriptionInfo.First, field, value);
+        if (subscriptionInfo.Item2 != null)
+          ((Action<Key, FieldInfo, object>)subscriptionInfo.Item2).Invoke(subscriptionInfo.Item1, field, value);
         OnSettingFieldValue(field, value);
       }
     }
@@ -753,9 +753,9 @@ namespace Xtensive.Orm
           Session.ValidationContext.RegisterForValidation(this, field);
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
-        if (subscriptionInfo.Second!=null)
-          ((Action<Key, FieldInfo, object, object>) subscriptionInfo.Second)
-            .Invoke(subscriptionInfo.First, field, oldValue, newValue);
+        if (subscriptionInfo.Item2!=null)
+          ((Action<Key, FieldInfo, object, object>) subscriptionInfo.Item2)
+            .Invoke(subscriptionInfo.Item1, field, oldValue, newValue);
         NotifyFieldChanged(field);
         OnSetFieldValue(field, oldValue, newValue);
       }
@@ -770,12 +770,12 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    protected override sealed Pair<Key, Delegate> GetSubscription(object eventKey)
+    protected override sealed (Key, Delegate) GetSubscription(object eventKey)
     {
       if (state==null || state.TryGetEntity()!=this)
-        return new Pair<Key, Delegate>();
+        return default;
       var entityKey = Key;
-      return new Pair<Key, Delegate>(entityKey,
+      return (entityKey,
         Session.EntityEvents.GetSubscriber(entityKey, eventKey));
     }
 

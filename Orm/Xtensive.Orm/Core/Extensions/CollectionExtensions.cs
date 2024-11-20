@@ -205,7 +205,7 @@ namespace Xtensive.Core
     /// <param name="firstArraySelector">A transform function to apply to each element to get element of the first array.</param>
     /// <param name="secondArraySelector">A transform function to apply to each element to get element of the second array.</param>
     /// <returns>Pair of two arrays.</returns>
-    internal static Pair<TFirst[], TSecond[]> SelectToArrays<TSource, TFirst,TSecond>(
+    internal static (TFirst[], TSecond[]) SelectToArrays<TSource, TFirst,TSecond>(
       this ICollection<TSource> source, Func<TSource, TFirst> firstArraySelector, Func<TSource, TSecond> secondArraySelector)
     {
       ArgumentNullException.ThrowIfNull(source);
@@ -220,7 +220,7 @@ namespace Xtensive.Core
         second[index] = secondArraySelector(item);
         index++;
       }
-      return new Pair<TFirst[], TSecond[]>(first, second);
+      return (first, second);
     }
   }
 }

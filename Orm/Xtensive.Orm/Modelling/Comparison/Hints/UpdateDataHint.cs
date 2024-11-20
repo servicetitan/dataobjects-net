@@ -23,14 +23,14 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// Gets the update parameter. The first is updated column path, 
     /// the second is new value or null (default value).
     /// </summary>
-    public IReadOnlyList<Pair<string, object>> UpdateParameter { get; private set; }
+    public IReadOnlyList<(string, object)> UpdateParameter { get; private set; }
 
     /// <inheritdoc/>
     public override List<HintTarget> GetTargets()
     {
       var targets = base.GetTargets();
       foreach (var pair in UpdateParameter) {
-        targets.Add(new HintTarget(ModelType.Source, pair.First));
+        targets.Add(new HintTarget(ModelType.Source, pair.Item1));
       }
       return targets;
     }
@@ -42,7 +42,7 @@ namespace Xtensive.Modelling.Comparison.Hints
         "Update '{0}' set ({1}) where ({2})",
         SourceTablePath,
         string.Join(", ", UpdateParameter.Select(pair =>
-          $"{pair.First}={pair.Second ?? "Default"}")
+          $"{pair.Item1}={pair.Item2 ?? "Default"}")
           .ToArray()),
         string.Join(" and ", Identities.Select(pair => pair.ToString()).ToArray()));
     }
@@ -56,7 +56,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     public UpdateDataHint(
       string sourceTablePath,  
       IReadOnlyList<IdentityPair> identities,
-      IReadOnlyList<Pair<string, object>> updateParameters)
+      IReadOnlyList<(string, object)> updateParameters)
       : base(sourceTablePath, identities)
     {
       ArgumentNullException.ThrowIfNull(updateParameters);

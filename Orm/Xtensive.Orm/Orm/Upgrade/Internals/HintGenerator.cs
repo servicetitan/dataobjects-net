@@ -196,7 +196,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       // building set of copied columns
-      var pairedColumns = AssociateMappedFields(new Pair<StoredFieldInfo>(sourceField, targetField));
+      var pairedColumns = AssociateMappedFields((sourceField, targetField));
       if (pairedColumns == null) {
         throw FieldsDoNotMatch(sourceField, targetField);
       }
@@ -209,16 +209,16 @@ namespace Xtensive.Orm.Upgrade
       foreach (var target in targetTypes) {
         var sourceTablePath = GetTablePath(sourceType);
         var identities = new List<IdentityPair>(pairedKeyColumns.Length);
-        var copiedColumns = new List<Pair<string>>(pairedColumns.Length);
+        var copiedColumns = new List<(string, string)>(pairedColumns.Length);
 
         foreach (var keyColumnPair in pairedKeyColumns) {
           identities.Add(CreateIdentityPair(target, sourceType, keyColumnPair));
         }
 
         foreach (var columnPair in pairedColumns) {
-          copiedColumns.Add(new Pair<string>(
-            GetColumnPath(sourceType, columnPair.First),
-            GetColumnPath(target, columnPair.Second)));
+          copiedColumns.Add(new (
+            GetColumnPath(sourceType, columnPair.Item1),
+            GetColumnPath(target, columnPair.Item2)));
         }
 
         schemaHints.Add(new CopyDataHint(sourceTablePath, identities, copiedColumns));
@@ -548,8 +548,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       var updatedColumns = pairedIdentityColumns
-        .SelectToList(pair =>
-          new Pair<string, object>(GetColumnPath(updatedType, pair.Second), null));
+        .SelectToList(pair => (GetColumnPath(updatedType, pair.Item2), (object) null));
 
       if (association.ConnectorType == null) {
         schemaHints.Add(new UpdateDataHint(sourceTablePath, identities, updatedColumns));
@@ -869,11 +868,11 @@ namespace Xtensive.Orm.Upgrade
         true);
     }
 
-    private IdentityPair CreateIdentityPair(StoredTypeInfo removedType, StoredTypeInfo updatedType, Pair<string> columnPair)
+    private IdentityPair CreateIdentityPair(StoredTypeInfo removedType, StoredTypeInfo updatedType, (string, string) columnPair)
     {
       return new IdentityPair(
-          GetColumnPath(updatedType, columnPair.Second),
-          GetColumnPath(removedType, columnPair.First), false);
+          GetColumnPath(updatedType, columnPair.Item2),
+          GetColumnPath(removedType, columnPair.Item1), false);
     }
 
     private string GetTableName(StoredTypeInfo type)
@@ -918,7 +917,7 @@ namespace Xtensive.Orm.Upgrade
         .MappingName;
     }
 
-    private static Pair<StoredFieldInfo>[] JoinFieldsByOriginalName(
+    private static (StoredFieldInfo, StoredFieldInfo)[] JoinFieldsByOriginalName(
       ICollection<StoredFieldInfo> sources, ICollection<StoredFieldInfo> targets)
     {
       var arrayLength = sources.Count > targets.Count ? targets.Count : sources.Count;
@@ -927,11 +926,11 @@ namespace Xtensive.Orm.Upgrade
         from source in sources
         join target in targets
           on source.OriginalName equals target.OriginalName
-        select new Pair<StoredFieldInfo>(source, target);
+        select (source, target);
       return result.ToArray(arrayLength);
     }
 
-    private static Pair<string>[] AssociateMappedKeyFields(
+    private static (string, string)[] AssociateMappedKeyFields(
       StoredHierarchyInfo sourceHierarchy,
       StoredHierarchyInfo targetHierarchy)
     {
@@ -950,17 +949,17 @@ namespace Xtensive.Orm.Upgrade
         : null;
     }
 
-    private static Pair<string>[] AssociateMappedFields(params Pair<StoredFieldInfo>[] fieldsToProcess)
+    private static (string, string)[] AssociateMappedFields(params (StoredFieldInfo, StoredFieldInfo)[] fieldsToProcess)
     {
-      var result = new ChainedBuffer<Pair<StoredFieldInfo>>();
-      var tasks = new Queue<Pair<StoredFieldInfo>>();
+      var result = new ChainedBuffer<(StoredFieldInfo, StoredFieldInfo)>();
+      var tasks = new Queue<(StoredFieldInfo, StoredFieldInfo)>();
       foreach (var task in fieldsToProcess) {
         tasks.Enqueue(task);
       }
 
       while (tasks.TryDequeue(out var task)) {
-        var source = task.First;
-        var target = task.Second;
+        var source = task.Item1;
+        var target = task.Item2;
         // both fields are primitive -> put to result is types match
         if (source.IsPrimitive && target.IsPrimitive) {
           if (source.ValueType!=target.ValueType) {
@@ -987,7 +986,7 @@ namespace Xtensive.Orm.Upgrade
         }
       }
       return result
-        .SelectToArray(mapping => new Pair<string>(mapping.First.MappingName, mapping.Second.MappingName));
+        .SelectToArray(mapping => (mapping.Item1.MappingName, mapping.Item2.MappingName));
     }
 
     #endregion

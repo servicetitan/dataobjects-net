@@ -23,14 +23,14 @@ namespace Xtensive.Linq
     private static Delegate CompileExpressionTree(ExpressionTree tree) =>
       ((LambdaExpression) tree.ToExpression()).Compile();
 
-    public Pair<Delegate, object[]> Compile(LambdaExpression lambda)
+    public (Delegate, object[]) Compile(LambdaExpression lambda)
     {
       var constantExtractor = new ConstantExtractor(lambda);
       var expressionTree = constantExtractor.Process().ToExpressionTree();
       var constants = constantExtractor.GetConstants();
 
       var compiled = cache.GetOrAdd(expressionTree, expressionTreeCompiler);
-      return new Pair<Delegate, object[]>(compiled, constants);
+      return (compiled, constants);
     }
 
     // For testing only

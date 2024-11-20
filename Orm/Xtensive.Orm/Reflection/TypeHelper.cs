@@ -126,7 +126,7 @@ namespace Xtensive.Reflection
       object[] constructorParams)
       where T : class =>
       CreateAssociate<T>(forType, out foundForType, associateTypeSuffixes, constructorParams,
-        Array.Empty<Pair<Assembly, string>>());
+        Array.Empty<(Assembly, string)>());
 
     /// <summary>
     /// Searches for associated class for <paramref name="forType"/>, creates its instance, if found.
@@ -141,7 +141,7 @@ namespace Xtensive.Reflection
     /// <returns>Newly created associate for <paramref name="forType"/>, if found;
     /// otherwise, <see langword="null"/>.</returns>
     public static T CreateAssociate<T>(Type forType, out Type foundForType, string[] associateTypeSuffixes,
-      object[] constructorParams, IEnumerable<Pair<Assembly, string>> highPriorityLocations)
+      object[] constructorParams, IEnumerable<(Assembly, string)> highPriorityLocations)
       where T : class =>
       CreateAssociate<T>(forType, out foundForType, associateTypeSuffixes, constructorParams, highPriorityLocations,
         false);
@@ -162,7 +162,7 @@ namespace Xtensive.Reflection
     /// arrays and <see cref="Nullable{T}"/>(if struct) too.</param>
     /// <exception cref="InvalidOperationException"><paramref name="forType"/> is generic type definition.</exception>
     public static T CreateAssociate<T>(Type forType, out Type foundForType, string[] associateTypeSuffixes,
-      object[] constructorParams, IEnumerable<Pair<Assembly, string>> highPriorityLocations, bool exactTypeMatch)
+      object[] constructorParams, IEnumerable<(Assembly, string)> highPriorityLocations, bool exactTypeMatch)
       where T : class
     {
       ArgumentNullException.ThrowIfNull(forType);
@@ -171,7 +171,7 @@ namespace Xtensive.Reflection
           Strings.ExCantCreateAssociateForGenericTypeDefinitions, GetShortName(forType)));
       }
 
-      var locations = new List<Pair<Assembly, string>>(1);
+      var locations = new List<(Assembly, string)>(1);
       if (highPriorityLocations != null) {
         locations.AddRange(highPriorityLocations);
       }
@@ -182,7 +182,7 @@ namespace Xtensive.Reflection
     }
 
     private static T CreateAssociateInternal<T>(Type originalForType, Type currentForType, out Type foundForType,
-      string[] associateTypeSuffixes, object[] constructorParams, List<Pair<Assembly, string>> locations,
+      string[] associateTypeSuffixes, object[] constructorParams, List<(Assembly, string)> locations,
       bool exactTypeMatch)
       where T : class
     {
@@ -339,20 +339,20 @@ namespace Xtensive.Reflection
       out Type foundForType,
       string associateTypePrefix,
       string[] associateTypeSuffixes,
-      List<Pair<Assembly, string>> locations,
+      List<(Assembly, string)> locations,
       Type[] genericArguments,
       object[] constructorParams)
       where T : class
     {
       var newLocationCount = 0;
-      var pair = new Pair<Assembly, string>(typeof(T).Assembly, typeof(T).Namespace);
-      if (locations.FindIndex(p => p.First == pair.First && p.Second == pair.Second) < 0) {
+      var pair = (typeof(T).Assembly, typeof(T).Namespace);
+      if (locations.FindIndex(p => p.Item1 == pair.Item1 && p.Item2 == pair.Item2) < 0) {
         locations.Add(pair);
         newLocationCount++;
       }
 
-      pair = new Pair<Assembly, string>(currentForType.Assembly, currentForType.Namespace);
-      if (locations.FindIndex(p => p.First == pair.First && p.Second == pair.Second) < 0) {
+      pair = (currentForType.Assembly, currentForType.Namespace);
+      if (locations.FindIndex(p => p.Item1 == pair.Item1 && p.Item2 == pair.Item2) < 0) {
         locations.Add(pair);
         newLocationCount++;
       }
@@ -363,16 +363,16 @@ namespace Xtensive.Reflection
           for (var currentSuffix = 0; currentSuffix < associateTypeSuffixes.Length; currentSuffix++) {
             var associateTypeSuffix = associateTypeSuffixes[currentSuffix];
             // Trying exact type match (e.g. EnumerableInterfaceHandler`1<...>)
-            var associateTypeName = AddSuffix($"{location.Second}.{associateTypePrefix}", associateTypeSuffix);
+            var associateTypeName = AddSuffix($"{location.Item2}.{associateTypePrefix}", associateTypeSuffix);
             var suffix = CorrectGenericSuffix(associateTypeName, genericArguments?.Length ?? 0);
-            if (Activate(location.First, suffix, genericArguments, constructorParams) is T result) {
+            if (Activate(location.Item1, suffix, genericArguments, constructorParams) is T result) {
               foundForType = currentForType;
               return result;
             }
 
             // Trying to paste original type as generic parameter
             suffix = CorrectGenericSuffix(associateTypeName, 1);
-            result = Activate(location.First, suffix, new[] { originalForType }, constructorParams) as T;
+            result = Activate(location.Item1, suffix, new[] { originalForType }, constructorParams) as T;
             if (result != null) {
               foundForType = currentForType;
               return result;
@@ -382,19 +382,19 @@ namespace Xtensive.Reflection
             Type[] newGenericArguments;
             if (genericArguments == null || genericArguments.Length == 0) {
               newGenericArguments = new[] { originalForType };
-              associateTypeName = AddSuffix($"{location.Second}.{associateTypePrefix}`1", associateTypeSuffix);
+              associateTypeName = AddSuffix($"{location.Item2}.{associateTypePrefix}`1", associateTypeSuffix);
             }
             else {
               newGenericArguments = new Type[genericArguments.Length + 1];
               newGenericArguments[0] = originalForType;
               Array.Copy(genericArguments, 0, newGenericArguments, 1, genericArguments.Length);
               associateTypeName = AddSuffix(
-                $"{location.Second}.{TrimGenericSuffix(associateTypePrefix)}`{newGenericArguments.Length}",
+                $"{location.Item2}.{TrimGenericSuffix(associateTypePrefix)}`{newGenericArguments.Length}",
                 associateTypeSuffix);
             }
 
             suffix = CorrectGenericSuffix(associateTypeName, newGenericArguments.Length);
-            result = Activate(location.First, suffix, newGenericArguments, constructorParams) as T;
+            result = Activate(location.Item1, suffix, newGenericArguments, constructorParams) as T;
             if (result != null) {
               foundForType = currentForType;
               return result;

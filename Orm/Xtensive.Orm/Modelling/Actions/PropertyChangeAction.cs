@@ -36,11 +36,11 @@ namespace Xtensive.Modelling.Actions
     }
 
     /// <inheritdoc/>
-    protected override void GetParameters(List<Pair<string>> parameters)
+    protected override void GetParameters(List<(string, string)> parameters)
     {
       base.GetParameters(parameters);
       foreach (var pair in properties)
-        parameters.Add(new Pair<string>(pair.Key, pair.Value==null ? null : pair.Value.ToString()));
+        parameters.Add((pair.Key, pair.Value==null ? null : pair.Value.ToString()));
     }
 
     /// <inheritdoc/>

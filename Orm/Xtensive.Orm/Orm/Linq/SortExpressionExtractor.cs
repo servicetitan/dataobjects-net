@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Linq
 
     public bool Extract(Expression expression)
     {
-      var result = new Stack<Pair<LambdaExpression, Direction>>();
+      var result = new Stack<(LambdaExpression, Direction)>();
 
       while (true) {
         if (expression.NodeType==ExpressionType.Call) {
@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Linq
             var source = call.Arguments[0];
             var projection = call.Arguments[1].StripQuotes();
             var direction = GetDirection(method.Value);
-            result.Push(new Pair<LambdaExpression, Direction>(projection, direction));
+            result.Push((projection, direction));
             expression = source;
             if (IsThenBy(method.Value))
               continue;
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Linq
       BaseExpression = expression;
       SortExpressions = new DirectionCollection<LambdaExpression>();
       foreach (var item in result)
-        SortExpressions.Add(item.First, item.Second);
+        SortExpressions.Add(item.Item1, item.Item2);
       return true;
     }
 

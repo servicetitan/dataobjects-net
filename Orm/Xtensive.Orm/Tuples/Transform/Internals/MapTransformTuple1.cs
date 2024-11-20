@@ -70,13 +70,13 @@ namespace Xtensive.Tuples.Transform.Internals
       return mappedIndex < 0 ? MapTransform.NoMapping :mappedIndex;
     }
 
-    protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
+    protected internal override (Tuple, int) GetMappedContainer(int fieldIndex, bool isWriting)
     {
       if (isWriting && Transform.IsReadOnly)
         throw Exceptions.ObjectIsReadOnly(null);
       var index = GetMappedFieldIndex(fieldIndex);
       return index == MapTransform.NoMapping 
-        ? new Pair<Tuple, int>() 
+        ? new() 
         : tuple.GetMappedContainer(index, isWriting);
     }
 

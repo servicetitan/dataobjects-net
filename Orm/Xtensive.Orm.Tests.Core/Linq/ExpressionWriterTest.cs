@@ -27,8 +27,8 @@ namespace Xtensive.Orm.Tests.Core.Linq
       Dump(from i in queryable select new {i.Length});
       Dump(from i in queryable select i.Length);
       Dump(from i in queryable select i.GetType()==typeof(IComparer<string>));
-      var pair = new Pair<string>("A","B");
-      Dump(from i in queryable select i==pair.First);
+      var pair = ("A","B");
+      Dump(from i in queryable select i==pair.Item1);
     }
 
     private void Dump(IQueryable query)

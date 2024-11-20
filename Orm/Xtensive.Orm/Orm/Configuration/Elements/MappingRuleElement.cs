@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2024 Xtensive LLC.
+﻿// Copyright (C) 2012-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Configuration.Elements
 
     /// <inheritdoc/>
     public override object Identifier {
-      get { return new Pair<string>(Assembly ?? string.Empty, Namespace ?? string.Empty); }
+      get { return (Assembly ?? string.Empty, Namespace ?? string.Empty); }
     }
 
     /// <summary>

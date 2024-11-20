@@ -84,8 +84,8 @@ namespace Xtensive.Tuples
     public virtual T GetValue<T>(int fieldIndex, out TupleFieldState fieldState)
     {
       var mappedContainer = GetMappedContainer(fieldIndex, false);
-      if (mappedContainer.First is PackedTuple mappedTuple) {
-        return mappedTuple.GetValue<T>(mappedContainer.Second, out fieldState);
+      if (mappedContainer.Item1 is PackedTuple mappedTuple) {
+        return mappedTuple.GetValue<T>(mappedContainer.Item2, out fieldState);
       }
 
       var value = GetValue(fieldIndex, out fieldState);
@@ -145,8 +145,8 @@ namespace Xtensive.Tuples
     public virtual void SetValue<T>(int fieldIndex, T fieldValue)
     {
       var mappedContainer = GetMappedContainer(fieldIndex, true);
-      if (mappedContainer.First is PackedTuple mappedTuple) {
-        mappedTuple.SetValue(mappedContainer.Second, fieldValue);
+      if (mappedContainer.Item1 is PackedTuple mappedTuple) {
+        mappedTuple.SetValue(mappedContainer.Item2, fieldValue);
         return;
       }
 
@@ -159,9 +159,9 @@ namespace Xtensive.Tuples
     /// <param name="fieldIndex">Index of the field to get the value container for.</param>
     /// <param name="isWriting">Indicates whether method caller has a writing intention.</param>
     /// <returns>Tuple container and remapped field index.</returns>
-    protected internal virtual Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
+    protected internal virtual (Tuple, int) GetMappedContainer(int fieldIndex, bool isWriting)
     {
-      return new Pair<Tuple, int>(this, fieldIndex);
+      return (this, fieldIndex);
     }
 
     #region Equals, GetHashCode

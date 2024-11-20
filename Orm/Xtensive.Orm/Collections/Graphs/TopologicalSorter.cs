@@ -21,7 +21,7 @@ namespace Xtensive.Collections.Graphs
 
     private sealed class OrderedSet<T> : IEnumerable<T>
     {
-      private readonly System.Collections.Generic.LinkedList<T> list;
+      private readonly LinkedList<T> list;
       private readonly Dictionary<T, LinkedListNode<T>> map;
 
       public int Count
@@ -58,7 +58,7 @@ namespace Xtensive.Collections.Graphs
 
       public OrderedSet(IEnumerable<T> source)
       {
-        list = new System.Collections.Generic.LinkedList<T>();
+        list = new LinkedList<T>();
         map = new Dictionary<T, LinkedListNode<T>>();
         foreach (var item in source) {
           var node = list.AddLast(item);

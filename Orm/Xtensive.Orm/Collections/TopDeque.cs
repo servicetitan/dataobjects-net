@@ -23,8 +23,8 @@ namespace Xtensive.Collections
   [DebuggerDisplay("Count = {Count}")]
   public class TopDeque<K, V> : ITopDeque<K, V>
   {
-    private readonly System.Collections.Generic.LinkedList<Pair<K,V>> list;
-    private readonly Dictionary<K, LinkedListNode<Pair<K,V>>> map;
+    private readonly LinkedList<(K,V)> list;
+    private readonly Dictionary<K, LinkedListNode<(K,V)>> map;
 
     /// <inheritdoc/>
     public int Count
@@ -37,15 +37,15 @@ namespace Xtensive.Collections
     /// <exception cref="KeyNotFoundException">There is no specified key.</exception>
     public V this[K key] {
       get {
-        LinkedListNode<Pair<K, V>> valueContainer;
+        LinkedListNode<(K, V)> valueContainer;
         if (map.TryGetValue(key, out valueContainer))
-          return valueContainer.Value.Second;
+          return valueContainer.Value.Item2;
         throw new KeyNotFoundException(Strings.ExNoObjectWithSpecifiedKey);
       }
       set {
-        LinkedListNode<Pair<K, V>> valueContainer;
+        LinkedListNode<(K, V)> valueContainer;
         if (map.TryGetValue(key, out valueContainer))
-          valueContainer.Value = new Pair<K, V>(key, value);
+          valueContainer.Value = (key, value);
         throw new KeyNotFoundException(Strings.ExNoObjectWithSpecifiedKey);
       }
     }
@@ -53,9 +53,9 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public bool TryGetValue(K key, out V value)
     {
-      LinkedListNode<Pair<K, V>> valueContainer;
+      LinkedListNode<(K, V)> valueContainer;
       if (map.TryGetValue(key, out valueContainer)) {
-        value = valueContainer.Value.Second;
+        value = valueContainer.Value.Item2;
         return true;
       }
       value = default(V);
@@ -65,13 +65,13 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public bool TryGetValue(K key, bool moveToTop, out V value)
     {
-      LinkedListNode<Pair<K, V>> valueContainer;
+      LinkedListNode<(K, V)> valueContainer;
       if (map.TryGetValue(key, out valueContainer)) {
         if (moveToTop) {
           list.Remove(valueContainer);
           list.AddFirst(valueContainer);
         }
-        value = valueContainer.Value.Second;
+        value = valueContainer.Value.Item2;
         return true;
       }
       value = default(V);
@@ -81,20 +81,20 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public bool TryChangeValue(K key, V value, bool moveToTop, bool replaceIfExists, out V oldValue)
     {
-      LinkedListNode<Pair<K, V>> valueContainer;
+      LinkedListNode<(K, V)> valueContainer;
       if (map.TryGetValue(key, out valueContainer)) {
-        oldValue = valueContainer.Value.Second;
+        oldValue = valueContainer.Value.Item2;
         if (moveToTop) {
           list.Remove(valueContainer);
           list.AddFirst(valueContainer);
         }
         if (replaceIfExists)
-          valueContainer.Value = new Pair<K, V>(key, value);
+          valueContainer.Value = (key, value);
         return true;
       }
       else {
         oldValue = default(V);
-        valueContainer = list.AddFirst(new Pair<K, V>(key, value));
+        valueContainer = list.AddFirst((key, value));
         try {
           map.Add(key, valueContainer);
         }
@@ -120,7 +120,7 @@ namespace Xtensive.Collections
       get {
         if (list.Count==0)
           throw new InvalidOperationException(Strings.ExCollectionIsEmpty);
-        return list.First.Value.Second;
+        return list.First.Value.Item2;
       }
     }
 
@@ -130,7 +130,7 @@ namespace Xtensive.Collections
       get {
         if (list.Count==0)
           throw new InvalidOperationException(Strings.ExCollectionIsEmpty);
-        return list.Last.Value.Second;
+        return list.Last.Value.Item2;
       }
     }
 
@@ -140,7 +140,7 @@ namespace Xtensive.Collections
       get {
         if (list.Count==0)
           throw new InvalidOperationException(Strings.ExCollectionIsEmpty);
-        return list.First.Value.First;
+        return list.First.Value.Item1;
       }
     }
 
@@ -150,7 +150,7 @@ namespace Xtensive.Collections
       get {
         if (list.Count==0)
           throw new InvalidOperationException(Strings.ExCollectionIsEmpty);
-        return list.Last.Value.First;
+        return list.Last.Value.Item1;
       }
     }
 
@@ -168,8 +168,8 @@ namespace Xtensive.Collections
       var valueContainer = list.First;
       list.Remove(valueContainer);
       var keyValuePair = valueContainer.Value;
-      map.Remove(keyValuePair.First);
-      return keyValuePair.Second;
+      map.Remove(keyValuePair.Item1);
+      return keyValuePair.Item2;
     }
 
     /// <inheritdoc/>
@@ -182,8 +182,8 @@ namespace Xtensive.Collections
       var valueContainer = list.Last;
       list.Remove(valueContainer);
       var keyValuePair = valueContainer.Value;
-      map.Remove(keyValuePair.First);
-      return keyValuePair.Second;
+      map.Remove(keyValuePair.Item1);
+      return keyValuePair.Item2;
     }
 
     #endregion
@@ -194,7 +194,7 @@ namespace Xtensive.Collections
     /// <exception cref="KeyNotFoundException">There is no specified key.</exception>
     public void MoveToTop(K key)
     {
-      LinkedListNode<Pair<K, V>> valueContainer;
+      LinkedListNode<(K, V)> valueContainer;
       if (!map.TryGetValue(key, out valueContainer))
         throw new KeyNotFoundException(Strings.ExNoObjectWithSpecifiedKey);
       list.Remove(valueContainer);
@@ -205,7 +205,7 @@ namespace Xtensive.Collections
     /// <exception cref="KeyNotFoundException">There is no specified key.</exception>
     public void MoveToBottom(K key)
     {
-      LinkedListNode<Pair<K, V>> valueContainer;
+      LinkedListNode<(K, V)> valueContainer;
       if (!map.TryGetValue(key, out valueContainer))
         throw new KeyNotFoundException(Strings.ExNoObjectWithSpecifiedKey);
       list.Remove(valueContainer);
@@ -220,7 +220,7 @@ namespace Xtensive.Collections
     /// <exception cref="InvalidOperationException">The key is already added.</exception>
     public void AddToTop(K key, V value)
     {
-      var valueContainer = list.AddFirst(new Pair<K, V>(key, value));
+      var valueContainer = list.AddFirst((key, value));
       try {
         map.Add(key, valueContainer);
       }
@@ -237,7 +237,7 @@ namespace Xtensive.Collections
     /// <exception cref="InvalidOperationException">The key is already added.</exception>
     public void AddToBottom(K key, V value)
     {
-      var valueContainer = list.AddLast(new Pair<K, V>(key, value));
+      var valueContainer = list.AddLast((key, value));
       try {
         map.Add(key, valueContainer);
       }
@@ -279,8 +279,8 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public IEnumerator<V> GetEnumerator()
     {
-      foreach (Pair<K, V> keyValuePair in list)
-        yield return keyValuePair.Second;
+      foreach (var keyValuePair in list)
+        yield return keyValuePair.Item2;
     }
 
     #endregion
@@ -293,8 +293,8 @@ namespace Xtensive.Collections
     /// </summary>
     public TopDeque()
     {
-      list = new System.Collections.Generic.LinkedList<Pair<K, V>>();
-      map = new Dictionary<K, LinkedListNode<Pair<K, V>>>();
+      list = new();
+      map = new();
     }
 
     /// <summary>
@@ -303,8 +303,8 @@ namespace Xtensive.Collections
     /// <param name="capacity">The initial capacity.</param>
     public TopDeque(int capacity)
     {
-      list = new System.Collections.Generic.LinkedList<Pair<K, V>>();
-      map = new Dictionary<K, LinkedListNode<Pair<K, V>>>(capacity);
+      list = new();
+      map = new(capacity);
     }
 
     /// <summary>
@@ -313,8 +313,8 @@ namespace Xtensive.Collections
     /// <param name="keyComparer">The key comparer.</param>
     public TopDeque(IEqualityComparer<K> keyComparer)
     {
-      list = new System.Collections.Generic.LinkedList<Pair<K, V>>();
-      map = new Dictionary<K, LinkedListNode<Pair<K, V>>>(keyComparer);
+      list = new LinkedList<(K, V)>();
+      map = new Dictionary<K, LinkedListNode<(K, V)>>(keyComparer);
     }
 
     /// <summary>
@@ -324,8 +324,8 @@ namespace Xtensive.Collections
     /// <param name="capacity">The initial capacity.</param>
     public TopDeque(IEqualityComparer<K> keyComparer, int capacity)
     {
-      list = new System.Collections.Generic.LinkedList<Pair<K, V>>();
-      map = new Dictionary<K, LinkedListNode<Pair<K, V>>>(capacity, keyComparer);
+      list = new LinkedList<(K, V)>();
+      map = new Dictionary<K, LinkedListNode<(K, V)>>(capacity, keyComparer);
     }
   }
 }
