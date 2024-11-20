@@ -126,7 +126,7 @@ namespace Xtensive.Reflection
       object[] constructorParams)
       where T : class =>
       CreateAssociate<T>(forType, out foundForType, associateTypeSuffixes, constructorParams,
-        Array.Empty<Pair<Assembly, string>>());
+        Array.Empty<(Assembly, string)>());
 
     /// <summary>
     /// Searches for associated class for <paramref name="forType"/>, creates its instance, if found.
@@ -141,7 +141,7 @@ namespace Xtensive.Reflection
     /// <returns>Newly created associate for <paramref name="forType"/>, if found;
     /// otherwise, <see langword="null"/>.</returns>
     public static T CreateAssociate<T>(Type forType, out Type foundForType, string[] associateTypeSuffixes,
-      object[] constructorParams, IEnumerable<Pair<Assembly, string>> highPriorityLocations)
+      object[] constructorParams, IEnumerable<(Assembly, string)> highPriorityLocations)
       where T : class =>
       CreateAssociate<T>(forType, out foundForType, associateTypeSuffixes, constructorParams, highPriorityLocations,
         false);
@@ -162,7 +162,7 @@ namespace Xtensive.Reflection
     /// arrays and <see cref="Nullable{T}"/>(if struct) too.</param>
     /// <exception cref="InvalidOperationException"><paramref name="forType"/> is generic type definition.</exception>
     public static T CreateAssociate<T>(Type forType, out Type foundForType, string[] associateTypeSuffixes,
-      object[] constructorParams, IEnumerable<Pair<Assembly, string>> highPriorityLocations, bool exactTypeMatch)
+      object[] constructorParams, IEnumerable<(Assembly, string)> highPriorityLocations, bool exactTypeMatch)
       where T : class
     {
       ArgumentNullException.ThrowIfNull(forType);
@@ -171,7 +171,7 @@ namespace Xtensive.Reflection
           Strings.ExCantCreateAssociateForGenericTypeDefinitions, GetShortName(forType)));
       }
 
-      var locations = new List<Pair<Assembly, string>>(1);
+      var locations = new List<(Assembly, string)>(1);
       if (highPriorityLocations != null) {
         locations.AddRange(highPriorityLocations);
       }
@@ -182,7 +182,7 @@ namespace Xtensive.Reflection
     }
 
     private static T CreateAssociateInternal<T>(Type originalForType, Type currentForType, out Type foundForType,
-      string[] associateTypeSuffixes, object[] constructorParams, List<Pair<Assembly, string>> locations,
+      string[] associateTypeSuffixes, object[] constructorParams, List<(Assembly, string)> locations,
       bool exactTypeMatch)
       where T : class
     {
@@ -339,19 +339,19 @@ namespace Xtensive.Reflection
       out Type foundForType,
       string associateTypePrefix,
       string[] associateTypeSuffixes,
-      List<Pair<Assembly, string>> locations,
+      List<(Assembly, string)> locations,
       Type[] genericArguments,
       object[] constructorParams)
       where T : class
     {
       var newLocationCount = 0;
-      var pair = new Pair<Assembly, string>(typeof(T).Assembly, typeof(T).Namespace);
+      var pair = (typeof(T).Assembly, typeof(T).Namespace);
       if (locations.FindIndex(p => p.Item1 == pair.Item1 && p.Item2 == pair.Item2) < 0) {
         locations.Add(pair);
         newLocationCount++;
       }
 
-      pair = new Pair<Assembly, string>(currentForType.Assembly, currentForType.Namespace);
+      pair = (currentForType.Assembly, currentForType.Namespace);
       if (locations.FindIndex(p => p.Item1 == pair.Item1 && p.Item2 == pair.Item2) < 0) {
         locations.Add(pair);
         newLocationCount++;

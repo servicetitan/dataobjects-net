@@ -19,13 +19,6 @@ namespace Xtensive.Orm.Tests.Core.Comparison
   public class ComparerProviderTests
   {
     [Test]
-    public void PairComparerTest()
-    {
-      Assert.IsNotNull(AdvancedComparer<Pair<Assembly, string>>.System);
-      Assert.IsNotNull(AdvancedComparer<Pair<Assembly, string>>.Default);
-    }
-
-    [Test]
     public void SerializationTest()
     {
       SerializationTest<int[]>();
@@ -47,8 +40,6 @@ namespace Xtensive.Orm.Tests.Core.Comparison
       SerializationTest<char>();
       SerializationTest<string>();
       SerializationTest<short?>();
-      SerializationTest<Pair<int>>();
-      SerializationTest<Pair<int, long>>();
       SerializationTest<Xtensive.Tuples.Tuple>();
     }
 

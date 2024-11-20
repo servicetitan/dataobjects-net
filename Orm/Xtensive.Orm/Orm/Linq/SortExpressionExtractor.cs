@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Linq
       BaseExpression = expression;
       SortExpressions = new DirectionCollection<LambdaExpression>();
       foreach (var item in result)
-        SortExpressions.Add(item.Item1, item.Second);
+        SortExpressions.Add(item.Item1, item.Item2);
       return true;
     }
 

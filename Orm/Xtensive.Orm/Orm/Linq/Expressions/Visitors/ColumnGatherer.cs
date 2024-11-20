@@ -62,8 +62,8 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       var gatherer = new ColumnGatherer(columnExtractionModes);
       gatherer.Visit(expression);
       var distinct = gatherer.DistinctValues
-        ? gatherer.columns.Select(p=>p.First).Distinct()
-        : gatherer.columns.Select(p=>p.First);
+        ? gatherer.columns.Select(p=>p.Item1).Distinct()
+        : gatherer.columns.Select(p=>p.Item1);
       var ordered = gatherer.OrderedValues
         ? distinct.OrderBy(i => i)
         : distinct;

@@ -772,8 +772,8 @@ namespace Xtensive.Orm.Linq
     {
       var aggregateType = ExtractAggregateType(expressionPart);
       var origin = VisitAggregateSource(source, argument, aggregateType, expressionPart);
-      var originProjection = origin.First;
-      var originColumnIndex = origin.Second;
+      var originProjection = origin.Item1;
+      var originColumnIndex = origin.Item2;
       var aggregateDescriptor = new AggregateColumnDescriptor(
         context.GetNextColumnAlias(), originColumnIndex, aggregateType);
       var originDataSource = originProjection.ItemProjector.DataSource;
@@ -1033,7 +1033,7 @@ namespace Xtensive.Orm.Linq
         ? GetNullableGroupingExpressions(keyFieldsRaw)
         : EmptyIntSet;
 
-      var keyColumns = keyFieldsRaw.Select(pair => pair.First).ToArray();
+      var keyColumns = keyFieldsRaw.Select(pair => pair.Item1).ToArray();
       var keyDataSource = groupingSourceProjection.ItemProjector.DataSource.Aggregate(keyColumns, Array.Empty<AggregateColumnDescriptor>());
       using var columnMap = new ColumnMap(keyColumns);
       var remappedKeyItemProjector = groupingSourceProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, columnMap);
@@ -1228,13 +1228,13 @@ namespace Xtensive.Orm.Linq
         }
 
         for (var i = 0; i < outerColumns.Count; i++) {
-          var outerColumnKeyExpression = outerColumns[i].Second as KeyExpression;
-          var innerColumnKeyExpression = innerColumns[i].Second as KeyExpression;
+          var outerColumnKeyExpression = outerColumns[i].Item2 as KeyExpression;
+          var innerColumnKeyExpression = innerColumns[i].Item2 as KeyExpression;
           // Check key compatibility
           innerColumnKeyExpression.EnsureKeyExpressionCompatible(outerColumnKeyExpression, expressionPart);
         }
 
-        var keyPairs = outerColumns.Zip(innerColumns, (o, i) => (o.First, i.First)).ToArray();
+        var keyPairs = outerColumns.Zip(innerColumns, (o, i) => (o.Item1, i.Item1)).ToArray();
 
         var outer = context.Bindings[outerParameter];
         var inner = context.Bindings[innerParameter];

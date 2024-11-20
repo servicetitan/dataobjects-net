@@ -470,21 +470,21 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var createOffTrackingIndex = "CREATE FULLTEXT INDEX ON [dbo].[FullTextTestTable] ([Off] LANGUAGE 1033) KEY INDEX PK_FullTextTestTable WITH CHANGE_TRACKING OFF;";
       var createOffNoPopulationIndex = "CREATE FULLTEXT INDEX ON [dbo].[FullTextTestTable] ([OffNoPopulation] LANGUAGE 1033) KEY INDEX PK_FullTextTestTable WITH CHANGE_TRACKING OFF, NO POPULATION;";
 
-      var cases = new Pair<string, ChangeTrackingMode>[4];
-      cases[0] = new Pair<string, ChangeTrackingMode>(createAutoTrackingIndex, ChangeTrackingMode.Auto);
-      cases[1] = new Pair<string, ChangeTrackingMode>(createManualTrackingIndex , ChangeTrackingMode.Manual);
-      cases[2] = new Pair<string, ChangeTrackingMode>(createOffTrackingIndex, ChangeTrackingMode.Off);
-      cases[3] = new Pair<string, ChangeTrackingMode>(createOffNoPopulationIndex, ChangeTrackingMode.OffWithNoPopulation);
+      var cases = new (string, ChangeTrackingMode)[4];
+      cases[0] = (createAutoTrackingIndex, ChangeTrackingMode.Auto);
+      cases[1] = (createManualTrackingIndex , ChangeTrackingMode.Manual);
+      cases[2] = (createOffTrackingIndex, ChangeTrackingMode.Off);
+      cases[3] = (createOffNoPopulationIndex, ChangeTrackingMode.OffWithNoPopulation);
 
       foreach (var @case in cases) {
         _ = ExecuteNonQuery(dropTable);
         _ = ExecuteNonQuery(createTable);
-        _ = ExecuteNonQuery(@case.First);
+        _ = ExecuteNonQuery(@case.Item1);
         var schema = ExtractDefaultSchema();
         var table = schema.Tables["FullTextTestTable"];
         var ftIndex = table.Indexes.OfType<FullTextIndex>().FirstOrDefault();
         Assert.That(ftIndex, Is.Not.Null);
-        Assert.That(ftIndex.ChangeTrackingMode, Is.EqualTo(@case.Second));
+        Assert.That(ftIndex.ChangeTrackingMode, Is.EqualTo(@case.Item2));
       }
       _ = ExecuteNonQuery(dropTable);
     }

@@ -386,9 +386,9 @@ namespace Xtensive.Orm.Tests.Linq
                 break;
               length += Int32.Parse(nodes[j].Attributes["length"].Value);
             }
-            helpList.Add(new Pair<XmlNode, int>(nodes[i], length));
+            helpList.Add((nodes[i], length));
           }
-          drawList.Add(new Pair<XmlNode, int>(nodes[i], 0));
+          drawList.Add((nodes[i], 0));
         }
         DrawSingleLine(drawList);
 
@@ -397,12 +397,12 @@ namespace Xtensive.Orm.Tests.Linq
           nodes = node.Clone().SelectNodes("//*[@depth=" + i + "]");
           for (int j = 0; j < nodes.Count; j++) {
             var val = helpList.Where(v => v.Item1.InnerXml==nodes[j].ParentNode.InnerXml);
-            var value = val!=null ? val.First() : new Pair<XmlNode, int>(null, 0);
+            var value = val!=null ? val.First() : (null, 0);
 
             if (((j > 0) && nodes[j - 1].ParentNode.InnerXml!=value.Item1.InnerXml) || j==0)
-              drawList.Add(new Pair<XmlNode, int>(nodes[j], value.Item2));
+              drawList.Add((nodes[j], value.Item2));
             else if ((j > 0) && nodes[j - 1].ParentNode.InnerXml==value.Item1.InnerXml)
-              drawList.Add(new Pair<XmlNode, int>(nodes[j], 0));
+              drawList.Add((nodes[j], 0));
           }
           DrawSingleLine(drawList);
           if (i==treeDepth)
@@ -410,7 +410,7 @@ namespace Xtensive.Orm.Tests.Linq
           helpList.Clear();
           for (int l = 0; l < nodes.Count; l++) {
             if (!nodes[l].HasChildNodes)
-              helpList.Add(new Pair<XmlNode, int>(nodes[l], drawList[l].Item2));
+              helpList.Add((nodes[l], drawList[l].Item2));
             else {
               var length = 0;
               for (int j = l - 1; j >= 0; j = j - 1) {
@@ -418,7 +418,7 @@ namespace Xtensive.Orm.Tests.Linq
                   break;
                 length += drawList[j].Item2 + Int32.Parse(drawList[j].Item1.Attributes["length"].Value);
               }
-              helpList.Add(new Pair<XmlNode, int>(nodes[l], length + drawList[l].Item2));
+              helpList.Add((nodes[l], length + drawList[l].Item2));
             }
           }
         }
@@ -426,7 +426,7 @@ namespace Xtensive.Orm.Tests.Linq
       }
     }
 
-    private void DrawSingleLine(List<Pair<XmlNode, int>> listOfNodes)
+    private void DrawSingleLine(List<(XmlNode, int)> listOfNodes)
     {
       var str = new StringBuilder("|");
       var separateLine = new StringBuilder("|");

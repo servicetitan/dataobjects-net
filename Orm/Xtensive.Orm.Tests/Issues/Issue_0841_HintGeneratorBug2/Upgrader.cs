@@ -78,8 +78,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug2
             new IdentityPair(baseTableColumnPath + "TypeId",
               UpgradeContext.ExtractedTypeMap[typeof (M1.Derived).FullName].ToString(), true)
           },
-          new List<Pair<string, object>> {
-            new Pair<string, object>(baseTableColumnPath + "TypeId",
+          new List<(string, object)> {
+            (baseTableColumnPath + "TypeId",
               UpgradeContext.ExtractedTypeMap[typeof (M1.Base).FullName])
           }));
       }

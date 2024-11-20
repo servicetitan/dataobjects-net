@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -20,7 +20,7 @@ namespace Xtensive.Core
     public static Func<TResult> CachingCompile<TResult>(this Expression<Func<TResult>> lambda)
     {
       var result = CachingExpressionCompiler.Instance.Compile(lambda);
-      return ((Func<object[], TResult>) result.First).Bind(result.Second);
+      return ((Func<object[], TResult>) result.Item1).Bind(result.Item2);
     }
 
     /// <summary>Compiles the specified lambda and caches the result of compilation.</summary>
@@ -28,7 +28,7 @@ namespace Xtensive.Core
     public static Func<T1, TResult> CachingCompile<T1, TResult>(this Expression<Func<T1, TResult>> lambda)
     {
       var result = CachingExpressionCompiler.Instance.Compile(lambda);
-      return ((Func<object[], T1, TResult>) result.First).Bind(result.Second);
+      return ((Func<object[], T1, TResult>)result.Item1).Bind(result.Item2);
     }
 
     /// <summary>Compiles the specified lambda and caches the result of compilation.</summary>

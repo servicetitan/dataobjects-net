@@ -61,8 +61,8 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
       : base (session)
     {
       var pair = fullName.RevertibleSplitFirstAndTail('\\', ',');
-      SecondName = pair.First.Trim();
-      Name = pair.Second.Trim();
+      SecondName = pair.Item1.Trim();
+      Name = pair.Item2.Trim();
     }
   }
 
@@ -283,7 +283,7 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
     {
       Console.WriteLine("VersionSet: \r\n{0}",
         versions
-        .Select(pair => new Pair<Key, VersionInfo>(pair.Key, pair.Value))
+        .Select(pair => (pair.Key, pair.Value))
         .ToDelimitedString("\r\n")
         .Indent(2, true)
         );

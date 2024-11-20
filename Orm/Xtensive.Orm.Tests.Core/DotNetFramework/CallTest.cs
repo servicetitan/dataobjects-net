@@ -169,8 +169,6 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       VMethodCallTest<long>(1*speedFactor);
 //      VMethodCallTest<double>(1*speedFactor);
 //      VMethodCallTest<Guid>(0.5*speedFactor);
-//      VMethodCallTest<Pair<Guid, Guid>>(0.2*speedFactor);
-      VMethodCallTest<Pair<Pair<Guid, Guid>, Pair<Guid, Guid>>>(0.1*speedFactor);
       VMethodCallTest<string>(0.3*speedFactor);
       GVMethod1CallTest<int,int>(0.5*speedFactor);
       GVMethod1CallTest<string,string>(0.5*speedFactor);

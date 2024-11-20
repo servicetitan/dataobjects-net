@@ -237,7 +237,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       return configurations;
     }
 
-    private Pair<DomainConfiguration, NodeConfiguration> BuildMultitnodeConfiguration(
+    private (DomainConfiguration, NodeConfiguration) BuildMultitnodeConfiguration(
       DomainUpgradeMode domainUpgradeMode,
       DomainUpgradeMode nodeUpgradeMode,
       string masterSchema, string slaveSchema)
@@ -252,7 +252,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       nodeConfiguration.SchemaMapping.Add(masterSchema, slaveSchema);
       nodeConfiguration.UpgradeMode = nodeUpgradeMode;
 
-      return new Pair<DomainConfiguration, NodeConfiguration>(configuration, nodeConfiguration);
+      return (configuration, nodeConfiguration);
     }
   }
 }

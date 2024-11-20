@@ -120,7 +120,7 @@ namespace Xtensive.Collections
       get {
         if (list.Count==0)
           throw new InvalidOperationException(Strings.ExCollectionIsEmpty);
-        return list.First.Value.Second;
+        return list.First.Value.Item2;
       }
     }
 
@@ -130,7 +130,7 @@ namespace Xtensive.Collections
       get {
         if (list.Count==0)
           throw new InvalidOperationException(Strings.ExCollectionIsEmpty);
-        return list.Last.Value.Second;
+        return list.Last.Value.Item2;
       }
     }
 
@@ -140,7 +140,7 @@ namespace Xtensive.Collections
       get {
         if (list.Count==0)
           throw new InvalidOperationException(Strings.ExCollectionIsEmpty);
-        return list.First.Value.First;
+        return list.First.Value.Item1;
       }
     }
 
@@ -150,7 +150,7 @@ namespace Xtensive.Collections
       get {
         if (list.Count==0)
           throw new InvalidOperationException(Strings.ExCollectionIsEmpty);
-        return list.Last.Value.First;
+        return list.Last.Value.Item1;
       }
     }
 
@@ -168,8 +168,8 @@ namespace Xtensive.Collections
       var valueContainer = list.First;
       list.Remove(valueContainer);
       var keyValuePair = valueContainer.Value;
-      map.Remove(keyValuePair.First);
-      return keyValuePair.Second;
+      map.Remove(keyValuePair.Item1);
+      return keyValuePair.Item2;
     }
 
     /// <inheritdoc/>
@@ -182,8 +182,8 @@ namespace Xtensive.Collections
       var valueContainer = list.Last;
       list.Remove(valueContainer);
       var keyValuePair = valueContainer.Value;
-      map.Remove(keyValuePair.First);
-      return keyValuePair.Second;
+      map.Remove(keyValuePair.Item1);
+      return keyValuePair.Item2;
     }
 
     #endregion

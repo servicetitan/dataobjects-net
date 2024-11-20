@@ -289,17 +289,17 @@ namespace Xtensive.Modelling
       }
 
       var parts = path.RevertibleSplitFirstAndTail(PathEscape, PathDelimiter);
-      var accessor = PropertyAccessors.TryGetValue(parts.First, out var pAccessor) ? pAccessor : default;
+      var accessor = PropertyAccessors.TryGetValue(parts.Item1, out var pAccessor) ? pAccessor : default;
       if (accessor == null) {
         return null;
       }
 
       var next = (IPathNode) accessor.Getter.Invoke(this);
-      if (parts.Second == null) {
+      if (parts.Item2 == null) {
         return next;
       }
 
-      return next.Resolve(parts.Second);
+      return next.Resolve(parts.Item2);
     }
 
     /// <inheritdoc/>

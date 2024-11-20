@@ -47,7 +47,7 @@ namespace Xtensive.Tuples.Transform.Internals
       throw Exceptions.ObjectIsReadOnly(null);
     }
 
-    protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
+    protected internal override (Tuple, int) GetMappedContainer(int fieldIndex, bool isWriting)
     {
       if (isWriting && Transform.IsReadOnly)
         throw Exceptions.ObjectIsReadOnly(null);

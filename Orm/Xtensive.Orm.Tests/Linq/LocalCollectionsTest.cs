@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var pairs = Session.Query.All<Customer>()
-        .Select(customer => new Pair<string, int>(customer.LastName, (int)customer.Invoices.Count))
+        .Select(customer => new ValueTuple<string, int>(customer.LastName, (int)customer.Invoices.Count))
         .ToList();
       var query = Session.Query.All<Customer>()
         .Join(pairs, customer => customer.LastName, pair => pair.Item1, (customer, pair) => new {customer, Second = pair.Item2});
@@ -224,7 +224,7 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var pairs = Session.Query.All<Customer>()
-        .Select(customer => new Pair<string, int>(customer.LastName, (int)customer.Invoices.Count))
+        .Select(customer => new ValueTuple<string, int>(customer.LastName, (int)customer.Invoices.Count))
         .ToList();
       var query = Session.Query.All<Customer>()
         .Join(pairs, customer => customer.LastName, pair => pair.Item1, (customer, pair) => pair.Item2);

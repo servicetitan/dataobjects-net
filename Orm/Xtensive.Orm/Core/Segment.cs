@@ -53,10 +53,10 @@ namespace Xtensive.Core
     /// <inheritdoc/>
     public int CompareTo((T, T) other)
     {
-      int result = AdvancedComparerStruct<T>.System.Compare(Offset, other.First);
+      int result = AdvancedComparerStruct<T>.System.Compare(Offset, other.Item1);
       if (result!=0)
         return result;
-      return AdvancedComparerStruct<T>.System.Compare(Length, other.Second);
+      return AdvancedComparerStruct<T>.System.Compare(Length, other.Item2);
     }
 
     #region Equals, GetHashCode

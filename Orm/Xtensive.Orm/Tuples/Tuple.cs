@@ -159,9 +159,9 @@ namespace Xtensive.Tuples
     /// <param name="fieldIndex">Index of the field to get the value container for.</param>
     /// <param name="isWriting">Indicates whether method caller has a writing intention.</param>
     /// <returns>Tuple container and remapped field index.</returns>
-    protected internal virtual Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
+    protected internal virtual (Tuple, int) GetMappedContainer(int fieldIndex, bool isWriting)
     {
-      return new Pair<Tuple, int>(this, fieldIndex);
+      return (this, fieldIndex);
     }
 
     #region Equals, GetHashCode

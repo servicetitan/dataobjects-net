@@ -68,8 +68,8 @@ namespace Xtensive.Orm
           return removeResult;
         }
 
-        var queryCache = (Caching.FastConcurrentLruCache<object, Pair<object, Linq.ParameterizedQuery>>) handlers.Domain.QueryCache;
-        foreach (var key in queryCache.Keys.Where(k => k is Pair<object, string> pair && pair.Item2 == nodeId).ToList()) {
+        var queryCache = (Caching.FastConcurrentLruCache<object, (object, Linq.ParameterizedQuery)>) handlers.Domain.QueryCache;
+        foreach (var key in queryCache.Keys.Where(k => k is ValueTuple<object, string> pair && pair.Item2 == nodeId).ToList()) {
           queryCache.RemoveKey(key);
         }
       }

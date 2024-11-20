@@ -281,7 +281,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
         var copyDataHint = new CopyDataHint(
           "Tables/Types",
           new List<IdentityPair> {new IdentityPair("Tables/Types/Columns/Id", "Tables/Objects/Columns/TypeId", false)},
-          new List<Pair<string>> {new Pair<string>("Tables/Types/Columns/Data", "Tables/Objects/Columns/Data")});
+          new List<(string, string)> {new ("Tables/Types/Columns/Data", "Tables/Objects/Columns/Data")});
         
         hs.Add(copyDataHint);
       },
@@ -303,7 +303,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
         var copyDataHint = new CopyDataHint(
           "Tables/Types",
           new List<IdentityPair> {new IdentityPair("Tables/Types/Columns/Id", "Tables/Objects/Columns/TypeId", false)},
-          new List<Pair<string>> {new Pair<string>("Tables/Types/Columns/Data", "Tables/Objects/Columns/Data")});
+          new List<(string, string)> {("Tables/Types/Columns/Data", "Tables/Objects/Columns/Data")});
 
         hs.Add(copyDataHint);
       },
@@ -327,7 +327,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
         var copyDataHint = new CopyDataHint(
           "Tables/Types",
           new List<IdentityPair> {new IdentityPair("Tables/Types/Columns/Id", "Tables/NewObjects/Columns/TypeId", false)},
-          new List<Pair<string>> {new Pair<string>("Tables/Types/Columns/Data", "Tables/NewObjects/Columns/NewData")});
+          new List<(string, string)> { ("Tables/Types/Columns/Data", "Tables/NewObjects/Columns/NewData") });
 
         hs.Add(copyDataHint);
       },
@@ -399,7 +399,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
         var copyDataHint = new CopyDataHint(
           "Tables/Types",
           new List<IdentityPair> {new IdentityPair("Tables/Types/Columns/Id", "Tables/NewObjects/Columns/TypeId", false)},
-          new List<Pair<string>> {new Pair<string>("Tables/Types/Columns/Data", "Tables/NewObjects/Columns/NewData")});
+          new List<(string, string)> { ("Tables/Types/Columns/Data", "Tables/NewObjects/Columns/NewData") });
         
         hs.Add(copyDataHint);
       },
@@ -478,7 +478,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
 
     private static void TestUpdate(StorageInfo origin, Action<StorageInfo, StorageInfo, HintSet> mutator, Action<Difference, ActionSequence> validator)
     {
-      // Классное я слово придумал - мутатор ;)
+      // РљР»Р°СЃСЃРЅРѕРµ СЏ СЃР»РѕРІРѕ РїСЂРёРґСѓРјР°Р» - РјСѓС‚Р°С‚РѕСЂ ;)
       TestUpdate(origin, mutator, validator, true);
       // TestUpdate(origin, mutator, null, false);
     }

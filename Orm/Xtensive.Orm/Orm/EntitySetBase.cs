@@ -169,9 +169,9 @@ namespace Xtensive.Orm
       }
 
       var subscriptionInfo = GetSubscription(EntityEventBroker.InitializeEntitySetEventKey);
-      if (subscriptionInfo.Second != null) {
-        ((Action<Key, FieldInfo>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First, Field);
+      if (subscriptionInfo.Item2 != null) {
+        ((Action<Key, FieldInfo>) subscriptionInfo.Item2)
+          .Invoke(subscriptionInfo.Item1, Field);
       }
       OnInitialize();
     }
@@ -187,9 +187,9 @@ namespace Xtensive.Orm
         }
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.AddingEntitySetItemEventKey);
-        if (subscriptionInfo.Second != null) {
-          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
-            .Invoke(subscriptionInfo.First, Field, item);
+        if (subscriptionInfo.Item2 != null) {
+          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Item2)
+            .Invoke(subscriptionInfo.Item1, Field, item);
         }
         OnAdding(item);
       }
@@ -210,9 +210,9 @@ namespace Xtensive.Orm
         }
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.AddEntitySetItemEventKey);
-        if (subscriptionInfo.Second != null) {
-          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
-            .Invoke(subscriptionInfo.First, Field, item);
+        if (subscriptionInfo.Item2 != null) {
+          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Item2)
+            .Invoke(subscriptionInfo.Item1, Field, item);
         }
         OnAdd(item);
         NotifyCollectionChanged(NotifyCollectionChangedAction.Add, item, index);
@@ -238,8 +238,8 @@ namespace Xtensive.Orm
         }
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.RemovingEntitySetItemEventKey);
-        if (subscriptionInfo.Second != null) {
-          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second).Invoke(subscriptionInfo.First, Field, item);
+        if (subscriptionInfo.Item2 != null) {
+          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Item2).Invoke(subscriptionInfo.Item1, Field, item);
         }
         OnRemoving(item);
       }
@@ -260,9 +260,9 @@ namespace Xtensive.Orm
         }
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntitySetItemEventKey);
-        if (subscriptionInfo.Second != null) {
-          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
-            .Invoke(subscriptionInfo.First, Field, item);
+        if (subscriptionInfo.Item2 != null) {
+          ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Item2)
+            .Invoke(subscriptionInfo.Item1, Field, item);
         }
 
         OnRemove(item);
@@ -290,9 +290,9 @@ namespace Xtensive.Orm
 
         using (Session.Operations.EnableSystemOperationRegistration()) {
           var subscriptionInfo = GetSubscription(EntityEventBroker.ClearingEntitySetEventKey);
-          if (subscriptionInfo.Second != null) {
-            ((Action<Key, FieldInfo>) subscriptionInfo.Second)
-              .Invoke(subscriptionInfo.First, Field);
+          if (subscriptionInfo.Item2 != null) {
+            ((Action<Key, FieldInfo>) subscriptionInfo.Item2)
+              .Invoke(subscriptionInfo.Item1, Field);
           }
 
           OnClearing();
@@ -316,9 +316,9 @@ namespace Xtensive.Orm
 
         using (Session.Operations.EnableSystemOperationRegistration()) {
           var subscriptionInfo = GetSubscription(EntityEventBroker.ClearEntitySetEventKey);
-          if (subscriptionInfo.Second != null) {
-            ((Action<Key, FieldInfo>) subscriptionInfo.Second)
-              .Invoke(subscriptionInfo.First, Field);
+          if (subscriptionInfo.Item2 != null) {
+            ((Action<Key, FieldInfo>) subscriptionInfo.Item2)
+              .Invoke(subscriptionInfo.Item1, Field);
           }
           OnClear();
           NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null, null);
@@ -372,8 +372,8 @@ namespace Xtensive.Orm
         return;
       }
       var subscriptionInfo = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
-      if (subscriptionInfo.Second != null) {
-        ((PropertyChangedEventHandler) subscriptionInfo.Second)
+      if (subscriptionInfo.Item2 != null) {
+        ((PropertyChangedEventHandler) subscriptionInfo.Item2)
           .Invoke(this, new PropertyChangedEventArgs(propertyName));
       }
     }
@@ -391,8 +391,8 @@ namespace Xtensive.Orm
       }
 
       var subscriptionInfo = GetSubscription(EntityEventBroker.CollectionChangedEventKey);
-      if (subscriptionInfo.Second != null) {
-        var handler = (NotifyCollectionChangedEventHandler) subscriptionInfo.Second;
+      if (subscriptionInfo.Item2 != null) {
+        var handler = (NotifyCollectionChangedEventHandler) subscriptionInfo.Item2;
         if (action == NotifyCollectionChangedAction.Reset) {
           handler.Invoke(this, new NotifyCollectionChangedEventArgs(action));
         }
@@ -948,8 +948,8 @@ namespace Xtensive.Orm
       var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
 
       var map = Enumerable.Range(0, ownerDescriptor.Count)
-        .Select(i => (0, (ColNum) i))
-        .Concat(itemColumnOffsets.Select(i => (1, i)))
+        .Select(i => ((ColNum)0, (ColNum) i))
+        .Concat(itemColumnOffsets.Select(i => ((ColNum)1, i)))
         .ToArray(keyFieldCount);
       var seekTransform = new MapTransform(true, keyDescriptor, map);
 
@@ -972,7 +972,7 @@ namespace Xtensive.Orm
         return null;
       }
       var subscriptionInfo = GetSubscription(EntityEventBroker.CollectionChangedEventKey);
-      if (subscriptionInfo.Second == null) {
+      if (subscriptionInfo.Item2 == null) {
         return null;
       }
 

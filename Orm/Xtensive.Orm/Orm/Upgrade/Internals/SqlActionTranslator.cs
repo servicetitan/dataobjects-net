@@ -246,18 +246,18 @@ namespace Xtensive.Orm.Upgrade
         var fromTableRef = SqlDml.TableRef(fromTable);
         var select = SqlDml.Select(fromTableRef);
         foreach (var pair in identityColumns) {
-          select.Columns.Add(fromTableRef[pair.First.Name]);
+          select.Columns.Add(fromTableRef[pair.Item1.Name]);
         }
         foreach (var pair in copiedColumns) {
-          select.Columns.Add(fromTableRef[pair.First.Name]);
+          select.Columns.Add(fromTableRef[pair.Item1.Name]);
         }
         var selectRef = SqlDml.QueryRef(select, SubqueryAliasName);
         update.From = selectRef;
         foreach (var pair in copiedColumns) {
-          update.Values[toTableRef[pair.Second.Name]] = selectRef[pair.First.Name];
+          update.Values[toTableRef[pair.Item2.Name]] = selectRef[pair.Item1.Name];
         }
         foreach (var pair in identityColumns) {
-          update.Where &= toTableRef[pair.Second.Name]==selectRef[pair.First.Name];
+          update.Where &= toTableRef[pair.Item2.Name]==selectRef[pair.Item1.Name];
         }
       }
       else {
@@ -265,9 +265,9 @@ namespace Xtensive.Orm.Upgrade
           var fromTableRef = SqlDml.TableRef(fromTable);
           var select = SqlDml.Select(fromTableRef);
           foreach (var identityColumnPair in identityColumns)
-            select.Where &= toTableRef[identityColumnPair.Second.Name]==fromTableRef[identityColumnPair.First.Name];
-          select.Columns.Add(fromTableRef[columnPair.First.Name]);
-          update.Values[toTableRef[columnPair.Second.Name]] = select;
+            select.Where &= toTableRef[identityColumnPair.Item2.Name]==fromTableRef[identityColumnPair.Item1.Name];
+          select.Columns.Add(fromTableRef[columnPair.Item1.Name]);
+          update.Values[toTableRef[columnPair.Item2.Name]] = select;
           update.Where = SqlDml.Exists(select);
         }
       }
@@ -795,7 +795,7 @@ namespace Xtensive.Orm.Upgrade
       var update = SqlDml.Update(table);
 
       var updatedColumns = hint.UpdateParameter
-        .Select(pair => new Pair<StorageColumnInfo, object>(
+        .Select(pair => (
           sourceModel.Resolve(pair.Item1, true) as StorageColumnInfo,
           pair.Item2)).ToArray();
 
@@ -1207,13 +1207,11 @@ namespace Xtensive.Orm.Upgrade
       if (hint.Identities.Any(pair => !pair.IsIdentifiedByConstant)) {
         var identityColumnPairs = hint.Identities
           .Where(pair => !pair.IsIdentifiedByConstant).Select(pair =>
-            new Pair<StorageColumnInfo, StorageColumnInfo>(
-              sourceModel.Resolve(pair.Target, true) as StorageColumnInfo,
+            (sourceModel.Resolve(pair.Target, true) as StorageColumnInfo,
               sourceModel.Resolve(pair.Source, true) as StorageColumnInfo)).ToArray();
         var identityConstantPairs = hint.Identities
           .Where(pair => pair.IsIdentifiedByConstant).Select(pair =>
-            new Pair<StorageColumnInfo, string>(
-              sourceModel.Resolve(pair.Source, true) as StorageColumnInfo,
+            (sourceModel.Resolve(pair.Source, true) as StorageColumnInfo,
               pair.Target)).ToArray();
         var selectColumns = identityColumnPairs.Select(columnPair => columnPair.Item1)
           .Concat(identityConstantPairs.Select(constantPair => constantPair.Item1)).ToArray();
@@ -1238,8 +1236,7 @@ namespace Xtensive.Orm.Upgrade
       else {
         var identityConstantPairs = hint.Identities
           .Where(pair => pair.IsIdentifiedByConstant).Select(pair =>
-            new Pair<StorageColumnInfo, string>(
-              sourceModel.Resolve(pair.Source, true) as StorageColumnInfo,
+            (sourceModel.Resolve(pair.Source, true) as StorageColumnInfo,
               pair.Target)).ToArray();
         if (!identityConstantPairs.Any())
           throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);

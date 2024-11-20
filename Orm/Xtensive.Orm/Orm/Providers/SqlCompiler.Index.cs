@@ -227,7 +227,7 @@ namespace Xtensive.Orm.Providers
           filter = SqlDml.In(discriminatorColumn, SqlDml.Array(values));
           if (containsDefault) {
             var allValues = discriminatorMap
-              .Select(p => GetDiscriminatorValue(discriminatorMap, p.First)).ToArray(discriminatorMap.Count);
+              .Select(p => GetDiscriminatorValue(discriminatorMap, p.Item1)).ToArray(discriminatorMap.Count);
             filter |= SqlDml.NotIn(discriminatorColumn, SqlDml.Array(allValues));
           }
         }
@@ -319,8 +319,8 @@ namespace Xtensive.Orm.Providers
         var discriminatorColumn = baseQuery.From.Columns[discriminatorColumnIndex];
         var sqlCase = SqlDml.Case(discriminatorColumn);
         foreach (var pair in discriminatorMap) {
-          var discriminatorValue = GetDiscriminatorValue(discriminatorMap, pair.First);
-          var typeId = TypeIdRegistry[pair.Second];
+          var discriminatorValue = GetDiscriminatorValue(discriminatorMap, pair.Item1);
+          var typeId = TypeIdRegistry[pair.Item2];
           _ = sqlCase.Add(SqlDml.Literal(discriminatorValue), SqlDml.Literal(typeId));
         }
         if (discriminatorMap.Default != null) {

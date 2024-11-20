@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       MultidatabaseNodes
     }
 
-    private Dictionary<string, Dictionary<Type, Pair<string>>> map = new Dictionary<string, Dictionary<Type, Pair<string>>>();
+    private Dictionary<string, Dictionary<Type, (string, string)>> map = new();
 
     protected virtual NodeConfigurationType NodeConfiguration => NodeConfigurationType.SingleSchemaNodes;
 
@@ -109,9 +109,9 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
           _ = domain.StorageNodeManager.AddNode(storageNode);
         }
 
-        map = new Dictionary<string, Dictionary<Type, Pair<string>>>();
+        map = new();
         foreach (var storageNode in nodes) {
-          var typesMap = new Dictionary<Type, Pair<string>>();
+          var typesMap = new Dictionary<Type, (string, string)>();
           var selectedNode = domain.StorageNodeManager.GetNode(storageNode.NodeId);
           using (var session = selectedNode.OpenSession())
           using (var transaction = session.OpenTransaction()) {
@@ -120,22 +120,22 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
 
             var storageNodeIdText = GetStorageNodeText(session.StorageNodeId);
 
-            _ = new model.Part1.TestEntity1(session) { Text = storageNodeIdText, DatabaseName = pair.First, SchemaName = pair.Second };
+            _ = new model.Part1.TestEntity1(session) { Text = storageNodeIdText, DatabaseName = pair.Item1, SchemaName = pair.Item2 };
             typesMap.Add(type, pair);
 
             type = typeof(model.Part2.TestEntity2);
             pair = GetDatabaseAndSchemaForType(session, typeof(model.Part2.TestEntity2));
-            _ = new model.Part2.TestEntity2(session) { Text = storageNodeIdText, DatabaseName = pair.First, SchemaName = pair.Second };
+            _ = new model.Part2.TestEntity2(session) { Text = storageNodeIdText, DatabaseName = pair.Item1, SchemaName = pair.Item2 };
             typesMap.Add(type, pair);
 
             type = typeof(model.Part3.TestEntity3);
             pair = GetDatabaseAndSchemaForType(session, typeof(model.Part3.TestEntity3));
-            _ = new model.Part3.TestEntity3(session) { Text = storageNodeIdText, DatabaseName = pair.First, SchemaName = pair.Second };
+            _ = new model.Part3.TestEntity3(session) { Text = storageNodeIdText, DatabaseName = pair.Item1, SchemaName = pair.Item2 };
             typesMap.Add(type, pair);
 
             type = typeof(model.Part4.TestEntity4);
             pair = GetDatabaseAndSchemaForType(session, typeof(model.Part4.TestEntity4));
-            _ = new model.Part4.TestEntity4(session) { Text = storageNodeIdText, DatabaseName = pair.First, SchemaName = pair.Second };
+            _ = new model.Part4.TestEntity4(session) { Text = storageNodeIdText, DatabaseName = pair.Item1, SchemaName = pair.Item2 };
             typesMap.Add(type, pair);
 
             transaction.Complete();
@@ -216,41 +216,41 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       var entity1 = a[0];
       Assert.That(entity1.Text, Is.EqualTo(storageNodeIdText));
       var databaseAndSchema = typesMap[entity1.GetType()];
-      Assert.That(entity1.DatabaseName, Is.EqualTo(databaseAndSchema.First));
-      Assert.That(entity1.SchemaName, Is.EqualTo(databaseAndSchema.Second));
+      Assert.That(entity1.DatabaseName, Is.EqualTo(databaseAndSchema.Item1));
+      Assert.That(entity1.SchemaName, Is.EqualTo(databaseAndSchema.Item2));
 
       Entity entity = session.Query.All<model.Part1.TestEntity1>()
-        .FirstOrDefault(e => e.Text == storageNodeIdText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+        .FirstOrDefault(e => e.Text == storageNodeIdText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(entity, Is.Not.Null);
 
       var entity2 = b[0];
       Assert.That(b[0].Text, Is.EqualTo(storageNodeIdText));
       databaseAndSchema = typesMap[entity2.GetType()];
-      Assert.That(entity2.DatabaseName, Is.EqualTo(databaseAndSchema.First));
-      Assert.That(entity2.SchemaName, Is.EqualTo(databaseAndSchema.Second));
+      Assert.That(entity2.DatabaseName, Is.EqualTo(databaseAndSchema.Item1));
+      Assert.That(entity2.SchemaName, Is.EqualTo(databaseAndSchema.Item2));
 
       entity = session.Query.All<model.Part2.TestEntity2>()
-        .FirstOrDefault(e => e.Text == storageNodeIdText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+        .FirstOrDefault(e => e.Text == storageNodeIdText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(entity, Is.Not.Null);
 
       var entity3 = c[0];
       Assert.That(c[0].Text, Is.EqualTo(storageNodeIdText));
       databaseAndSchema = typesMap[entity3.GetType()];
-      Assert.That(entity3.DatabaseName, Is.EqualTo(databaseAndSchema.First));
-      Assert.That(entity3.SchemaName, Is.EqualTo(databaseAndSchema.Second));
+      Assert.That(entity3.DatabaseName, Is.EqualTo(databaseAndSchema.Item1));
+      Assert.That(entity3.SchemaName, Is.EqualTo(databaseAndSchema.Item2));
 
       entity = session.Query.All<model.Part3.TestEntity3>()
-        .FirstOrDefault(e => e.Text == storageNodeIdText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+        .FirstOrDefault(e => e.Text == storageNodeIdText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(entity, Is.Not.Null);
 
       var entity4 = d[0];
       Assert.That(d[0].Text, Is.EqualTo(storageNodeIdText));
       databaseAndSchema = typesMap[entity4.GetType()];
-      Assert.That(entity4.DatabaseName, Is.EqualTo(databaseAndSchema.First));
-      Assert.That(entity4.SchemaName, Is.EqualTo(databaseAndSchema.Second));
+      Assert.That(entity4.DatabaseName, Is.EqualTo(databaseAndSchema.Item1));
+      Assert.That(entity4.SchemaName, Is.EqualTo(databaseAndSchema.Item2));
 
       entity = session.Query.All<model.Part4.TestEntity4>()
-        .FirstOrDefault(e => e.Text == storageNodeIdText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+        .FirstOrDefault(e => e.Text == storageNodeIdText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(entity, Is.Not.Null);
     }
 
@@ -303,8 +303,8 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       var model = session.Domain.Model;
       foreach (var testEntityDto in theGreatUnion) {
         var databaseAndSchema = typesMap[model.Types[testEntityDto.TypeId].UnderlyingType];
-        var expectedDatabase = databaseAndSchema.First;
-        var expectedSchema = databaseAndSchema.Second;
+        var expectedDatabase = databaseAndSchema.Item1;
+        var expectedSchema = databaseAndSchema.Item2;
 
         Assert.That(testEntityDto.Text, Is.EqualTo(storageNodeIdText));
         Assert.That(testEntityDto.DatabaseName, Is.EqualTo(expectedDatabase));
@@ -312,13 +312,13 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       }
 
       var pair = typesMap[typeof(model.Part1.TestEntity1)];
-      var filteredType1BaseQuery = type1BaseQuery.Where(e => e.Text == storageNodeIdText && e.DatabaseName == pair.First && e.SchemaName == pair.Second);
+      var filteredType1BaseQuery = type1BaseQuery.Where(e => e.Text == storageNodeIdText && e.DatabaseName == pair.Item1 && e.SchemaName == pair.Item2);
       pair = typesMap[typeof(model.Part2.TestEntity2)];
-      var filteredType2BaseQuery = type1BaseQuery.Where(e => e.Text == storageNodeIdText && e.DatabaseName == pair.First && e.SchemaName == pair.Second);
+      var filteredType2BaseQuery = type1BaseQuery.Where(e => e.Text == storageNodeIdText && e.DatabaseName == pair.Item1 && e.SchemaName == pair.Item2);
       pair = typesMap[typeof(model.Part3.TestEntity3)];
-      var filteredType3BaseQuery = type1BaseQuery.Where(e => e.Text == storageNodeIdText && e.DatabaseName == pair.First && e.SchemaName == pair.Second);
+      var filteredType3BaseQuery = type1BaseQuery.Where(e => e.Text == storageNodeIdText && e.DatabaseName == pair.Item1 && e.SchemaName == pair.Item2);
       pair = typesMap[typeof(model.Part4.TestEntity4)];
-      var filteredType4BaseQuery = type1BaseQuery.Where(e => e.Text == storageNodeIdText && e.DatabaseName == pair.First && e.SchemaName == pair.Second);
+      var filteredType4BaseQuery = type1BaseQuery.Where(e => e.Text == storageNodeIdText && e.DatabaseName == pair.Item1 && e.SchemaName == pair.Item2);
 
       result = filteredType1BaseQuery.Union(filteredType2BaseQuery).ToList();
       Assert.That(result.Count, Is.EqualTo(2 * initialCountOfEntities));
@@ -352,42 +352,42 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
 
       var a = new model.Part1.TestEntity1(session) { Text = text };
       var databaseAndSchema = typesMap[a.GetType()];
-      a.DatabaseName = databaseAndSchema.First;
-      a.SchemaName = databaseAndSchema.Second;
+      a.DatabaseName = databaseAndSchema.Item1;
+      a.SchemaName = databaseAndSchema.Item2;
 
       session.SaveChanges();
       Assert.That(session.Query.All<model.Part1.TestEntity1>().Count(), Is.EqualTo(initialCountOfEntities + 1));
-      a = session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Text == text && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+      a = session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Text == text && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(a, Is.Not.Null);
 
       var b = new model.Part2.TestEntity2(session) { Text = text };
       databaseAndSchema = typesMap[b.GetType()];
-      b.DatabaseName = databaseAndSchema.First;
-      b.SchemaName = databaseAndSchema.Second;
+      b.DatabaseName = databaseAndSchema.Item1;
+      b.SchemaName = databaseAndSchema.Item2;
 
       session.SaveChanges();
       Assert.That(session.Query.All<model.Part2.TestEntity2>().Count(), Is.EqualTo(initialCountOfEntities + 1));
-      b = session.Query.All<model.Part2.TestEntity2>().FirstOrDefault(e => e.Text == text && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+      b = session.Query.All<model.Part2.TestEntity2>().FirstOrDefault(e => e.Text == text && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(b, Is.Not.Null);
 
       var c = new model.Part3.TestEntity3(session) { Text = text };
       databaseAndSchema = typesMap[c.GetType()];
-      c.DatabaseName = databaseAndSchema.First;
-      c.SchemaName = databaseAndSchema.Second;
+      c.DatabaseName = databaseAndSchema.Item1;
+      c.SchemaName = databaseAndSchema.Item2;
 
       session.SaveChanges();
       Assert.That(session.Query.All<model.Part3.TestEntity3>().Count(), Is.EqualTo(initialCountOfEntities + 1));
-      c = session.Query.All<model.Part3.TestEntity3>().FirstOrDefault(e => e.Text == text && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+      c = session.Query.All<model.Part3.TestEntity3>().FirstOrDefault(e => e.Text == text && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(c, Is.Not.Null);
 
       var d = new model.Part4.TestEntity4(session) { Text = text };
       databaseAndSchema = typesMap[d.GetType()];
-      d.DatabaseName = databaseAndSchema.First;
-      d.SchemaName = databaseAndSchema.Second;
+      d.DatabaseName = databaseAndSchema.Item1;
+      d.SchemaName = databaseAndSchema.Item2;
 
       session.SaveChanges();
       Assert.That(session.Query.All<model.Part4.TestEntity4>().Count(), Is.EqualTo(initialCountOfEntities + 1));
-      d = session.Query.All<model.Part4.TestEntity4>().FirstOrDefault(e => e.Text == text && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+      d = session.Query.All<model.Part4.TestEntity4>().FirstOrDefault(e => e.Text == text && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(d, Is.Not.Null);
 
       return new Key[] { a.Key, b.Key, c.Key, d.Key };
@@ -408,8 +408,8 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       var databaseAndSchema = typesMap[typeof(model.Part1.TestEntity1)];
       var a = session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Key == createdKeys[0] && e.Text == text);
       Assert.That(a, Is.Not.Null);
-      Assert.That(a.DatabaseName, Is.EqualTo(databaseAndSchema.First));
-      Assert.That(a.SchemaName, Is.EqualTo(databaseAndSchema.Second));
+      Assert.That(a.DatabaseName, Is.EqualTo(databaseAndSchema.Item1));
+      Assert.That(a.SchemaName, Is.EqualTo(databaseAndSchema.Item2));
 
       var now = DateTime.UtcNow;
 
@@ -431,14 +431,14 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       Assert.That(session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Text == text), Is.Null);
       Assert.That(
         session.Query.All<model.Part1.TestEntity1>()
-          .FirstOrDefault(e => e.Text == updatedText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second),
+          .FirstOrDefault(e => e.Text == updatedText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2),
         Is.Not.Null);
 
       databaseAndSchema = typesMap[typeof(model.Part2.TestEntity2)];
       var b = session.Query.All<model.Part2.TestEntity2>().FirstOrDefault(e => e.Key == createdKeys[1] && e.Text == text);
       Assert.That(b, Is.Not.Null);
-      Assert.That(b.DatabaseName, Is.EqualTo(databaseAndSchema.First));
-      Assert.That(b.SchemaName, Is.EqualTo(databaseAndSchema.Second));
+      Assert.That(b.DatabaseName, Is.EqualTo(databaseAndSchema.Item1));
+      Assert.That(b.SchemaName, Is.EqualTo(databaseAndSchema.Item2));
 
       b.Text = updatedText;
       session.SaveChanges();
@@ -448,14 +448,14 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       Assert.That(session.Query.All<model.Part2.TestEntity2>().FirstOrDefault(e => e.Text == text), Is.Null);
       Assert.That(
         session.Query.All<model.Part2.TestEntity2>()
-          .FirstOrDefault(e => e.Text == updatedText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second),
+          .FirstOrDefault(e => e.Text == updatedText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2),
         Is.Not.Null);
 
       databaseAndSchema = typesMap[typeof(model.Part3.TestEntity3)];
       var c = session.Query.All<model.Part3.TestEntity3>().FirstOrDefault(e => e.Key == createdKeys[2] && e.Text == text);
       Assert.That(c, Is.Not.Null);
-      Assert.That(c.DatabaseName, Is.EqualTo(databaseAndSchema.First));
-      Assert.That(c.SchemaName, Is.EqualTo(databaseAndSchema.Second));
+      Assert.That(c.DatabaseName, Is.EqualTo(databaseAndSchema.Item1));
+      Assert.That(c.SchemaName, Is.EqualTo(databaseAndSchema.Item2));
 
       c.Text = updatedText;
       session.SaveChanges();
@@ -465,14 +465,14 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       Assert.That(session.Query.All<model.Part3.TestEntity3>().FirstOrDefault(e => e.Text == text), Is.Null);
       Assert.That(
         session.Query.All<model.Part3.TestEntity3>()
-          .FirstOrDefault(e => e.Text == updatedText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second),
+          .FirstOrDefault(e => e.Text == updatedText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2),
         Is.Not.Null);
 
       databaseAndSchema = typesMap[typeof(model.Part4.TestEntity4)];
       var d = session.Query.All<model.Part4.TestEntity4>().FirstOrDefault(e => e.Key == createdKeys[3] && e.Text == text);
       Assert.That(d, Is.Not.Null);
-      Assert.That(d.DatabaseName, Is.EqualTo(databaseAndSchema.First));
-      Assert.That(d.SchemaName, Is.EqualTo(databaseAndSchema.Second));
+      Assert.That(d.DatabaseName, Is.EqualTo(databaseAndSchema.Item1));
+      Assert.That(d.SchemaName, Is.EqualTo(databaseAndSchema.Item2));
 
       d.Text = updatedText;
       session.SaveChanges();
@@ -480,7 +480,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       Assert.That(session.Query.All<model.Part4.TestEntity4>().Count(), Is.EqualTo(initialCountOfEntities + 1));
       Assert.That(session.Query.All<model.Part4.TestEntity4>().FirstOrDefault(e => e.Text == updatedText), Is.Not.Null);
       Assert.That(session.Query.All<model.Part4.TestEntity4>().FirstOrDefault(e => e.Text == text), Is.Null);
-      Assert.That(session.Query.All<model.Part4.TestEntity4>().FirstOrDefault(e => e.Text == updatedText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second), Is.Not.Null);
+      Assert.That(session.Query.All<model.Part4.TestEntity4>().FirstOrDefault(e => e.Text == updatedText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2), Is.Not.Null);
     }
 
     private void Delete(Session session, Key[] createdKeys, int initialCountOfEntities)
@@ -498,7 +498,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       var a = session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Key == createdKeys[0] && e.Text == updatedText);
       Assert.That(a, Is.Not.Null);
       a = session.Query.All<model.Part1.TestEntity1>()
-        .FirstOrDefault(e => e.Key == createdKeys[0] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+        .FirstOrDefault(e => e.Key == createdKeys[0] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(a, Is.Not.Null);
 
       a.Remove();
@@ -509,7 +509,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       var b = session.Query.All<model.Part2.TestEntity2>().FirstOrDefault(e => e.Key == createdKeys[1] && e.Text == updatedText);
       Assert.That(b, Is.Not.Null);
       b = session.Query.All<model.Part2.TestEntity2>()
-        .FirstOrDefault(e => e.Key == createdKeys[1] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+        .FirstOrDefault(e => e.Key == createdKeys[1] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(b, Is.Not.Null);
 
       b.Remove();
@@ -519,7 +519,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       var c = session.Query.All<model.Part3.TestEntity3>().FirstOrDefault(e => e.Key == createdKeys[2] && e.Text == updatedText);
       Assert.That(c, Is.Not.Null);
       c = session.Query.All<model.Part3.TestEntity3>()
-        .FirstOrDefault(e => e.Key == createdKeys[2] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+        .FirstOrDefault(e => e.Key == createdKeys[2] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(c, Is.Not.Null);
 
       c.Remove();
@@ -529,7 +529,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       var d = session.Query.All<model.Part4.TestEntity4>().FirstOrDefault(e => e.Key == createdKeys[3] && e.Text == updatedText);
       Assert.That(d, Is.Not.Null);
       d = session.Query.All<model.Part4.TestEntity4>()
-        .FirstOrDefault(e => e.Key == createdKeys[3] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+        .FirstOrDefault(e => e.Key == createdKeys[3] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(d, Is.Not.Null);
 
       d.Remove();
@@ -538,25 +538,25 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       a = session.Query.All<model.Part1.TestEntity1>().FirstOrDefault(e => e.Key == createdKeys[0] && e.Text == updatedText);
       Assert.That(a, Is.Null);
       a = session.Query.All<model.Part1.TestEntity1>()
-        .FirstOrDefault(e => e.Key == createdKeys[0] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+        .FirstOrDefault(e => e.Key == createdKeys[0] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(a, Is.Null);
 
       b = session.Query.All<model.Part2.TestEntity2>().FirstOrDefault(e => e.Key == createdKeys[1] && e.Text == updatedText);
       Assert.That(b, Is.Null);
       b = session.Query.All<model.Part2.TestEntity2>()
-        .FirstOrDefault(e => e.Key == createdKeys[1] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+        .FirstOrDefault(e => e.Key == createdKeys[1] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(b, Is.Null);
 
       c = session.Query.All<model.Part3.TestEntity3>().FirstOrDefault(e => e.Key == createdKeys[2] && e.Text == updatedText);
       Assert.That(c, Is.Null);
       c = session.Query.All<model.Part3.TestEntity3>()
-        .FirstOrDefault(e => e.Key == createdKeys[2] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+        .FirstOrDefault(e => e.Key == createdKeys[2] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(c, Is.Null);
 
       d = session.Query.All<model.Part4.TestEntity4>().FirstOrDefault(e => e.Key == createdKeys[3] && e.Text == updatedText);
       Assert.That(d, Is.Null);
       d = session.Query.All<model.Part4.TestEntity4>()
-        .FirstOrDefault(e => e.Key == createdKeys[3] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.First && e.SchemaName == databaseAndSchema.Second);
+        .FirstOrDefault(e => e.Key == createdKeys[3] && e.Text == updatedText && e.DatabaseName == databaseAndSchema.Item1 && e.SchemaName == databaseAndSchema.Item2);
       Assert.That(d, Is.Null);
     }
 

@@ -69,8 +69,6 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       CloneTest<long>(1*speedFactor);
       CloneTest<double>(1*speedFactor);
       CloneTest<Guid>(0.5*speedFactor);
-      CloneTest<Pair<Guid, Guid>>(0.2*speedFactor);
-      CloneTest<Pair<Pair<Guid, Guid>, Pair<Guid, Guid>>>(0.1*speedFactor);
       CloneTest<string>(0.3*speedFactor);
     }
 

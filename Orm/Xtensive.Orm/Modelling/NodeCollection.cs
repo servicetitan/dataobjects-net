@@ -144,11 +144,11 @@ namespace Xtensive.Modelling
         return this;
       var parts = path.RevertibleSplitFirstAndTail(Node.PathEscape, Node.PathDelimiter);
       Node next;
-      if (!TryGetValue(parts.First, out next))
+      if (!TryGetValue(parts.Item1, out next))
         return null;
-      if (parts.Second==null)
+      if (parts.Item2 ==null)
         return next;
-      return next.Resolve(parts.Second);
+      return next.Resolve(parts.Item2);
     }
 
     /// <inheritdoc/>

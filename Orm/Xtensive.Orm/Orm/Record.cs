@@ -60,7 +60,7 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    internal Record(Tuple tuple, IEnumerable<Pair<Key, Tuple>> keyTuplePairs)
+    internal Record(Tuple tuple, IEnumerable<(Key, Tuple)> keyTuplePairs)
     {
       Source = tuple;
       this.keyTuplePairs = keyTuplePairs.ToArray();

@@ -217,8 +217,8 @@ namespace Xtensive.Orm.Upgrade
 
         foreach (var columnPair in pairedColumns) {
           copiedColumns.Add(new (
-            GetColumnPath(sourceType, columnPair.First),
-            GetColumnPath(target, columnPair.Second)));
+            GetColumnPath(sourceType, columnPair.Item1),
+            GetColumnPath(target, columnPair.Item2)));
         }
 
         schemaHints.Add(new CopyDataHint(sourceTablePath, identities, copiedColumns));
@@ -548,8 +548,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       var updatedColumns = pairedIdentityColumns
-        .SelectToList(pair =>
-          new Pair<string, object>(GetColumnPath(updatedType, pair.Second), null));
+        .SelectToList(pair => (GetColumnPath(updatedType, pair.Item2), (object) null));
 
       if (association.ConnectorType == null) {
         schemaHints.Add(new UpdateDataHint(sourceTablePath, identities, updatedColumns));
@@ -987,7 +986,7 @@ namespace Xtensive.Orm.Upgrade
         }
       }
       return result
-        .SelectToArray(mapping => (mapping.First.MappingName, mapping.Second.MappingName));
+        .SelectToArray(mapping => (mapping.Item1.MappingName, mapping.Item2.MappingName));
     }
 
     #endregion

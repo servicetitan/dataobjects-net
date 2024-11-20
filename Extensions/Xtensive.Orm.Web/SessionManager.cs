@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Web
     /// </summary>
     public bool HasSession
     {
-      get { return sessionAndTransactionPair.Value.First != null; }
+      get { return sessionAndTransactionPair.Value.Item1 != null; }
     }
 
     /// <summary>

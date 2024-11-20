@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       while (prefetchQueue.TryDequeue(out var pair)) {
         var parentKeys = pair.Item1;
-        var nestedNodes = pair.Second;
+        var nestedNodes = pair.Item2;
         var keys = new List<Key>();
         foreach (var parentKey in parentKeys) {
           var entityState = session.EntityStateCache[parentKey, false];

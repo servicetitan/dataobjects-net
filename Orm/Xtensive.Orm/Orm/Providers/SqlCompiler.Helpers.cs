@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Providers
 
     protected virtual string ProcessAliasedName(string name) => name;
 
-    protected Pair<SqlExpression, IEnumerable<QueryParameterBinding>> ProcessExpression(LambdaExpression le, in bool preferCaseOverVariant,
+    protected (SqlExpression, IEnumerable<QueryParameterBinding>) ProcessExpression(LambdaExpression le, in bool preferCaseOverVariant,
       params IReadOnlyList<SqlExpression>[] sourceColumns)
     {
       var processor = new ExpressionProcessor(le, Handlers, this, preferCaseOverVariant, sourceColumns);

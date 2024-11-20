@@ -119,12 +119,12 @@ namespace Xtensive.Orm.Upgrade.Internals
     /// <summary>
     /// Builds generic types mapping.
     /// </summary>
-    private List<(string, Type, List<Pair<string, Type>>)> BuildGenericTypeMapping(Dictionary<string, RenameTypeHint> renamedTypesLookup)
+    private List<(string, Type, List<(string, Type)>)> BuildGenericTypeMapping(Dictionary<string, RenameTypeHint> renamedTypesLookup)
     {
       var oldGenericTypes = GetGenericTypes(extractedModel);
       var newGenericTypes = GetGenericTypes(domainModel);
 
-      var genericTypeMapping = new List<(string, Type, List<Pair<string, Type>>)>();
+      var genericTypeMapping = new List<(string, Type, List<(string, Type)>)>();
       var newTypesLookup = newGenericTypes.GetClasses().ToDictionary(t => t.GetFullName());
       foreach (var oldGenericDefName in oldGenericTypes.GetClasses()) {
         var newGenericDefType = GetNewType(oldGenericDefName, newTypesLookup, renamedTypesLookup);
@@ -153,7 +153,7 @@ namespace Xtensive.Orm.Upgrade.Internals
     /// <summary>
     /// Builds <see cref="RenameTypeHint"/> for generic types.
     /// </summary>
-    private void BuildRenameHintsForGenericTypes(IList<(string, Type, List<Pair<string, Type>>)> genericTypeMapping, ICollection<UpgradeHint> rewrittenHints)
+    private void BuildRenameHintsForGenericTypes(IList<(string, Type, List<(string, Type)>)> genericTypeMapping, ICollection<UpgradeHint> rewrittenHints)
     {
       foreach (var triplet in genericTypeMapping) {
         var arrays = triplet.Item3.SelectToArrays(pair => pair.Item1, pair => pair.Item2);
@@ -534,12 +534,12 @@ namespace Xtensive.Orm.Upgrade.Internals
         .ToArray(model.Types.Length - connectorTypes.Count);
     }
 
-    public static ClassifiedCollection<string, Pair<string, string[]>> GetGenericTypes(StoredDomainModel model)
+    public static ClassifiedCollection<string, (string, string[])> GetGenericTypes(StoredDomainModel model)
     {
-      var genericTypes = new ClassifiedCollection<string, Pair<string, string[]>>(pair => new[] { pair.Item1 });
+      var genericTypes = new ClassifiedCollection<string, (string, string[])>(pair => new[] { pair.Item1 });
       foreach (var typeInfo in model.Types.Where(type => type.IsGeneric)) {
         var typeDefinitionName = typeInfo.GenericTypeDefinition;
-        genericTypes.Add(new Pair<string, string[]>(typeDefinitionName, typeInfo.GenericArguments));
+        genericTypes.Add((typeDefinitionName, typeInfo.GenericArguments));
       }
       return genericTypes;
     }

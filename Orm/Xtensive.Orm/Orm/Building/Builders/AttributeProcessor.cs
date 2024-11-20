@@ -385,9 +385,9 @@ namespace Xtensive.Orm.Building.Builders
       foreach (var fieldName in source) {
         var result = ParseFieldName(fieldName);
 
-        context.Validator.ValidateName(result.First, ValidationRule.Column);
+        context.Validator.ValidateName(result.Item1, ValidationRule.Column);
 
-        if (!target.TryAdd(result.First, result.Second)) {
+        if (!target.TryAdd(result.Item1, result.Item2)) {
           throw new DomainBuilderException(
             string.Format(Strings.ExIndexAlreadyContainsField, fieldName));
         }

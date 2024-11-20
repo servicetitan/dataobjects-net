@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Tests.Linq
         transaction.Complete();
       }
 
-      var results = new ConcurrentBag<Pair<int>>();
+      var results = new ConcurrentBag<(int, int)>();
       var source = trackIds.Select(t => new {PId = t, Bag = results});
 
       _ = Parallel.ForEach(
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Linq
             var trackToLock = session.Query.All<AudioTrack>().FirstOrDefault(t => t.TrackId==sourceItem.PId);
 
             EventHandler<DbCommandEventArgs> handler = (sender, args) => {
-              sourceItem.Bag.Add(new Pair<int>(sourceItem.PId, (int)args.Command.Parameters[0].Value));
+              sourceItem.Bag.Add((sourceItem.PId, (int)args.Command.Parameters[0].Value));
             };
             session.Events.DbCommandExecuting += handler;
 
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Tests.Linq
 
       try {
         Assert.That(results.Count, Is.EqualTo(trackIds.Capacity));
-        Assert.That(results.All(t => t.First == t.Second), Is.True);
+        Assert.That(results.All(t => t.Item1 == t.Item2), Is.True);
       }
       finally {
         using (var session = Domain.OpenSession())

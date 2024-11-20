@@ -129,7 +129,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
       catch(InvalidOperationException) {
         return;
       }
-      nodesData.Add(new Pair<Key, int>(newNodeKey, 0));
+      nodesData.Add((newNodeKey, 0));
       UpdateChildrenCount(parentNodeKey, true);
     }
 
@@ -223,7 +223,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
       catch(InvalidOperationException) {
         return;
       }
-      nodesData.Add(new Pair<Key, int>(key, 0));
+      nodesData.Add((key, 0));
     }
 
 #pragma warning disable IDE0051 // Remove unused private members
@@ -267,7 +267,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     {
       var index = FindNodeIndex(parentNodeKey);
       var pair = nodesData[index];
-      nodesData[index] = new Pair<Key, int>(parentNodeKey, pair.Item2 + increment);
+      nodesData[index] = (parentNodeKey, pair.Item2 + increment);
     }
 
     private int FindNodeIndex(Key key)

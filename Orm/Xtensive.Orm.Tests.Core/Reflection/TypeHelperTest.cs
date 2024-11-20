@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Tests.Core.Reflection
   {
     string[] associateSuffix = new string[]{"Associate"};
     string[] testHandlerSuffix = new string[]{"TestHandler"};
-    private Pair<Assembly, string>[] locations = new Pair<Assembly, string>[] {};
+    private (Assembly, string)[] locations = new (Assembly, string)[] {};
     private Type foundFor;
     object o;
 

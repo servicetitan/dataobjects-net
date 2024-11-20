@@ -47,9 +47,9 @@ namespace Xtensive.Modelling.Comparison.Hints
     {
       return string.Format(
         "Copy from '{0}' to '{1}' where ({2})",
-        string.Join(", ", CopiedColumns.Select(pair => pair.First)
+        string.Join(", ", CopiedColumns.Select(pair => pair.Item1)
           .ToArray()),
-        string.Join(", ", CopiedColumns.Select(pair => pair.Second)
+        string.Join(", ", CopiedColumns.Select(pair => pair.Item2)
           .ToArray()),
         string.Join(" and ", Identities.Select(pair => pair.ToString())
           .ToArray()));

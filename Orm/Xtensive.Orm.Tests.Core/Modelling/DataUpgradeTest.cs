@@ -40,11 +40,11 @@ namespace Xtensive.Orm.Tests.Core.Modelling
         var updateDataHint1 = new UpdateDataHint(
           "Tables/C",
           new List<IdentityPair>() {new IdentityPair("Tables/C/Columns/RefA", "Tables/B/Columns/Id", false)},
-          new List<Pair<string, object>> {new Pair<string, object>("Tables/C/Columns/RefA", "null")});
+          new List<(string, object)> {("Tables/C/Columns/RefA", "null")});
         var updateDataHint2 = new UpdateDataHint(
         "Tables/C",
         new List<IdentityPair>{new IdentityPair("Tables/C/Columns/RefB", "Tables/B/Columns/Id", false)},
-        new List<Pair<string, object>>{new Pair<string, object>("Tables/C/Columns/RefB", "null")});
+        new List<(string, object)>{("Tables/C/Columns/RefB", "null")});
         
         hs.Add(deleteDataHint);
         hs.Add(updateDataHint1);
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
 
     private static void TestUpdate(StorageInfo origin, Action<StorageInfo, StorageInfo, HintSet> mutator, Action<Difference, ActionSequence> validator)
     {
-      // Классное я слово придумал - мутатор ;)
+      // РљР»Р°СЃСЃРЅРѕРµ СЏ СЃР»РѕРІРѕ РїСЂРёРґСѓРјР°Р» - РјСѓС‚Р°С‚РѕСЂ ;)
       TestUpdate(origin, mutator, validator, true);
       // TestUpdate(origin, mutator, null, false);
     }
