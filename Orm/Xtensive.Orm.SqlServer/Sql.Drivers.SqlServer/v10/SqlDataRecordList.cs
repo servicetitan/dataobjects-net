@@ -48,7 +48,7 @@ public class SqlDataRecordList(IReadOnlyList<Tuple> tuples, SqlDbType sqlDbType)
       case SqlDbType.NVarChar: {
         SqlMetaData[] metaData = [new("Value", sqlDbType, tuples.Max(t => (t.GetValueOrDefault(0) as string)?.Length ?? 20))];
         SqlDataRecord record = new(metaData);
-        HashSet<string> added = new();
+        HashSet<string> added = new(StringComparer.Ordinal);
         foreach (var valueObj in tuples.Select(t => t.GetValueOrDefault(0)).Where(o => o != null)) {
           string castValue = (string) valueObj;
           if (added.Add(castValue)) {
