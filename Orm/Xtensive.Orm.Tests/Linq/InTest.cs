@@ -646,5 +646,16 @@ namespace Xtensive.Orm.Tests.Linq
                   select track;
       query.ToList();
     }
+
+    [Test]
+    [MutePostgreSql]
+    public void CaseInsensitive_TVP_Test()
+    {
+      string[] names = ["Abc", "ABC"];
+      (from track in Session.Query.All<Track>()
+          where track.Name.In(IncludeAlgorithm.TableValuedParameter, names)
+          select track
+        ).ToList();
+    }
   }
 }
