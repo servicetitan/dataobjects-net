@@ -62,10 +62,11 @@ namespace Xtensive.Orm.Rse.Providers
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, 0, WellKnownTypes.Bool));
+      var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, Source.Header.Length, WellKnownTypes.Bool));
       var fieldTypes = new Type[FilteredColumns.Count];
+      var newHeaderColumns = newHeader.Columns;
       for (var index = 0; index < fieldTypes.Length; index++) {
-        fieldTypes[index] = newHeader.Columns[FilteredColumns[index]].Type;
+        fieldTypes[index] = newHeaderColumns[FilteredColumns[index]].Type;
       }
       var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
       FilteredColumnsExtractionTransform = new MapTransform(true, tupleDescriptor, FilteredColumns);
