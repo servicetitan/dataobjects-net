@@ -110,13 +110,19 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       mappings[provider.Source] = Merge(mappings[provider], mappingsGatherer.Gather(provider.Predicate));
       var newSourceProvider = VisitCompilable(provider.Source);
-      var colMap = mappings[provider.Source];
-      mappings[provider] = colMap;
+      var updatedSourceMappings = mappings[provider.Source];
+      mappings[provider] = updatedSourceMappings;
 
-      var predicate = TranslateLambda(colMap, provider.Predicate);
-      return newSourceProvider == provider.Source && predicate == provider.Predicate
+      if (newSourceProvider == provider.Source) {
+        // If new source provider is the same as old provider.Source then there must be no changes in its mappings.
+        // No remap needed for predicate.
+        return provider;
+      }
+      // otherwise, there is a chance that new mappings should be applied to predicate
+      var newPredicate = TranslateLambda(updatedSourceMappings, provider.Predicate);
+      return newPredicate == provider.Predicate
         ? provider
-        : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) predicate);
+        : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) newPredicate);
     }
 
     internal protected override JoinProvider VisitJoin(JoinProvider provider)
