@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Rse.Transformation
       var sourceLength = provider.Source.Header.Length;
       mappings[provider.Source] = Merge(mappings[provider].Where(i => i < sourceLength), provider.FilteredColumns);
       var source = VisitCompilable(provider.Source);
-      mappings[provider] = Merge(mappings[provider], mappings[provider.Source]);
+      mappings[provider] = Merge(mappings[provider.Source], [provider.Header.Columns.Last().Index]);
       if (source == provider.Source) {
         return provider;
       }

@@ -99,6 +99,7 @@ namespace Xtensive.Orm.Providers
       return new CompositePreCompiler(
         applyCorrector,
         skipTakeCorrector,
+        RedundantColumnOptimizer.Instance,
         OrderingCorrector);
     }
 
