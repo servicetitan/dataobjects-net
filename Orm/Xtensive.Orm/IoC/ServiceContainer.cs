@@ -38,12 +38,9 @@ namespace Xtensive.IoC
 
     private readonly IReadOnlyDictionary<Key, List<ServiceRegistration>> types;
 
-    private readonly ConcurrentDictionary<ServiceRegistration, Lazy<object>> instances =
-      new ConcurrentDictionary<ServiceRegistration, Lazy<object>>();
-
+    private readonly ConcurrentDictionary<ServiceRegistration, Lazy<object>> instances = new();
     private readonly ConcurrentDictionary<ServiceRegistration, (ConstructorInvoker, ParameterInfo[])> constructorCache = new();
-
-    private readonly ConcurrentDictionary<(Type, int), bool> creating = new ConcurrentDictionary<(Type, int), bool>();
+    private readonly ConcurrentDictionary<(Type, int), bool> creating = new();
 
     #region Protected virtual methods (to override)
 
