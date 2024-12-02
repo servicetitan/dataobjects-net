@@ -4,11 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2009.10.12
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -29,11 +25,7 @@ namespace Xtensive.IoC
   {
     private static readonly Type iServiceContainerType = typeof(IServiceContainer);
 
-#if NET8_0_OR_GREATER
     private static readonly Func<ServiceRegistration, (ConstructorInvoker, ParameterInfo[])> ConstructorFactory = serviceInfo => {
-#else
-    private static readonly Func<ServiceRegistration, (ConstructorInfo, ParameterInfo[])> ConstructorFactory = serviceInfo => {
-#endif
       var mappedType = serviceInfo.MappedType;
       var ctor = (
         from c in mappedType.GetConstructors()
@@ -41,11 +33,7 @@ namespace Xtensive.IoC
         select c
         ).SingleOrDefault() ?? mappedType.GetConstructor(Array.Empty<Type>());
       var @params = ctor?.GetParameters();
-#if NET8_0_OR_GREATER
       return new(ctor is null ? null : ConstructorInvoker.Create(ctor), @params);
-#else
-      return new(ctor, @params);
-#endif
     };
 
     private readonly IReadOnlyDictionary<Key, List<ServiceRegistration>> types;
@@ -53,11 +41,7 @@ namespace Xtensive.IoC
     private readonly ConcurrentDictionary<ServiceRegistration, Lazy<object>> instances =
       new ConcurrentDictionary<ServiceRegistration, Lazy<object>>();
 
-#if NET8_0_OR_GREATER
     private readonly ConcurrentDictionary<ServiceRegistration, (ConstructorInvoker, ParameterInfo[])> constructorCache = new();
-#else
-    private readonly ConcurrentDictionary<ServiceRegistration, (ConstructorInfo, ParameterInfo[])> constructorCache = new();
-#endif
 
     private readonly ConcurrentDictionary<(Type, int), bool> creating = new ConcurrentDictionary<(Type, int), bool>();
 
@@ -118,11 +102,7 @@ namespace Xtensive.IoC
       finally {
         _ = creating.TryRemove(key, out _);
       }
-#if NET8_0_OR_GREATER
       return cInfo.Invoke(args.AsSpan());
-#else
-      return cInfo.Invoke(args);
-#endif
     }
 
 #endregion
@@ -135,12 +115,9 @@ namespace Xtensive.IoC
     private object InstanceFactory(ServiceRegistration registration) =>
       registration.MappedInstance ?? CreateInstance(registration);
 
-    private Lazy<object> LazyFactory(ServiceRegistration registration) =>
-      new Lazy<object>(() => InstanceFactory(registration));
-
     private object GetOrCreateInstance(ServiceRegistration registration) =>
       registration.Singleton
-        ? instances.GetOrAdd(registration, LazyFactory).Value
+        ? instances.GetOrAdd(registration, static (r, self) => new Lazy<object>(() => self.InstanceFactory(r)), this).Value
         : InstanceFactory(registration);
 
     private static void Register(Dictionary<Key, List<ServiceRegistration>> types, ServiceRegistration serviceRegistration)
