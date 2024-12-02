@@ -2,13 +2,8 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Linq;
@@ -1036,12 +1031,11 @@ namespace Xtensive.Orm
     public static async Task<List<TSource>> ToListAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
-      if (source is not IAsyncEnumerable<TSource>) {
+      if (source is not IAsyncEnumerable<TSource> asyncEnumerable) {
         return source.ToList();
       }
       var list = new List<TSource>();
-      var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwaitFalse();
-      await foreach (var element in asyncSource) {
+      await foreach (var element in asyncEnumerable.WithCancellation(cancellationToken).ConfigureAwaitFalse()) {
         list.Add(element);
       }
 
@@ -1233,12 +1227,7 @@ namespace Xtensive.Orm
     public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>(this IQueryable<TSource> source)
     {
       ArgumentNullException.ThrowIfNull(source);
-
-      if (source is IAsyncEnumerable<TSource> asyncEnumerable) {
-        return asyncEnumerable;
-      }
-
-      throw new InvalidOperationException("Query can't be executed asynchronously.");
+      return source as IAsyncEnumerable<TSource> ?? throw new InvalidOperationException("Query can't be executed asynchronously.");
     }
 
     // Private methods
