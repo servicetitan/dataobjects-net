@@ -22,6 +22,15 @@ namespace Xtensive.Orm.Rse.Transformation
 
     internal sealed class CorrectorState : IDisposable
     {
+      public readonly struct CorrectorStateScope(CorrectorState correctorState, ApplyParameter parameter) : IDisposable
+      {
+        public void Dispose()
+        {
+          _ = correctorState.selfConvertibleApplyProviders.Remove(parameter);
+          _ = correctorState.selfConvertibleApplyProviderStack.Pop();
+        }
+      }
+
       private readonly CorrectorState previousState;
       private readonly ApplyProviderCorrectorRewriter owner;
       private readonly Stack<bool> selfConvertibleApplyProviderStack;
@@ -39,15 +48,11 @@ namespace Xtensive.Orm.Rse.Transformation
 
       public bool ExistsApplyProviderRequiringConversion => Predicates.Count > 0 || CalculateProviders.Count > 0;
 
-      public Disposable SetIfApplyParameterConvertible(ApplyParameter parameter, bool isSelfConvertibleApply)
+      public CorrectorStateScope SetIfApplyParameterConvertible(ApplyParameter parameter, bool isSelfConvertibleApply)
       {
         selfConvertibleApplyProviders.Add(parameter, isSelfConvertibleApply);
         selfConvertibleApplyProviderStack.Push(isSelfConvertibleApply);
-        return new Disposable(
-          x => { 
-            _ = selfConvertibleApplyProviders.Remove(parameter);
-            _ = selfConvertibleApplyProviderStack.Pop();
-          });
+        return new(this, parameter);
       }
 
       public bool CheckIfApplyParameterSeflConvertible(ApplyParameter parameter) =>
