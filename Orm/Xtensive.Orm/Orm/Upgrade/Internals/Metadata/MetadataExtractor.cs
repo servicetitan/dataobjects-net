@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Upgrade
     private Task ExtractExtensionsAsync(ICollection<ExtensionMetadata> output, SqlExtractionTask task,
       CancellationToken token)
     {
-      var query = CreateQuery(mapping.Extension, task, [mapping.ExtensionName, mapping.ExtensionText]);
+      var query = CreateQuery(mapping.Extension, task, [mapping.ExtensionName, mapping.ExtensionText, mapping.ExtensionData]);
       return ExecuteQueryAsync(output, query, ParseExtension, token);
     }
 
