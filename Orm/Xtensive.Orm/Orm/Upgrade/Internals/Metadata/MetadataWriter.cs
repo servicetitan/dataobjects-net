@@ -20,6 +20,8 @@ namespace Xtensive.Orm.Upgrade
       TupleDescriptor.Create(new[] {WellKnownTypes.Int32, WellKnownTypes.String});
     private static readonly TupleDescriptor StringStringDescriptor =
       TupleDescriptor.Create(new[] {WellKnownTypes.String, WellKnownTypes.String});
+    private static readonly TupleDescriptor StringStringBytesDescriptor =
+      TupleDescriptor.Create([WellKnownTypes.String, WellKnownTypes.String, WellKnownTypes.ByteArray]);
 
     private sealed class Descriptor : IPersistDescriptor
     {
@@ -59,7 +61,8 @@ namespace Xtensive.Orm.Upgrade
         ],
         ProvideExtensionMetadataFilter);
 
-      executor.Overwrite(descriptor, extensions.Select(item => (Tuple) Tuple.Create(StringStringDescriptor, item.Name, item.Value)));
+      executor.Overwrite(descriptor, extensions.Select(item =>
+        (Tuple) Tuple.Create(StringStringBytesDescriptor, item.Name, item.Value, item.Data)));
     }
 
     private void ProvideExtensionMetadataFilter(SqlDelete delete)
