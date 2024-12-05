@@ -30,7 +30,8 @@ namespace Xtensive.Orm.Tests.Issues
       Domain domain = null;
       using (domain = Domain.Build(initialConfiguration)) {
         var metadata = domain.Extensions.Get<MetadataSet>();
-        var savedModel = StoredDomainModel.Deserialize(metadata.Extensions.First().Value);
+        var extension = metadata.Extensions.First();
+        var savedModel = StoredDomainModel.Deserialize(extension.Value, extension.Data);
         var type = savedModel.Types.First(t => t.Name == "EntityWithState");
         var stateField = type.Fields.First(f => f.PropertyName == "State");
 
@@ -52,7 +53,8 @@ namespace Xtensive.Orm.Tests.Issues
 
       using (domain) {
         var metadata = domain.Extensions.Get<MetadataSet>();
-        var savedModel = StoredDomainModel.Deserialize(metadata.Extensions.First().Value);
+        var extension = metadata.Extensions.First();
+        var savedModel = StoredDomainModel.Deserialize(extension.Value, extension.Data);
         var type = savedModel.Types.First(t => t.Name == "EntityWithState");
         var stateField = type.Fields.First(f => f.PropertyName == "State");
 
@@ -74,7 +76,8 @@ namespace Xtensive.Orm.Tests.Issues
       Domain domain = null;
       using (domain = Domain.Build(initialConfiguration)) {
         var metadata = domain.Extensions.Get<MetadataSet>();
-        var savedModel = StoredDomainModel.Deserialize(metadata.Extensions.First().Value);
+        var extension = metadata.Extensions.First();
+        var savedModel = StoredDomainModel.Deserialize(extension.Value, extension.Data);
         var type = savedModel.Types.First(t => t.Name == "EntityWithState");
         var stateField = type.Fields.First(f => f.PropertyName == "State");
 
@@ -96,7 +99,8 @@ namespace Xtensive.Orm.Tests.Issues
 
       using (domain) {
         var metadata = domain.Extensions.Get<MetadataSet>();
-        var savedModel = StoredDomainModel.Deserialize(metadata.Extensions.First().Value);
+        var extension = metadata.Extensions.First();
+        var savedModel = StoredDomainModel.Deserialize(extension.Value, extension.Data);
         var type = savedModel.Types.First(t => t.Name == "EntityWithState");
         var stateField = type.Fields.First(f => f.PropertyName == "State");
 

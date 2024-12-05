@@ -21,6 +21,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly NameBuilder nameBuilder;
 
     public readonly TypeMapping StringMapping;
+    public readonly TypeMapping BytesMapping;
     public readonly TypeMapping IntMapping;
 
     public readonly string Assembly;
@@ -34,6 +35,7 @@ namespace Xtensive.Orm.Upgrade
     public readonly string Extension;
     public readonly string ExtensionName;
     public readonly string ExtensionText;
+    public readonly string ExtensionData;
 
     private string TableOf(Type type)
     {
@@ -68,8 +70,10 @@ namespace Xtensive.Orm.Upgrade
       Extension = TableOf(typeof (Extension));
       ExtensionName = ColumnOf((Extension x) => x.Name);
       ExtensionText = ColumnOf((Extension x) => x.Text);
+      ExtensionData = ColumnOf((Extension x) => x.Data);
 
       StringMapping = driver.GetTypeMapping(WellKnownTypes.String);
+      BytesMapping = driver.GetTypeMapping(WellKnownTypes.ByteArray);
       IntMapping = driver.GetTypeMapping(WellKnownTypes.Int32);
     }
   }

@@ -4,16 +4,12 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.22
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Orm.Providers;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Tuples;
-using ArgumentValidator = Xtensive.Core.ArgumentValidator;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Upgrade
@@ -51,9 +47,16 @@ namespace Xtensive.Orm.Upgrade
         driver.ProviderInfo.Supports(ProviderFeatures.LargeObjects)
         ? ParameterTransmissionType.CharacterLob
         : ParameterTransmissionType.Regular;
+      var extensionDataTransmissionType =
+        driver.ProviderInfo.Supports(ProviderFeatures.LargeObjects)
+        ? ParameterTransmissionType.BinaryLob
+        : ParameterTransmissionType.Regular;
       var descriptor = CreateDescriptor(mapping.Extension,
-        mapping.StringMapping, mapping.ExtensionName, ParameterTransmissionType.Regular,
-        mapping.StringMapping, mapping.ExtensionText, extensionTextTransmissionType,
+        [
+          (mapping.StringMapping, mapping.ExtensionName, ParameterTransmissionType.Regular),
+          (mapping.StringMapping, mapping.ExtensionText, extensionTextTransmissionType),
+          (mapping.BytesMapping, mapping.ExtensionData, extensionDataTransmissionType),
+        ],
         ProvideExtensionMetadataFilter);
 
       executor.Overwrite(descriptor, extensions.Select(item => (Tuple) Tuple.Create(StringStringDescriptor, item.Name, item.Value)));
@@ -68,8 +71,10 @@ namespace Xtensive.Orm.Upgrade
     private void WriteTypes(IEnumerable<TypeMetadata> types)
     {
       var descriptor = CreateDescriptor(mapping.Type,
-        mapping.IntMapping, mapping.TypeId, ParameterTransmissionType.Regular,
-        mapping.StringMapping, mapping.TypeName, ParameterTransmissionType.Regular);
+      [
+        (mapping.IntMapping, mapping.TypeId, ParameterTransmissionType.Regular),
+        (mapping.StringMapping, mapping.TypeName, ParameterTransmissionType.Regular)
+      ]);
 
       executor.Overwrite(descriptor, types.Select(item => (Tuple) Tuple.Create(IntStringDescriptor, item.Id, item.Name)));
     }
@@ -77,24 +82,25 @@ namespace Xtensive.Orm.Upgrade
     private void WriteAssemblies(IEnumerable<AssemblyMetadata> assemblies)
     {
       var descriptor = CreateDescriptor(mapping.Assembly,
-        mapping.StringMapping, mapping.AssemblyName, ParameterTransmissionType.Regular,
-        mapping.StringMapping, mapping.AssemblyVersion, ParameterTransmissionType.Regular);
+      [
+        (mapping.StringMapping, mapping.AssemblyName, ParameterTransmissionType.Regular),
+        (mapping.StringMapping, mapping.AssemblyVersion, ParameterTransmissionType.Regular)
+      ]);
 
       executor.Overwrite(descriptor, assemblies.Select(item => (Tuple) Tuple.Create(StringStringDescriptor, item.Name, item.Version)));
     }
 
     private IPersistDescriptor CreateDescriptor(string tableName,
-      TypeMapping mapping1, string columnName1, ParameterTransmissionType transmissionType1,
-      TypeMapping mapping2, string columnName2, ParameterTransmissionType transmissionType2,
+      (TypeMapping mapping, string columnName, ParameterTransmissionType transmissionType)[] pars,
       Action<SqlDelete> deleteTransform = null)
     {
       var catalog = new Catalog(task.Catalog);
       var schema = catalog.CreateSchema(task.Schema);
       var table = schema.CreateTable(tableName);
 
-      var columnNames = new[] {columnName1, columnName2};
-      var mappings = new[] {mapping1, mapping2};
-      var transmissionTypes = new[] {transmissionType1, transmissionType2};
+      var columnNames = pars.Select(o => o.columnName).ToArray();
+      var mappings = pars.Select(o => o.mapping).ToArray();
+      var transmissionTypes = pars.Select(o => o.transmissionType).ToArray();
 
       var columns = columnNames.Select(table.CreateColumn).ToList();
       var tableRef = SqlDml.TableRef(table);

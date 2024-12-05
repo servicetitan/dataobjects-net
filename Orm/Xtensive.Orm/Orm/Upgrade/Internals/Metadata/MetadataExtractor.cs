@@ -4,13 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.16
 
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql;
@@ -66,39 +61,39 @@ namespace Xtensive.Orm.Upgrade
 
     private IEnumerable<AssemblyMetadata> ExtractAssemblies(SqlExtractionTask task)
     {
-      var query = CreateQuery(mapping.Assembly, task, mapping.AssemblyName, mapping.AssemblyVersion);
+      var query = CreateQuery(mapping.Assembly, task, [mapping.AssemblyName, mapping.AssemblyVersion]);
       return ExecuteQuery(query, ParseAssembly);
     }
 
     private Task ExtractAssembliesAsync(ICollection<AssemblyMetadata> output, SqlExtractionTask task,
       CancellationToken token)
     {
-      var query = CreateQuery(mapping.Assembly, task, mapping.AssemblyName, mapping.AssemblyVersion);
+      var query = CreateQuery(mapping.Assembly, task, [mapping.AssemblyName, mapping.AssemblyVersion]);
       return ExecuteQueryAsync(output, query, ParseAssembly, token);
     }
 
     private IEnumerable<TypeMetadata> ExtractTypes(SqlExtractionTask task)
     {
-      var query = CreateQuery(mapping.Type, task, mapping.TypeId, mapping.TypeName);
+      var query = CreateQuery(mapping.Type, task, [mapping.TypeId, mapping.TypeName]);
       return ExecuteQuery(query, ParseType);
     }
 
     private Task ExtractTypesAsync(ICollection<TypeMetadata> output, SqlExtractionTask task, CancellationToken token)
     {
-      var query = CreateQuery(mapping.Type, task, mapping.TypeId, mapping.TypeName);
+      var query = CreateQuery(mapping.Type, task, [mapping.TypeId, mapping.TypeName]);
       return ExecuteQueryAsync(output, query, ParseType, token);
     }
 
     private IEnumerable<ExtensionMetadata> ExtractExtensions(SqlExtractionTask task)
     {
-      var query = CreateQuery(mapping.Extension, task, mapping.ExtensionName, mapping.ExtensionText);
+      var query = CreateQuery(mapping.Extension, task, [mapping.ExtensionName, mapping.ExtensionText, mapping.ExtensionData]);
       return ExecuteQuery(query, ParseExtension);
     }
 
     private Task ExtractExtensionsAsync(ICollection<ExtensionMetadata> output, SqlExtractionTask task,
       CancellationToken token)
     {
-      var query = CreateQuery(mapping.Extension, task, mapping.ExtensionName, mapping.ExtensionText);
+      var query = CreateQuery(mapping.Extension, task, [mapping.ExtensionName, mapping.ExtensionText]);
       return ExecuteQueryAsync(output, query, ParseExtension, token);
     }
 
@@ -106,7 +101,8 @@ namespace Xtensive.Orm.Upgrade
     {
       var name = ReadString(reader, 0);
       var text = ReadString(reader, 1);
-      return new ExtensionMetadata(name, text);
+      var data = ReadBytes(reader, 2);
+      return new ExtensionMetadata(name, text, data);
     }
 
     private AssemblyMetadata ParseAssembly(DbDataReader reader)
@@ -143,7 +139,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private static SqlSelect CreateQuery(string tableName, SqlExtractionTask task, params string[] columnNames)
+    private static SqlSelect CreateQuery(string tableName, SqlExtractionTask task, string[] columnNames)
     {
       var catalog = new Catalog(task.Catalog);
       var schema = catalog.CreateSchema(task.Schema);
@@ -165,6 +161,9 @@ namespace Xtensive.Orm.Upgrade
 
     private string ReadString(DbDataReader reader, int index) =>
       reader.IsDBNull(index) ? null : (string) mapping.StringMapping.ReadValue(reader, index);
+
+    private byte[] ReadBytes(DbDataReader reader, int index) =>
+      reader.IsDBNull(index) ? null : (byte[]) mapping.BytesMapping.ReadValue(reader, index);
 
     private int ReadInt(DbDataReader reader, int index) =>
       (int) mapping.IntMapping.ReadValue(reader, index);

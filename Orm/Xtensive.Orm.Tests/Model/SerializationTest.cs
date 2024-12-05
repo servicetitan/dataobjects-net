@@ -27,8 +27,8 @@ namespace Xtensive.Orm.Tests.Model
     public void MainTest()
     {
       var model = Domain.Model.ToStoredModel();
-      var serialized = model.Serialize();
-      var result = StoredDomainModel.Deserialize(serialized);
+      var (serialized, compressed) = model.Serialize();
+      var result = StoredDomainModel.Deserialize(serialized, compressed);
       result.UpdateReferences();
     }
   }

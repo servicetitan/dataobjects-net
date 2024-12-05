@@ -200,8 +200,8 @@ namespace Xtensive.Orm.Upgrade
         // Since we support storage nodes, stored domain model and real model of a node
         // must be synchronized. So we must update types' mappings
         storedModel.UpdateMappings(UpgradeContext.NodeConfiguration);
-        var serializedModel = storedModel.Serialize();
-        var modelExtension = new ExtensionMetadata(WellKnown.DomainModelExtensionName, serializedModel);
+        var (serializedModel, compressed) = storedModel.Serialize();
+        var modelExtension = new ExtensionMetadata(WellKnown.DomainModelExtensionName, serializedModel, compressed);
         var indexesExtension = GetPartialIndexes(domain, types);
         metadata.Assemblies.AddRange(assemblyMetadata);
         metadata.Types.AddRange(typeMetadata);
@@ -251,7 +251,7 @@ namespace Xtensive.Orm.Upgrade
       var items = new StoredPartialIndexFilterInfoCollection {
         Items = indexes
       };
-      return new ExtensionMetadata(WellKnown.PartialIndexDefinitionsExtensionName, items.Serialize());
+      return new ExtensionMetadata(WellKnown.PartialIndexDefinitionsExtensionName, items.Serialize(), null);
     }
 
     private void ParseStoredDomainModel()
@@ -264,7 +264,7 @@ namespace Xtensive.Orm.Upgrade
 
         foreach (var extension in extensions) {
           found = true;
-          var part = StoredDomainModel.Deserialize(extension.Value);
+          var part = StoredDomainModel.Deserialize(extension.Value, extension.Data);
           types.AddRange(part.Types);
         }
 

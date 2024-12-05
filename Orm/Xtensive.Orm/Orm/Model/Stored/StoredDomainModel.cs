@@ -5,6 +5,8 @@
 // Created:    2009.05.22
 
 using System.IO;
+using System.IO.Compression;
+using System.Text;
 using System.Xml.Serialization;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -18,7 +20,7 @@ namespace Xtensive.Orm.Model.Stored
   [XmlRoot("DomainModel", Namespace = "")]
   public sealed class StoredDomainModel
   {
-    private static readonly SimpleXmlSerializer<StoredDomainModel> Serializer = new SimpleXmlSerializer<StoredDomainModel>();
+    private static readonly SimpleXmlSerializer<StoredDomainModel> Serializer = new();
 
     /// <summary>
     /// <see cref="DomainModel.Types"/>.
@@ -43,8 +45,28 @@ namespace Xtensive.Orm.Model.Stored
     /// </summary>
     /// <param name="serialized">Serialized instance.</param>
     /// <returns>Deserialized instance.</returns>
-    public static StoredDomainModel Deserialize(string serialized)
+    public static StoredDomainModel Deserialize(string serialized, byte[] data)
     {
+      if (data != null) {
+        string xml;
+        switch (data[0]) {
+          case 0:
+            xml = Encoding.UTF8.GetString(data, 1, data.Length - 1);
+            break;
+          case 1:
+            using (BrotliStream brotliStream = new(new MemoryStream(data, 1, data.Length - 1), CompressionMode.Decompress)) {
+              using StreamReader reader = new(brotliStream, Encoding.UTF8);
+              xml = reader.ReadToEnd();
+            }
+            break;
+          default:
+            throw new NotSupportedException("Invalid data format");
+        }
+        var model = Serializer.Deserialize(xml);
+
+        //!!!TODO  Uncomment following line to switch to Compressed XML serialization
+        // return model;
+      }
       return Serializer.Deserialize(serialized);
     }
 
@@ -52,9 +74,20 @@ namespace Xtensive.Orm.Model.Stored
     /// Serializes this instance to string.
     /// </summary>
     /// <returns>Serialized instance.</returns>
-    public string Serialize()
+    public (string Xml, byte[] Compressed) Serialize()
     {
-      return Serializer.Serialize(this);
+      var xml = Serializer.Serialize(this);
+      MemoryStream ms = new();
+      ms.WriteByte(1);
+      using (BrotliStream brotliStream = new(ms, CompressionLevel.SmallestSize)) {
+        using StreamWriter writer = new(brotliStream, Encoding.UTF8);
+        writer.Write(xml);
+      }
+
+      //!!!TODO  Uncomment following line to switch to Compressed XML serialization
+      // return (null, ms.ToArray());
+
+      return (xml, ms.ToArray());
     }
 
     /// <summary>
