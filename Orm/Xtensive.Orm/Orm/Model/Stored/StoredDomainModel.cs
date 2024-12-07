@@ -77,11 +77,10 @@ namespace Xtensive.Orm.Model.Stored
     public (string Xml, byte[] Compressed) Serialize()
     {
       var xml = Serializer.Serialize(this);
-      MemoryStream ms = new();
+      MemoryStream ms = new(1000);
       ms.WriteByte(1);
-      using (BrotliStream brotliStream = new(ms, CompressionLevel.SmallestSize)) {
-        using StreamWriter writer = new(brotliStream, Encoding.UTF8);
-        writer.Write(xml);
+      using (BrotliStream brotliStream = new(ms, CompressionLevel.Optimal)) {
+        brotliStream.Write(Encoding.UTF8.GetBytes(xml));
       }
 
       //!!!TODO  Uncomment following line to switch to Compressed XML serialization
