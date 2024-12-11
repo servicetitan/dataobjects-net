@@ -521,11 +521,16 @@ namespace Xtensive.Orm.Tests.Upgrade
       var create = SqlDdl.Create(table);
       _ = table.CreateColumn(mapping.ExtensionName, columnsTypeMap[mapping.ExtensionName]);
       _ = table.CreateColumn(mapping.ExtensionText, columnsTypeMap[mapping.ExtensionText]);
+      _ = table.CreateColumn(mapping.ExtensionData, columnsTypeMap[mapping.ExtensionData]);
       Execute(create);
 
       var tableRef = SqlDml.TableRef(table);
       var insert = SqlDml.Insert(tableRef);
-      insert.AddValueRow((tableRef[mapping.ExtensionName], "name"), (tableRef[mapping.ExtensionText], "text"));
+      insert.AddValueRow(
+        (tableRef[mapping.ExtensionName], "name"),
+        (tableRef[mapping.ExtensionText], "text"),
+        (tableRef[mapping.ExtensionData], new byte[] { })
+      );
       Execute(insert);
     }
 

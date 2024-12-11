@@ -6,26 +6,23 @@
 
 using Xtensive.Core;
 
-namespace Xtensive.Orm.Upgrade
+namespace Xtensive.Orm.Upgrade;
+
+internal sealed class ExtensionMetadata
 {
-  internal sealed class ExtensionMetadata
+  public string Name { get; }
+  public string Value { get; }
+  public byte[] Data { get; }
+
+  public override string ToString() => Name;
+
+  // Constructors
+
+  public ExtensionMetadata(string name, string value, byte[] data)
   {
-    public string Name { get; private set; }
-
-    public string Value { get; private set; }
-
-    public override string ToString()
-    {
-      return Name;
-    }
-
-    // Constructors
-
-    public ExtensionMetadata(string name, string value)
-    {
-      ArgumentNullException.ThrowIfNull(name);
-      Name = name;
-      Value = value;
-    }
+    ArgumentNullException.ThrowIfNull(name);
+    Name = name;
+    Value = value;
+    Data = data;
   }
 }
