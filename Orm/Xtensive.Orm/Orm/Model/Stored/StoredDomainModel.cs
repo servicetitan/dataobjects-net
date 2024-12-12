@@ -62,10 +62,7 @@ namespace Xtensive.Orm.Model.Stored
           default:
             throw new NotSupportedException("Invalid data format");
         }
-        var model = Serializer.Deserialize(xml);
-
-        //!!!TODO  Uncomment following line to switch to Compressed XML serialization
-        // return model;
+        return Serializer.Deserialize(xml);
       }
       return Serializer.Deserialize(serialized);
     }
