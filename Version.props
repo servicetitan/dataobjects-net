@@ -3,7 +3,7 @@
 
 <PropertyGroup>
     <DoVersion>7.2.153</DoVersion>
-    <DoVersionSuffix>servicetitan-test-compress-stage</DoVersionSuffix>
+    <DoVersionSuffix>servicetitan-test-compress-stage2</DoVersionSuffix>
 </PropertyGroup>
 
 </Project>
