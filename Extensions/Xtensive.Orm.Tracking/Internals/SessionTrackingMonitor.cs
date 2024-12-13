@@ -38,10 +38,9 @@ namespace Xtensive.Orm.Tracking
       if (e.Transaction.IsNested)
         return;
 
-      var items = target.Items;
+      TrackingCompletedEventArgs eventArgs = new(session, target.Items);
       target.Clear();
-
-      RaiseTrackingCompleted(new TrackingCompletedEventArgs(session, items));
+      RaiseTrackingCompleted(eventArgs);
     }
 
     private void OnRollbackTransaction(object sender, TransactionEventArgs e)
