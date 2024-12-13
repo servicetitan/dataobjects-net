@@ -4,16 +4,12 @@
 // Created by: Dmitri Maximov
 // Created:    2012.05.16
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Xtensive.Core;
-
 namespace Xtensive.Orm.Tracking
 {
-  internal readonly struct TrackingStackFrame : IEnumerable<TrackingItem>
+  internal readonly struct TrackingStackFrame()
   {
     private readonly Dictionary<Key, TrackingItem> items = new();
+    public IReadOnlyCollection<TrackingItem> Items => items.Values;
 
     public int Count => items.Count;
 
@@ -34,7 +30,8 @@ namespace Xtensive.Orm.Tracking
 
     public void MergeWith(TrackingStackFrame source)
     {
-      foreach (var sourceItem in source) {
+      foreach (var sourceItem in source.Items) {
+        Register(sourceItem);
         var key = sourceItem.Key;
         if (items.TryGetValue(key, out var existing)) {
           existing.MergeWith(sourceItem);
@@ -43,14 +40,6 @@ namespace Xtensive.Orm.Tracking
           items.Add(key, sourceItem);
         }
       }
-    }
-
-    public IEnumerator<TrackingItem> GetEnumerator() => items.Values.GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public TrackingStackFrame()
-    {
     }
   }
 }

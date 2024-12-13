@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Tracking
     /// <summary>
     /// Gets the changes.
     /// </summary>
-    public IEnumerable<ITrackingItem> Changes { get; }
+    public IReadOnlyCollection<ITrackingItem> Changes { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TrackingCompletedEventArgs"/> class.
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tracking
     /// <param name="session"><see cref="T:Session"/> instance where the <see cref="Changes"/>
     /// where collected.</param>
     /// <param name="changes">The changes.</param>
-    public TrackingCompletedEventArgs(Session session, IEnumerable<ITrackingItem> changes)
+    public TrackingCompletedEventArgs(Session session, IReadOnlyCollection<ITrackingItem> changes)
     {
       ArgumentNullException.ThrowIfNull(session);
       ArgumentNullException.ThrowIfNull(changes);

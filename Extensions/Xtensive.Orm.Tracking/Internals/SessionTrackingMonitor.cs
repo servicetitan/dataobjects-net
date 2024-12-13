@@ -2,9 +2,6 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Services;
@@ -41,7 +38,7 @@ namespace Xtensive.Orm.Tracking
       if (e.Transaction.IsNested)
         return;
 
-      var items = target.Cast<ITrackingItem>().ToList().AsSafeWrapper();
+      var items = target.Items;
       target.Clear();
 
       RaiseTrackingCompleted(new TrackingCompletedEventArgs(session, items));
