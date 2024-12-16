@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Tracking
 
     public IReadOnlyList<ChangedValue> ChangedValues => cachedChangedValues ??= CalculateChangedValues();
 
-    public void MergeWith(TrackingItem source)
+    public void MergeWith(ITrackingItem source)
     {
       ArgumentNullException.ThrowIfNull(source);
 

@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Tracking.Tests
       target.MergeWith(source);
 
       Assert.AreEqual(count, target.Count);
-      Assert.AreEqual(TrackingItemState.Created, target.Single().State);
+      Assert.AreEqual(TrackingItemState.Created, target.Items.Single().State);
     }
 
     [Test]

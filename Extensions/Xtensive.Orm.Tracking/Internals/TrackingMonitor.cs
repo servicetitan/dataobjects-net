@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Xtensive.Orm.Tracking
+﻿namespace Xtensive.Orm.Tracking
 {
   internal abstract class TrackingMonitor : ITrackingMonitor
   {
@@ -24,10 +22,7 @@ namespace Xtensive.Orm.Tracking
     {
       if (disableCount > 0)
         return;
-      var handler = TrackingCompleted;
-      if (handler==null)
-        return;
-      handler.Invoke(this, e);
+      TrackingCompleted?.Invoke(this, e);
     }
   }
 }
