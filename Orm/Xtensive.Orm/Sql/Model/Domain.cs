@@ -90,13 +90,7 @@ namespace Xtensive.Sql.Model
     /// Gets the constraints.
     /// </summary>
     /// <value>The constraints.</value>
-    IList<Constraint> IConstrainable.Constraints
-    {
-      get
-      {
-        return constraints.ToArray().Convert(i => (Constraint)i);
-      }
-    }
+    IReadOnlyList<Constraint> IConstrainable.Constraints => constraints;
 
     #endregion
 
