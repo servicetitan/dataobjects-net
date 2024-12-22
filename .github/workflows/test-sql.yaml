@@ -40,7 +40,7 @@ jobs:
       - name: Build
         run: dotnet build -v q Orm.sln
       - name: Init Test DB
-        run: /opt/mssql-tools18/bin/sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests.sql && /opt/mssql-tools18/bin/sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests-Plus.sql
+        run: sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests.sql && sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests-Plus.sql
 #      - name: Create PostgreSQL DO Tests Config file
 #        run: echo default=postgresql://dotest:dotest@localhost/dotest >$DO_CONFIG_FILE
 #      - name: Xtensive.Orm.Tests.Sql with PostgreSQL
