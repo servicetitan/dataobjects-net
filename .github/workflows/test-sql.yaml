@@ -20,6 +20,11 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with: { dotnet-version: 8 }
+      - name: Setup MSSQL Tools
+        uses:  rails-sqlserver/setup-mssql@v1
+        with:
+          components: sqlcmd
+          version: 2022
       - name: Build SQL Docker image with FTS feature
         run: docker build -t sql .github/actions/mssql-fts
 #      - uses: ikalnytskyi/action-setup-postgres@v6 
