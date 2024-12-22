@@ -148,10 +148,7 @@ namespace Xtensive.Sql.Model
     /// Gets the columns.
     /// </summary>
     /// <value>The columns.</value>
-    public override IList<DataTableColumn> Columns
-    {
-      get { return TableColumns.ToArray().Convert(i => (DataTableColumn) i); }
-    }
+    public override IReadOnlyList<DataTableColumn> Columns => TableColumns;
 
     #endregion
 
