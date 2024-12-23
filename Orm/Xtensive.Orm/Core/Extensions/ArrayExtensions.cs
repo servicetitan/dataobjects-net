@@ -37,24 +37,6 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Clones <paramref name="source"/> array with element conversion.
-    /// </summary>
-    /// <typeparam name="TItem">The type of item.</typeparam>
-    /// <typeparam name="TNewItem">The type of item to convert to.</typeparam>
-    /// <param name="source">The array to convert.</param>
-    /// <param name="converter">A delegate that converts each element.</param>
-    /// <returns>An array of converted elements.</returns>
-    public static TNewItem[] Convert<TItem, TNewItem>(this TItem[] source, Converter<TItem, TNewItem> converter)
-    {
-      ArgumentNullException.ThrowIfNull(converter);
-      var items = new TNewItem[source.Length];
-      int i = 0;
-      foreach (TItem item in source)
-        items[i++] = converter(item);
-      return items;
-    }
-
-    /// <summary>
     /// Gets the index of first occurrence of the <paramref name="item"/>
     /// in the <paramref name="items"/> array, if found;
     /// otherwise returns <see langword="-1"/>.

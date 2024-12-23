@@ -15,6 +15,6 @@ namespace Xtensive.Sql.Model
     /// Gets the node constraints.
     /// </summary>
     /// <value>The constraints.</value>
-    IList<Constraint> Constraints { get; }
+    IReadOnlyList<Constraint> Constraints { get; }
   }
 }

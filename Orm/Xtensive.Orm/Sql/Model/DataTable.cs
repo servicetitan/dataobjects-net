@@ -57,7 +57,7 @@ namespace Xtensive.Sql.Model
     /// Gets the columns.
     /// </summary>
     /// <value>The columns.</value>
-    public abstract IList<DataTableColumn> Columns { get; }
+    public abstract IReadOnlyList<DataTableColumn> Columns { get; }
     
     #endregion
 
