@@ -37,6 +37,8 @@
     <DoIsIdeBuild>false</DoIsIdeBuild>
     <DoIsIdeBuild Condition="$(BuildingInsideVisualStudio) == 'true'">true</DoIsIdeBuild>
 
+    <TargetFramework>net8.0</TargetFramework>
+
     <!-- Disable "BinaryFormatter is obsolete" warnings for test projects -->
     <NoWarn>$(NoWarn);CS0618;CS0672;CS1570;CS1572;CS1573;CS1574;CS1587;CS1734;NU1901;NU1902;NU1903;NU1904;SYSLIB0050;SYSLIB0051;</NoWarn>
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
@@ -44,7 +46,6 @@
     <EnableUnsafeBinaryFormatterSerialization
       Condition="('$(TargetFramework)'=='net8.0' OR '$(TargetFramework)'=='net9.0') AND $(MSBuildProjectName.Contains('Tests')) == 'true'">true</EnableUnsafeBinaryFormatterSerialization>
      <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
 
