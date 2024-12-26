@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Tests.Core.Tuples
   public class TupleSerializationTest
   {
     [Test]
-    [Explicit]
     public void BaseTest()
     {
       var tuple = Tuple.Create(1, false);
@@ -26,7 +25,6 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     }
 
     [Test]
-    [Explicit]
     public void CombinedTest()
     {
       var t = Tuple.Create(1, false);
@@ -38,7 +36,6 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     }
 
     [Test]
-    [Explicit]
     public void SerializationWithNullValuesTest()
     {
       var t = Tuple.Create(typeof (string), typeof (int));
@@ -48,7 +45,6 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       Assert.AreEqual(t, CloneBySerialization(t));
     }
 
-    [Explicit]
     [Test]
     public void DifferentialTupleSerializationTest()
     {

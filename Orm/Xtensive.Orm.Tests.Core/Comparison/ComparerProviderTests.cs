@@ -19,7 +19,6 @@ namespace Xtensive.Orm.Tests.Core.Comparison
   public class ComparerProviderTests
   {
     [Test]
-    [Explicit]
     public void SerializationTest()
     {
       SerializationTest<int[]>();

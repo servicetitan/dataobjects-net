@@ -18,7 +18,6 @@ using System.Collections.Generic;
 
 namespace Xtensive.Orm.Tests.Core.Linq
 {
-  [Explicit]
   [TestFixture]
   public class SerializableExpressionsTest : ExpressionTestBase
   {
