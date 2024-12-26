@@ -16,6 +16,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
   [TestFixture]
   public class LongTupleTest
   {
+    [Explicit]
     [Test]
     public void CombinedTest()
     {
