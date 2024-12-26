@@ -23,8 +23,8 @@ namespace Xtensive.Orm.Model
     private ColumnAttributes attributes;
     private Type   valueType;
     private int?   length;
-    private int?   scale;
-    private int?   precision;
+    private sbyte?   scale;
+    private sbyte?   precision;
     private object defaultValue;
     private string defaultSqlExpression;
     private FieldInfo field;
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets the scale of the column.
     /// </summary>
-    public int? Scale {
+    public sbyte? Scale {
       [DebuggerStepThrough]
       get { return scale; }
     }
@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets the precision of the column.
     /// </summary>
-    public int? Precision {
+    public sbyte? Precision {
       [DebuggerStepThrough]
       get { return precision; }
     }

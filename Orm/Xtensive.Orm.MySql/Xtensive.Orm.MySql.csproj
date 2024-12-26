@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
@@ -41,6 +41,7 @@
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" />
     <PackageReference Include="MySql.Data" />
+    <PackageReference Include="System.Xml.XPath.XmlDocument" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Sql.Drivers.MySql\Resources\Strings.Designer.cs">

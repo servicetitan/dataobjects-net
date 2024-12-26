@@ -37,6 +37,8 @@
     <DoIsIdeBuild>false</DoIsIdeBuild>
     <DoIsIdeBuild Condition="$(BuildingInsideVisualStudio) == 'true'">true</DoIsIdeBuild>
 
+    <TargetFramework>net8.0</TargetFramework>
+
     <!-- Disable "BinaryFormatter is obsolete" warnings for test projects -->
     <NoWarn>$(NoWarn);CS0618;CS0672;CS1570;CS1572;CS1573;CS1574;CS1587;CS1734;NU1901;NU1902;NU1903;NU1904;SYSLIB0050;SYSLIB0051;</NoWarn>
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
@@ -46,23 +48,6 @@
      <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
-  <!-- Debug-NET8, Release-NET8 are mostly for development convenience -->
-  <PropertyGroup Condition = "$(Configuration.Contains('NET8')) == 'true'">
-    <!-- hard binding to net8, no property and env variable allowed-->
-    <TargetFrameworks>net8.0</TargetFrameworks>
-  </PropertyGroup>
-
-  <!-- Debug-NET7, Release-NET7 are mostly for development convenience -->
-  <PropertyGroup Condition = "$(Configuration.Contains('NET7')) == 'true'">
-    <!-- hard binding to net7, no property and env variable allowed-->
-    <TargetFrameworks>net7.0</TargetFrameworks>
-  </PropertyGroup>
-
-  <!-- Debug-NET6, Release-NET6 are mostly for development convenience -->
-  <PropertyGroup Condition = "$(Configuration.Contains('NET6')) == 'true'">
-    <!-- hard binding to net6, no property and env variable allowed -->
-    <TargetFrameworks>net6.0</TargetFrameworks>
-  </PropertyGroup>
 
   <!--Release and Debug are for final builds, builds on build server, etc. Target frameworks are configurable here -->
   <PropertyGroup Label="Defaults"

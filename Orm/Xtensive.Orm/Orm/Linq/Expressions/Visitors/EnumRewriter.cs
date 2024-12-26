@@ -11,6 +11,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
   internal sealed class EnumRewriter : ExpressionVisitor
   {
+    private readonly static System.Collections.Concurrent.ConcurrentDictionary<Type, Delegate> NullableValueCreators = new();
     private static readonly EnumRewriter Instance = new EnumRewriter();
 
     public static Expression Rewrite(Expression target) => Instance.Visit(target);
@@ -40,13 +41,34 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     {
       if (c.Type.StripNullable().IsEnum) {
         var underlyingType = Enum.GetUnderlyingType(c.Type.StripNullable());
-        if (c.Type.IsNullable())
-          underlyingType = WellKnownTypes.NullableOfT.CachedMakeGenericType(underlyingType);
-        var underlyingTypeValue = Convert.ChangeType(c.Value, underlyingType);
+
+        object underlyingTypeValue;
+        if (c.Type.IsNullable()) {
+          underlyingTypeValue = (c.Value is null)
+            ? null
+            : CreateNullableUnderlyingValue(c.Value, underlyingType);
+        }
+        else {
+          underlyingTypeValue = Convert.ChangeType(c.Value, underlyingType);
+        }
         var constantExpression = Expression.Constant(underlyingTypeValue);
         return Expression.Convert(constantExpression, c.Type);
       }
       return c;
+    }
+
+    private static object CreateNullableUnderlyingValue(object value, Type underlyingType)
+    {
+      var instanceCreator = NullableValueCreators.GetOrAdd(underlyingType, (t) => {
+        var parameter = Expression.Parameter(underlyingType);
+        var type = WellKnownTypes.NullableOfT.MakeGenericType(underlyingType);
+        var ctor = type.GetConstructors()[0];
+        var body = Expression.New(ctor, parameter);
+        var instanceCreatorLambda = Expression.Lambda(body, parameter);
+        return instanceCreatorLambda.Compile();
+      });
+
+      return instanceCreator.DynamicInvoke(value);
     }
 
     private EnumRewriter()
