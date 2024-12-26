@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
-        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
       }
     }
 
@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.IntFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
-        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.IntFactor));
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.IntFactor));
       }
     }
 
@@ -243,7 +243,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
-        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
       }
     }
 
@@ -270,7 +270,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.LongFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
-        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.LongFactor));
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.LongFactor));
       }
     }
 
@@ -385,7 +385,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
-        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
       }
     }
 
@@ -412,7 +412,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.DoubleFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
-        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.DoubleFactor));
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.DoubleFactor));
       }
     }
 
@@ -527,7 +527,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
-        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
       }
     }
 
@@ -554,7 +554,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.FloatFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
-        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.FloatFactor));
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.FloatFactor));
       }
     }
 
@@ -669,7 +669,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
-        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
       }
     }
 
@@ -696,7 +696,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.DecimalFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
-        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.DecimalFactor));
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.DecimalFactor));
       }
     }
 
@@ -868,7 +868,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().Take(0);
-        Assert.ThrowsAsync<InvalidOperationException>(() => query.FirstAsync());
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.FirstAsync());
       }
     }
 
@@ -889,7 +889,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>();
-        Assert.ThrowsAsync<InvalidOperationException>(() => query.FirstAsync(teacher => teacher.Id < 0));
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.FirstAsync(teacher => teacher.Id < 0));
       }
     }
 
@@ -958,7 +958,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().Take(0);
-        Assert.ThrowsAsync<InvalidOperationException>(() => query.LastAsync());
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.LastAsync());
       }
     }
 
@@ -980,7 +980,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>();
-        Assert.ThrowsAsync<InvalidOperationException>(() => query.LastAsync(teacher => teacher.Id < 0));
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.LastAsync(teacher => teacher.Id < 0));
       }
     }
 
@@ -1133,7 +1133,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Select(stat => stat.IntFactor);
         var elements = query.ToList();
         Assert.AreEqual(0, elements.Count);
-        Assert.ThrowsAsync<InvalidOperationException>(() => query.MaxAsync());
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.MaxAsync());
       }
     }
 
@@ -1205,8 +1205,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>().Where(stat => stat.Id < 0);
         var elements = query.ToList();
         Assert.AreEqual(0, elements.Count);
-        Assert.Throws<InvalidOperationException>(() => _ = elements.Max(stat => stat.IntFactor));
-        Assert.ThrowsAsync<InvalidOperationException>(() => query.MaxAsync(stat => stat.IntFactor));
+        _ = Assert.Throws<InvalidOperationException>(() => _ = elements.Max(stat => stat.IntFactor));
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.MaxAsync(stat => stat.IntFactor));
       }
     }
 
@@ -1280,7 +1280,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Select(stat => stat.IntFactor);
         var elements = query.ToList();
         Assert.AreEqual(0, elements.Count);
-        Assert.ThrowsAsync<InvalidOperationException>(() => query.MinAsync());
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.MinAsync());
       }
     }
 
@@ -1352,8 +1352,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>().Where(stat => stat.Id < 0);
         var elements = query.ToList();
         Assert.AreEqual(0, elements.Count);
-        Assert.Throws<InvalidOperationException>(() => _ = elements.Min(stat => stat.IntFactor));
-        Assert.ThrowsAsync<InvalidOperationException>(() => query.MinAsync(stat => stat.IntFactor));
+        _ = Assert.Throws<InvalidOperationException>(() => _ = elements.Min(stat => stat.IntFactor));
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.MinAsync(stat => stat.IntFactor));
       }
     }
 
@@ -1389,7 +1389,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().Take(0);
-        Assert.ThrowsAsync<InvalidOperationException>(() => query.SingleAsync());
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.SingleAsync());
       }
     }
 
@@ -1399,7 +1399,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>();
-        Assert.ThrowsAsync<InvalidOperationException>(() => query.SingleAsync());
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.SingleAsync());
       }
     }
 
@@ -1420,7 +1420,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>();
-        Assert.ThrowsAsync<InvalidOperationException>(() => query.SingleAsync(teacher => teacher.Id < 0));
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.SingleAsync(teacher => teacher.Id < 0));
       }
     }
 
@@ -1430,7 +1430,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>();
-        Assert.ThrowsAsync<InvalidOperationException>(() => query.SingleAsync(teacher => teacher.Gender==Gender.Male));
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.SingleAsync(teacher => teacher.Gender==Gender.Male));
       }
     }
 
@@ -1463,7 +1463,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>();
-        Assert.ThrowsAsync<InvalidOperationException>(() => query.SingleOrDefaultAsync());
+        _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.SingleOrDefaultAsync());
       }
     }
 
@@ -1494,7 +1494,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>();
-        Assert.ThrowsAsync<InvalidOperationException>(
+        _ = Assert.ThrowsAsync<InvalidOperationException>(
           () => query.SingleOrDefaultAsync(teacher => teacher.Gender==Gender.Male));
       }
     }
@@ -2220,6 +2220,20 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var allTeachers = query.ToList();
         var allTeachersAsync = await query.ToListAsync();
         Assert.IsTrue(allTeachers.SequenceEqual(allTeachersAsync));
+
+        var firstTeacher = allTeachers[0];
+        var disceplines = firstTeacher.Disciplines.Where(d => d.Discepline != null).ToList();
+        var disceplinesAsync = await firstTeacher.Disciplines.Where(d => d.Discepline != null).ToListAsync();
+        Assert.That(disceplines.Count, Is.GreaterThan(0));
+        Assert.That(disceplinesAsync.Count, Is.EqualTo(disceplines.Count));
+        Assert.That(disceplines.Except(disceplinesAsync), Is.Empty);
+
+        var secondTeacher = allTeachers[1];
+        disceplines = secondTeacher.Disciplines.ToList();
+        disceplinesAsync = await secondTeacher.Disciplines.ToListAsync();
+        Assert.That(disceplines.Count, Is.GreaterThan(0));
+        Assert.That(disceplinesAsync.Count, Is.EqualTo(disceplines.Count));
+        Assert.That(disceplines.Except(disceplinesAsync), Is.Empty);
       }
     }
 
@@ -2234,6 +2248,20 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var allTeachers = query.ToArray();
         var allTeachersAsync = await query.ToArrayAsync();
         Assert.IsTrue(allTeachers.SequenceEqual(allTeachersAsync));
+
+        var firstTeacher = allTeachers[0];
+        var disceplines = firstTeacher.Disciplines.Where(d => d.Discepline != null).ToArray();
+        var disceplinesAsync = await firstTeacher.Disciplines.Where(d => d.Discepline != null).ToArrayAsync();
+        Assert.That(disceplines.Length, Is.GreaterThan(0));
+        Assert.That(disceplinesAsync.Length, Is.EqualTo(disceplines.Length));
+        Assert.That(disceplines.Except(disceplinesAsync), Is.Empty);
+
+        var secondTeacher = allTeachers[1];
+        disceplines = secondTeacher.Disciplines.ToArray();
+        disceplinesAsync = await secondTeacher.Disciplines.ToArrayAsync();
+        Assert.That(disceplines.Length, Is.GreaterThan(0));
+        Assert.That(disceplinesAsync.Length, Is.EqualTo(disceplines.Length));
+        Assert.That(disceplines.Except(disceplinesAsync), Is.Empty);
       }
     }
 
@@ -2251,6 +2279,19 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         foreach (var teacherId in allTeachers.Keys) {
           Assert.AreEqual(allTeachers[teacherId], allTeachersAsync[teacherId]);
         }
+
+        var firstTeacher = allTeachers.Values.First();
+        var disceplines = firstTeacher.Disciplines.Where(d => d.Discepline != null).ToDictionary(d => d.Course.Id);
+        var disceplinesAsync = await firstTeacher.Disciplines.Where(d => d.Discepline != null).ToDictionaryAsync(d => d.Course.Id);
+        Assert.That(disceplines.Count, Is.GreaterThan(0));
+        Assert.That(disceplinesAsync.Count, Is.EqualTo(disceplines.Count));
+        Assert.That(disceplines.Except(disceplinesAsync), Is.Empty);
+
+        disceplines = firstTeacher.Disciplines.ToDictionary(d => d.Course.Id);
+        disceplinesAsync = await firstTeacher.Disciplines.ToDictionaryAsync(d => d.Course.Id);
+        Assert.That(disceplines.Count, Is.GreaterThan(0));
+        Assert.That(disceplinesAsync.Count, Is.EqualTo(disceplines.Count));
+        Assert.That(disceplines.Except(disceplinesAsync), Is.Empty);
       }
     }
 
@@ -2266,6 +2307,20 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         foreach (var teacherId in allTeachers.Keys) {
           Assert.AreEqual(allTeachers[teacherId], allTeachersAsync[teacherId]);
         }
+
+        var firstTeacher = session.Query.All<Teacher>().First();
+        var disceplines = firstTeacher.Disciplines.Where(d => d.Discepline != null).ToDictionary(d => d.Course.Id, d => d.Discepline.Id);
+        var disceplinesAsync = await firstTeacher.Disciplines.Where(d => d.Discepline != null).ToDictionaryAsync(d => d.Course.Id, d => d.Discepline.Id);
+        Assert.That(disceplines.Count, Is.GreaterThan(0));
+        Assert.That(disceplinesAsync.Count, Is.EqualTo(disceplines.Count));
+        Assert.That(disceplines.Except(disceplinesAsync), Is.Empty);
+
+
+        disceplines = firstTeacher.Disciplines.ToDictionary(d => d.Course.Id, d => d.Discepline.Id);
+        disceplinesAsync = await firstTeacher.Disciplines.ToDictionaryAsync(d => d.Course.Id, d => d.Discepline.Id);
+        Assert.That(disceplines.Count, Is.GreaterThan(0));
+        Assert.That(disceplinesAsync.Count, Is.EqualTo(disceplines.Count));
+        Assert.That(disceplines.Except(disceplinesAsync), Is.Empty);
       }
     }
 
@@ -2283,6 +2338,19 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         foreach (var teacher in allTeachers) {
           Assert.IsTrue(allTeachersAsync.Contains(teacher));
         }
+
+        var firstTeacher = session.Query.All<Teacher>().First();
+        var disceplines = firstTeacher.Disciplines.Where(d => d.Discepline != null).ToHashSet();
+        var disceplinesAsync = await firstTeacher.Disciplines.Where(d => d.Discepline != null).ToHashSetAsync();
+        Assert.That(disceplines.Count, Is.GreaterThan(0));
+        Assert.That(disceplinesAsync.Count, Is.EqualTo(disceplines.Count));
+        Assert.That(disceplines.Except(disceplinesAsync), Is.Empty);
+
+        disceplines = firstTeacher.Disciplines.ToHashSet();
+        disceplinesAsync = await firstTeacher.Disciplines.ToHashSetAsync();
+        Assert.That(disceplines.Count, Is.GreaterThan(0));
+        Assert.That(disceplinesAsync.Count, Is.EqualTo(disceplines.Count));
+        Assert.That(disceplines.Except(disceplinesAsync), Is.Empty);
       }
     }
 
@@ -2301,6 +2369,41 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           Assert.IsTrue(grouping.OrderBy(teacher => teacher.Id)
             .SequenceEqual(teachersByGenderAsync[grouping.Key].OrderBy(teacher => teacher.Id)));
         }
+
+        var firstTeacher = session.Query.All<Teacher>().First();
+        var disceplines = firstTeacher.Disciplines.Where(d => d.Discepline != null).ToLookup(d => d.Discepline.Id);
+        var disceplinesAsync = await firstTeacher.Disciplines.Where(d => d.Discepline != null).ToLookupAsync(d => d.Discepline.Id);
+        Assert.That(disceplines.Count, Is.GreaterThan(0));
+        Assert.That(disceplinesAsync.Count, Is.EqualTo(disceplines.Count));
+        var zipped = disceplines
+          .Zip(disceplinesAsync,
+            (first, second) => new {
+              FirstKey = first.Key,
+              FirstSeq = first.AsEnumerable(),
+              SecondKey = second.Key,
+              SecondSeq = second.AsEnumerable()
+            });
+        foreach (var pair in zipped) {
+          Assert.That(pair.FirstKey, Is.EqualTo(pair.SecondKey));
+          Assert.That(pair.FirstSeq.Except(pair.SecondSeq), Is.Empty);
+        }
+
+        disceplines = firstTeacher.Disciplines.ToLookup(d => d.Discepline.Id);
+        disceplinesAsync = await firstTeacher.Disciplines.ToLookupAsync(d => d.Discepline.Id);
+        Assert.That(disceplines.Count, Is.GreaterThan(0));
+        Assert.That(disceplinesAsync.Count, Is.EqualTo(disceplines.Count));
+        zipped = disceplines
+          .Zip(disceplinesAsync,
+            (first, second) => new {
+              FirstKey = first.Key,
+              FirstSeq = first.AsEnumerable(),
+              SecondKey = second.Key,
+              SecondSeq = second.AsEnumerable()
+            });
+        foreach (var pair in zipped) {
+          Assert.That(pair.FirstKey, Is.EqualTo(pair.SecondKey));
+          Assert.That(pair.FirstSeq.Except(pair.SecondSeq), Is.Empty);
+        }
       }
     }
 
@@ -2316,6 +2419,41 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         foreach (var grouping in teachersByGender) {
           Assert.IsTrue(grouping.OrderBy(teacherId => teacherId)
             .SequenceEqual(teachersByGenderAsync[grouping.Key].OrderBy(teacherId => teacherId)));
+        }
+
+        var firstTeacher = session.Query.All<Teacher>().First();
+        var disceplines = firstTeacher.Disciplines.Where(d => d.Discepline != null).ToLookup(d => d.Discepline.Id, d => d.Course.Id);
+        var disceplinesAsync = await firstTeacher.Disciplines.Where(d => d.Discepline != null).ToLookupAsync(d => d.Discepline.Id, d => d.Course.Id);
+        Assert.That(disceplines.Count, Is.GreaterThan(0));
+        Assert.That(disceplinesAsync.Count, Is.EqualTo(disceplines.Count));
+        var zipped = disceplines
+          .Zip(disceplinesAsync,
+            (first, second) => new {
+              FirstKey = first.Key,
+              FirstSeq = first.AsEnumerable(),
+              SecondKey = second.Key,
+              SecondSeq = second.AsEnumerable()
+            });
+        foreach (var pair in zipped) {
+          Assert.That(pair.FirstKey, Is.EqualTo(pair.SecondKey));
+          Assert.That(pair.FirstSeq.Except(pair.SecondSeq), Is.Empty);
+        }
+
+        disceplines = firstTeacher.Disciplines.ToLookup(d => d.Discepline.Id, d => d.Course.Id);
+        disceplinesAsync = await firstTeacher.Disciplines.ToLookupAsync(d => d.Discepline.Id, d => d.Course.Id);
+        Assert.That(disceplines.Count, Is.GreaterThan(0));
+        Assert.That(disceplinesAsync.Count, Is.EqualTo(disceplines.Count));
+        zipped = disceplines
+          .Zip(disceplinesAsync,
+            (first, second) => new {
+              FirstKey = first.Key,
+              FirstSeq = first.AsEnumerable(),
+              SecondKey = second.Key,
+              SecondSeq = second.AsEnumerable()
+            });
+        foreach (var pair in zipped) {
+          Assert.That(pair.FirstKey, Is.EqualTo(pair.SecondKey));
+          Assert.That(pair.FirstSeq.Except(pair.SecondSeq), Is.Empty);
         }
       }
     }

@@ -4,24 +4,20 @@
 // Created by: Elena Vakhtina
 // Created:    2008.09.11
 
-using System;
+namespace Xtensive.Orm.Rse;
 
-using Xtensive.Orm.Rse;
-
-namespace Xtensive.Orm.Rse
+/// <summary>
+/// Descriptor of the calculated column.
+/// </summary>
+[Serializable]
+public readonly record struct AggregateColumnDescriptor
+(
+  string Name,
+  ColNum SourceIndex,
+  AggregateType AggregateType,
+  (sbyte Precision, sbyte Scale)? DecimalParametersHint = null
+)
 {
-  /// <summary>
-  /// Descriptor of the calculated column.
-  /// </summary>
-  [Serializable]
-  public readonly record struct AggregateColumnDescriptor
-  (
-    string Name,
-    ColNum SourceIndex,
-    AggregateType AggregateType
-  )
-  {
-    /// <inheritdoc/>
-    public override string ToString() => $"{base.ToString()} = {AggregateType} on ({SourceIndex})";
-  }
+  /// <inheritdoc/>
+  public override string ToString() => $"{base.ToString()} = {AggregateType} on ({SourceIndex})";
 }

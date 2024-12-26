@@ -223,5 +223,12 @@ namespace Xtensive.Orm.Rse
     {
       return new IndexHintProvider(source, index);
     }
+
+    internal static bool CheckIfLeftJoinPrefered(this CompilableProvider provider)
+    {
+      var sourceToCheck = (provider is FilterProvider filterProvider) ? filterProvider.Source : provider;
+      return (sourceToCheck is ApplyProvider applyProvider && applyProvider.ApplyType == JoinType.LeftOuter) ||
+        (sourceToCheck is JoinProvider joinProvider && joinProvider.JoinType == JoinType.LeftOuter);
+    }
   }
 }

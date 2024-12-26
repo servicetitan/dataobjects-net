@@ -40,7 +40,10 @@ namespace Xtensive.Orm.Rse.Transformation
       var sourceLength = provider.Source.Header.Length;
       mappings[provider.Source] = Merge(mappings[provider].Where(i => i < sourceLength), provider.FilteredColumns);
       var source = VisitCompilable(provider.Source);
-      mappings[provider] = Merge(mappings[provider.Source], [provider.Header.Columns.Last().Index]);
+
+      var currentMapping = mappings[provider.Source];
+      var calulatedColumn = provider.Header.Columns.Last();
+      mappings[provider] = Merge(currentMapping, [calulatedColumn.Index]);
       if (source == provider.Source) {
         return provider;
       }
@@ -108,15 +111,19 @@ namespace Xtensive.Orm.Rse.Transformation
 
     internal protected override FilterProvider VisitFilter(FilterProvider provider)
     {
-      mappings[provider.Source] = Merge(mappings[provider], mappingsGatherer.Gather(provider.Predicate));
-      var newSourceProvider = VisitCompilable(provider.Source);
-      var colMap = mappings[provider.Source];
-      mappings[provider] = colMap;
+      var gatheredMappings = mappingsGatherer.Gather(provider.Predicate);
+      var originalMappingsOfProvider = mappings[provider];
+      var mergedMappings = Merge(originalMappingsOfProvider, gatheredMappings);
 
-      var predicate = TranslateLambda(colMap, provider.Predicate);
-      return newSourceProvider == provider.Source && predicate == provider.Predicate
+      mappings[provider.Source] = mergedMappings;
+      var newSourceProvider = VisitCompilable(provider.Source);
+      var updatedSourceMappings = mappings[provider.Source];
+      mappings[provider] = updatedSourceMappings;
+
+      var newPredicate = TranslateLambda(updatedSourceMappings, provider.Predicate);
+      return newSourceProvider == provider.Source && newPredicate == provider.Predicate
         ? provider
-        : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) predicate);
+        : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) newPredicate);
     }
 
     internal protected override JoinProvider VisitJoin(JoinProvider provider)
