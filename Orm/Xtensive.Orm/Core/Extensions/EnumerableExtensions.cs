@@ -135,23 +135,6 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Converts the elements of <paramref name="source"/> sequence
-    /// using specified <paramref name="converter"/>.
-    /// </summary>
-    /// <typeparam name="TItem">The type of item.</typeparam>
-    /// <typeparam name="TNewItem">The type of item to convert to.</typeparam>
-    /// <param name="source">The sequence to convert.</param>
-    /// <param name="converter">A delegate that converts each element.</param>
-    /// <returns>A sequence of converted elements.</returns>
-    public static IEnumerable<TNewItem> Convert<TItem, TNewItem>(this IEnumerable<TItem> source, Converter<TItem, TNewItem> converter)
-    {
-      ArgumentNullException.ThrowIfNull(source);
-      ArgumentNullException.ThrowIfNull(converter);
-      foreach (TItem item in source)
-        yield return converter(item);
-    }
-
-    /// <summary>
     /// Calculates hash code of <see cref="IEnumerable{T}"/> by XOR hash codes of it's items.
     /// </summary>
     ///<param name="items">Enumerable to calculate hash for.</param>
