@@ -213,7 +213,8 @@ namespace Xtensive.Orm.Linq
     }
 
     private static Expression BuildExpressionForFieldRecursively(FieldInfo field, Expression parameter) =>
-      Expression.Property(field.IsNested ? BuildExpressionForFieldRecursively(field.Parent, parameter) : parameter,
+      Expression.Property(
+        field.IsNested ? BuildExpressionForFieldRecursively(field.Parent, parameter) : parameter,
         field.DeclaringField.UnderlyingProperty
       );
 
