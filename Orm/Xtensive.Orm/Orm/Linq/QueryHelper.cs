@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Linq
       if (association.Multiplicity==Multiplicity.OneToMany) {
         var targetField = association.TargetType.Fields[association.Reversed.OwnerField.Name];
         var whereParameter = Expression.Parameter(elementType, "p");
-        var expression = BuildExpressionForFieldRecursivly(targetField, whereParameter);
+        var expression = BuildExpressionForFieldRecursively(targetField, whereParameter);
         var whereExpression = Expression.Equal(
           Expression.Property(
             expression,
@@ -212,14 +212,11 @@ namespace Xtensive.Orm.Linq
       return sequenceElementType != null;
     }
 
-    private static Expression BuildExpressionForFieldRecursivly(FieldInfo field, Expression parameter)
-    {
-      if (field.IsNested) {
-        var expression = BuildExpressionForFieldRecursivly(field.Parent, parameter);
-        return Expression.Property(expression, field.DeclaringField.UnderlyingProperty);
-      }
-      return Expression.Property(parameter, field.DeclaringField.UnderlyingProperty);
-    }
+    private static Expression BuildExpressionForFieldRecursively(FieldInfo field, Expression parameter) =>
+      Expression.Property(
+        field.IsNested ? BuildExpressionForFieldRecursively(field.Parent, parameter) : parameter,
+        field.DeclaringField.UnderlyingProperty
+      );
 
     private static bool IsOwnerWrapper(this Type type) =>
       (type.MetadataToken ^ OwnerWrapper<int>.GenericDef.MetadataToken) == 0
