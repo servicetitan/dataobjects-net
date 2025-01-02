@@ -477,10 +477,15 @@ namespace Xtensive.Reflection
     internal static Type MakeDelegateType(Type returnType, IEnumerable<Type> parameterTypes, int n)
     {
       ArgumentOutOfRangeException.ThrowIfGreaterThan(n, MaxNumberOfGenericDelegateParameters);
-      return returnType != WellKnownTypes.Void && returnType != null
-        ? FuncTypes[n].MakeGenericType(parameterTypes.Append(returnType).ToArray())
-        : n == 0 ? ActionTypes[0]
-        : ActionTypes[n].MakeGenericType(parameterTypes.ToArray());
+      return TypeHelper.DelegateTypeByParameterTypes.GetOrAdd((returnType, parameterTypes.ToArray(n)),
+        static t => {
+          var len = t.ParameterTypes.Length;
+          return t.ReturnType != WellKnownTypes.Void && t.ReturnType != null
+            ? FuncTypes[len].MakeGenericType(t.ParameterTypes.Append(t.ReturnType).ToArray())
+            : len == 0
+              ? ActionTypes[0]
+              : ActionTypes[len].MakeGenericType(t.ParameterTypes);
+        });
     }
 
     /// <summary>
