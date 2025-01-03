@@ -9,7 +9,7 @@ namespace Xtensive.Orm.Tracking
   internal readonly struct TrackingStackFrame()
   {
     private readonly Dictionary<Key, TrackingItem> items = new();
-    public IReadOnlyCollection<TrackingItem> Items => items.Values;
+    public IReadOnlyCollection<TrackingItem> Items => items.Values.ToArray();
 
     public int Count => items.Count;
 
