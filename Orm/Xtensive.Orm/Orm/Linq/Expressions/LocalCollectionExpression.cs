@@ -27,9 +27,9 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public IEnumerable<ColumnExpression> Columns =>
       Fields
-        .SelectMany(field => field.Value is ColumnExpression
-          ? new[] { field.Value }
-          : ((LocalCollectionExpression) field.Value).Columns.Cast<IMappedExpression>())
+        .SelectMany(fld => fld.Value is ColumnExpression
+          ? new[] { fld.Value }
+          : ((LocalCollectionExpression) fld.Value).Columns.Cast<IMappedExpression>())
         .Cast<ColumnExpression>();
 
     public override LocalCollectionExpression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)

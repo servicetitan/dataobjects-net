@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Validation
     private readonly IValidator source;
     private readonly bool isError;
     private readonly string errorMessage;
-    private readonly FieldInfo field;
+    private readonly FieldInfo fld;
     private readonly object value;
 
     /// <summary>
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Validation
 
       this.source = source;
       this.errorMessage = errorMessage;
-      this.field = field;
+      this.fld = field;
       this.value = value;
     }
   }

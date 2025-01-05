@@ -37,8 +37,6 @@
     <DoIsIdeBuild>false</DoIsIdeBuild>
     <DoIsIdeBuild Condition="$(BuildingInsideVisualStudio) == 'true'">true</DoIsIdeBuild>
 
-    <TargetFramework>net8.0</TargetFramework>
-
     <!-- Disable "BinaryFormatter is obsolete" warnings for test projects -->
     <NoWarn>$(NoWarn);CS0618;CS0672;CS1570;CS1572;CS1573;CS1574;CS1587;CS1734;NU1901;NU1902;NU1903;NU1904;SYSLIB0050;SYSLIB0051;</NoWarn>
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
@@ -55,7 +53,7 @@
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>  <!-- the property -->
     <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net8.0</TargetFrameworks> <!-- fallback to default -->
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net9.0</TargetFrameworks> <!-- fallback to default -->
   </PropertyGroup>
 
   <PropertyGroup Condition = "$(Configuration.Contains('Debug')) == 'true'">
@@ -71,7 +69,7 @@
   <PropertyGroup>
     <NoLogo>true</NoLogo>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <LangVersion>12.0</LangVersion>
+    <LangVersion>Preview</LangVersion>
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -87,7 +85,7 @@
     <ProjectAssetsFile>$(MSBuildProjectExtensionsPath)project.assets.json</ProjectAssetsFile>
     <ProjectAssetsCacheFile>$(MSBuildProjectExtensionsPath)$(TargetFramework)\$(MSBuildProjectName).assets.cache</ProjectAssetsCacheFile>
     <OrmKeyFile>$(SolutionDir)Orm\Orm.snk</OrmKeyFile>
-	<NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
   </PropertyGroup>
   <!-- Populate standard properties. -->
   <PropertyGroup>

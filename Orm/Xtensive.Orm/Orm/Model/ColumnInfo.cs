@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Model
     private sbyte?   precision;
     private object defaultValue;
     private string defaultSqlExpression;
-    private FieldInfo field;
+    private FieldInfo fld;
     private NodeCollection<IndexInfo> indexes;
     private CultureInfo cultureInfo = CultureInfo.InvariantCulture;
 
@@ -123,11 +123,11 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public FieldInfo Field {
       [DebuggerStepThrough]
-      get { return field; }
+      get { return fld; }
       [DebuggerStepThrough]
       set {
         EnsureNotLocked();
-        field = value;
+        fld = value;
       }
     }
 
@@ -227,7 +227,7 @@ namespace Xtensive.Orm.Model
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      return field.Equals(obj.field);
+      return fld.Equals(obj.fld);
     }
 
     /// <inheritdoc/>
@@ -236,7 +236,7 @@ namespace Xtensive.Orm.Model
       || obj is ColumnInfo other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode() => field.GetHashCode();
+    public override int GetHashCode() => fld.GetHashCode();
 
     #endregion
 
@@ -253,7 +253,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public ColumnInfo Clone()
     {
-      ColumnInfo clone = new ColumnInfo(field);
+      ColumnInfo clone = new ColumnInfo(fld);
       clone.Name = Name;
       clone.attributes = attributes;
       clone.valueType = valueType;
@@ -280,7 +280,7 @@ namespace Xtensive.Orm.Model
     public ColumnInfo(FieldInfo field)
     {
       indexes = NodeCollection<IndexInfo>.Empty;
-      this.field = field;
+      this.fld = field;
       IsSystem = field.IsSystem;
       IsDeclared = true;
       IsNullable = field.IsNullable;
@@ -311,7 +311,7 @@ namespace Xtensive.Orm.Model
     public ColumnInfo(FieldInfo field, Type valueType)
     {
       indexes = NodeCollection<IndexInfo>.Empty;
-      this.field = field;
+      this.fld = field;
       this.valueType = valueType;
       IsSystem = field.IsSystem;
       IsDeclared = true;
