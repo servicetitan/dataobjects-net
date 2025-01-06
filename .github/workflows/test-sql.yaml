@@ -5,7 +5,7 @@ on:
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DO_CONFIG_FILE: "/tmp/do-test.cfg"
-  DO_TargetFrameworks: net8.0;net9.0
+  DO_TargetFrameworks: net9.0
   SQL_PASSWD: dbatools.I0
 jobs:
   test-with-sql:
