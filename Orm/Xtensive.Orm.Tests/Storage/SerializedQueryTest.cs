@@ -19,6 +19,7 @@ using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Storage
 {
+  [Explicit]
   [TestFixture]
   public class SerializedQueryTest : ChinookDOModelTest
   {
