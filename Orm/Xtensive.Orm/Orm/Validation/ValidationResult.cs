@@ -8,43 +8,37 @@ namespace Xtensive.Orm.Validation
   /// </summary>
   public class ValidationResult
   {
-    private static readonly ValidationResult SuccessInstance = new ValidationResult();
+    private static readonly ValidationResult SuccessInstance = new();
 
     /// <summary>
     /// Gets successful validation result.
     /// </summary>
     public static ValidationResult Success { get { return SuccessInstance; } }
 
-    private readonly IValidator source;
-    private readonly bool isError;
-    private readonly string errorMessage;
-    private readonly FieldInfo fld;
-    private readonly object value;
-
     /// <summary>
     /// Gets validator that produced validation error.
     /// </summary>
-    public IValidator Source { get { return source; } }
+    public IValidator Source { get; }
 
     /// <summary>
     /// Gets value indicating validation status.
     /// </summary>
-    public bool IsError { get { return isError; } }
+    public bool IsError { get; }
 
     /// <summary>
     /// Gets error message.
     /// </summary>
-    public string ErrorMessage { get { return errorMessage; } }
+    public string ErrorMessage { get; }
 
     /// <summary>
     /// Gets field validated field.
     /// </summary>
-    public FieldInfo Field { get { return field; } }
+    public FieldInfo Field { get; }
 
     /// <summary>
     /// Gets validated value.
     /// </summary>
-    public object Value { get { return value; } }
+    public object Value { get; }
 
     private ValidationResult()
     {
@@ -62,12 +56,11 @@ namespace Xtensive.Orm.Validation
       ArgumentNullException.ThrowIfNull(source);
       ArgumentException.ThrowIfNullOrEmpty(errorMessage);
 
-      isError = true;
-
-      this.source = source;
-      this.errorMessage = errorMessage;
-      this.fld = field;
-      this.value = value;
+      IsError = true;
+      Source = source;
+      ErrorMessage = errorMessage;
+      Field = field;
+      Value = value;
     }
   }
 }

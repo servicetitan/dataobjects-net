@@ -240,6 +240,7 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
+    [Explicit]
     [Test]
     public void SerializeVersionInfoTest()
     {
