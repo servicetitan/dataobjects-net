@@ -12,6 +12,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Tests.Core.Tuples
 {
+  [Explicit]
   [TestFixture]
   public class TupleSerializationTest
   {

@@ -13,14 +13,14 @@ namespace Xtensive.Orm.Internals
 {
   internal abstract class FieldAccessor
   {
-    private FieldInfo field;
+    private FieldInfo fld;
 
     public FieldInfo Field {
-      get { return field; }
+      get { return fld; }
       set {
-        if (field!=null)
+        if (fld !=null)
           throw Exceptions.AlreadyInitialized("Field");
-        field = value;
+        fld = value;
       }
     }
 

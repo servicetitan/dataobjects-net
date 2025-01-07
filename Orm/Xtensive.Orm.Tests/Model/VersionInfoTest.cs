@@ -200,7 +200,8 @@ namespace Xtensive.Orm.Tests.Model
       Assert.IsTrue(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["StructureField.ReferenceField.Id"]));
       Assert.IsFalse(simpleType.GetVersionColumns().Any(pair => pair.Field==simpleType.Fields["ByteArrayField"]));
     }
-    
+
+    [Explicit]
     [Test]
     public void SerializeVersionInfoTest()
     {

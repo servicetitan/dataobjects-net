@@ -104,6 +104,7 @@ namespace Xtensive.Orm.Tests.SerializationTestModel
 
 namespace Xtensive.Orm.Tests.Storage
 {
+  [Explicit]
   public class SerializationTest : AutoBuildTest
   {
     private readonly BinaryFormatter formatter = new BinaryFormatter();

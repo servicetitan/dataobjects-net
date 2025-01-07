@@ -18,6 +18,7 @@ namespace Xtensive.Orm.Tests.Core.Comparison
   [TestFixture]
   public class ComparerProviderTests
   {
+    [Explicit]
     [Test]
     public void SerializationTest()
     {

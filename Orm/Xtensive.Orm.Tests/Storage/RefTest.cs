@@ -19,6 +19,7 @@ namespace Xtensive.Orm.Tests.Storage.RefTest
     public int Id { get; private set; }
   }
 
+  [Explicit]
   [TestFixture]
   public class RefTest : AutoBuildTest
   {

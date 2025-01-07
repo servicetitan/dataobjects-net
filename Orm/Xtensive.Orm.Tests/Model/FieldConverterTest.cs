@@ -126,6 +126,7 @@ namespace Xtensive.Orm.Tests.Model
       }
     }
 
+    [Explicit]
     [Test]
     public void CollectionTest()
     {

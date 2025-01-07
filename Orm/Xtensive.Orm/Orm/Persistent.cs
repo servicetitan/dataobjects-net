@@ -729,26 +729,12 @@ namespace Xtensive.Orm
     #region IDataErrorInfo members
 
     /// <inheritdoc/>
-    string IDataErrorInfo.this[string columnName]
-    {
-      get {
-        if (!CanBeValidated)
-          return string.Empty;
-        var result = GetValidationResult(columnName);
-        return result != null ? result.ErrorMessage : string.Empty;
-      }
-    }
+    string IDataErrorInfo.this[string columnName] =>
+      CanBeValidated ? GetValidationResult(columnName)?.ErrorMessage ?? string.Empty : string.Empty;
 
     /// <inheritdoc/>
-    string IDataErrorInfo.Error
-    {
-      get {
-        if (!CanBeValidated)
-          return string.Empty;
-        var result = GetValidationResult();
-        return result != null ? result.ErrorMessage : string.Empty;
-      }
-    }
+    string IDataErrorInfo.Error =>
+      CanBeValidated ? GetValidationResult()?.ErrorMessage ?? string.Empty : string.Empty;
 
     #endregion
 
