@@ -33,13 +33,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the permanent reference (<see cref="SqlQueryRef"/>) for <see cref="SqlSelect"/> associated with this provider.
     /// </summary>
-    public SqlTable PermanentReference {
-      get {
-        if (permanentReference is null)
-          permanentReference = SqlDml.QueryRef(Request.Statement);
-        return permanentReference;
-      }
-    }
+    public SqlTable PermanentReference => permanentReference ??= SqlDml.QueryRef(Request.Statement);
 
     /// <summary>
     /// Gets the domain handler this provider is bound to.

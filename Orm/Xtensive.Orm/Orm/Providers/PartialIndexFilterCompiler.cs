@@ -22,11 +22,10 @@ namespace Xtensive.Orm.Providers
 
       var table = SqlDml.TableRef(CreateStubTable(index.ReflectedType.MappingName, fieldsCount));
       // Translation of ColumnRefs without alias seems broken, use original name as alias.
-      var columns = filter.Fields
+      IReadOnlyList<SqlExpression> columns = filter.Fields
         .Select(field => field.Column.Name)
         .Select((name, i) => SqlDml.ColumnRef(table.Columns[i], name))
-        .Cast<SqlExpression>()
-        .ToList(fieldsCount);
+        .ToArray(fieldsCount);
 
       var processor = new ExpressionProcessor(filter.Expression, handlers, null, true, columns);
       var fragment = SqlDml.Fragment(processor.Translate());
