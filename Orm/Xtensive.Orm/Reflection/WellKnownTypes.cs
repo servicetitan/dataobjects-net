@@ -81,5 +81,7 @@ namespace Xtensive.Reflection
     public static readonly Type ObjectArray = typeof(object[]);
 
     public static readonly Type DefaultMemberAttribute = typeof(DefaultMemberAttribute);
+
+    public static readonly Type ReadOnlySpanOfT = typeof(ReadOnlySpan<>);
   }
 }

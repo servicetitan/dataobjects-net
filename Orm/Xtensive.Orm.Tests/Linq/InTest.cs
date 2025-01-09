@@ -657,5 +657,18 @@ namespace Xtensive.Orm.Tests.Linq
           select track
         ).ToList();
     }
+
+    // Related to https://github.com/DataObjects-NET/dataobjects-net/issues/402
+    [Test]
+    public void ReadOnlySpanContains_Test()
+    {
+      var result = ReadOnlySpanContains_GetCustomers(["Michelle", "Jack"]);
+      Assert.AreEqual(2, result.Count);
+      Assert.IsTrue(result.Contains("Michelle"));
+      Assert.IsTrue(result.Contains("Jack"));
+    }
+
+    private List<string> ReadOnlySpanContains_GetCustomers(string[] customerNames) =>
+      (from c in Session.Query.All<Customer>() where MemoryExtensions.Contains(customerNames, c.FirstName) select c.FirstName).ToList();
   }
 }
