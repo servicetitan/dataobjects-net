@@ -77,7 +77,9 @@ namespace Xtensive.Orm.Linq
                var expressionType => !IsEntitySet(expressionType)
                                      && !expression.IsSubqueryExpression()
                                      && expressionType != WellKnownTypes.String
-                                     && expressionType.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT)
+                                     && (expressionType.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT)
+                                        || expressionType.IsOfGenericType(WellKnownTypes.ReadOnlySpanOfT)
+                                        || expressionType.IsOfGenericType(WellKnownTypes.SpanOfT))
                                      && (IsEvaluableCollection(context, expression, expressionType) ||
                                          IsForeignQuery(expression))
              };

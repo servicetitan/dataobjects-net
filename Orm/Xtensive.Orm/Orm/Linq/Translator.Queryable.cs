@@ -1767,9 +1767,16 @@ namespace Xtensive.Orm.Linq
         string.Format(Strings.ExExpressionXIsNotASequence, expressionPart.ToString(true)));
     }
 
-    private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression sequence) =>
-      CreateLocalCollectionProjectionExpression(typeof(TItem), ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(
+    private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression sequence)
+    {
+      var type = sequence.Type;
+      if (type.IsOfGenericType(WellKnownTypes.ReadOnlySpanOfT) || type.IsOfGenericType(WellKnownTypes.SpanOfT)) {
+        sequence = Expression.Call(sequence, type.GetMethod("ToArray"));
+      }
+
+      return CreateLocalCollectionProjectionExpression(typeof(TItem), ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(
         compiledQueryScope is not null ? compiledQueryScope.QueryParameterReplacer.Replace(sequence) : sequence).CachingCompile(), this, sequence);
+    }
 
     private Expression VisitContainsAny(Expression setA, Expression setB, bool isRoot, Type elementType)
     {

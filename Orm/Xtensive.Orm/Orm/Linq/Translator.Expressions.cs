@@ -541,15 +541,20 @@ namespace Xtensive.Orm.Linq
           }
         }
 
-
         // Process local collections
-        if (mc.Object.IsLocalCollection(context)) {
-          // IList.Contains
-          // List.Contains
-          // Array.Contains
-          var parameters = method.GetParameters();
-          if (methodName == nameof(ICollection<int>.Contains) && parameters.Length == 1)
-            return VisitContains(mc.Object, mc.Arguments[0], false);
+        if (methodName == nameof(ICollection<int>.Contains)) {
+          if (mc.Object.IsLocalCollection(context)) {
+            // IList.Contains
+            // List.Contains
+            // Array.Contains
+            var parameters = method.GetParameters();
+            if (parameters.Length == 1)
+              return VisitContains(mc.Object, mc.Arguments[0], false);
+          }
+          else if (methodDeclaringType == typeof(MemoryExtensions)) {
+            // ReadOnlySpan<>.Contains
+            return VisitContains(mc.Arguments[0], mc.Arguments[1], false);
+          }
         }
 
         var result = base.VisitMethodCall(mc);
