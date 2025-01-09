@@ -188,7 +188,7 @@ namespace Xtensive.Orm.Providers
         ? leftTable.Columns
         : left.Request.Statement.Columns;
       IReadOnlyList<SqlExpression> leftExpressions = leftShouldUseReference
-        ? leftTable.Columns.Cast<SqlExpression>().ToArray()
+        ? leftTable.Columns
         : ExtractColumnExpressions(left.Request.Statement);
 
       var rightShouldUseReference = strictJoinWorkAround || ShouldUseQueryReference(provider, right);
@@ -198,8 +198,8 @@ namespace Xtensive.Orm.Providers
       IReadOnlyList<SqlColumn> rightColumns = rightShouldUseReference
         ? rightTable.Columns
         : right.Request.Statement.Columns;
-      var rightExpressions = rightShouldUseReference
-        ? rightTable.Columns.Cast<SqlExpression>().ToArray()
+      IReadOnlyList<SqlExpression> rightExpressions = rightShouldUseReference
+        ? rightTable.Columns
         : ExtractColumnExpressions(right.Request.Statement);
 
       var joinType = provider.JoinType==JoinType.LeftOuter
@@ -207,8 +207,9 @@ namespace Xtensive.Orm.Providers
         : SqlJoinType.InnerJoin;
 
       SqlExpression joinExpression = null;
-      for (int i = 0, n = provider.EqualIndexes.Count(); i < n; ++i) {
-        var (leftInder, rightIndex) = provider.EqualIndexes[i];
+      var providerEqualIndexes = provider.EqualIndexes;
+      for (int i = 0, n = providerEqualIndexes.Count; i < n; ++i) {
+        var (leftInder, rightIndex) = providerEqualIndexes[i];
         var leftExpression = leftExpressions[leftInder];
         var rightExpression = rightExpressions[rightIndex];
         joinExpression &= GetJoinExpression(leftExpression, rightExpression, provider, i);

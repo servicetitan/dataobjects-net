@@ -10,56 +10,35 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public abstract class SqlColumn : SqlExpression
   {
-    private string name;
-    private SqlTable sqlTable;
-
     /// <summary>
     /// Gets or sets the name of this instance.
     /// </summary>
     /// <value>The alias.</value>
-    public virtual string Name
-    {
-      get { return name; }
-    }
+    public virtual string Name { get; private set; }
 
     /// <summary>
     /// Gets the table reference.
     /// </summary>
     /// <value>The table reference.</value>
-    public SqlTable SqlTable
-    {
-      get { return sqlTable; }
-    }
+    public SqlTable SqlTable { get; private set; }
 
     public override void ReplaceWith(SqlExpression expression)
     {
       var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlColumn>(expression);
-      sqlTable = replacingExpression.SqlTable;
-      name = replacingExpression.Name;
+      SqlTable = replacingExpression.SqlTable;
+      Name = replacingExpression.Name;
     }
 
     internal override abstract SqlColumn Clone(SqlNodeCloneContext? context = null);
 
     // Constructor
 
-    internal SqlColumn(SqlTable sqlTable, string name) : base(SqlNodeType.Column)
+    internal SqlColumn(SqlTable sqlTable = null, string name = null) : base(SqlNodeType.Column)
     {
-      this.sqlTable = sqlTable;
-      this.name = name;
+      SqlTable = sqlTable;
+      Name = name;
     }
 
-    internal SqlColumn(string name) : base(SqlNodeType.Column)
-    {
-      this.name = name;
-    }
-
-    internal SqlColumn(SqlTable sqlTable) : base(SqlNodeType.Column)
-    {
-      this.sqlTable = sqlTable;
-    }
-
-    internal SqlColumn() : base(SqlNodeType.Column)
-    {
-    }
+    internal SqlColumn(string name) : this(null, name) { }
   }
 }

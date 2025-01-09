@@ -40,15 +40,9 @@ namespace Xtensive.Sql.Dml
       SqlColumn = sqlColumn;
     }
 
-    internal SqlColumnRef(SqlColumn sqlColumn, string name)
-      : base(null, name)
+    internal SqlColumnRef(SqlColumn sqlColumn, string name = null)
+      : this(null, sqlColumn, name)
     {
-      SqlColumn = sqlColumn;
-    }
-
-    internal SqlColumnRef(SqlColumn sqlColumn)
-    {
-      SqlColumn = sqlColumn;
     }
   }
 }
