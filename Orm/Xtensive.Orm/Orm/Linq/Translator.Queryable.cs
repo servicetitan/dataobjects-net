@@ -1770,7 +1770,7 @@ namespace Xtensive.Orm.Linq
     private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression sequence)
     {
       var type = sequence.Type;
-      if (type.IsOfGenericType(WellKnownTypes.ReadOnlySpanOfT)) {
+      if (type.IsOfGenericType(WellKnownTypes.ReadOnlySpanOfT) || type.IsOfGenericType(WellKnownTypes.SpanOfT)) {
         sequence = Expression.Call(sequence, type.GetMethod("ToArray"));
       }
 

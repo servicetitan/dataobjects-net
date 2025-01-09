@@ -78,7 +78,8 @@ namespace Xtensive.Orm.Linq
                                      && !expression.IsSubqueryExpression()
                                      && expressionType != WellKnownTypes.String
                                      && (expressionType.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT)
-                                        || expressionType.IsOfGenericType(WellKnownTypes.ReadOnlySpanOfT))
+                                        || expressionType.IsOfGenericType(WellKnownTypes.ReadOnlySpanOfT)
+                                        || expressionType.IsOfGenericType(WellKnownTypes.SpanOfT))
                                      && (IsEvaluableCollection(context, expression, expressionType) ||
                                          IsForeignQuery(expression))
              };

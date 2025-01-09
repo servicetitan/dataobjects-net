@@ -203,7 +203,7 @@ namespace Xtensive.Orm.Linq
     public static Type GetSequenceElementType(Type type)
     {
       var sequenceType = type.GetGenericInterface(WellKnownInterfaces.EnumerableOfT)
-        ?? (type.IsOfGenericType(WellKnownTypes.ReadOnlySpanOfT) ? type : null);
+        ?? (type.IsOfGenericType(WellKnownTypes.ReadOnlySpanOfT) || type.IsOfGenericType(WellKnownTypes.SpanOfT) ? type : null);
       return sequenceType?.GetGenericArguments()[0];
     }
 
