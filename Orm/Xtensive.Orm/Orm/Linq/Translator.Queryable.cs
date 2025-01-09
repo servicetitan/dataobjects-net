@@ -1771,7 +1771,7 @@ namespace Xtensive.Orm.Linq
     {
       var type = sequence.Type;
       if (type.IsOfGenericType(WellKnownTypes.ReadOnlySpanOfT)) {
-        sequence = Expression.Call(sequence, type.GetMethod(nameof(ReadOnlySpan<>.ToArray)));
+        sequence = Expression.Call(sequence, type.GetMethod("ToArray"));
       }
 
       return CreateLocalCollectionProjectionExpression(typeof(TItem), ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(
