@@ -5,6 +5,7 @@
 // Created:    2009.04.01
 
 using System;
+using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
 
@@ -23,27 +24,28 @@ namespace Xtensive.Orm.Rse.Providers
     protected override RecordSetHeader BuildHeader()
     {
       EnsureConcatIsPossible();
-      var mappedColumnIndexes = new List<ColNum>();
-      var columns = new List<Column>();
-      for (ColNum i = 0; i < Left.Header.Columns.Count; i++) {
-        var leftColumn = Left.Header.Columns[i];
-        var rightColumn = Right.Header.Columns[i];
-        if (leftColumn is MappedColumn leftMappedColumn && rightColumn is MappedColumn rightMappedColumn) {
-          if (leftMappedColumn.ColumnInfoRef.Equals(rightMappedColumn.ColumnInfoRef)) {
-            columns.Add(leftMappedColumn);
-            mappedColumnIndexes.Add(i);
-            }
-          else
-            columns.Add(new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type));
+      HashSet<ColNum> mappedColumnIndexes = [];
+      var leftHeader = Left.Header;
+      var leftHeaderColumns = leftHeader.Columns;
+      var rightHeaderColumns = Right.Header.Columns;
+      var columns = new Column[leftHeaderColumns.Count];
+      for (ColNum i = 0; i < columns.Length; i++) {
+        var leftColumn = leftHeaderColumns[i];
+        var rightColumn = rightHeaderColumns[i];
+        if (leftColumn is MappedColumn leftMappedColumn
+            && rightColumn is MappedColumn rightMappedColumn
+            && leftMappedColumn.ColumnInfoRef.Equals(rightMappedColumn.ColumnInfoRef)) {
+          columns[i] = leftMappedColumn;
+          mappedColumnIndexes.Add(i);
         }
         else
-          columns.Add(new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type));
+          columns[i] = new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type);
       }
-      var columnGroups = Left.Header.ColumnGroups.Where(cg => cg.Keys.All(mappedColumnIndexes.Contains)).ToList();
+      var columnGroups = leftHeader.ColumnGroups.Where(cg => cg.Keys.All(mappedColumnIndexes.Contains)).ToList();
 
       return new RecordSetHeader(
-        Left.Header.TupleDescriptor, 
-        columns, 
+        leftHeader.TupleDescriptor,
+        columns,
         columnGroups,
         null,
         null);
