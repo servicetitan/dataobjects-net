@@ -18,27 +18,29 @@ namespace Xtensive.Orm.Model
   /// </summary>
   [Serializable]
   [DebuggerDisplay("TypeName = {TypeName}, FieldName = {FieldName}, ColumnName = {ColumnName}, CultureInfo = {CultureInfo}")]
-  public readonly struct ColumnInfoRef: IEquatable<ColumnInfoRef>
+  public readonly struct ColumnInfoRef : IEquatable<ColumnInfoRef>
   {
+    private readonly ColumnInfo columnInfo;
+
     /// <summary>
     /// Gets type name of reflecting <see cref="TypeInfo"/>.
     /// </summary>
-    public string TypeName { get; }
+    public string TypeName => columnInfo.Field.DeclaringType.Name;
 
     /// <summary>
     /// Gets name of the <see cref="FieldInfo"/>.
     /// </summary>
-    public string FieldName { get; }
+    public string FieldName => columnInfo.Field.Name;
 
     /// <summary>
     /// Gets name of the <see cref="ColumnInfo"/>.
     /// </summary>
-    public string ColumnName { get; }
+    public string ColumnName => columnInfo.Name;
 
     /// <summary>
     /// Gets <see cref="CultureInfo"/> info of the <see cref="ColumnInfo"/>.
     /// </summary>
-    public CultureInfo CultureInfo { get; }
+    public CultureInfo CultureInfo => columnInfo.CultureInfo;
 
     /// <summary>
     /// Resolves this instance to <see cref="ColumnInfo"/> object within specified <paramref name="model"/>.
@@ -101,25 +103,7 @@ namespace Xtensive.Orm.Model
     public ColumnInfoRef(ColumnInfo columnInfo)
     {
       ArgumentNullException.ThrowIfNull(columnInfo);
-      TypeName = columnInfo.Field.DeclaringType.Name;
-      FieldName = columnInfo.Field.Name;
-      ColumnName = columnInfo.Name;
-      CultureInfo = columnInfo.CultureInfo;
-    }
-
-
-    /// <summary>
-    ///   Initializes a new instance of this struct.
-    /// </summary>
-    /// <param name="typeName">Column type name.</param>
-    /// <param name="columnName">Column name.</param>
-    /// <param name="cultureInfo">The culture info.</param>
-    public ColumnInfoRef(string typeName, string columnName, CultureInfo cultureInfo)
-    {
-      TypeName = typeName;
-      FieldName = columnName;
-      ColumnName = columnName;
-      CultureInfo = cultureInfo;
+      this.columnInfo = columnInfo;
     }
   }
 }
