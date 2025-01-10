@@ -4,75 +4,24 @@
 // Created by: Elena Vakhtina
 // Created:    2009.04.01
 
-using System;
-using System.Collections.Generic;
 using Xtensive.Collections;
 
+namespace Xtensive.Orm.Rse.Providers;
 
-using System.Linq;
-
-namespace Xtensive.Orm.Rse.Providers
+/// <summary>
+/// Produces union between <see cref="BinaryProvider.Left"/> and 
+/// <see cref="BinaryProvider.Right"/> sources.
+/// </summary>
+[Serializable]
+public sealed class UnionProvider(CompilableProvider left, CompilableProvider right)
+  : ConcatUnionBaseProvider(ProviderType.Union, left, right)
 {
-  /// <summary>
-  /// Produces union between <see cref="BinaryProvider.Left"/> and 
-  /// <see cref="BinaryProvider.Right"/> sources.
-  /// </summary>
-  [Serializable]
-  public sealed class UnionProvider : BinaryProvider
+  /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
+  protected override void EnsureOperationIsPossible()
   {
-    protected override RecordSetHeader BuildHeader()
-    {
-      EnsureUnionIsPossible();
-      var mappedColumnIndexes = new List<ColNum>();
-      var columns = new List<Column>();
-      for (ColNum i = 0; i < Left.Header.Columns.Count; i++) {
-        var leftColumn = Left.Header.Columns[i];
-        var rightColumn = Right.Header.Columns[i];
-        if (leftColumn is MappedColumn && rightColumn is MappedColumn) {
-          var leftMappedColumn = (MappedColumn) leftColumn;
-          var rightMappedColumn = (MappedColumn) rightColumn;
-          if (leftMappedColumn.ColumnInfoRef.Equals(rightMappedColumn.ColumnInfoRef)) {
-            columns.Add(leftMappedColumn);
-            mappedColumnIndexes.Add(i);
-            }
-          else
-            columns.Add(new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type));
-        }
-        else
-          columns.Add(new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type));
-      }
-      var columnGroups = Left.Header.ColumnGroups.Where(cg => cg.Keys.All(mappedColumnIndexes.Contains)).ToList();
-
-      return new RecordSetHeader(
-        Left.Header.TupleDescriptor, 
-        columns, 
-        columnGroups,
-        null,
-        null);
-    }
-
-    /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
-    private void EnsureUnionIsPossible()
-    {
-      var left = Left.Header.TupleDescriptor;
-      var right = Right.Header.TupleDescriptor;
-      if (!left.Equals(right))
-        throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Union operation"));
-    }
-
-    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitUnion(this);
-
-    // Constructors
-
-    /// <summary>
-    ///  Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="left">The left provider for union.</param>
-    /// <param name="right">The right provider for union.</param>
-    public UnionProvider(CompilableProvider left, CompilableProvider right)
-      : base(ProviderType.Union, left, right)
-    {
-      Initialize();
-    }
+    if (!Left.Header.TupleDescriptor.Equals(Right.Header.TupleDescriptor))
+      throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Union operation"));
   }
+
+  internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitUnion(this);
 }
