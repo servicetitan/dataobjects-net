@@ -17,14 +17,13 @@ namespace Xtensive.Orm.Model
   /// </summary>
   [DebuggerDisplay("{Name}; Attributes = {Attributes}")]
   [Serializable]
-  public sealed class ColumnInfo : Node, 
-    ICloneable
+  public sealed class ColumnInfo : Node, ICloneable
   {
     private ColumnAttributes attributes;
-    private Type   valueType;
-    private int?   length;
-    private sbyte?   scale;
-    private sbyte?   precision;
+    private Type valueType;
+    private int? length;
+    private sbyte? scale;
+    private sbyte? precision;
     private object defaultValue;
     private string defaultSqlExpression;
     private FieldInfo fld;
@@ -243,10 +242,7 @@ namespace Xtensive.Orm.Model
     #region ICloneable methods
 
     /// <inheritdoc/>
-    object ICloneable.Clone()
-    {
-      return Clone();
-    }
+    object ICloneable.Clone() => Clone();
 
     /// <summary>
     /// Clones this instance.

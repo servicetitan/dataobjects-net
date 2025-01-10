@@ -17,11 +17,10 @@ namespace Xtensive.Orm.Rse
   {
     private const string ToStringFormat = "{0} = {1}";
 
-    private readonly ColumnInfoRef columnInfo;
     /// <summary>
     /// Gets the reference that describes a column.
     /// </summary>
-    public ref readonly ColumnInfoRef ColumnInfoRef => ref columnInfo;
+    public ColumnInfoRef ColumnInfoRef { get; }
 
     /// <inheritdoc/>
     public override string ToString()
@@ -62,7 +61,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="columnInfoRef"><see cref="ColumnInfoRef"/> property value.</param>
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
     /// <param name="type"><see cref="Column.Type"/> property value.</param>
-    public MappedColumn(in ColumnInfoRef columnInfoRef, ColNum index, Type type)
+    public MappedColumn(ColumnInfoRef columnInfoRef, ColNum index, Type type)
       : this(columnInfoRef, columnInfoRef.ColumnName, index, type)
     {
     }
@@ -74,10 +73,10 @@ namespace Xtensive.Orm.Rse
     /// <param name="name"><see cref="Column.Name"/> property value.</param>
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
     /// <param name="type"><see cref="Column.Type"/> property value.</param>
-    public MappedColumn(in ColumnInfoRef columnInfoRef, string name, ColNum index, Type type)
+    public MappedColumn(ColumnInfoRef columnInfoRef, string name, ColNum index, Type type)
       : base(name, index, type, null)
     {
-      columnInfo = columnInfoRef;
+      ColumnInfoRef = columnInfoRef;
     }
 
     #endregion
@@ -87,13 +86,13 @@ namespace Xtensive.Orm.Rse
     private MappedColumn(MappedColumn column, string newName)
       : base(newName, column.Index, column.Type, column)
     {
-      columnInfo = column.ColumnInfoRef;
+      ColumnInfoRef = column.ColumnInfoRef;
     }
 
     private MappedColumn(MappedColumn column, ColNum newIndex)
       : base(column.Name, newIndex, column.Type, column)
     {
-      columnInfo = column.ColumnInfoRef;
+      ColumnInfoRef = column.ColumnInfoRef;
     }
 
     #endregion
