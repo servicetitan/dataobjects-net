@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Model
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator !=(in ColumnInfoRef x, in ColumnInfoRef y) => !x.Equals(y);
+    public static bool operator !=(ColumnInfoRef x, ColumnInfoRef y) => !x.Equals(y);
 
     /// <summary>
     /// Implements the operator ==.
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Model
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator ==(in ColumnInfoRef x, in ColumnInfoRef y) => x.Equals(y);
+    public static bool operator ==(ColumnInfoRef x, ColumnInfoRef y) => x.Equals(y);
 
     /// <inheritdoc/>
     public bool Equals(ColumnInfoRef other) =>

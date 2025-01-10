@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="columnInfoRef"><see cref="ColumnInfoRef"/> property value.</param>
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
     /// <param name="type"><see cref="Column.Type"/> property value.</param>
-    public MappedColumn(in ColumnInfoRef columnInfoRef, ColNum index, Type type)
+    public MappedColumn(ColumnInfoRef columnInfoRef, ColNum index, Type type)
       : this(columnInfoRef, columnInfoRef.ColumnName, index, type)
     {
     }
