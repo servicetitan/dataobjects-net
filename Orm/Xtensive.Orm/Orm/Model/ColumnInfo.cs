@@ -20,10 +20,10 @@ namespace Xtensive.Orm.Model
   public sealed class ColumnInfo : Node, ICloneable
   {
     private ColumnAttributes attributes;
-    private readonly Type valueType;
-    private readonly int? length;
-    private readonly sbyte? scale;
-    private readonly sbyte? precision;
+    private Type valueType;
+    private int? length;
+    private sbyte? scale;
+    private sbyte? precision;
     private object defaultValue;
     private string defaultSqlExpression;
     private FieldInfo fld;
@@ -247,7 +247,22 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Clones this instance.
     /// </summary>
-    public ColumnInfo Clone() => (ColumnInfo) MemberwiseClone();
+    public ColumnInfo Clone()
+    {
+      ColumnInfo clone = new ColumnInfo(fld);
+      clone.Name = Name;
+      clone.attributes = attributes;
+      clone.valueType = valueType;
+      clone.length = length;
+      clone.scale = scale;
+      clone.precision = precision;
+      clone.defaultValue = defaultValue;
+      clone.defaultSqlExpression = defaultSqlExpression;
+      clone.indexes = indexes;
+      clone.cultureInfo = cultureInfo;
+
+      return clone;
+    }
 
     #endregion
 
