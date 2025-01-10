@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Rse.Providers
         else
           columns[i] = new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type);
       }
-      var columnGroups = leftHeader.ColumnGroups.Where(cg => mappedColumnIndexes.IsSupersetOf(cg.Keys)).ToList();
+      var columnGroups = leftHeader.ColumnGroups.Where(cg => mappedColumnIndexes.IsSupersetOf(cg.Keys)).ToArray();
 
       return new RecordSetHeader(
         leftHeader.TupleDescriptor,
