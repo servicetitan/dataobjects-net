@@ -25,22 +25,22 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets type name of reflecting <see cref="TypeInfo"/>.
     /// </summary>
-    public string TypeName => columnInfo.Field.DeclaringType.Name;
+    public string TypeName => columnInfo?.Field.DeclaringType.Name;
 
     /// <summary>
     /// Gets name of the <see cref="FieldInfo"/>.
     /// </summary>
-    public string FieldName => columnInfo.Field.Name;
+    public string FieldName => columnInfo?.Field.Name;
 
     /// <summary>
     /// Gets name of the <see cref="ColumnInfo"/>.
     /// </summary>
-    public string ColumnName => columnInfo.Name;
+    public string ColumnName => columnInfo?.Name;
 
     /// <summary>
     /// Gets <see cref="CultureInfo"/> info of the <see cref="ColumnInfo"/>.
     /// </summary>
-    public CultureInfo CultureInfo => columnInfo.CultureInfo;
+    public CultureInfo CultureInfo => columnInfo?.CultureInfo;
 
     /// <summary>
     /// Resolves this instance to <see cref="ColumnInfo"/> object within specified <paramref name="model"/>.
