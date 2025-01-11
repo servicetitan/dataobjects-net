@@ -15,13 +15,9 @@ namespace Xtensive.Orm.Model
   ///An abstract base class for model node.
   /// </summary>
   [Serializable]
-  public abstract class Node
-    : LockableBase,
-      IChangeNotifier,
-      IHasExtensions
+  public abstract class Node : LockableBase, IChangeNotifier
   {
     private string name;
-    private ExtensionCollection extensions;
 
     /// <summary>
     /// Gets the name of this instance.
@@ -60,24 +56,6 @@ namespace Xtensive.Orm.Model
 
     /// <inheritdoc/>
     public event EventHandler<ChangeNotifierEventArgs> Changed;
-
-    #endregion
-
-    #region IExtensionCollection Members
-
-    public IExtensionCollection Extensions {
-      get {
-        if (extensions != null)
-          return extensions;
-
-        lock (this) {
-          if (extensions == null)
-            extensions = new ExtensionCollection();
-        }
-
-        return extensions;
-      }
-    }
 
     #endregion
 
