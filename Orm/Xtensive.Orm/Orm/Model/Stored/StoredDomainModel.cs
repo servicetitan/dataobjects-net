@@ -80,10 +80,7 @@ namespace Xtensive.Orm.Model.Stored
         brotliStream.Write(Encoding.UTF8.GetBytes(xml));
       }
 
-      //!!!TODO  Uncomment following line to switch to Compressed XML serialization
-      // return (null, ms.ToArray());
-
-      return (xml, ms.ToArray());
+      return (null, ms.ToArray());
     }
 
     /// <summary>
