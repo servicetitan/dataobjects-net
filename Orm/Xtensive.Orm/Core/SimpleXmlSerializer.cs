@@ -38,6 +38,14 @@ namespace Xtensive.Core
         return (T) serializer.Deserialize(reader);
     }
 
+    public T DeserializeFromStream(string value, Stream stream)
+    {
+      ArgumentNullException.ThrowIfNull(value, "serialized");
+
+      using var reader = new StreamReader(stream);
+      return (T) serializer.Deserialize(reader);
+    }
+
     /// <summary>
     /// Serializes value of <typeparamref name="T"/> to string.
     /// </summary>

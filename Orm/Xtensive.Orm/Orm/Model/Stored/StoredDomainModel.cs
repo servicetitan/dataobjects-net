@@ -48,21 +48,15 @@ namespace Xtensive.Orm.Model.Stored
     public static StoredDomainModel Deserialize(string serialized, byte[] data)
     {
       if (data != null) {
-        string xml;
         switch (data[0]) {
           case 0:
-            xml = Encoding.UTF8.GetString(data, 1, data.Length - 1);
-            break;
+            return Serializer.Deserialize(Encoding.UTF8.GetString(data, 1, data.Length - 1));
           case 1:
-            using (BrotliStream brotliStream = new(new MemoryStream(data, 1, data.Length - 1), CompressionMode.Decompress)) {
-              using StreamReader reader = new(brotliStream, Encoding.UTF8);
-              xml = reader.ReadToEnd();
-            }
-            break;
+            using BrotliStream brotliStream = new(new MemoryStream(data, 1, data.Length - 1), CompressionMode.Decompress);
+            return Serializer.DeserializeFromStream(brotliStream);
           default:
             throw new NotSupportedException("Invalid data format");
         }
-        return Serializer.Deserialize(xml);
       }
       return Serializer.Deserialize(serialized);
     }
