@@ -53,5 +53,14 @@ namespace Xtensive.Core
       }
       return stringWriter.ToString();
     }
+
+    public void SerializeIntoStream(T value, Stream stream)
+    {
+      ArgumentNullException.ThrowIfNull(value);
+
+      using StreamWriter stringWriter = new(stream);
+      using var xmlWriter = XmlWriter.Create(stringWriter, WriterSettings);
+      serializer.Serialize(xmlWriter, value);
+    }
   }
 }

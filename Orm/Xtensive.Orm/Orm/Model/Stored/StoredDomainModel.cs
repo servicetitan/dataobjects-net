@@ -73,13 +73,11 @@ namespace Xtensive.Orm.Model.Stored
     /// <returns>Serialized instance.</returns>
     public (string Xml, byte[] Compressed) Serialize()
     {
-      var xml = Serializer.Serialize(this);
       MemoryStream ms = new(1000);
       ms.WriteByte(1);
       using (BrotliStream brotliStream = new(ms, CompressionLevel.Optimal)) {
-        brotliStream.Write(Encoding.UTF8.GetBytes(xml));
+        Serializer.SerializeIntoStream(this, brotliStream);
       }
-
       return (null, ms.ToArray());
     }
 
