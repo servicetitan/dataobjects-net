@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Model.Stored
     public (string Xml, byte[] Compressed) Serialize()
     {
       MemoryStream ms = new(1000);
-      ms.WriteByte(1);
+      ms.WriteByte(1);      // 1 - means Brotli method
       using (BrotliStream brotliStream = new(ms, CompressionLevel.Optimal)) {
         Serializer.SerializeIntoStream(this, brotliStream);
       }
