@@ -52,8 +52,9 @@ namespace Xtensive.Orm.Model.Stored
           case 0:
             return Serializer.Deserialize(Encoding.UTF8.GetString(data, 1, data.Length - 1));
           case 1:
-            using BrotliStream brotliStream = new(new MemoryStream(data, 1, data.Length - 1), CompressionMode.Decompress);
-            return Serializer.DeserializeFromStream(brotliStream);
+            using (BrotliStream brotliStream = new(new MemoryStream(data, 1, data.Length - 1), CompressionMode.Decompress)) {
+              return Serializer.DeserializeFromStream(brotliStream);
+            }
           default:
             throw new NotSupportedException("Invalid data format");
         }

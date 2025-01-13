@@ -34,15 +34,13 @@ namespace Xtensive.Core
     {
       ArgumentNullException.ThrowIfNull(value, "serialized");
 
-      using (var reader = new StringReader(value))
-        return (T) serializer.Deserialize(reader);
+      using StringReader reader = new(value);
+      return (T) serializer.Deserialize(reader);
     }
 
-    public T DeserializeFromStream(string value, Stream stream)
+    public T DeserializeFromStream(Stream stream)
     {
-      ArgumentNullException.ThrowIfNull(value, "serialized");
-
-      using var reader = new StreamReader(stream);
+      using StreamReader reader = new(stream);
       return (T) serializer.Deserialize(reader);
     }
 
