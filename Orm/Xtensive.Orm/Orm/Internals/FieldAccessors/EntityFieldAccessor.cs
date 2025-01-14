@@ -14,7 +14,8 @@ namespace Xtensive.Orm.Internals.FieldAccessors
   {
     private FieldInfo field;
 
-    public virtual void SetFieldInfo(FieldInfo value) {
+    public override void SetFieldInfo(FieldInfo value)
+    {
       field = field is null ? value : throw Exceptions.AlreadyInitialized("Field");
       base.SetFieldInfo(value);
     }
