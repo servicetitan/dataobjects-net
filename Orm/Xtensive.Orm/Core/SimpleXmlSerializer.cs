@@ -38,11 +38,8 @@ namespace Xtensive.Core
       return (T) serializer.Deserialize(reader);
     }
 
-    public T DeserializeFromStream(Stream stream)
-    {
-      using StreamReader reader = new(stream);
-      return (T) serializer.Deserialize(reader);
-    }
+    public T DeserializeFromStream(Stream stream) =>
+      (T) serializer.Deserialize(stream);
 
     /// <summary>
     /// Serializes value of <typeparamref name="T"/> to string.
@@ -64,8 +61,7 @@ namespace Xtensive.Core
     {
       ArgumentNullException.ThrowIfNull(value);
 
-      using StreamWriter stringWriter = new(stream);
-      using var xmlWriter = XmlWriter.Create(stringWriter, WriterSettings);
+      using var xmlWriter = XmlWriter.Create(stream, WriterSettings);
       serializer.Serialize(xmlWriter, value);
     }
   }
