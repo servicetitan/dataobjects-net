@@ -4,41 +4,27 @@
 // Created by: Alex Yakunin
 // Created:    2008.11.21
 
-using System;
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Orm.Internals.FieldAccessors
+namespace Xtensive.Orm.Internals.FieldAccessors;
+
+internal class KeyFieldAccessor<T> : FieldAccessor<T>
 {
-  internal class KeyFieldAccessor<T> : FieldAccessor<T> 
+  /// <inheritdoc/>
+  public override bool AreSameValues(object oldValue, object newValue) => Equals(oldValue, newValue);
+
+  /// <inheritdoc/>
+  public override T GetValue(Persistent obj)
   {
-    private static readonly T @default = default;
+    var value = obj.Tuple.GetValue<string>(FieldIndex, out var state);
+    return !state.IsAvailable()
+      ? default
+      : (T) (object) Key.Parse(obj.Session.Domain, value);
+  }
 
-    /// <inheritdoc/>
-    public override bool AreSameValues(object oldValue, object newValue)
-    {
-      return object.Equals(oldValue, newValue);
-    }
-
-    /// <inheritdoc/>
-    public override T GetValue(Persistent obj)
-    {
-      var field = Field;
-      int fieldIndex = field.MappingInfo.Offset;
-      var tuple = obj.Tuple;
-      TupleFieldState state;
-      var value = tuple.GetValue<string>(fieldIndex, out state);
-      if (!state.IsAvailable())
-        return @default;
-      return (T) (object) Key.Parse(obj.Session.Domain, value);
-    }
-
-    /// <inheritdoc/>
-    public override void SetValue(Persistent obj, T value)
-    {
-      var field = Field;
-      var key = (Key) (object) value;
-      obj.Tuple.SetValue(field.MappingInfo.Offset, key is null ? null : key.Format());
-    }
+  /// <inheritdoc/>
+  public override void SetValue(Persistent obj, T value)
+  {
+    obj.Tuple.SetValue(FieldIndex, ((Key) (object) value)?.Format());
   }
 }
