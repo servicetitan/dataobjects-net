@@ -4,7 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.06.07
 
-using System;
+using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 
@@ -17,6 +17,14 @@ namespace Xtensive.Orm.Internals.FieldAccessors
       type.IsEnum
         ? (type.IsNullable() ? null : Enum.GetValues(type).GetValue(0))
         : default(T);
+
+    private Type columnValueType;
+
+    public override void SetFieldInfo(FieldInfo value)
+    {
+      columnValueType = value.Column.ValueType;
+      base.SetFieldInfo(value);
+    }
 
     /// <inheritdoc/>
     public override bool AreSameValues(object oldValue, object newValue)
@@ -37,7 +45,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
     public override void SetValue(Persistent obj, T value)
     {
       // Biconverter<object, T> converter = GetConverter(field.ValueType);
-      obj.Tuple.SetValue(FieldIndex, value==null ? null : Convert.ChangeType(value, type));
+      obj.Tuple.SetValue(FieldIndex, value==null ? null : Convert.ChangeType(value, columnValueType));
     }
   }
 }
