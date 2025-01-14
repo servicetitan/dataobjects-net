@@ -316,7 +316,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       return !translated && newSourceProvider == providerSource && descriptors.Count == provider.CalculatedColumns.Length
         ? provider
-        : new CalculateProvider(newSourceProvider, descriptors);
+        : newSourceProvider.Calculate(descriptors);
     }
 
     internal protected override RowNumberProvider VisitRowNumber(RowNumberProvider provider)
