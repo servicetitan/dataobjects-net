@@ -771,9 +771,11 @@ namespace Xtensive.Orm.Linq
       MethodCallExpression expressionPart)
     {
       var aggregateType = ExtractAggregateType(expressionPart);
+      
       var origin = VisitAggregateSource(source, argument, aggregateType, expressionPart);
       var originProjection = origin.Item1;
       var originColumnIndex = origin.Item2;
+
       var aggregateDescriptor = new AggregateColumnDescriptor(
         context.GetNextColumnAlias(), originColumnIndex, aggregateType);
       var originDataSource = originProjection.ItemProjector.DataSource;
@@ -895,7 +897,7 @@ namespace Xtensive.Orm.Linq
             aggregateDescriptor.AggregateType);
         }
 
-        return source.Calculate(true, calculatedColumns);
+        return source.Calculate(true, calculatedColumns.ToArray());
       }
 
       // No provider matches our criteria -> don't fold aggregate providers.
