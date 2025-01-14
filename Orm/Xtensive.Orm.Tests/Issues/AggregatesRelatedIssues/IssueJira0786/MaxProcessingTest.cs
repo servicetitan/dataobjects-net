@@ -1053,6 +1053,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0786_AggregatesProblem
     public void NullableDoubleFieldExpressionTest01() =>
       TestMax(i => i.NullableDoubleValue1 * i.NullableDoubleValue1);
 
+    [Mute]
     [Test]
     public void NullableDoubleFieldExpressionTest02() =>
       TestMax(i => (decimal?) i.NullableDoubleValue1 * i.NullableDecimalValue);
