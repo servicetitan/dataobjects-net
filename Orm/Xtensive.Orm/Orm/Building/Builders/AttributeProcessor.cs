@@ -69,6 +69,7 @@ namespace Xtensive.Orm.Building.Builders
       }
       else {
         // Adding default stubs for not yet processed key fields
+        hierarchyDefKeyFields.EnsureCapacity(attribute.Position + 1);
         while (hierarchyDefKeyFields.Count < attribute.Position) {
           hierarchyDefKeyFields.Add(default);
         }
