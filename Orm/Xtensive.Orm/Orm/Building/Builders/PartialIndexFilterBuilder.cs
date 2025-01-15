@@ -49,7 +49,8 @@ namespace Xtensive.Orm.Building.Builders
 
     protected override Expression VisitBinary(BinaryExpression b)
     {
-      if (EnumRewritableOperations(b)) {
+      var nodeType = b.NodeType;
+      if (EnumRewritableOperations(nodeType)) {
         var leftNoCasts = b.Left.StripCasts();
         var leftNoCastsType = leftNoCasts.Type;
         var bareLeftType = leftNoCastsType.StripNullable();
@@ -63,7 +64,7 @@ namespace Xtensive.Orm.Building.Builders
             : leftNoCastsType.GetEnumUnderlyingType();
 
           return base.VisitBinary(Expression.MakeBinary(
-            b.NodeType,
+            nodeType,
             Expression.Convert(leftNoCasts, typeToCast),
             Expression.Convert(b.Right, typeToCast)));
         }
@@ -73,7 +74,7 @@ namespace Xtensive.Orm.Building.Builders
             : rightNoCastsType.GetEnumUnderlyingType();
 
           return base.VisitBinary(Expression.MakeBinary(
-            b.NodeType,
+            nodeType,
             Expression.Convert(rightNoCasts, typeToCast),
             Expression.Convert(b.Left, typeToCast)));
         }
@@ -81,23 +82,22 @@ namespace Xtensive.Orm.Building.Builders
 
       // Detect f!=null and f==null for entity fields
 
-      if (!(b.NodeType is ExpressionType.Equal or ExpressionType.NotEqual))
-        return base.VisitBinary(b);
+      if (nodeType is ExpressionType.Equal or ExpressionType.NotEqual) {
+        var left = Visit(b.Left);
+        var right = Visit(b.Right);
 
-      var left = Visit(b.Left);
-      var right = Visit(b.Right);
-
-      if (entityAccessMap.TryGetValue(left, out var field) && IsNull(right))
-        return BuildEntityCheck(field, b.NodeType);
-      if (entityAccessMap.TryGetValue(right, out field) && IsNull(left))
-        return BuildEntityCheck(field, b.NodeType);
-      if (entityAccessMap.TryGetValue(left, out var _) && entityAccessMap.TryGetValue(right, out var _))
-        throw UnableToTranslate(b, Strings.ComparisonOfTwoEntityFieldsIsNotSupported);
-
+        bool hasLeftField, hasRightField;
+        if ((hasLeftField = entityAccessMap.TryGetValue(left, out var field)) && IsNull(right)
+          || (hasRightField = entityAccessMap.TryGetValue(right, out field) && IsNull(left))) {
+          return BuildEntityCheck(field, b.NodeType);
+        }
+        if (hasLeftField && hasRightField)
+          throw UnableToTranslate(b, Strings.ComparisonOfTwoEntityFieldsIsNotSupported);
+      }
       return base.VisitBinary(b);
 
-      static bool EnumRewritableOperations(BinaryExpression b) =>
-        b.NodeType is ExpressionType.Equal or ExpressionType.NotEqual or ExpressionType.GreaterThan or ExpressionType.GreaterThanOrEqual
+      static bool EnumRewritableOperations(ExpressionType nodeType) =>
+        nodeType is ExpressionType.Equal or ExpressionType.NotEqual or ExpressionType.GreaterThan or ExpressionType.GreaterThanOrEqual
           or ExpressionType.LessThan or ExpressionType.LessThanOrEqual;
     }
 
