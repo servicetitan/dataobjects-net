@@ -1133,7 +1133,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name })
-          .All(el => el.Name.IsNullOrEmpty());
+          .All(el => string.IsNullOrEmpty(el.Name));
       }
     }
 
@@ -1144,7 +1144,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
-          .All(el => el.Name.IsNullOrEmpty());
+          .All(el => string.IsNullOrEmpty(el.Name));
       }
     }
 
@@ -1155,7 +1155,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
-          .All(el => el.Name.IsNullOrEmpty());
+          .All(el => string.IsNullOrEmpty(el.Name));
       }
     }
 
@@ -1166,7 +1166,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         _ = Assert.Throws<QueryTranslationException>(() => session.Query.All<TestEntity>()
           .Select(e => new Poco { BaseName = e.Name })
-          .All(el => el.Name.IsNullOrEmpty()));
+          .All(el => string.IsNullOrEmpty(el.Name)));
       }
     }
 
@@ -1177,7 +1177,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         _ = session.Query.All<TestEntity>()
           .Select(e => new Poco())
-          .All(el => el.Name.IsNullOrEmpty());
+          .All(el => string.IsNullOrEmpty(el.Name));
       }
     }
 
@@ -1189,7 +1189,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name })
-          .Any(el => el.Name.IsNullOrEmpty());
+          .Any(el => string.IsNullOrEmpty(el.Name));
       }
     }
 
@@ -1200,7 +1200,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
-          .Any(el => el.Name.IsNullOrEmpty());
+          .Any(el => string.IsNullOrEmpty(el.Name));
       }
     }
 
@@ -1211,7 +1211,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
-          .Any(el => el.BaseName.IsNullOrEmpty());
+          .Any(el => string.IsNullOrEmpty(el.BaseName));
       }
     }
 
@@ -1222,7 +1222,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { BaseName = e.Name })
-          .Any(el => el.BaseName.IsNullOrEmpty());
+          .Any(el => string.IsNullOrEmpty(el.BaseName));
       }
     }
 
@@ -1233,7 +1233,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         _ = session.Query.All<TestEntity>()
           .Select(e => new Poco())
-          .Any(el => el.Name.IsNullOrEmpty());
+          .Any(el => string.IsNullOrEmpty(el.Name));
       }
     }
 
