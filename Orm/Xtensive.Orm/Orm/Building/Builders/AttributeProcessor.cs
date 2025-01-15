@@ -4,10 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2007.09.25
 
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Internals;
@@ -375,7 +374,7 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private void ProcessKeyFields(string[] source, IDictionary<string, Direction> target)
+    private void ProcessKeyFields(string[] source, DirectionCollection<string> target)
     {
       if (source == null || source.Length == 0) {
         throw new DomainBuilderException(
