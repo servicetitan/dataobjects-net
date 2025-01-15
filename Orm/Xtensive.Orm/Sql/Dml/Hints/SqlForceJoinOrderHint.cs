@@ -15,7 +15,7 @@ namespace Xtensive.Sql.Dml
     /// <summary>
     /// Gets the corresponding tables.
     /// </summary>
-    public IReadOnlyList<SqlTable> Tables {  get; }
+    public IReadOnlyList<SqlTable> Tables { get; }
 
     internal override SqlForceJoinOrderHint Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) =>
