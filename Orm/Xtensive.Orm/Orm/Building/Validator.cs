@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Building
     private readonly Regex TypeNamingRule = new(@"^[\w][\w\-\.\(\),]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
     private readonly Regex FieldNamingRule = new(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    private readonly FrozenSet<Type> validFieldTypes = [..validFieldTypes, WellKnownOrmTypes.Key];
+    private readonly FrozenSet<Type> validFieldTypes = FrozenSet.ToFrozenSet([..validFieldTypes, WellKnownOrmTypes.Key]);
 
     /// <summary>
     /// Determines whether the specified name is valid.
