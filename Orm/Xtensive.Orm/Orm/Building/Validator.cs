@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.09.12
 
+using System.Collections.Frozen;
 using System.Text.RegularExpressions;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Internals;
@@ -18,7 +19,7 @@ namespace Xtensive.Orm.Building
     private readonly Regex TypeNamingRule = new(@"^[\w][\w\-\.\(\),]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
     private readonly Regex FieldNamingRule = new(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    private readonly HashSet<Type> validFieldTypes = new(validFieldTypes) { WellKnownOrmTypes.Key };
+    private readonly FrozenSet<Type> validFieldTypes = [..validFieldTypes, WellKnownOrmTypes.Key];
 
     /// <summary>
     /// Determines whether the specified name is valid.
