@@ -4,9 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.12.11
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals
@@ -16,7 +13,7 @@ namespace Xtensive.Orm.Internals
     public void Dispose() => roots?.Remove(state);
   }
 
-  internal sealed class Pinner : SessionBound
+  internal struct Pinner(Session session)
   {
     private readonly HashSet<EntityState> roots = new();
 
@@ -38,8 +35,8 @@ namespace Xtensive.Orm.Internals
       activeRegistry = registry;
       PinAll();
 
-      PinnedItems = new EntityChangeRegistry(Session);
-      PersistableItems = new EntityChangeRegistry(Session);
+      PinnedItems = new EntityChangeRegistry(session);
+      PersistableItems = new EntityChangeRegistry(session);
       
       ProcessRegistry(PersistenceState.New);
       ProcessRegistry(PersistenceState.Modified);
@@ -130,18 +127,5 @@ namespace Xtensive.Orm.Internals
     }
 
     #endregion
-
-    
-    // Constructors
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="session"><see cref="Session"/>, to which current instance 
-    /// is bound.</param>
-    public Pinner(Session session)
-      : base(session)
-    {
-    }
   }
 }
