@@ -4,8 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2007.09.12
 
-using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Internals;
@@ -14,12 +12,13 @@ using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
 
 namespace Xtensive.Orm.Building
 {
-  internal class Validator
+  internal class Validator(IEnumerable<Type> validFieldTypes)
   {
-    private readonly HashSet<Type> validFieldTypes;
-    private readonly Regex columnNamingRule;
-    private readonly Regex typeNamingRule;
-    private readonly Regex fieldNamingRule;
+    private static readonly Regex ColumnNamingRule = new(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    private readonly Regex TypeNamingRule = new(@"^[\w][\w\-\.\(\),]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    private readonly Regex FieldNamingRule = new(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private readonly HashSet<Type> validFieldTypes = new(validFieldTypes) { WellKnownOrmTypes.Key };
 
     /// <summary>
     /// Determines whether the specified name is valid.
@@ -41,13 +40,13 @@ namespace Xtensive.Orm.Building
         case ValidationRule.Type:
         case ValidationRule.Schema:
         case ValidationRule.Database:
-          namingRule = typeNamingRule;
+          namingRule = TypeNamingRule;
           break;
         case ValidationRule.Field:
-          namingRule = fieldNamingRule;
+          namingRule = FieldNamingRule;
           break;
         case ValidationRule.Column:
-          namingRule = columnNamingRule;
+          namingRule = ColumnNamingRule;
           break;
         default:
           throw new ArgumentOutOfRangeException();
@@ -257,17 +256,6 @@ namespace Xtensive.Orm.Building
       }
     }
 
-    // Type initializer
-
-    public Validator(IEnumerable<Type> validFieldTypes)
-    {
-      columnNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-      typeNamingRule = new Regex(@"^[\w][\w\-\.\(\),]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-      fieldNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
-      this.validFieldTypes = new HashSet<Type>(validFieldTypes) {WellKnownOrmTypes.Key};
-    }
-
     public void ValidateHierarchyEquality(TypeDef @interface, HierarchyDef first, HierarchyDef second)
     {
       // TypeId mode must match
@@ -277,17 +265,20 @@ namespace Xtensive.Orm.Building
           @interface.Name, first.Root.Name, second.Root.Name));
       }
 
+      var firstKeyFields = first.KeyFields;
+      var secondKeyFields = second.KeyFields;
+
       // Number of key fields must match
-      if (first.KeyFields.Count != second.KeyFields.Count) {
+      if (firstKeyFields.Count != secondKeyFields.Count) {
         throw new DomainBuilderException(string.Format(
           Strings.ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ,
           @interface.Name, first.Root.Name, second.Root.Name));
       }
 
       // Type of each key field must match
-      for (var i = 0; i < first.KeyFields.Count; i++) {
-        var masterField = first.Root.Fields[first.KeyFields[i].Name];
-        var candidateField = second.Root.Fields[second.KeyFields[i].Name];
+      for (var i = 0; i < firstKeyFields.Count; i++) {
+        var masterField = first.Root.Fields[firstKeyFields[i].Name];
+        var candidateField = second.Root.Fields[secondKeyFields[i].Name];
         if (masterField.ValueType != candidateField.ValueType) {
           throw new DomainBuilderException(string.Format(
             Strings.ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ,

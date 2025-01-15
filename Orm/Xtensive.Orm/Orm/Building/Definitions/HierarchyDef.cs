@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets the fields that are included in the key for this hierarchy.
     /// </summary>
-    public List<KeyField> KeyFields { get; private set; }
+    public List<KeyField> KeyFields { get; } = new(WellKnown.MaxKeyFieldNumber);
 
     /// <summary>
     /// Gets the <see cref="InheritanceSchema"/> for this hierarchy.
@@ -58,7 +58,6 @@ namespace Xtensive.Orm.Building.Definitions
     internal HierarchyDef(TypeDef root)
     {
       Root = root;
-      KeyFields = new List<KeyField>(WellKnown.MaxKeyFieldNumber);
       IsClustered = true;
       KeyGeneratorKind = KeyGeneratorKind.Default;
     }

@@ -180,7 +180,7 @@ namespace Xtensive.Orm.Building
 
       var hierarchyDef = context.ModelDef.FindHierarchy(hierarchyRoot);
 
-      foreach (KeyField pair in hierarchyDef.KeyFields)
+      foreach (var pair in hierarchyDef.KeyFields)
         generatedIndex.KeyFields.Add(pair.Name, pair.Direction);
 
       // Check if user added secondary index equal to auto-generated primary index

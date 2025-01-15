@@ -56,24 +56,25 @@ namespace Xtensive.Orm.Building.Builders
         "attribute.Position");
 
       var keyField = new KeyField(fieldDef.Name, attribute.Direction);
+      var hierarchyDefKeyFields = hierarchyDef.KeyFields;
 
-      if (hierarchyDef.KeyFields.Count > attribute.Position) {
-        var current = hierarchyDef.KeyFields[attribute.Position];
-        if (current != null) {
+      if (hierarchyDefKeyFields.Count > attribute.Position) {
+        var current = hierarchyDefKeyFields[attribute.Position];
+        if (current != default) {
           throw new DomainBuilderException(string.Format(Strings.ExKeyFieldsXAndXHaveTheSamePositionX, current.Name,
             fieldDef.Name, attribute.Position));
         }
 
-        hierarchyDef.KeyFields[attribute.Position] = keyField;
+        hierarchyDefKeyFields[attribute.Position] = keyField;
       }
       else {
-        // Adding null stubs for not yet processed key fields
-        while (hierarchyDef.KeyFields.Count < attribute.Position) {
-          hierarchyDef.KeyFields.Add(null);
+        // Adding default stubs for not yet processed key fields
+        while (hierarchyDefKeyFields.Count < attribute.Position) {
+          hierarchyDefKeyFields.Add(default);
         }
 
         // Finally adding target key field at the specified position
-        hierarchyDef.KeyFields.Add(keyField);
+        hierarchyDefKeyFields.Add(keyField);
       }
     }
 
