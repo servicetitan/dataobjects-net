@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Building.Builders
         bool hasLeftField, hasRightField;
         if ((hasLeftField = entityAccessMap.TryGetValue(left, out var field)) && IsNull(right)
           || (hasRightField = entityAccessMap.TryGetValue(right, out field)) && IsNull(left)) {
-          return BuildEntityCheck(field, b.NodeType);
+          return BuildEntityCheck(field, nodeType);
         }
         if (hasLeftField && hasRightField)
           throw UnableToTranslate(b, Strings.ComparisonOfTwoEntityFieldsIsNotSupported);
