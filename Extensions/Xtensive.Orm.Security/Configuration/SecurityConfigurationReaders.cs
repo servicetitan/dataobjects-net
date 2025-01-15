@@ -68,11 +68,11 @@ namespace Xtensive.Orm.Security.Configuration
       }
       if ((hashingServiceName ?? authenticationServiceName) != null) {
         var securityConfiguration = new SecurityConfiguration(true);
-        if (!hashingServiceName.IsNullOrEmpty()) {
+        if (!string.IsNullOrEmpty(hashingServiceName)) {
           securityConfiguration.HashingServiceName = hashingServiceName.ToLowerInvariant();
         }
 
-        if (!authenticationServiceName.IsNullOrEmpty()) {
+        if (!string.IsNullOrEmpty(authenticationServiceName)) {
           securityConfiguration.AuthenticationServiceName = authenticationServiceName.ToLowerInvariant();
         }
 
