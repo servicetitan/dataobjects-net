@@ -16,8 +16,8 @@ namespace Xtensive.Orm.Building
   internal class Validator(IEnumerable<Type> validFieldTypes)
   {
     private static readonly Regex ColumnNamingRule = new(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-    private readonly Regex TypeNamingRule = new(@"^[\w][\w\-\.\(\),]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-    private readonly Regex FieldNamingRule = new(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    private static readonly Regex TypeNamingRule = new(@"^[\w][\w\-\.\(\),]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+    private static readonly Regex FieldNamingRule = new(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     private readonly FrozenSet<Type> validFieldTypes = validFieldTypes.Append(WellKnownOrmTypes.Key).ToFrozenSet();
 
