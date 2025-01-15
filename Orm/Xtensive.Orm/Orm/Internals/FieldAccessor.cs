@@ -4,40 +4,23 @@
 // Created by: Alex Yakunin
 // Created:    2010.02.19
 
-using System;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Orm.Internals
+namespace Xtensive.Orm.Internals;
+
+internal abstract class FieldAccessor(object defaultUntypedValue)
 {
-  internal abstract class FieldAccessor
+  protected ColNum FieldIndex;
+
+  public object DefaultUntypedValue { get; } = defaultUntypedValue;
+
+  public virtual void SetFieldInfo(FieldInfo value)
   {
-    private FieldInfo fld;
-
-    public FieldInfo Field {
-      get { return fld; }
-      set {
-        if (fld !=null)
-          throw Exceptions.AlreadyInitialized("Field");
-        fld = value;
-      }
-    }
-
-    public object DefaultUntypedValue { get; private set; }
-
-    public abstract bool AreSameValues(object oldValue, object newValue);
-
-    public abstract void SetUntypedValue(Persistent obj, object value);
-
-    public abstract object GetUntypedValue(Persistent obj);
-
-
-    // Constructors
-    
-    protected FieldAccessor(object defaultUntypedValue)
-    {
-      DefaultUntypedValue = defaultUntypedValue;
-    }
+    FieldIndex = FieldIndex == 0 ? value.MappingInfo.Offset : throw Exceptions.AlreadyInitialized("Field");
   }
+
+  public abstract bool AreSameValues(object oldValue, object newValue);
+  public abstract void SetUntypedValue(Persistent obj, object value);
+  public abstract object GetUntypedValue(Persistent obj);
 }

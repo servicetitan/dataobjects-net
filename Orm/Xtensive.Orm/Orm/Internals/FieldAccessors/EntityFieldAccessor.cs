@@ -4,54 +4,48 @@
 // Created by: Alexey Gamzov
 // Created:    2008.05.26
 
-using System;
-
+using Xtensive.Core;
+using Xtensive.Orm.Model;
 using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Internals.FieldAccessors
 {
   internal class EntityFieldAccessor<T> : FieldAccessor<T>
   {
-    /// <inheritdoc/>
-    public override bool AreSameValues(object oldValue, object newValue)
+    private FieldInfo field;
+
+    public override void SetFieldInfo(FieldInfo value)
     {
-      return ReferenceEquals(oldValue, newValue);
+      field = field is null ? value : throw Exceptions.AlreadyInitialized("Field");
+      base.SetFieldInfo(value);
     }
+
+    /// <inheritdoc/>
+    public override bool AreSameValues(object oldValue, object newValue) => ReferenceEquals(oldValue, newValue);
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Invalid arguments.</exception>
     public override void SetValue(Persistent obj, T value)
     {
-      var entity = value as Entity;
-      var field = Field;
+      var tuple = obj.Tuple;
+      if (value is Entity entity) {
+        if (entity.Session != obj.Session)
+          throw new InvalidOperationException(string.Format(Strings.ExEntityXIsBoundToAnotherSession, entity.Key));
 
-      if (!ReferenceEquals(value, null) && entity==null)
-        throw new InvalidOperationException(string.Format(
-          Strings.ExValueShouldBeXDescendant, WellKnownOrmTypes.Entity));
-
-      if (entity!=null && entity.Session!=obj.Session)
-        throw new InvalidOperationException(string.Format(
-          Strings.ExEntityXIsBoundToAnotherSession, entity.Key)); 
-
-      var mappingInfo = field.MappingInfo;
-      int fieldIndex = mappingInfo.Offset;
-      if (entity==null) {
-        int nextFieldIndex = fieldIndex + mappingInfo.Length;
-        for (int i = fieldIndex; i < nextFieldIndex; i++)
-          obj.Tuple.SetValue(i, null);
+        entity.Key.Value.CopyTo(tuple, 0, FieldIndex, field.MappingInfo.Length);
       }
       else {
-        entity.Key.Value.CopyTo(obj.Tuple, 0, fieldIndex, mappingInfo.Length);
+        if (!ReferenceEquals(value, null))
+          throw new InvalidOperationException(string.Format(Strings.ExValueShouldBeXDescendant, WellKnownOrmTypes.Entity));
+
+        for (int i = FieldIndex, nextFieldIndex = FieldIndex + field.MappingInfo.Length; i < nextFieldIndex; i++)
+          tuple.SetValue(i, null);
       }
     }
 
     /// <inheritdoc/>
-    public override T GetValue(Persistent obj)
-    {
-      var field = Field;
-      Key key = obj.GetReferenceKey(field);
-      if (key is null)
-        return default(T);
-      return (T) (object) obj.Session.Query.SingleOrDefault(key);
-    }
+    public override T GetValue(Persistent obj) =>
+      obj.GetReferenceKey(field) is { } key
+        ? (T) (object) obj.Session.Query.SingleOrDefault(key)
+        : default;
   }
 }

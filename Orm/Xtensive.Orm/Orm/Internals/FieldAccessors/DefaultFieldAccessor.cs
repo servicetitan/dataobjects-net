@@ -4,7 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2008.05.26
 
-using System;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Internals.FieldAccessors
@@ -32,17 +31,11 @@ namespace Xtensive.Orm.Internals.FieldAccessors
     }
 
     /// <inheritdoc/>
-    public override T GetValue(Persistent obj)
-    {
-      var fieldIndex = Field.MappingInfo.Offset;
-      var tuple = obj.Tuple;
-      var value = tuple.GetValueOrDefault<T>(fieldIndex);
-      return value;
-    }
+    public override T GetValue(Persistent obj) => obj.Tuple.GetValueOrDefault<T>(FieldIndex);
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Invalid arguments.</exception>
     public override void SetValue(Persistent obj, T value) =>
-      obj.Tuple.SetValue(Field.MappingInfo.Offset, value);
+      obj.Tuple.SetValue(FieldIndex, value);
   }
 }

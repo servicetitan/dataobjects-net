@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Internals
           accessorType.CachedMakeGenericType(field.ValueType),
           BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
           null, Array.Empty<object>(), null);
-      accessor.Field = field;
+      accessor.SetFieldInfo(field);
       return accessor;
     }
   }

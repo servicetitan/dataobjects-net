@@ -4,37 +4,13 @@
 // Created by: Alexey Gamzov
 // Created:    2008.06.02
 
-using System;
-using Xtensive.Orm.Model;
+namespace Xtensive.Orm.Internals;
 
-
-namespace Xtensive.Orm.Internals
+internal abstract class FieldAccessor<T>() : FieldAccessor(default(T))
 {
-  internal abstract class FieldAccessor<T> : FieldAccessor
-  {
-    public T DefaultValue { get; private set; }
+  public abstract void SetValue(Persistent obj, T value);
+  public override void SetUntypedValue(Persistent obj, object value) => SetValue(obj, (T) value);
 
-    public abstract void SetValue(Persistent obj, T value);
-
-    public abstract T GetValue(Persistent obj);
-
-    public override void SetUntypedValue(Persistent obj, object value)
-    {
-      SetValue(obj, (T) value);
-    }
-
-    public override object GetUntypedValue(Persistent obj)
-    {
-      return GetValue(obj);
-    }
-
-
-    // Constructors
-    
-    protected FieldAccessor()
-      : base(default(T))
-    {
-      DefaultValue = default(T);
-    }
-  }
+  public abstract T GetValue(Persistent obj);
+  public override object GetUntypedValue(Persistent obj) => GetValue(obj);
 }

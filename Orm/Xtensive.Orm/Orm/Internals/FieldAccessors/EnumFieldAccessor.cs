@@ -4,7 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.06.07
 
-using System;
+using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 
@@ -18,6 +18,14 @@ namespace Xtensive.Orm.Internals.FieldAccessors
         ? (type.IsNullable() ? null : Enum.GetValues(type).GetValue(0))
         : default(T);
 
+    private Type columnValueType;
+
+    public override void SetFieldInfo(FieldInfo value)
+    {
+      columnValueType = value.Column.ValueType;
+      base.SetFieldInfo(value);
+    }
+
     /// <inheritdoc/>
     public override bool AreSameValues(object oldValue, object newValue)
     {
@@ -27,25 +35,17 @@ namespace Xtensive.Orm.Internals.FieldAccessors
     /// <inheritdoc/>
     public override T GetValue(Persistent obj)
     {
-      var field = Field;
-      int fieldIndex = field.MappingInfo.Offset;
-      var tuple = obj.Tuple;
-
-      TupleFieldState state;
-      var value = tuple.GetValue(fieldIndex, out state);
-      if (!state.HasValue())
-        return (T) @default;
-      if (type.IsEnum)
-        return (T) Enum.ToObject(type, value);
-      return (T) Enum.ToObject(Nullable.GetUnderlyingType(type), value);
+      var value = obj.Tuple.GetValue(FieldIndex, out var state);
+      return (T) (!state.HasValue() ? @default
+        : type.IsEnum ? Enum.ToObject(type, value)
+        : Enum.ToObject(Nullable.GetUnderlyingType(type), value));
     }
 
     /// <inheritdoc/>
     public override void SetValue(Persistent obj, T value)
     {
-      var field = Field;
       // Biconverter<object, T> converter = GetConverter(field.ValueType);
-      obj.Tuple.SetValue(field.MappingInfo.Offset, value==null ? null : Convert.ChangeType(value, field.Column.ValueType));
+      obj.Tuple.SetValue(FieldIndex, value==null ? null : Convert.ChangeType(value, columnValueType));
     }
   }
 }
