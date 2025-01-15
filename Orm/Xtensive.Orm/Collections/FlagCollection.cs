@@ -253,9 +253,10 @@ namespace Xtensive.Collections
         return true;
       if (other == null)
         return false;
-      if (Count != other.Count)
+      var count = Count;
+      if (count != other.Count)
         return false;
-      for (int i = 0; i < Count; i++)
+      for (int i = 0; i < count; i++)
         if (!this[i].Equals(other[i]))
           return false;
       return true;
