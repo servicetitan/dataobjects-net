@@ -12,16 +12,14 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlForceJoinOrderHint : SqlHint
   {
-    private SqlTable[] tables;
-
     /// <summary>
     /// Gets the corresponding tables.
     /// </summary>
-    public IEnumerable<SqlTable> Tables { get { return tables; } }
+    public IReadOnlyList<SqlTable> Tables {  get; }
 
     internal override SqlForceJoinOrderHint Clone(SqlNodeCloneContext? context = null) =>
       context.GetOrAdd(this, static (t, c) =>
-        new(t.tables?.Select(table => table.Clone()).ToArray(t.tables.Length)));
+        new(t.Tables?.Select(table => table.Clone()).ToArray(t.Tables.Count)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -36,7 +34,7 @@ namespace Xtensive.Sql.Dml
 
     internal SqlForceJoinOrderHint(SqlTable[] tables)
     {
-      this.tables = tables;
+      Tables = tables;
     }
   }
 }

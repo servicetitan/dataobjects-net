@@ -25,6 +25,9 @@ namespace Xtensive.Core
     private const int defaultMaximalBatchSize = 1024;
     private const int defaultFirstFastCount = 0;
 
+    [Obsolete("Use string.IsNullOrEmpty()")]
+    internal static bool IsNullOrEmpty(this string s) => string.IsNullOrEmpty(s);
+
     /// <summary>
     /// Indicates whether enumerable is empty or not
     /// by attempting to cast it to <see cref="ICollection{T}"/> and <see cref="IQueryable{T}"/>.
@@ -35,7 +38,7 @@ namespace Xtensive.Core
     /// <returns><see langword="True"/> if collection is definitely <see langword="null"/> or empty;
     /// otherwise, <see langword="false"/>.</returns>
     [Obsolete("Don't use Xtensive.Core for 'collection is empty' checking")]
-    public static bool IsNullOrEmpty<TItem>(this IEnumerable<TItem> items)
+    internal static bool IsNullOrEmpty<TItem>(this IEnumerable<TItem> items)
     {
       if (items==null)
         return true;
