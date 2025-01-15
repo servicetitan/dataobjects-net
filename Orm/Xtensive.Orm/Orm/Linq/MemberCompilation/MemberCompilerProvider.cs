@@ -184,7 +184,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
             Strings.ExCompilerXHasInvalidTargetType, compiler.GetFullName(true)));
 
       var parameterTypes = ValidateCompilerParametersAndExtractTargetSignature(compiler, isGeneric);
-      var bindingFlags = BindingFlags.Public | BindingFlags.NonPublic;
+      var bindingFlags = BindingFlags.Public;
 
       if (isCtor)
         bindingFlags |= BindingFlags.Instance;
