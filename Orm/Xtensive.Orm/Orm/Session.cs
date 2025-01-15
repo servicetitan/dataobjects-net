@@ -141,7 +141,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the operations registry of this <see cref="Session"/>.
     /// </summary>
-    public OperationRegistry Operations { get; private set; }
+    internal OperationRegistry Operations { get; private set; }
 
     /// <summary>
     /// Gets or sets timeout for all <see cref="IDbCommand"/>s that
