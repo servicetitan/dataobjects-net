@@ -1347,7 +1347,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name })
-          .Count(el => el.Name.IsNullOrEmpty());
+          .Count(el => string.IsNullOrEmpty(el.Name));
       }
     }
 
@@ -1358,7 +1358,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
-          .Count(el => el.Name.IsNullOrEmpty());
+          .Count(el => string.IsNullOrEmpty(el.Name));
       }
     }
 
@@ -1380,7 +1380,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { BaseName = e.Name })
-          .Count(el => el.BaseName.IsNullOrEmpty());
+          .Count(el => string.IsNullOrEmpty(el.BaseName));
       }
     }
 
@@ -1391,7 +1391,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         _ = session.Query.All<TestEntity>()
           .Select(e => new Poco())
-          .Count(el => el.Name.IsNullOrEmpty());
+          .Count(el => string.IsNullOrEmpty(el.Name));
       }
     }
 
