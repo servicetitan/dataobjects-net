@@ -1369,7 +1369,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
-          .Count(el => el.BaseName.IsNullOrEmpty());
+          .Count(el => string.IsNullOrEmpty(el.BaseName));
       }
     }
 
