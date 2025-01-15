@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Operation registry for <see cref="Session"/> type.
   /// </summary>
-  public sealed class OperationRegistry : List<ICompletableScope>
+  internal sealed class OperationRegistry : List<ICompletableScope>
   {
     public readonly struct SystemOperationRegistrationScope : IDisposable
     {
