@@ -45,11 +45,7 @@ namespace Xtensive.Collections
     /// <summary>
     /// Gets an <see cref="Collection{T}"/> containing the flags.
     /// </summary>
-    public ICollection<TFlag> Flags
-    {
-      [DebuggerStepThrough]
-      get { return Values; }
-    }
+    public ICollection<TFlag> Flags => Values;
 
     #region IReadOnlyDictionary<TKey,TFlag> Members
 
@@ -180,18 +176,10 @@ namespace Xtensive.Collections
     public bool Remove(KeyValuePair<TKey, TFlag> item) => Remove(item.Key);
 
     /// <inheritdoc/>
-    public int Count
-    {
-      [DebuggerStepThrough]
-      get { return keys.Count; }
-    }
+    public int Count => keys.Count;
 
     /// <inheritdoc/>
-    public bool IsReadOnly
-    {
-      [DebuggerStepThrough]
-      get { return IsLocked; }
-    }
+    public bool IsReadOnly => IsLocked;
 
     /// <inheritdoc/>
     int IList<KeyValuePair<TKey, TFlag>>.IndexOf(KeyValuePair<TKey, TFlag> item) => throw new NotSupportedException();
