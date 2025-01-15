@@ -85,7 +85,7 @@ namespace Xtensive.Orm
 
     private readonly bool allowSwitching;
     private readonly long identifier;
-    private readonly Pinner pinner;
+    private Pinner pinner;
 
     private int? commandTimeout;
     private volatile int isDisposing; // To prevent double-disposing
