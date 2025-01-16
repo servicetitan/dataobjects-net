@@ -791,8 +791,7 @@ namespace Xtensive.Orm.Building.Builders
           yield return column;
         }
         else if (!column.IsSystem) {
-          var clone = column.Clone();
-          clone.Name = nameBuilder.BuildColumnName(column);
+          var clone = column.Clone(nameBuilder.BuildColumnName(column));
           clone.Field.MappingName = clone.Name;
           _ = valueColumns.Add(clone.Name);
           yield return clone;
