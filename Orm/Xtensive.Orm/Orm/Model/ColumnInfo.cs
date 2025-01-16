@@ -242,15 +242,14 @@ namespace Xtensive.Orm.Model
     #region ICloneable methods
 
     /// <inheritdoc/>
-    object ICloneable.Clone() => Clone();
+    object ICloneable.Clone() => Clone(null);
 
     /// <summary>
     /// Clones this instance.
     /// </summary>
-    public ColumnInfo Clone()
+    public ColumnInfo Clone(string newName)
     {
-      ColumnInfo clone = new ColumnInfo(fld);
-      clone.Name = Name;
+      ColumnInfo clone = new(fld) { Name = newName ?? Name };
       clone.attributes = attributes;
       clone.valueType = valueType;
       clone.length = length;
