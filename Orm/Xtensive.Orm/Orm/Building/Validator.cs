@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Building
         }
 
         // if one of key fields is TypeId field and number of fields == 2 then it is OK
-        if (keyFields.Count == 2 && keyFields.Find(f => f.Name == WellKnown.TypeIdFieldName) != null) {
+        if (keyFields.Count == 2 && keyFields.Any(f => f.Name == WellKnown.TypeIdFieldName)) {
           throw new DomainBuilderException(Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
         }
       }
