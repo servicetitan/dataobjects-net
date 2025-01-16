@@ -200,7 +200,7 @@ namespace Xtensive.Orm.Building
       }
 
       // Should TypeId field be added to key fields?
-      if (hierarchyDef.IncludeTypeId && hierarchyDef.KeyFields.Find(f => f.Name == WellKnown.TypeIdFieldName) == null) {
+      if (hierarchyDef.IncludeTypeId && hierarchyDef.KeyFields.All(f => f.Name != WellKnown.TypeIdFieldName)) {
         context.ModelInspectionResult.Register(new AddTypeIdToKeyFieldsAction(hierarchyDef));
       }
 
