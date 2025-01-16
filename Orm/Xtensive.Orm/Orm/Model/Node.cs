@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Model
   ///An abstract base class for model node.
   /// </summary>
   [Serializable]
-  public abstract class Node : LockableBase, IChangeNotifier
+  public abstract class Node : LockableBase
   {
     private string name;
 
@@ -24,21 +24,14 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public string Name
     {
-      get { return name; }
+      get => name;
       set {
         EnsureNotLocked();
+        if (name is not null)
+          throw new InvalidOperationException("The node Name is locked.");
         ValidateName(value);
-        ChangeState("Name", delegate { name = value; });
+        name = value;
       }
-    }
-
-    private void ChangeState(string property, Action onChangeStateDelegate)
-    {
-      if (Changing != null)
-        Changing(this, new ChangeNotifierEventArgs(property));
-      onChangeStateDelegate();
-      if (Changed != null)
-        Changed(this, new ChangeNotifierEventArgs(property));
     }
 
     /// <summary>
@@ -48,16 +41,6 @@ namespace Xtensive.Orm.Model
     protected virtual void ValidateName(string newName)
     {
     }
-
-    #region IChangeNotifier Members
-
-    /// <inheritdoc/>
-    public event EventHandler<ChangeNotifierEventArgs> Changing;
-
-    /// <inheritdoc/>
-    public event EventHandler<ChangeNotifierEventArgs> Changed;
-
-    #endregion
 
     /// <summary>
     /// Updates the internal state of this instance.

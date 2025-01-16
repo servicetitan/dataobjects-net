@@ -249,8 +249,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public ColumnInfo Clone()
     {
-      ColumnInfo clone = new ColumnInfo(fld);
-      clone.Name = Name;
+      ColumnInfo clone = new(fld) { Name = Name };
       clone.attributes = attributes;
       clone.valueType = valueType;
       clone.length = length;
