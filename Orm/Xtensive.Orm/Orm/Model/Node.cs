@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Model
     public string Name
     {
       get => name;
-      set {
+      internal set {
         EnsureNotLocked();
         if (name is not null)
           throw new InvalidOperationException("The node Name is locked.");
