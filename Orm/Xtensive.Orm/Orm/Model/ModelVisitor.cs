@@ -27,7 +27,6 @@ namespace Xtensive.Orm.Model
         DomainModel domainModel => VisitDomainModel(domainModel),
         KeyInfo keyProviderInfo => VisitKeyInfo(keyProviderInfo),
         SequenceInfo sequenceInfo => VisitSequenceInfo(sequenceInfo),
-        KeyField keyField => VisitKeyField(keyField),
         AssociationInfo association => VisitAssociationInfo(association),
         FieldInfo field => VisitFieldInfo(field),
         TypeInfo type => VisitTypeInfo(type),
@@ -37,13 +36,6 @@ namespace Xtensive.Orm.Model
         FullTextIndexInfo fullTextIndex => VisitFullTextIndexInfo(fullTextIndex),
         _ => throw new ArgumentException(Strings.ExNodeTypeIsUnknown, "node")
       };
-
-    /// <summary>
-    /// Visits key field.
-    /// </summary>
-    /// <param name="keyField">The key field.</param>
-    /// <returns>Visit result.</returns>
-    protected abstract TResult VisitKeyField(KeyField keyField);
 
     /// <summary>
     /// Visits a column.

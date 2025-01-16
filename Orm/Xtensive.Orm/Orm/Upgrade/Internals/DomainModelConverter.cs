@@ -339,13 +339,6 @@ namespace Xtensive.Orm.Upgrade
 
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Method is not supported.</exception>
-    protected override IPathNode VisitKeyField(KeyField keyField)
-    {
-      throw new NotSupportedException(String.Format(Strings.ExVisitKeyFieldIsNotSupportedByX, typeof (DomainModelConverter)));
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Method is not supported.</exception>
     protected override IPathNode VisitFieldInfo(FieldInfo field)
     {
       throw new NotSupportedException();
