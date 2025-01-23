@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Providers
       return result.AsSafeWrapper();
     }
 
-    protected virtual List<PersistRequest> BuildInsertRequest(PersistRequestBuilderContext context)
+    protected virtual List<PersistRequest> BuildInsertRequest(in PersistRequestBuilderContext context)
     {
       var result = new List<PersistRequest>();
       foreach (var index in context.AffectedIndexes) {
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    protected virtual List<PersistRequest> BuildUpdateRequest(PersistRequestBuilderContext context)
+    protected virtual List<PersistRequest> BuildUpdateRequest(in PersistRequestBuilderContext context)
     {
       var result = new List<PersistRequest>();
       foreach (var index in context.AffectedIndexes) {
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    protected virtual List<PersistRequest> BuildRemoveRequest(PersistRequestBuilderContext context)
+    protected virtual List<PersistRequest> BuildRemoveRequest(in PersistRequestBuilderContext context)
     {
       var result = new List<PersistRequest>();
       for (var i = context.AffectedIndexes.Count - 1; i >= 0; i--) {
@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    private SqlExpression BuildKeyFilter(PersistRequestBuilderContext context, SqlTableRef filteredTable, List<PersistParameterBinding> currentBindings)
+    private SqlExpression BuildKeyFilter(in PersistRequestBuilderContext context, SqlTableRef filteredTable, List<PersistParameterBinding> currentBindings)
     {
       SqlExpression result = null;
       foreach (var column in context.PrimaryIndex.KeyColumns.Keys) {
@@ -163,7 +163,7 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    private SqlExpression BuildVersionFilter(PersistRequestBuilderContext context, SqlTableRef filteredTable, List<PersistParameterBinding> currentBindings)
+    private SqlExpression BuildVersionFilter(in PersistRequestBuilderContext context, SqlTableRef filteredTable, List<PersistParameterBinding> currentBindings)
     {
       SqlExpression result = null;
       foreach (var column in context.Type.GetVersionColumns()) {
@@ -193,7 +193,7 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    private bool AddFakeVersionColumnUpdate(PersistRequestBuilderContext context, SqlUpdate update, SqlTableRef filteredTable)
+    private bool AddFakeVersionColumnUpdate(in PersistRequestBuilderContext context, SqlUpdate update, SqlTableRef filteredTable)
     {
       foreach (var column in context.Type.GetVersionColumns()) {
         var columnExpression = filteredTable[column.Name];
@@ -210,7 +210,7 @@ namespace Xtensive.Orm.Providers
       return false;
     }
 
-    private PersistParameterBinding GetBinding(PersistRequestBuilderContext context, ColumnInfo column, Table table, int fieldIndex)
+    private PersistParameterBinding GetBinding(PersistRequestBuilderContext context, ColumnInfo column, Table table, ColNum fieldIndex)
     {
       if (!context.ParameterBindings.TryGetValue(column, out var binding)) {
         var typeMapping = driver.GetTypeMapping(column);
@@ -236,15 +236,10 @@ namespace Xtensive.Orm.Providers
         : ParameterTransmissionType.Regular;
     }
 
-    private static int GetFieldIndex(TypeInfo type, ColumnInfo column)
-    {
-      if (!type.Fields.TryGetValue(column.Field.Name, out var field)
-        || field.Column == null
-        || field.Column.ValueType != column.ValueType) {
-        return -1;
-      }
-      return field.MappingInfo.Offset;
-    }
+    private static ColNum GetFieldIndex(TypeInfo type, ColumnInfo column) =>
+      type.Fields.TryGetValue(column.Field.Name, out var field) && field.Column?.ValueType == column.ValueType
+        ? field.MappingInfo.Offset
+        : (ColNum)(-1);
 
     /// <inheritdoc/>
     protected override void Initialize()

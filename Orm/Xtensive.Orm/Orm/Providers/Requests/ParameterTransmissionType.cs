@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Providers
   /// Possible way of delivering parameter to server
   /// for <see cref="QueryParameterBinding"/> and <see cref="PersistParameterBinding"/>.
   /// </summary>
-  public enum ParameterTransmissionType
+  public enum ParameterTransmissionType : byte
   {
     /// <summary>
     /// Indicates that no special handling of parameter is performed.

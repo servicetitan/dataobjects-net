@@ -4,57 +4,39 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.25
 
-using System;
-using Xtensive.Core;
 using Xtensive.Sql;
 
-namespace Xtensive.Orm.Providers
+namespace Xtensive.Orm.Providers;
+
+/// <summary>
+/// A binding of a parameter for <see cref="PersistRequest"/>.
+/// </summary>
+public sealed class PersistParameterBinding(
+  TypeMapping typeMapping,
+  ushort rowIndex,
+  ColNum fieldIndex,
+  ParameterTransmissionType transmissionType = ParameterTransmissionType.Regular,
+  PersistParameterBindingType bindingType = PersistParameterBindingType.Regular
+) : ParameterBinding(typeMapping, transmissionType)
 {
-  /// <summary>
-  /// A binding of a parameter for <see cref="PersistRequest"/>.
-  /// </summary>
-  public sealed class PersistParameterBinding : ParameterBinding
+  public ushort RowIndex { get; } = rowIndex;
+  public ColNum FieldIndex { get; } = fieldIndex;
+  public PersistParameterBindingType BindingType { get; } = bindingType;
+
+  // Constructors
+
+  public PersistParameterBinding(TypeMapping typeMapping, ColNum fieldIndex, ParameterTransmissionType transmissionType, PersistParameterBindingType bindingType)
+    : this(typeMapping, 0, fieldIndex, transmissionType, bindingType)
   {
-    public int RowIndex { get; private set; }
+  }
 
-    public int FieldIndex { get; private set; }
+  public PersistParameterBinding(TypeMapping typeMapping, ColNum fieldIndex, ParameterTransmissionType transmissionType)
+    : this(typeMapping, fieldIndex, transmissionType, PersistParameterBindingType.Regular)
+  {
+  }
 
-    public PersistParameterBindingType BindingType { get; private set; }
-
-    // Constructors
-
-    public PersistParameterBinding(TypeMapping typeMapping, int rowIndex, int fieldIndex,
-      ParameterTransmissionType transmissionType, PersistParameterBindingType bindingType)
-      : base(typeMapping, transmissionType)
-    {
-      RowIndex = rowIndex;
-      FieldIndex = fieldIndex;
-      BindingType = bindingType;
-    }
-
-    public PersistParameterBinding(TypeMapping typeMapping, int fieldIndex, ParameterTransmissionType transmissionType, PersistParameterBindingType bindingType)
-      : this(typeMapping, 0, fieldIndex, transmissionType, bindingType)
-    {
-    }
-
-    public PersistParameterBinding(TypeMapping typeMapping, int rowIndex, int fieldIndex, ParameterTransmissionType transmissionType)
-      : this(typeMapping, rowIndex, fieldIndex, transmissionType, PersistParameterBindingType.Regular)
-    {
-    }
-
-    public PersistParameterBinding(TypeMapping typeMapping, int fieldIndex, ParameterTransmissionType transmissionType)
-      : this(typeMapping, fieldIndex, transmissionType, PersistParameterBindingType.Regular)
-    {
-    }
-
-    public PersistParameterBinding(TypeMapping typeMapping, int rowIndex, int fieldIndex)
-      : this(typeMapping, rowIndex, fieldIndex, ParameterTransmissionType.Regular, PersistParameterBindingType.Regular)
-    {
-    }
-
-    public PersistParameterBinding(TypeMapping typeMapping, int fieldIndex)
-      : this(typeMapping, fieldIndex, ParameterTransmissionType.Regular, PersistParameterBindingType.Regular)
-    {
-    }
+  public PersistParameterBinding(TypeMapping typeMapping, ColNum fieldIndex)
+    : this(typeMapping, fieldIndex, ParameterTransmissionType.Regular, PersistParameterBindingType.Regular)
+  {
   }
 }

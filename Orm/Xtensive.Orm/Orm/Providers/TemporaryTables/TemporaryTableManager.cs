@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Providers
 
       return result;
 
-      Lazy<PersistRequest> CreateLazyPersistRequest(int batchSize)
+      Lazy<PersistRequest> CreateLazyPersistRequest(ushort batchSize)
       {
         return new Lazy<PersistRequest>(() => {
           var bindings = new List<PersistParameterBinding>(batchSize);
@@ -214,7 +214,7 @@ namespace Xtensive.Orm.Providers
     }
 
     private SqlInsert MakeUpInsertQuery(SqlTableRef temporaryTable,
-      TypeMapping[] typeMappings, List<PersistParameterBinding> storeRequestBindings, bool hasColumns, int rows = 1)
+      TypeMapping[] typeMappings, List<PersistParameterBinding> storeRequestBindings, bool hasColumns, ushort rows = 1)
     {
       var insertStatement = SqlDml.Insert(temporaryTable);
       if (!hasColumns) {
@@ -222,8 +222,8 @@ namespace Xtensive.Orm.Providers
         return insertStatement;
       }
 
-      for (var rowIndex = 0; rowIndex < rows; ++rowIndex) {
-        var fieldIndex = 0;
+      for (ushort rowIndex = 0; rowIndex < rows; ++rowIndex) {
+        ColNum fieldIndex = 0;
         var row = new Dictionary<SqlColumn, SqlExpression>(temporaryTable.Columns.Count);
         foreach (var column in temporaryTable.Columns) {
           var typeMapping = typeMappings[fieldIndex];
