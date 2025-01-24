@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Upgrade
       var insert = SqlDml.Insert(tableRef);
       var bindings = new PersistParameterBinding[columns.Count];
       var row = new Dictionary<SqlColumn, SqlExpression>(columns.Count);
-      for (int i = 0; i < columns.Count; i++) {
+      for (ColNum i = 0; i < columns.Count; i++) {
         var binding = new PersistParameterBinding(mappings[i], i, transmissionTypes[i]);
         row.Add(tableRef.Columns[i], binding.ParameterReference);
         bindings[i] = binding;
