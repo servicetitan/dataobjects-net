@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2023 Xtensive LLC.
+// Copyright (C) 2019-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -10,16 +10,14 @@ namespace Xtensive.Orm.Tests.Storage
 {
   public class CommandProcessorContextProviderTest : AutoBuildTest
   {
-    protected override void PopulateData()
-    {
-      _ = CreateSessionAndTransaction();
-    }
+    protected override bool InitGlobalSession => true;
 
     [Test]
     public void GetContextTest()
     {
-      var session = Session.Demand();
-      var context = session.CommandProcessorContextProvider.ProvideContext();
+      var session = GlobalSession;
+      var provider = session.CommandProcessorContextProvider;
+      var context = provider.ProvideContext();
 
       Assert.That(context, Is.Not.Null);
       Assert.That(context.AllowPartialExecution, Is.False);
@@ -35,8 +33,9 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void GetContextForPartialExecutionTest()
     {
-      var session = Session.Demand();
-      var context = session.CommandProcessorContextProvider.ProvideContext(true);
+      var session = GlobalSession;
+      var provider = session.CommandProcessorContextProvider;
+      var context = provider.ProvideContext(true);
 
       Assert.That(context, Is.Not.Null);
       Assert.That(context.AllowPartialExecution, Is.True);
