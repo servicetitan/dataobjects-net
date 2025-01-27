@@ -2589,15 +2589,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Key already exists..
-        /// </summary>
-        internal static string ExKeyAlreadyExists {
-            get {
-                return ResourceManager.GetString("ExKeyAlreadyExists", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The Key belongs to different storage node..
         /// </summary>
         internal static string ExKeyBelongsToDifferentStorageNode {
@@ -4696,16 +4687,6 @@ namespace Xtensive {
             }
         }
 
-        /// <summary>
-        ///   Looks up a localized string similar to Query was compiled with DomainConfiguration.ShareStorageSchemaOverNodes option set to true, it requires PostCompilerConfiguration.SchemaMapping and PostCompilerConfiguration.DatabaseMapping collections to be provided..
-        /// </summary>
-        internal static string ExUnableToActualizeSchemaNodeInQuery {
-            get {
-                return ResourceManager.GetString("ExUnableToActualizeSchemaNodeInQuery", resourceCulture);
-            }
-        }
-
-        /// <summary>
         ///   Looks up a localized string similar to The type &apos;{0}&apos;,which contains renaming field &apos;{1}&apos;, doesn&apos;t exist in storage model..
         /// </summary>
         internal static string ExTypeXWhichContainsRenamingFieldYDoesntExistInStorageModel {
@@ -4715,11 +4696,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to activate EntitySet for &apos;{0}&apos; field because it does not has association..
+        ///   Looks up a localized string similar to Query was compiled with DomainConfiguration.ShareStorageSchemaOverNodes option set to true, it requires PostCompilerConfiguration.SchemaMapping and PostCompilerConfiguration.DatabaseMapping collections to be provided..
         /// </summary>
-        internal static string ExUnableToActivateEntitySetWithoutAssociation {
+        internal static string ExUnableToActualizeSchemaNodeInQuery {
             get {
-                return ResourceManager.GetString("ExUnableToActivateEntitySetWithoutAssociation", resourceCulture);
+                return ResourceManager.GetString("ExUnableToActualizeSchemaNodeInQuery", resourceCulture);
             }
         }
         
@@ -6159,6 +6140,15 @@ namespace Xtensive {
             }
         }
 
+        /// <summary>
+        ///   Looks up a localized string similar to Key generator kind for hierarchy with root &apos;{0}&apos; has changed to None. Make sure that all key values are recieved by constructor and passed to one of Entity constructors..
+        /// </summary>
+        internal static string LogKeyGeneratorKindForHierarchyWithRootXHasChangedToNone {
+            get {
+                return ResourceManager.GetString("LogKeyGeneratorKindForHierarchyWithRootXHasChangedToNone", resourceCulture);
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized string similar to Metadata.Assembly created: &apos;{0}&apos;..
         /// </summary>
