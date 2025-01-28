@@ -165,9 +165,9 @@ namespace Xtensive.Orm.Rse.Providers
           translated = true;
         descriptors[i++] = new CalculatedColumnDescriptor(column.Name, column.Type, (Expression<Func<Tuple, object>>) expression);
       }
-      if (!translated && source == provider.Source)
-        return provider;
-      return source.Calculate(descriptors);
+      return !translated && source == provider.Source
+        ? provider
+        : new CalculateProvider(source, descriptors);
     }
 
     /// <inheritdoc/>
