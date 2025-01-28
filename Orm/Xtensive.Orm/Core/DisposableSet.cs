@@ -4,13 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2007.12.29
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Xtensive.Core;
-
-
 namespace Xtensive.Core
 {
   /// <summary>
@@ -22,10 +15,9 @@ namespace Xtensive.Core
   /// <see cref="IDisposable.Dispose"/> methods are invoked in backward order.
   /// </note>
   /// </remarks>
-  public sealed class DisposableSet : IDisposable, IAsyncDisposable
+  internal sealed class DisposableSet() : List<IDisposable>, IDisposable, IAsyncDisposable
   {
     private HashSet<IDisposable> set;
-    private List<IDisposable> list;
 
     /// <summary>
     /// Adds an <see cref="IDisposable"/> object to the set.
@@ -33,13 +25,13 @@ namespace Xtensive.Core
     /// <param name="disposable">The object to add.</param>
     /// <returns><see langword="True"/>, if object is successfully added;
     /// otherwise, <see langword="false"/>.</returns>
-    public bool Add(IDisposable disposable)
+    public new bool Add(IDisposable disposable)
     {
       if (disposable==null)
         return false;
       EnsureInitialized();
       if (set.Add(disposable)) {
-        list.Add(disposable);
+        base.Add(disposable);
         return true;
       }
       return false;
@@ -49,10 +41,10 @@ namespace Xtensive.Core
     /// Clears this instance by discarding all registered objects.
     /// <see cref="IDisposable.Dispose"/> methods are not called.
     /// </summary>
-    public void Clear()
+    public new void Clear()
     {
       set = null;
-      list = null;
+      base.Clear();
     }
 
     /// <summary>
@@ -69,32 +61,7 @@ namespace Xtensive.Core
 
     private void EnsureInitialized()
     {
-      if (set==null) {
-        set = new HashSet<IDisposable>();
-        list = new List<IDisposable>();
-      }
-    }
-
-
-    // Constructors
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    /// <param name="initialContent">The initial content.</param>
-    public DisposableSet(IEnumerable initialContent)
-      : this()
-    {
-      ArgumentNullException.ThrowIfNull(initialContent);
-      foreach (object o in initialContent)
-        Add(o as IDisposable);
-    }
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    public DisposableSet()
-    {
+      set ??= new();
     }
 
     /// <summary>
@@ -103,34 +70,33 @@ namespace Xtensive.Core
     void IDisposable.Dispose()
     {
       try {
-        if (list==null) {
+        if (Count == 0) {
           return;
         }
 
         using (var aggregator = new ExceptionAggregator()) {
-          for (var i = list.Count - 1; i >= 0; i--) {
-            aggregator.Execute(d => d.Dispose(), list[i]);
+          for (var i = Count - 1; i >= 0; i--) {
+            aggregator.Execute(d => d.Dispose(), this[i]);
           }
 
           aggregator.Complete();
         }
       }
       finally {
-        set = null;
-        list = null;
+        Clear();
       }
     }
 
     async ValueTask IAsyncDisposable.DisposeAsync()
     {
       try {
-        if (list==null) {
+        if (Count == 0) {
           return;
         }
 
         using (var aggregator = new ExceptionAggregator()) {
-          for (var i = list.Count - 1; i >= 0; i--) {
-            var disposable = list[i];
+          for (var i = Count - 1; i >= 0; i--) {
+            var disposable = this[i];
             if (disposable is IAsyncDisposable asyncDisposable) {
               await aggregator.ExecuteAsync(d => d.DisposeAsync(), asyncDisposable).ConfigureAwaitFalse();
             }
@@ -143,8 +109,7 @@ namespace Xtensive.Core
         }
       }
       finally {
-        set = null;
-        list = null;
+        Clear();
       }
     }
   }

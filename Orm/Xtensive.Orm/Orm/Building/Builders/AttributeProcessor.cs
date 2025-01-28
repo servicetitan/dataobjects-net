@@ -4,10 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2007.09.25
 
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Internals;
@@ -56,24 +55,26 @@ namespace Xtensive.Orm.Building.Builders
         "attribute.Position");
 
       var keyField = new KeyField(fieldDef.Name, attribute.Direction);
+      var hierarchyDefKeyFields = hierarchyDef.KeyFields;
 
-      if (hierarchyDef.KeyFields.Count > attribute.Position) {
-        var current = hierarchyDef.KeyFields[attribute.Position];
-        if (current != null) {
+      if (hierarchyDefKeyFields.Count > attribute.Position) {
+        var current = hierarchyDefKeyFields[attribute.Position];
+        if (current != default) {
           throw new DomainBuilderException(string.Format(Strings.ExKeyFieldsXAndXHaveTheSamePositionX, current.Name,
             fieldDef.Name, attribute.Position));
         }
 
-        hierarchyDef.KeyFields[attribute.Position] = keyField;
+        hierarchyDefKeyFields[attribute.Position] = keyField;
       }
       else {
-        // Adding null stubs for not yet processed key fields
-        while (hierarchyDef.KeyFields.Count < attribute.Position) {
-          hierarchyDef.KeyFields.Add(null);
+        // Adding default stubs for not yet processed key fields
+        hierarchyDefKeyFields.EnsureCapacity(attribute.Position + 1);
+        while (hierarchyDefKeyFields.Count < attribute.Position) {
+          hierarchyDefKeyFields.Add(default);
         }
 
         // Finally adding target key field at the specified position
-        hierarchyDef.KeyFields.Add(keyField);
+        hierarchyDefKeyFields.Add(keyField);
       }
     }
 
@@ -375,7 +376,7 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private void ProcessKeyFields(string[] source, IDictionary<string, Direction> target)
+    private void ProcessKeyFields(string[] source, DirectionCollection<string> target)
     {
       if (source == null || source.Length == 0) {
         throw new DomainBuilderException(

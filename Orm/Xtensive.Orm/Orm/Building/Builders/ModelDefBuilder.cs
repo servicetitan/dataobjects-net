@@ -224,10 +224,10 @@ namespace Xtensive.Orm.Building.Builders
 
     #region Definition-related members
 
-    public TypeDef DefineType(Type type)
+    public TypeDef DefineType(Type type, string name = null)
     {
       var typeDef = new TypeDef(this, type, context.Validator);
-      typeDef.Name = context.NameBuilder.BuildTypeName(context, typeDef);
+      typeDef.Name = name ?? context.NameBuilder.BuildTypeName(context, typeDef);
 
       if (!(type.UnderlyingSystemType.IsInterface || type.IsAbstract)) {
         var sta = type.GetAttribute<SystemTypeAttribute>(AttributeSearchOptions.Default);

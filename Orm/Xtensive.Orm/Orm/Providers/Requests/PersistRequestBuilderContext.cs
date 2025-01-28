@@ -4,9 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.29
 
-using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
@@ -16,23 +13,23 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// <see cref="PersistRequestBuilder"/> context.
   /// </summary>
-  public sealed class PersistRequestBuilderContext
+  public readonly struct PersistRequestBuilderContext
   {
-    public PersistRequestBuilderTask Task { get; private set; }
+    public PersistRequestBuilderTask Task { get; }
 
-    public ModelMapping Mapping { get; private set; }
+    public ModelMapping Mapping { get; }
 
-    public NodeConfiguration NodeConfiguration { get; private set; }
+    public NodeConfiguration NodeConfiguration { get; }
 
-    public TypeInfo Type { get; private set; }
+    public TypeInfo Type { get; }
 
-    public IReadOnlyList<IndexInfo> AffectedIndexes { get; private set;}
+    public IReadOnlyList<IndexInfo> AffectedIndexes { get; }
 
-    public IndexInfo PrimaryIndex { get; private set; }
+    public IndexInfo PrimaryIndex { get; }
 
-    public Dictionary<ColumnInfo, PersistParameterBinding> ParameterBindings { get; private set; }
+    public Dictionary<ColumnInfo, PersistParameterBinding> ParameterBindings { get; }
 
-    public Dictionary<ColumnInfo, PersistParameterBinding> VersionParameterBindings { get; private set; }
+    public Dictionary<ColumnInfo, PersistParameterBinding> VersionParameterBindings { get; }
 
     // Constructors
 

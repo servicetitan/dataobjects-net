@@ -5,10 +5,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Definitions;
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Tests.Issues.IssueJira0760_OverrideFieldNameAttributeRuinsFieldMappingOnUpgradeModel;
 using Xtensive.Orm.Upgrade;
@@ -145,10 +147,12 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0760_OverrideFieldNameAttributeRuin
 
     public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
-      var stateField = model.Types[typeof(EntityWithState)].Fields["State"];
-
-      stateField.Name = "EntityWithState.State";
+      var fields = model.Types[typeof(EntityWithState)].Fields;
+      var stateField = fields["State"];
+      fields.Remove(stateField);
+      typeof(Node).GetField("name", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(stateField, "EntityWithState.State");
       stateField.MappingName = "EntityWithState.State";
+      fields.Add(stateField);
     }
   }
 

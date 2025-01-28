@@ -4,15 +4,13 @@
 // Created by: Dmitri Maximov
 // Created:    2008.10.08
 
-using System;
-using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.ReferentialIntegrity;
 
 namespace Xtensive.Orm.PairIntegrity
 {
-  internal class SyncManager : SessionBound
+  internal readonly struct SyncManager(Session session)
   {
     public void ProcessRecursively(SyncContext context, RemovalContext removalContext, 
       OperationType type, AssociationInfo association, Entity owner, Entity target,
@@ -62,7 +60,7 @@ namespace Xtensive.Orm.PairIntegrity
           context.Enqueue(new SyncAction(slaveActions.Break, association.Reversed, slave1, master1));
         break;
       case OperationType.Remove:
-        var currentRemovalContext = Session.RemovalProcessor.Context;
+        var currentRemovalContext = session.RemovalProcessor.Context;
         var isNotYetRemoved = currentRemovalContext==null || !currentRemovalContext.Contains(slave2);
         if ((!(association.IsLoop && master1==slave2)) && isNotYetRemoved)
           context.Enqueue(new SyncAction(slaveActions.Break, association.Reversed, slave2, master1));
@@ -91,14 +89,6 @@ namespace Xtensive.Orm.PairIntegrity
       default:
         throw new ArgumentOutOfRangeException("association");
       }
-    }
-
-
-    // Constructors
-
-    public SyncManager(Session session)
-      : base(session)
-    {
     }
   }
 }

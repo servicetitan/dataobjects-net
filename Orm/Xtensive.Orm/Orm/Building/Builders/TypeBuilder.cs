@@ -325,7 +325,7 @@ namespace Xtensive.Orm.Building.Builders
     private void BuildInheritedField(TypeInfo type, FieldInfo inheritedField)
     {
       BuildLog.Info(nameof(Strings.LogBuildingInheritedFieldXY), type.Name, inheritedField.Name);
-      var field = inheritedField.Clone();
+      var field = inheritedField.Clone(null);
       type.Fields.Add(field);
       field.ReflectedType = type;
       field.DeclaringType = inheritedField.DeclaringType;
@@ -343,7 +343,8 @@ namespace Xtensive.Orm.Building.Builders
       var buffer = fields.ToList();
 
       foreach (var field in buffer) {
-        var clone = field.Clone();
+        var newName = target.IsDeclared ? context.NameBuilder.BuildNestedFieldName(target, field) : null;
+        var clone = field.Clone(newName);
         if (target.SkipVersion) {
           clone.SkipVersion = true;
         }
@@ -351,7 +352,6 @@ namespace Xtensive.Orm.Building.Builders
         clone.IsSystem = false;
         clone.IsLazyLoad = field.IsLazyLoad || target.IsLazyLoad;
         if (target.IsDeclared) {
-          clone.Name = context.NameBuilder.BuildNestedFieldName(target, field);
           clone.OriginalName = field.OriginalName;
           // One-field reference
           if (target.IsEntity && buffer.Count == 1) {
@@ -428,9 +428,8 @@ namespace Xtensive.Orm.Building.Builders
 
     private ColumnInfo BuildInheritedColumn(FieldInfo field, ColumnInfo ancestor)
     {
-      var column = ancestor.Clone();
+      var column = ancestor.Clone(context.NameBuilder.BuildColumnName(field, ancestor));
       column.Field = field;
-      column.Name = context.NameBuilder.BuildColumnName(field, ancestor);
       column.IsDeclared = field.IsDeclared;
       column.IsPrimaryKey = field.IsPrimaryKey;
       column.IsNullable = field.IsNullable;
@@ -515,6 +514,10 @@ namespace Xtensive.Orm.Building.Builders
         if (!canBeHandled) {
           generatorKind = KeyGeneratorKind.None;
         }
+      }
+
+      if (generatorKind != hierarchyDef.KeyGeneratorKind && generatorKind == KeyGeneratorKind.None) {
+        BuildLog.Warning(string.Format(Strings.LogKeyGeneratorKindForHierarchyWithRootXHasChangedToNone, root.Name));
       }
 
       if (generatorKind == KeyGeneratorKind.None) {

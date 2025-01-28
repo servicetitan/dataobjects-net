@@ -758,15 +758,15 @@ namespace Xtensive.Orm.Model
     #region ICloneable methods
 
     /// <inheritdoc/>
-    object ICloneable.Clone() => Clone();
+    object ICloneable.Clone() => Clone(null);
 
     /// <summary>
     /// Clones this instance.
     /// </summary>
-    public FieldInfo Clone()
+    public FieldInfo Clone(string newName)
     {
       var clone = new FieldInfo(declaringType, reflectedType, Attributes) {
-        Name = Name,
+        Name = newName ?? Name,
         OriginalName = OriginalName,
         MappingName = MappingName,
         underlyingProperty = underlyingProperty,

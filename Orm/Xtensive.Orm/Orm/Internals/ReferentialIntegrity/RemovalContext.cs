@@ -144,7 +144,7 @@ namespace Xtensive.Orm.ReferentialIntegrity
       processor.Context = parent;
     }
 
-    
+
     // Constructors
 
     public RemovalContext(RemovalProcessor processor)

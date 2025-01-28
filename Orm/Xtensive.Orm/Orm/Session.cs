@@ -85,7 +85,7 @@ namespace Xtensive.Orm
 
     private readonly bool allowSwitching;
     private readonly long identifier;
-    private readonly Pinner pinner;
+    private Pinner pinner;
 
     private int? commandTimeout;
     private volatile int isDisposing; // To prevent double-disposing
@@ -141,7 +141,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the operations registry of this <see cref="Session"/>.
     /// </summary>
-    public OperationRegistry Operations { get; private set; }
+    internal OperationRegistry Operations { get; private set; }
 
     /// <summary>
     /// Gets or sets timeout for all <see cref="IDbCommand"/>s that
@@ -237,7 +237,7 @@ namespace Xtensive.Orm
 
     internal HandlerAccessor Handlers { get; private set; }
 
-    internal SyncManager PairSyncManager { get; private set; }
+    internal SyncManager PairSyncManager { get; }
 
     internal RemovalProcessor RemovalProcessor { get; private set; }
 
@@ -559,9 +559,9 @@ namespace Xtensive.Orm
       SystemEvents = new SessionEventAccessor(this, true);
 
       // Etc.
-      PairSyncManager = new SyncManager(this);
+      PairSyncManager = new(this);
       RemovalProcessor = new RemovalProcessor(this);
-      pinner = new Pinner(this);
+      pinner = new(this);
       Operations = new OperationRegistry(this);
       NonPairedReferencesRegistry = new(this);
 

@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Localization.Configuration
           }
         }
       }
-      if(!cultureName.IsNullOrEmpty()) {
+      if(!string.IsNullOrEmpty(cultureName)) {
         try {
           defaultCulture = CultureInfo.GetCultureInfo(cultureName);
         }

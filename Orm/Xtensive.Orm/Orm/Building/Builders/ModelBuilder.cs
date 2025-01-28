@@ -373,8 +373,7 @@ namespace Xtensive.Orm.Building.Builders
         var underlyingType = GenerateAuxiliaryType(association);
 
         // Defining auxiliary type
-        var underlyingTypeDef = modelDefBuilder.DefineType(underlyingType);
-        underlyingTypeDef.Name = association.Name;
+        var underlyingTypeDef = modelDefBuilder.DefineType(underlyingType, association.Name);
         underlyingTypeDef.MappingName = context.NameBuilder.BuildAuxiliaryTypeMappingName(association);
         // Copy mapping information from master type
         underlyingTypeDef.MappingSchema = association.OwnerType.MappingSchema;

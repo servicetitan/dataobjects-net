@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Localization.Configuration
         return new LocalizationConfigurationReader().Read(configurationRoot, sectionName ?? DefaultSectionName);
       }
       else if (configuration is IConfigurationSection configurationSection) {
-        return sectionName.IsNullOrEmpty()
+        return string.IsNullOrEmpty(sectionName)
           ? new LocalizationConfigurationReader().Read(configurationSection)
           : new LocalizationConfigurationReader().Read(configurationSection.GetSection(sectionName));
       }

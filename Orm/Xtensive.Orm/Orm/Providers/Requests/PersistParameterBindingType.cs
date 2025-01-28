@@ -3,7 +3,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// Possible types of <see cref="PersistParameterBinding"/>.
   /// </summary>
-  public enum PersistParameterBindingType
+  public enum PersistParameterBindingType : byte
   {
     /// <summary>
     /// Regular parameter. Parameter value is obtained thru difference tuple.

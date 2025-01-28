@@ -4,9 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2010.08.04
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Operations
@@ -14,7 +11,7 @@ namespace Xtensive.Orm.Operations
   /// <summary>
   /// Operation registry for <see cref="Session"/> type.
   /// </summary>
-  public sealed class OperationRegistry
+  internal sealed class OperationRegistry : List<ICompletableScope>
   {
     public readonly struct SystemOperationRegistrationScope : IDisposable
     {
@@ -32,16 +29,17 @@ namespace Xtensive.Orm.Operations
     }
 
     private readonly ICompletableScope blockingScope;
-    private readonly Collections.Deque<ICompletableScope> scopes = new();
     private bool isOperationRegistrationEnabled = true;
     private bool isUndoOperationRegistrationEnabled = true;
 
     /// <summary>
     /// Gets the session this instance is bound to.
     /// </summary>
-    internal Session Session { get; private set; }
+    internal Session Session { get; }
 
     #region IsXxx properties
+
+    private List<ICompletableScope> scopes => this;
 
     /// <summary>
     /// Indicates whether operation logging is enabled.
@@ -61,21 +59,14 @@ namespace Xtensive.Orm.Operations
     /// Gets a value indicating whether this instance can register operation
     /// using <see cref="RegisterOperation(Xtensive.Orm.Operation)"/> method.
     /// </summary>
-    public bool CanRegisterOperation {
-      get {
-        var scope = scopes.TailOrDefault;
-        return scope!=null && scope is OperationRegistrationScope;
-      }
-    }
+    public bool CanRegisterOperation => scopes.LastOrDefault() is OperationRegistrationScope;
 
     /// <summary>
     /// Gets a value indicating whether this instance is registering operation now,
     /// i.e. <see cref="BeginRegistration"/> method was invoked, but the
     /// scope isn't closed yet.
     /// </summary>
-    public bool IsRegisteringOperation {
-      get { return scopes.Count!=0; }
-    }
+    public bool IsRegisteringOperation => scopes.Count != 0;
 
     internal bool IsOutermostOperationRegistrationEnabled {
       get {
@@ -203,13 +194,8 @@ namespace Xtensive.Orm.Operations
     /// <param name="identifier">The entity identifier.
     /// <see langword="null" /> indicates identifier must be assigned automatically 
     /// as sequential number inside the current operation context.</param>
-    public void RegisterEntityIdentifier(Key key, string identifier)
-    {
-      var scope = scopes.HeadOrDefault as OperationRegistrationScope;
-      if (scope==null)
-        return;
-      scope.RegisterEntityIdentifier(key, identifier);
-    }
+    public void RegisterEntityIdentifier(Key key, string identifier) =>
+      (scopes.FirstOrDefault() as OperationRegistrationScope)?.RegisterEntityIdentifier(key, identifier);
 
     /// <summary>
     /// Temporarily disables undo operation logging.
@@ -374,10 +360,7 @@ namespace Xtensive.Orm.Operations
 
     #region Private \ internal methods
 
-    internal ICompletableScope GetCurrentScope()
-    {
-      return scopes.TailOrDefault;
-    }
+    internal ICompletableScope GetCurrentScope() => scopes.LastOrDefault();
 
     private OperationRegistrationScope GetCurrentOperationRegistrationScope()
     {
@@ -390,39 +373,34 @@ namespace Xtensive.Orm.Operations
     private OperationRegistrationScope GetCurrentOrParentOperationRegistrationScope()
     {
       var scope = GetCurrentScope();
-      if (scope==null)
+      if (scope == null)
         return null;
-      var result = scope as OperationRegistrationScope;
-      if (result!=null)
+      if (scope is OperationRegistrationScope result)
         return result;
-      var list = new ICompletableScope[scopes.Count];
-      scopes.CopyTo(list, 0);
-      for (int i = list.Length - 2; i>=0; i--) {
-        result = list[i] as OperationRegistrationScope;
-        if (result!=null)
-          return result;
+      for (int i = scopes.Count - 1; i-- > 0;) {
+        if (scopes[i] is OperationRegistrationScope result2)
+          return result2;
       }
       throw new InvalidOperationException(Strings.ExNoOperationRegistrationScope);
     }
 
     internal ICompletableScope SetCurrentScope(ICompletableScope scope)
     {
-      scopes.AddTail(scope);
+      scopes.Add(scope);
       return scope;
     }
 
     internal void RemoveCurrentScope(ICompletableScope scope)
     {
-      if (scopes.TailOrDefault!=scope)
+      if (scopes.LastOrDefault() != scope)
         throw new InvalidOperationException(Strings.ExInvalidScopeDisposalOrder);
-      scopes.ExtractTail();
+      scopes.RemoveAt(scopes.Count - 1);
     }
 
-    internal long GetNextIdentifier()
-    {
-      var scope = scopes.HeadOrDefault as OperationRegistrationScope;
-      return scope==null ? -1 : scope.CurrentIdentifier++;
-    }
+    internal long GetNextIdentifier() =>
+      scopes.FirstOrDefault() is OperationRegistrationScope scope
+        ? scope.CurrentIdentifier++
+        : -1;
 
     #endregion
 

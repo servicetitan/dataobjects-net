@@ -4,9 +4,7 @@
 // Created by: Alexey Kochetov
 // Created:    2007.10.01
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -14,8 +12,6 @@ using System.Runtime.Serialization;
 using System.Security;
 using Xtensive.Conversion;
 using Xtensive.Core;
-
-
 
 namespace Xtensive.Collections
 {
@@ -32,42 +28,29 @@ namespace Xtensive.Collections
   [DebuggerDisplay("Count = {Count}")]
   public class FlagCollection<TKey, TFlag>: LockableBase,
     IList<KeyValuePair<TKey, TFlag>>,
-    IDictionary<TKey, TFlag>,
+    IReadOnlyDictionary<TKey, TFlag>,
     IEquatable<FlagCollection<TKey, TFlag>>,
     ISerializable
   {
     private const int MaxItemCount = 32;
-    private readonly Biconverter<TFlag, bool> converter;
-    private readonly List<TKey> keys;
-    private readonly ReadOnlyCollection<TKey> readOnlyKeys;
+    private readonly List<TKey> keys = new();
     private BitVector32 flags;
 
     /// <summary>
     /// Gets <see cref="Biconverter{TFrom,TTo}"/> instance
     /// used to convert flag value to <see cref="bool"/> and vice versa.
     /// </summary>
-    public Biconverter<TFlag, bool> Converter
-    {
-      [DebuggerStepThrough]
-      get { return converter; }
-    }
+    public Biconverter<TFlag, bool> Converter { [DebuggerStepThrough] get; }
 
     /// <summary>
     /// Gets an <see cref="Collection{T}"/> containing the flags.
     /// </summary>
-    public ICollection<TFlag> Flags
-    {
-      [DebuggerStepThrough]
-      get { return Values; }
-    }
+    public ICollection<TFlag> Flags => Values;
 
-    #region IDictionary<TKey,TFlag> Members
+    #region IReadOnlyDictionary<TKey,TFlag> Members
 
     /// <inheritdoc/>
-    public bool ContainsKey(TKey key)
-    {
-      return keys.Contains(key);
-    }
+    public bool ContainsKey(TKey key) => keys.Contains(key);
 
     /// <inheritdoc/>
     public void Add(TKey key, TFlag flag)
@@ -78,13 +61,20 @@ namespace Xtensive.Collections
       if (keys.Count >= MaxItemCount)
         throw new InvalidOperationException(string.Format(Strings.ExMaxItemCountIsN, MaxItemCount));
       keys.Add(key);
-      flags[1 << (keys.Count - 1)] = converter.ConvertForward(flag);
+      flags[1 << (keys.Count - 1)] = Converter.ConvertForward(flag);
     }
 
     /// <inheritdoc/>
-    public virtual void Add(TKey key)
+    public virtual void Add(TKey key) => Add(key, default);
+
+    public bool TryAdd(TKey key, TFlag flag)
     {
-      Add(key, default(TFlag));
+      if (!ContainsKey(key)) {
+        Add(key, flag);
+        return true;
+      }
+
+      return false;
     }
 
     /// <inheritdoc/>
@@ -107,11 +97,11 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public bool TryGetValue(TKey key, out TFlag value)
     {
-      value = converter.ConvertBackward(false);
+      value = Converter.ConvertBackward(false);
       int index = keys.IndexOf(key);
       if (index < 0)
         return false;
-      value = converter.ConvertBackward(flags[1 << index]);
+      value = Converter.ConvertBackward(flags[1 << index]);
       return true;
     }
 
@@ -121,11 +111,7 @@ namespace Xtensive.Collections
       get
       {
         ArgumentValidator.EnsureArgumentIsNotDefault(key, "key");
-        TFlag value;
-        bool result = TryGetValue(key, out value);
-        if (!result)
-          throw new KeyNotFoundException();
-        return value;
+        return TryGetValue(key, out var value) ? value : throw new KeyNotFoundException();
       }
       set
       {
@@ -135,7 +121,7 @@ namespace Xtensive.Collections
         if (index < 0)
           Add(key, value);
         else
-          flags[1 << index] = converter.ConvertForward(value);
+          flags[1 << index] = Converter.ConvertForward(value);
       }
     }
 
@@ -143,16 +129,10 @@ namespace Xtensive.Collections
     /// Gets a list of keys.
     /// </summary>
     /// <returns>A list of keys.</returns>
-    public IReadOnlyList<TKey> Keys
-    {
-      get { return readOnlyKeys; }
-    }
+    public IReadOnlyList<TKey> Keys => keys;
 
     /// <inheritdoc/>
-    ICollection<TKey> IDictionary<TKey, TFlag>.Keys
-    {
-      get { return readOnlyKeys; }
-    }
+    IEnumerable<TKey> IReadOnlyDictionary<TKey, TFlag>.Keys => Keys;
 
     /// <summary>
     /// Gets an array of values.
@@ -160,33 +140,23 @@ namespace Xtensive.Collections
     /// <returns>An array of values.</returns>
     public TFlag[] Values {
       get {
-        var array = new TFlag[keys.Count];
-        for (int i = 0; i < keys.Count; i++)
-          array[i] = converter.ConvertBackward(flags[1 << i]);
+        var n = keys.Count;
+        var array = new TFlag[n];
+        for (int i = 0; i < n; i++)
+          array[i] = Converter.ConvertBackward(flags[1 << i]);
         return array;
       }
     }
 
     /// <inheritdoc/>
-    ICollection<TFlag> IDictionary<TKey, TFlag>.Values {
-      get {
-        var list = new List<TFlag>(keys.Count);
-        for (int i = 0; i < keys.Count; i++) {
-          list.Add(converter.ConvertBackward(flags[1 << i]));
-        }
-        return list;
-      }
-    }
+    IEnumerable<TFlag> IReadOnlyDictionary<TKey, TFlag>.Values => Values;
 
     #endregion
 
     #region IList<KeyValuePair<TKey,TFlag>> Members
 
     /// <inheritdoc/>
-    public void Add(KeyValuePair<TKey, TFlag> item)
-    {
-      Add(item.Key, item.Value);
-    }
+    public void Add(KeyValuePair<TKey, TFlag> item) => Add(item.Key, item.Value);
 
     /// <inheritdoc/>
     public void Clear()
@@ -197,61 +167,35 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    public bool Contains(KeyValuePair<TKey, TFlag> item)
-    {
-      return ContainsKey(item.Key);
-    }
+    public bool Contains(KeyValuePair<TKey, TFlag> item) => ContainsKey(item.Key);
 
     /// <inheritdoc/>
-    public void CopyTo(KeyValuePair<TKey, TFlag>[] array, int arrayIndex)
-    {
-      this.Copy(array, arrayIndex);
-    }
+    public void CopyTo(KeyValuePair<TKey, TFlag>[] array, int arrayIndex) => this.Copy(array, arrayIndex);
 
     /// <inheritdoc/>
-    public bool Remove(KeyValuePair<TKey, TFlag> item)
-    {
-      return Remove(item.Key);
-    }
+    public bool Remove(KeyValuePair<TKey, TFlag> item) => Remove(item.Key);
 
     /// <inheritdoc/>
-    public int Count
-    {
-      [DebuggerStepThrough]
-      get { return keys.Count; }
-    }
+    public int Count => keys.Count;
 
     /// <inheritdoc/>
-    public bool IsReadOnly
-    {
-      [DebuggerStepThrough]
-      get { return IsLocked; }
-    }
+    public bool IsReadOnly => IsLocked;
 
     /// <inheritdoc/>
-    int IList<KeyValuePair<TKey, TFlag>>.IndexOf(KeyValuePair<TKey, TFlag> item)
-    {
-      throw new NotSupportedException();
-    }
+    int IList<KeyValuePair<TKey, TFlag>>.IndexOf(KeyValuePair<TKey, TFlag> item) => throw new NotSupportedException();
 
     /// <inheritdoc/>
-    void IList<KeyValuePair<TKey, TFlag>>.Insert(int index, KeyValuePair<TKey, TFlag> item)
-    {
-      throw new NotSupportedException();
-    }
+    void IList<KeyValuePair<TKey, TFlag>>.Insert(int index, KeyValuePair<TKey, TFlag> item) => throw new NotSupportedException();
 
     /// <inheritdoc/>
-    void IList<KeyValuePair<TKey, TFlag>>.RemoveAt(int index)
-    {
-      throw new NotSupportedException();
-    }
+    void IList<KeyValuePair<TKey, TFlag>>.RemoveAt(int index) => throw new NotSupportedException();
 
     /// <inheritdoc/>
     public KeyValuePair<TKey, TFlag> this[int index] {
       get {
         if (keys.Count <= index)
           throw new ArgumentOutOfRangeException("index");
-        return new KeyValuePair<TKey, TFlag>(keys[index], converter.ConvertBackward(flags[1<<index]));
+        return new KeyValuePair<TKey, TFlag>(keys[index], Converter.ConvertBackward(flags[1<<index]));
       }
       set {
         // TODO: implement?
@@ -264,10 +208,7 @@ namespace Xtensive.Collections
     #region ICollection<KeyValuePair<TKey, TFlag>> Members
 
     /// <inheritdoc/>
-    void ICollection<KeyValuePair<TKey, TFlag>>.Add(KeyValuePair<TKey, TFlag> key)
-    {
-      Add(key.Key, key.Value);
-    }
+    void ICollection<KeyValuePair<TKey, TFlag>>.Add(KeyValuePair<TKey, TFlag> key) => Add(key.Key, key.Value);
 
     /// <inheritdoc/>
     bool ICollection<KeyValuePair<TKey, TFlag>>.Contains(KeyValuePair<TKey, TFlag> item)
@@ -275,20 +216,14 @@ namespace Xtensive.Collections
       int index = keys.IndexOf(item.Key);
       if (index < 0)
         return false;
-      return flags[1 << index] == converter.ConvertForward(item.Value);
+      return flags[1 << index] == Converter.ConvertForward(item.Value);
     }
 
     /// <inheritdoc/>
-    void ICollection<KeyValuePair<TKey, TFlag>>.CopyTo(KeyValuePair<TKey, TFlag>[] array, int arrayIndex)
-    {
-      this.Copy(array, arrayIndex);
-    }
+    void ICollection<KeyValuePair<TKey, TFlag>>.CopyTo(KeyValuePair<TKey, TFlag>[] array, int arrayIndex) => this.Copy(array, arrayIndex);
 
     /// <inheritdoc/>
-    bool ICollection<KeyValuePair<TKey, TFlag>>.Remove(KeyValuePair<TKey, TFlag> item)
-    {
-      throw new NotSupportedException();
-    }
+    bool ICollection<KeyValuePair<TKey, TFlag>>.Remove(KeyValuePair<TKey, TFlag> item) => throw new NotSupportedException();
 
     #endregion
 
@@ -298,7 +233,7 @@ namespace Xtensive.Collections
     public IEnumerator<KeyValuePair<TKey, TFlag>> GetEnumerator()
     {
       for (int i = 0; i < keys.Count; i++)
-        yield return new KeyValuePair<TKey, TFlag>(keys[i], converter.ConvertBackward(flags[1 << i]));
+        yield return new KeyValuePair<TKey, TFlag>(keys[i], Converter.ConvertBackward(flags[1 << i]));
     }
 
     /// <inheritdoc/>
@@ -314,23 +249,21 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public bool Equals(FlagCollection<TKey, TFlag> other)
     {
+      if (ReferenceEquals(this, other))
+        return true;
       if (other == null)
         return false;
-      if (Count != other.Count)
+      var count = Count;
+      if (count != other.Count)
         return false;
-      for (int i = 0; i < Count; i++)
+      for (int i = 0; i < count; i++)
         if (!this[i].Equals(other[i]))
           return false;
       return true;
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(this, obj))
-        return true;
-      return Equals(obj as FlagCollection<TKey, TFlag>);
-    }
+    public override bool Equals(object obj) => obj is FlagCollection<TKey, TFlag> other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode() => HashCode.Combine(keys, flags);
@@ -347,7 +280,7 @@ namespace Xtensive.Collections
     public FlagCollection(Biconverter<TFlag, bool> converter)
       : this()
     {
-      this.converter = converter;
+      Converter = converter;
     }
 
     /// <summary>
@@ -358,15 +291,13 @@ namespace Xtensive.Collections
     public FlagCollection(Biconverter<TFlag, bool> converter, IEnumerable<KeyValuePair<TKey, TFlag>> enumerable)
       : this()
     {
-      this.converter = converter;
+      Converter = converter;
       foreach (KeyValuePair<TKey, TFlag> pair in enumerable)
         Add(pair.Key, pair.Value);
     }
 
     private FlagCollection()
     {
-      keys = new List<TKey>();
-      readOnlyKeys = keys.AsReadOnly();
     }
 
     #region ISerializable members
@@ -379,10 +310,9 @@ namespace Xtensive.Collections
     protected FlagCollection(SerializationInfo info, StreamingContext context)
       : base(info.GetBoolean("IsLocked"))
     {
-      converter = (Biconverter<TFlag, bool>)
+      Converter = (Biconverter<TFlag, bool>)
         info.GetValue("AdvancedConverter", typeof(Biconverter<TFlag, bool>));
       keys = (List<TKey>)info.GetValue("Keys", typeof(List<TKey>));
-      readOnlyKeys = keys.AsReadOnly();
       flags = new BitVector32(info.GetInt32("Flags"));
     }
 
@@ -395,7 +325,7 @@ namespace Xtensive.Collections
     public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("IsLocked", IsLocked);
-      info.AddValue("AdvancedConverter", converter);
+      info.AddValue("AdvancedConverter", Converter);
       info.AddValue("Keys", keys);
       info.AddValue("Flags", flags.Data);
     }
