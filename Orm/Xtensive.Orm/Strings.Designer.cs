@@ -4687,6 +4687,7 @@ namespace Xtensive {
             }
         }
 
+        /// <summary>
         ///   Looks up a localized string similar to The type &apos;{0}&apos;,which contains renaming field &apos;{1}&apos;, doesn&apos;t exist in storage model..
         /// </summary>
         internal static string ExTypeXWhichContainsRenamingFieldYDoesntExistInStorageModel {
