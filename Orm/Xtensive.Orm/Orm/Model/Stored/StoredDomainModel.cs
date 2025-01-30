@@ -48,21 +48,16 @@ namespace Xtensive.Orm.Model.Stored
     public static StoredDomainModel Deserialize(string serialized, byte[] data)
     {
       if (data != null) {
-        string xml;
         switch (data[0]) {
           case 0:
-            xml = Encoding.UTF8.GetString(data, 1, data.Length - 1);
-            break;
+            return Serializer.Deserialize(Encoding.UTF8.GetString(data, 1, data.Length - 1));
           case 1:
             using (BrotliStream brotliStream = new(new MemoryStream(data, 1, data.Length - 1), CompressionMode.Decompress)) {
-              using StreamReader reader = new(brotliStream, Encoding.UTF8);
-              xml = reader.ReadToEnd();
+              return Serializer.DeserializeFromStream(brotliStream);
             }
-            break;
           default:
             throw new NotSupportedException("Invalid data format");
         }
-        return Serializer.Deserialize(xml);
       }
       return Serializer.Deserialize(serialized);
     }
@@ -73,17 +68,12 @@ namespace Xtensive.Orm.Model.Stored
     /// <returns>Serialized instance.</returns>
     public (string Xml, byte[] Compressed) Serialize()
     {
-      var xml = Serializer.Serialize(this);
       MemoryStream ms = new(1000);
-      ms.WriteByte(1);
+      ms.WriteByte(1);      // 1 - means Brotli method
       using (BrotliStream brotliStream = new(ms, CompressionLevel.Optimal)) {
-        brotliStream.Write(Encoding.UTF8.GetBytes(xml));
+        Serializer.SerializeIntoStream(this, brotliStream);
       }
-
-      //!!!TODO  Uncomment following line to switch to Compressed XML serialization
-      // return (null, ms.ToArray());
-
-      return (xml, ms.ToArray());
+      return (null, ms.ToArray());
     }
 
     /// <summary>
