@@ -18,6 +18,8 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed class PersistRequest
   {
+    private static readonly IReadOnlySet<PersistParameterBinding> EmptyBindings = new HashSet<PersistParameterBinding>();
+
     private readonly StorageDriver driver;
 
     private SqlCompilationResult compiledStatement;
@@ -43,7 +45,7 @@ namespace Xtensive.Orm.Providers
     // Constructors
 
     public PersistRequest(
-      StorageDriver driver, SqlStatement statement, IEnumerable<PersistParameterBinding> parameterBindings)
+      StorageDriver driver, SqlStatement statement, IReadOnlySet<PersistParameterBinding> parameterBindings)
     {
       ArgumentNullException.ThrowIfNull(driver);
       ArgumentNullException.ThrowIfNull(statement);
@@ -54,7 +56,7 @@ namespace Xtensive.Orm.Providers
       this.driver = driver;
       Statement = statement;
       CompileUnit = compileUnit;
-      ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);
+      ParameterBindings = parameterBindings ?? EmptyBindings;
     }
   }
 }
