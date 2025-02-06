@@ -5,7 +5,6 @@
 // Created:    2008.08.29
 
 using System.Collections;
-using Microsoft.VisualBasic;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Providers
