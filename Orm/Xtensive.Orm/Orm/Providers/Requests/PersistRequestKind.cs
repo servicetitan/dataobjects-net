@@ -9,7 +9,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// Kinds of <see cref="PersistRequest"/>.
   /// </summary>
-  public enum PersistRequestKind
+  public enum PersistRequestKind : sbyte
   {
     /// <summary>
     /// Insert request.

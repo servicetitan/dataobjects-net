@@ -25,8 +25,8 @@ namespace Xtensive.Orm.Upgrade
 
     private sealed class Descriptor : IPersistDescriptor
     {
-      public PersistRequest StoreRequest { get; set; }
-      public PersistRequest ClearRequest { get; set; }
+      public PreparedPersistRequest StoreRequest { get; set; }
+      public PreparedPersistRequest ClearRequest { get; set; }
     }
 
     private readonly StorageDriver driver;
@@ -119,14 +119,10 @@ namespace Xtensive.Orm.Upgrade
       insert.ValueRows.Add(row);
 
       var delete = SqlDml.Delete(tableRef);
-      if (deleteTransform!=null)
-        deleteTransform.Invoke(delete);
+      deleteTransform?.Invoke(delete);
 
-      var storeRequest = new PersistRequest(driver, insert, bindings);
-      var clearRequest = new PersistRequest(driver, delete, null);
-
-      storeRequest.Prepare();
-      clearRequest.Prepare();
+      var storeRequest = new PersistRequest(driver, insert, bindings).Prepare();
+      var clearRequest = new PersistRequest(driver, delete, null).Prepare();
 
       return new Descriptor {
         StoreRequest = storeRequest,

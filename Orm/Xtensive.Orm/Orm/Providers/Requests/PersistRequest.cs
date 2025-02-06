@@ -4,59 +4,49 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.22
 
-using System;
-using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 
-namespace Xtensive.Orm.Providers
+namespace Xtensive.Orm.Providers;
+
+public record struct PreparedPersistRequest(
+  SqlCompilationResult CompiledStatement,
+  IReadOnlyCollection<PersistParameterBinding> ParameterBindings
+);
+
+/// <summary>
+/// Modification (INSERT, UPDATE, DELETE) request.
+/// </summary>
+public readonly struct PersistRequest
 {
-  /// <summary>
-  /// Modification (INSERT, UPDATE, DELETE) request.
-  /// </summary>
-  public sealed class PersistRequest
+  private static readonly IReadOnlySet<PersistParameterBinding> EmptyBindings = new HashSet<PersistParameterBinding>();
+
+  private readonly StorageDriver driver;
+
+  public SqlStatement Statement { get; }
+
+  public ISqlCompileUnit CompileUnit { get; }
+
+  public IReadOnlyCollection<PersistParameterBinding> ParameterBindings { get; }
+
+  public PreparedPersistRequest Prepare() => new(driver.Compile(CompileUnit), ParameterBindings);
+
+  // Constructors
+
+  public PersistRequest(
+    StorageDriver driver, SqlStatement statement, IReadOnlySet<PersistParameterBinding> parameterBindings)
   {
-    private static readonly IReadOnlySet<PersistParameterBinding> EmptyBindings = new HashSet<PersistParameterBinding>();
+    ArgumentNullException.ThrowIfNull(driver);
+    ArgumentNullException.ThrowIfNull(statement);
 
-    private readonly StorageDriver driver;
+    var compileUnit = statement as ISqlCompileUnit
+      ?? throw new ArgumentException("Statement is not ISqlCompileUnit");
 
-    private SqlCompilationResult compiledStatement;
-
-    public SqlStatement Statement { get; private set; }
-
-    public ISqlCompileUnit CompileUnit { get; private set; }
-
-    public IReadOnlyCollection<PersistParameterBinding> ParameterBindings { get; }
-
-    public SqlCompilationResult GetCompiledStatement() =>
-      compiledStatement ?? throw new InvalidOperationException(Strings.ExRequestIsNotPrepared);
-
-    public void Prepare()
-    {
-      if (compiledStatement != null)
-        return;
-      compiledStatement = driver.Compile(CompileUnit);
-      CompileUnit = null;
-      Statement = null;
-    }
-
-    // Constructors
-
-    public PersistRequest(
-      StorageDriver driver, SqlStatement statement, IReadOnlySet<PersistParameterBinding> parameterBindings)
-    {
-      ArgumentNullException.ThrowIfNull(driver);
-      ArgumentNullException.ThrowIfNull(statement);
-
-      var compileUnit = statement as ISqlCompileUnit
-        ?? throw new ArgumentException("Statement is not ISqlCompileUnit");
-
-      this.driver = driver;
-      Statement = statement;
-      CompileUnit = compileUnit;
-      ParameterBindings = parameterBindings ?? EmptyBindings;
-    }
+    this.driver = driver;
+    Statement = statement;
+    CompileUnit = compileUnit;
+    ParameterBindings = parameterBindings ?? EmptyBindings;
   }
 }

@@ -73,7 +73,7 @@ namespace Xtensive.Orm
     /// </summary>
     internal ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)> RefsToEntityQueryCache { get; } = new();
     internal ConcurrentDictionary<SequenceInfo, CachingSequence> KeySequencesCache { get; } = new();
-    internal ConcurrentDictionary<PersistRequestBuilderTask, IReadOnlyList<PersistRequest>> PersistRequestCache { get; } = new();
+    internal ConcurrentDictionary<PersistRequestBuilderTask, IReadOnlyList<PreparedPersistRequest>> PersistRequestCache { get; } = new();
 
     /// <inheritdoc/>
     public Session OpenSession() =>
