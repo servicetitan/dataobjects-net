@@ -4,10 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.22
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
@@ -20,16 +16,18 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed class QueryRequest : IQueryRequest
   {
+    private static readonly IReadOnlySet<QueryParameterBinding> EmptyBindings = new HashSet<QueryParameterBinding>();
+
     private readonly StorageDriver driver;
 
     private DbDataReaderAccessor? accessor;
     private SqlCompilationResult compiledStatement;
 
     public SqlSelect Statement { get; private set; }
-    public IEnumerable<QueryParameterBinding> ParameterBindings { get; private set; }
+    public IEnumerable<QueryParameterBinding> ParameterBindings { get; }
 
-    public TupleDescriptor TupleDescriptor { get; private set; }
-    public QueryRequestOptions Options { get; private set; }
+    public TupleDescriptor TupleDescriptor { get; }
+    public QueryRequestOptions Options { get; }
 
     public NodeConfiguration NodeConfiguration { get; private set; }
 
@@ -60,7 +58,7 @@ namespace Xtensive.Orm.Providers
     // Constructors
 
     public QueryRequest(
-      StorageDriver driver, SqlSelect statement, IEnumerable<QueryParameterBinding> parameterBindings,
+      StorageDriver driver, SqlSelect statement, IReadOnlySet<QueryParameterBinding> parameterBindings,
       TupleDescriptor tupleDescriptor, QueryRequestOptions options)
     {
       ArgumentNullException.ThrowIfNull(driver);
@@ -69,13 +67,13 @@ namespace Xtensive.Orm.Providers
 
       this.driver = driver;
       Statement = statement;
-      ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);
+      ParameterBindings = parameterBindings ?? EmptyBindings;
       TupleDescriptor = tupleDescriptor;
       Options = options;
     }
 
     public QueryRequest(
-      StorageDriver driver, SqlSelect statement, IEnumerable<QueryParameterBinding> parameterBindings,
+      StorageDriver driver, SqlSelect statement, IReadOnlySet<QueryParameterBinding> parameterBindings,
       TupleDescriptor tupleDescriptor, QueryRequestOptions options, NodeConfiguration nodeConfiguration)
     {
       ArgumentNullException.ThrowIfNull(driver);
@@ -84,7 +82,7 @@ namespace Xtensive.Orm.Providers
 
       this.driver = driver;
       Statement = statement;
-      ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);
+      ParameterBindings = parameterBindings ?? EmptyBindings;
       TupleDescriptor = tupleDescriptor;
       Options = options;
       NodeConfiguration = nodeConfiguration;

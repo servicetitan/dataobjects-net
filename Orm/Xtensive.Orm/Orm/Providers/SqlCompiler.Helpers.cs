@@ -36,11 +36,11 @@ namespace Xtensive.Orm.Providers
       CompilableProvider origin, params ExecutableProvider[] sources)
     {
       var allowBatching = true;
-      var parameterBindings = extraBindings ?? Enumerable.Empty<QueryParameterBinding>();
+      var parameterBindings = extraBindings?.ToHashSet() ?? new();
       foreach (var provider in sources.OfType<SqlProvider>()) {
         var queryRequest = provider.Request;
         allowBatching &= queryRequest.CheckOptions(QueryRequestOptions.AllowOptimization);
-        parameterBindings = parameterBindings.Concat(queryRequest.ParameterBindings);
+        parameterBindings.UnionWith(queryRequest.ParameterBindings);
       }
 
       var tupleDescriptor = origin.Header.TupleDescriptor;
@@ -136,7 +136,7 @@ namespace Xtensive.Orm.Providers
         : booleanExpressionConverter.BooleanToInt(originalExpression);
 
     protected QueryRequest CreateQueryRequest(StorageDriver driver, SqlSelect statement,
-      IEnumerable<QueryParameterBinding> parameterBindings,
+      IReadOnlySet<QueryParameterBinding> parameterBindings,
       TupleDescriptor tupleDescriptor, QueryRequestOptions options)
     {
       if (Handlers.Domain.Configuration.ShareStorageSchemaOverNodes) {

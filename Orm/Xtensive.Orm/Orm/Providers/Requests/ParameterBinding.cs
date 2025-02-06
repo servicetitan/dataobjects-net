@@ -20,10 +20,6 @@ namespace Xtensive.Orm.Providers
 
     public SqlExpression ParameterReference { get; }
 
-    public static IReadOnlyCollection<T> NormalizeBindings<T>(IEnumerable<T> bindings) where T : ParameterBinding =>
-      bindings != null ? new HashSet<T>(bindings) : Array.Empty<T>();
-
-
     // Constructors
 
     protected ParameterBinding(TypeMapping typeMapping, ParameterTransmissionType transmissionType)
