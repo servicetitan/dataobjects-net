@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Providers.SqlServer
 
       var index = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);
       var table = Mapping[index.ReflectedType];
-      var columns = provider.Header.Columns.Select(column => column.Name).ToList();
+      var columns = provider.Header.Columns.Columns.Select(column => column.Name).ToList();
 
       if (provider.TopN == null) {
         fromTable = SqlDml.FreeTextTable(table, criteriaBinding.ParameterReference, columns);
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Providers.SqlServer
 
       var index = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);
       var table = Mapping[index.ReflectedType];
-      var columns = provider.Header.Columns.Select(column => column.Name).ToList();
+      var columns = provider.Header.Columns.Columns.Select(column => column.Name).ToList();
 
       var targetColumnNames = provider.TargetColumns.Select(c => c.Name).ToArray();
       if (provider.TopN == null) {
