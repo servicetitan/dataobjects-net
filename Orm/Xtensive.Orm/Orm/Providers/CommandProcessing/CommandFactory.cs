@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Providers
       var result = new List<CommandPart>(task.RequestSequence.Count);
       int parameterIndex = 0;
       foreach (var request in task.RequestSequence) {
-        var compilationResult = request.GetCompiledStatement();
+        var compilationResult = request.CompiledStatement;
         var configuration = shareStorageNodesOverNodes
           ? new SqlPostCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
           : new SqlPostCompilerConfiguration();

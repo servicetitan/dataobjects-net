@@ -93,14 +93,8 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private IReadOnlyCollection<PersistRequest> GetOrBuildRequest(StorageNode node, PersistRequestBuilderTask task)
-    {
-      var cache = node.PersistRequestCache;
-      if (cache.TryGetValue(task, out var result))
-        return result;
-      result = requestBuilder.Build(node, task);
-      return cache.TryAdd(task, result) ? result : cache[task];
-    }
+    private IReadOnlyCollection<PreparedPersistRequest> GetOrBuildRequest(StorageNode node, PersistRequestBuilderTask task) =>
+      node.PersistRequestCache.GetOrAdd(task, static (t, x) => x.requestBuilder.Build(x.node, t), (requestBuilder, node));
 
     #endregion
 

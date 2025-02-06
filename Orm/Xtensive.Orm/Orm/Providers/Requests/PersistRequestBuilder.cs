@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Providers
     private ProviderInfo providerInfo;
     private StorageDriver driver;
 
-    internal IReadOnlyList<PersistRequest> Build(StorageNode node, PersistRequestBuilderTask task)
+    internal IReadOnlyList<PreparedPersistRequest> Build(StorageNode node, PersistRequestBuilderTask task)
     {
       var context = new PersistRequestBuilderContext(task, node.Mapping, node.Configuration);
       List<PersistRequest> result;
@@ -52,15 +52,10 @@ namespace Xtensive.Orm.Providers
           bindings.UnionWith(request.ParameterBindings);
         }
         var batchRequest = new PersistRequest(driver, batch, bindings);
-        batchRequest.Prepare();
-        return new List<PersistRequest> { batchRequest }.AsSafeWrapper();
+        return [batchRequest.Prepare()];
       }
 
-      foreach (var item in result) {
-        item.Prepare();
-      }
-
-      return result.AsSafeWrapper();
+      return result.Select(request => request.Prepare()).ToArray();
     }
 
     protected virtual List<PersistRequest> BuildInsertRequest(in PersistRequestBuilderContext context)
