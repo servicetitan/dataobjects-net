@@ -414,7 +414,7 @@ namespace Xtensive.Orm.Rse.Transformation
         column => {
           var newColumnExpression = (Expression<Func<Tuple, object>>) calculateExpressionRewriter
             .Rewrite(column.Expression, column.Expression.Parameters[0], columnCollection, sourceHeaderColumns);
-          var currentName = columnCollection.Single(c => c.Index==column.Index).Name;
+          var currentName = columnCollection.Columns.Single(c => c.Index==column.Index).Name;
           return new CalculatedColumnDescriptor(currentName, column.Type, newColumnExpression);
         });
       return source.Calculate(ccd.ToArray());

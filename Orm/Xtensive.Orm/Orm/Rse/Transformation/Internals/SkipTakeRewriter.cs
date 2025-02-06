@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Rse.Transformation
         if (requiresRowNumber) {
           // Arrray to avoid access to modified closure
           string[] columnName = {String.Format(Strings.RowNumberX, rowNumberCount++)};
-          while (visitedProvider.Header.Columns.Any(column => column.Name==columnName[0]))
+          while (visitedProvider.Header.Columns.Columns.Any(column => column.Name==columnName[0]))
             columnName[0] = String.Format(Strings.RowNumberX, rowNumberCount++);
           visitedProvider = new RowNumberProvider(visitedProvider, columnName[0]);
         }

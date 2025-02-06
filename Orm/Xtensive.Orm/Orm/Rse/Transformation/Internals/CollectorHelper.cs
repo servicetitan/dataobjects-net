@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       foreach (var providerPair in currentState)
         foreach (var predicatePair in providerPair.Value)
-          if (!CheckPresenceOfOldColumns(predicatePair.Item2, mappedColumns))
+          if (!CheckPresenceOfOldColumns(predicatePair.Item2.Columns, mappedColumns))
             ApplyProviderCorrectorRewriter.ThrowInvalidOperationException(descriptionProvider());
     }
 

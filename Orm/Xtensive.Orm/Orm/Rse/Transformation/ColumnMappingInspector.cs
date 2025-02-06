@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Rse.Transformation
       var source = VisitCompilable(provider.Source);
 
       var currentMapping = mappings[provider.Source];
-      var calulatedColumn = provider.Header.Columns.Last();
+      var calulatedColumn = provider.Header.Columns.Columns.Last();
       mappings[provider] = Merge(currentMapping, [calulatedColumn.Index]);
       if (source == provider.Source) {
         return provider;
@@ -260,7 +260,7 @@ namespace Xtensive.Orm.Rse.Transformation
       using ColumnMap sourceMap = new(mappings[provider.Source]);
       var currentMap = mappings[provider];
 
-      mappings[provider] = provider.Header.Columns.Select(c => c.Index).ToList(provider.Header.Columns.Count);
+      mappings[provider] = provider.Header.Columns.Columns.Select(c => c.Index).ToList(provider.Header.Columns.Count);
 
       if (source == provider.Source) {
         return provider;
@@ -325,7 +325,7 @@ namespace Xtensive.Orm.Rse.Transformation
       mappings[provider.Source] = mappings[provider].Where(i => i < sourceLength).ToList();
       var newSource = VisitCompilable(provider.Source);
       var currentMapping = mappings[provider.Source];
-      var rowNumberColumn = provider.Header.Columns.Last();
+      var rowNumberColumn = provider.Header.Columns.Columns.Last();
       mappings[provider] = Merge(currentMapping, [rowNumberColumn.Index]);
       return newSource == provider.Source
         ? provider
@@ -340,7 +340,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       if (hasGrouping) {
         mappings.Add(provider.Sources[0],
-          Merge(mappings[provider], provider.Header.Columns.Select((c, i) => (ColNum)i)));
+          Merge(mappings[provider], provider.Header.Columns.Columns.Select((c, i) => (ColNum)i)));
       }
       else {
         OnRecursionEntrance(provider);

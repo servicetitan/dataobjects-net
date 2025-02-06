@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <inheritdoc/>
     protected override string ParametersToString()
     {
-      return Header.Columns.Select(c => c.Name).ToCommaDelimitedString();
+      return Header.Columns.Columns.Select(c => c.Name).ToCommaDelimitedString();
     }
 
     internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitSelect(this);

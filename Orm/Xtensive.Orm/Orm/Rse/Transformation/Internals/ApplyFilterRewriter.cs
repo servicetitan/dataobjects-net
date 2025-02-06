@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Rse.Transformation
         var sourceIndex = mc.GetTupleAccessArgument();
         if (mc.GetApplyParameter() != null)
           return Expression.Call(LeftTupleParameter, mc.Method, mc.Arguments[0]);
-        var name = sourceColumns.Single(column => column.Index == sourceIndex).Name;
+        var name = sourceColumns.Columns.Single(column => column.Index == sourceIndex).Name;
         int currentIndex = targetColumns[name].Index;
         return Expression.Call(mc.Object, mc.Method, Expr.Constant(currentIndex));
       }
@@ -47,8 +47,6 @@ namespace Xtensive.Orm.Rse.Transformation
       ColumnCollection predicateColumns, ColumnCollection currentColumns)
     {
       ArgumentNullException.ThrowIfNull(predicate);
-      ArgumentNullException.ThrowIfNull(predicateColumns);
-      ArgumentNullException.ThrowIfNull(currentColumns);
       if (predicateColumns.Count == 0)
         throw Exceptions.CollectionIsEmpty("predicateColumns");
       if (currentColumns.Count == 0)

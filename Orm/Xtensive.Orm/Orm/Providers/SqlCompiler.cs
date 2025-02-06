@@ -420,7 +420,7 @@ namespace Xtensive.Orm.Providers
       var source = provider.Source is RawProvider rawProvider
             ? (ExecutableProvider) (new Rse.Providers.ExecutableRawProvider(rawProvider))
             : Compile(provider.Source);
-      var columnNames = provider.Header.Columns.Select(column => column.Name).ToArray();
+      var columnNames = provider.Header.Columns.Columns.Select(column => column.Name).ToArray();
       var descriptor = DomainHandler.TemporaryTableManager
         .BuildDescriptor(Mapping, provider.Name, provider.Header.TupleDescriptor, columnNames);
       var request = CreateQueryRequest(Driver, descriptor.QueryStatement, null, descriptor.TupleDescriptor, QueryRequestOptions.Empty);
@@ -553,7 +553,7 @@ namespace Xtensive.Orm.Providers
 
       var query = ExtractSqlSelect(provider, source);
       var rowNumber = SqlDml.RowNumber();
-      query.Columns.Add(rowNumber, header.Columns.Last().Name);
+      query.Columns.Add(rowNumber, header.Columns.Columns.Last().Name);
       var columns = ExtractColumnExpressions(query);
       foreach (var order in directionCollection)
         rowNumber.OrderBy.Add(columns[order.Key], order.Value==Direction.Positive);
@@ -592,7 +592,7 @@ namespace Xtensive.Orm.Providers
 
     protected override void Initialize()
     {
-      foreach (var column in RootProvider.Header.Columns)
+      foreach (var column in RootProvider.Header.Columns.Columns)
         rootColumns.Add(column.Origin);
     }
 

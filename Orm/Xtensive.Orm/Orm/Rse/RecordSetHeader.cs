@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Rse
       ColumnCollection resultColumns = Columns.Alias(alias);
 
       return new RecordSetHeader(
-        TupleDescriptor, resultColumns, ColumnGroups, OrderTupleDescriptor, Order);
+        TupleDescriptor, resultColumns.Columns, ColumnGroups, OrderTupleDescriptor, Order);
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Rse
     public RecordSetHeader Add(Column column)
     {
       var newColumns = new List<Column>(Columns.Count + 1);
-      newColumns.AddRange(Columns);
+      newColumns.AddRange(Columns.Columns);
       newColumns.Add(column);
 
       var newTupleDescriptor = CreateTupleDescriptor(newColumns);
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Rse
     public RecordSetHeader Add(IReadOnlyList<Column> columns)
     {
       var n = Columns.Count + columns.Count;
-      var newColumns = Columns.Concat(columns).ToArray(n);
+      var newColumns = Columns.Columns.Concat(columns).ToArray(n);
 
       var newTupleDescriptor = CreateTupleDescriptor(newColumns);
 
@@ -118,10 +118,10 @@ namespace Xtensive.Orm.Rse
       var columnCount = Columns.Count;
       var newColumns = new Column[columnCount + joined.Columns.Count];
       int j = 0;
-      foreach (var c in Columns) {
+      foreach (var c in Columns.Columns) {
         newColumns[j++] = c;
       }
-      foreach (var c in joined.Columns) {
+      foreach (var c in joined.Columns.Columns) {
         newColumns[j++] = c.Clone((ColNum) (columnCount + c.Index));
       }
 
@@ -201,7 +201,7 @@ namespace Xtensive.Orm.Rse
     {
       return new RecordSetHeader(
         TupleDescriptor,
-        Columns,
+        Columns.Columns,
         ColumnGroups,
         TupleDescriptor,
         sortOrder);
@@ -269,7 +269,7 @@ namespace Xtensive.Orm.Rse
     /// <inheritdoc/>
     public override string ToString()
     {
-      return Columns.Select(c => c.ToString()).ToCommaDelimitedString();
+      return Columns.Columns.Select(c => c.ToString()).ToCommaDelimitedString();
     }
 
 
