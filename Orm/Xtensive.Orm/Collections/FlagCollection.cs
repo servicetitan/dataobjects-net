@@ -232,15 +232,12 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public IEnumerator<KeyValuePair<TKey, TFlag>> GetEnumerator()
     {
-      for (int i = 0; i < keys.Count; i++)
+      for (int i = 0, count = keys.Count; i < count; i++)
         yield return new KeyValuePair<TKey, TFlag>(keys[i], Converter.ConvertBackward(flags[1 << i]));
     }
 
     /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return ((IEnumerable<KeyValuePair<TKey, TFlag>>)this).GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     #endregion
 

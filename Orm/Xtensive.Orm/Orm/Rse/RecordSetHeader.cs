@@ -4,7 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2007.09.13
 
-using System.Buffers;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
@@ -20,6 +19,8 @@ namespace Xtensive.Orm.Rse
   [Serializable]
   public sealed class RecordSetHeader
   {
+    private static readonly DirectionCollection<ColNum> EmptyOrder = new();
+
     private TupleDescriptor orderTupleDescriptor;
 
     /// <summary>
@@ -344,8 +345,17 @@ namespace Xtensive.Orm.Rse
 
       ColumnGroups = columnGroups ?? [];
       orderTupleDescriptor = orderKeyDescriptor ?? TupleDescriptor.Empty;
-      Order = order ?? new DirectionCollection<ColNum>();
-      Order.Lock(true);
+      if (order != null) {
+        (Order = order).Lock();
+      }
+      else {
+        Order = EmptyOrder;
+      }
+    }
+
+    static RecordSetHeader()
+    {
+      EmptyOrder.Lock();
     }
   }
 }
