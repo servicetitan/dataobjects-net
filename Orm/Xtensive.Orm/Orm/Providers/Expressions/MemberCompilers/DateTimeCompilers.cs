@@ -73,34 +73,6 @@ namespace Xtensive.Orm.Providers
       return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.DayOfYear, _this));
     }
 
-    [Compiler(typeof(DateOnly), "Year", TargetKind.PropertyGet)]
-    public static SqlExpression DateOnlyYear(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Year, _this));
-
-    [Compiler(typeof(DateOnly), "Month", TargetKind.PropertyGet)]
-    public static SqlExpression DateOnlyMonth(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Month, _this));
-
-    [Compiler(typeof(DateOnly), "Day", TargetKind.PropertyGet)]
-    public static SqlExpression DateOnlyDay(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Day, _this));
-
-    [Compiler(typeof(TimeOnly), "Hour", TargetKind.PropertyGet)]
-    public static SqlExpression TimeOnlyHour(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Hour, _this));
-
-    [Compiler(typeof(TimeOnly), "Minute", TargetKind.PropertyGet)]
-    public static SqlExpression TimeOnlyMinute(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Minute, _this));
-
-    [Compiler(typeof(TimeOnly), "Second", TargetKind.PropertyGet)]
-    public static SqlExpression TimeOnlySecond(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Second, _this));
-
-    [Compiler(typeof(TimeOnly), "Millisecond", TargetKind.PropertyGet)]
-    public static SqlExpression TimeOnlyMillisecond(SqlExpression _this) =>
-      ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Millisecond, _this));
-
     #endregion
 
     #region Constructors
