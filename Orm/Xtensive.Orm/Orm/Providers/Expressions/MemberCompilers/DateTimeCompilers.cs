@@ -125,30 +125,6 @@ namespace Xtensive.Orm.Providers
       return DateTimeConstruct(year, month, day, hour, minute, second, millisecond);
     }
 
-    [Compiler(typeof(DateOnly), null, TargetKind.Constructor)]
-    public static SqlExpression DateOnlyCtor(
-        [Type(typeof(int))] SqlExpression year,
-        [Type(typeof(int))] SqlExpression month,
-        [Type(typeof(int))] SqlExpression day) =>
-      SqlDml.DateConstruct(year, month, day);
-
-    [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
-    public static SqlExpression TimeOnlyCtor(
-        [Type(typeof(int))] SqlExpression hour,
-        [Type(typeof(int))] SqlExpression minute,
-        [Type(typeof(int))] SqlExpression second) =>
-      SqlDml.TimeConstruct(hour, minute, second, 0);
-
-    [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
-    public static SqlExpression TimeOnlyCtor(
-        [Type(typeof(int))] SqlExpression hour,
-        [Type(typeof(int))] SqlExpression minute) =>
-      SqlDml.TimeConstruct(hour, minute, 0, 0);
-
-    [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
-    public static SqlExpression TimeOnlyCtor([Type(typeof(long))] SqlExpression ticks) =>
-      SqlDml.TimeConstruct(ticks);
-
     #endregion
 
     #region Operators
