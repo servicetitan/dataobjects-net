@@ -73,7 +73,6 @@ namespace Xtensive.Orm.Providers
       return ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.DayOfYear, _this));
     }
 
-#if NET_6_0_OR_GREATER
     [Compiler(typeof(DateOnly), "Year", TargetKind.PropertyGet)]
     public static SqlExpression DateOnlyYear(SqlExpression _this) =>
       ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Year, _this));
@@ -101,7 +100,6 @@ namespace Xtensive.Orm.Providers
     [Compiler(typeof(TimeOnly), "Millisecond", TargetKind.PropertyGet)]
     public static SqlExpression TimeOnlyMillisecond(SqlExpression _this) =>
       ExpressionTranslationHelpers.ToInt(SqlDml.Extract(SqlDateTimePart.Millisecond, _this));
-#endif // DO_DATEONLY
 
     #endregion
 
@@ -155,31 +153,29 @@ namespace Xtensive.Orm.Providers
       return DateTimeConstruct(year, month, day, hour, minute, second, millisecond);
     }
 
-#if NET_6_0_OR_GREATER
     [Compiler(typeof(DateOnly), null, TargetKind.Constructor)]
     public static SqlExpression DateOnlyCtor(
         [Type(typeof(int))] SqlExpression year,
         [Type(typeof(int))] SqlExpression month,
         [Type(typeof(int))] SqlExpression day) =>
-      SqlDml.DateOnlyConstruct(year, month, day);
+      SqlDml.DateConstruct(year, month, day);
 
     [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
     public static SqlExpression TimeOnlyCtor(
         [Type(typeof(int))] SqlExpression hour,
         [Type(typeof(int))] SqlExpression minute,
         [Type(typeof(int))] SqlExpression second) =>
-      SqlDml.TimeOnlyConstruct(hour, minute, second, 0);
+      SqlDml.TimeConstruct(hour, minute, second, 0);
 
     [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
     public static SqlExpression TimeOnlyCtor(
         [Type(typeof(int))] SqlExpression hour,
         [Type(typeof(int))] SqlExpression minute) =>
-      SqlDml.TimeOnlyConstruct(hour, minute, 0, 0);
+      SqlDml.TimeConstruct(hour, minute, 0, 0);
 
     [Compiler(typeof(TimeOnly), null, TargetKind.Constructor)]
     public static SqlExpression TimeOnlyCtor([Type(typeof(long))] SqlExpression ticks) =>
-      new SqlFunctionCall(SqlFunctionType.TimeOnlyConstruct, ticks);
-#endif // DO_DATEONLY
+      SqlDml.TimeConstruct(ticks);
 
     #endregion
 
@@ -258,7 +254,6 @@ namespace Xtensive.Orm.Providers
       return SqlDml.DateTimeMinusDateTime(d1, d2);
     }
 
-#if NET_6_0_OR_GREATER
     [Compiler(typeof(DateOnly), Operator.Equality, TargetKind.Operator)]
     public static SqlExpression DateOnlyOperatorEquality(
       [Type(typeof(DateOnly))] SqlExpression d1,
@@ -355,7 +350,6 @@ namespace Xtensive.Orm.Providers
       return d1 <= d2;
     }
 
-#endif // DO_DATEONLY
 
     #endregion
 
@@ -445,7 +439,6 @@ namespace Xtensive.Orm.Providers
       return SqlDml.DateTimeToStringIso(_this);
     }
 
-#if NET_6_0_OR_GREATER
     [Compiler(typeof(DateOnly), "AddYears")]
     public static SqlExpression DateOnlyAddYears(SqlExpression _this, [Type(typeof(int))] SqlExpression value) =>
       SqlDml.DateTimeAddYears(_this, value);
@@ -456,16 +449,15 @@ namespace Xtensive.Orm.Providers
 
     [Compiler(typeof(DateOnly), "AddDays")]
     public static SqlExpression DateOnlyAddDays(SqlExpression _this, [Type(typeof(int))] SqlExpression value) =>
-      SqlDml.DateOnlyAddDays(_this, value);
+      SqlDml.DateAddDays(_this, value);
 
     [Compiler(typeof(TimeOnly), "AddHours")]
     public static SqlExpression TimeOnlyAddHours(SqlExpression _this, [Type(typeof(double))] SqlExpression value) =>
-      SqlDml.TimeOnlyAddHours(_this, value);
+      SqlDml.TimeAddHours(_this, value);
 
     [Compiler(typeof(TimeOnly), "AddMinutes")]
     public static SqlExpression TimeOnlyAddMinutes(SqlExpression _this, [Type(typeof(double))] SqlExpression value) =>
-      SqlDml.TimeOnlyAddMinutes(_this, value);
+      SqlDml.TimeAddMinutes(_this, value);
 
-#endif // DO_DATEONLY
   }
 }

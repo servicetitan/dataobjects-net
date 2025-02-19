@@ -258,7 +258,6 @@ namespace Xtensive.Orm.Tests.Model
         Assert.That(ex.Message.Contains(UnableToCreateKeyForMsg));
       }
 
-#if NET6_0_OR_GREATER
       configuration = CreateDomainConfiguration(new[] { typeof(Models.NonPersistentStorageSupporedTypesAsKeys.TimeOnlyKeyEntity) });
       Assert.DoesNotThrow(() => domain = Domain.Build(configuration));
       Assert.That(domain, Is.Not.Null);
@@ -294,7 +293,6 @@ namespace Xtensive.Orm.Tests.Model
         });
         Assert.That(ex.Message.Contains(UnableToCreateKeyForMsg));
       }
-#endif
 
       configuration = CreateDomainConfiguration(new[] { typeof(Models.NonPersistentStorageSupporedTypesAsKeys.DateTimeKeyEntity) });
       Assert.DoesNotThrow(() => domain = Domain.Build(configuration));
@@ -1621,7 +1619,6 @@ namespace Xtensive.Orm.Tests.Model.HierarchyRootValidationTestModel
       }
     }
 
-#if NET6_0_OR_GREATER
 
     [HierarchyRoot]
     public class TimeOnlyKeyEntity : Entity
@@ -1655,7 +1652,6 @@ namespace Xtensive.Orm.Tests.Model.HierarchyRootValidationTestModel
       }
     }
 
-#endif
 
     [HierarchyRoot]
     public class DateTimeKeyEntity : Entity

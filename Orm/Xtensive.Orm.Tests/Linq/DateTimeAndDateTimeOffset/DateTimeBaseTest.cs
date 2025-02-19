@@ -57,11 +57,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       _ = new SingleDateTimeEntity(session) {
         DateTime = FirstDateTime,
         MillisecondDateTime = FirstMillisecondDateTime,
-#if NET_6_0_OR_GREATER
-        DateOnly = DateOnly.FromDateTime(FirstDateTime),
-        NullableDateOnly = DateOnly.FromDateTime(NullableDateTime),
-        TimeOnly = FirstTimeOnly,
-#endif
         NullableDateTime = NullableDateTime
       };
 
