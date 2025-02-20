@@ -19,13 +19,11 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation.Model
       [Field]
       public string Text { get; set; }
 
-#if NET_6_0_OR_GREATER
       [Field]
       public DateOnly DateOnly { get; set; }
 
       [Field]
       public TimeOnly TimeOnly { get; set; }
-#endif
 
       [Field]
       public string DatabaseName { get; set; }
