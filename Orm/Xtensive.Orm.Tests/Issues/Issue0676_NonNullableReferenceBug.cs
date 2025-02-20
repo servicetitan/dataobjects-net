@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0676.Model
     #region "Null entity" pattern implementation
 
     public const string NullName = "<None>";
-    private static object @lock = new object();
+    private static Lock @lock = new();
 
     public static Person Null { 
       get {

@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Logging
   {
     private static readonly LogManager defaultInstance = new LogManager();
 
-    private readonly object syncObj = new object();
+    private readonly Lock syncObj = new();
     private LogProvider provider;
 
     /// <summary>

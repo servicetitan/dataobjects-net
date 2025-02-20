@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       public int PassCount;
       public bool Stop;
       public Thread LastAccessor;
-      public object ObjectLock = new object();
+      public Lock ObjectLock = new();
       public ReaderWriterLockSlim SlimLock = new ReaderWriterLockSlim();
 
       public void ExecuteLock(object argument)

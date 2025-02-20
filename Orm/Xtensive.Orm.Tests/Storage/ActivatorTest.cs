@@ -5,11 +5,12 @@
 // Created:    2008.06.11
 
 using System;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Issues.CustomerBug1Model;
 using Xtensive.Orm.Tests.Storage.ActivatorModel;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Storage.ActivatorModel
 {
@@ -32,19 +33,19 @@ namespace Xtensive.Orm.Tests.Storage.ActivatorModel
   [HierarchyRoot]
   public class InitializebleClass : Entity
   {
-    public object syncRoot = new object();
+    public Lock syncRoot = new();
 
     protected override void OnInitialize()
     {
       base.OnInitialize();
-      syncRoot = new object();
+      syncRoot = new();
     }
 
     public InitializebleClass()
     {
-      syncRoot = new object();
-      // Логика, которая юзает syncRoot.
-      Assert.IsNotNull(syncRoot);
+      syncRoot = new();
+      // Р›РѕРіРёРєР°, РєРѕС‚РѕСЂР°СЏ СЋР·Р°РµС‚ syncRoot.
+      Assert.That(syncRoot != null, Is.True);
     }
 
     [Field, Key]
@@ -75,7 +76,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (var t = session.OpenTransaction())
         {
           var obj1 = new  InitializebleClass();
-          Assert.IsNotNull(obj1.syncRoot);
+          Assert.That(obj1.syncRoot != null, Is.True);
           t.Complete();
         }
       }
@@ -85,7 +86,7 @@ namespace Xtensive.Orm.Tests.Storage
         {
           var obj1 = session.Query.All<InitializebleClass>().First();
           Assert.IsNotNull(obj1);
-          Assert.IsNotNull(obj1.syncRoot);
+          Assert.That(obj1.syncRoot != null, Is.True);
           t.Complete();
         }
       }
