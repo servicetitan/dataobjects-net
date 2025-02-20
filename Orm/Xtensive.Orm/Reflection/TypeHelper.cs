@@ -42,7 +42,7 @@ namespace Xtensive.Reflection
 
     private const string InvokeMethodName = "Invoke";
 
-    private static readonly object EmitLock = new object();
+    private static readonly Lock EmitLock = new();
     private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
     private static readonly int ValueTuple1MetadataToken = typeof(ValueTuple<>).MetadataToken;
     private static readonly int ValueTuple8MetadataToken = typeof(ValueTuple<,,,,,,,>).MetadataToken;

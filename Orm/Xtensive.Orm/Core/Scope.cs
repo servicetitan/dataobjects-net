@@ -21,7 +21,7 @@ namespace Xtensive.Core
   public class Scope<TContext> : IDisposable
     where TContext: class
   {
-    internal static readonly object @lock = new object();
+    internal static readonly Lock @lock = new();
     internal static volatile Type allowedType = null;
 
     private static readonly AsyncLocal<Scope<TContext>> currentScopeAsync = new AsyncLocal<Scope<TContext>>();

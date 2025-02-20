@@ -38,8 +38,8 @@ namespace Xtensive.Orm
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   public sealed class Domain : IDisposable, IAsyncDisposable, IHasExtensions, ISessionSource
   {
-    private readonly object disposeGuard = new object();
-    private readonly object singleConnectionGuard = new object();
+    private readonly Lock disposeGuard = new();
+    private readonly Lock singleConnectionGuard = new();
 
     private bool isDisposed;
     private Session singleConnectionOwner;

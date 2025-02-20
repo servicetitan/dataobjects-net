@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Upgrade
 {
   internal sealed class UpgradeServiceAccessor : LockableBase, IDisposable
   {
-    private readonly object resourcesSyncRoot = new object();
+    private readonly Lock resourcesSyncRoot = new();
     private readonly DisposableSet resources = new DisposableSet();
     private readonly DisposableSet temporaryResources = new DisposableSet();
 

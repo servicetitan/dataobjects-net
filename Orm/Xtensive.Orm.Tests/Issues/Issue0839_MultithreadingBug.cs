@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Issues
     private const int entityCount = 20;
     private const int readCount = 20;
 
-    private static object exceptionLock = new object();
+    private static Lock exceptionLock = new();
     private static int exceptionCount;
     private static Key[] keys = new Key[entityCount];
 
