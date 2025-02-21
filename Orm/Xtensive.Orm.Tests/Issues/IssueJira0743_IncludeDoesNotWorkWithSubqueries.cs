@@ -339,7 +339,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var values = new[] { MyEnum.Bar, MyEnum.Foo };
+        IReadOnlyList<MyEnum> values = [MyEnum.Bar, MyEnum.Foo];
         var result = session.Query.All<TestEntity>()
           .Select(e => values.Contains(e.List.FirstOrDefault().Link.Value3.Value)).ToArray();
 

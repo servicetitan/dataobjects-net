@@ -307,6 +307,10 @@ namespace Xtensive.Orm
       values == null ? false : values.Contains(source);
 #pragma warning restore IDE0060 // Remove unused parameter
 
+    [Obsolete("Use '.OuterJoin()' extension instead.")]
+    public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector) =>
+      OuterJoin(outer, inner, outerKeySelector, innerKeySelector, resultSelector);
+
     /// <summary>
     /// Correlates the elements of two sequences based on matching keys.
     /// </summary>
@@ -322,7 +326,7 @@ namespace Xtensive.Orm
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">One of provided arguments is <see langword="null" />.</exception>
     /// <exception cref="NotSupportedException">Queryable is not a <see cref="Xtensive.Orm.Linq"/> query.</exception>
-    public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
+    public static IQueryable<TResult> OuterJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
     {
       ArgumentNullException.ThrowIfNull(outer);
       ArgumentNullException.ThrowIfNull(inner);
