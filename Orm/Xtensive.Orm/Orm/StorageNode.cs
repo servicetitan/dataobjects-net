@@ -4,11 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using BitFaster.Caching.Lru;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Interfaces;
@@ -26,6 +23,8 @@ namespace Xtensive.Orm
   /// </summary>
   public sealed class StorageNode : ISessionSource
   {
+    private const int CacheCapacity = 256;
+
     private readonly Domain domain;
 
     /// <summary>
@@ -51,29 +50,29 @@ namespace Xtensive.Orm
     /// <summary>
     /// Caches providers that lock certain type of entity with certain <see cref="LockMode"/> and <see cref="LockBehavior"/>.
     /// </summary>
-    internal ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider> EntityLockProviderCache { get; } = new();
+    internal FastConcurrentLru<(TypeInfo, LockMode, LockBehavior), ExecutableProvider> EntityLockProviderCache { get; } = new(CacheCapacity);
 
     /// <summary>
     /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch certain entities.
     /// </summary>
-    internal ConcurrentDictionary<RecordSetCacheKey, CompilableProvider> EntityFetchQueryCache { get; } = new();
+    internal FastConcurrentLru<RecordSetCacheKey, CompilableProvider> EntityFetchQueryCache { get; } = new(CacheCapacity);
 
     /// <summary>
     /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch <see cref="EntitySet{TItem}"/> content.
     /// </summary>
-    internal ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider> EntitySetFetchQueryCache { get; } = new();
+    internal FastConcurrentLru<ItemsQueryCacheKey, CompilableProvider> EntitySetFetchQueryCache { get; } = new(CacheCapacity);
 
     /// <summary>
     /// Caches certain info about EntitySet fields, e.g. queries to fetch current count or items.
     /// </summary>
-    internal ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState> EntitySetTypeStateCache { get; } = new();
+    internal FastConcurrentLru<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState> EntitySetTypeStateCache { get; } = new(CacheCapacity);
 
     /// <summary>
     /// Caches queries that get references to entities for certain association.
     /// </summary>
-    internal ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)> RefsToEntityQueryCache { get; } = new();
-    internal ConcurrentDictionary<SequenceInfo, CachingSequence> KeySequencesCache { get; } = new();
-    internal ConcurrentDictionary<PersistRequestBuilderTask, IReadOnlyList<PreparedPersistRequest>> PersistRequestCache { get; } = new();
+    internal FastConcurrentLru<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)> RefsToEntityQueryCache { get; } = new(CacheCapacity);
+    internal FastConcurrentLru<SequenceInfo, CachingSequence> KeySequencesCache { get; } = new(CacheCapacity);
+    internal FastConcurrentLru<PersistRequestBuilderTask, IReadOnlyList<PreparedPersistRequest>> PersistRequestCache { get; } = new(CacheCapacity);
 
     /// <inheritdoc/>
     public Session OpenSession() =>
@@ -115,8 +114,8 @@ namespace Xtensive.Orm
 
     public void ClearSequenceCaches()
     {
-      foreach (var seq in KeySequencesCache.Values) {
-        seq.Reset();
+      foreach (var (_, v) in KeySequencesCache) {
+        v.Reset();
       }
     }
 
