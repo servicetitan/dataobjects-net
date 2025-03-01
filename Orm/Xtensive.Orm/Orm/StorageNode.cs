@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
-using System.Collections.Concurrent;
 using BitFaster.Caching.Lru;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
