@@ -10,7 +10,7 @@ namespace Xtensive.Orm.Model
   /// Enumerates all supported 'class to tables mapping' schemes.
   /// </summary>
   /// <remarks>See M.Fowler - "Patterns of Enterprise Application Architecture".</remarks>
-  public enum InheritanceSchema
+  public enum InheritanceSchema : byte
   {
     /// <summary>
     /// Is equal to <see cref="ClassTable"/>.
