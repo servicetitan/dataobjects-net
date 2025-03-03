@@ -44,6 +44,11 @@ namespace Xtensive.Orm
     /// </summary>
     public TypeIdRegistry TypeIdRegistry { get; private set; }
 
+    /// <summary>
+    /// Caches certain info about EntitySet fields, e.g. queries to fetch current count or items.
+    /// </summary>
+    internal ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState> EntitySetTypeStateCache { get; } = new();
+
     internal ConcurrentDictionary<SequenceInfo, CachingSequence> KeySequencesCache { get; } = new();
     internal ConcurrentDictionary<PersistRequestBuilderTask, IReadOnlyList<PreparedPersistRequest>> PersistRequestCache { get; } = new();
 
