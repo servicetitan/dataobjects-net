@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Providers
     {
       if (association.IsPaired)
         return FindReferences(target, association, true);
-      var (recordSet, parameter) = Session.StorageNode.RefsToEntityQueryCache .GetOrAdd(association, BuildReferencingQuery);
+      var (recordSet, parameter) = StorageNode.RefsToEntityQueryCache.GetOrAdd(association, static k => BuildReferencingQuery(k));
       var parameterContext = new ParameterContext();
       parameterContext.SetValue(parameter, target.Key.Value);
       ExecutableProvider executableProvider = Session.Compile(recordSet);

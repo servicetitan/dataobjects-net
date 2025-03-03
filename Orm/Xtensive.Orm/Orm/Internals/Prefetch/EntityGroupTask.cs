@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var parameterContext = new ParameterContext();
       parameterContext.SetValue(includeParameter, currentKeySet);
       var session = manager.Owner.Session;
-      Provider = StorageNode.EntityFetchQueryCache.GetOrAdd(cacheKey, CreateRecordSet);
+      Provider = StorageNode.EntityFetchQueryCache.GetOrAdd(cacheKey, static k => CreateRecordSet(k));
       if (session.Domain.TagsEnabled && session.Tags != null) {
         foreach (var tag in session.Tags) {
           Provider = new TagProvider(Provider, tag);

@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       var session = manager.Owner.Session;
       var scope = new CompiledQueryProcessingScope(null, null, parameterContext, false);
-      QueryProvider = StorageNode.EntitySetFetchQueryCache.GetOrAdd(cacheKey, CreateRecordSetLoadingItems);
+      QueryProvider = StorageNode.EntitySetFetchQueryCache.GetOrAdd(cacheKey, static k => CreateRecordSetLoadingItems(k));
       if (session.Domain.TagsEnabled && session.Tags != null) {
         foreach (var tag in session.Tags) {
           QueryProvider = new TagProvider(QueryProvider, tag);
