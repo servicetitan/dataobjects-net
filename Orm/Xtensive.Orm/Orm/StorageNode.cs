@@ -56,7 +56,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch certain entities.
     /// </summary>
-    internal ConcurrentDictionary<RecordSetCacheKey, CompilableProvider> EntityFetchQueryCache { get; } = new();
+    internal static ConcurrentDictionary<RecordSetCacheKey, CompilableProvider> EntityFetchQueryCache { get; } = new();
 
     /// <summary>
     /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch <see cref="EntitySet{TItem}"/> content.
