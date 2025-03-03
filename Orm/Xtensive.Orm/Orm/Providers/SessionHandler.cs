@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the current <see cref="Session"/>.
     /// </summary>
-    public Session Session { get; }
+    public Session Session { get; private set; }
 
     /// <summary>
     /// Gets the real session handler (the final handler in chain of all <see cref="ChainingSessionHandler"/>s).
