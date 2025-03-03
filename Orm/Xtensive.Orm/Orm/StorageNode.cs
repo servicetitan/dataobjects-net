@@ -49,25 +49,12 @@ namespace Xtensive.Orm
     /// </summary>
     internal ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider> EntityLockProviderCache { get; } = new();
 
-    /// <summary>
-    /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch certain entities.
-    /// </summary>
-    internal static ConcurrentDictionary<RecordSetCacheKey, CompilableProvider> EntityFetchQueryCache { get; } = new();
-
-    /// <summary>
-    /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch <see cref="EntitySet{TItem}"/> content.
-    /// </summary>
-    internal static ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider> EntitySetFetchQueryCache { get; } = new();
 
     /// <summary>
     /// Caches certain info about EntitySet fields, e.g. queries to fetch current count or items.
     /// </summary>
     internal ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState> EntitySetTypeStateCache { get; } = new();
 
-    /// <summary>
-    /// Caches queries that get references to entities for certain association.
-    /// </summary>
-    internal static ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)> RefsToEntityQueryCache { get; } = new();
     internal ConcurrentDictionary<SequenceInfo, CachingSequence> KeySequencesCache { get; } = new();
     internal ConcurrentDictionary<PersistRequestBuilderTask, IReadOnlyList<PreparedPersistRequest>> PersistRequestCache { get; } = new();
 
