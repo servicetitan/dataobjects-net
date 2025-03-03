@@ -4,34 +4,16 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.08.04
 
-using System;
-using Xtensive.Tuples;
-using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
-using Xtensive.Orm.Rse;
 
-namespace Xtensive.Orm.Internals
-{
-  [Serializable]
-  internal sealed class EntitySetTypeState
-  {
-    public readonly ExecutableProvider SeekProvider;
+namespace Xtensive.Orm.Internals;
 
-    public readonly MapTransform SeekTransform;
-
-    public readonly Func<Tuple, Entity> ItemCtor;
-
-    public readonly Func<QueryEndpoint,long> ItemCountQuery;
-
-    public EntitySetTypeState(ExecutableProvider seekProvider, MapTransform seekTransform,
-      Func<Tuple, Entity> itemCtor, Func<QueryEndpoint, long> itemCountQuery)
-    {
-      SeekProvider = seekProvider;
-      SeekTransform = seekTransform;
-      ItemCtor = itemCtor;
-      ItemCountQuery = itemCountQuery;
-    }
-  }
-}
+[Serializable]
+internal record EntitySetTypeState(
+  ExecutableProvider SeekProvider,
+  MapTransform SeekTransform,
+  Func<Tuple, Entity> ItemCtor,
+  Func<QueryEndpoint, long> ItemCountQuery
+);
