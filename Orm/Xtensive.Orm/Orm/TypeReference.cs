@@ -4,40 +4,12 @@
 // Created by: Dmitri Maximov
 // Created:    2009.10.09
 
-using System;
-
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Orm
-{
-  /// <summary>
-  /// Reference to <see cref="TypeInfo"/> with the specified degree of accuracy.
-  /// </summary>
-  [Serializable]
-  public readonly struct TypeReference
-  {
-    /// <summary>
-    /// Gets the referenced type.
-    /// </summary>
-    public TypeInfo Type { get; }
+namespace Xtensive.Orm;
 
-    /// <summary>
-    /// Gets the type reference accuracy.
-    /// </summary>
-    public TypeReferenceAccuracy Accuracy { get; }
-
-
-    // Constructor
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="type">The referenced type.</param>
-    /// <param name="accuracy">The type reference accuracy.</param>
-    public TypeReference(TypeInfo type, TypeReferenceAccuracy accuracy)
-    {
-      Type = type;
-      Accuracy = accuracy;
-    }
-  }
-}
+/// <summary>
+/// Reference to <see cref="TypeInfo"/> with the specified degree of accuracy.
+/// </summary>
+[Serializable]
+public record struct TypeReference(TypeInfo Type, TypeReferenceAccuracy Accuracy);

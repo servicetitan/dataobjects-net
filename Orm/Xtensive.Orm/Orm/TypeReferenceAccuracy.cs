@@ -9,7 +9,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// Describes type reference accuracy.
   /// </summary>
-  public enum TypeReferenceAccuracy
+  public enum TypeReferenceAccuracy : byte
   {
     /// <summary>
     /// Referenced type is limited to the entire hierarchy.
