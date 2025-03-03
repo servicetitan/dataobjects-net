@@ -4,11 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.10
 
-using System;
 using Xtensive.Core;
-
-using Xtensive.IoC;
-using Xtensive.Orm;
 
 namespace Xtensive.Orm
 {
@@ -17,24 +13,15 @@ namespace Xtensive.Orm
   /// </summary>
   public abstract class DomainBound: IContextBound<Domain>
   {
-    private Domain domain;
-
     /// <summary>
     /// Gets <see cref="Domain"/> to which current instance is bound.
     /// </summary>
-    public Domain Domain
-    {
-      get { return domain; }
-      internal set { domain = value; }
-    }
+    public Domain Domain { get; internal set; }
 
     #region IContextBound<Domain> Members
 
     /// <inheritdoc/>
-    Domain IContextBound<Domain>.Context
-    {
-      get { return domain; }
-    }
+    Domain IContextBound<Domain>.Context => Domain;
 
     #endregion
 
@@ -57,7 +44,7 @@ namespace Xtensive.Orm
     protected DomainBound(Domain domain)
     {
       ArgumentNullException.ThrowIfNull(domain);
-      this.domain = domain;
+      Domain = domain;
     }
   }
 }

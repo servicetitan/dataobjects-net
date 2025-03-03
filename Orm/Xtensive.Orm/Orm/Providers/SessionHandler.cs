@@ -22,12 +22,12 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets <see cref="HandlerAccessor"/>.
     /// </summary>
-    protected HandlerAccessor Handlers { get; private set; }
+    protected HandlerAccessor Handlers => Session.Handlers;
 
     /// <summary>
     /// Gets the current <see cref="Session"/>.
     /// </summary>
-    public Session Session { get; private set; }
+    public Session Session { get; }
 
     /// <summary>
     /// Gets the real session handler (the final handler in chain of all <see cref="ChainingSessionHandler"/>s).
@@ -117,7 +117,6 @@ namespace Xtensive.Orm.Providers
     protected SessionHandler(Session session)
     {
       Session = session;
-      Handlers = session.Handlers;
     }
   }
 }

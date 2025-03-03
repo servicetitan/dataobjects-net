@@ -45,12 +45,6 @@ namespace Xtensive.Orm
     public TypeIdRegistry TypeIdRegistry { get; private set; }
 
     /// <summary>
-    /// Caches providers that lock certain type of entity with certain <see cref="LockMode"/> and <see cref="LockBehavior"/>.
-    /// </summary>
-    internal ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider> EntityLockProviderCache { get; } = new();
-
-
-    /// <summary>
     /// Caches certain info about EntitySet fields, e.g. queries to fetch current count or items.
     /// </summary>
     internal ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState> EntitySetTypeStateCache { get; } = new();

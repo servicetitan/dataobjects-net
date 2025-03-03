@@ -150,6 +150,11 @@ namespace Xtensive.Orm
     /// </summary>
     internal ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)> RefsToEntityQueryCache { get; } = new();
 
+    /// <summary>
+    /// Caches providers that lock certain type of entity with certain <see cref="LockMode"/> and <see cref="LockBehavior"/>.
+    /// </summary>
+    internal ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider> EntityLockProviderCache { get; } = new();
+
     internal object UpgradeContextCookie { get; private set; }
 
     internal SqlConnection SingleConnection { get; private set; }
