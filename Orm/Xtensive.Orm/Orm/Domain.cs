@@ -155,6 +155,11 @@ namespace Xtensive.Orm
     /// </summary>
     internal ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider> EntityLockProviderCache { get; } = new();
 
+    /// <summary>
+    /// Caches certain info about EntitySet fields, e.g. queries to fetch current count or items.
+    /// </summary>
+    internal ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState> EntitySetTypeStateCache { get; } = new();
+
     internal object UpgradeContextCookie { get; private set; }
 
     internal SqlConnection SingleConnection { get; private set; }
