@@ -61,7 +61,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch <see cref="EntitySet{TItem}"/> content.
     /// </summary>
-    internal ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider> EntitySetFetchQueryCache { get; } = new();
+    internal static ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider> EntitySetFetchQueryCache { get; } = new();
 
     /// <summary>
     /// Caches certain info about EntitySet fields, e.g. queries to fetch current count or items.
