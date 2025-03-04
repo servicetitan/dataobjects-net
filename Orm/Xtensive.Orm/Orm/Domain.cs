@@ -23,6 +23,7 @@ using Xtensive.Orm.Linq;
 using Xtensive.Orm.Logging;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;
@@ -133,6 +134,21 @@ namespace Xtensive.Orm
     internal FastConcurrentLruCache<object, (object, ParameterizedQuery)> QueryCache { get; }
 
     internal ConcurrentDictionary<Type, System.Linq.Expressions.MethodCallExpression> RootCallExpressionsCache { get; } = new();
+
+    /// <summary>
+    /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch certain entities.
+    /// </summary>
+    internal  ConcurrentDictionary<RecordSetCacheKey, CompilableProvider> EntityFetchQueryCache { get; } = new();
+
+    /// <summary>
+    /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch <see cref="EntitySet{TItem}"/> content.
+    /// </summary>
+    internal ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider> EntitySetFetchQueryCache { get; } = new();
+
+    /// <summary>
+    /// Caches queries that get references to entities for certain association.
+    /// </summary>
+    internal ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)> RefsToEntityQueryCache { get; } = new();
 
     internal object UpgradeContextCookie { get; private set; }
 

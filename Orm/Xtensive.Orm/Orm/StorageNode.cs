@@ -4,11 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Interfaces;
@@ -31,7 +27,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets node identifier.
     /// </summary>
-    public string Id { get { return Configuration.NodeId; } }
+    public string Id => Configuration.NodeId;
 
     /// <summary>
     /// Gets node configuration.
@@ -53,25 +49,12 @@ namespace Xtensive.Orm
     /// </summary>
     internal ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider> EntityLockProviderCache { get; } = new();
 
-    /// <summary>
-    /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch certain entities.
-    /// </summary>
-    internal ConcurrentDictionary<RecordSetCacheKey, CompilableProvider> EntityFetchQueryCache { get; } = new();
-
-    /// <summary>
-    /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch <see cref="EntitySet{TItem}"/> content.
-    /// </summary>
-    internal ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider> EntitySetFetchQueryCache { get; } = new();
 
     /// <summary>
     /// Caches certain info about EntitySet fields, e.g. queries to fetch current count or items.
     /// </summary>
     internal ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState> EntitySetTypeStateCache { get; } = new();
 
-    /// <summary>
-    /// Caches queries that get references to entities for certain association.
-    /// </summary>
-    internal ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)> RefsToEntityQueryCache { get; } = new();
     internal ConcurrentDictionary<SequenceInfo, CachingSequence> KeySequencesCache { get; } = new();
     internal ConcurrentDictionary<PersistRequestBuilderTask, IReadOnlyList<PreparedPersistRequest>> PersistRequestCache { get; } = new();
 

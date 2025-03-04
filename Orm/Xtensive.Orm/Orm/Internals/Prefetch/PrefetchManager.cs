@@ -49,25 +49,11 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
     }
 
-    private class RootContainerCacheEntry
-    {
-      public readonly RootContainerCacheKey Key;
-
-      public readonly SortedDictionary<ColNum, ColumnInfo> Columns;
-
-      public readonly IReadOnlyList<ColNum> ColumnsToBeLoaded;
-
-
-      // Constructors
-
-      public RootContainerCacheEntry(in RootContainerCacheKey key, SortedDictionary<ColNum, ColumnInfo> columns,
-        IReadOnlyList<ColNum> columnsToBeLoaded)
-      {
-        Key = key;
-        Columns = columns;
-        ColumnsToBeLoaded = columnsToBeLoaded;
-      }
-    }
+    private record struct RootContainerCacheEntry(
+      RootContainerCacheKey Key,
+      SortedDictionary<ColNum, ColumnInfo> Columns,
+      IReadOnlyList<ColNum> ColumnsToBeLoaded
+    );
 
     #endregion
 
@@ -257,7 +243,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var cacheKey = new RootContainerCacheKey(type, descriptors);
       var cacheEntry = columnsCache[cacheKey, true];
-      if (cacheEntry == null) {
+      if (cacheEntry == default) {
         columns = PrefetchHelper.GetColumns(ExtractColumns(descriptors),type);
         columnsToBeLoaded = PrefetchHelper.GetColumnsToBeLoaded(columns, type);
         cacheEntry = new RootContainerCacheEntry(cacheKey, columns, columnsToBeLoaded);

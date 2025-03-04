@@ -9,7 +9,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// Specifies key generator type to use for a particular hierarchy.
   /// </summary>
-  public enum KeyGeneratorKind
+  public enum KeyGeneratorKind : byte
   {
     /// <summary>
     /// No key generator is provided for hierarchy.
