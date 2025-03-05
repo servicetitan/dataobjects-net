@@ -37,15 +37,17 @@ namespace Xtensive.Orm.Tracking
         return;
       }
 
-      ArgumentNullException.ThrowIfNull(source.RawData);
-
       if (State == TrackingItemState.Created && source.State == TrackingItemState.Changed) {
+        ArgumentNullException.ThrowIfNull(source.RawData);
         State = TrackingItemState.Created;
         MergeWith(source.RawData.Difference);
         return;
       }
 
-      MergeWith(source.RawData.Difference);
+      if (source.RawData is not null) {
+        MergeWith(source.RawData.Difference);
+      }
+
       State = source.State;
     }
 
