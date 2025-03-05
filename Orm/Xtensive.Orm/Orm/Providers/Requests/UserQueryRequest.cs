@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.25
 
-using System.Collections.Generic;
-using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Orm.Providers
@@ -19,17 +17,17 @@ namespace Xtensive.Orm.Providers
       return compiledStatement;
     }
 
-    public IEnumerable<QueryParameterBinding> ParameterBindings { get; private set; }
+    public IEnumerable<QueryParameterBinding> ParameterBindings { get; }
 
     // Constructors
 
-    public UserQueryRequest(SqlCompilationResult compiledStatement, IEnumerable<QueryParameterBinding> parameterBindings)
+    public UserQueryRequest(SqlCompilationResult compiledStatement, IReadOnlySet<QueryParameterBinding> parameterBindings)
     {
       ArgumentNullException.ThrowIfNull(compiledStatement);
       ArgumentNullException.ThrowIfNull(parameterBindings);
 
       this.compiledStatement = compiledStatement;
-      ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);
+      ParameterBindings = parameterBindings;
     }
   }
 }

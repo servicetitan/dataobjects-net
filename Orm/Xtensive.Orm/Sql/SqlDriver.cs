@@ -62,7 +62,7 @@ namespace Xtensive.Sql
     public SqlCompilationResult Compile(ISqlCompileUnit statement)
     {
       ArgumentNullException.ThrowIfNull(statement);
-      return CreateCompiler().Compile(statement, new SqlCompilerConfiguration(), null);
+      return CreateCompiler().Compile(statement, new SqlCompilerConfiguration());
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ namespace Xtensive.Sql
       ArgumentNullException.ThrowIfNull(statement);
       ArgumentNullException.ThrowIfNull(configuration);
       ValidateCompilerConfiguration(configuration);
-      return CreateCompiler().Compile(statement, configuration, typeIdRegistry);
+      return CreateCompiler().Compile(statement, configuration);
     }
 
     /// <summary>

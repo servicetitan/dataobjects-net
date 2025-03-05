@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests
 
     private const string DefaultStorage = "default";
 
-    private static readonly object InstanceLock = new object();
+    private static readonly Lock InstanceLock = new();
     private static TestConfiguration InstanceValue;
 
     private readonly Dictionary<string, string> configuration;

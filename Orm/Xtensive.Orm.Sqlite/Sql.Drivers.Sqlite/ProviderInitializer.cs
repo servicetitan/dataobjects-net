@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
     private const string FrameworkName = "Net40";
 
     private static volatile bool IsInitialized;
-    private static readonly object SyncRoot = new object();
+    private static readonly Lock SyncRoot = new();
 
     public static void Run(string nativeLibraryCacheFolder)
     {

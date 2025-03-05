@@ -4,9 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.10.20
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
@@ -33,11 +30,17 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     // Constructors
 
-    public RecordSetCacheKey(IReadOnlyList<ColNum> columnIndexes, TypeInfo type, int cachedHashCode)
+    public RecordSetCacheKey(IReadOnlyList<ColNum> columnIndexes, TypeInfo type)
     {
       ColumnIndexes = columnIndexes;
       Type = type;
-      this.cachedHashCode = cachedHashCode;
+
+      HashCode hashCode = new();
+      foreach (var columnIndex in columnIndexes) {
+        hashCode.Add(columnIndex);
+      }
+      hashCode.Add(type);
+      cachedHashCode = hashCode.ToHashCode();
     }
   }
 
@@ -125,7 +128,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var parameterContext = new ParameterContext();
       parameterContext.SetValue(includeParameter, currentKeySet);
       var session = manager.Owner.Session;
-      Provider = session.StorageNode.EntityFetchQueryCache.GetOrAdd(cacheKey, CreateRecordSet);
+      Provider = manager.Owner.Session.Domain.EntityFetchQueryCache.GetOrAdd(cacheKey, static k => CreateRecordSet(k));
       if (session.Domain.TagsEnabled && session.Tags != null) {
         foreach (var tag in session.Tags) {
           Provider = new TagProvider(Provider, tag);
@@ -192,13 +195,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       this.type = type;
       this.manager = manager;
-      var cachedHashCode = 0;
-      foreach (var columnIndex in columnIndexes) {
-        cachedHashCode = unchecked (379 * cachedHashCode + columnIndex);
-      }
-
-      cachedHashCode ^= type.GetHashCode();
-      cacheKey = new RecordSetCacheKey(columnIndexes, type, cachedHashCode);
+      cacheKey = new RecordSetCacheKey(columnIndexes, type);
     }
   }
 }

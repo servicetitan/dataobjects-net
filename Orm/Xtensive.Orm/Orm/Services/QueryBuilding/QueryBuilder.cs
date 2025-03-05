@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Services
 
       return new QueryRequest(new UserQueryRequest(
         compiledQuery,
-        bindings.Select(b => b.RealBinding)));
+        bindings.Select(b => b.RealBinding).ToHashSet()));
     }
 
     /// <summary>

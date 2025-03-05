@@ -184,28 +184,15 @@ namespace Xtensive.IoC
       Type configurationType = configuration?.GetType(),
         parentType = parent?.GetType();
       return (IServiceContainer) (
-#if NET8_0_OR_GREATER
         FindConstructorInvoker(containerType, configurationType, parentType)?.Invoke(configuration, parent)
         ?? FindConstructorInvoker(containerType, configurationType)?.Invoke(configuration)
         ?? FindConstructorInvoker(containerType, parentType)?.Invoke(parent)
-#else
-        FindConstructor(containerType, configurationType, parentType)?.Invoke(new[] { configuration, parent })
-        ?? FindConstructor(containerType, configurationType)?.Invoke(new[] { configuration })
-        ?? FindConstructor(containerType, parentType)?.Invoke(new[] { parent })
-#endif
         ?? throw new ArgumentException(Strings.ExContainerTypeDoesNotProvideASuitableConstructor, "containerType")
       );
     }
 
-#if NET8_0_OR_GREATER
     private static ConstructorInvoker FindConstructorInvoker(Type containerType, params Type[] argumentTypes) =>
       containerType.GetSingleConstructorInvokerOrDefault(argumentTypes);
-#else
-#pragma warning disable CS0612 // Type or member is obsolete
-    private static ConstructorInfo FindConstructor(Type containerType, params Type[] argumentTypes) =>
-      containerType.GetSingleConstructorOrDefault(argumentTypes);
-#pragma warning restore CS0612 // Type or member is obsolete
-#endif
 
     #endregion
 

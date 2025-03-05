@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Tests
 {
   public sealed class StorageProviderInfo
   {
-    private static readonly object InstanceLock = new object();
+    private static readonly Lock InstanceLock = new();
     private static StorageProviderInfo InstanceValue;
 
     public static StorageProviderInfo Instance

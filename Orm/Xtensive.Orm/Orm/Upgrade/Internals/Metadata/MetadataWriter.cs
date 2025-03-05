@@ -25,8 +25,8 @@ namespace Xtensive.Orm.Upgrade
 
     private sealed class Descriptor : IPersistDescriptor
     {
-      public PersistRequest StoreRequest { get; set; }
-      public PersistRequest ClearRequest { get; set; }
+      public PreparedPersistRequest StoreRequest { get; set; }
+      public PreparedPersistRequest ClearRequest { get; set; }
     }
 
     private readonly StorageDriver driver;
@@ -109,24 +109,20 @@ namespace Xtensive.Orm.Upgrade
       var tableRef = SqlDml.TableRef(table);
 
       var insert = SqlDml.Insert(tableRef);
-      var bindings = new PersistParameterBinding[columns.Count];
+      var bindings = new HashSet<PersistParameterBinding>(columns.Count);
       var row = new Dictionary<SqlColumn, SqlExpression>(columns.Count);
       for (ColNum i = 0; i < columns.Count; i++) {
         var binding = new PersistParameterBinding(mappings[i], i, transmissionTypes[i]);
         row.Add(tableRef.Columns[i], binding.ParameterReference);
-        bindings[i] = binding;
+        bindings.Add(binding);
       }
       insert.ValueRows.Add(row);
 
       var delete = SqlDml.Delete(tableRef);
-      if (deleteTransform!=null)
-        deleteTransform.Invoke(delete);
+      deleteTransform?.Invoke(delete);
 
-      var storeRequest = new PersistRequest(driver, insert, bindings);
-      var clearRequest = new PersistRequest(driver, delete, null);
-
-      storeRequest.Prepare();
-      clearRequest.Prepare();
+      var storeRequest = new PersistRequest(driver, insert, bindings).Prepare();
+      var clearRequest = new PersistRequest(driver, delete, null).Prepare();
 
       return new Descriptor {
         StoreRequest = storeRequest,

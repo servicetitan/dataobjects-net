@@ -75,14 +75,9 @@ namespace Xtensive.Orm.Internals.Prefetch
       return result;
     }
 
-    public static List<ColNum> GetColumnsToBeLoaded(SortedDictionary<ColNum, ColumnInfo> userColumnIndexes,
-      TypeInfo type)
-    {
-      var result = new List<ColNum>(userColumnIndexes.Count);
-      result.AddRange(type.Indexes.PrimaryIndex.ColumnIndexMap.System);
-      result.AddRange(userColumnIndexes.Where(pair => !pair.Value.IsPrimaryKey
-        && !pair.Value.IsSystem).Select(pair => pair.Key));
-      return result;
-    }
+    public static IReadOnlyList<ColNum> GetColumnsToBeLoaded(SortedDictionary<ColNum, ColumnInfo> userColumnIndexes, TypeInfo type) =>
+      type.Indexes.PrimaryIndex.ColumnIndexMap.System
+        .Concat(userColumnIndexes.Where(pair => !pair.Value.IsPrimaryKey && !pair.Value.IsSystem).Select(pair => pair.Key))
+        .ToArray();
   }
 }

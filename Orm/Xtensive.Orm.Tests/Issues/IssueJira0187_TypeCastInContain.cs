@@ -55,14 +55,14 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ParentsContainsChildWithImplicitCastTest()
     {
-      var parents = GlobalSession.Query.All<Parent>().ToArray();
+      IReadOnlyList<Parent> parents = GlobalSession.Query.All<Parent>().ToArray();
       var result = GlobalSession.Query.All<Child>().Where(child => parents.Contains(child)).ToArray();
     }
 
     [Test]
     public void ParentsContainsChildWithExplicitCastTest()
     {
-      var parents = GlobalSession.Query.All<Parent>().ToArray();
+      IReadOnlyList<Parent> parents = GlobalSession.Query.All<Parent>().ToArray();
       var result = GlobalSession.Query.All<Child>().Where(child => parents.Contains(child as Parent)).ToArray();
     }
 
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ChildContainsParentWithImplicitCast()
     {
-      var children = GlobalSession.Query.All<Child>().ToArray();
+      IReadOnlyList<Child> children = GlobalSession.Query.All<Child>().ToArray();
       var result = GlobalSession.Query.All<Child>().Where(a => children.Contains(a.Parent)).ToArray();
     }
 

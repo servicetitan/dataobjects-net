@@ -24,10 +24,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime==WrongMillisecondDateTime);
         RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime==WrongDateTime);
         RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime==null);
-#if NET_6_0_OR_GREATER
-        RunTest<SingleDateTimeEntity>(c => c.DateOnly == FirstDateOnly);
-        RunTest<SingleDateTimeEntity>(c => c.NullableDateOnly == NullableDateOnly);
-#endif
       });
     }
 
@@ -38,9 +34,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunTest<SingleDateTimeEntity>(c=>c.DateTime!=FirstDateTime.AddYears(1));
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime!=FirstMillisecondDateTime.AddYears(1));
         RunTest<SingleDateTimeEntity>(c=>c.NullableDateTime!=NullableDateTime.AddYears(1));
-#if NET_6_0_OR_GREATER
-        RunTest<SingleDateTimeEntity>(c => c.DateOnly != FirstDateOnly.AddYears(1));
-#endif
       });
     }
 

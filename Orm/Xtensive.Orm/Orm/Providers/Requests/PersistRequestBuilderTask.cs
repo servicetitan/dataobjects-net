@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.29
 
-using System;
 using System.Collections;
 using Xtensive.Orm.Model;
 
@@ -13,52 +12,46 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// A task for <see cref="PersistRequestBuilder"/>.
   /// </summary>
-  public sealed class PersistRequestBuilderTask
+  public sealed class PersistRequestBuilderTask : IEquatable<PersistRequestBuilderTask>
   {
     private readonly int hashCode;
 
     /// <summary>
     /// Gets the type.
     /// </summary>
-    public TypeInfo Type { get; private set; }
+    public TypeInfo Type { get; }
 
     /// <summary>
     /// Gets the field map that describes updated fields.
     /// </summary>
-    public BitArray ChangedFields { get; private set; }
+    public BitArray ChangedFields { get; }
 
     /// <summary>
     /// Gets the field map that describes available (fetched) fields.
     /// </summary>
-    public BitArray AvailableFields { get; private set; }
+    public BitArray AvailableFields { get; }
 
     /// <summary>
     /// Gets the <see cref="PersistRequestKind"/>.
     /// </summary>
-    public PersistRequestKind Kind { get; private set; }
+    public PersistRequestKind Kind { get; }
 
     /// <summary>
     /// Gets flag indicating if validation should be performed.
     /// </summary>
-    public bool ValidateVersion { get; private set; }
+    public bool ValidateVersion { get; }
+
+    public bool Equals(PersistRequestBuilderTask other) =>
+      ReferenceEquals(this, other)
+        || other is not null
+          && Type == other.Type
+          && Kind == other.Kind
+          && ValidateVersion == other.ValidateVersion
+          && CompareBits(AvailableFields, other.AvailableFields)
+          && CompareBits(ChangedFields, other.ChangedFields);
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(this, obj))
-        return true;
-      if (obj is PersistRequestBuilderTask other) {
-        if (Type != other.Type)
-          return false;
-        if (Kind != other.Kind)
-          return false;
-        if (ValidateVersion != other.ValidateVersion)
-          return false;
-        return CompareBits(AvailableFields, other.AvailableFields)
-          && CompareBits(ChangedFields, other.ChangedFields);
-      }
-      return false;
-    }
+    public override bool Equals(object obj) => obj is PersistRequestBuilderTask other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode() => hashCode;
@@ -78,11 +71,11 @@ namespace Xtensive.Orm.Providers
 
     private bool CompareBits(BitArray left, BitArray right)
     {
-      if (left==null && right==null)
+      if (left == null && right == null)
         return true;
-      if (left!=null && right!=null && left.Count==right.Count) {
-        for (var i = 0; i < left.Count; i++)
-          if (left[i]!=right[i])
+      if (left != null && right != null && left.Count == right.Count) {
+        for (int i = 0, n = left.Count; i < n; i++)
+          if (left[i] != right[i])
             return false;
         return true;
       }

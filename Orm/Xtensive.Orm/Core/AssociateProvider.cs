@@ -43,7 +43,7 @@ namespace Xtensive.Core
     private string[] typeSuffixes;
 
     [NonSerialized]
-    private object highPriorityLocationsLock = new object();
+    private Lock highPriorityLocationsLock = new();
 
     private List<(Assembly, string)> highPriorityLocations = new();
 

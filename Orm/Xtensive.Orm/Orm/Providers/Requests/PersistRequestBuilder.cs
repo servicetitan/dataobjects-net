@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Providers
     private ProviderInfo providerInfo;
     private StorageDriver driver;
 
-    internal IReadOnlyList<PersistRequest> Build(StorageNode node, PersistRequestBuilderTask task)
+    internal IReadOnlyList<PreparedPersistRequest> Build(StorageNode node, PersistRequestBuilderTask task)
     {
       var context = new PersistRequestBuilderContext(task, node.Mapping, node.Configuration);
       List<PersistRequest> result;
@@ -52,15 +52,10 @@ namespace Xtensive.Orm.Providers
           bindings.UnionWith(request.ParameterBindings);
         }
         var batchRequest = new PersistRequest(driver, batch, bindings);
-        batchRequest.Prepare();
-        return new List<PersistRequest> { batchRequest }.AsSafeWrapper();
+        return [batchRequest.Prepare()];
       }
 
-      foreach (var item in result) {
-        item.Prepare();
-      }
-
-      return result.AsSafeWrapper();
+      return result.Select(request => request.Prepare()).ToArray();
     }
 
     protected virtual List<PersistRequest> BuildInsertRequest(in PersistRequestBuilderContext context)
@@ -70,7 +65,7 @@ namespace Xtensive.Orm.Providers
         var table = context.Mapping[index.ReflectedType];
         var tableRef = SqlDml.TableRef(table);
         var query = SqlDml.Insert(tableRef);
-        var bindings = new List<PersistParameterBinding>();
+        var bindings = new HashSet<PersistParameterBinding>();
 
         var row = new Dictionary<SqlColumn, SqlExpression>(index.Columns.Count);
         foreach (var column in index.Columns) {
@@ -95,7 +90,7 @@ namespace Xtensive.Orm.Providers
         var table = context.Mapping[index.ReflectedType];
         var tableRef = SqlDml.TableRef(table);
         var query = SqlDml.Update(tableRef);
-        var bindings = new List<PersistParameterBinding>();
+        var bindings = new HashSet<PersistParameterBinding>();
 
         foreach (var column in index.Columns) {
           var fieldIndex = GetFieldIndex(context.Type, column);
@@ -137,7 +132,7 @@ namespace Xtensive.Orm.Providers
         var index = context.AffectedIndexes[i];
         var tableRef = SqlDml.TableRef(context.Mapping[index.ReflectedType]);
         var query = SqlDml.Delete(tableRef);
-        var bindings = new List<PersistParameterBinding>();
+        var bindings = new HashSet<PersistParameterBinding>();
         query.Where = BuildKeyFilter(context, tableRef, bindings);
         if (context.Task.ValidateVersion) {
           query.Where &= BuildVersionFilter(context, tableRef, bindings);
@@ -147,7 +142,7 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    private SqlExpression BuildKeyFilter(in PersistRequestBuilderContext context, SqlTableRef filteredTable, List<PersistParameterBinding> currentBindings)
+    private SqlExpression BuildKeyFilter(in PersistRequestBuilderContext context, SqlTableRef filteredTable, ISet<PersistParameterBinding> currentBindings)
     {
       SqlExpression result = null;
       foreach (var column in context.PrimaryIndex.KeyColumns.Keys) {
@@ -163,7 +158,7 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    private SqlExpression BuildVersionFilter(in PersistRequestBuilderContext context, SqlTableRef filteredTable, List<PersistParameterBinding> currentBindings)
+    private SqlExpression BuildVersionFilter(in PersistRequestBuilderContext context, SqlTableRef filteredTable, ISet<PersistParameterBinding> currentBindings)
     {
       SqlExpression result = null;
       foreach (var column in context.Type.GetVersionColumns()) {

@@ -4,11 +4,6 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.09.09
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
@@ -173,7 +168,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       var session = manager.Owner.Session;
       var scope = new CompiledQueryProcessingScope(null, null, parameterContext, false);
-      QueryProvider = session.StorageNode.EntitySetFetchQueryCache.GetOrAdd(cacheKey, CreateRecordSetLoadingItems);
+      QueryProvider = session.Domain.EntitySetFetchQueryCache.GetOrAdd(cacheKey, static k => CreateRecordSetLoadingItems(k));
       if (session.Domain.TagsEnabled && session.Tags != null) {
         foreach (var tag in session.Tags) {
           QueryProvider = new TagProvider(QueryProvider, tag);

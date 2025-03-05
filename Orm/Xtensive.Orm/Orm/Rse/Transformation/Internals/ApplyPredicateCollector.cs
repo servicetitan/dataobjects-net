@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Rse.Transformation
       if (CheckPredicatesExist()) {
         foreach (var parameterPair in owner.State.Predicates)
           foreach (var predicatePair in parameterPair.Value)
-            foreach (var column in predicatePair.Item2)
+            foreach (var column in predicatePair.Item2.Columns)
               if (provider.GroupColumnIndexes.Contains(column.Index)) {
                 ApplyProviderCorrectorRewriter.ThrowInvalidOperationException(
                   Strings.ExColumnsUsedByPredicateContainingApplyParameterAreRemoved);

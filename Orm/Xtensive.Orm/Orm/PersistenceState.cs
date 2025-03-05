@@ -9,7 +9,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// Defines possible persistence states of the entities.
   /// </summary>
-  public enum PersistenceState
+  public enum PersistenceState : byte
   {
     /// <summary>
     /// The entity is synchronized with the database (there are no unsaved changes).

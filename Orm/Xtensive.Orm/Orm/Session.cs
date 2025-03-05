@@ -235,7 +235,7 @@ namespace Xtensive.Orm
 
     internal SessionHandler Handler { get; set; }
 
-    internal HandlerAccessor Handlers { get; private set; }
+    internal HandlerAccessor Handlers => Domain.Handlers;
 
     internal SyncManager PairSyncManager { get; }
 
@@ -546,7 +546,6 @@ namespace Xtensive.Orm
       storageNode = selectedStorageNode;
 
       // Handlers
-      Handlers = domain.Handlers;
       Handler = CreateSessionHandler();
 
       // Caches, registry

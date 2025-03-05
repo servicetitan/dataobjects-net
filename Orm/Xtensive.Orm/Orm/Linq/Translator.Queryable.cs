@@ -1849,11 +1849,10 @@ namespace Xtensive.Orm.Linq
       return nullableFields;
     }
 
-    private bool IsKeyCollection(Type localCollectionType)
-    {
-      return (localCollectionType.IsArray && localCollectionType.GetElementType() == WellKnownOrmTypes.Key)
-        || IEnumerableOfKeyType.IsAssignableFrom(localCollectionType);
-    }
+    private bool IsKeyCollection(Type localCollectionType) =>
+      (localCollectionType.IsArray && localCollectionType.GetElementType() == WellKnownOrmTypes.Key)
+        || IEnumerableOfKeyType.IsAssignableFrom(localCollectionType)
+        || localCollectionType.IsOfGenericType(WellKnownTypes.ReadOnlySpanOfT) && localCollectionType.GetGenericArguments()[0] == WellKnownOrmTypes.Key;
 
     internal void RestoreState(in TranslatorState previousState) =>
       State = previousState;

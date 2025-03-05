@@ -13,12 +13,12 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Request to store data.
     /// </summary>
-    PersistRequest StoreRequest { get; }
+    PreparedPersistRequest StoreRequest { get; }
 
     /// <summary>
     /// Request to clear data.
     /// </summary>
-    PersistRequest ClearRequest { get; }
+    PreparedPersistRequest ClearRequest { get; }
   }
 
   public interface IMultiRecordPersistDescriptor : IPersistDescriptor
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Providers
     /// protion can't be stored by neither <see cref="StoreBigBatchRequest"/>
     /// nor <see cref="StoreSmallBatchRequest"/>.
     /// </summary>
-    Lazy<PersistRequest> StoreSingleRecordRequest { get { return new Lazy<PersistRequest>(StoreRequest); } }
+    Lazy<PreparedPersistRequest> StoreSingleRecordRequest => new(StoreRequest);
 
     /// <summary>
     /// Request that stores smaller portion of data at a time.
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Providers
     /// due to smaller size. When data portion size becomes smaller than the reqired by
     /// this request the <see cref="StoreSingleRecordRequest"/> will be used.
     /// </summary>
-    Lazy<PersistRequest> StoreSmallBatchRequest { get; }
+    Lazy<PreparedPersistRequest> StoreSmallBatchRequest { get; }
 
     /// <summary>
     /// Request that stores big portion of data at a time. The request is used
@@ -44,6 +44,6 @@ namespace Xtensive.Orm.Providers
     /// <see cref="StoreSmallBatchRequest"/> or even <see cref="StoreSingleRecordRequest" />
     /// will be used.
     /// </summary>
-    Lazy<PersistRequest> StoreBigBatchRequest { get; }
+    Lazy<PreparedPersistRequest> StoreBigBatchRequest { get; }
   }
 }

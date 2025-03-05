@@ -19,7 +19,7 @@ namespace Xtensive.Core
   /// <typeparam name="TVariator">The type of the variator. Must be an internal type.</typeparam>
   public class SimpleScope<TVariator> : IDisposable
   {
-    private readonly static object @lock = new object();
+    private readonly static Lock @lock = new();
     private volatile static Type allowedType = null;
 
     private static readonly AsyncLocal<SimpleScope<TVariator>> currentAsync = new AsyncLocal<SimpleScope<TVariator>>();

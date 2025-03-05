@@ -99,20 +99,17 @@ namespace Xtensive.Orm.Providers
         StoreSmallBatchRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertSmallBatchSize),
         StoreBigBatchRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertBigBatchSize),
 
-        ClearRequest = new PersistRequest(Handlers.StorageDriver, useTruncate ? SqlDdl.Truncate(table) : SqlDml.Delete(tableRef), null),
+        ClearRequest = new PersistRequest(Handlers.StorageDriver, useTruncate ? SqlDdl.Truncate(table) : SqlDml.Delete(tableRef), null).Prepare(),
       };
-
-      result.ClearRequest.Prepare();
 
       return result;
 
-      Lazy<PersistRequest> CreateLazyPersistRequest(ushort batchSize)
+      Lazy<PreparedPersistRequest> CreateLazyPersistRequest(ushort batchSize)
       {
-        return new Lazy<PersistRequest>(() => {
-          var bindings = new List<PersistParameterBinding>(batchSize);
+        return new Lazy<PreparedPersistRequest>(() => {
+          var bindings = new HashSet<PersistParameterBinding>(batchSize);
           var statement = MakeUpInsertQuery(tableRef, typeMappings, bindings, hasColumns, batchSize);
-          var persistRequest = new PersistRequest(driver, statement, bindings);
-          persistRequest.Prepare();
+          var persistRequest = new PersistRequest(driver, statement, bindings).Prepare();
           return persistRequest;
         });
       }
@@ -214,7 +211,7 @@ namespace Xtensive.Orm.Providers
     }
 
     private SqlInsert MakeUpInsertQuery(SqlTableRef temporaryTable,
-      TypeMapping[] typeMappings, List<PersistParameterBinding> storeRequestBindings, bool hasColumns, ushort rows = 1)
+      TypeMapping[] typeMappings, ISet<PersistParameterBinding> storeRequestBindings, bool hasColumns, ushort rows = 1)
     {
       var insertStatement = SqlDml.Insert(temporaryTable);
       if (!hasColumns) {

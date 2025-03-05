@@ -249,6 +249,12 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo Cast = GetMethod(typeof(System.Linq.Enumerable), nameof(System.Linq.Enumerable.Cast), 1, 1);
     }
 
+    public static class MemoryExtensions
+    {
+      public static readonly MethodInfo ContainsInReadOnlySpan = typeof(System.MemoryExtensions).GetMethods()
+        .Where(m => m.Name == "Contains" && m.GetParameterTypes()[0].GetGenericTypeDefinition() == WellKnownTypes.ReadOnlySpanOfT).First();
+    }
+
     // IEntity
     public static readonly PropertyInfo IEntityKey = WellKnownOrmInterfaces.Entity.GetProperty(WellKnown.KeyFieldName);
     public static readonly PropertyInfo TypeId = WellKnownOrmInterfaces.Entity.GetProperty(WellKnown.TypeIdFieldName);

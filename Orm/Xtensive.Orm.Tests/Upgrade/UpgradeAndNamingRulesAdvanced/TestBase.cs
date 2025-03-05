@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
   [TestFixture]
   public abstract class TestBase
   {
-    public readonly object guard = new object();
+    public readonly Lock guard = new();
     private NamingConvention namingConvention;
     
     [Test]

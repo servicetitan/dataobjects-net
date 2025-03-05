@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var values = new[] {MyEnum.Bar, MyEnum.Foo};
+        IReadOnlyList<MyEnum> values = [MyEnum.Bar, MyEnum.Foo];
         var query = session.Query.All<EntityWithNullableEnum>()
           .Select(e => new {
             Id = e.Id,
@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var values = new[] {MyEnum.Bar, MyEnum.Foo};
+        IReadOnlyList<MyEnum> values = [MyEnum.Bar, MyEnum.Foo];
         var query = session.Query.All<RefEntity>()
           .Select(e => new {
             Id = e.Id,

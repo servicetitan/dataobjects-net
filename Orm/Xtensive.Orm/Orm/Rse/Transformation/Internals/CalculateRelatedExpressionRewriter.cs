@@ -25,8 +25,6 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       ArgumentNullException.ThrowIfNull(expression);
       ArgumentNullException.ThrowIfNull(substituteParameter);
-      ArgumentNullException.ThrowIfNull(sourceColumns);
-      ArgumentNullException.ThrowIfNull(targetColumns);
       substitute = substituteParameter;
       this.sourceColumns = sourceColumns;
       this.targetColumns = targetColumns;
@@ -46,7 +44,7 @@ namespace Xtensive.Orm.Rse.Transformation
       if (mc.Object.NodeType == ExpressionType.Parameter
         && mc.Object.Type == WellKnownOrmTypes.Tuple) {
         var sourceIndex = visited.GetTupleAccessArgument();
-        var name = sourceColumns.Single(column => column.Index == sourceIndex).Name;
+        var name = sourceColumns.Columns.Single(column => column.Index == sourceIndex).Name;
         int currentIndex = targetColumns[name].Index;
         return Expression.Call(visited.Object, visited.Method, Expr.Constant(currentIndex));
       }

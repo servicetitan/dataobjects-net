@@ -106,7 +106,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     private const int DefaultDayPrecision = 2;
     private const int DefaultFSecondsPrecision = 6;
 
-    private readonly object accessGuard = new object();
+    private readonly Lock accessGuard = new();
 
     private string nonSystemSchemasFilter;
 

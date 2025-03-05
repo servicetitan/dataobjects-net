@@ -42,7 +42,7 @@
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
     <!-- Enable Usage of BinaryFormatter in test projects -->
     <EnableUnsafeBinaryFormatterSerialization
-      Condition="('$(TargetFramework)'=='net8.0' OR '$(TargetFramework)'=='net9.0') AND $(MSBuildProjectName.Contains('Tests')) == 'true'">true</EnableUnsafeBinaryFormatterSerialization>
+      Condition="('$(TargetFramework)'=='net10.0' OR '$(TargetFramework)'=='net9.0') AND $(MSBuildProjectName.Contains('Tests')) == 'true'">true</EnableUnsafeBinaryFormatterSerialization>
      <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 

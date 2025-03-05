@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Logging
   internal sealed class FileWriter : LogWriter
   {
     private readonly string fileName;
-    private readonly object syncRoot = new object();
+    private readonly Lock syncRoot = new();
 
     /// <inheritdoc/>
     public override void Write(in LogEventInfo logEvent)

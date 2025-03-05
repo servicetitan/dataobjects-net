@@ -200,8 +200,8 @@ namespace Xtensive.Orm.Upgrade
         // Since we support storage nodes, stored domain model and real model of a node
         // must be synchronized. So we must update types' mappings
         storedModel.UpdateMappings(UpgradeContext.NodeConfiguration);
-        var (serializedModel, compressed) = storedModel.Serialize();
-        var modelExtension = new ExtensionMetadata(WellKnown.DomainModelExtensionName, serializedModel, compressed);
+        var (_, compressed) = storedModel.Serialize();
+        var modelExtension = new ExtensionMetadata(WellKnown.DomainModelExtensionName, null, compressed);
         var indexesExtension = GetPartialIndexes(domain, types);
         metadata.Assemblies.AddRange(assemblyMetadata);
         metadata.Types.AddRange(typeMetadata);

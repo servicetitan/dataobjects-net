@@ -41,37 +41,37 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets or sets the persist request used to store batched data in temporary table.
     /// </summary>
-    public Lazy<PersistRequest> LazyLevel1BatchStoreRequest { get; set; }
+    public Lazy<PreparedPersistRequest> LazyLevel1BatchStoreRequest { get; set; }
 
     /// <summary>
     /// Gets or sets the persist request used to store batched data in temporary table.
     /// </summary>
-    public Lazy<PersistRequest> LazyLevel2BatchStoreRequest { get; set; }
+    public Lazy<PreparedPersistRequest> LazyLevel2BatchStoreRequest { get; set; }
 
     /// <summary>
     /// Gets or sets the persist request used to store data in temporary table.
     /// </summary>
-    public Lazy<PersistRequest> StoreSingleRecordRequest { get; set; }
+    public Lazy<PreparedPersistRequest> StoreSingleRecordRequest { get; set; }
 
     /// <summary>
     /// Gets or sets the persist request used to store batched data in temporary table.
     /// </summary>
-    public Lazy<PersistRequest> StoreSmallBatchRequest { get; set; }
+    public Lazy<PreparedPersistRequest> StoreSmallBatchRequest { get; set; }
 
     /// <summary>
     /// Gets or sets the persist request used to store batched data in temporary table.
     /// </summary>
-    public Lazy<PersistRequest> StoreBigBatchRequest { get; set; }
+    public Lazy<PreparedPersistRequest> StoreBigBatchRequest { get; set; }
 
     /// <summary>
     /// Gets the persist request used to store data in temporary table.
     /// </summary>
-    PersistRequest IPersistDescriptor.StoreRequest => StoreSingleRecordRequest.Value;
+    PreparedPersistRequest IPersistDescriptor.StoreRequest => StoreSingleRecordRequest.Value;
 
     /// <summary>
     /// Gets or sets the clear reqest used to delete all data from temporary table.
     /// </summary>
-    public PersistRequest ClearRequest { get; set; }
+    public PreparedPersistRequest ClearRequest { get; set; }
 
     /// <summary>
     /// Gets or sets the query statement associated with this table descriptor.

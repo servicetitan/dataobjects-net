@@ -92,9 +92,6 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       // Warmup
       int iterations = 100;
       AllocateClass_SlimObject(iterations);
-#if !NET8_0_OR_GREATER
-      AllocateClass_SlimObject_ByFormatterServices(iterations);
-#endif
       AllocateClass_FinalizableSlimObject(iterations);
       AllocateClass_InheritedObject3(iterations);
       AllocateClass<SlimObject>(iterations);
@@ -112,10 +109,6 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
           using (new Measurement("SlimObject", MeasurementOptions.Log, iterations))
             AllocateClass_SlimObject(iterations);
           TestHelper.CollectGarbage();
-#if !NET8_0_OR_GREATER
-          using (new Measurement("SlimObject (using FormatterServices)", MeasurementOptions.Log, iterations))
-            AllocateClass_SlimObject_ByFormatterServices(iterations);
-#endif
           TestHelper.CollectGarbage();
           using (new Measurement("FinalizableSlimObject", MeasurementOptions.Log, iterations))
             AllocateClass_FinalizableSlimObject(iterations);
@@ -213,25 +206,6 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
         new InheritedObject3();
       }
     }
-#if !NET8_0_OR_GREATER
-
-    private void AllocateClass_SlimObject_ByFormatterServices(int iterationCount)
-    {
-      var type = typeof(SlimObject);
-      for (int i = 0; i<iterationCount; i+=10) {
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-      }
-    }
-#endif
 
     private void AllocateClass_FinalizableSlimObject(int iterationCount)
     {

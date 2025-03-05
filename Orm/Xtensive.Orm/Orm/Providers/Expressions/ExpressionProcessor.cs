@@ -90,6 +90,13 @@ namespace Xtensive.Orm.Providers
       if (evaluator.CanBeEvaluated(e)) {
         if (parameterExtractor.IsParameter(e))
           return VisitParameterAccess(e, smartNull);
+        if (e.NodeType == ExpressionType.Call) {
+          var mc = (MethodCallExpression) e;
+          var methodDeclaringType = mc.Method.DeclaringType;
+          if (methodDeclaringType.IsGenericType && methodDeclaringType.GetGenericTypeDefinition() == WellKnownTypes.ReadOnlySpanOfT) {
+            e = mc.Arguments[0];
+          }
+        }
         return VisitConstant(ExpressionEvaluator.Evaluate(e));
       }
       return base.Visit(e);
@@ -410,8 +417,12 @@ namespace Xtensive.Orm.Providers
       var arguments = mc.Arguments.SelectToArray(a => Visit(a));
       var mi = mc.Method;
 
-      if (mc.Object!=null && mc.Object.Type!=mi.ReflectedType)
+      if (mc.Object!=null && mc.Object.Type!=mi.ReflectedType) {
         mi = mc.Object.Type.GetMethod(mi.Name, mi.GetParameterTypes());
+      }
+      else if (mi.IsGenericMethod && mi.GetGenericMethodDefinition() == WellKnownMembers.MemoryExtensions.ContainsInReadOnlySpan) {
+        mi = WellKnownMembers.Enumerable.Contains.CachedMakeGenericMethod(mi.GetGenericArguments()[0]);
+      }
 
       return CompileMember(mi, Visit(mc.Object), arguments);
     }

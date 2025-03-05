@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -10,7 +10,7 @@ namespace Xtensive.Orm.Logging
 {
   internal static class SystemClock
   {
-    private static readonly object syncRoot = new object();
+    private static readonly Lock syncRoot = new();
     private static int lastTick = -1;
     private static DateTime lastDateTime = DateTime.MinValue;
 
