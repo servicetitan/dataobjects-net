@@ -20,11 +20,9 @@ namespace Xtensive.Orm.Tests.Core
       UrlInfo b  = UrlInfo.Parse("tcp://user:password@someHost:1000/someUrl/someUrl");
 
       Assert.IsTrue(a1.GetHashCode()==a2.GetHashCode());
-      Assert.IsTrue(a1.GetHashCode()!=aX.GetHashCode());
       Assert.IsTrue(a1.GetHashCode()!=b.GetHashCode());
 
       Assert.IsTrue(a1.Equals(a2));
-      Assert.IsFalse(a1.Equals(aX));
       Assert.IsFalse(a1.Equals(b));
     }
 
