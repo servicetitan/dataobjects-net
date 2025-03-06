@@ -27,5 +27,17 @@ namespace Xtensive.Orm.Tests.Core
       Assert.IsFalse(a1.Equals(aX));
       Assert.IsFalse(a1.Equals(b));
     }
+
+    [Test]
+    public void WithTest()
+    {
+      UrlInfo a1 = UrlInfo.Parse("tcp://user:password@someHost:1000/someUrl/someUrl?p3=v3&p4=v4&p1=v1&p2=v2");
+      var a2 = a1 with { Port = 2000 };
+      Assert.AreEqual("tcp://user:password@someHost:2000/someUrl/someUrl?p1=v1&p2=v2&p3=v3&p4=v4", a2.ToString());
+      Assert.IsTrue(a2.Equals(a2));
+      Assert.IsFalse(a1.Equals(a2));
+      var a3 = UrlInfo.Parse("tcp://user:password@someHost:2000/someUrl/someUrl?p1=v1&p2=v2&p3=v3&p4=v4");
+      Assert.IsTrue(a2 == a3);
+    }
   }
 }
