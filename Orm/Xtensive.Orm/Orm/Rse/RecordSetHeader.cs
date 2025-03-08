@@ -188,7 +188,7 @@ namespace Xtensive.Orm.Rse
       return new RecordSetHeader(
         TupleDescriptor.CreateFromNormalized(columns.Select(i => TupleDescriptor[i]).ToArray(columns.Count)),
         columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum) newIndex)).ToArray(columns.Count),
-        resultGroups.ToList(),
+        resultGroups.ToArray(),
         null,
         resultOrder);
     }
