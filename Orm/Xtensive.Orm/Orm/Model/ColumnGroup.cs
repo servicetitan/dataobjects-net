@@ -4,51 +4,19 @@
 // Created by: Alexey Kochetov
 // Created:    2008.08.01
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Collections;
 
+namespace Xtensive.Orm.Model;
 
-namespace Xtensive.Orm.Model
-{
-  /// <summary>
-  /// Describes a group of columns that belongs to the specified <see cref="TypeInfoRef"/>.
-  /// </summary>
-  [Serializable]
-  [DebuggerDisplay("Type = {TypeInfoRef}, Keys = {Keys}, Columns = {Columns}")]
-  public readonly struct ColumnGroup
-  {
-    /// <summary>
-    /// Gets the <see cref="Model.TypeInfoRef"/> pointing to <see cref="TypeInfo"/>
-    /// this column group belongs to.
-    /// </summary>
-    public TypeInfoRef TypeInfoRef { get; }
-
-    /// <summary>
-    /// Gets the indexes of key columns.
-    /// </summary>
-    public IReadOnlyList<ColNum> Keys { get; }
-
-    /// <summary>
-    /// Gets the indexes of all columns.
-    /// </summary>
-    public IReadOnlyList<ColNum> Columns { get; }
-
-
-    // Constructors
-
-    /// <summary>
-    ///   Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="type">The type.</param>
-    /// <param name="keys">The keys.</param>
-    /// <param name="columns">The columns.</param>
-    public ColumnGroup(TypeInfoRef type, IReadOnlyList<ColNum> keys, IReadOnlyList<ColNum> columns)
-    {
-      TypeInfoRef = type;
-      Keys = keys;
-      Columns = columns;
-    }
-  }
-}
+/// <summary>
+/// Describes a group of columns that belongs to the specified <see cref="TypeInfoRef"/>.
+/// </summary>
+[Serializable]
+[DebuggerDisplay("Type = {TypeInfoRef}, Keys = {Keys}, Columns = {Columns}")]
+public record struct ColumnGroup
+(
+  TypeInfoRef TypeInfoRef,
+  IReadOnlyList<ColNum> Keys,      // indexes of key columns.
+  IReadOnlyList<ColNum> Columns   // indexes of all columns.
+);
