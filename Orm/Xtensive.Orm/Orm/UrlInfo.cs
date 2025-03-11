@@ -112,7 +112,7 @@ public sealed record UrlInfo
       }
       return field;
     }
-    private set;
+    private init;
   }
 
   /// <summary>
@@ -122,7 +122,7 @@ public sealed record UrlInfo
   public string Protocol
   {
     [DebuggerStepThrough] get => field;
-    set {
+    init {
       field = value;
       Url = null;
     }
@@ -135,7 +135,7 @@ public sealed record UrlInfo
   public bool Secure
   {
     [DebuggerStepThrough] get => field;
-    set {
+    init {
       field = value;
       Url = null;
     }
@@ -148,7 +148,7 @@ public sealed record UrlInfo
   public string Host
   {
     [DebuggerStepThrough] get;
-    set {
+    init {
       field = value;
       Url = null;
     }
@@ -161,7 +161,7 @@ public sealed record UrlInfo
   public int Port
   {
     [DebuggerStepThrough] get;
-    set {
+    init {
       field = value;
       Url = null;
     }
@@ -174,7 +174,7 @@ public sealed record UrlInfo
   public string Resource
   {
     [DebuggerStepThrough] get;
-    set {
+    init {
       field = value;
       Url = null;
     }
@@ -187,7 +187,7 @@ public sealed record UrlInfo
   public string User
   {
     [DebuggerStepThrough] get => field;
-    set {
+    init {
       field = value;
       Url = null;
     }
@@ -200,7 +200,7 @@ public sealed record UrlInfo
   public string Password
   {
     [DebuggerStepThrough] get => field;
-    set {
+    init {
       field = value;
       Url = null;
     }
@@ -219,7 +219,7 @@ public sealed record UrlInfo
   {
     [DebuggerStepThrough]
     get => field;
-    set {
+    init {
       field = value;
       Url = null;
     }
@@ -237,13 +237,6 @@ public sealed record UrlInfo
   /// </remarks>
   /// <exception cref="ArgumentException">Specified <paramref name="url"/> is invalid (cannot be parsed).</exception>
   public static UrlInfo Parse(string url)
-  {
-    var result = new UrlInfo();
-    Parse(url, result);
-    return result;
-  }
-
-  private static void Parse(string url, UrlInfo info)
   {
     try {
       string tUrl = url;
@@ -273,14 +266,16 @@ public sealed record UrlInfo
         }
       }
 
-      info.User = UrlDecode(result.Result("${username}"));
-      info.Password = UrlDecode(result.Result("${password}"));
-      info.Resource = UrlDecode(result.Result("${resource}"));
-      info.Host = UrlDecode(result.Result("${host}"));
-      info.Protocol = UrlDecode(result.Result("${proto}"));
-      info.Secure = !string.IsNullOrEmpty(result.Result("${secure}"));
-      info.Port = @port;
-      info.Params = parameters;
+      return new UrlInfo {
+        User = UrlDecode(result.Result("${username}")),
+        Password = UrlDecode(result.Result("${password}")),
+        Resource = UrlDecode(result.Result("${resource}")),
+        Host = UrlDecode(result.Result("${host}")),
+        Protocol = UrlDecode(result.Result("${proto}")),
+        Secure = !string.IsNullOrEmpty(result.Result("${secure}")),
+        Port = @port,
+        Params = parameters
+      };
     }
     catch (Exception e) when (!(e is ArgumentException or InvalidOperationException)) {
       throw Exceptions.InvalidUrl(url, "url");
