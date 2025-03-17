@@ -280,6 +280,7 @@ namespace Xtensive.Orm.Upgrade
       }
       catch (Exception e) {
         UpgradeLog.Warning(e, Strings.LogFailedToExtractDomainModelFromStorage);
+        throw;
       }
     }
 
