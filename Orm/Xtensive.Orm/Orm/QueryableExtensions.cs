@@ -4,12 +4,8 @@
 // Created by: Alexey Gamzov
 // Created:    2009.05.06
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Reflection;
 using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -23,6 +19,17 @@ namespace Xtensive.Orm
   /// </summary>
   public static partial class QueryableExtensions
   {
+    private static class Traits<T>
+    {
+      public static readonly MethodInfo ExtensionTagMethodInfo = WellKnownMembers.Queryable.ExtensionTag.MakeGenericMethod([typeof(T)]);
+    }
+
+    private static class Traits<TOuter, TInner, TKey, TResult>
+    {
+      public static readonly MethodInfo ExtensionLeftJoinMethodInfo
+        = WellKnownMembers.Queryable.ExtensionLeftJoin.MakeGenericMethod([typeof (TOuter), typeof(TInner), typeof(TKey), typeof(TResult)]);
+    }
+
     /// <summary>
     /// Tags query with given <paramref name="tag"/> string
     /// (inserts string as comment in SQL statement) for
@@ -43,8 +50,7 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, providerType));
       }
 
-      var genericMethod = WellKnownMembers.Queryable.ExtensionTag.MakeGenericMethod(new[] { typeof(TSource) });
-      var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(tag)});
+      var expression = Expression.Call(null, Traits<TSource>.ExtensionTagMethodInfo, new[] { source.Expression, Expression.Constant(tag)});
       return source.Provider.CreateQuery<TSource>(expression);
     }
 
@@ -340,8 +346,7 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, outerProviderType));
       }
 
-      var genericMethod = WellKnownMembers.Queryable.ExtensionLeftJoin.MakeGenericMethod(new[] {typeof (TOuter), typeof(TInner), typeof(TKey), typeof(TResult)});
-      var expression = Expression.Call(null, genericMethod, new[] {outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector});
+      var expression = Expression.Call(null, Traits<TOuter, TInner, TKey, TResult>.ExtensionLeftJoinMethodInfo, new[] {outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector});
       return outer.Provider.CreateQuery<TResult>(expression);
     }
 
