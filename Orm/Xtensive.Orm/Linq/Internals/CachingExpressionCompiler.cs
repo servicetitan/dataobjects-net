@@ -4,43 +4,25 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.05.06
 
-using System;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
-using Xtensive.Core;
 
-namespace Xtensive.Linq
+namespace Xtensive.Linq;
+
+internal static class CachingExpressionCompiler
 {
-  internal sealed class CachingExpressionCompiler
+  private static class Traits<TDelegate>
   {
-    public static CachingExpressionCompiler Instance { get; } = new CachingExpressionCompiler();
+    public static readonly ConcurrentDictionary<ExpressionTree, Delegate> Cache = new();
+  }
 
-    private readonly ConcurrentDictionary<ExpressionTree, Delegate> cache =
-      new ConcurrentDictionary<ExpressionTree, Delegate>();
-
-    private static readonly Func<ExpressionTree, Delegate> expressionTreeCompiler = CompileExpressionTree;
-
-    private static Delegate CompileExpressionTree(ExpressionTree tree) =>
-      ((LambdaExpression) tree.ToExpression()).Compile();
-
-    public (Delegate, object[]) Compile(LambdaExpression lambda)
-    {
-      var constantExtractor = new ConstantExtractor(lambda);
-      var expressionTree = constantExtractor.Process().ToExpressionTree();
-      var constants = constantExtractor.GetConstants();
-
-      var compiled = cache.GetOrAdd(expressionTree, expressionTreeCompiler);
-      return (compiled, constants);
-    }
-
-    // For testing only
-    public void ClearCache() => cache.Clear();
-
-
-    // Constructors
-
-    private CachingExpressionCompiler()
-    {
-    }
+  internal static (Delegate Compiled, object[] Constants) Compile<TDelegate>(Expression<TDelegate> lambda)
+  {
+    var constantExtractor = new ConstantExtractor(lambda);
+    var expressionTree = constantExtractor.Process().ToExpressionTree();
+    return (
+      Traits<TDelegate>.Cache.GetOrAdd(expressionTree, static tree => ((LambdaExpression) tree.ToExpression()).Compile()),
+      constantExtractor.GetConstants()
+    );
   }
 }
