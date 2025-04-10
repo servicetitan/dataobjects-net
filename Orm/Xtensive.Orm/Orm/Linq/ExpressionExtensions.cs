@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Linq
         if (((ConstantExpression) expression).Value is IQueryable value) {
           var type = value.GetType();
           if (type.IsGenericType) {
-            var definition = type.CachedGetGenericTypeDefinition();
+            var definition = type.GetGenericTypeDefinition();
             return definition != WellKnownInterfaces.QueryableOfT && definition != WellKnownTypes.QueryableOfT;
           }
         }
