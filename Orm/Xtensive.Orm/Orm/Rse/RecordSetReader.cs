@@ -141,11 +141,13 @@ namespace Xtensive.Orm.Rse
       }
 
       bool bSuccess = false;
+      bool isOnEnumerateSuccessful = false;
       try {
         dataReader = executeAsync
           ? await provider.OnEnumerateAsync(context, token).ConfigureAwaitFalse()
           : provider.OnEnumerate(context);
 
+        isOnEnumerateSuccessful = true;
         if (isGreedy && !dataReader.IsInMemory) {
           var tuples = new List<Tuple>();
           if (executeAsync) {
@@ -168,16 +170,30 @@ namespace Xtensive.Orm.Rse
       }
       finally {
         if (!bSuccess) {
-          FinishEnumeration(true);
+          FinishEnumeration(true, !isOnEnumerateSuccessful);
         }
       }
       state = State.Prepared;
     }
 
-    private void FinishEnumeration(bool isError)
+    private void FinishEnumeration(bool isError, bool isErrorOnServerSide = false)
     {
-      if (!enumerated) {
-        provider?.OnAfterEnumerate(context);
+      if (isErrorOnServerSide) {
+        // Possible connection closing because of server-side error, like operation timeout,
+        // which makes finish of some providers imposible, like ones that work with temporary tables and require clean-up.
+        // Exception may happen but we must prevent overlaping original exception with new one.
+        if (!enumerated) {
+          try {
+            provider?.OnAfterEnumerate(context);
+          }
+          catch {
+          }
+        }
+      }
+      else {
+        if (!enumerated) {
+          provider?.OnAfterEnumerate(context);
+        }
       }
 
       if (!isError) {
