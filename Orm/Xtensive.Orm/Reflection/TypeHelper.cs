@@ -75,9 +75,6 @@ namespace Xtensive.Reflection
 
     private static readonly ConcurrentDictionary<(int, ModuleHandle, Type, Type), MethodInvoker> GenericMethodInvokers2 = new();
 
-    // .NET8+ caches GenericTypeDefinition
-    private static readonly ConcurrentDictionary<Type, Type> GenericTypeDefinitions = Environment.Version.Major < 8 ? new() : null;
-
     private static readonly ConcurrentDictionary<(Type, Type), Type> GenericTypeInstances1 = new();
 
     private static readonly ConcurrentDictionary<(Type, Type, Type), Type> GenericTypeInstances2 = new();
@@ -610,7 +607,7 @@ namespace Xtensive.Reflection
                 }
 
                 projectedConstraint = constraint
-                  .CachedGetGenericTypeDefinition()
+                  .GetGenericTypeDefinition()
                   .MakeGenericType(projectedConstraintArguments);
               }
 
@@ -973,11 +970,8 @@ namespace Xtensive.Reflection
       methodHandle.MetadataToken == definitionHandle.MetadataToken
       && methodHandle.ModuleHandle == definitionHandle.ModuleHandle;
 
-    public static Type CachedGetGenericTypeDefinition(this Type type) =>
-      GenericTypeDefinitions?.GetOrAdd(type, static t => t.GetGenericTypeDefinition()) ?? type.GetGenericTypeDefinition();
-
     public static bool IsGenericType(this Type type, Type other) =>
-      type.IsGenericType && CachedGetGenericTypeDefinition(type) == other;
+      type.IsGenericType && type.GetGenericTypeDefinition() == other;
 
     /// <summary>
     /// Makes generic <see cref="MethodInfo"/> for given definition and type argument
