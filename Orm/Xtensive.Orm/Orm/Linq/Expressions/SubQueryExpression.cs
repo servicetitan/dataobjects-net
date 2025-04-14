@@ -83,8 +83,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
       // Remap Field parametrized parameters
       var item = GenericExpressionVisitor<IMappedExpression>.Process(ProjectionExpression.ItemProjector.Item, mapped => {
-        var parametrizedExpression = mapped as ParameterizedExpression;
-        if (parametrizedExpression!=null && parametrizedExpression.OuterParameter==OuterParameter)
+        if (mapped is ParameterizedExpression parametrizedExpression && parametrizedExpression.OuterParameter==OuterParameter)
           return mapped.Remap(map, new Dictionary<Expression, Expression>());
         return (Expression) mapped;
       });

@@ -30,8 +30,8 @@ namespace Xtensive.Orm.Linq
 
     public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      Func<Expression, Expression> genericBinder =
-        e => GenericExpressionVisitor<IMappedExpression>.Process(e, mapped => mapped.BindParameter(parameter, processedExpressions));
+      GenericExpressionVisitor<IMappedExpression> genericVisitor = new(mapped => mapped.BindParameter(parameter, processedExpressions));
+      var genericBinder = genericVisitor.Process;
       return new ConstructorExpression(
         Type,
         Bindings.ToDictionary(kvp => kvp.Key, kvp => genericBinder(kvp.Value)),
@@ -42,8 +42,8 @@ namespace Xtensive.Orm.Linq
 
     public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      Func<Expression, Expression> genericRemover =
-        e => GenericExpressionVisitor<IMappedExpression>.Process(e, mapped => mapped.RemoveOuterParameter(processedExpressions));
+      GenericExpressionVisitor<IMappedExpression> genericVisitor = new(mapped => mapped.RemoveOuterParameter(processedExpressions));
+      var genericRemover = genericVisitor.Process;
       var result = new ConstructorExpression(
         Type,
         Bindings.ToDictionary(kvp => kvp.Key, kvp => genericRemover(kvp.Value)),
@@ -61,10 +61,10 @@ namespace Xtensive.Orm.Linq
           return mapped.Remap(offset, new Dictionary<Expression, Expression>());
         return (Expression) mapped;
       };
-      var newBindings = Bindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
-      var newConstructorArguments = ConstructorArguments
-        .Select(arg => GenericExpressionVisitor<IMappedExpression>.Process(arg, remapper)).ToArray();
-      var newNativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
+      GenericExpressionVisitor<IMappedExpression> genericVisitor = new(remapper);
+      var newBindings = Bindings.ToDictionary(kvp => kvp.Key, kvp => genericVisitor.Process(kvp.Value));
+      var newConstructorArguments = ConstructorArguments.Select(genericVisitor.Process).ToArray();
+      var newNativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => genericVisitor.Process(kvp.Value));
       var result = new ConstructorExpression(
         Type,
         newBindings,
@@ -82,9 +82,10 @@ namespace Xtensive.Orm.Linq
           return mapped.Remap(map, new Dictionary<Expression, Expression>());
         return (Expression) mapped;
       };
-      var newBindings = Bindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
-      var newConstructorArguments = ConstructorArguments.Select(arg => GenericExpressionVisitor<IMappedExpression>.Process(arg, remapper)).ToArray();
-      var newNativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
+      GenericExpressionVisitor<IMappedExpression> genericVisitor = new(remapper);
+      var newBindings = Bindings.ToDictionary(kvp => kvp.Key, kvp => genericVisitor.Process(kvp.Value));
+      var newConstructorArguments = ConstructorArguments.Select(genericVisitor.Process).ToArray();
+      var newNativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => genericVisitor.Process(kvp.Value));
       return new ConstructorExpression(Type, newBindings, newNativeBindings, Constructor, newConstructorArguments);
     }
 
