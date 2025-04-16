@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       var nativeBingings = expression.NativeBindings
         .Zip(newNativeBindings)
         .ToDictionary(item => item.First.Key, item => item.Second);
-      return new ConstructorExpression(expression.Type, bindings, nativeBingings, expression.Constructor, newConstructorArguments);
+      return new ConstructorExpression(expression.Type, bindings, nativeBingings, expression.Constructor, newConstructorArguments.ToReadOnlyList());
     }
 
     internal override Expression VisitEntityExpression(EntityExpression expression)
