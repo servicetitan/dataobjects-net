@@ -94,7 +94,7 @@ namespace Xtensive.Reflection
     /// throws <see cref="InvalidOperationException"/>, if there is more then one attribute of specified type found.
     /// </returns>
     /// <exception cref="InvalidOperationException">Thrown if there is more then one attribute of specified type found.</exception>
-    public static TAttribute GetAttribute<TAttribute>(this MemberInfo member, AttributeSearchOptions options = AttributeSearchOptions.InheritNone)
+    internal static TAttribute GetAttribute<TAttribute>(this MemberInfo member, AttributeSearchOptions options = AttributeSearchOptions.InheritNone)
       where TAttribute : Attribute
     {
       var attributes = AttributeDictionary<TAttribute>.Get(member, options);
