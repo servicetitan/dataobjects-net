@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Internals
     }
 
     public static Key Materialize(Domain domain, string nodeId,
-      TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
+      TypeInfo type, TypeReferenceAccuracy accuracy, params ReadOnlySpan<object> values)
     {
       var keyInfo = type.Key;
       ArgumentValidator.EnsureArgumentIsInRange(values.Length, 1, keyInfo.TupleDescriptor.Count, "values");

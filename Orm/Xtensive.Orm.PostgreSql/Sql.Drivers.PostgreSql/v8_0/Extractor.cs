@@ -1289,11 +1289,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         foreach (var (segId, seq) in sequenceMap) {
           if (query.Length == 0) {
             _ = query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", segId,
-              SqlHelper.Quote(SqlHelper.EscapeSetup.WithQuotes, new[] { seq.Schema.DbName, seq.DbName }));
+              SqlHelper.Quote(SqlHelper.EscapeSetup.WithQuotes, [seq.Schema.DbName, seq.DbName]));
           }
           else {
             _ = query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", segId,
-              SqlHelper.Quote(SqlHelper.EscapeSetup.WithQuotes, new[] { seq.Schema.DbName, seq.DbName }));
+              SqlHelper.Quote(SqlHelper.EscapeSetup.WithQuotes, [seq.Schema.DbName, seq.DbName]));
           }
         }
         _ = query.Append("\n) all_sequences\nORDER BY id");

@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Linq
     private static readonly MethodInfo VisitLocalCollectionSequenceMethod = typeof(Translator).GetMethodEx(nameof(VisitLocalCollectionSequence),
         BindingFlags.NonPublic | BindingFlags.Instance,
         new[] { "TItem" },
-        new object[] { WellKnownTypes.Expression });
+        [WellKnownTypes.Expression]);
 
     private static readonly ParameterExpression ParameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
     private static readonly ParameterExpression TupleReader = Expression.Parameter(typeof(RecordSetReader), "tupleReader");

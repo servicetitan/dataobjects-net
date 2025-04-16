@@ -61,11 +61,11 @@ namespace Xtensive.Sql.Compiler
 
       var schema = node.SchemaNode.Schema;
 
-      var names = (node.DbQualified)
-        ? new string[] { schema.Catalog.GetActualDbName(configuration.DatabaseMapping), schema.GetActualDbName(configuration.SchemaMapping), node.SchemaNode.DbName }
-        : new string[] { schema.GetActualDbName(configuration.SchemaMapping), node.SchemaNode.DbName };
+      var quotedNames = (node.DbQualified)
+        ? SqlHelper.Quote(node.EscapeSetup, [schema.Catalog.GetActualDbName(configuration.DatabaseMapping), schema.GetActualDbName(configuration.SchemaMapping), node.SchemaNode.DbName])
+        : SqlHelper.Quote(node.EscapeSetup, [schema.GetActualDbName(configuration.SchemaMapping), node.SchemaNode.DbName]);
 
-      _ = result.Append(SqlHelper.Quote(node.EscapeSetup, names));
+      _ = result.Append(quotedNames);
     }
 
     public override void Visit(CycleItemNode node)

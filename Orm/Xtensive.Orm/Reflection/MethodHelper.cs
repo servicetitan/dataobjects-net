@@ -42,17 +42,13 @@ namespace Xtensive.Reflection
     /// otherwise, <see langword="null"/>.</returns>
     [DebuggerStepThrough]
     [CanBeNull]
-    public static MethodInfo GetMethodEx(this Type type, string name, BindingFlags bindingFlags, string[] genericArgumentNames, object[] parameterTypes)
+    public static MethodInfo GetMethodEx(this Type type, string name, BindingFlags bindingFlags, string[] genericArgumentNames, ReadOnlySpan<object> parameterTypes)
     {
       ArgumentNullException.ThrowIfNull(type);
       ArgumentException.ThrowIfNullOrEmpty(name);
 
       if (genericArgumentNames == null) {
         genericArgumentNames = Array.Empty<string>();
-      }
-
-      if (parameterTypes == null) {
-        parameterTypes = Array.Empty<object>();
       }
 
       var parameterTypesAreFullyDefined = true;
@@ -331,7 +327,7 @@ namespace Xtensive.Reflection
 
     #region Private \ internal methods
 
-    private static bool CheckMethod(MethodBase m, string name, string[] genericArgumentNames, object[] parameterTypes)
+    private static bool CheckMethod(MethodBase m, string name, string[] genericArgumentNames, ReadOnlySpan<object> parameterTypes)
     {
       // Checking name
       if (!m.Name.Equals(name, StringComparison.Ordinal)) {

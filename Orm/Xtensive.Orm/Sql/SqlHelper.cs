@@ -69,7 +69,7 @@ namespace Xtensive.Sql
     /// </summary>
     /// <returns>Quoted identifier.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string QuoteIdentifierWithQuotes(string[] names) 
+    public static string QuoteIdentifierWithQuotes(ReadOnlySpan<string> names)
       => Quote(EscapeSetup.WithQuotes, names);
 
     /// <summary>
@@ -77,7 +77,7 @@ namespace Xtensive.Sql
     /// </summary>
     /// <returns>Quoted indentifier.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string QuoteIdentifierWithBrackets(string[] names) 
+    public static string QuoteIdentifierWithBrackets(ReadOnlySpan<string> names)
       => Quote(EscapeSetup.WithBrackets, names);
 
     /// <summary>
@@ -85,10 +85,10 @@ namespace Xtensive.Sql
     /// </summary>
     /// <returns>Quoted identifier.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string QuoteIdentifierWithBackTick(string[] names) 
+    public static string QuoteIdentifierWithBackTick(ReadOnlySpan<string> names)
       => Quote(EscapeSetup.WithBackTick, names);
 
-    public static unsafe string Quote(in EscapeSetup setup, string[] names)
+    public static unsafe string Quote(in EscapeSetup setup, ReadOnlySpan<string> names)
     {
       // That's one of frequently called methods, so it's optimized for speed. 
 

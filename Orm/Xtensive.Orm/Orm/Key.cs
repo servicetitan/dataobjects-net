@@ -453,10 +453,8 @@ namespace Xtensive.Orm
       return Create(domain, nodeId, domain.Model.Types[type], accuracy, values);
     }
 
-    internal static Key Create(Domain domain, string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, object[] values)
-    {
-      return KeyFactory.Materialize(domain, nodeId, type, accuracy, values);
-    }
+    internal static Key Create(Domain domain, string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, ReadOnlySpan<object> values) =>
+      KeyFactory.Materialize(domain, nodeId, type, accuracy, values);
 
     #endregion
 
