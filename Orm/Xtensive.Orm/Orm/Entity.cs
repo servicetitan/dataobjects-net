@@ -446,7 +446,7 @@ namespace Xtensive.Orm
       return TypeInfo.Key.Fields.Where(field => field.IsEntity && !field.IsNested).Select(field => field);
     }
 
-    internal void RegisterKeyFieldsOfEntityTypeForRemap(Key keyOfThisEntity, params object[] values)
+    internal void RegisterKeyFieldsOfEntityTypeForRemap(Key keyOfThisEntity, params ReadOnlySpan<object> values)
     {
       foreach (var fieldInfo in GetKeyFieldsOfEntityType()) {
         var referencedEntity = values[fieldInfo.MappingInfo.Offset] as Entity;
@@ -888,10 +888,9 @@ namespace Xtensive.Orm
     /// }
     /// </code>
     /// </example>
-    protected Entity(params object[] values)
+    protected Entity(params ReadOnlySpan<object> values)
     {
       try {
-        ArgumentNullException.ThrowIfNull(values);
         var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
         changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
@@ -939,11 +938,10 @@ namespace Xtensive.Orm
     /// }
     /// </code>
     /// </example>
-    protected Entity(Session session, params object[] values)
+    protected Entity(Session session, params ReadOnlySpan<object> values)
       : base(session)
     {
       try {
-        ArgumentNullException.ThrowIfNull(values);
         var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
         changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
