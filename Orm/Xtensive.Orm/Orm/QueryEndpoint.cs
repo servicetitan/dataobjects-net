@@ -461,10 +461,10 @@ namespace Xtensive.Orm
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
     public async ValueTask<T> SingleAsync<T>(object key, CancellationToken ct = default) where T : class, IEntity =>
-      (T)(object)(await SingleAsync(GetKeyByValues<T>(new[] { key }), ct));
+      (T)(object)(await SingleAsync(GetKeyByValues<T>([key]), ct));
 
     public async ValueTask<T> SingleAsync<T>(object key1, object key2, CancellationToken ct = default) where T : class, IEntity =>
-      (T)(object)(await SingleAsync(GetKeyByValues<T>(new[] { key1, key2 }), ct));
+      (T)(object)(await SingleAsync(GetKeyByValues<T>([key1, key2]), ct));
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
@@ -488,10 +488,10 @@ namespace Xtensive.Orm
     /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
     /// </returns>
     public async ValueTask<T> SingleOrDefaultAsync<T>(object key, CancellationToken ct = default) where T : class, IEntity =>
-      (T)(object)(await SingleOrDefaultAsync(GetKeyByValues<T>(new[] { key }), ct));
+      (T)(object)(await SingleOrDefaultAsync(GetKeyByValues<T>([key]), ct));
 
     public async ValueTask<T> SingleOrDefaultAsync<T>(object key1, object key2, CancellationToken ct = default) where T : class, IEntity =>
-      (T)(object)(await SingleOrDefaultAsync(GetKeyByValues<T>(new[] { key1, key2 }), ct));
+      (T)(object)(await SingleOrDefaultAsync(GetKeyByValues<T>([key1, key2]), ct));
 
     /// <summary>
     /// Fetches multiple instances of specified type  by provided <paramref name="keys"/>.

@@ -58,7 +58,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
         Catalog = catalog;
         TargetSchemas = targetSchemas;
-        QuotedCatalogName = SqlHelper.QuoteIdentifierWithBrackets(new[] { catalog.Name });
+        QuotedCatalogName = SqlHelper.QuoteIdentifierWithBrackets([catalog.Name]);
 
         SchemaIndex = new Dictionary<int, Schema>();
         ReversedSchemaIndex = new Dictionary<Schema, int>();

@@ -2396,7 +2396,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="output">The output.</param>
     /// <param name="name">The identifier.</param>
     /// <param name="moreNames">Additional names (optional).</param>
-    public void TranslateIdentifier(IOutput output, string name, params string[] moreNames)
+    public void TranslateIdentifier(IOutput output, string name, params ReadOnlySpan<string> moreNames)
     {
       if (string.IsNullOrEmpty(name))
         return;
@@ -2414,7 +2414,7 @@ namespace Xtensive.Sql.Compiler
       }
       _ = output.AppendLiteral(setup.Closer);
 
-      if (moreNames?.Length == 0)
+      if (moreNames.Length == 0)
         return;
 
       foreach (var aName in moreNames) {
@@ -2514,7 +2514,7 @@ namespace Xtensive.Sql.Compiler
     /// <remarks>
     /// Use TranslateIdentifier instead of this method within SqlTranslators/SqlCompilers where possible.
     /// </remarks>
-    public string QuoteIdentifier(params string[] names) =>
+    public string QuoteIdentifier(params ReadOnlySpan<string> names) =>
       //Use TranslateIdentifier instead of this method within SqlTranslators/SqlCompilers where possible
       SqlHelper.Quote(EscapeSetup, names);
 
