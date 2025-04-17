@@ -582,5 +582,11 @@ namespace Xtensive.Core
       var result = TopologicalSorter.Sort(graph);
       return result.HasLoops ? null : result.SortedNodes.SelectToList(node => node.Value);
     }
+
+    internal static IReadOnlyList<T> ToReadOnlyList<T>(this IEnumerable<T> seq) =>
+      seq switch {
+        IReadOnlyList<T> roList => roList,
+        var s => s?.ToList()
+      };
   }
 }

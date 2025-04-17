@@ -21,7 +21,7 @@ namespace Xtensive.Linq
   {
     private readonly Dictionary<Expression, Expression> cache = isCaching ? new() : null;
 
-    protected virtual IReadOnlyList<Expression> VisitExpressionList(IReadOnlyList<Expression> expressions) =>
+    protected virtual IEnumerable<Expression> VisitExpressionList(IReadOnlyList<Expression> expressions) =>
       VisitList(expressions, Visit);
 
     public override Expression Visit(Expression e)
@@ -69,7 +69,7 @@ namespace Xtensive.Linq
     /// </summary>
     /// <param name="original">The original element initializer list.</param>
     /// <returns>Visit result.</returns>
-    protected virtual IReadOnlyList<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original) =>
+    protected virtual IEnumerable<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original) =>
       VisitList(original, VisitElementInitializer);
 
     /// <inheritdoc/>
@@ -236,29 +236,31 @@ namespace Xtensive.Linq
     /// </summary>
     /// <param name="original">The original binding list.</param>
     /// <returns>Visit result.</returns>
-    protected virtual IReadOnlyList<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original) =>
+    protected virtual IEnumerable<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original) =>
       VisitList(original, VisitBinding);
 
-    public static IReadOnlyList<T> VisitList<T>(IReadOnlyList<T> original, Func<T, T> func) where T : class
+    public static IEnumerable<T> VisitList<T>(IReadOnlyList<T> original, Func<T, T> func) where T : class
     {
-      T[] ar = null;
-      for (int i = 0, n = original.Count; i < n; i++) {
+      for (int i = 0, n = original.Count; i < n; ++i) {
         var originalValue = original[i];
-        var p = func(originalValue);
-        if (ar != null) {
-          ar[i] = p;
-        }
-        else if (!ReferenceEquals(p, originalValue)) {
-          ar = new T[n];
-          for (int j = 0; j < i; j++) {
-            ar[j] = original[j];
-          }
-          ar[i] = p;
+        if (func(originalValue) is var p && !ReferenceEquals(p, originalValue)) {
+          return VisitListIterator(original, func, p, i);
         }
       }
-      return ar?.AsSafeWrapper() ?? original;
+      return original;
     }
 
+    private static IEnumerable<T> VisitListIterator<T>(IReadOnlyList<T> original, Func<T, T> func, T p, int pIdx) where T : class
+    {
+      for (var i = 0; i < pIdx; ++i) {
+        yield return original[i];
+      }
+      yield return p;
+      for (int i = pIdx + 1, n = original.Count; i < n; ++i) {
+        yield return func(original[i]);
+      }
+    }
+    
     protected override MemberListBinding VisitMemberListBinding(MemberListBinding binding)
     {
       var bindingInitializers = binding.Initializers;
