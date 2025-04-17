@@ -211,7 +211,7 @@ namespace Xtensive.Orm.Internals
       return parameterContext;
     }
 
-    private CompiledQueryRunner(QueryEndpoint endpoint, (object Key, int MetadataToken, ModuleHandle ModuleHandle) keyParts, object queryTarget, ParameterContext outerContext = null)
+    private CompiledQueryRunner(QueryEndpoint endpoint, (object Key, int MetadataToken, ModuleHandle ModuleHandle) keyParts, object queryTarget, ParameterContext outerContext)
     {
       session = endpoint.Provider.Session;
       domain = session.Domain;
