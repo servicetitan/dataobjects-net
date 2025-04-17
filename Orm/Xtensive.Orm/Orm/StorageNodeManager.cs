@@ -64,13 +64,11 @@ namespace Xtensive.Orm
 
       if (removeResult && clearQueryCache) {
         var domainConfig = handlers.Domain.Configuration;
-        if (domainConfig.ShareStorageSchemaOverNodes && domainConfig.PreferTypeIdsAsQueryParameters) {
-          return removeResult;
-        }
-
-        var queryCache = (Caching.FastConcurrentLruCache<object, (object, Linq.ParameterizedQuery)>) handlers.Domain.QueryCache;
-        foreach (var key in queryCache.Keys.Where(k => k is ValueTuple<object, string> pair && pair.Item2 == nodeId).ToList()) {
-          queryCache.RemoveKey(key);
+        if (!(domainConfig.ShareStorageSchemaOverNodes && domainConfig.PreferTypeIdsAsQueryParameters)) {
+          var queryCache = handlers.Domain.QueryCache;
+          foreach (var key in queryCache.Keys.Where(k => k.StorageNodeId == nodeId).ToList()) {
+            queryCache.RemoveKey(key);
+          }
         }
       }
       return removeResult;

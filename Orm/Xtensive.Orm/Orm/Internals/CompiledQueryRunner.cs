@@ -4,29 +4,23 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.01.27
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Xtensive.Caching;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions.Visitors;
-using Xtensive.Orm.Providers;
-using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Internals
 {
+  internal record struct QueryKey(object Key, int MetadataToken, ModuleHandle ModuleHandle, string StorageNodeId);
+
   internal class CompiledQueryRunner
   {
     private readonly Domain domain;
     private readonly Session session;
     private readonly QueryEndpoint endpoint;
-    private readonly object queryKey;
+    private readonly QueryKey queryKey;
     private readonly object queryTarget;
     private readonly ParameterContext outerContext;
 
@@ -217,7 +211,7 @@ namespace Xtensive.Orm.Internals
       return parameterContext;
     }
 
-    public CompiledQueryRunner(QueryEndpoint endpoint, object queryKey, object queryTarget, ParameterContext outerContext = null)
+    private CompiledQueryRunner(QueryEndpoint endpoint, (object Key, int MetadataToken, ModuleHandle ModuleHandle) keyParts, object queryTarget, ParameterContext outerContext = null)
     {
       session = endpoint.Provider.Session;
       domain = session.Domain;
@@ -227,9 +221,19 @@ namespace Xtensive.Orm.Internals
       this.outerContext = outerContext;
 
       var domainConfig = domain.Configuration;
-      this.queryKey = domainConfig.ShareStorageSchemaOverNodes && domainConfig.PreferTypeIdsAsQueryParameters
-        ? queryKey
-        : (queryKey, session.StorageNodeId);
+      queryKey = new(keyParts.Key, keyParts.MetadataToken, keyParts.ModuleHandle,
+        domainConfig.ShareStorageSchemaOverNodes && domainConfig.PreferTypeIdsAsQueryParameters ? null : session.StorageNodeId
+      );
+    }
+
+    public CompiledQueryRunner(QueryEndpoint endpoint, MethodInfo methodInfo, object queryTarget, ParameterContext outerContext = null)
+      : this(endpoint, (methodInfo, methodInfo.MetadataToken, methodInfo.Module.ModuleHandle), queryTarget, outerContext)
+    {
+    }
+
+    public CompiledQueryRunner(QueryEndpoint endpoint, object key, object queryTarget, ParameterContext outerContext = null)
+      : this(endpoint, (key, 0, default), queryTarget, outerContext)
+    {
     }
   }
 }
