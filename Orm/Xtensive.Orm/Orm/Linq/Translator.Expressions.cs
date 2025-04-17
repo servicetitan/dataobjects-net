@@ -1302,7 +1302,7 @@ namespace Xtensive.Orm.Linq
       var index = type.Indexes.PrimaryIndex;
       var entityExpression = EntityExpression.Create(type, 0, false);
       var itemProjector = new ItemProjectorExpression(entityExpression, index.GetQuery(), context);
-      return new ProjectionExpression(mc.Type, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      return new ProjectionExpression(mc.Type, itemProjector, EmptyTupleParameterBindings);
     }
 
     private Expression ConstructQueryable(Type elementType)
