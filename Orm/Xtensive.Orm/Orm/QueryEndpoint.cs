@@ -880,6 +880,9 @@ namespace Xtensive.Orm
     public DelayedQuery<TElement> CreateDelayedQuery<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query) =>
       new CompiledQueryRunner(this, key, query.Target).CreateDelayedQuery(query);
 
+    public DelayedQuery<TElement> CreateDelayedQuery<TElement>(MethodInfo key, Func<QueryEndpoint, IQueryable<TElement>> query) =>
+      new CompiledQueryRunner(this, key, query.Target).CreateDelayedQuery(query);
+
     /// <summary>
     /// Creates future query and registers it for the later execution.
     /// The associated query will be cached.

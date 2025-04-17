@@ -232,7 +232,9 @@ namespace Xtensive.Orm.Internals
     }
 
     public CompiledQueryRunner(QueryEndpoint endpoint, object key, object queryTarget, ParameterContext outerContext = null)
-      : this(endpoint, (key, 0, default), queryTarget, outerContext)
+      : this(endpoint,
+        key is MethodInfo methodInfo ? (methodInfo, methodInfo.MetadataToken, methodInfo.Module.ModuleHandle) : (key, 0, default),
+        queryTarget, outerContext)
     {
     }
   }
