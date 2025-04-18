@@ -71,7 +71,7 @@ namespace Xtensive.Core
     /// <returns>Body of <paramref name="lambdaExpression"/> with lambda's parameters replaced 
     /// with corresponding expression from <paramref name="parameters"/></returns>
     /// <exception cref="InvalidOperationException">Something went wrong :(.</exception>
-    public static Expression BindParameters(this LambdaExpression lambdaExpression, params Expression[] parameters)
+    public static Expression BindParameters(this LambdaExpression lambdaExpression, params ReadOnlySpan<Expression> parameters)
     {
       var lambdaExpressionParameters = lambdaExpression.Parameters;
       var lambdaExpressionParametersCount = lambdaExpressionParameters.Count;
