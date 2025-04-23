@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Internals
           parameterType.GetProperty(nameof(Parameter<object>.Value), ct),
           ct.IsClosure() ? ct.GetFields() : null
         );
-      });
+      }, 10_000);
       MemberExpression closureAccessor = null;
       queryParameter = (Parameter) System.Activator.CreateInstance(info.ParameterType, "pClosure");
       queryParameterReplacer = new ExtendedExpressionReplacer(expression => {
