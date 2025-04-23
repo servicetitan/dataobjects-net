@@ -159,40 +159,43 @@ namespace Xtensive.Orm.Internals
       var closureType = queryTarget.GetType();
       var parameterType = WellKnownOrmTypes.ParameterOfT.CachedMakeGenericType(closureType);
       var valueMemberInfo = parameterType.GetProperty(nameof(Parameter<object>.Value), closureType);
+      MemberExpression closureAccessor = null;
       queryParameter = (Parameter) System.Activator.CreateInstance(parameterType, "pClosure");
+      bool? closureTypeIsClosure = null;
+      FieldInfo[] closureTypeFields = null;
       queryParameterReplacer = new ExtendedExpressionReplacer(expression => {
         if (expression.NodeType == ExpressionType.Constant) {
-          if ((expression as ConstantExpression).Value == null) {
-          return null;
-        }
-        if (expression.Type.IsClosure()) {
-          if (expression.Type==closureType) {
-            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-          }
-            else {
-          throw new NotSupportedException(string.Format(
-            Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
-        }
+          if (((ConstantExpression)expression).Value is null) {
+            return null;
           }
 
-        if (closureType.DeclaringType==null) {
-            if (expression.Type.IsAssignableFrom(closureType))
-            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+          var expressionType = expression.Type;
+          if (expressionType.IsClosure()) {
+            return expressionType == closureType
+              ? GetClosureAccessor()
+              : throw new NotSupportedException(string.Format(Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
           }
-        else {
-            if (expression.Type.IsAssignableFrom(closureType))
-            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-            if (expression.Type.IsAssignableFrom(closureType.DeclaringType)) {
-            var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
-              if (memberInfo != null)
-              return Expression.MakeMemberAccess(
-                Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
-                memberInfo);
+
+          if (expressionType.IsAssignableFrom(closureType))
+            return GetClosureAccessor();
+          if (closureType.DeclaringType is { } closureTypeDeclaringType && expressionType.IsAssignableFrom(closureTypeDeclaringType)) {
+            if (closureTypeIsClosure is null) {
+              closureTypeIsClosure = closureType.IsClosure();
+              closureTypeFields = closureTypeIsClosure.Value ? closureType.GetFields() : null;
+            }
+
+            if (closureTypeIsClosure.Value
+                && closureTypeFields.FirstOrDefault(field => field.FieldType == expressionType) is { } memberInfo) {
+              return Expression.MakeMemberAccess(GetClosureAccessor(), memberInfo);
             }
           }
         }
+
         return null;
       });
+
+      MemberExpression GetClosureAccessor() =>
+        closureAccessor ??= Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
     }
 
     private ParameterizedQuery GetCachedQuery() =>
