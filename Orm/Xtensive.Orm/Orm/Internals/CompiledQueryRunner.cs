@@ -17,6 +17,8 @@ namespace Xtensive.Orm.Internals
 
   internal class CompiledQueryRunner
   {
+    private static readonly ExtendedExpressionReplacer NoopReplacer = new(e => e);
+
     private readonly Domain domain;
     private readonly Session session;
     private readonly QueryEndpoint endpoint;
@@ -152,7 +154,7 @@ namespace Xtensive.Orm.Internals
     {
       if (queryTarget == null) {
         queryParameter = null;
-        queryParameterReplacer = new ExtendedExpressionReplacer(e => e);
+        queryParameterReplacer = NoopReplacer;
         return;
       }
 
