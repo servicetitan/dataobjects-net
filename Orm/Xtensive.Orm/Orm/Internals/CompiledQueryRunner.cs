@@ -186,8 +186,7 @@ namespace Xtensive.Orm.Internals
 
           if (expressionType.IsAssignableFrom(closureType))
             return GetClosureAccessor();
-          if (closureType.DeclaringType is { } closureTypeDeclaringType
-              && expressionType.IsAssignableFrom(closureTypeDeclaringType)
+          if (expressionType.IsAssignableFrom(closureType.DeclaringType)
               && info.Fields?.FirstOrDefault(field => field.FieldType == expressionType) is { } memberInfo) {
             return Expression.MakeMemberAccess(GetClosureAccessor(), memberInfo);
           }
