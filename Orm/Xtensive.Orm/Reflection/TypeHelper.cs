@@ -1188,9 +1188,11 @@ namespace Xtensive.Reflection
     /// </returns>
     public static bool IsClosure(this Type type)
     {
+      if (type.BaseType != WellKnownTypes.Object) {
+        return false;
+      }
       var typeName = type.Name;
-      return type.BaseType == WellKnownTypes.Object
-        && (typeName.StartsWith("<>", StringComparison.Ordinal) || typeName.StartsWith("VB$", StringComparison.Ordinal))
+      return (typeName.StartsWith("<>", StringComparison.Ordinal) || typeName.StartsWith("VB$", StringComparison.Ordinal))
         && typeName.IndexOf("DisplayClass", StringComparison.Ordinal) >= 0
         && type.IsDefined(CompilerGeneratedAttributeType, false);
     }
