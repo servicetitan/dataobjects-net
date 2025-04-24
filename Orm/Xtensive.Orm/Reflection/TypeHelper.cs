@@ -1188,9 +1188,11 @@ namespace Xtensive.Reflection
     /// </returns>
     public static bool IsClosure(this Type type)
     {
+      if (type.BaseType != WellKnownTypes.Object) {
+        return false;
+      }
       var typeName = type.Name;
-      return type.BaseType == WellKnownTypes.Object
-        && (typeName.StartsWith("<>", StringComparison.Ordinal) || typeName.StartsWith("VB$", StringComparison.Ordinal))
+      return (typeName.StartsWith("<>", StringComparison.Ordinal) || typeName.StartsWith("VB$", StringComparison.Ordinal))
         && typeName.IndexOf("DisplayClass", StringComparison.Ordinal) >= 0
         && type.IsDefined(CompilerGeneratedAttributeType, false);
     }
@@ -1260,18 +1262,6 @@ namespace Xtensive.Reflection
     }
 
     #region Private \ internal methods
-
-    /// <summary>
-    /// Gets information about field in closure.
-    /// </summary>
-    /// <param name="closureType">Closure type.</param>
-    /// <param name="fieldType">Type of field in closure.</param>
-    /// <returns>If field of <paramref name="fieldType"/> exists in closure then returns
-    /// <see cref="MemberInfo"/> of that field, otherwise, <see langword="null"/>.</returns>
-    internal static MemberInfo TryGetFieldInfoFromClosure(this Type closureType, Type fieldType) =>
-      closureType.IsClosure()
-        ? closureType.GetFields().FirstOrDefault(field => field.FieldType == fieldType)
-        : null;
 
     private static string TrimGenericSuffix(string @string)
     {

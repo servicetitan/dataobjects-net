@@ -17,6 +17,10 @@ namespace Xtensive.Orm.Internals
 
   internal class CompiledQueryRunner
   {
+    private record struct ClosureTypeInfo(Type ParameterType, PropertyInfo ValueMemberInfo, FieldInfo[] Fields);
+
+    private static readonly ExtendedExpressionReplacer NoopReplacer = new(e => e);
+
     private readonly Domain domain;
     private readonly Session session;
     private readonly QueryEndpoint endpoint;
@@ -152,47 +156,47 @@ namespace Xtensive.Orm.Internals
     {
       if (queryTarget == null) {
         queryParameter = null;
-        queryParameterReplacer = new ExtendedExpressionReplacer(e => e);
+        queryParameterReplacer = NoopReplacer;
         return;
       }
 
       var closureType = queryTarget.GetType();
-      var parameterType = WellKnownOrmTypes.ParameterOfT.CachedMakeGenericType(closureType);
-      var valueMemberInfo = parameterType.GetProperty(nameof(Parameter<object>.Value), closureType);
-      queryParameter = (Parameter) System.Activator.CreateInstance(parameterType, "pClosure");
+      var info = Memoizer.Get(closureType, static ct => {
+        var parameterType = WellKnownOrmTypes.ParameterOfT.CachedMakeGenericType(ct);
+        return new ClosureTypeInfo(
+          parameterType,
+          parameterType.GetProperty(nameof(Parameter<object>.Value), ct),
+          ct.IsClosure() ? ct.GetFields() : null
+        );
+      }, 10_000);
+      MemberExpression closureAccessor = null;
+      queryParameter = (Parameter) System.Activator.CreateInstance(info.ParameterType, "pClosure");
       queryParameterReplacer = new ExtendedExpressionReplacer(expression => {
         if (expression.NodeType == ExpressionType.Constant) {
-          if ((expression as ConstantExpression).Value == null) {
-          return null;
-        }
-        if (expression.Type.IsClosure()) {
-          if (expression.Type==closureType) {
-            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-          }
-            else {
-          throw new NotSupportedException(string.Format(
-            Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
-        }
+          if (((ConstantExpression)expression).Value is null) {
+            return null;
           }
 
-        if (closureType.DeclaringType==null) {
-            if (expression.Type.IsAssignableFrom(closureType))
-            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+          var expressionType = expression.Type;
+          if (expressionType.IsClosure()) {
+            return expressionType == closureType
+              ? GetClosureAccessor()
+              : throw new NotSupportedException(string.Format(Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
           }
-        else {
-            if (expression.Type.IsAssignableFrom(closureType))
-            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-            if (expression.Type.IsAssignableFrom(closureType.DeclaringType)) {
-            var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
-              if (memberInfo != null)
-              return Expression.MakeMemberAccess(
-                Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
-                memberInfo);
-            }
+
+          if (expressionType.IsAssignableFrom(closureType))
+            return GetClosureAccessor();
+          if (expressionType.IsAssignableFrom(closureType.DeclaringType)
+              && info.Fields?.FirstOrDefault(field => field.FieldType == expressionType) is { } memberInfo) {
+            return Expression.MakeMemberAccess(GetClosureAccessor(), memberInfo);
           }
         }
+
         return null;
       });
+
+      MemberExpression GetClosureAccessor() =>
+        closureAccessor ??= Expression.MakeMemberAccess(Expression.Constant(queryParameter, info.ParameterType), info.ValueMemberInfo);
     }
 
     private ParameterizedQuery GetCachedQuery() =>
