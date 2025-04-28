@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Ddl
   {
     public TableColumn Column { get; private set; }
     
-    internal override SqlDropColumn Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlDropColumn Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.Column));
 
     // Constructors

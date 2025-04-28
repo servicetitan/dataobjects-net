@@ -29,7 +29,7 @@ namespace Xtensive.Sql.Dml
       Name = replacingExpression.Name;
     }
 
-    internal override abstract SqlColumn Clone(SqlNodeCloneContext? context = null);
+    internal override abstract SqlColumn Clone(SqlNodeCloneContext context);
 
     // Constructor
 

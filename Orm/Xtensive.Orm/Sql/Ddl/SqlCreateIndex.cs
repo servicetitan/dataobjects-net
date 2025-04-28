@@ -13,7 +13,7 @@ namespace Xtensive.Sql.Ddl
   {
     public Index Index { get; }
 
-    internal override SqlCreateIndex Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlCreateIndex Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.Index));
 
     public override void AcceptVisitor(ISqlVisitor visitor)

@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         CopyDbName(newView, sourceView);
         newView.CheckOptions = sourceView.CheckOptions;
         if (sourceView.Definition is not null) {
-          newView.Definition = sourceView.Definition.Clone();
+          newView.Definition = (SqlNative) sourceView.Definition.Clone();
         }
         CloneViewColumns(newView, sourceView);
         CloneIndexes(newView, sourceView);

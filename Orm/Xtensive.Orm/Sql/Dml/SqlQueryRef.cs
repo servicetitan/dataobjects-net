@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Dml
       get { return query; }
     }
 
-    internal override SqlQueryRef Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlQueryRef Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         t.query is SqlSelect ss
           ? new(ss.Clone(c), t.Name)

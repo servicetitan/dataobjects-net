@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Dml
       base.ReplaceWith(expression);
     }
 
-    internal override SqlTableColumn Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlTableColumn Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => {
         var table = t.SqlTable;
         if (c.NodeMapping.TryGetValue(t.SqlTable, out var clonedTable)) {

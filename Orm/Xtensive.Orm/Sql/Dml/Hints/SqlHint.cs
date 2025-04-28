@@ -9,7 +9,7 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public abstract class SqlHint : SqlNode
   {
-    internal abstract override SqlHint Clone(SqlNodeCloneContext? context = null);
+    internal abstract override SqlHint Clone(SqlNodeCloneContext context);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlHint"/> class.

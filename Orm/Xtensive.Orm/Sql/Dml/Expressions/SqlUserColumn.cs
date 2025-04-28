@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Dml
       this.expression = replacingExpression.Expression;
     }
 
-    internal override SqlUserColumn Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlUserColumn Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.expression.Clone(c)));
 
     // Constructor

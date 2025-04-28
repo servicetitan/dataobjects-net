@@ -51,7 +51,7 @@ namespace Xtensive.Sql.Dml
       Right = replacingExpression.Right;
     }
 
-    internal override SqlBinary Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlBinary Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new(t.NodeType, t.Left.Clone(c), t.Right.Clone(c)));
 

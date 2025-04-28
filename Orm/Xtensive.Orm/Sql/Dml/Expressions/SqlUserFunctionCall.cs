@@ -25,7 +25,7 @@ namespace Xtensive.Sql.Dml
       Arguments = replacingExpression.Arguments;
     }
 
-    internal override SqlUserFunctionCall Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlUserFunctionCall Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new(t.Name, t.Arguments.Select(o => o.Clone(c)).ToArray(t.Arguments.Count)));
 

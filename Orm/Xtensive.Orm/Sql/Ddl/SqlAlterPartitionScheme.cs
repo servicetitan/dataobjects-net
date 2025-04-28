@@ -17,7 +17,7 @@ namespace Xtensive.Sql.Ddl
 
     public string Filegroup => filegroup;
 
-    internal override SqlAlterPartitionScheme Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlAlterPartitionScheme Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.partitionSchema, t.filegroup));
 
     public override void AcceptVisitor(ISqlVisitor visitor)

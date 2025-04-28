@@ -17,9 +17,9 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     public IReadOnlyList<SqlTable> Tables { get; }
 
-    internal override SqlForceJoinOrderHint Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlForceJoinOrderHint Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new(t.Tables?.Select(table => table.Clone()).ToArray(t.Tables.Count)));
+        new(t.Tables?.Select(table => (SqlTable) table.Clone()).ToArray(t.Tables.Count)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

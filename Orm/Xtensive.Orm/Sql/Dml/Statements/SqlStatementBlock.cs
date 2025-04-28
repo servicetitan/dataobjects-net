@@ -98,7 +98,7 @@ namespace Xtensive.Sql.Dml
 
     #endregion
 
-    internal override SqlStatementBlock Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlStatementBlock Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => {
         SqlStatementBlock clone = new();
         foreach (SqlStatement s in t.statements)

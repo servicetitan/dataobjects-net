@@ -197,7 +197,8 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="groupIndexes">The column indexes to group by.</param>
-    public AggregateProvider(CompilableProvider source, IReadOnlyList<ColNum> groupIndexes, IEnumerable<AggregateColumnDescriptor> columnDescriptors)
+    /// <param name="columnDescriptors">The descriptors of <see cref="AggregateColumns"/>.</param>
+    public AggregateProvider(CompilableProvider source, IReadOnlyList<ColNum> groupIndexes, IReadOnlyList<AggregateColumnDescriptor> columnDescriptors)
       : base(ProviderType.Aggregate, source)
     {
       GroupColumnIndexes = groupIndexes ?? Array.Empty<ColNum>();

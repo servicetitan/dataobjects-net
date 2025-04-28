@@ -21,7 +21,7 @@ namespace Xtensive.Sql.Dml
       Value = replacingExpression.Value;
     }
 
-    internal override SqlNative Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlNative Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.Value));
 
     public override void AcceptVisitor(ISqlVisitor visitor)

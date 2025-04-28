@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Dml
       Id = replacingExpression.Id;
     }
 
-    internal override SqlVariant Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlVariant Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new(t.Id, t.Main.Clone(c), t.Alternative.Clone(c)));
 

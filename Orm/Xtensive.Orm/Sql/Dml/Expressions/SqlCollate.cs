@@ -41,7 +41,7 @@ namespace Xtensive.Sql.Dml
       collation = replacingExpression.Collation;
     }
 
-    internal override SqlCollate Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlCollate Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.operand.Clone(c), t.collation));
 
     public override void AcceptVisitor(ISqlVisitor visitor)

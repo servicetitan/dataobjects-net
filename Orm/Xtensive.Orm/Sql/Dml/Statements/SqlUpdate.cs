@@ -67,7 +67,7 @@ namespace Xtensive.Sql.Dml
       set { limit = value; }
     }
 
-    internal override SqlUpdate Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlUpdate Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => {
         var clone = new SqlUpdate();
         if (t.update != null)

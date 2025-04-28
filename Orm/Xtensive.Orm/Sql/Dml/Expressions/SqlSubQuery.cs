@@ -31,7 +31,7 @@ namespace Xtensive.Sql.Dml
       query = replacingExpression.Query;
     }
 
-    internal override SqlSubQuery Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlSubQuery Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new(t.query is SqlSelect select
           ? select.Clone(c)

@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Ddl
     public Table Table => table;
 
 
-    internal override SqlAlterTable Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlAlterTable Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new(t.table, t.action.Clone(c)));
 

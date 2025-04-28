@@ -63,7 +63,7 @@ namespace Xtensive.Sql.Dml
       not = replacingExpression.Not;
     }
 
-    internal override SqlLike Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlLike Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new(t.expression.Clone(c),
             t.pattern.Clone(c),

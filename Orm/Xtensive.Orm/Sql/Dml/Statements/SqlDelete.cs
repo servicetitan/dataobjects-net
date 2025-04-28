@@ -60,7 +60,7 @@ namespace Xtensive.Sql.Dml
       set { limit = value; }
     }
 
-    internal override SqlDelete Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlDelete Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => {
         SqlDelete clone = new SqlDelete();
         if (t.Delete != null)

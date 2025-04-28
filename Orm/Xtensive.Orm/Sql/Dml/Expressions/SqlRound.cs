@@ -26,7 +26,7 @@ namespace Xtensive.Sql.Dml
       Mode = replacingExpression.Mode;
     }
 
-    internal override SqlRound Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlRound Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new(t.Argument.Clone(c), t.Length?.Clone(c), t.Type, t.Mode));
 

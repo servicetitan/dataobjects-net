@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Ddl
     public TableColumn Column { get; private set; }
     public SqlExpression DefaultValue { get; private set; }
 
-    internal override SqlSetDefault Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlSetDefault Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.DefaultValue.Clone(c), t.Column));
 
     internal SqlSetDefault(SqlExpression defaultValue, TableColumn column)

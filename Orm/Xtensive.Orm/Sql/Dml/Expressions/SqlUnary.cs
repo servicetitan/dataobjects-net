@@ -26,7 +26,7 @@ namespace Xtensive.Sql.Dml
       Operand = replacingExpression.Operand;
     }
 
-    internal override SqlUnary Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlUnary Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new(t.NodeType, t.Operand.Clone(c)));
 

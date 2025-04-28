@@ -64,7 +64,7 @@ namespace Xtensive.Sql.Dml
       Operand = replacingExpression.Operand;
     }
 
-    internal override SqlExtract Clone(SqlNodeCloneContext? context) =>
+    internal override SqlExtract Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.internalValue, t.typeMarker, t.Operand.Clone(c)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
@@ -124,7 +124,7 @@ namespace Xtensive.Sql.Dml
     {
       this.internalValue = internalValue;
       this.typeMarker = typeMarker;
-      typeHasTime = typeMarker == DateTimeTypeId || typeMarker == DateTimeOffsetTypeId || typeMarker == TimeTypeId || typeMarker == IntervalTypeId;
+      typeHasTime = typeMarker is DateTimeTypeId or DateTimeOffsetTypeId or TimeTypeId or IntervalTypeId;
       Operand = operand;
     }
   }
