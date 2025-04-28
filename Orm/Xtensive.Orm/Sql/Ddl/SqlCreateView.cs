@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Ddl
   {
     public View View { get; }
 
-    internal override SqlCreateView Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlCreateView Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.View));
 
     public override void AcceptVisitor(ISqlVisitor visitor)

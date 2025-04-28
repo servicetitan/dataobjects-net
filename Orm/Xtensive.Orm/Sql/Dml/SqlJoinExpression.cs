@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Dml
     /// <value>The expression.</value>
     public SqlExpression Expression { get; private set; }
 
-    internal override SqlJoinExpression Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlJoinExpression Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new(t.JoinType,
             t.Left?.Clone(c),

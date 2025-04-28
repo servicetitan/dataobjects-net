@@ -32,7 +32,7 @@ namespace Xtensive.Sql.Dml
       get { return all; }
     }
 
-    internal override SqlQueryExpression Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlQueryExpression Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new(t.NodeType,
           (ISqlQueryExpression)((SqlNode) t.left).Clone(c),

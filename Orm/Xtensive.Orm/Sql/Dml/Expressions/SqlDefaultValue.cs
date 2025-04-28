@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Dml
       ArgumentValidator.EnsureArgumentIs<SqlDefaultValue>(expression);
     }
     
-    internal override SqlDefaultValue Clone(SqlNodeCloneContext? context = null) => this;
+    internal override SqlDefaultValue Clone(SqlNodeCloneContext context) => this;
     
     internal SqlDefaultValue() : base(SqlNodeType.DefaultValue)
     {

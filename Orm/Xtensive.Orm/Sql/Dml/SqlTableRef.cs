@@ -30,13 +30,10 @@ namespace Xtensive.Sql.Dml
     /// <value>The table.</value>
     public DataTable DataTable { get; private set; }
 
-    internal override SqlTableRef Clone(SqlNodeCloneContext? context = null)
-    {
-      var ctx = context ?? new();
-      return ctx.NodeMapping.TryGetValue(this, out var clone)
+    internal override SqlTableRef Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
         ? (SqlTableRef) clone
-        : CreateClone(ctx);
-    }
+        : CreateClone(context);
 
     private SqlTableRef CreateClone(SqlNodeCloneContext context)
     {

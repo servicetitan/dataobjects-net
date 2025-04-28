@@ -24,7 +24,7 @@ namespace Xtensive.Sql.Ddl
       set => infoOption = value;
     }
 
-    internal override SqlAlterSequence Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlAlterSequence Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new(t.sequence, t.sequenceDescriptor.Clone(), t.infoOption));
 

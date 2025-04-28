@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Dml
       Parameter = replacingExpression.Parameter;
     }
 
-    internal override SqlParameterRef Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlParameterRef Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.Name ?? t.Parameter));
 
     public override void AcceptVisitor(ISqlVisitor visitor)

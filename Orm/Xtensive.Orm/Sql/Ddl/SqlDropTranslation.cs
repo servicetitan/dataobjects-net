@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Ddl
   {
     public Translation Translation { get; }
 
-    internal override SqlDropTranslation Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlDropTranslation Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.Translation));
 
     public override void AcceptVisitor(ISqlVisitor visitor)

@@ -32,7 +32,7 @@ namespace Xtensive.Sql.Dml
       Value = replacingExpression.Value;
     }
 
-    internal override SqlLiteral<T> Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlLiteral<T> Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new(t.Value));
 

@@ -28,7 +28,7 @@ namespace Xtensive.Sql.Dml
       Arguments = replacingExpression.Arguments;
     }
 
-    internal override SqlCustomFunctionCall Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlCustomFunctionCall Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new(t.FunctionType, t.Arguments.Select(o => o.Clone(c)).ToArray(t.Arguments.Count)));
 

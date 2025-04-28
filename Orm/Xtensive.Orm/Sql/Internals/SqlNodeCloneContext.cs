@@ -7,27 +7,20 @@ using System.Collections.Generic;
 
 namespace Xtensive.Sql
 {
-  internal readonly struct SqlNodeCloneContext
+  internal readonly struct SqlNodeCloneContext()
   {
-    private readonly Dictionary<SqlNode, SqlNode> nodeMapping = new();
-
-    public Dictionary<SqlNode, SqlNode> NodeMapping => nodeMapping;
+    public Dictionary<SqlNode, SqlNode> NodeMapping { get; } = new();
 
     public T TryGet<T>(T node) where T : SqlNode =>
       NodeMapping.TryGetValue(node, out var clone)
         ? (T) clone
         : null;
-
-    public SqlNodeCloneContext()
-    {
-    }
   }
 
   internal static class SqlNodeCloneContextExtensions
   {
-    public static T GetOrAdd<T>(this SqlNodeCloneContext? context, T node, Func<T, SqlNodeCloneContext, T> factory) where T : SqlNode
+    public static T GetOrAdd<T>(this SqlNodeCloneContext ctx, T node, Func<T, SqlNodeCloneContext, T> factory) where T : SqlNode
     {
-      var ctx = context ?? new();
       if (ctx.NodeMapping.TryGetValue(node, out var clone)) {
         return (T) clone;
       }

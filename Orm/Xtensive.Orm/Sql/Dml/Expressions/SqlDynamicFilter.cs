@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Dml
 
     public IReadOnlyList<SqlExpression> Expressions { get; private set; }
 
-    internal override SqlDynamicFilter Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlDynamicFilter Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.Id, t.Expressions.Select(e => e.Clone(c)).ToArray()));
 
     public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Dml
 
   public class SqlTvpDynamicFilter(object id, IReadOnlyList<SqlExpression> expressions) : SqlDynamicFilter(id, expressions)
   {
-    internal override SqlTvpDynamicFilter Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlTvpDynamicFilter Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.Id, t.Expressions.Select(e => e.Clone(c)).ToArray()));
   }
 }

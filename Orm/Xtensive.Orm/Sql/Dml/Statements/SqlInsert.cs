@@ -37,7 +37,7 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     public SqlSelect From { get; set; }
 
-    internal override SqlInsert Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlInsert Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => {
         var clone = new SqlInsert {
           Into = t.Into?.Clone(c),

@@ -200,7 +200,7 @@ namespace Xtensive.Orm.Rse.Providers
       if (resultParameters == null) {
         return new AggregateProvider(source,
           provider.GroupColumnIndexes,
-          provider.AggregateColumns.Select(ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType))
+          provider.AggregateColumns.Select(ac => new AggregateColumnDescriptor(ac.Name, ac.SourceIndex, ac.AggregateType)).ToArray()
         );
       }
       var result = (ValueTuple<ColNum[], AggregateColumnDescriptor[]>) resultParameters;

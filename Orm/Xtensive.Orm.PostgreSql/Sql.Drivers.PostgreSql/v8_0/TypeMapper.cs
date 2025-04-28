@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -21,6 +21,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       Decimal20Type = new(SqlType.Decimal, 20, 0),
       VarChar32Type = new(SqlType.VarChar, 32),
       IntervalType = new(SqlType.Interval);
+    // 6 fractions instead of .NET's 7
+    private const long DateTimeMaxValueAdjustedTicks = 3155378975999999990;
+
+    // 6 fractions instead of .NET's 7
+    private const long TimeSpanMinValueAdjustedTicks = -9223372036854775800;
+    private const long TimeSpanMaxValueAdjustedTicks = 9223372036854775800;
+
+    protected readonly bool legacyTimestampBehaviorEnabled;
+    protected readonly TimeZoneInfo defaultTimeZone;
 
     public override bool IsParameterCastRequired(Type type)
     {
@@ -118,9 +127,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var nativeParameter = (NpgsqlParameter) parameter;
       nativeParameter.NpgsqlDbType = NpgsqlDbType.Interval;
-      nativeParameter.Value = value != null
-        ? (object) (TimeSpan) value
-        : DBNull.Value;
+      nativeParameter.NpgsqlValue = value is null
+        ? DBNull.Value
+        : value is TimeSpan timeSpanValue
+          ? (object) PostgreSqlHelper.CreateNativeIntervalFromTimeSpan(timeSpanValue)
+          : throw ValueNotOfTypeError(nameof(WellKnownTypes.TimeSpanType));
     }
 
     public override void BindGuid(DbParameter parameter, object value)
@@ -129,31 +140,54 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       parameter.Value = value == null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
 
+    [SecuritySafeCritical]
+    public override void BindDateOnly(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.Date;
+      parameter.Value = value != null ? (DateOnly) value : DBNull.Value;
+    }
+
+    [SecuritySafeCritical]
     public override void BindDateTime(DbParameter parameter, object value)
     {
-      parameter.DbType = DbType.DateTime2;
-      if (value is DateTime dt) {
-//        ((NpgsqlParameter) parameter).NpgsqlDbType = NpgsqlDbType.TimestampTz;
-        var utc = dt.Kind switch {
-          DateTimeKind.Local => dt.ToUniversalTime(),
-          DateTimeKind.Utc => dt,
-          _ => DateTime.SpecifyKind(dt, DateTimeKind.Utc)
-        };
-        var unspec = DateTime.SpecifyKind(utc, DateTimeKind.Unspecified);
-        parameter.Value = unspec;
+      if (legacyTimestampBehaviorEnabled) {
+        base.BindDateTime(parameter, value);
       }
       else {
-        parameter.Value = DBNull.Value;
+        var nativeParameter = (NpgsqlParameter) parameter;
+        // For some reason Npgsql team mapped DbType.DateTime to timestamp WITH timezone
+        // (which suppose to be pair to DateTimeOffset) and DbType.DateTime2 to timestamp WITHOUT timezone
+        // in Npgsql 6+, though both types have the same range of values and resolution.
+        //
+        // If no explicit type declared it seems to be identified by DateTime value's Kind,
+        // so now we have to unbox-box value to change kind of value.
+        nativeParameter.NpgsqlDbType = NpgsqlDbType.Timestamp;
+        nativeParameter.Value = value is null
+          ? DBNull.Value
+          : value is DateTime dtValue
+            ? (object) DateTime.SpecifyKind(dtValue, DateTimeKind.Unspecified)
+            : throw ValueNotOfTypeError(nameof(WellKnownTypes.DateTimeType));
       }
     }
 
     [SecuritySafeCritical]
     public override void BindDateTimeOffset(DbParameter parameter, object value)
     {
-      if (value is DateTimeOffset dto) {
-        value = dto.ToUniversalTime();
+      var nativeParameter = (NpgsqlParameter) parameter;
+      if (legacyTimestampBehaviorEnabled) {
+        nativeParameter.NpgsqlDbType = NpgsqlDbType.TimestampTz;
+        nativeParameter.NpgsqlValue = value ?? DBNull.Value;
       }
-      base.BindDateTimeOffset(parameter, value);
+      else {
+        nativeParameter.NpgsqlDbType = NpgsqlDbType.TimestampTz;
+
+        // Manual switch to universal time is required by Npgsql from now on,
+        nativeParameter.NpgsqlValue = value is null
+          ? DBNull.Value
+          : value is DateTimeOffset dateTimeOffset
+            ? (object) dateTimeOffset.ToUniversalTime()
+            : throw ValueNotOfTypeError(nameof(WellKnownTypes.DateTimeOffsetType));
+      }
     }
 
     public override SqlValueType MapByte(int? length, int? precision, int? scale) => SqlValueType.Int16;
@@ -178,13 +212,46 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override TimeSpan ReadTimeSpan(DbDataReader reader, int index)
     {
       var nativeReader = (NpgsqlDataReader) reader;
-      return nativeReader.GetTimeSpan(index);
+      var nativeInterval = nativeReader.GetFieldValue<NpgsqlInterval>(index);
+
+      // support for full-range of TimeSpans requires us to use raw type
+      // and construct timespan from its' values.
+      var result = PostgreSqlHelper.ResurrectTimeSpanFromNpgsqlInterval(nativeInterval);
+
+      // for confinience of comparison in .NET we lose 7th fractional point and treat several
+      // .Net values as one, Min or Max value.
+      if (result == TimeSpan.MinValue || result.Ticks == TimeSpanMinValueAdjustedTicks)
+        return TimeSpan.MinValue;
+      if (result == TimeSpan.MaxValue || result.Ticks == TimeSpanMaxValueAdjustedTicks)
+        return TimeSpan.MaxValue;
+      return result;
     }
 
+    [SecuritySafeCritical]
     public override decimal ReadDecimal(DbDataReader reader, int index)
     {
       var nativeReader = (NpgsqlDataReader) reader;
       return nativeReader.GetDecimal(index);
+    }
+
+    public override DateOnly ReadDateOnly(DbDataReader reader, int index)
+    {
+      return reader.GetFieldValue<DateOnly>(index);
+    }
+
+    public override DateTime ReadDateTime(DbDataReader reader, int index)
+    {
+      var value = reader.GetDateTime(index);
+      if (value == DateTime.MinValue || value == DateTime.MaxValue)
+        return value;
+      if (value.Ticks == DateTimeMaxValueAdjustedTicks) {
+        // Applied when Infinity aliases are disabled.
+        // To not ruin possible comparisons with defined value,
+        // it is better to return definded value,
+        // not the 6-digit version from PostgreSQL.
+        return DateTime.MaxValue;
+      }
+      return value;
     }
 
     [SecuritySafeCritical]
@@ -192,14 +259,46 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var nativeReader = (NpgsqlDataReader) reader;
       var value = nativeReader.GetFieldValue<DateTimeOffset>(index);
-      return value;
+      if (value.Ticks == DateTimeMaxValueAdjustedTicks) {
+        // Applied when Infinity aliases are disabled.
+        // To not ruin possible comparisons with defined values,
+        // it is better to return definded value,
+        // not the 6-fractions version from PostgreSQL.
+        return DateTimeOffset.MaxValue;
+      }
+      if (value == DateTimeOffset.MaxValue || value == DateTimeOffset.MaxValue)
+        return value;
+
+      if (legacyTimestampBehaviorEnabled) {
+        // Npgsql 4 or older behavior
+        return value;
+      }
+      else {
+        // Here, we try to apply connection time zone (if it was recongized on client-side)
+        // to the values we read.
+        // If any time zone change happens, we assume that DomainConfiguration.ConnectionInitializationSql
+        // is used to make such change and we cache time zone info on first connection in driver factory
+        // after initialization has happened.
+        // If connection time zone has not been recognized we transform value to local offset
+        // on the assumption that database server is usually in the same region.
+        return defaultTimeZone is not null
+          ?  TimeZoneInfo.ConvertTime(value, defaultTimeZone)
+          : value.ToLocalTime();
+      }
     }
+
+    internal protected ArgumentException ValueNotOfTypeError(string typeName) =>
+      new($"Value is not of '{typeName}' type.");
+
 
     // Constructors
 
-    public TypeMapper(SqlDriver driver)
+    public TypeMapper(PostgreSql.Driver driver)
       : base(driver)
     {
+      var postgreServerInfo = driver.PostgreServerInfo;
+      legacyTimestampBehaviorEnabled = postgreServerInfo.LegacyTimestampBehavior;
+      defaultTimeZone = postgreServerInfo.DefaultTimeZone;
     }
   }
 }

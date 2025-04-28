@@ -30,7 +30,7 @@ namespace Xtensive.Sql.Dml
       }
     }
 
-    internal override SqlAssignment Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlAssignment Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new((ISqlLValue)t.left.Clone(), t.right.Clone(c)));
 

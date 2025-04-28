@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Dml
       Text = replacingExpression.Text;
     }
 
-    internal override SqlComment Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlComment Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.Text));
 
     public override void AcceptVisitor(ISqlVisitor visitor)

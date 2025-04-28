@@ -14,16 +14,15 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlConcat : SqlExpressionList
   {
-    internal override SqlConcat Clone(SqlNodeCloneContext? context = null)
+    internal override SqlConcat Clone(SqlNodeCloneContext context)
     {
-      var ctx = context ?? new();
-      if (ctx.NodeMapping.TryGetValue(this, out var value)) {
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
         return (SqlConcat)value;
       }
 
       var expressionsClone = new List<SqlExpression>(expressions.Count);
       foreach (var e in expressions)
-        expressionsClone.Add(e.Clone(ctx));
+        expressionsClone.Add(e.Clone(context));
 
       var clone = new SqlConcat(expressionsClone);
       return clone;

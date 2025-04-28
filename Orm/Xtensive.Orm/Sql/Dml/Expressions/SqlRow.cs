@@ -12,10 +12,9 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlRow: SqlExpressionList
   {
-    internal override SqlRow Clone(SqlNodeCloneContext? context = null)
+    internal override SqlRow Clone(SqlNodeCloneContext context)
     {
-      SqlNodeCloneContext ctx = context ?? new();
-      return (ctx.TryGet(this) as SqlRow) ?? new(expressions.Select(e => e.Clone(ctx)).ToArray());
+      return (context.TryGet(this) as SqlRow) ?? new(expressions.Select(e => e.Clone(context)).ToArray());
     }
 
     public override void ReplaceWith(SqlExpression expression) =>

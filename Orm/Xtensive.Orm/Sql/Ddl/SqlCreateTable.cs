@@ -12,7 +12,7 @@ public class SqlCreateTable(Table table) : SqlStatement(SqlNodeType.Create), ISq
 {
   public Table Table { get; } = table;
 
-  internal override SqlCreateTable Clone(SqlNodeCloneContext? context = null) =>
+  internal override SqlCreateTable Clone(SqlNodeCloneContext context) =>
     context.GetOrAdd(this, static (t, c) => new(t.Table));
 
   public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);

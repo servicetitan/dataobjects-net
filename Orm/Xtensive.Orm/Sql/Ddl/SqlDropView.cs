@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override SqlDropView Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlDropView Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.View));
 
     public override void AcceptVisitor(ISqlVisitor visitor)

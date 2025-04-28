@@ -15,7 +15,7 @@ namespace Xtensive.Sql.Dml
     /// <value>The hint text.</value>
     public string HintText { get; private set; }
 
-    internal override SqlNativeHint Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlNativeHint Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.HintText));
 
     public override void AcceptVisitor(ISqlVisitor visitor)

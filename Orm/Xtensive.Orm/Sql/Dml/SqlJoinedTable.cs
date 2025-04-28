@@ -29,7 +29,7 @@ namespace Xtensive.Sql.Dml
     /// <value>Aliased columns.</value>
     public SqlColumnCollection AliasedColumns { get; init; }
 
-    internal override SqlJoinedTable Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlJoinedTable Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
         new(t.joinExpression.Clone(c)) {
             AliasedColumns = new(t.AliasedColumns)

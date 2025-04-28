@@ -13,7 +13,7 @@ namespace Xtensive.Sql.Dml
 
     public SqlTableRef From { get; }
 
-    internal override SqlIndexHint Clone(SqlNodeCloneContext? context = null) => 
+    internal override SqlIndexHint Clone(SqlNodeCloneContext context) => 
       context.GetOrAdd(this, static (t, c) => new(t.IndexName, t.From));
 
     public override void AcceptVisitor(ISqlVisitor visitor)

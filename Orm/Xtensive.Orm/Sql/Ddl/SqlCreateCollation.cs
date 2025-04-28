@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Ddl
   {
     public Collation Collation { get; }
 
-    internal override SqlCreateCollation Clone(SqlNodeCloneContext? context = null) =>
+    internal override SqlCreateCollation Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => new(t.Collation));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
