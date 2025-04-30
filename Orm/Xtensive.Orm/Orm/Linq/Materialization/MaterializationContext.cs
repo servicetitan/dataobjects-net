@@ -25,14 +25,14 @@ namespace Xtensive.Orm.Linq.Materialization
     private readonly EntityMappingCache[] entityMappings;
 
     /// <summary>
-    /// Gets model of current <see cref="DomainModel">domain model.</see>
-    /// </summary>
-    public DomainModel Model => Session.Domain.Model;
-
-    /// <summary>
     /// Gets the session in which materialization is executing.
     /// </summary>
     public Session Session { get; }
+
+    /// <summary>
+    /// Gets model of current <see cref="DomainModel">domain model.</see>
+    /// </summary>
+    public DomainModel Model => Session.Domain.Model;
 
     /// <summary>
     /// Gets count of entities in query row.
