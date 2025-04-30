@@ -2,8 +2,6 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -14,20 +12,20 @@ using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq.Materialization
 {
-  internal sealed class ItemMaterializationContext
+  internal readonly struct ItemMaterializationContext
   {
     public static readonly MethodInfo IsMaterializedMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(IsMaterialized));
     public static readonly MethodInfo GetEntityMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(GetEntity));
     public static readonly MethodInfo MaterializeMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(Materialize));
     public static readonly System.Reflection.FieldInfo SessionFieldInfo = WellKnownOrmTypes.ItemMaterializationContext.GetField(nameof(Session));
 
-    public readonly Session Session;
     public readonly MaterializationContext MaterializationContext;
 
-    private readonly TypeIdRegistry typeIdRegistry;
     private readonly Entity[] entities;
-
     public ParameterContext ParameterContext { get; }
+
+    public Session Session => MaterializationContext.Session;
+    private TypeIdRegistry typeIdRegistry => Session.StorageNode.TypeIdRegistry;
 
     public bool IsMaterialized(int index) => entities[index] != null;
 
@@ -75,9 +73,7 @@ namespace Xtensive.Orm.Linq.Materialization
     {
       ParameterContext = parameterContext;
       MaterializationContext = materializationContext;
-      Session = materializationContext.Session;
 
-      typeIdRegistry = Session.StorageNode.TypeIdRegistry;
       entities = new Entity[materializationContext.EntitiesInRow];
     }
   }

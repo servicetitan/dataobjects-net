@@ -4,10 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.29
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Core;
 using Xtensive.Tuples.Transform;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
@@ -31,27 +27,22 @@ namespace Xtensive.Orm.Linq.Materialization
     /// <summary>
     /// Gets model of current <see cref="DomainModel">domain model.</see>
     /// </summary>
-    public DomainModel Model { get; private set; }
+    public DomainModel Model => Session.Domain.Model;
 
     /// <summary>
     /// Gets the session in which materialization is executing.
     /// </summary>
-    public Session Session { get; private set; }
+    public Session Session { get; }
 
     /// <summary>
     /// Gets count of entities in query row.
     /// </summary>
-    public int EntitiesInRow { get; private set; }
+    public int EntitiesInRow => entityMappings.Length;
 
     /// <summary>
     /// Gets <see cref="StorageNode">node</see> specific type identifiers registry of current node.
     /// </summary>
-    public TypeIdRegistry TypeIdRegistry
-    {
-      get {
-        return Session.StorageNode.TypeIdRegistry;
-      }
-    }
+    public TypeIdRegistry TypeIdRegistry => Session.StorageNode.TypeIdRegistry;
 
     /// <summary>
     /// Gets or sets queue of materialization actions.
@@ -109,15 +100,10 @@ namespace Xtensive.Orm.Linq.Materialization
     public MaterializationContext(Session session, int entityCount)
     {
       Session = session;
-      Model = session.Domain.Model;
-      EntitiesInRow = entityCount;
 
       entityMappings = new EntityMappingCache[entityCount];
-
       for (int i = 0; i < entityMappings.Length; i++)
-        entityMappings[i] = new EntityMappingCache {
-          Items = new Dictionary<int, TypeMapping>()
-        };
+        entityMappings[i] = new() { Items = new Dictionary<int, TypeMapping>() };
     }
   }
 }
