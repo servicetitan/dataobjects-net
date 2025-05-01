@@ -88,12 +88,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return result;
     }
 
-    private int ResolveTypeToNodeSpecificTypeIdentifier(TypeInfo typeInfo)
-    {
-      ArgumentNullException.ThrowIfNull(typeInfo);
-      return TypeIdRegistry[typeInfo];
-    }
-
+    private int ResolveTypeToNodeSpecificTypeIdentifier(TypeInfo typeInfo) => TypeIdRegistry[typeInfo];
 
     // Constructors
 
