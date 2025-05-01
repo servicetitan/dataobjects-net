@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Linq.Materialization
     public static readonly MethodInfo IsMaterializedMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(IsMaterialized));
     public static readonly MethodInfo GetEntityMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(GetEntity));
     public static readonly MethodInfo MaterializeMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(Materialize));
-    public static readonly System.Reflection.FieldInfo SessionFieldInfo = WellKnownOrmTypes.ItemMaterializationContext.GetField(nameof(Session));
+    public static readonly System.Reflection.PropertyInfo SessionPropertyInfo = WellKnownOrmTypes.ItemMaterializationContext.GetProperty(nameof(Session));
 
     public readonly MaterializationContext MaterializationContext;
 

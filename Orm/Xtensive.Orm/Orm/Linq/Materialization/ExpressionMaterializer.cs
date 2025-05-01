@@ -267,7 +267,7 @@ namespace Xtensive.Orm.Linq.Materialization
         return Expression.Convert(
           Expression.Call(
             WellKnownMembers.CreateStructure,
-            Expression.Field(itemMaterializationContextParameter, ItemMaterializationContext.SessionFieldInfo),
+            Expression.Property(itemMaterializationContextParameter, ItemMaterializationContext.SessionPropertyInfo),
             Expression.Constant(expression.Type),
             persistentTupleExpression),
           expression.Type);
@@ -313,7 +313,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return Expression.Convert(
         Expression.Call(
           WellKnownMembers.CreateStructure,
-          Expression.Field(itemMaterializationContextParameter, ItemMaterializationContext.SessionFieldInfo),
+          Expression.Property(itemMaterializationContextParameter, ItemMaterializationContext.SessionPropertyInfo),
           Expression.Constant(expression.Type),
           persistentTupleExpression),
         expression.Type);
@@ -330,7 +330,7 @@ namespace Xtensive.Orm.Linq.Materialization
         WellKnownMembers.Key.Create,
         Expression.Constant(context.Domain),
         Expression.Property(
-          Expression.Field(itemMaterializationContextParameter, ItemMaterializationContext.SessionFieldInfo),
+          Expression.Property(itemMaterializationContextParameter, ItemMaterializationContext.SessionPropertyInfo),
           WellKnownMembers.SessionNodeId),
         Expression.Constant(expression.EntityType),
         TypeReferenceAccuracyConstantExpression,
