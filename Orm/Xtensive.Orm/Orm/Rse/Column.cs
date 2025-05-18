@@ -4,9 +4,6 @@
 // Created by: Elena Vakhtina
 // Created:    2008.09.09
 
-using System;
-
-
 namespace Xtensive.Orm.Rse
 {
   /// <summary>
@@ -20,7 +17,7 @@ namespace Xtensive.Orm.Rse
     /// <summary>
     /// Gets origin <see cref="Column"/> for this instance.
     /// </summary>
-    public Column Origin { get; private set; }
+    public virtual Column Origin => this;
 
     /// <summary>
     /// Gets the column name.
@@ -101,12 +98,17 @@ namespace Xtensive.Orm.Rse
     /// <param name="index"><see cref="Index"/> property value.</param>
     /// <param name="type"><see cref="Type"/> property value.</param>
     /// <param name="originalColumn">Original column.</param>
-    protected Column(string name, ColNum index, Type type, Column originalColumn)
+    protected Column(string name, ColNum index, Type type)
     {
       Name = name;
       Index = index;
       Type = type;
-      Origin = originalColumn is null ? this : originalColumn.Origin;
     }
+  }
+
+  public abstract class DerivedColumn(string name, ColNum index, Type type, Column origin)
+    : Column(name, index, type)
+  {
+    public override Column Origin => origin ?? this;
   }
 }
