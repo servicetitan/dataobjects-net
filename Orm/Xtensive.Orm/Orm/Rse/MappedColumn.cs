@@ -15,18 +15,13 @@ namespace Xtensive.Orm.Rse;
 public class MappedColumn(ColumnInfoRef columnInfoRef, string name, ColNum index, Type type)
   : Column(name, index, type)
 {
-  private const string ToStringFormat = "{0} = {1}";
-
   /// <summary>
   /// Gets the reference that describes a column.
   /// </summary>
   public ColumnInfoRef ColumnInfoRef { get; } = columnInfoRef;
 
   /// <inheritdoc/>
-  public override string ToString()
-  {
-    return string.Format(ToStringFormat, base.ToString(), ColumnInfoRef);
-  }
+  public override string ToString() => $"{base.ToString()} = {ColumnInfoRef}";
 
   /// <inheritdoc/>
   public override Column Clone(ColNum newIndex) => new MappedColumn(ColumnInfoRef, Name, newIndex, Type);
