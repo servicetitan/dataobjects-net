@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Rse;
 /// Mapped column of the <see cref="RecordSetHeader"/>.
 /// </summary>
 [Serializable]
-public sealed class MappedColumn(ColumnInfoRef columnInfoRef, string name, ColNum index, Type type)
+public class MappedColumn(ColumnInfoRef columnInfoRef, string name, ColNum index, Type type)
   : Column(name, index, type)
 {
   private const string ToStringFormat = "{0} = {1}";
@@ -65,11 +65,7 @@ public sealed class MappedColumn(ColumnInfoRef columnInfoRef, string name, ColNu
 }
 
 internal sealed class DerivedMappedColumn(string name, ColNum index, Type type, Column origin, ColumnInfoRef columnInfoRef)
-  : DerivedColumn(name, index, type, origin)
+  : MappedColumn(columnInfoRef, name, index, type)
 {
-  public ColumnInfoRef ColumnInfoRef { get; } = columnInfoRef;
-
-  public override Column Clone(ColNum newIndex) => new MappedColumn(ColumnInfoRef, Name, newIndex, Type);
-
-  public override Column Clone(string newName) => new DerivedMappedColumn(newName, Index, Type, Origin, ColumnInfoRef);
+  public override Column Origin => origin ?? this;
 }
