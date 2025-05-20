@@ -59,6 +59,8 @@ public class MappedColumn(ColumnInfoRef columnInfoRef, string name, ColNum index
 
 }
 
+// The purpose of this class is minimize allocation size of `MappedColumn`
+// Non self-referencing `Origin` property is a rare case
 internal sealed class DerivedMappedColumn(string name, ColNum index, Type type, Column origin, ColumnInfoRef columnInfoRef)
   : MappedColumn(columnInfoRef, name, index, type)
 {
