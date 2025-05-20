@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Rse
   /// Calculated column of the <see cref="RecordSetHeader"/>.
   /// </summary>
   [Serializable]
-  public sealed class CalculatedColumn : Column
+  public sealed class CalculatedColumn : DerivedColumn
   {
     private const string ToStringFormat = "{0} = {1}";
 
@@ -63,13 +63,13 @@ namespace Xtensive.Orm.Rse
     #region Clone constructors
 
     private CalculatedColumn(CalculatedColumn column, string newName)
-      : base(newName, column.Index, column.Type, column)
+      : base(newName, column.Index, column.Type, column.Origin)
     {
       Expression = column.Expression;
     }
  
     private CalculatedColumn(CalculatedColumn column, ColNum newIndex)
-      : base(column.Name, newIndex, column.Type, column)
+      : base(column.Name, newIndex, column.Type, column.Origin)
     {
       Expression = column.Expression;
     }

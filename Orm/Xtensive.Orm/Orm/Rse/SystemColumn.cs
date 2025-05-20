@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Rse
   /// System column of the <see cref="RecordSetHeader"/>.
   /// </summary>
   [Serializable]
-  public class SystemColumn : Column
+  public class SystemColumn : DerivedColumn
   {
     /// <inheritdoc/>
     public override Column Clone(ColNum newIndex)
@@ -41,12 +41,12 @@ namespace Xtensive.Orm.Rse
     #region Clone constructors
 
     private SystemColumn(SystemColumn column, ColNum newIndex)
-      : base(column.Name, newIndex, column.Type, column)
+      : base(column.Name, newIndex, column.Type, column.Origin)
     {
     }
 
     private SystemColumn(SystemColumn column, string newName)
-      : base(newName, column.Index, column.Type, column)
+      : base(newName, column.Index, column.Type, column.Origin)
     {
     }
 

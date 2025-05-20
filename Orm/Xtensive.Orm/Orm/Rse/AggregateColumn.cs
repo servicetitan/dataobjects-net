@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Rse
   /// Aggregate column of the <see cref="RecordSetHeader"/>.
   /// </summary>
   [Serializable]
-  public sealed class AggregateColumn : Column
+  public sealed class AggregateColumn : DerivedColumn
   {
     private const string ToStringFormat = "{0} = {1} on ({2})";
 
@@ -70,14 +70,14 @@ namespace Xtensive.Orm.Rse
     #region Clone constructors
 
     private AggregateColumn(AggregateColumn column, string newName)
-      : base(newName, column.Index, column.Type, column)
+      : base(newName, column.Index, column.Type, column.Origin)
     {
       AggregateType = column.AggregateType;
       SourceIndex = column.SourceIndex;
     }
 
     private AggregateColumn(AggregateColumn column, ColNum newIndex)
-      : base(column.Name, newIndex, column.Type, column)
+      : base(column.Name, newIndex, column.Type, column.Origin)
     {
       AggregateType = column.AggregateType;
       SourceIndex = column.SourceIndex;

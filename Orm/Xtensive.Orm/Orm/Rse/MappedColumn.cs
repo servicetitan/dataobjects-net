@@ -4,97 +4,65 @@
 // Created by: Alexey Kochetov
 // Created:    2007.09.21
 
-using System;
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Orm.Rse
+namespace Xtensive.Orm.Rse;
+
+/// <summary>
+/// Mapped column of the <see cref="RecordSetHeader"/>.
+/// </summary>
+[Serializable]
+public class MappedColumn(ColumnInfoRef columnInfoRef, string name, ColNum index, Type type)
+  : Column(name, index, type)
 {
   /// <summary>
-  /// Mapped column of the <see cref="RecordSetHeader"/>.
+  /// Gets the reference that describes a column.
   /// </summary>
-  [Serializable]
-  public sealed class MappedColumn : Column
+  public ColumnInfoRef ColumnInfoRef { get; } = columnInfoRef;
+
+  /// <inheritdoc/>
+  public override string ToString() => $"{base.ToString()} = {ColumnInfoRef}";
+
+  /// <inheritdoc/>
+  public override Column Clone(ColNum newIndex) => new MappedColumn(ColumnInfoRef, Name, newIndex, Type);
+
+  /// <inheritdoc/>
+  public override Column Clone(string newName) => new DerivedMappedColumn(newName, Index, Type, Origin, ColumnInfoRef);
+
+  // Constructors
+
+  #region Basic constructors
+
+  /// <summary>
+  /// Initializes a new instance of this class.
+  /// </summary>
+  /// <param name="name"><see cref="Column.Name"/> property value.</param>
+  /// <param name="index"><see cref="Column.Index"/> property value.</param>
+  /// <param name="type"><see cref="Column.Type"/> property value.</param>
+  public MappedColumn(string name, ColNum index, Type type)
+    : this(default, name, index, type)
   {
-    private const string ToStringFormat = "{0} = {1}";
-
-    /// <summary>
-    /// Gets the reference that describes a column.
-    /// </summary>
-    public ColumnInfoRef ColumnInfoRef { get; }
-
-    /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format(ToStringFormat, base.ToString(), ColumnInfoRef);
-    }
-
-    /// <inheritdoc/>
-    public override Column Clone(ColNum newIndex)
-    {
-      return new MappedColumn(ColumnInfoRef, Name, newIndex, Type);
-    }
-
-    /// <inheritdoc/>
-    public override Column Clone(string newName)
-    {
-      return new MappedColumn(this, newName);
-    }
-
-    // Constructors
-
-    #region Basic constructors
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="name"><see cref="Column.Name"/> property value.</param>
-    /// <param name="index"><see cref="Column.Index"/> property value.</param>
-    /// <param name="type"><see cref="Column.Type"/> property value.</param>
-    public MappedColumn(string name, ColNum index, Type type)
-      : this(default, name, index, type)
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="columnInfoRef"><see cref="ColumnInfoRef"/> property value.</param>
-    /// <param name="index"><see cref="Column.Index"/> property value.</param>
-    /// <param name="type"><see cref="Column.Type"/> property value.</param>
-    public MappedColumn(ColumnInfoRef columnInfoRef, ColNum index, Type type)
-      : this(columnInfoRef, columnInfoRef.ColumnName, index, type)
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="columnInfoRef"><see cref="ColumnInfoRef"/> property value.</param>
-    /// <param name="name"><see cref="Column.Name"/> property value.</param>
-    /// <param name="index"><see cref="Column.Index"/> property value.</param>
-    /// <param name="type"><see cref="Column.Type"/> property value.</param>
-    public MappedColumn(ColumnInfoRef columnInfoRef, string name, ColNum index, Type type)
-      : base(name, index, type, null)
-    {
-      ColumnInfoRef = columnInfoRef;
-    }
-
-    #endregion
-
-    #region Clone constructors
-
-    private MappedColumn(MappedColumn column, string newName)
-      : base(newName, column.Index, column.Type, column)
-    {
-      ColumnInfoRef = column.ColumnInfoRef;
-    }
-
-    private MappedColumn(MappedColumn column, ColNum newIndex)
-      : base(column.Name, newIndex, column.Type, column)
-    {
-      ColumnInfoRef = column.ColumnInfoRef;
-    }
-
-    #endregion
   }
+
+  /// <summary>
+  /// Initializes a new instance of this class.
+  /// </summary>
+  /// <param name="columnInfoRef"><see cref="ColumnInfoRef"/> property value.</param>
+  /// <param name="index"><see cref="Column.Index"/> property value.</param>
+  /// <param name="type"><see cref="Column.Type"/> property value.</param>
+  public MappedColumn(ColumnInfoRef columnInfoRef, ColNum index, Type type)
+    : this(columnInfoRef, columnInfoRef.ColumnName, index, type)
+  {
+  }
+
+  #endregion
+
+}
+
+// The purpose of this class is minimize allocation size of `MappedColumn`
+// Non self-referencing `Origin` property is a rare case
+internal sealed class DerivedMappedColumn(string name, ColNum index, Type type, Column origin, ColumnInfoRef columnInfoRef)
+  : MappedColumn(columnInfoRef, name, index, type)
+{
+  public override Column Origin => origin ?? this;
 }
