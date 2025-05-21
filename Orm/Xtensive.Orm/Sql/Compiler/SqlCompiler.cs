@@ -2,10 +2,6 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 using Xtensive.Sql.Info;
@@ -126,30 +122,34 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
-        if (node.Action is SqlAddColumn addColumn) {
+        switch (node.Action) {
+        case SqlAddColumn addColumn:
           AppendTranslated(node, AlterTableSection.AddColumn);
           Visit(addColumn.Column);
-        }
-        else if (node.Action is SqlDropDefault dropDefault) {
+          break;
+        case SqlAlterColumn alterColumn:
+          AppendTranslated(node, AlterTableSection.AlterColumn);
+          Visit(alterColumn.Column);
+          break;
+        case SqlDropDefault dropDefault: {
           var column = dropDefault.Column;
           AppendTranslated(node, AlterTableSection.AlterColumn);
           AppendTranslated(column, TableColumnSection.Entry);
           AppendTranslated(column, TableColumnSection.DropDefault);
-        }
-        else if (node.Action is SqlSetDefault setDefault) {
+        } break;
+        case SqlSetDefault setDefault: {
           var column = setDefault.Column;
           AppendTranslated(node, AlterTableSection.AlterColumn);
           AppendTranslated(column, TableColumnSection.Entry);
           AppendTranslated(column, TableColumnSection.SetDefault);
           setDefault.DefaultValue.AcceptVisitor(this);
-        }
-        else if (node.Action is SqlDropColumn dropColumn) {
+        } break;
+        case SqlDropColumn dropColumn:
           AppendTranslated(node, AlterTableSection.DropColumn);
           AppendTranslated(dropColumn.Column, TableColumnSection.Entry);
           AppendTranslated(node, AlterTableSection.DropBehavior);
-        }
-        else if (node.Action is SqlAlterIdentityInfo alterIndentityInfo) {
-          var action = node.Action as SqlAlterIdentityInfo;
+          break;
+        case SqlAlterIdentityInfo alterIndentityInfo: {
           var column = alterIndentityInfo.Column;
           var descriptor = alterIndentityInfo.SequenceDescriptor;
           AppendTranslated(node, AlterTableSection.AlterColumn);
@@ -158,43 +158,47 @@ namespace Xtensive.Sql.Compiler
             AppendTranslated(alterIndentityInfo.SequenceDescriptor, SequenceDescriptorSection.RestartValue);
           }
 
-          if ((action.InfoOption & SqlAlterIdentityInfoOptions.IncrementByOption) != 0) {
-            if (descriptor.Increment.HasValue && descriptor.Increment.Value == 0) {
+          if (alterIndentityInfo.InfoOption.HasFlag(SqlAlterIdentityInfoOptions.IncrementByOption)) {
+            if (descriptor.Increment == 0) {
               throw new SqlCompilerException(Strings.ExIncrementMustNotBeZero);
             }
 
             AppendTranslated(column, TableColumnSection.SetIdentityInfoElement);
             AppendTranslated(descriptor, SequenceDescriptorSection.Increment);
           }
-          if ((action.InfoOption & SqlAlterIdentityInfoOptions.MaxValueOption) != 0) {
+
+          if (alterIndentityInfo.InfoOption.HasFlag(SqlAlterIdentityInfoOptions.MaxValueOption)) {
             AppendTranslated(column, TableColumnSection.SetIdentityInfoElement);
             AppendTranslated(descriptor, SequenceDescriptorSection.AlterMaxValue);
           }
-          if ((action.InfoOption & SqlAlterIdentityInfoOptions.MinValueOption) != 0) {
+
+          if (alterIndentityInfo.InfoOption.HasFlag(SqlAlterIdentityInfoOptions.MinValueOption)) {
             AppendTranslated(column, TableColumnSection.SetIdentityInfoElement);
             AppendTranslated(descriptor, SequenceDescriptorSection.AlterMinValue);
           }
-          if ((action.InfoOption & SqlAlterIdentityInfoOptions.CycleOption) != 0) {
+
+          if (alterIndentityInfo.InfoOption.HasFlag(SqlAlterIdentityInfoOptions.CycleOption)) {
             AppendTranslated(column, TableColumnSection.SetIdentityInfoElement);
             AppendTranslated(descriptor, SequenceDescriptorSection.IsCyclic);
           }
-        }
-        else if (node.Action is SqlAddConstraint addConstraint) {
+        } break;
+        case SqlAddConstraint addConstraint: {
           var constraint = addConstraint.Constraint as TableConstraint;
           AppendTranslated(node, AlterTableSection.AddConstraint);
           Visit(constraint);
-        }
-        else if (node.Action is SqlDropConstraint dropConstraint) {
+        } break;
+        case SqlDropConstraint dropConstraint: {
           var constraint = dropConstraint.Constraint as TableConstraint;
           AppendTranslated(node, AlterTableSection.DropConstraint);
           AppendTranslated(constraint, ConstraintSection.Entry);
           AppendTranslated(node, AlterTableSection.DropBehavior);
-        }
-        else if (node.Action is SqlRenameColumn renameColumn) {
+        } break;
+        case SqlRenameColumn renameColumn:
           AppendTranslated(node, AlterTableSection.RenameColumn);
           AppendTranslated(renameColumn.Column, TableColumnSection.Entry);
           AppendTranslated(node, AlterTableSection.To);
           translator.TranslateIdentifier(context.Output, renameColumn.NewName);
+          break;
         }
         AppendTranslatedExit(node);
       }

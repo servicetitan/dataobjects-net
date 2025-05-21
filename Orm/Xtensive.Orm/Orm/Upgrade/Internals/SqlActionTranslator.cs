@@ -887,6 +887,21 @@ namespace Xtensive.Orm.Upgrade
       var upgradeOutput = currentOutput.ForStage(SqlUpgradeStage.Upgrade);
       var cleanupOutput = currentOutput.ForStage(SqlUpgradeStage.Cleanup);
 
+      var newTypeInfo = targetColumn.Type;
+      var newSqlType = newTypeInfo.NativeType;
+
+      if (driver.ServerInfo.ServerFeatures.HasFlag(ServerFeatures.AlterColumn)
+          && (targetColumn.DefaultValue is null || targetColumn.DefaultValue is string s && s.Length == 0)
+          && column.DefaultValue is null
+          && string.IsNullOrEmpty(targetColumn.DefaultSqlExpression)) {
+        table.TableColumns.Remove(column);
+        var alteredColumn = table.CreateColumn(originalName, newSqlType);
+        alteredColumn.IsNullable = newTypeInfo.IsNullable;
+        var alterColumn = SqlDdl.Alter(table, new SqlAlterColumn(alteredColumn));
+        upgradeOutput.RegisterCommand(alterColumn);
+        return;
+      }
+
       // Rename old column
       var tempName = GetTemporaryName(column);
       if(recreatedColumns.Contains(column)) {
@@ -898,8 +913,6 @@ namespace Xtensive.Orm.Upgrade
         RenameColumn(column, tempName);
 
       // Create new columns
-      var newTypeInfo = targetColumn.Type;
-      var newSqlType = newTypeInfo.NativeType;
       var newColumn = table.CreateColumn(originalName, newSqlType);
 
       newColumn.IsNullable = newTypeInfo.IsNullable;

@@ -91,5 +91,7 @@ namespace Xtensive.Sql.Info
     /// Indicates whether RDBMS does not support DateTimeOffset natively, but allows to emulate it.
     /// </summary>
     DateTimeOffsetEmulation = 1 << 12,
+
+    AlterColumn = 1 << 13,
   }
 }

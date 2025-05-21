@@ -2,24 +2,24 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Sql.Ddl
+namespace Xtensive.Sql.Ddl;
+
+[Serializable]
+public class SqlAddColumn(TableColumn column) : SqlAction
 {
-  [Serializable]
-  public class SqlAddColumn : SqlAction
-  {
-    public TableColumn Column { get; private set; }
+  public TableColumn Column { get; } = column;
 
-    internal override SqlAddColumn Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) => new(t.Column));
+  internal override SqlAddColumn Clone(SqlNodeCloneContext context) =>
+    context.GetOrAdd(this, static (t, c) => new(t.Column));
+}
 
-    // Constructors
+[Serializable]
+public class SqlAlterColumn(TableColumn column) : SqlAction
+{
+  public TableColumn Column { get; } = column;
 
-    internal SqlAddColumn(TableColumn column)
-    {
-      Column = column;
-    }
-  }
+  internal override SqlAlterColumn Clone(SqlNodeCloneContext context) =>
+    context.GetOrAdd(this, static (t, c) => new(t.Column));
 }

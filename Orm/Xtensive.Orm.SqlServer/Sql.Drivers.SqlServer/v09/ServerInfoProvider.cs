@@ -203,10 +203,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return queryInfo;
     }
 
-    public override ServerFeatures GetServerFeatures()
-    {
-      return ServerFeatures.Savepoints | ServerFeatures.TransactionalDdl | ServerFeatures.FullTextColumnDataTypeSpecification;
-    }
+    public override ServerFeatures GetServerFeatures() =>
+      ServerFeatures.Savepoints | ServerFeatures.TransactionalDdl | ServerFeatures.FullTextColumnDataTypeSpecification
+        | ServerFeatures.AlterColumn;
 
     public override IdentityInfo GetIdentityInfo()
     {
