@@ -17,14 +17,14 @@ namespace Xtensive.Orm.Linq.Expressions
   internal sealed class StructureFieldExpression : FieldExpression,
     IPersistentExpression
   {
-    private List<PersistentFieldExpression> fields;
+    private IReadOnlyList<PersistentFieldExpression> fields;
     public TypeInfo PersistentType { get; }
 
     public bool IsNullable => Owner != null && Owner.IsNullable;
 
     public IReadOnlyList<PersistentFieldExpression> Fields => fields;
 
-    private void SetFields(List<PersistentFieldExpression> value)
+    private void SetFields(IReadOnlyList<PersistentFieldExpression> value)
     {
       fields = value;
       foreach (var fieldExpression in fields.OfType<FieldExpression>()) {
@@ -103,10 +103,11 @@ namespace Xtensive.Orm.Linq.Expressions
 
       var result = new StructureFieldExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
-      var processedFields = new List<PersistentFieldExpression>(fields.Count);
+      var processedFields = new PersistentFieldExpression[fields.Count];
+      int i = 0;
       foreach (var field in fields) {
         // Do not convert to LINQ. We want to avoid a closure creation here.
-        processedFields.Add((PersistentFieldExpression) field.BindParameter(parameter, processedExpressions));
+        processedFields[i++] = (PersistentFieldExpression) field.BindParameter(parameter, processedExpressions);
       }
 
       if (Owner == null) {
@@ -127,10 +128,11 @@ namespace Xtensive.Orm.Linq.Expressions
 
       var result = new StructureFieldExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
-      var processedFields = new List<PersistentFieldExpression>(fields.Count);
+      var processedFields = new PersistentFieldExpression[fields.Count];
+      int i = 0;
       foreach (var field in fields) {
         // Do not convert to LINQ. We want to avoid a closure creation here.
-        processedFields.Add((PersistentFieldExpression) field.RemoveOuterParameter(processedExpressions));
+        processedFields[i++] = (PersistentFieldExpression) field.RemoveOuterParameter(processedExpressions);
       }
 
       if (Owner == null) {
@@ -149,14 +151,9 @@ namespace Xtensive.Orm.Linq.Expressions
         return this;
       }
 
-      var result = new StructureFieldExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty) {
-        fields = new List<PersistentFieldExpression>(fields.Count)
+      return new StructureFieldExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty) {
+        fields = fields.Select(o => ((FieldExpression) o).RemoveOwner()).ToArray()
       };
-      foreach (var field in fields) {
-        result.fields.Add(((FieldExpression) field).RemoveOwner());
-      }
-
-      return result;
     }
 
     public static StructureFieldExpression CreateStructure(FieldInfo structureField, ColNum offset)
