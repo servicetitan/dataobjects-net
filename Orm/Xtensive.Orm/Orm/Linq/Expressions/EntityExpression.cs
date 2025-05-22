@@ -4,9 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.05
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Linq.Expressions.Visitors;
@@ -184,26 +181,11 @@ namespace Xtensive.Orm.Linq.Expressions
           entityFieldExpression.OuterParameter, new Dictionary<Expression, Expression>());
     }
 
-    private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, ColNum offset)
-    {
-      if (nestedField.IsPrimitive) {
-        return FieldExpression.CreateField(nestedField, offset);
-      }
-
-      if (nestedField.IsStructure) {
-        return StructureFieldExpression.CreateStructure(nestedField, offset);
-      }
-
-      if (nestedField.IsEntity) {
-        return EntityFieldExpression.CreateEntityField(nestedField, offset);
-      }
-
-      if (nestedField.IsEntitySet) {
-        return EntitySetExpression.CreateEntitySet(nestedField);
-      }
-
-      throw new NotSupportedException(string.Format(Strings.ExNestedFieldXIsNotSupported, nestedField.Attributes));
-    }
+    private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, ColNum offset) =>
+      nestedField.IsStructure ? StructureFieldExpression.CreateStructure(nestedField, offset)
+      : nestedField.IsEntity ? EntityFieldExpression.CreateEntityField(nestedField, offset)
+      : nestedField.IsEntitySet ? EntitySetExpression.CreateEntitySet(nestedField)
+      : FieldExpression.CreateField(nestedField, offset);
 
     public override string ToString() => $"{base.ToString()} {PersistentType.Name}";
 

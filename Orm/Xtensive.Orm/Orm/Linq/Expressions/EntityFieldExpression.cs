@@ -162,10 +162,12 @@ namespace Xtensive.Orm.Linq.Expressions
       var mapping = new Segment<ColNum>((ColNum) (mappingInfo.Offset + offset), mappingInfo.Length);
       var keyFields = persistentType.Key.Fields;
       var keyExpression = KeyExpression.Create(persistentType, (ColNum) (offset + mappingInfo.Offset));
-      var fields = new List<PersistentFieldExpression>(keyFields.Count + 1) { keyExpression };
+      var fields = new PersistentFieldExpression[keyFields.Count + 1];
+      fields[0] = keyExpression;
+      int i = 1;
       foreach (var field in keyFields) {
         // Do not convert to LINQ. We want to avoid a closure creation here.
-        fields.Add(BuildNestedFieldExpression(field, (ColNum) (offset + mappingInfo.Offset)));
+        fields[i++] = BuildNestedFieldExpression(field, (ColNum) (offset + mappingInfo.Offset));
       }
 
       return new EntityFieldExpression(persistentType, entityField, fields, mapping, keyExpression, null, null, false);
