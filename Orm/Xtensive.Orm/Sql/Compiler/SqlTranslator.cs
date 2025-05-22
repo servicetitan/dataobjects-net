@@ -2348,11 +2348,18 @@ namespace Xtensive.Sql.Compiler
     /// <param name="str">The string.</param>
     public virtual void TranslateString(IOutput output, string str)
     {
-      // this is more effecient than SqlHelper.QuoteString()
+      // this is more efficient than SqlHelper.QuoteString()
       _ = output.AppendLiteral('\'');
-      foreach (var ch in str) {
-        TranslateChar(output, ch);
+
+      if (str.ContainsAny(['\'', '\\', '\0'])) {
+        foreach (var ch in str) {
+          TranslateChar(output, ch);
+        }
       }
+      else {
+        _ = output.AppendLiteral(str);
+      }
+
       _ = output.AppendLiteral('\'');
     }
 
@@ -2374,21 +2381,6 @@ namespace Xtensive.Sql.Compiler
           break;
       }
     }
-
-    protected virtual void TranslateStringChar(IOutput output, char ch)
-    {
-      switch (ch) {
-        case '\0':
-          break;
-        case '\'':
-          output.AppendLiteral("''");
-          break;
-        default:
-          output.AppendLiteral(ch);
-          break;
-      }
-    }
-
 
     /// <summary>
     /// Translates identifier names (one or several) and writes result to <paramref name="output"/>

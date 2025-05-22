@@ -220,7 +220,7 @@ namespace Xtensive.Caching
 
       Exception error = null;
       int removedCount = 0;
-      double effeciency = 0;
+      double efficiency = 0;
       try {
         // Preparing arrays for selection
         var times = new int[count];
@@ -270,13 +270,13 @@ namespace Xtensive.Caching
         if (efficiencyFactor<0)
           timeShift = -efficiencyFactor; // Constant timeShift is defined
         else {
-          // Relative effeciency factor is defined
+          // Relative efficiency factor is defined
           if (removedCount < 1)
             removedCount = 1;
-          effeciency =
+          efficiency =
             ((double) GcOperationCost * removedCount + time) /
             ((double) GcOperationCost * count + time);
-          timeShift = ((int) Math.Ceiling(Math.Log(1 / effeciency, 2)));
+          timeShift = ((int) Math.Ceiling(Math.Log(1 / efficiency, 2)));
           timeShift += efficiencyFactor;
           if (timeShift > 7)
             timeShift = 7;
@@ -296,7 +296,7 @@ namespace Xtensive.Caching
         // Logging
         if (CoreLog.IsLogged(LogLevel.Debug)) {
           CoreLog.Debug("MfLruCache.CollectGarbage: removed: {0} from {1}, efficiency: {2}, time shift: {3}",
-            removedCount, count, effeciency, timeShift);
+            removedCount, count, efficiency, timeShift);
           if (error!=null)
             CoreLog.Debug(error, "Caught at MfLruCache.CollectGarbage");
         }

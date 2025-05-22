@@ -36,7 +36,7 @@ namespace Xtensive.Core
     protected internal InheritableScope()
       : base(false)
     {
-// Must be replaced to more effecient check from the point of performance.
+// Must be replaced to more efficient check from the point of performance.
 //
 //      var type = GetType();
 //      if (allowedType==null) lock (@lock) if (allowedType==null)
