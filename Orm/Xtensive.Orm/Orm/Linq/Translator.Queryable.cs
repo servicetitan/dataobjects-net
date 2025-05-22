@@ -1728,14 +1728,15 @@ namespace Xtensive.Orm.Linq
       }
 
       if (sequence.IsLocalCollection(context)) {
-        var sequenceType = sequence.Type.IsGenericType && sequence.Type.IsOfGenericType(GenericFuncDefType)
-          ? sequence.Type.GetGenericArguments()[0]
-          : sequence.Type;
+        var sequenceType = sequence.Type;
+        sequenceType = sequenceType.IsGenericType && sequenceType.IsOfGenericType(GenericFuncDefType)
+          ? sequenceType.GetGenericArguments()[0]
+          : sequenceType;
 
         var itemType = QueryHelper.GetSequenceElementType(sequenceType);
         return (ProjectionExpression) VisitLocalCollectionSequenceMethod
-          .CachedMakeGenericMethod(itemType)
-          .Invoke(this, new object[] { sequence });
+          .CachedMakeGenericMethodInvoker(itemType)
+          .Invoke(this, sequence);
       }
 
       var visitedExpression = Visit(sequenceExpression).StripCasts();
