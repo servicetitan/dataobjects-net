@@ -39,7 +39,7 @@ jobs:
       - name: Run SQL Server container
         run: docker run -e ACCEPT_EULA=Y -e MSSQL_PID='Developer' -e MSSQL_SA_PASSWORD=${SQL_PASSWD} -p 1433:1433 -d sql
       - name: Build
-        run: dotnet build -v q Orm.sln
+        run: dotnet build -v q Orm.slnx
       - name: Init Test DB
         run: sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests.sql && sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests-Plus.sql
 #      - name: Create PostgreSQL DO Tests Config file

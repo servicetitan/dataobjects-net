@@ -1,0 +1,63 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Debug-NET6" />
+    <BuildType Name="Debug-NET7" />
+    <BuildType Name="Debug-NET8" />
+    <BuildType Name="Release" />
+    <BuildType Name="Release-NET6" />
+    <BuildType Name="Release-NET7" />
+    <BuildType Name="Release-NET8" />
+  </Configurations>
+  <Folder Name="/.Cfg/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="User.Directory.Build.props.example" />
+    <File Path="Version.props" />
+  </Folder>
+  <Folder Name="/.Publish/">
+    <Project Path="Publish/NuGetPublish.csproj">
+      <Build Project="false" />
+    </Project>
+  </Folder>
+  <Folder Name="/Extensions.Libs/">
+    <Project Path="Extensions/Xtensive.Orm.BulkOperations/Xtensive.Orm.BulkOperations.csproj" />
+    <Project Path="Extensions/Xtensive.Orm.Localization/Xtensive.Orm.Localization.csproj" />
+    <Project Path="Extensions/Xtensive.Orm.Logging.log4net/Xtensive.Orm.Logging.log4net.csproj" />
+    <Project Path="Extensions/Xtensive.Orm.Logging.NLog/Xtensive.Orm.Logging.NLog.csproj" />
+    <Project Path="Extensions/Xtensive.Orm.Reprocessing/Xtensive.Orm.Reprocessing.csproj" />
+    <Project Path="Extensions/Xtensive.Orm.Security/Xtensive.Orm.Security.csproj" />
+    <Project Path="Extensions/Xtensive.Orm.Tracking/Xtensive.Orm.Tracking.csproj" />
+    <Project Path="Extensions/Xtensive.Orm.Web/Xtensive.Orm.Web.csproj" />
+  </Folder>
+  <Folder Name="/Extensions.Tests/">
+    <Project Path="Extensions/TestCommon/TestCommon.csproj" />
+    <Project Path="Extensions/Xtensive.Orm.BulkOperations.Tests/Xtensive.Orm.BulkOperations.Tests.csproj" />
+    <Project Path="Extensions/Xtensive.Orm.Localization.Tests/Xtensive.Orm.Localization.Tests.csproj" />
+    <Project Path="Extensions/Xtensive.Orm.Logging.log4net.Tests/Xtensive.Orm.Logging.log4net.Tests.csproj" />
+    <Project Path="Extensions/Xtensive.Orm.Logging.NLog.Tests/Xtensive.Orm.Logging.NLog.Tests.csproj" />
+    <Project Path="Extensions/Xtensive.Orm.Reprocessing.Tests/Xtensive.Orm.Reprocessing.Tests.csproj" />
+    <Project Path="Extensions/Xtensive.Orm.Security.Tests/Xtensive.Orm.Security.Tests.csproj" />
+    <Project Path="Extensions/Xtensive.Orm.Tracking.Tests/Xtensive.Orm.Tracking.Tests.csproj" />
+    <Project Path="Extensions/Xtensive.Orm.Web.Tests/Xtensive.Orm.Web.Tests.csproj" />
+  </Folder>
+  <Folder Name="/Orm.Libs/">
+    <Project Path="Orm/Xtensive.Orm.Firebird/Xtensive.Orm.Firebird.csproj" />
+    <Project Path="Orm/Xtensive.Orm.MySql/Xtensive.Orm.MySql.csproj" />
+    <Project Path="Orm/Xtensive.Orm.Oracle/Xtensive.Orm.Oracle.csproj" />
+    <Project Path="Orm/Xtensive.Orm.PostgreSql/Xtensive.Orm.PostgreSql.csproj" />
+    <Project Path="Orm/Xtensive.Orm.Sqlite/Xtensive.Orm.Sqlite.csproj" />
+    <Project Path="Orm/Xtensive.Orm.SqlServer/Xtensive.Orm.SqlServer.csproj" />
+    <Project Path="Orm/Xtensive.Orm/Xtensive.Orm.csproj" />
+  </Folder>
+  <Folder Name="/Orm.Tests/">
+    <Project Path="Orm/Xtensive.Orm.Manual/Xtensive.Orm.Manual.csproj" />
+    <Project Path="Orm/Xtensive.Orm.Tests.Core/Xtensive.Orm.Tests.Core.csproj" />
+    <Project Path="Orm/Xtensive.Orm.Tests.Framework/Xtensive.Orm.Tests.Framework.csproj" />
+    <Project Path="Orm/Xtensive.Orm.Tests.FSharp/Xtensive.Orm.Tests.FSharp.fsproj" />
+    <Project Path="Orm/Xtensive.Orm.Tests.Sql/Xtensive.Orm.Tests.Sql.csproj" />
+    <Project Path="Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj" />
+  </Folder>
+  <Project Path="Weaver/Xtensive.Orm.Weaver/Xtensive.Orm.Weaver.csproj" />
+</Solution>
