@@ -11,7 +11,7 @@ max_line_length = 140
 trim_trailing_whitespace = false
 
 # csproj files
-[*.csproj]
+[*.{csproj,slnx}]
 # Indentation options
 
 indent_size = 2
