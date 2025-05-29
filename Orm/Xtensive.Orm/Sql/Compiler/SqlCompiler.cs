@@ -1687,13 +1687,13 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     protected virtual void VisitSelectGroupBy(SqlSelect node)
     {
-      if (node.GroupBy.Count <= 0) {
+      if (node.GroupByReadOnly.Count <= 0) {
         return;
       }
       // group by
       translator.SelectGroupBy(context, node);
       using (context.EnterCollectionScope()) {
-        foreach (var item in node.GroupBy) {
+        foreach (var item in node.GroupByReadOnly) {
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           var cr = item as SqlColumnRef;
           if (cr is not null) {
@@ -1718,13 +1718,13 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     protected virtual void VisitSelectOrderBy(SqlSelect node)
     {
-      if (node.OrderBy.Count <= 0) {
+      if (node.OrderByReadOnly.Count <= 0) {
         return;
       }
 
       translator.SelectOrderBy(context, node);
       using (context.EnterCollectionScope()) {
-        foreach (var item in node.OrderBy) {
+        foreach (var item in node.OrderByReadOnly) {
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           item.AcceptVisitor(this);
         }

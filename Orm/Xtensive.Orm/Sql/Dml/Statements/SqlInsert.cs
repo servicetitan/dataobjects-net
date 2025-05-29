@@ -47,7 +47,7 @@ namespace Xtensive.Sql.Dml
 
         if (t.Hints.Count > 0) {
           foreach (SqlHint hint in t.Hints)
-            clone.Hints.Add(hint.Clone(c));
+            clone.AddHint(hint.Clone(c));
         }
         return clone;
       });

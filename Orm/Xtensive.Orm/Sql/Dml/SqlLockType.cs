@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Sql.Dml
 {
   [Flags]
-  public enum SqlLockType
+  public enum SqlLockType : byte
   {
     Empty = 0,
     Shared = 1,

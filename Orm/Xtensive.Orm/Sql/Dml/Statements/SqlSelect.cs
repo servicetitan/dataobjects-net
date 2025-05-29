@@ -61,8 +61,7 @@ namespace Xtensive.Sql.Dml
       get { return where; }
       set
       {
-        if (value is not null)
-          SqlValidator.EnsureIsBooleanExpression(value);
+        SqlValidator.EnsureIsBooleanExpression(value);
         where = value;
       }
     }
@@ -73,6 +72,8 @@ namespace Xtensive.Sql.Dml
     /// <value>The collection of columns.</value>
     public SqlColumnCollection GroupBy => groupBy ??= new();
 
+    public IReadOnlyList<SqlColumn> GroupByReadOnly => groupBy ??= [];
+
     /// <summary>
     /// Gets or sets the having clause.
     /// </summary>
@@ -82,8 +83,7 @@ namespace Xtensive.Sql.Dml
       get { return having; }
       set
       {
-        if (value is not null)
-          SqlValidator.EnsureIsBooleanExpression(value);
+        SqlValidator.EnsureIsBooleanExpression(value);
         having = value;
       }
     }
@@ -93,6 +93,8 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     /// <value>The order by clause.</value>
     public SqlOrderCollection OrderBy => orderBy ??= new();
+
+    public IReadOnlyList<SqlOrder> OrderByReadOnly => orderBy ??= [];
 
     /// <summary>
     /// Gets or sets a value indicating whether this <see cref="SqlSelect"/> is distinct.
@@ -168,7 +170,7 @@ namespace Xtensive.Sql.Dml
 
         if (t.Hints.Count > 0)
           foreach (SqlHint hint in t.Hints)
-            clone.Hints.Add(hint.Clone(c));
+            clone.AddHint(hint.Clone(c));
 
         return clone;
       });
@@ -183,14 +185,14 @@ namespace Xtensive.Sql.Dml
         : SqlDml.Select(From);
       result.Columns.AddRange(Columns);
       result.Distinct = Distinct;
-      result.GroupBy.AddRange(GroupBy);
+      result.GroupBy.AddRange(GroupByReadOnly);
       result.Having = Having;
       result.Offset = Offset;
       result.Limit = Limit;
-      foreach (var order in OrderBy)
+      foreach (var order in OrderByReadOnly)
         result.OrderBy.Add(order);
       foreach (var hint in Hints)
-        result.Hints.Add(hint);
+        result.AddHint(hint);
       result.Where = Where;
       result.Lock = Lock;
       result.Comment = Comment;

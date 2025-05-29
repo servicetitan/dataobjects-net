@@ -3805,9 +3805,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var select = SqlDml.Select(abcd);
       select.Limit = 10;
       select.Columns.Add(SqlDml.Asterisk);
-      select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Hash, ab));
-      select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Merge, cd));
-      select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Loop, abcd));
+      select.AddHint(SqlDml.JoinHint(SqlJoinMethod.Hash, ab));
+      select.AddHint(SqlDml.JoinHint(SqlJoinMethod.Merge, cd));
+      select.AddHint(SqlDml.JoinHint(SqlJoinMethod.Loop, abcd));
 
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
@@ -3836,9 +3836,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var select = SqlDml.Select(abcd);
       select.Limit = 10;
       select.Columns.Add(SqlDml.Asterisk);
-      select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Hash, b));
-      select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Merge, d));
-      select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Loop, abcd));
+      select.AddHint(SqlDml.JoinHint(SqlJoinMethod.Hash, b));
+      select.AddHint(SqlDml.JoinHint(SqlJoinMethod.Merge, d));
+      select.AddHint(SqlDml.JoinHint(SqlJoinMethod.Loop, abcd));
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
@@ -3874,8 +3874,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Limit = 10;
       select.Columns.Add(c["EmailAddress"]);
       select.Where = SqlDml.Like(c["EmailAddress"], "a%");
-      select.Hints.Add(SqlDml.FastFirstRowsHint(10));
-      select.Hints.Add(SqlDml.NativeHint("KEEP PLAN, ROBUST PLAN"));
+      select.AddHint(SqlDml.FastFirstRowsHint(10));
+      select.AddHint(SqlDml.NativeHint("KEEP PLAN, ROBUST PLAN"));
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
 
@@ -4046,7 +4046,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       outerSelect.Columns.Add(categoryName, "SubcategoryName");
 
       outerSelect.Lock = SqlLockType.Exclusive;
-      outerSelect.Hints.Add(new SqlIndexHint("IndexName", subcategories));
+      outerSelect.AddHint(new SqlIndexHint("IndexName", subcategories));
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, outerSelect));
     }

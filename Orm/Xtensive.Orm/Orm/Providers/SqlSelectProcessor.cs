@@ -435,9 +435,9 @@ namespace Xtensive.Orm.Providers
     {
       foreach (var column in node.Columns)
         Visit(column);
-      foreach (var column in node.GroupBy)
+      foreach (var column in node.GroupByReadOnly)
         Visit(column);
-      foreach (var column in node.OrderBy)
+      foreach (var column in node.OrderByReadOnly)
         Visit(column);
       if (node.From != null)
         Visit(node.From);
@@ -455,7 +455,7 @@ namespace Xtensive.Orm.Providers
 
       var isCurrentRoot = ReferenceEquals(node, rootSelect);
       var keepOrderBy = isCurrentRoot || hasPaging;
-      if (!keepOrderBy)
+      if (!keepOrderBy && node.OrderByReadOnly.Count > 0)
         node.OrderBy.Clear();
 
       if (!isCurrentRoot) {
@@ -464,7 +464,7 @@ namespace Xtensive.Orm.Providers
       }
 
       var addOrderBy = hasPaging
-        && node.OrderBy.Count==0
+        && node.OrderByReadOnly.Count==0
         && providerInfo.Supports(ProviderFeatures.PagingRequiresOrderBy);
 
       if (addOrderBy)
