@@ -360,7 +360,7 @@ namespace Xtensive.Orm.Tests.Sql
       s.Columns.Add(tr2.Asterisk);
       s.From = tr1.InnerJoin(tr2, tr1["ID"]==tr2["ID"]);
       s.Where = SqlDml.Like(tr1["Name"], "Marat");
-      s.Hints.Add(SqlDml.FastFirstRowsHint(10));
+      s.AddHint(SqlDml.FastFirstRowsHint(10));
 
       SqlSelect sClone = (SqlSelect)s.Clone();
       
@@ -544,7 +544,7 @@ namespace Xtensive.Orm.Tests.Sql
       SqlTableRef t = SqlDml.TableRef(table1);
       SqlDelete d = SqlDml.Delete(t);
       d.Where = t[0] < 6;
-      d.Hints.Add(SqlDml.FastFirstRowsHint(10));
+      d.AddHint(SqlDml.FastFirstRowsHint(10));
       SqlDelete dClone = (SqlDelete) d.Clone();
 
       Assert.AreNotEqual(d, dClone);
@@ -599,7 +599,7 @@ namespace Xtensive.Orm.Tests.Sql
       SqlTableRef t = SqlDml.TableRef(table1);
       SqlInsert i = SqlDml.Insert(t);
       i.AddValueRow(( t[0], 1 ), ( t[1], "Anonym" ));
-      i.Hints.Add(SqlDml.FastFirstRowsHint(10));
+      i.AddHint(SqlDml.FastFirstRowsHint(10));
       SqlInsert iClone = (SqlInsert)i.Clone();
 
       Assert.AreNotEqual(i, iClone);
@@ -623,7 +623,7 @@ namespace Xtensive.Orm.Tests.Sql
       u.Values[t[0]] = 1;
       u.Values[t[1]] = "Anonym";
       u.Where = t.Columns["ID"]==1;
-      u.Hints.Add(SqlDml.FastFirstRowsHint(10));
+      u.AddHint(SqlDml.FastFirstRowsHint(10));
       SqlUpdate uClone = (SqlUpdate)u.Clone();
 
       Assert.AreNotEqual(u, uClone);

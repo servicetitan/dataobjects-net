@@ -2,30 +2,21 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+namespace Xtensive.Sql.Dml;
 
-namespace Xtensive.Sql.Dml
+/// <summary>
+/// Base class for DML statements.
+/// </summary>
+[Serializable]
+public abstract class SqlQueryStatement(SqlNodeType nodeType) : SqlStatement(nodeType)
 {
+  private List<SqlHint> hints;
+
   /// <summary>
-  /// Base class for DML statements.
+  /// Gets the collection of join hints.
   /// </summary>
-  [Serializable]
-  public abstract class SqlQueryStatement : SqlStatement
-  {
-    private IList<SqlHint> hints;
+  /// <value>The collection of join hints.</value>
+  public IReadOnlyList<SqlHint> Hints => hints ?? [];
 
-    /// <summary>
-    /// Gets the collection of join hints.
-    /// </summary>
-    /// <value>The collection of join hints.</value>
-    public IList<SqlHint> Hints => hints ??= new Collection<SqlHint>();
-
-    // Constructors
-
-    protected SqlQueryStatement(SqlNodeType nodeType) : base(nodeType)
-    {
-    }
-  }
+  public void AddHint(SqlHint hint) => (hints ??= new(1)).Add(hint);
 }

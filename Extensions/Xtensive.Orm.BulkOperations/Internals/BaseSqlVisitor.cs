@@ -460,14 +460,14 @@ namespace Xtensive.Orm.BulkOperations
       foreach (SqlColumn column in node.Columns)
         VisitInternal(column);
       VisitInternal(node.From);
-      foreach (SqlColumn column in node.GroupBy)
+      foreach (SqlColumn column in node.GroupByReadOnly)
         VisitInternal(column);
       VisitInternal(node.Having);
       foreach (SqlHint hint in node.Hints)
         VisitInternal(hint);
       VisitInternal(node.Limit);
       VisitInternal(node.Offset);
-      foreach (SqlOrder order in node.OrderBy)
+      foreach (SqlOrder order in node.OrderByReadOnly)
         VisitInternal(order);
       VisitInternal(node.Where);
     }

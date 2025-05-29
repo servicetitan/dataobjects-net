@@ -7,7 +7,7 @@ using System;
 namespace Xtensive.Sql
 {
   [Serializable]
-  public enum SqlNodeType
+  public enum SqlNodeType : byte
   {
     Action,
     Add,

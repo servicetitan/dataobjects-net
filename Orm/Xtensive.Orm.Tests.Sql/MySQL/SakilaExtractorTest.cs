@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -986,7 +986,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select.Columns.AddRange(c["customer_id"], c["store_id"], c["first_name"], c["last_name"], c["email"]);
       select.Where = c["last_name"]>"JOHNSON";
 
-      select.Hints.Add(SqlDml.NativeHint("idx_last_name"));
+      select.AddHint(SqlDml.NativeHint("idx_last_name"));
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }

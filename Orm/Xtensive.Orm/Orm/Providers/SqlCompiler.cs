@@ -231,9 +231,8 @@ namespace Xtensive.Orm.Providers
       query.Columns.AddRange(joinedTable.AliasedColumns);
       query.Comment = SqlComment.Join(left.Request.Statement.Comment, right.Request.Statement.Comment);
 
-      foreach (var sqlHint in left.Request.Statement.Hints.Concat(right.Request.Statement.Hints))
-      {
-        query.Hints.Add(sqlHint);
+      foreach (var sqlHint in left.Request.Statement.Hints.Concat(right.Request.Statement.Hints)) {
+        query.AddHint(sqlHint);
       }
       return CreateProvider(query, provider, left, right);
     }
@@ -288,10 +287,9 @@ namespace Xtensive.Orm.Providers
         query.Where &= right.Request.Statement.Where;
       query.Columns.AddRange(joinedTable.AliasedColumns);
       query.Comment = SqlComment.Join(left.Request.Statement.Comment, right.Request.Statement.Comment);
-      
-      foreach (var sqlHint in left.Request.Statement.Hints.Concat(right.Request.Statement.Hints))
-      {
-        query.Hints.Add(sqlHint);
+
+      foreach (var sqlHint in left.Request.Statement.Hints.Concat(right.Request.Statement.Hints)) {
+        query.AddHint(sqlHint);
       }
       return CreateProvider(query, bindings, provider, left, right);
     }
@@ -372,7 +370,7 @@ namespace Xtensive.Orm.Providers
       
       var query = compiledSource.Request.Statement;
       var indexName = index.MappingName;
-      query.Hints.Add(new SqlIndexHint(indexName, tableRef));
+      query.AddHint(new SqlIndexHint(indexName, tableRef));
 
       return CreateProvider(query, provider, compiledSource);
     }
