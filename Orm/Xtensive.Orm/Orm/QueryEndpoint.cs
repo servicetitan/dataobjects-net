@@ -45,11 +45,11 @@ namespace Xtensive.Orm
     public IQueryRootBuilder RootBuilder { get; }
 
     public bool Equals(QueryEndpoint other) =>
-      session == other.session && Provider == other.Provider && RootBuilder == other.RootBuilder;
+      Provider == other.Provider && RootBuilder == other.RootBuilder;
 
     public override bool Equals(object obj) => obj is QueryEndpoint other && Equals(other);
 
-    public override int GetHashCode() => HashCode.Combine(session, Provider, RootBuilder);
+    public override int GetHashCode() => HashCode.Combine(Provider, RootBuilder);
 
     /// <summary>
     /// The "starting point" for any LINQ query -
