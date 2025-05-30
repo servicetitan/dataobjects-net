@@ -29,13 +29,13 @@ namespace Xtensive.Orm
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   public readonly struct QueryEndpoint : IEquatable<QueryEndpoint>
   {
-    private readonly Session session;
-
     /// <summary>
     /// Gets <see cref="IQueryProvider"/> implementation
     /// for this session.
     /// </summary>
     public QueryProvider Provider { get; }
+
+    private Session session => Provider.Session;
 
     /// <summary>
     /// Gets <see cref="IQueryRootBuilder"/> associated with this instance.
@@ -988,14 +988,12 @@ namespace Xtensive.Orm
     {
       ArgumentNullException.ThrowIfNull(provider);
       Provider = provider;
-      session = provider.Session;
     }
 
     internal QueryEndpoint(QueryEndpoint outerEndpoint, IQueryRootBuilder queryRootBuilder)
     {
       ArgumentNullException.ThrowIfNull(queryRootBuilder);
       Provider = outerEndpoint.Provider;
-      session = outerEndpoint.session;
       RootBuilder = queryRootBuilder;
     }
   }
