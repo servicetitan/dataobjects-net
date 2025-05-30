@@ -27,15 +27,9 @@ namespace Xtensive.Orm
   /// and finally, resolve <see cref="Key"/>s to <see cref="Entity">entities</see>.
   /// </summary>
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-  public sealed class QueryEndpoint
+  public readonly struct QueryEndpoint
   {
     private readonly Session session;
-
-    /// <summary>
-    /// Gets outer <see cref="QueryEndpoint"/>.
-    /// For root <see cref="QueryEndpoint"/> returns <see langword="null"/>.
-    /// </summary>
-    public QueryEndpoint Outer { get; private set; }
 
     /// <summary>
     /// Gets <see cref="IQueryProvider"/> implementation
@@ -48,7 +42,7 @@ namespace Xtensive.Orm
     /// If <see cref="IQueryRootBuilder"/> is not set for this instance
     /// returns <see langword="null"/>.
     /// </summary>
-    public IQueryRootBuilder RootBuilder { get; private set; }
+    public IQueryRootBuilder RootBuilder { get; }
 
     /// <summary>
     /// The "starting point" for any LINQ query -
@@ -516,16 +510,13 @@ namespace Xtensive.Orm
       where T : class, IEntity
     {
       var elementType = typeof (TElement);
-      Func<TElement, Key> selector;
-      if (elementType==WellKnownTypes.ObjectArray) {
-        selector = e => Key.Create(session.Domain, session.StorageNodeId, typeof (T), TypeReferenceAccuracy.BaseType, (object[]) (object) e);
-      }
-      else if (WellKnownOrmTypes.Tuple.IsAssignableFrom(elementType)) {
-        selector = e => Key.Create(session.Domain, session.StorageNodeId, typeof (T), TypeReferenceAccuracy.BaseType, (Tuple) (object) e);
-      }
-      else {
-        selector = e => Key.Create(session.Domain, session.StorageNodeId, typeof (T), TypeReferenceAccuracy.BaseType, new object[] {e});
-      }
+      var sess = session;
+      Func<TElement, Key> selector =
+        elementType == WellKnownTypes.ObjectArray
+        ? e => Key.Create(sess.Domain, sess.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, (object[]) (object) e)
+        : WellKnownOrmTypes.Tuple.IsAssignableFrom(elementType)
+          ? e => Key.Create(sess.Domain, sess.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, (Tuple) (object) e)
+          : e => Key.Create(sess.Domain, sess.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, new object[] { e });
 
       return new PrefetchQuery<T>(session, keys.Select(selector));
     }
