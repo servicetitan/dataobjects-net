@@ -35,7 +35,7 @@ namespace Xtensive.Orm
     /// </summary>
     public QueryProvider Provider { get; }
 
-    private Session session => Provider.Session;
+    private Session Session => Provider.Session;
 
     /// <summary>
     /// Gets <see cref="IQueryRootBuilder"/> associated with this instance.
@@ -257,7 +257,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
-    /// in the current <see cref="session"/>.
+    /// in the current <see cref="Session"/>.
     /// </summary>
     /// <param name="key">The key to resolve.</param>
     /// <returns>
@@ -278,7 +278,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
-    /// in the current <see cref="session"/>.
+    /// in the current <see cref="Session"/>.
     /// </summary>
     /// <param name="key">The key to resolve.</param>
     /// <returns>
@@ -299,7 +299,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
-    /// in the current <see cref="session"/>.
+    /// in the current <see cref="Session"/>.
     /// </summary>
     /// <param name="key">The key to resolve.</param>
     /// <returns>
@@ -312,6 +312,7 @@ namespace Xtensive.Orm
       if (key == null) {
         return null;
       }
+      var session = Session;
       using var tx = session.OpenAutoTransaction();
       EntityState state;
       if (!session.LookupStateInCache(key, out state)) {
@@ -339,7 +340,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
-    /// in the current <see cref="session"/>.
+    /// in the current <see cref="Session"/>.
     /// </summary>
     /// <param name="key">The key to resolve.</param>
     /// <returns>
@@ -351,7 +352,8 @@ namespace Xtensive.Orm
       if (key == null) {
         return null;
       }
-      using var tx = session.OpenAutoTransaction();
+      var session = Session;
+      await using var tx = session.OpenAutoTransaction();
       EntityState state;
       if (!session.LookupStateInCache(key, out state)) {
         if (session.IsDebugEventLoggingEnabled) {
@@ -378,7 +380,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
-    /// in the current <see cref="session"/>.
+    /// in the current <see cref="Session"/>.
     /// </summary>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="key">The key to resolve.</param>
@@ -394,7 +396,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
-    /// in the current <see cref="session"/>.
+    /// in the current <see cref="Session"/>.
     /// </summary>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="keyValues">Key values.</param>
@@ -410,7 +412,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
-    /// in the current <see cref="session"/>.
+    /// in the current <see cref="Session"/>.
     /// </summary>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="key">The key to resolve.</param>
@@ -425,7 +427,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
-    /// in the current <see cref="session"/>.
+    /// in the current <see cref="Session"/>.
     /// </summary>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="keyValues">Key values.</param>
@@ -440,7 +442,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
-    /// in the current <see cref="session"/>.
+    /// in the current <see cref="Session"/>.
     /// </summary>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="key">The key to resolve.</param>
@@ -453,7 +455,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
-    /// in the current <see cref="session"/>.
+    /// in the current <see cref="Session"/>.
     /// </summary>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="keyValues">Key values.</param>
@@ -469,7 +471,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
-    /// in the current <see cref="session"/>.
+    /// in the current <see cref="Session"/>.
     /// </summary>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="key">The key to resolve.</param>
@@ -481,7 +483,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
-    /// in the current <see cref="session"/>.
+    /// in the current <see cref="Session"/>.
     /// </summary>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="keyValues">Key values.</param>
@@ -502,7 +504,7 @@ namespace Xtensive.Orm
     public PrefetchQuery<T> Many<T>(IEnumerable<Key> keys)
       where T : class, IEntity
     {
-      return new PrefetchQuery<T>(session, keys);
+      return new PrefetchQuery<T>(Session, keys);
     }
 
     /// <summary>
@@ -517,15 +519,15 @@ namespace Xtensive.Orm
       where T : class, IEntity
     {
       var elementType = typeof (TElement);
-      var sess = session;
+      var session = Session;
       Func<TElement, Key> selector =
         elementType == WellKnownTypes.ObjectArray
-        ? e => Key.Create(sess.Domain, sess.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, (object[]) (object) e)
+        ? e => Key.Create(session.Domain, session.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, (object[]) (object) e)
         : WellKnownOrmTypes.Tuple.IsAssignableFrom(elementType)
-          ? e => Key.Create(sess.Domain, sess.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, (Tuple) (object) e)
-          : e => Key.Create(sess.Domain, sess.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, new object[] { e });
+          ? e => Key.Create(session.Domain, session.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, (Tuple) (object) e)
+          : e => Key.Create(session.Domain, session.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, new object[] { e });
 
-      return new PrefetchQuery<T>(sess, keys.Select(selector));
+      return new PrefetchQuery<T>(session, keys.Select(selector));
     }
 
     #region Execute methods
@@ -966,6 +968,7 @@ namespace Xtensive.Orm
             return entity.Key;
         }
       }
+      var session = Session;
       return Key.Create(session.Domain, session.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, keyValues);
     }
 
@@ -973,7 +976,7 @@ namespace Xtensive.Orm
     {
       return RootBuilder!=null
         ? RootBuilder.BuildRootExpression(elementType)
-        : session.Domain.RootCallExpressionsCache.GetOrAdd(elementType, (t) => Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(t)));
+        : Session.Domain.RootCallExpressionsCache.GetOrAdd(elementType, (t) => Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(t)));
     }
 
     private static void ThrowKeyNotFoundException(Key key) =>
