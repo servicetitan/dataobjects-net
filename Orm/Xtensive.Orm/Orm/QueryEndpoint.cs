@@ -525,7 +525,7 @@ namespace Xtensive.Orm
           ? e => Key.Create(sess.Domain, sess.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, (Tuple) (object) e)
           : e => Key.Create(sess.Domain, sess.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, new object[] { e });
 
-      return new PrefetchQuery<T>(session, keys.Select(selector));
+      return new PrefetchQuery<T>(sess, keys.Select(selector));
     }
 
     #region Execute methods
