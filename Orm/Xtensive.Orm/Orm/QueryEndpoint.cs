@@ -27,7 +27,7 @@ namespace Xtensive.Orm
   /// and finally, resolve <see cref="Key"/>s to <see cref="Entity">entities</see>.
   /// </summary>
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-  public readonly struct QueryEndpoint
+  public readonly struct QueryEndpoint : IEquatable<QueryEndpoint>
   {
     private readonly Session session;
 
@@ -43,6 +43,13 @@ namespace Xtensive.Orm
     /// returns <see langword="null"/>.
     /// </summary>
     public IQueryRootBuilder RootBuilder { get; }
+
+    public bool Equals(QueryEndpoint other) =>
+      session == other.session && Provider == other.Provider && RootBuilder == other.RootBuilder;
+
+    public override bool Equals(object obj) => obj is QueryEndpoint other && Equals(other);
+
+    public override int GetHashCode() => HashCode.Combine(session, Provider, RootBuilder);
 
     /// <summary>
     /// The "starting point" for any LINQ query -
@@ -986,7 +993,6 @@ namespace Xtensive.Orm
 
     internal QueryEndpoint(QueryEndpoint outerEndpoint, IQueryRootBuilder queryRootBuilder)
     {
-      ArgumentNullException.ThrowIfNull(outerEndpoint);
       ArgumentNullException.ThrowIfNull(queryRootBuilder);
       Provider = outerEndpoint.Provider;
       session = outerEndpoint.session;
