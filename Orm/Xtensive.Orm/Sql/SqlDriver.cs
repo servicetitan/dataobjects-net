@@ -72,9 +72,8 @@ namespace Xtensive.Sql
     /// <param name="configuration">The options of compilation.</param>
     /// <param name="typeIdRegistry">TypeId registry.</param>
     /// <returns>Result of compilation.</returns>
-    public SqlCompilationResult Compile(ISqlCompileUnit statement, SqlCompilerConfiguration configuration, TypeIdRegistry typeIdRegistry = null)
+    public SqlCompilationResult Compile(ISqlCompileUnit statement, in SqlCompilerConfiguration configuration, TypeIdRegistry typeIdRegistry = null)
     {
-      ArgumentNullException.ThrowIfNull(statement);
       ValidateCompilerConfiguration(configuration);
       return CreateCompiler().Compile(statement, configuration);
     }
