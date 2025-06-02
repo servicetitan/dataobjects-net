@@ -17,30 +17,30 @@ namespace Xtensive.Sql.Compiler
   /// <summary>
   /// A various options for <see cref="SqlCompiler"/>.
   /// </summary>
-  public sealed class SqlCompilerConfiguration
+  public readonly struct SqlCompilerConfiguration()
   {
     /// <summary>
     /// Gets or sets the parameter prefix.
     /// </summary>
-    public string ParameterNamePrefix { get; set; }
+    public string ParameterNamePrefix { get; init; }
 
     /// <summary>
     /// Always use database-qualified objects in generated SQL.
     /// This option could be enabled if and only if
     /// server supports <see cref="QueryFeatures.MultidatabaseQueries"/>.
     /// </summary>
-    public bool DatabaseQualifiedObjects { get; set; }
+    public bool DatabaseQualifiedObjects { get; init; }
 
     /// <summary>
     /// Insert Placeholder nodes instead of real schema names
     /// Allows to share compiled query over multiple schemas.
     /// </summary>
-    public bool ParametrizeSchemaNames { get; set; }
+    public bool ParametrizeSchemaNames { get; init; }
 
     /// <summary>
     /// Gets or sets comment location.
     /// </summary>
-    public SqlCommentLocation CommentLocation { get; set; } = SqlCommentLocation.Nowhere;
+    public SqlCommentLocation CommentLocation { get; init; } = SqlCommentLocation.Nowhere;
 
     /// <summary>
     /// Clones this instance.

@@ -72,10 +72,8 @@ namespace Xtensive.Sql
     /// <param name="configuration">The options of compilation.</param>
     /// <param name="typeIdRegistry">TypeId registry.</param>
     /// <returns>Result of compilation.</returns>
-    public SqlCompilationResult Compile(ISqlCompileUnit statement, SqlCompilerConfiguration configuration, TypeIdRegistry typeIdRegistry = null)
+    public SqlCompilationResult Compile(ISqlCompileUnit statement, in SqlCompilerConfiguration configuration, TypeIdRegistry typeIdRegistry = null)
     {
-      ArgumentNullException.ThrowIfNull(statement);
-      ArgumentNullException.ThrowIfNull(configuration);
       ValidateCompilerConfiguration(configuration);
       return CreateCompiler().Compile(statement, configuration);
     }
@@ -471,7 +469,7 @@ namespace Xtensive.Sql
       return extractor;
     }
 
-    private void ValidateCompilerConfiguration(SqlCompilerConfiguration configuration)
+    private void ValidateCompilerConfiguration(in SqlCompilerConfiguration configuration)
     {
       var supported = ServerInfo.Query.Features.Supports(QueryFeatures.MultidatabaseQueries);
       var requested = configuration.DatabaseQualifiedObjects;
