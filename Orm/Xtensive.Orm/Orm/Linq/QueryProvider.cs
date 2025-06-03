@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Linq
         }
         catch (Exception nestedEx) {
           throw new QueryTranslationException(string.Format(
-            Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, "Exression Serialization error"), 
+            Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, "Expression Serialization error"), 
             new AggregateException([ex, nestedEx]));
         }
       }
