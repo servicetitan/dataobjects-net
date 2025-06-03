@@ -167,8 +167,17 @@ namespace Xtensive.Orm.Linq
         return context.Translator.Translate();
       }
       catch (Exception ex) {
+        string serializedExpression = null;
+        try {
+          serializedExpression = expression.ToString(true);
+        }
+        catch (Exception nestedEx) {
+          throw new QueryTranslationException(string.Format(
+            Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, "Expression serialization error"), 
+            new AggregateException([ex, nestedEx]));
+        }
         throw new QueryTranslationException(string.Format(
-          Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, expression.ToString(true)), ex);
+          Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, serializedExpression), ex);
       }
     }
 
