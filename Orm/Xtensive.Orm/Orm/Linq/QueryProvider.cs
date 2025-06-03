@@ -177,7 +177,7 @@ namespace Xtensive.Orm.Linq
             new AggregateException([ex, nestedEx]));
         }
         throw new QueryTranslationException(string.Format(
-            Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, serializedExpression), ex);
+          Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, serializedExpression), ex);
       }
     }
 
