@@ -4,9 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.28
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
@@ -33,6 +30,9 @@ namespace Xtensive.Orm.Linq
     private static readonly ParameterExpression TupleReader = Expression.Parameter(typeof(RecordSetReader), "tupleReader");
     private static readonly ParameterExpression Session = Expression.Parameter(typeof(Session), "session");
     private static readonly IReadOnlyList<ParameterExpression> TupleReaderSessionParameterContext = [TupleReader, Session, ParameterContext];
+
+    private static readonly Expression<Func<Session, int, MaterializationContext>> MaterializationContextCtor =
+      (s, entityCount) => new MaterializationContext(s, entityCount);
 
     private readonly CompiledQueryProcessingScope compiledQueryScope;
 
@@ -134,9 +134,7 @@ namespace Xtensive.Orm.Linq
           : MaterializationHelper.CreateItemMaterializerMethodInfo.CachedMakeGenericMethodInvoker(elementType);
       var itemMaterializer = itemMaterializerFactoryMethod.Invoke(null, materializationInfo.Expression, itemProjector.AggregateType);
 
-      Expression<Func<Session, int, MaterializationContext>> materializationContextCtor =
-        (s, entityCount) => new MaterializationContext(s, entityCount);
-      var materializationContextExpression = materializationContextCtor
+      var materializationContextExpression = MaterializationContextCtor
         .BindParameters(Session, Expr.Constant(materializationInfo.EntitiesInRow));
 
       Expression body = Expression.Call(

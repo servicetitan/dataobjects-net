@@ -10,24 +10,16 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Linq.Materialization
 {
-  internal sealed class MaterializationContext
+  using EntityMappingCache = (TypeMapping? SingleItem, Dictionary<int, TypeMapping> Items);
+
+  internal class MaterializationContext(Session session, int entityCount)
   {
-    #region Nested type: EntityMappingCache
-
-    private struct EntityMappingCache
-    {
-      public TypeMapping? SingleItem;
-      public Dictionary<int, TypeMapping> Items;
-    }
-
-    #endregion
-
-    private readonly EntityMappingCache[] entityMappings;
+    private readonly EntityMappingCache[] entityMappings = new EntityMappingCache[entityCount];
 
     /// <summary>
     /// Gets the session in which materialization is executing.
     /// </summary>
-    public Session Session { get; }
+    public Session Session => session;
 
     /// <summary>
     /// Gets model of current <see cref="DomainModel">domain model.</see>
@@ -52,12 +44,12 @@ namespace Xtensive.Orm.Linq.Materialization
     public TypeMapping GetTypeMapping(int entityIndex, TypeInfo approximateType, int typeId, IEnumerable<(ColNum From, ColNum To)> columns)
     {
       ref var cache = ref entityMappings[entityIndex];
-      if (cache.SingleItem is TypeMapping result) {
+      if (cache.SingleItem is { } result) {
         return typeId == ResolveTypeToNodeSpecificTypeIdentifier(result.Type)
           ? result
           : throw new ArgumentOutOfRangeException("typeId");
       }
-      if (cache.Items.TryGetValue(typeId, out result))
+      if (cache.Items?.TryGetValue(typeId, out result) == true)
         return result;
 
       var type = TypeIdRegistry[typeId];
@@ -83,22 +75,11 @@ namespace Xtensive.Orm.Linq.Materialization
       if (type.Hierarchy.Root.IsLeaf && approximateType==type)
         cache.SingleItem = result;
       else
-        cache.Items.Add(typeId, result);
+        (cache.Items ??= new()).Add(typeId, result);
 
       return result;
     }
 
     private int ResolveTypeToNodeSpecificTypeIdentifier(TypeInfo typeInfo) => TypeIdRegistry[typeInfo];
-
-    // Constructors
-
-    public MaterializationContext(Session session, int entityCount)
-    {
-      Session = session;
-
-      entityMappings = new EntityMappingCache[entityCount];
-      for (int i = 0; i < entityMappings.Length; i++)
-        entityMappings[i] = new() { Items = new Dictionary<int, TypeMapping>() };
-    }
   }
 }
