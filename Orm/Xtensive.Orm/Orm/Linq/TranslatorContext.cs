@@ -4,9 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.10
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
@@ -27,7 +25,9 @@ namespace Xtensive.Orm.Linq
   {
     private static readonly IReadOnlyList<string> ColumnAliasPrefixes = ["c01umn"];
 
-    private AliasGenerator resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
+    public static readonly CompositeFormat ResultAliasFormat = CompositeFormat.Parse("#{0}{1}");
+
+    private AliasGenerator resultAliasGenerator = AliasGenerator.Create(ResultAliasFormat);
     private AliasGenerator columnAliasGenerator = AliasGenerator.Create(ColumnAliasPrefixes);
     private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters = new();
     private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters = new();

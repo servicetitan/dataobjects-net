@@ -4,30 +4,28 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.10
 
+using System.Text;
+
 namespace Xtensive.Core
 {
   /// <summary>
   /// Universal alias generator.
   /// </summary>
   [Serializable]
-  public struct AliasGenerator
+  public struct AliasGenerator(IReadOnlyList<string> prefixSequence, CompositeFormat aliasTemplate)
   {
     /// <summary>
     /// Default alias template. Value is "{0}{1}". Where {0} - template parameter for prefix and {1} - template parameter for suffix.
     /// </summary>
-    public const string DefaultAliasTemplate = "{0}{1}"; // prefix + suffix
+    public static readonly CompositeFormat DefaultAliasTemplate = CompositeFormat.Parse("{0}{1}"); // prefix + suffix
 
     // prefix "u" is used for user defined aliases renaming, i.e. "alias" -> "ualias".
     // should not contain this prefix.
-    private readonly static string[] DefaultPrefixSequence =
-      new[]
-      {
-        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "v",
-        "w", "x", "y", "z"
-      };
+    private static readonly string[] DefaultPrefixSequence = [
+      "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "v",
+      "w", "x", "y", "z"
+    ];
 
-    private readonly IReadOnlyList<string> prefixSequence;
-    private readonly string aliasTemplate;
     private byte prefixIndex;
     private int suffixNumber;
 
@@ -38,9 +36,9 @@ namespace Xtensive.Core
     {
       VerifyState();
       var prefix = prefixSequence[prefixIndex++];
-      var suffix = (suffixNumber > 0) ? suffixNumber.ToString() : string.Empty;
-      string result = string.Format(aliasTemplate, prefix, suffix);
-      return result;
+      return suffixNumber > 0
+        ? string.Format(null, aliasTemplate, prefix, suffixNumber)
+        : string.Format(null, aliasTemplate, prefix, string.Empty);
     }
 
     private void VerifyState()
@@ -61,7 +59,7 @@ namespace Xtensive.Core
     /// Creates generator using specified alias template.
     /// </summary>
     /// <param name="aliasTemplate">Alias template. Could use two template parameters: {0} - for prefix and {1} for suffix.</param>
-    public static AliasGenerator Create(string aliasTemplate) => new(DefaultPrefixSequence, aliasTemplate);
+    public static AliasGenerator Create(CompositeFormat aliasTemplate) => new(DefaultPrefixSequence, aliasTemplate);
 
     /// <summary>
     /// Creates generator using specified prefix sequence.
@@ -74,7 +72,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="overriddenPrefixes">The overridden prefix sequence.</param>
     /// <param name="aliasTemplate">The alias template.</param>
-    public static AliasGenerator Create(IReadOnlyList<string> overriddenPrefixes, string aliasTemplate) => new(overriddenPrefixes, aliasTemplate);
+    public static AliasGenerator Create(IReadOnlyList<string> overriddenPrefixes, CompositeFormat aliasTemplate) => new(overriddenPrefixes, aliasTemplate);
 
 
     // Constructors
@@ -82,11 +80,5 @@ namespace Xtensive.Core
     public AliasGenerator()
       : this (DefaultPrefixSequence, DefaultAliasTemplate)
     {}
-
-    private AliasGenerator(IReadOnlyList<string> prefixes, string aliasTemplate)
-    {
-      prefixSequence = prefixes;
-      this.aliasTemplate = aliasTemplate;
-    }
   }
 }

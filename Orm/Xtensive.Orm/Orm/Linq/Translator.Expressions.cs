@@ -1787,15 +1787,14 @@ namespace Xtensive.Orm.Linq
       };
     }
 
-    private static ProjectionExpression CreateLocalCollectionProjectionExpression(Type itemType, object value, Translator translator, Expression sourceExpression)
+    private static ProjectionExpression CreateLocalCollectionProjectionExpression<TItem>(Func<ParameterContext, IEnumerable<TItem>> enumerable, Translator translator, Expression sourceExpression)
     {
       var storedEntityType = translator.State.TypeOfEntityStoredInKey;
       var translatorContext = translator.context;
-      var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, storedEntityType, value, translatorContext.Model, sourceExpression);
+      var itemToTupleConverter = ItemToTupleConverter.BuildConverter(storedEntityType, enumerable, translatorContext.Model, sourceExpression);
       var tupleDescriptor = itemToTupleConverter.TupleDescriptor;
-      var columns = tupleDescriptor
+      Column[] columns = tupleDescriptor
         .Select(x => new SystemColumn(translatorContext.GetNextColumnAlias(), 0, x))
-        .Cast<Column>()
         .ToArray(tupleDescriptor.Count);
       var rsHeader = new RecordSetHeader(tupleDescriptor, columns);
       var rawProvider = new RawProvider(rsHeader, itemToTupleConverter.GetEnumerable());
@@ -1803,7 +1802,7 @@ namespace Xtensive.Orm.Linq
       var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, translatorContext);
       if (translator.State.JoinLocalCollectionEntity)
         itemProjector = EntityExpressionJoiner.JoinEntities(translator, itemProjector);
-      return new ProjectionExpression(itemType, itemProjector, TranslatedQuery.EmptyTupleParameterBindings);
+      return new ProjectionExpression(typeof(TItem), itemProjector, TranslatedQuery.EmptyTupleParameterBindings);
     }
 
     private Expression BuildInterfaceExpression(MemberExpression ma)
