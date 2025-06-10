@@ -80,16 +80,17 @@ namespace Xtensive.Orm.Linq
       return translatedQuery;
     }
 
+    private static readonly IReadOnlyList<ColNum> SingleColumn = [0];
+
     private static ProjectionExpression Optimize(ProjectionExpression origin)
     {
       var originProvider = origin.ItemProjector.DataSource;
 
       var usedColumns = origin.ItemProjector
-        .GetColumns(ColumnExtractionModes.KeepSegment | ColumnExtractionModes.KeepTypeId | ColumnExtractionModes.OmitLazyLoad)
-        .ToList();
+        .GetColumns(ColumnExtractionModes.KeepSegment | ColumnExtractionModes.KeepTypeId | ColumnExtractionModes.OmitLazyLoad);
 
       if (usedColumns.Count == 0)
-        usedColumns.Add(0);
+        usedColumns = SingleColumn;
       if (usedColumns.Count < origin.ItemProjector.DataSource.Header.Length) {
         var resultProvider = new SelectProvider(originProvider, usedColumns);
         using var columnMap = new ColumnMap(usedColumns);
