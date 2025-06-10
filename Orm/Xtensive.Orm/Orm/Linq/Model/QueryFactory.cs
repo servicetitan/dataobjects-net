@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Linq.Model
     {
       var sourceItemType = projection.Parameters[0].Type;
       var resultItemType = projection.Body.Type;
-      var method = QueryableMethodInfo.Select.MakeGenericMethod(sourceItemType, resultItemType);
+      var method = QueryableMethodInfo.Select.CachedMakeGenericMethod(sourceItemType, resultItemType);
       return Expression.Call(method, source, projection);
     }
   }
