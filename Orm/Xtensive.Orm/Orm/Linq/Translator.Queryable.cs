@@ -1777,7 +1777,7 @@ namespace Xtensive.Orm.Linq
         sequence = Expression.Call(sequence, type.GetMethod("ToArray"));
       }
 
-      return CreateLocalCollectionProjectionExpression(typeof(TItem), ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(
+      return CreateLocalCollectionProjectionExpression<TItem>(ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(
         compiledQueryScope is not null ? compiledQueryScope.QueryParameterReplacer.Replace(sequence) : sequence).CachingCompile(), this, sequence);
     }
 
