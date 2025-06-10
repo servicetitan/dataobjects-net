@@ -59,8 +59,9 @@ namespace Xtensive.Linq
 
     protected override int VisitLambda(LambdaExpression l)
     {
-      parameters.AddRange(l.Parameters);
-      return HashCode.Combine(HashExpressionSequence(l.Parameters.Cast<Expression>()), Visit(l.Body));
+      var lambdaParameters = l.Parameters;
+      parameters.AddRange(lambdaParameters);
+      return HashCode.Combine(HashExpressionSequence(lambdaParameters), Visit(l.Body));
     }
 
     protected override int VisitNew(NewExpression n) =>

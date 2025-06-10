@@ -1257,9 +1257,11 @@ namespace Xtensive.Orm.Linq
       outer = new ProjectionExpression(outer.Type, outer.ItemProjector.Remap(recordQuery, 0), tupleParameterBindings);
       inner = new ProjectionExpression(inner.Type, inner.ItemProjector.Remap(recordQuery, outerLength), tupleParameterBindings);
 
-      context.Bindings.PermanentAdd(resultSelector.Parameters[0], outer);
-      context.Bindings.PermanentAdd(resultSelector.Parameters[1], inner);
-      using (context.Bindings.LinkParameters(resultSelector.Parameters)) {
+      var contextBindings = context.Bindings;
+      var resultSelectorParameters = resultSelector.Parameters;
+      contextBindings.PermanentAdd(resultSelectorParameters[0], outer);
+      contextBindings.PermanentAdd(resultSelectorParameters[1], inner);
+      using (contextBindings.LinkParameters(resultSelectorParameters)) {
         return BuildProjection(resultSelector);
       }
     }
@@ -1416,12 +1418,13 @@ namespace Xtensive.Orm.Linq
     private ProjectionExpression VisitSelect(Expression expression, LambdaExpression le)
     {
       var sequence = VisitSequence(expression);
-      if (le.Parameters.Count == 2) {
+      var leParameters = le.Parameters;
+      if (leParameters.Count == 2) {
         var indexProjection = GetIndexBinding(le, ref sequence);
-        context.Bindings.PermanentAdd(le.Parameters[1], indexProjection);
+        context.Bindings.PermanentAdd(leParameters[1], indexProjection);
       }
 
-      context.Bindings.PermanentAdd(le.Parameters[0], sequence);
+      context.Bindings.PermanentAdd(leParameters[0], sequence);
       var calculateExpressions = State.RequestCalculateExpressions || State.RequestCalculateExpressionsOnce;
       using (CreateScope(new TranslatorState(State) {
         CalculateExpressions = calculateExpressions,
@@ -1444,12 +1447,13 @@ namespace Xtensive.Orm.Linq
 
     private ProjectionExpression VisitWhere(Expression expression, LambdaExpression le)
     {
-      var parameter = le.Parameters[0];
+      var leParameters = le.Parameters;
+      var parameter = leParameters[0];
       var visitedSource = VisitSequence(expression);
       var indexBinding = BindingCollection<ParameterExpression, ProjectionExpression>.BindingScope.Empty;
-      if (le.Parameters.Count == 2) {
+      if (leParameters.Count == 2) {
         var indexProjection = GetIndexBinding(le, ref visitedSource);
-        indexBinding = context.Bindings.Add(le.Parameters[1], indexProjection);
+        indexBinding = context.Bindings.Add(leParameters[1], indexProjection);
       }
 
       using (indexBinding)

@@ -473,7 +473,8 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       var expression = (LambdaExpression) method.Invoke(null, Array.Empty<object>());
-      if (expression.Parameters.Count != 1 || !expression.Parameters[0].Type.IsAssignableFrom(parameterType)) {
+      var expressionParameters = expression.Parameters;
+      if (expressionParameters.Count != 1 || !expressionParameters[0].Type.IsAssignableFrom(parameterType)) {
         throw new DomainBuilderException(string.Format(
           Strings.ExLambdaExpressionReturnedByXShouldTakeOneParameterOfTypeYOrAnyBaseTypeOfIt, memberName,
           parameterType.FullName));

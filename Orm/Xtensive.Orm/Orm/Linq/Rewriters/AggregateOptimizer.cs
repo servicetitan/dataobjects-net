@@ -57,9 +57,10 @@ namespace Xtensive.Orm.Linq.Rewriters
         //   i => i.Acitve ? i.Value : 0
 
         var finder = new AggregateProjectionFinder();
-        finder.aggregatedSequence = expression.Parameters.Count==2
-          ? expression.Parameters[1]  // Result selector parameter in GroupBy
-          : expression.Parameters[0]; // Selector parameter in Select after GroupBy
+        var expressionParameters = expression.Parameters;
+        finder.aggregatedSequence = expressionParameters.Count==2
+          ? expressionParameters[1]  // Result selector parameter in GroupBy
+          : expressionParameters[0]; // Selector parameter in Select after GroupBy
         finder.Visit(expression);
         return finder.result;
       }

@@ -476,10 +476,11 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override LambdaExpression VisitLambda<T>(Expression<T> l)
     {
-      if (l.Parameters.Count > 1) {
+      var lambdaParameters = l.Parameters;
+      if (lambdaParameters.Count > 1) {
         Write("(");
-        for (int i = 0, n = l.Parameters.Count; i < n; i++) {
-          Write(l.Parameters[i].Name);
+        for (int i = 0, n = lambdaParameters.Count; i < n; i++) {
+          Write(lambdaParameters[i].Name);
           if (i < n - 1) {
             Write(", ");
           }
@@ -487,8 +488,8 @@ namespace Xtensive.Linq
 
         Write(")");
       }
-      else if (l.Parameters.Count == 1) {
-        Write(l.Parameters[0].Name);
+      else if (lambdaParameters.Count == 1) {
+        Write(lambdaParameters[0].Name);
       }
       else {
         Write("()");
