@@ -9,7 +9,7 @@ namespace Xtensive.Orm.Rse
   /// <summary>
   /// Defines the set of aggregate functions.
   /// </summary>
-  public enum AggregateType
+  public enum AggregateType : byte
   {
     /// <summary>
     /// Average of the values in a column.

@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Orm.Linq.Expressions
 {
   [Serializable]
-  internal enum ExtendedExpressionType
+  internal enum ExtendedExpressionType : short
   {
     Projection = 1000,
     Key,

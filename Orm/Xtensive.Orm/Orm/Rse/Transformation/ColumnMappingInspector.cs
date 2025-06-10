@@ -158,19 +158,21 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       var (leftMapping, rightMapping) = SplitMappings(provider);
 
-      leftMapping.AddRange(mappingsGatherer.Gather(provider.Predicate,
-        provider.Predicate.Parameters[0]));
-      rightMapping.AddRange(mappingsGatherer.Gather(provider.Predicate,
-        provider.Predicate.Parameters[1]));
+      var providerPredicate = provider.Predicate;
+      var providerPredicateParameters = providerPredicate.Parameters;
+      leftMapping.AddRange(mappingsGatherer.Gather(providerPredicate,
+        providerPredicateParameters[0]));
+      rightMapping.AddRange(mappingsGatherer.Gather(providerPredicate,
+        providerPredicateParameters[1]));
 
       var newLeftProvider = provider.Left;
       var newRightProvider = provider.Right;
       VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider, false);
       mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
-      var predicate = TranslateJoinPredicate(leftMapping, rightMapping, provider.Predicate);
+      var predicate = TranslateJoinPredicate(leftMapping, rightMapping, providerPredicate);
 
       return newLeftProvider == provider.Left && newRightProvider == provider.Right
-        && provider.Predicate == predicate
+        && providerPredicate == predicate
         ? provider
         : new PredicateJoinProvider(newLeftProvider, newRightProvider, (Expression<Func<Tuple, Tuple, bool>>) predicate, provider.JoinType);
     }
@@ -508,10 +510,11 @@ namespace Xtensive.Orm.Rse.Transformation
     private Expression TranslateJoinPredicate(IReadOnlyList<ColNum> leftMapping,
       IReadOnlyList<ColNum> rightMapping, Expression<Func<Tuple, Tuple, bool>> expression)
     {
+      var expressionParameters = expression.Parameters;
       var result = new TupleAccessRewriter(leftMapping, ResolveOuterMapping, true).Rewrite(expression,
-        expression.Parameters[0]);
+        expressionParameters[0]);
       return new TupleAccessRewriter(rightMapping, ResolveOuterMapping, true).Rewrite(result,
-        expression.Parameters[1]);
+        expressionParameters[1]);
     }
 
     private void VisitJoin(

@@ -450,16 +450,14 @@ namespace Xtensive.Orm.Providers
     {
       if (activeParameters.Count>0)
         throw new InvalidOperationException();
-      activeParameters.AddRange(l.Parameters);
-      for (int i = 0, count = l.Parameters.Count; i < count; i++) {
-        var p = l.Parameters[i];
+      var lParameters = l.Parameters;
+      activeParameters.AddRange(lParameters);
+      for (int i = 0, count = lParameters.Count; i < count; i++) {
+        var p = lParameters[i];
         sourceMapping[p] = sourceColumns[i];
       }
       var body = Visit(l.Body);
-      var sqlContainer = body as SqlContainer;
-      if (sqlContainer is not null)
-        return TryUnwrapEnum(sqlContainer);
-      return body;
+      return body is SqlContainer sqlContainer ? TryUnwrapEnum(sqlContainer) : body;
     }
 
     protected override SqlExpression VisitNew(NewExpression n)

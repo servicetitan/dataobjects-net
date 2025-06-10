@@ -4,9 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.06
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Linq.Expressions.Visitors;
@@ -53,19 +50,38 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public ItemProjectorExpression Remap(CompilableProvider dataSource, ColNum offset)
     {
-      if (offset == 0) {
-        return new ItemProjectorExpression(Item, dataSource, Context, AggregateType);
+      var item = Item;
+      if (offset != 0) {
+        Dictionary<Expression, Expression> dict = null;
+        item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => {
+          if (dict == null) {
+            dict = new();
+          }
+          else {
+            dict.Clear();
+          }
+
+          return mapped.Remap(offset, dict);
+        });
       }
 
-      var item = GenericExpressionVisitor<IMappedExpression>
-        .Process(Item, mapped => mapped.Remap(offset, new Dictionary<Expression, Expression>()));
       return new ItemProjectorExpression(item, dataSource, Context, AggregateType);
     }
 
     public ItemProjectorExpression Remap(CompilableProvider dataSource, ColumnMap columnMap)
     {
+      Dictionary<Expression, Expression> dict = null;
       var item = GenericExpressionVisitor<IMappedExpression>
-        .Process(Item, mapped => mapped.Remap(columnMap, new Dictionary<Expression, Expression>()));
+        .Process(Item, mapped => {
+          if (dict == null) {
+            dict = new();
+          }
+          else {
+            dict.Clear();
+          }
+
+          return mapped.Remap(columnMap, dict);
+        });
       return new ItemProjectorExpression(item, dataSource, Context, AggregateType);
     }
 
@@ -83,8 +99,17 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public ItemProjectorExpression RemoveOuterParameter()
     {
+      Dictionary<Expression, Expression> dict = null;
       var item = GenericExpressionVisitor<IMappedExpression>
-        .Process(Item, mapped => mapped.RemoveOuterParameter(new Dictionary<Expression, Expression>()));
+        .Process(Item, mapped => {
+          if (dict == null) {
+            dict = new();
+          }
+          else {
+            dict.Clear();
+          }
+          return mapped.RemoveOuterParameter(dict);
+        });
       return new ItemProjectorExpression(item, DataSource, Context, AggregateType);
     }
 
