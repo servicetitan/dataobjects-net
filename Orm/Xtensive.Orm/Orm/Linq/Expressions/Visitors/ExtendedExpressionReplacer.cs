@@ -4,8 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.04.27
 
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Orm.Rse.Providers;
@@ -115,26 +113,24 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
     internal override Expression VisitConstructorExpression(ConstructorExpression expression)
     {
-      var arguments = new List<Expression>();
       var bindings = new Dictionary<MemberInfo, Expression>(expression.Bindings.Count);
       var nativeBindings = new Dictionary<MemberInfo, Expression>(expression.NativeBindings.Count);
       bool recreate = false;
+      var arguments = new Expression[expression.ConstructorArguments.Count];
+      int i = 0;
       foreach (var argument in expression.ConstructorArguments) {
         var result = Visit(argument);
-        if (result != argument)
-          recreate = true;
-        arguments.Add(result);
+        recreate |= (result != argument);
+        arguments[i++] = result;
       }
       foreach (var binding in expression.Bindings) {
         var result = Visit(binding.Value);
-        if (result != binding.Value)
-          recreate = true;
+        recreate |= (result != binding.Value);
         bindings.Add(binding.Key, result);
       }
       foreach (var nativeBinding in expression.NativeBindings) {
         var result = Visit(nativeBinding.Value);
-        if (result!=nativeBinding.Value)
-          recreate = true;
+        recreate |= (result != nativeBinding.Value);
         nativeBindings.Add(nativeBinding.Key, result);
       }
       if (!recreate)
