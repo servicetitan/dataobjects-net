@@ -1802,7 +1802,7 @@ namespace Xtensive.Orm.Linq
       var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, translatorContext);
       if (translator.State.JoinLocalCollectionEntity)
         itemProjector = EntityExpressionJoiner.JoinEntities(translator, itemProjector);
-      return new ProjectionExpression(typeof(TItem) ,itemProjector, TranslatedQuery.EmptyTupleParameterBindings);
+      return new ProjectionExpression(typeof(TItem), itemProjector, TranslatedQuery.EmptyTupleParameterBindings);
     }
 
     private Expression BuildInterfaceExpression(MemberExpression ma)
