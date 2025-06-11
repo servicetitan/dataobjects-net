@@ -547,13 +547,5 @@ namespace Xtensive.Core
         ? value
         : value.Substring(start - 1, actualLength);
     }
-
-    internal static bool Contains(this string str, string value, StringComparison comparison)
-    {
-      ArgumentNullException.ThrowIfNull(str);
-      ArgumentNullException.ThrowIfNull(value);
-
-      return str.IndexOf(value, comparison) >= 0;
-    }
   }
 }

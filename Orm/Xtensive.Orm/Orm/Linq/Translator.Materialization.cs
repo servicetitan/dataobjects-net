@@ -4,9 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.28
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
@@ -33,6 +30,9 @@ namespace Xtensive.Orm.Linq
     private static readonly ParameterExpression TupleReader = Expression.Parameter(typeof(RecordSetReader), "tupleReader");
     private static readonly ParameterExpression Session = Expression.Parameter(typeof(Session), "session");
     private static readonly IReadOnlyList<ParameterExpression> TupleReaderSessionParameterContext = [TupleReader, Session, ParameterContext];
+
+    private static readonly Expression<Func<Session, int, MaterializationContext>> MaterializationContextCtor =
+      (s, entityCount) => new MaterializationContext(s, entityCount);
 
     private readonly CompiledQueryProcessingScope compiledQueryScope;
 
@@ -80,16 +80,17 @@ namespace Xtensive.Orm.Linq
       return translatedQuery;
     }
 
+    private static readonly IReadOnlyList<ColNum> SingleColumn = [0];
+
     private static ProjectionExpression Optimize(ProjectionExpression origin)
     {
       var originProvider = origin.ItemProjector.DataSource;
 
       var usedColumns = origin.ItemProjector
-        .GetColumns(ColumnExtractionModes.KeepSegment | ColumnExtractionModes.KeepTypeId | ColumnExtractionModes.OmitLazyLoad)
-        .ToList();
+        .GetColumns(ColumnExtractionModes.KeepSegment | ColumnExtractionModes.KeepTypeId | ColumnExtractionModes.OmitLazyLoad);
 
       if (usedColumns.Count == 0)
-        usedColumns.Add(0);
+        usedColumns = SingleColumn;
       if (usedColumns.Count < origin.ItemProjector.DataSource.Header.Length) {
         var resultProvider = new SelectProvider(originProvider, usedColumns);
         using var columnMap = new ColumnMap(usedColumns);
@@ -134,9 +135,7 @@ namespace Xtensive.Orm.Linq
           : MaterializationHelper.CreateItemMaterializerMethodInfo.CachedMakeGenericMethodInvoker(elementType);
       var itemMaterializer = itemMaterializerFactoryMethod.Invoke(null, materializationInfo.Expression, itemProjector.AggregateType);
 
-      Expression<Func<Session, int, MaterializationContext>> materializationContextCtor =
-        (s, entityCount) => new MaterializationContext(s, entityCount);
-      var materializationContextExpression = materializationContextCtor
+      var materializationContextExpression = MaterializationContextCtor
         .BindParameters(Session, Expr.Constant(materializationInfo.EntitiesInRow));
 
       Expression body = Expression.Call(
