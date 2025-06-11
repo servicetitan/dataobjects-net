@@ -4,9 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.12.10
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
@@ -171,11 +168,11 @@ namespace Xtensive.Orm.Linq.Rewriters
     {
       var methodKind = QueryableVisitor.GetQueryableMethod(mc);
       if (methodKind==QueryableMethodKind.Select) {
-        var selectSource = mc.Arguments[0] as MethodCallExpression;
-        if (selectSource!=null) {
+        var mcArguments = mc.Arguments;
+        if (mcArguments[0] is MethodCallExpression selectSource) {
           var sourceMethodKind = QueryableVisitor.GetQueryableMethod(selectSource);
           if (sourceMethodKind==QueryableMethodKind.GroupBy) {
-            var projection = mc.Arguments[1].StripQuotes();
+            var projection = mcArguments[1].StripQuotes();
             var newSelectSource = VisitGroupBy(selectSource, projection);
             if (newSelectSource!=selectSource)
               return QueryFactory.Select(newSelectSource, projection);
@@ -196,7 +193,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       var projection = groupBy.ResultSelector ?? selectProjection;
       if (projection!=null) {
         var referenceFieldAccessors = AggregateProjectionFinder.Execute(projection)
-          .Select(ReferenceFieldAccessExtractor.Execute)
+          .Select(static o => ReferenceFieldAccessExtractor.Execute(o))
           .Where(item => item!=null)
           .ToList();
         if (referenceFieldAccessors.Count > 0) {

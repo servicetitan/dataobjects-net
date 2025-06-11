@@ -87,10 +87,16 @@ public abstract class QueryableVisitor : ExpressionVisitor
   /// <param name="call">A call to process.</param>
   /// <returns><see cref="QueryableMethodKind"/> for the specified expression,
   /// or null if method is not a LINQ method.</returns>
-  public static QueryableMethodKind? GetQueryableMethod(MethodCallExpression call) =>
-    call?.Method.DeclaringType is { } declaringType
-    && (declaringType == WellKnownTypes.Queryable || declaringType == WellKnownTypes.Enumerable)
-    && QueryableMethodKindFromName.TryGetValue(call.Method.Name, out var v)
-      ? v
-      : null;
+  public static QueryableMethodKind? GetQueryableMethod(MethodCallExpression call)
+  {
+    if (call?.Method is { } method) {
+      var declaringType = method.DeclaringType;
+      return (declaringType == WellKnownTypes.Queryable || declaringType == WellKnownTypes.Enumerable)
+             && QueryableMethodKindFromName.TryGetValue(method.Name, out var v)
+        ? v
+        : null;
+    }
+
+    return null;
+  }
 }
