@@ -147,9 +147,10 @@ internal static class InternalHelpers
         (u128, _) = UInt128.DivRem(u128, Ten);
       }
 
-      return u128 <= Max96bitValue
-        ? new((int) u128, (int) (u128 >> 32), (int) (u128 >> 64), !sqlDecimal.IsPositive, scale)
-        : throw;
+      if (u128 > Max96bitValue) {
+        throw;
+      }
+      return new((int) u128, (int) (u128 >> 32), (int) (u128 >> 64), !sqlDecimal.IsPositive, scale);
     }
   }
 }
