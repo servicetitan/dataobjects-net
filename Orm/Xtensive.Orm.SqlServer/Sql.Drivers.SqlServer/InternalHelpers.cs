@@ -140,9 +140,8 @@ internal static class InternalHelpers
       return sqlDecimal.Value; // throws OverflowException if the value is out of decimal range.
     }
     catch (OverflowException) {
-      var inputData = sqlDecimal.Data;    // Allocates a new array
       var scale = sqlDecimal.Scale;
-      var u128 = FromSqlDecimalData(inputData);
+      var u128 = FromSqlDecimalData(sqlDecimal.Data);   // sqlDecimal.Data allocates a new array
 
       for (; scale > 0 && u128 > Max96bitValue; --scale) {
         (u128, _) = UInt128.DivRem(u128, Ten);
