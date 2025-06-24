@@ -166,8 +166,7 @@ internal static class InternalHelpers
     var realScale = scale;
     var dividerPow = maxZeroCount > 9 ? (byte) 9 : maxZeroCount;
 
-    UInt128 data = new((ulong)inputData[2] | ((ulong)inputData[3] << 32),
-      (ulong)inputData[0] | ((ulong)inputData[1] << 32));
+    UInt128 data = FromSqlDecimalData(inputData);
 
     if (dividerPow > 5) {
       var divider = PowersOf10[dividerPow];
