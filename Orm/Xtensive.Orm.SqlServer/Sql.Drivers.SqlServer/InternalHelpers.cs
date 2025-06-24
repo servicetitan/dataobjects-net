@@ -146,8 +146,7 @@ internal static class InternalHelpers
   }
 
   private static UInt128 FromSqlDecimalData(int[] a) =>
-    new((uint) a[0] | ((ulong) (uint) a[1] << 32),
-      (uint) a[2] | ((ulong) (uint) a[3] << 32));
+    new((uint) a[2] | ((ulong) (uint) a[3] << 32), (uint) a[0] | ((ulong) (uint) a[1] << 32));
 
   internal static decimal TruncateToNetDecimal(SqlDecimal sqlDecimal)
   {
