@@ -30,8 +30,8 @@ namespace Xtensive.Orm
       /// <inheritdoc/>
       public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
       {
-        var result = await queryProvider.ExecuteSequenceAsync<T>(expression, cancellationToken).ConfigureAwait(false);
-        var asyncSource = result.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
+        var result = await queryProvider.ExecuteSequenceAsync<T>(expression, cancellationToken).ConfigureAwaitFalse();
+        var asyncSource = result.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwaitFalse();
         await foreach (var element in asyncSource) {
           yield return element;
         }

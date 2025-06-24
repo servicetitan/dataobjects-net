@@ -202,10 +202,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var q = CreateCatalogOidSql();
 
       var cmd = Connection.CreateCommand(q);
-      await using (cmd.ConfigureAwait(false)) {
-        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
-        await using (reader.ConfigureAwait(false)) {
-          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+      await using (cmd.ConfigureAwaitFalse()) {
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwaitFalse();
+        await using (reader.ConfigureAwaitFalse()) {
+          while (await reader.ReadAsync(token).ConfigureAwaitFalse()) {
             var oid = Convert.ToInt64(reader[0]);
             var name = reader.GetString(1);
             if (name == "pg_class") {
@@ -356,8 +356,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var (catalog, context) = CreateCatalogAndContext(catalogName, schemaNames);
 
-      await ExtractRoles(context, true, token).ConfigureAwait(false);
-      await ExtractSchemasAsync(context, token).ConfigureAwait(false);
+      await ExtractRoles(context, true, token).ConfigureAwaitFalse();
+      await ExtractSchemasAsync(context, token).ConfigureAwaitFalse();
       return catalog;
     }
 
@@ -385,15 +385,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       
 
       if (isAsync) {
-        await using (extractCurentUserCommand.ConfigureAwait(false)) {
-          context.CurrentUserName = (string) await extractCurentUserCommand.ExecuteScalarAsync(token).ConfigureAwait(false);
+        await using (extractCurentUserCommand.ConfigureAwaitFalse()) {
+          context.CurrentUserName = (string) await extractCurentUserCommand.ExecuteScalarAsync(token).ConfigureAwaitFalse();
         }
 
         var getAllUsersCommand = Connection.CreateCommand(string.Format(ExtractRolesQueryTemplate, context.CurrentUserName));
-        await using (getAllUsersCommand.ConfigureAwait(false)) {
-          var reader = await getAllUsersCommand.ExecuteReaderAsync(token).ConfigureAwait(false);
-          await using (reader.ConfigureAwait(false)) {
-            while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+        await using (getAllUsersCommand.ConfigureAwaitFalse()) {
+          var reader = await getAllUsersCommand.ExecuteReaderAsync(token).ConfigureAwaitFalse();
+          await using (reader.ConfigureAwaitFalse()) {
+            while (await reader.ReadAsync(token).ConfigureAwaitFalse()) {
               ReadUserData(reader, context);
             }
           }
@@ -461,22 +461,22 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     private async Task ExtractSchemasAsync(ExtractionContext context, CancellationToken token)
     {
-      context.CurrentUserIdentifier = await GetMyUserSysIdAsync(context.CurrentUserSysId, token).ConfigureAwait(false);
+      context.CurrentUserIdentifier = await GetMyUserSysIdAsync(context.CurrentUserSysId, token).ConfigureAwaitFalse();
 
       //Extraction of public schemas and schemas which is owned by current user
-      await ExtractSchemasInfoAsync(context, token).ConfigureAwait(false);
+      await ExtractSchemasInfoAsync(context, token).ConfigureAwaitFalse();
 
       //Extraction of tables, views and sequences
-      await ExtractSchemaContentsAsync(context, token).ConfigureAwait(false);
+      await ExtractSchemaContentsAsync(context, token).ConfigureAwaitFalse();
 
       //Extraction of columns of table and view
-      await ExtractTableAndViewColumnsAsync(context, token).ConfigureAwait(false);
+      await ExtractTableAndViewColumnsAsync(context, token).ConfigureAwaitFalse();
 
       //Extraction of table indexes
-      await ExtractTableIndexesAsync(context, token).ConfigureAwait(false);
+      await ExtractTableIndexesAsync(context, token).ConfigureAwaitFalse();
 
       //Extraction of domains
-      await ExtractDomainsAsync(context, token).ConfigureAwait(false);
+      await ExtractDomainsAsync(context, token).ConfigureAwaitFalse();
 
       //Extraction of table and domain constraints
       await ExtractTableAndDomainConstraintsAsync(context, token).ConfigureAwait(false);

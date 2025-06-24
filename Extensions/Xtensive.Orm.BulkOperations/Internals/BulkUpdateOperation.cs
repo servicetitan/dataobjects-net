@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Services;
@@ -49,8 +50,8 @@ namespace Xtensive.Orm.BulkOperations
       Bindings = request.ParameterBindings.ToList();
 
       var command = CreateCommand(request);
-      await using (command.ConfigureAwait(false)) {
-        return await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+      await using (command.ConfigureAwaitFalse()) {
+        return await command.ExecuteNonQueryAsync(token).ConfigureAwaitFalse();
       }
     }
 

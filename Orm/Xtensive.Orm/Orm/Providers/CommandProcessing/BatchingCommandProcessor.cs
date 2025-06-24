@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Providers
 
       var processingTasks = context.ProcessingTasks;
       while (processingTasks.Count >= batchSize) {
-        _ = await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwait(false);
+        _ = await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwaitFalse();
       }
 
       if (!context.AllowPartialExecution) {
@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Providers
 
       for (; ; ) {
         var currentBatchSize = (context.ProcessingTasks.Count > batchSize) ? batchSize : context.ProcessingTasks.Count;
-        var result = await ExecuteBatchAsync(currentBatchSize, request, context, token).ConfigureAwait(false);
+        var result = await ExecuteBatchAsync(currentBatchSize, request, context, token).ConfigureAwaitFalse();
         if (result != null && context.ProcessingTasks.Count == 0) {
           return result.CreateReader(request.GetAccessor());
         }

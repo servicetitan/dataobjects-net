@@ -45,8 +45,8 @@ namespace Xtensive.Orm.BulkOperations
     public async Task<int> ExecuteAsync(CancellationToken token = default)
     {
       EnsureTransactionIsStarted();
-      await QueryProvider.Session.SaveChangesAsync(token).ConfigureAwait(false);
-      var value = await ExecuteInternalAsync(token).ConfigureAwait(false);
+      await QueryProvider.Session.SaveChangesAsync(token).ConfigureAwaitFalse();
+      var value = await ExecuteInternalAsync(token).ConfigureAwaitFalse();
       DirectStateAccessor.Get(QueryProvider.Session).Invalidate();
       return value;
     }
