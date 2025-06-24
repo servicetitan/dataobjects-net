@@ -185,6 +185,6 @@ internal static class InternalHelpers
       return sqlDecimal.Value; // throws OverflowException.
     }
 
-    return new((int) data, (int) (data >> 32), (int) (data >> 64), !sqlDecimal.IsPositive, realScale);
+    return new((int) data, (int) (data >> 32), (int) (data >> 64), !sqlDecimal.IsPositive, (byte) realScale);
   }
 }
