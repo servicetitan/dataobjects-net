@@ -6,26 +6,12 @@
 
 using Microsoft.Data.SqlClient;
 using System.Data.SqlTypes;
-using System.Numerics;
 using Xtensive.Diagnostics;
 
 namespace Xtensive.Sql.Drivers.SqlServer;
 
 internal static class InternalHelpers
 {
-  private static readonly UInt128[] PowersOf10 = [
-    1,
-    10,
-    100,
-    1000,
-    10000,
-    100000,
-    1000000,
-    10000000,
-    100000000,
-    1000000000
-  ];
-
   private static readonly UInt128 Max96bitValue = new(0xFFFFFFFFUL, ulong.MaxValue);
 
   private static readonly UInt128 Ten = 10;
@@ -151,7 +137,7 @@ internal static class InternalHelpers
   internal static decimal TruncateToNetDecimal(SqlDecimal sqlDecimal)
   {
     var inputData = sqlDecimal.Data;
-    int scale = sqlDecimal.Scale;
+    var scale = sqlDecimal.Scale;
 
     if (inputData[3] == 0) {
       if (scale <= 28) {
@@ -162,21 +148,9 @@ internal static class InternalHelpers
       return sqlDecimal.Value; // throws OverflowException.
     }
 
-    var maxZeroCount = Math.Min(scale, BitOperations.TrailingZeroCount(inputData[0]));
-    var realScale = scale;
     var data = FromSqlDecimalData(inputData);
 
-    if (Math.Min(maxZeroCount, 9) is > 5 and var dividerPow) {
-      var divider = PowersOf10[dividerPow];
-      for (; realScale >= dividerPow; realScale -= dividerPow) {
-        (data, var rem) = UInt128.DivRem(data, divider);
-        if (rem != 0) {
-          break;
-        }
-      }
-    }
-
-    for (; realScale > 0 && data > Max96bitValue; realScale--) {
+    for (; scale > 0 && data > Max96bitValue; --scale) {
       (data, _) = UInt128.DivRem(data, Ten);
     }
 
@@ -184,6 +158,6 @@ internal static class InternalHelpers
       return sqlDecimal.Value; // throws OverflowException.
     }
 
-    return new((int) data, (int) (data >> 32), (int) (data >> 64), !sqlDecimal.IsPositive, (byte) realScale);
+    return new((int) data, (int) (data >> 32), (int) (data >> 64), !sqlDecimal.IsPositive, scale);
   }
 }
