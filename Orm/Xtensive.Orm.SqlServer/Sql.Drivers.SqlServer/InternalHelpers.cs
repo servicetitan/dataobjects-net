@@ -137,7 +137,7 @@ internal static class InternalHelpers
   internal static decimal TruncateToNetDecimal(SqlDecimal sqlDecimal)
   {
     try {
-      return sqlDecimal.Value; // throws OverflowException is the value is out of decimal range.
+      return sqlDecimal.Value; // throws OverflowException if the value is out of decimal range.
     }
     catch (OverflowException) {
       var inputData = sqlDecimal.Data;
