@@ -137,7 +137,7 @@ internal static class InternalHelpers
   internal static decimal TruncateToNetDecimal(SqlDecimal sqlDecimal)
   {
     var inputData = sqlDecimal.Data;
-    if (sqlDecimal.Scale is var scale && (scale > 28 || scale > 0 && inputData[3] != 0)) {
+    if (sqlDecimal.Scale is var scale && (scale > 28 || inputData[3] != 0)) {
       var u128 = FromSqlDecimalData(inputData);
 
       for (; scale > 0 && u128 > Max96bitValue; --scale) {
