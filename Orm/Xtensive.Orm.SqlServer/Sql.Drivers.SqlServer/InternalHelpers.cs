@@ -162,10 +162,9 @@ internal static class InternalHelpers
       return sqlDecimal.Value; // throws OverflowException.
     }
 
-    byte maxZeroCount = 0;
-    while (maxZeroCount < scale && (inputData[maxZeroCount >> 6] & (1 << maxZeroCount)) == 0) {
-      maxZeroCount++;
-    }
+    byte maxZeroCount = (byte)BitOperations.TrailingZeroCount(inputData[0]);
+    if (maxZeroCount > scale)
+      maxZeroCount = scale;
 
     var realScale = scale;
     var dividerPow = maxZeroCount > 9 ? (byte) 9 : maxZeroCount;
