@@ -137,9 +137,7 @@ internal static class InternalHelpers
   internal static decimal TruncateToNetDecimal(SqlDecimal sqlDecimal)
   {
     var inputData = sqlDecimal.Data;
-    var scale = sqlDecimal.Scale;
-
-    if (scale > 28 || scale > 0 && inputData[3] != 0) {
+    if (sqlDecimal.Scale is var scale && (scale > 28 || scale > 0 && inputData[3] != 0)) {
       var u128 = FromSqlDecimalData(inputData);
 
       for (; scale > 0 && u128 > Max96bitValue; --scale) {
@@ -148,7 +146,7 @@ internal static class InternalHelpers
 
       if (u128 <= Max96bitValue) {
         return new((int) u128, (int) (u128 >> 32), (int) (u128 >> 64), !sqlDecimal.IsPositive, scale);
-      }     
+      }
     }
     return sqlDecimal.Value; // throws OverflowException is the value is out of decimal range.
   }
