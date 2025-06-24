@@ -6,6 +6,7 @@
 
 using Microsoft.Data.SqlClient;
 using System.Data.SqlTypes;
+using System.Numerics;
 using Xtensive.Diagnostics;
 
 namespace Xtensive.Sql.Drivers.SqlServer;
