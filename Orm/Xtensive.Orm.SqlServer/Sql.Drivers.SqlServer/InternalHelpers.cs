@@ -144,6 +144,10 @@ internal static class InternalHelpers
     return ex is TimeoutException;
   }
 
+  private static UInt128 FromSqlDecimalData(int[] a) =>
+    new((uint) a[0] | ((ulong) (uint) a[1] << 32),
+      (uint) a[2] | ((ulong) (uint) a[3] << 32));
+
   internal static decimal TruncateToNetDecimal(SqlDecimal sqlDecimal)
   {
     var inputData = sqlDecimal.Data;
@@ -166,7 +170,7 @@ internal static class InternalHelpers
     var realScale = scale;
     var dividerPow = maxZeroCount > 9 ? (byte) 9 : maxZeroCount;
 
-    UInt128 data = FromSqlDecimalData(inputData);
+    var data = FromSqlDecimalData(inputData);
 
     if (dividerPow > 5) {
       var divider = PowersOf10[dividerPow];
