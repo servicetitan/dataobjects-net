@@ -140,14 +140,14 @@ internal static class InternalHelpers
     var scale = sqlDecimal.Scale;
 
     if (scale > 28 || scale > 0 && inputData[3] != 0) {
-      var data = FromSqlDecimalData(inputData);
+      var u128 = FromSqlDecimalData(inputData);
 
-      for (; scale > 0 && data > Max96bitValue; --scale) {
-        (data, _) = UInt128.DivRem(data, Ten);
+      for (; scale > 0 && u128 > Max96bitValue; --scale) {
+        (u128, _) = UInt128.DivRem(u128, Ten);
       }
 
-      if (data <= Max96bitValue) {
-        return new((int) data, (int) (data >> 32), (int) (data >> 64), !sqlDecimal.IsPositive, scale);
+      if (u128 <= Max96bitValue) {
+        return new((int) u128, (int) (u128 >> 32), (int) (u128 >> 64), !sqlDecimal.IsPositive, scale);
       }     
     }
     return sqlDecimal.Value; // throws OverflowException is the value is out of decimal range.
