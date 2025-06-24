@@ -144,7 +144,7 @@ internal static class InternalHelpers
       var u128 = FromSqlDecimalData(sqlDecimal.Data);   // sqlDecimal.Data allocates a new array
 
       for (; scale > 0 && u128 > Max96bitValue; --scale) {
-        u128 = UInt128.DivRem(u128, Ten).Quotient;
+        u128 /= Ten;
       }
 
       if (u128 > Max96bitValue) {
