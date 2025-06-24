@@ -152,7 +152,7 @@ internal static class InternalHelpers
   internal static decimal TruncateToNetDecimal(SqlDecimal sqlDecimal)
   {
     var inputData = sqlDecimal.Data;
-    var scale = sqlDecimal.Scale;
+    int scale = sqlDecimal.Scale;
 
     if (inputData[3] == 0) {
       if (scale <= 28) {
@@ -163,13 +163,9 @@ internal static class InternalHelpers
       return sqlDecimal.Value; // throws OverflowException.
     }
 
-    byte maxZeroCount = (byte)BitOperations.TrailingZeroCount(inputData[0]);
-    if (maxZeroCount > scale)
-      maxZeroCount = scale;
-
+    var maxZeroCount = Math.Min(scale, BitOperations.TrailingZeroCount(inputData[0]));
+    var dividerPow = Math.Min(maxZeroCount, 9);
     var realScale = scale;
-    var dividerPow = maxZeroCount > 9 ? (byte) 9 : maxZeroCount;
-
     var data = FromSqlDecimalData(inputData);
 
     if (dividerPow > 5) {
