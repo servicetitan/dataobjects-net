@@ -27,6 +27,8 @@ internal static class InternalHelpers
 
   private static readonly UInt128 Max96bitValue = new(0xFFFFFFFFUL, ulong.MaxValue);
 
+  private static readonly UInt128 Ten = 10;
+
   /// <summary>
   ///     This API supports the Entity Framework Core infrastructure and is not intended to be used
   ///     directly from your code. This API may change or be removed in future releases.
@@ -178,7 +180,7 @@ internal static class InternalHelpers
     }
 
     for (; realScale > 0 && data > Max96bitValue; realScale--) {
-      (data, _) = UInt128.DivRem(data, 10);
+      (data, _) = UInt128.DivRem(data, Ten);
     }
 
     if (data > Max96bitValue) {
