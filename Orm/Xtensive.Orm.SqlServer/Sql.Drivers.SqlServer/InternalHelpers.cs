@@ -164,11 +164,10 @@ internal static class InternalHelpers
     }
 
     var maxZeroCount = Math.Min(scale, BitOperations.TrailingZeroCount(inputData[0]));
-    var dividerPow = Math.Min(maxZeroCount, 9);
     var realScale = scale;
     var data = FromSqlDecimalData(inputData);
 
-    if (dividerPow > 5) {
+    if (Math.Min(maxZeroCount, 9) is > 5 and var dividerPow) {
       var divider = PowersOf10[dividerPow];
       for (; realScale >= dividerPow; realScale -= dividerPow) {
         (data, var rem) = UInt128.DivRem(data, divider);
