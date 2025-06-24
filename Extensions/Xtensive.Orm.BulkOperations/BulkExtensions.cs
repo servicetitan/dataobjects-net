@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.BulkOperations
 {
@@ -178,7 +179,7 @@ namespace Xtensive.Orm.BulkOperations
       CancellationToken token = default) where T : Entity
     {
       var operation = new InsertOperation<T>(queryEndpoint.Provider, evaluator);
-      await operation.ExecuteAsync(token).ConfigureAwait(false);
+      await operation.ExecuteAsync(token).ConfigureAwaitFalse();
       return operation.Key;
     }
   }
