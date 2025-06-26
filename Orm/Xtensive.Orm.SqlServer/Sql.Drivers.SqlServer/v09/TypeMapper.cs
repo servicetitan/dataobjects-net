@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.02
 
-using System;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.SqlClient;
@@ -13,7 +12,7 @@ using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
-  internal class TypeMapper : Sql.TypeMapper
+  internal class TypeMapper(SqlDriver driver) : Sql.TypeMapper(driver)
   {
     private static readonly SqlValueType
       Decimal20Type = new(SqlType.Decimal, 20, 0);
@@ -128,37 +127,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       dateTimeRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
     }
 
-    private bool TryConvert(SqlDecimal sqlDecimal, out decimal result)
-    {
-      var data = sqlDecimal.Data;
-      if (data[3]==0 && sqlDecimal.Scale <= 28) {
-        result = new decimal(data[0], data[1], data[2], !sqlDecimal.IsPositive, sqlDecimal.Scale);
-        return true;
-      }
-      result = decimal.Zero;
-      return false;
-    }
-
-    private SqlDecimal ReducePrecision(SqlDecimal d, int newPrecision)
-    {
-      var newScale = newPrecision - d.Precision + d.Scale;
-      var truncated = SqlDecimal.Truncate(d, newScale);
-      return SqlDecimal.ConvertToPrecScale(truncated, newPrecision, newScale);
-    }
-
     private bool ShouldCompareValues(SqlDecimal valueFromDatabase)
     {
       var floorDigitCount = valueFromDatabase.Precision - valueFromDatabase.Scale;
       if (floorDigitCount >= 29) //29 is max count of floor in .net Decimal
         return true;
       return false;
-    }
-
-    // Constructors
-
-    public TypeMapper(SqlDriver driver)
-      : base(driver)
-    {
     }
   }
 }
