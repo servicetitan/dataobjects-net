@@ -131,17 +131,19 @@ internal static class InternalHelpers
     return ex is TimeoutException;
   }
 
-  private static UInt128 FromSqlDecimalData(int[] a) =>
-    new((uint) a[2] | ((ulong) (uint) a[3] << 32), (uint) a[0] | ((ulong) (uint) a[1] << 32));
+  private static UInt128 FromSqlDecimalData(ReadOnlySpan<uint> a) =>
+    new(((ulong) a[3] << 32) | a[2], ((ulong) a[1] << 32) | a[0]);
 
   internal static decimal TruncateToNetDecimal(SqlDecimal sqlDecimal)
   {
+    Span<uint> data = stackalloc uint[4];
     try {
       return sqlDecimal.Value; // throws an OverflowException if the value is out of the decimal range.
     }
     catch (OverflowException) {
       var scale = sqlDecimal.Scale;
-      var u128 = FromSqlDecimalData(sqlDecimal.Data);   // sqlDecimal.Data allocates a new array
+      sqlDecimal.WriteTdsValue(data);
+      var u128 = FromSqlDecimalData(data);
 
       for (; scale > 0 && u128 > Max96bitValue; --scale) {
         u128 /= Ten;
