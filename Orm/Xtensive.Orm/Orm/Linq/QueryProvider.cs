@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Linq
         var context = new TranslatorContext(Session, compilerConfiguration, expression, compiledQueryScope);
         return context.Translator.Translate();
       }
-      catch (Exception ex) {
+      catch (Exception ex) when (ex is not OperationCanceledException) {
         string serializedExpression = null;
         try {
           serializedExpression = expression.ToString(true);
