@@ -16,6 +16,11 @@ namespace Xtensive.Orm
   /// </summary>
   public static partial class QueryableExtensions
   {
+    private static class ParameterTraits<TSource>
+    {
+      public static readonly ParameterExpression[] ItemParam = [Expression.Parameter(typeof(TSource), "item")];
+    }
+
     private static readonly object BoxedZero = 0;
 
     /// <summary>
@@ -1399,7 +1404,7 @@ namespace Xtensive.Orm
       Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
     {
       var tupleFactoryMethod = TupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TSource));
-      var itemParam = new[] {Expression.Parameter(typeof(TSource), "item")};
+      var itemParam = ParameterTraits<TSource>.ItemParam;
       var body = Expression.Call(null, tupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
         itemParam[0]);
@@ -1441,7 +1446,7 @@ namespace Xtensive.Orm
       CancellationToken cancellationToken = default)
     {
       var tupleFactoryMethod = TupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TValue));
-      var itemParam = new[] {Expression.Parameter(typeof(TSource), "item")};
+      var itemParam = ParameterTraits<TSource>.ItemParam;
       var body = Expression.Call(null, tupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
         ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
@@ -1506,7 +1511,7 @@ namespace Xtensive.Orm
       Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
     {
       var tupleFactoryMethod = TupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TSource));
-      var itemParam = new[] {Expression.Parameter(typeof(TSource), "item")};
+      var itemParam = ParameterTraits<TSource>.ItemParam;
       var body = Expression.Call(null, tupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
         itemParam[0]);
@@ -1543,7 +1548,7 @@ namespace Xtensive.Orm
       CancellationToken cancellationToken = default)
     {
       var tupleFactoryMethod = TupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TValue));
-      var itemParam = new[] {Expression.Parameter(typeof(TSource), "item")};
+      var itemParam = ParameterTraits<TSource>.ItemParam;
       var body = Expression.Call(null, tupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
         ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
