@@ -68,7 +68,7 @@ namespace Xtensive.Orm.BulkOperations
               var conditionConstant = CanUseTvp(ex.Arguments[0].Type)
                 ? AutoConditionConstant
                 : ComplexConditionConstant;
-              arguments.Insert(1, AutoConditionConstant);
+              arguments.Insert(1, conditionConstant);
               ex = Expression.Call(WellKnownMembers.InMethod.MakeGenericMethod(methodInfo.GetGenericArguments()), arguments);
             }
           }
