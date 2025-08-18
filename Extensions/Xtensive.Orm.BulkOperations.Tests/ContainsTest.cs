@@ -109,5 +109,36 @@ namespace Xtensive.Orm.BulkOperations.Tests
         Assert.That(session.Query.All<TagType>().Count(t => t.ProjectedValueAdjustment == -1 && t.Id > 700), Is.EqualTo(1));
       }
     }
+
+    [Test]
+    public void TestTvp()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var updatedRows = session.Query.All<TagType>()
+          .Where(t => t.Id.In(IncludeAlgorithm.TableValuedParameter, tagIds))
+          .Set(t => t.ProjectedValueAdjustment, 2)
+          .Update();
+        Assert.That(updatedRows, Is.EqualTo(100));
+        Assert.That(session.Query.All<TagType>().Count(t => t.ProjectedValueAdjustment == 2 && t.Id <= 200), Is.EqualTo(100));
+        Assert.That(session.Query.All<TagType>().Count(t => t.ProjectedValueAdjustment == -1 && t.Id > 700), Is.EqualTo(1));
+      }
+    }
+
+    [Test]
+    public void TestManyIds()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var ids = tagIds.Concat(Enumerable.Range(4000, 5000).Select(o => (long)o));
+        var updatedRows = session.Query.All<TagType>()
+          .Where(t => t.Id.In(ids))
+          .Set(t => t.ProjectedValueAdjustment, 2)
+          .Update();
+        Assert.That(updatedRows, Is.EqualTo(100));
+        Assert.That(session.Query.All<TagType>().Count(t => t.ProjectedValueAdjustment == 2 && t.Id <= 200), Is.EqualTo(100));
+        Assert.That(session.Query.All<TagType>().Count(t => t.ProjectedValueAdjustment == -1 && t.Id > 700), Is.EqualTo(1));
+      }
+    }
   }
 }
