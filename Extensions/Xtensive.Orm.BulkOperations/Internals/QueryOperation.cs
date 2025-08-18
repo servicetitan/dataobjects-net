@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -19,6 +20,7 @@ namespace Xtensive.Orm.BulkOperations
     where T : class, IEntity
   {
     private static readonly ConstantExpression ComplexConditionConstant = Expression.Constant(IncludeAlgorithm.ComplexCondition);
+    private static readonly ConstantExpression AutoConditionConstant = Expression.Constant(IncludeAlgorithm.Auto);
 
     protected IQueryable<T> query;
 
@@ -54,13 +56,19 @@ namespace Xtensive.Orm.BulkOperations
 
               if (algorithm == IncludeAlgorithm.Auto) {
                 var arguments = ex.Arguments.ToList();
-                arguments[1] = ComplexConditionConstant;
-                ex = Expression.Call(methodInfo, arguments);
+
+                if (!CanUseTvp(ex.Arguments[0].Type)) {
+                  arguments[1] = ComplexConditionConstant;
+                  ex = Expression.Call(methodInfo, arguments);
+                }
               }
             }
             else {
               var arguments = ex.Arguments.ToList();
-              arguments.Insert(1, ComplexConditionConstant);
+              var conditionConstant = CanUseTvp(ex.Arguments[0].Type)
+                ? AutoConditionConstant
+                : ComplexConditionConstant;
+              arguments.Insert(1, AutoConditionConstant);
               ex = Expression.Call(WellKnownMembers.InMethod.MakeGenericMethod(methodInfo.GetGenericArguments()), arguments);
             }
           }
@@ -72,6 +80,10 @@ namespace Xtensive.Orm.BulkOperations
     }
 
     #region Non-public methods
+
+    private bool CanUseTvp(Type fieldType) =>
+      (fieldType == typeof(long) || fieldType == typeof(int) || fieldType == typeof(string))
+      && DomainHandler.Handlers.ProviderInfo.Supports(ProviderFeatures.TableValuedParameters);
 
     protected abstract SqlTableRef GetStatementTable(SqlStatement statement);
     protected abstract SqlExpression GetStatementWhere(SqlStatement statement);
