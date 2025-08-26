@@ -2,16 +2,14 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Frozen;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Orm.Linq;
 
 namespace Xtensive.Reflection
 {
-  internal static class WellKnownTypes
+  public static class WellKnownTypes
   {
     public static readonly Type Object = typeof(object);
     public static readonly Type Array = typeof(Array);
@@ -84,5 +82,7 @@ namespace Xtensive.Reflection
 
     public static readonly Type ReadOnlySpanOfT = typeof(ReadOnlySpan<>);
     public static readonly Type SpanOfT = typeof(Span<>);
+
+    public static readonly FrozenSet<Type> TypesWithTvpSupport = [typeof(int), typeof(long), typeof(Guid), typeof(string)];
   }
 }

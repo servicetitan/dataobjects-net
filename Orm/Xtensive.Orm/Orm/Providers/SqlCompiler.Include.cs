@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Providers
             && tableValuedParametersSupported
             && provider.FilteredColumnsExtractionTransform.Descriptor.Count == 1) {
         var fieldType = provider.FilteredColumnsExtractionTransform.Descriptor[0];
-        if (fieldType == WellKnownTypes.Int64 || fieldType == WellKnownTypes.Int32 || fieldType == WellKnownTypes.String) {
+        if (WellKnownTypes.TypesWithTvpSupport.Contains(fieldType)) {
           tvpType = fieldType;
         }
       }
@@ -104,9 +104,10 @@ namespace Xtensive.Orm.Providers
       Type tableValuedParameterType,
       bool enforceTvp)
     {
-      var tvpMapping = Driver.GetTypeMapping(tableValuedParameterType == WellKnownTypes.String
-        ? typeof(List<string>)
-        : typeof(List<long>));
+      var tvpMapping = Driver.GetTypeMapping(
+        tableValuedParameterType == WellKnownTypes.String ? typeof(List<string>)
+          : tableValuedParameterType == WellKnownTypes.Guid ? typeof(List<Guid>)
+          : typeof(List<long>));
       QueryRowFilterParameterBinding binding = new(mappings, valueAccessor, tvpMapping, enforceTvp);
       return (SqlDml.TvpDynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding);
     }

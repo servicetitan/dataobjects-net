@@ -172,8 +172,9 @@ namespace Xtensive.Sql
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public virtual void BindLongList(DbParameter parameter, object value) => throw new NotSupportedException("Table-Valued Paramenters not supported");
-    public virtual void BindStringList(DbParameter parameter, object value) => throw new NotSupportedException("Table-Valued Paramenters not supported");
+    public virtual void BindLongList(DbParameter parameter, object value) => throw new NotSupportedException("Table-Valued Parameters not supported");
+    public virtual void BindGuidList(DbParameter parameter, object value) => throw new NotSupportedException("Table-Valued Parameters not supported");
+    public virtual void BindStringList(DbParameter parameter, object value) => throw new NotSupportedException("Table-Valued Parameters not supported");
 
     #endregion
 

@@ -17,6 +17,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
   {
     public const string
       LongListTypeName = "_DO_LongList",
+      GuidListTypeName = "_DO_GuidList",
       StringListTypeName = "_DO_StringList";
 
     public override void BindDateTime(DbParameter parameter, object value)
@@ -40,10 +41,16 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       var sqlParameter = (SqlParameter) parameter;
       sqlParameter.SqlDbType = SqlDbType.Structured;
       sqlParameter.Value = new SqlDataRecordList((List<Tuple>) value, sqlDbType) switch { var o => o.IsEmpty ? null : o };
-      sqlParameter.TypeName = sqlDbType == SqlDbType.BigInt ? LongListTypeName : StringListTypeName;
+      sqlParameter.TypeName =
+        sqlDbType switch {
+          SqlDbType.BigInt => LongListTypeName,
+          SqlDbType.UniqueIdentifier => GuidListTypeName,
+          _ => StringListTypeName
+        };
     }
 
     public override void BindLongList(DbParameter parameter, object value) => BindList(parameter, value, SqlDbType.BigInt);
+    public override void BindGuidList(DbParameter parameter, object value) => BindList(parameter, value, SqlDbType.UniqueIdentifier);
     public override void BindStringList(DbParameter parameter, object value) => BindList(parameter, value, SqlDbType.NVarChar);
   }
 }
