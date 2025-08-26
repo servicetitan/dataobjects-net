@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Providers
             && tableValuedParametersSupported
             && provider.FilteredColumnsExtractionTransform.Descriptor.Count == 1) {
         var fieldType = provider.FilteredColumnsExtractionTransform.Descriptor[0];
-        if (WellKnownTypes.TypesWithTvpSupport.Contains(fieldType)) {
+        if (TypeHelper.TypesWithTvpSupport.Contains(fieldType)) {
           tvpType = fieldType;
         }
       }

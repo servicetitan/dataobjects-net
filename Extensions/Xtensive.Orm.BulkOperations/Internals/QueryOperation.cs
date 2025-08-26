@@ -78,7 +78,7 @@ namespace Xtensive.Orm.BulkOperations
     #region Non-public methods
 
     private bool CanUseTvp(Type fieldType) =>
-      WellKnownTypes.TypesWithTvpSupport.Contains(fieldType)
+      TypeHelper.TypesWithTvpSupport.Contains(fieldType)
       && DomainHandler.Handlers.ProviderInfo.Supports(ProviderFeatures.TableValuedParameters);
 
     protected abstract SqlTableRef GetStatementTable(SqlStatement statement);
