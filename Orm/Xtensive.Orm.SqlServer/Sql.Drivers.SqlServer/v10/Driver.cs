@@ -4,9 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.07
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using ISqlExecutor = Xtensive.Orm.Providers.ISqlExecutor;
