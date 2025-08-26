@@ -46,7 +46,7 @@ public class SqlDataRecordList(IReadOnlyList<Tuple> tuples, SqlDbType sqlDbType)
         }
       } break;
       case SqlDbType.UniqueIdentifier: {
-        SqlMetaData[] metaData = [new("Value", sqlDbType, tuples.Max(t => (t.GetValueOrDefault(0) as string)?.Length ?? 20))];
+        SqlMetaData[] metaData = [new("Value", sqlDbType)];
         SqlDataRecord record = new(metaData);
         HashSet<Guid> added = [];
         foreach (var valueObj in tuples.Select(t => t.GetValueOrDefault(0)).Where(o => o != null)) {
