@@ -45,6 +45,18 @@ public class SqlDataRecordList(IReadOnlyList<Tuple> tuples, SqlDbType sqlDbType)
           }
         }
       } break;
+      case SqlDbType.UniqueIdentifier: {
+        SqlMetaData[] metaData = [new("Value", sqlDbType)];
+        SqlDataRecord record = new(metaData);
+        HashSet<Guid> added = [];
+        foreach (var valueObj in tuples.Select(t => t.GetValueOrDefault(0)).Where(o => o != null)) {
+          Guid castValue = (Guid) valueObj;
+          if (added.Add(castValue)) {
+            record.SetSqlGuid(0, castValue);
+            yield return record;
+          }
+        }
+      } break;
       case SqlDbType.NVarChar: {
         SqlMetaData[] metaData = [new("Value", sqlDbType, tuples.Max(t => (t.GetValueOrDefault(0) as string)?.Length ?? 20))];
         SqlDataRecord record = new(metaData);

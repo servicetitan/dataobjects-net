@@ -2,11 +2,7 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
@@ -82,7 +78,7 @@ namespace Xtensive.Orm.BulkOperations
     #region Non-public methods
 
     private bool CanUseTvp(Type fieldType) =>
-      (fieldType == typeof(long) || fieldType == typeof(int) || fieldType == typeof(string))
+      TypeHelper.TypesWithTvpSupport.Contains(fieldType)
       && DomainHandler.Handlers.ProviderInfo.Supports(ProviderFeatures.TableValuedParameters);
 
     protected abstract SqlTableRef GetStatementTable(SqlStatement statement);

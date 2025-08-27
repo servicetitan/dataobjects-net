@@ -6,6 +6,7 @@
 
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Diagnostics;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -1280,5 +1281,8 @@ namespace Xtensive.Reflection
     }
 
     #endregion
+
+
+    public static readonly FrozenSet<Type> TypesWithTvpSupport = [typeof(int), typeof(long), typeof(Guid), typeof(string)];
   }
 }
