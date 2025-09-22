@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Tests.Linq
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Product).Assembly, typeof (Product).Namespace);
+      configuration.Types.RegisterCaching(typeof (Product).Assembly, typeof (Product).Namespace);
       return configuration;
     }
 

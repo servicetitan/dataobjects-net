@@ -176,19 +176,33 @@ namespace Xtensive.Orm.Internals
           if (((ConstantExpression)expression).Value is null) {
             return null;
           }
-
           var expressionType = expression.Type;
           if (expressionType.IsClosure()) {
-            return expressionType == closureType
-              ? GetClosureAccessor()
-              : throw new NotSupportedException(string.Format(Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
+            if (expressionType == closureType) {
+              return GetClosureAccessor();
+            }
+            else {
+              throw new NotSupportedException(string.Format(
+                Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
+            }
           }
 
-          if (expressionType.IsAssignableFrom(closureType))
-            return GetClosureAccessor();
-          if (expressionType.IsAssignableFrom(closureType.DeclaringType)
-              && info.Fields?.FirstOrDefault(field => field.FieldType == expressionType) is { } memberInfo) {
-            return Expression.MakeMemberAccess(GetClosureAccessor(), memberInfo);
+          if (closureType.DeclaringType == null) {
+            if (expressionType.IsAssignableFrom(closureType))
+              return GetClosureAccessor();
+          }
+          else {
+            if (expressionType.IsAssignableFrom(closureType))
+              return GetClosureAccessor();
+            if (expressionType.IsAssignableFrom(closureType.DeclaringType)) {
+              var members = closureType.TryGetFieldInfoFromClosure(expressionType);
+              if (members != null) {
+                var newExpression = members.Aggregate(
+                  GetClosureAccessor(),
+                  (left, right) => Expression.MakeMemberAccess(left, right));
+                return newExpression;
+              }
+            }
           }
         }
 

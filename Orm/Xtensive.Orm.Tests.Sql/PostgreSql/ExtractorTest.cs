@@ -157,6 +157,11 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     [Ignore("PostgreSQL does not support default values for timestamp with time zone")]
     public void ExtractDateTimeOffsetFields()
     {
+      var expectedResult0 = ExecuteScalar("Select ('0001-01-01 00:00:00+00:00'::timestamp(0) with time zone)::varchar(32)");
+      var expectedResult1 = ExecuteScalar("Select ('0001-01-01 00:00:00.0+00:00'::timestamp(1) with time zone)::varchar(32)");
+      var expectedResult2 = ExecuteScalar("Select ('0001-01-01 00:00:00.00+00:00'::timestamp(2) with time zone)::varchar(32)");
+      var expectedResult3 = ExecuteScalar("Select ('0001-01-01 00:00:00.000+00:00'::timestamp(3) with time zone)::varchar(32)");
+
       var createTableQuery = GetExtractDateTimeOffsetFieldsPrepareScript("InteractionLog");
       RegisterCleanupScript(GetExtractDateTimeOffsetFieldsCleanupScript, "InteractionLog");
 
@@ -169,25 +174,25 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       Assert.That(tableColumn.DataType.Type, Is.EqualTo(SqlType.DateTimeOffset));
       Assert.That(tableColumn.DefaultValue, Is.InstanceOf<SqlNative>());
       var defaultExpression = (SqlNative) tableColumn.DefaultValue;
-      Assert.That(defaultExpression.Value, Is.EqualTo("'0001-01-01 04:02:33+04:02:33'::timestamp(0) with time zone"));
+      Assert.That(defaultExpression.Value, Is.EqualTo($"'{expectedResult0}'::timestamp(0) with time zone"));
 
       tableColumn = testTable.TableColumns["DateTimeOffset1"];
       Assert.That(tableColumn.DataType.Type, Is.EqualTo(SqlType.DateTimeOffset));
       Assert.That(tableColumn.DefaultValue, Is.InstanceOf<SqlNative>());
       defaultExpression = (SqlNative) tableColumn.DefaultValue;
-      Assert.That(defaultExpression.Value, Is.EqualTo("'0001-01-01 04:02:33+04:02:33'::timestamp(1) with time zone"));
+      Assert.That(defaultExpression.Value, Is.EqualTo($"'{expectedResult1}'::timestamp(1) with time zone"));
 
       tableColumn = testTable.TableColumns["DateTimeOffset2"];
       Assert.That(tableColumn.DataType.Type, Is.EqualTo(SqlType.DateTimeOffset));
       Assert.That(tableColumn.DefaultValue, Is.InstanceOf<SqlNative>());
       defaultExpression = (SqlNative) tableColumn.DefaultValue;
-      Assert.That(defaultExpression.Value, Is.EqualTo("'0001-01-01 04:02:33+04:02:33'::timestamp(2) with time zone"));
+      Assert.That(defaultExpression.Value, Is.EqualTo($"'{expectedResult2}'::timestamp(2) with time zone"));
 
       tableColumn = testTable.TableColumns["DateTimeOffset3"];
       Assert.That(tableColumn.DataType.Type, Is.EqualTo(SqlType.DateTimeOffset));
       Assert.That(tableColumn.DefaultValue, Is.InstanceOf<SqlNative>());
       defaultExpression = (SqlNative) tableColumn.DefaultValue;
-      Assert.That(defaultExpression.Value, Is.EqualTo("'0001-01-01 04:02:33+04:02:33'::timestamp(3) with time zone"));
+      Assert.That(defaultExpression.Value, Is.EqualTo($"'{expectedResult3}'::timestamp(3) with time zone"));
     }
 
 
