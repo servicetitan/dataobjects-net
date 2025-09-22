@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractYearTest()
     {
       ExecuteInsideSession((s) => {
-        RunTest<SingleDateTimeOffsetEntity>(s ,c => c.DateTimeOffset.Year==FirstDateTimeOffset.Year);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Year==FirstDateTimeOffset.Year);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Year==FirstMillisecondDateTimeOffset.Year);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Year==NullableDateTimeOffset.Year);
 
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     {
       ExecuteInsideSession((s) => {
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Month==FirstDateTimeOffset.Month);
-        RunTest<SingleDateTimeOffsetEntity>(s ,c => c.MillisecondDateTimeOffset.Month==FirstMillisecondDateTimeOffset.Month);
+        RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Month==FirstMillisecondDateTimeOffset.Month);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Month==NullableDateTimeOffset.Month);
 
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Month==WrongDateTimeOffset.Month);
@@ -85,16 +85,18 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractDayTest()
     {
       ExecuteInsideSession((s) => {
+        //assume that server time zone and the timezone of the machine that running the test are the same
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
-        
+
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Day==firstDateTimeOffset.Day);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Day==firstMillisecondDateTimeOffset.Day);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Day==nullableDateTimeOffset.Day);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
+
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Day==wrongDateTimeOffset.Day);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Day==wrongMillisecondDateTimeOffset.Day);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Day==wrongDateTimeOffset.Day);
@@ -126,6 +128,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractHourTest()
     {
       ExecuteInsideSession((s) => {
+        // assume that server time zone and the timezone of the machine that running the test are the same
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
@@ -136,6 +139,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
+
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Hour==wrongDateTimeOffset.Hour);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Hour==wrongMillisecondDateTimeOffset.Hour);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Hour==wrongDateTimeOffset.Hour);
@@ -249,15 +253,18 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractMinuteTest()
     {
       ExecuteInsideSession((s) => {
+        //assume that server time zone and the timezone of the machine that running the test are the same
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
+
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Minute==firstDateTimeOffset.Minute);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Minute==firstMillisecondDateTimeOffset.Minute);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Minute==nullableDateTimeOffset.Minute);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
+
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Minute==wrongDateTimeOffset.Minute);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Minute==wrongMillisecondDateTimeOffset.Minute);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Minute==wrongDateTimeOffset.Minute);
@@ -288,15 +295,18 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractSecondTest()
     {
       ExecuteInsideSession((s) => {
+        //assume that server time zone and the timezone of the machine that running the test are the same
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
+
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Second==firstDateTimeOffset.Second);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Second==firstMillisecondDateTimeOffset.Second);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Second==nullableDateTimeOffset.Second);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
+
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Second==wrongDateTimeOffset.Second);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Second==wrongMillisecondDateTimeOffset.Second);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Second==wrongDateTimeOffset.Second);
@@ -339,15 +349,18 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     public void ExtractDateTest()
     {
       ExecuteInsideSession((s) => {
+        // assume that server time zone and the timezone of the machine that running the test are the same
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         var firstMillisecondDateTimeOffset = TryMoveToLocalTimeZone(FirstMillisecondDateTimeOffset);
         var nullableDateTimeOffset = TryMoveToLocalTimeZone(NullableDateTimeOffset);
+
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Date==firstDateTimeOffset.Date);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Date==firstMillisecondDateTimeOffset.Date);
         RunTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Date==nullableDateTimeOffset.Date);
 
         var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
+
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.DateTimeOffset.Date==wrongDateTimeOffset.Date);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.MillisecondDateTimeOffset.Date==wrongMillisecondDateTimeOffset.Date);
         RunWrongTest<SingleDateTimeOffsetEntity>(s, c => c.NullableDateTimeOffset.Value.Date==wrongDateTimeOffset.Date);

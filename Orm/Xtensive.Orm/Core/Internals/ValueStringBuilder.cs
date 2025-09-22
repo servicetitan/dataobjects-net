@@ -149,7 +149,6 @@ namespace Xtensive.Core
         if (origPos > chars.Length - s.Length) {
           Grow(s.Length);
         }
-
         s.CopyTo(chars.Slice(origPos));
         position += s.Length;
       }

@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
     public void MainTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
+      configuration.Types.RegisterCaching(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
       using (var domain = Domain.Build(configuration)) {
@@ -114,7 +114,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
     public async Task MainAsyncTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
+      configuration.Types.RegisterCaching(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
       using (var domain = await Domain.BuildAsync(configuration)) {
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
     public void ChangeTrackingModeTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
+      configuration.Types.RegisterCaching(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
       configuration.FullTextChangeTrackingMode = FullTextChangeTrackingMode.Auto;
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
@@ -163,7 +163,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
       }
 
       configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
+      configuration.Types.RegisterCaching(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
       configuration.FullTextChangeTrackingMode = FullTextChangeTrackingMode.Manual;
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
       }
 
       configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
+      configuration.Types.RegisterCaching(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
       configuration.FullTextChangeTrackingMode = FullTextChangeTrackingMode.Off;
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
@@ -185,7 +185,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
       }
 
       configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
+      configuration.Types.RegisterCaching(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
       configuration.FullTextChangeTrackingMode = FullTextChangeTrackingMode.OffWithNoPopulation;
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
@@ -200,7 +200,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
     public async Task ChangeTrackingModeAsyncTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
+      configuration.Types.RegisterCaching(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
       configuration.FullTextChangeTrackingMode = FullTextChangeTrackingMode.Auto;
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 

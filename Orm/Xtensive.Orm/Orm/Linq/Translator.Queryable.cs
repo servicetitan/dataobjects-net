@@ -1380,7 +1380,7 @@ namespace Xtensive.Orm.Linq
                 return selectManyInfo.GroupByProjection;
               }
 
-              throw new NotImplementedException();
+              throw new NotImplementedException(Strings.ExResultSelectorIsNotSupportedForSelectManyOverGrouping);
             }
           }
 

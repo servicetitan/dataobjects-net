@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       config.Sessions.Default.CacheType = SessionCacheType.LruWeak;
       config.Sessions.Default.CacheSize = 2;
       config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
+      config.Types.RegisterCaching(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
       return config;
     }
 
