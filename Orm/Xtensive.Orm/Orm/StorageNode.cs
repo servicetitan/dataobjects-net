@@ -82,18 +82,8 @@ namespace Xtensive.Orm
     public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken = default)
     {
       ArgumentNullException.ThrowIfNull(configuration);
-
-      SessionScope sessionScope = null;
-      try {
-        if (configuration.Supports(SessionOptions.AutoActivation)) {
-          sessionScope = new SessionScope();
-        }
-        return domain.OpenSessionInternalAsync(configuration, this, sessionScope, cancellationToken);
-      }
-      catch {
-        sessionScope?.Dispose();
-        throw;
-      }
+      using SessionScope sessionScope = configuration.Supports(SessionOptions.AutoActivation) ? new() : null;
+      return domain.OpenSessionInternalAsync(configuration, this, sessionScope, cancellationToken);
     }
 
     public void ClearSequenceCaches()

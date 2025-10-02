@@ -315,18 +315,8 @@ namespace Xtensive.Orm
     public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken = default)
     {
       ArgumentNullException.ThrowIfNull(configuration);
-
-      SessionScope sessionScope = null;
-      try {
-        if (configuration.Supports(SessionOptions.AutoActivation)) {
-          sessionScope = new SessionScope();
-        }
-        return OpenSessionInternalAsync(configuration, null, sessionScope, cancellationToken);
-      }
-      catch {
-        sessionScope?.Dispose();
-        throw;
-      }
+      using SessionScope sessionScope = configuration.Supports(SessionOptions.AutoActivation) ? new() : null;
+      return OpenSessionInternalAsync(configuration, null, sessionScope, cancellationToken);
     }
 
     internal SessionConfiguration GetSessionConfiguration(SessionType type) =>
