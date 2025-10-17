@@ -949,7 +949,7 @@ namespace Xtensive.Orm.Upgrade
         : null;
     }
 
-    private static (string, string)[] AssociateMappedFields(params (StoredFieldInfo, StoredFieldInfo)[] fieldsToProcess)
+    private static (string, string)[] AssociateMappedFields(params ReadOnlySpan<(StoredFieldInfo, StoredFieldInfo)> fieldsToProcess)
     {
       var result = new ChainedBuffer<(StoredFieldInfo, StoredFieldInfo)>();
       var tasks = new Queue<(StoredFieldInfo, StoredFieldInfo)>();
