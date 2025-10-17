@@ -496,12 +496,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void FatalError(string format, params object[] args)
+    public static void FatalError(string format, params ReadOnlySpan<object> args)
     {
       instance.FatalError(format, args);
     }
 
-    public static Exception FatalError(Exception exception, string format, params object[] args)
+    public static Exception FatalError(Exception exception, string format, params ReadOnlySpan<object> args)
     {
       instance.FatalError(format, args, exception);
       return exception;
@@ -570,10 +570,10 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Warning(string format, params object[] args) =>
+    public static void Warning(string format, params ReadOnlySpan<object> args) =>
       instance.Warning(format, args);
 
-    public static Exception Warning(Exception exception, string format, params object[] args)
+    public static Exception Warning(Exception exception, string format, ReadOnlySpan<object> args)
     {
       instance.Warning(format, args, exception);
       return exception;

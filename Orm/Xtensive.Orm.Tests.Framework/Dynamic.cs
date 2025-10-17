@@ -2226,12 +2226,12 @@ namespace System.Linq.Dynamic
       if (token.id != t) throw ParseError(Res.SyntaxError);
     }
 
-    private Exception ParseError(string format, params object[] args)
+    private Exception ParseError(string format, params ReadOnlySpan<object> args)
     {
       return ParseError(token.pos, format, args);
     }
 
-    private Exception ParseError(int pos, string format, params object[] args)
+    private Exception ParseError(int pos, string format, params ReadOnlySpan<object> args)
     {
       return new ParseException(string.Format(CultureInfo.CurrentCulture, format, args), pos);
     }
