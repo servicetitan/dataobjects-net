@@ -35,13 +35,13 @@ namespace Xtensive.Orm.Logging
     /// </param>
     /// <param name="parameters">Values of parameters in <paramref name="messageId"/> (resource string or message itself).</param>
     /// <returns><see cref="IDisposable"/> object. Region will closed by disposing of this object.</returns>
-    public IndentManager.IndentScope DebugRegion(string messageId, params object[] parameters)
+    public IndentManager.IndentScope DebugRegion(string messageId, params ReadOnlySpan<object> parameters)
     {
       ArgumentNullException.ThrowIfNull(messageId, "message");
       if (!IsLogged(LogLevel.Debug))
         return IndentManager.IncreaseIndent();
       var message = Strings.ResourceManager.GetString(messageId, Strings.Culture) ?? messageId;
-      var title = parameters!=null ? string.Format(message, parameters) : message;
+      var title = parameters.Length > 0 ? string.Format(message, parameters) : message;
       var titleParams = new object[] { title };
       Debug(nameof(Strings.LogRegionBegin), titleParams);
       return IndentManager.IncreaseIndent(() => Debug(nameof(Strings.LogRegionEnd), titleParams));
