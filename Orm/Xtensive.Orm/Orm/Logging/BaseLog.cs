@@ -42,9 +42,8 @@ namespace Xtensive.Orm.Logging
         return IndentManager.IncreaseIndent();
       var message = Strings.ResourceManager.GetString(messageId, Strings.Culture) ?? messageId;
       var title = parameters.Length > 0 ? string.Format(message, parameters) : message;
-      var titleParams = new object[] { title };
-      Debug(nameof(Strings.LogRegionBegin), titleParams);
-      return IndentManager.IncreaseIndent(() => Debug(nameof(Strings.LogRegionEnd), titleParams));
+      Debug(nameof(Strings.LogRegionBegin), [title]);
+      return IndentManager.IncreaseIndent(() => Debug(nameof(Strings.LogRegionEnd), [title]));
     }
 
     /// <summary>
