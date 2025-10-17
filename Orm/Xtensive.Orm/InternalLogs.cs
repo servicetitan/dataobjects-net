@@ -229,7 +229,7 @@ namespace Xtensive
     public static IndentManager.IndentScope DebugRegion(string messageId, params object[] args) =>
       instance.DebugRegion(messageId, args);
 
-    public static IndentManager.IndentScope InfoRegion(string messageId, params object[] args) =>
+    public static IndentManager.IndentScope InfoRegion(string messageId, params ReadOnlySpan<object> args) =>
       instance.InfoRegion(messageId, args);
 
     public static void Debug(string messageId, params object[] args) =>
@@ -247,10 +247,10 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Info(string messageId, params object[] args) =>
+    public static void Info(string messageId, params ReadOnlySpan<object> args) =>
       instance.Info(messageId, args);
 
-    public static Exception Info(Exception exception, string messageId, params object[] args)
+    public static Exception Info(Exception exception, string messageId, params ReadOnlySpan<object> args)
     {
       instance.Info(messageId, args, exception);
       return exception;
