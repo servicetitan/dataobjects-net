@@ -13,7 +13,7 @@ namespace Xtensive.Sql.Model
   public class PrimaryKey
     : UniqueConstraint
   {
-    internal PrimaryKey(Table table, string name, params TableColumn[] columns)
+    internal PrimaryKey(Table table, string name, params ReadOnlySpan<TableColumn> columns)
       : base(table, name, columns)
     {
     }

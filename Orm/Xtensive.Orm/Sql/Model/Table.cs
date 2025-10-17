@@ -66,7 +66,7 @@ namespace Xtensive.Sql.Model
     /// </summary>
     /// <param name="name">The name.</param>
     /// <param name="columns">The columns.</param>
-    public PrimaryKey CreatePrimaryKey(string name, params TableColumn[] columns)
+    public PrimaryKey CreatePrimaryKey(string name, params ReadOnlySpan<TableColumn> columns)
     {
       return new PrimaryKey(this, name, columns);
     }
@@ -76,7 +76,7 @@ namespace Xtensive.Sql.Model
     /// </summary>
     /// <param name="name">The name.</param>
     /// <param name="columns">The columns.</param>
-    public UniqueConstraint CreateUniqueConstraint(string name, params TableColumn[] columns)
+    public UniqueConstraint CreateUniqueConstraint(string name, params ReadOnlySpan<TableColumn> columns)
     {
       return new UniqueConstraint(this, name, columns);
     }

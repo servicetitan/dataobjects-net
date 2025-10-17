@@ -47,7 +47,7 @@ namespace Xtensive.Sql.Model
 
     #region Constructors
 
-    internal UniqueConstraint(Table table, string name, params TableColumn[] columns) : base(table, name, null, null, null)
+    internal UniqueConstraint(Table table, string name, params ReadOnlySpan<TableColumn> columns) : base(table, name, null, null, null)
     {
       this.columns = new NodeCollection<TableColumn>(columns.Length);
       for (int i = 0, count = columns.Length; i<count; i++)
