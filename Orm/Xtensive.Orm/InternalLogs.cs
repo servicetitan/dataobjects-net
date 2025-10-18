@@ -573,7 +573,7 @@ namespace Xtensive
     public static void Warning(string format, params ReadOnlySpan<object> args) =>
       instance.Warning(format, args);
 
-    public static Exception Warning(Exception exception, string format, ReadOnlySpan<object> args)
+    public static Exception Warning(Exception exception, string format, params ReadOnlySpan<object> args)
     {
       instance.Warning(format, args, exception);
       return exception;
