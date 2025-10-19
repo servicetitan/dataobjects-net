@@ -15,23 +15,23 @@ namespace Xtensive.Orm.Logging
       return false;
     }
 
-    public override void Debug(string message, object[] parameters = null, Exception exception = null)
+    public override void Debug(string message, ReadOnlySpan<object> parameters = default, Exception exception = null)
     {
     }
 
-    public override void Info(string message, object[] parameters = null, Exception exception = null)
+    public override void Info(string message, ReadOnlySpan<object> parameters = default, Exception exception = null)
     {
     }
 
-    public override void Warning(string message, object[] parameters = null, Exception exception = null)
+    public override void Warning(string message, ReadOnlySpan<object> parameters = default, Exception exception = null)
     {
     }
 
-    public override void Error(string message, object[] parameters = null, Exception exception = null)
+    public override void Error(string message, ReadOnlySpan<object> parameters = default, Exception exception = null)
     {
     }
 
-    public override void FatalError(string message, object[] parameters = null, Exception exception = null)
+    public override void FatalError(string message, ReadOnlySpan<object> parameters = default, Exception exception = null)
     {
     }
 

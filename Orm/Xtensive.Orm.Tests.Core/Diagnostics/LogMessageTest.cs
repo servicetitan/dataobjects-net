@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Core.Diagnostics
       }
       catch (Exception e)
       {
-        TestLog.Warning(e, "Message for {0} log parameters.", param2);
+        TestLog.Warning(e, "Message for {0} log parameters.", [param2]);
       }
 
       TestLog.InfoRegion("Fatal error logs");

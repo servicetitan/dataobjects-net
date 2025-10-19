@@ -52,11 +52,11 @@ namespace Xtensive.Orm.Logging
       return builder.ToString();
     }
 
-    private static string FormatMessage(string message, object[] parameters)
+    private static string FormatMessage(string message, ReadOnlySpan<object> parameters)
     {
       if (string.IsNullOrEmpty(message))
         return null;
-      if (parameters==null || parameters.Length==0) {
+      if (parameters.Length == 0) {
         return message;
       }
       try {
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Logging
     /// <param name="message">Log message.</param>
     /// <param name="parameters">Format parameters for log message.</param>
     /// <param name="exception">Exception.</param>
-    public LogEventInfo(string source, LogLevel level, string message = null, object[] parameters = null, Exception exception = null)
+    public LogEventInfo(string source, LogLevel level, string message = null, ReadOnlySpan<object> parameters = default, Exception exception = null)
     {
       Source = source;
       Level = level;

@@ -48,14 +48,15 @@ namespace Xtensive.Orm.Model
       Find(indexAttributes).FirstOrDefault();
 
     [DebuggerStepThrough]
-    public IndexInfo GetIndex(string fieldName, params string[] fieldNames)
+    public IndexInfo GetIndex(string fieldName, params ReadOnlySpan<string> fieldNames)
     {
-      var names = (fieldNames ?? Array.Empty<string>()).Prepend(fieldName);
-
       var fields = new List<FieldInfo>();
       var reflectedTypeFields = primaryIndex.ReflectedType.Fields;
-      foreach (var name in names) {
-        if (reflectedTypeFields.TryGetValue(name, out var field)) {
+      if (reflectedTypeFields.TryGetValue(fieldName, out var field)) {
+        fields.Add(field);
+      }
+      foreach (var name in fieldNames) {
+        if (reflectedTypeFields.TryGetValue(name, out field)) {
           fields.Add(field);
         }
       }

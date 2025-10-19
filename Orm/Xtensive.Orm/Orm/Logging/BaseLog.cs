@@ -35,16 +35,15 @@ namespace Xtensive.Orm.Logging
     /// </param>
     /// <param name="parameters">Values of parameters in <paramref name="messageId"/> (resource string or message itself).</param>
     /// <returns><see cref="IDisposable"/> object. Region will closed by disposing of this object.</returns>
-    public IndentManager.IndentScope DebugRegion(string messageId, params object[] parameters)
+    public IndentManager.IndentScope DebugRegion(string messageId, params ReadOnlySpan<object> parameters)
     {
       ArgumentNullException.ThrowIfNull(messageId, "message");
       if (!IsLogged(LogLevel.Debug))
         return IndentManager.IncreaseIndent();
       var message = Strings.ResourceManager.GetString(messageId, Strings.Culture) ?? messageId;
-      var title = parameters!=null ? string.Format(message, parameters) : message;
-      var titleParams = new object[] { title };
-      Debug(nameof(Strings.LogRegionBegin), titleParams);
-      return IndentManager.IncreaseIndent(() => Debug(nameof(Strings.LogRegionEnd), titleParams));
+      var title = parameters.Length > 0 ? string.Format(message, parameters) : message;
+      Debug(nameof(Strings.LogRegionBegin), [title]);
+      return IndentManager.IncreaseIndent(() => Debug(nameof(Strings.LogRegionEnd), [title]));
     }
 
     /// <summary>
@@ -58,13 +57,13 @@ namespace Xtensive.Orm.Logging
     /// Values of parameters in <paramref name="messageId"/> (resource string or message itself).
     /// </param>
     /// <returns><see cref="IDisposable"/> object. Region will closed by disposing of this object.</returns>
-    public IndentManager.IndentScope InfoRegion(string messageId, params object[] parameters)
+    public IndentManager.IndentScope InfoRegion(string messageId, params ReadOnlySpan<object> parameters)
     {
       ArgumentNullException.ThrowIfNull(messageId, "message");
       if (!IsLogged(LogLevel.Info))
         return IndentManager.IncreaseIndent();
       var message = Strings.ResourceManager.GetString(messageId, Strings.Culture) ?? messageId;
-      var title = parameters!=null ? string.Format(message, parameters) : message;
+      var title = parameters.Length > 0 ? string.Format(message, parameters) : message;
       Info(string.Format(Strings.LogRegionBegin, title));
       return IndentManager.IncreaseIndent(() => Info(string.Format(Strings.LogRegionEnd, title)));
     }
@@ -79,7 +78,7 @@ namespace Xtensive.Orm.Logging
     /// Values of parameters in <paramref name="messageId"/> (resource string or message itself).
     /// </param>
     /// <param name="exception">Exception, which must be written.</param>
-    public virtual void Debug(string messageId, object[] parameters = null, Exception exception = null) =>
+    public virtual void Debug(string messageId, ReadOnlySpan<object> parameters = default, Exception exception = null) =>
       Write(LogLevel.Debug, messageId, parameters, exception);
 
     /// <summary>
@@ -91,7 +90,7 @@ namespace Xtensive.Orm.Logging
     /// Values of parameters in <paramref name="messageId"/> (resource string or message itself).
     /// </param>
     /// <param name="exception">Exception, which must be written.</param>
-    public virtual void Info(string messageId, object[] parameters = null, Exception exception = null) =>
+    public virtual void Info(string messageId, ReadOnlySpan<object> parameters = default, Exception exception = null) =>
       Write(LogLevel.Info, messageId, parameters, exception);
 
     /// <summary>
@@ -104,7 +103,7 @@ namespace Xtensive.Orm.Logging
     /// Values of parameters in <paramref name="messageId"/> (resource string or message itself).
     /// </param>
     /// <param name="exception">Exception, which must be written.</param>
-    public virtual void Warning(string messageId, object[] parameters = null, Exception exception = null) =>
+    public virtual void Warning(string messageId, ReadOnlySpan<object> parameters = default, Exception exception = null) =>
       Write(LogLevel.Warning, messageId, parameters, exception);
 
     /// <summary>
@@ -117,7 +116,7 @@ namespace Xtensive.Orm.Logging
     /// Values of parameters in <paramref name="messageId"/> (resource string or message itself).
     /// </param>
     /// <param name="exception">Exception, which must be written.</param>
-    public virtual void Error(string messageId, object[] parameters = null, Exception exception = null) =>
+    public virtual void Error(string messageId, ReadOnlySpan<object> parameters = default, Exception exception = null) =>
       Write(LogLevel.Error, messageId, parameters, exception);
 
     /// <summary>
@@ -130,10 +129,10 @@ namespace Xtensive.Orm.Logging
     /// Values of parameters in <paramref name="messageId"/> (resource string or message itself).
     /// </param>
     /// <param name="exception">Exception, which must be written.</param>
-    public virtual void FatalError(string messageId, object[] parameters = null, Exception exception = null) =>
+    public virtual void FatalError(string messageId, ReadOnlySpan<object> parameters = default, Exception exception = null) =>
       Write(LogLevel.FatalError, messageId, parameters, exception);
 
-    private void Write(LogLevel logLevel, string messageId, object[] parameters, Exception exception)
+    private void Write(LogLevel logLevel, string messageId, ReadOnlySpan<object> parameters, Exception exception)
     {
       var message = string.IsNullOrEmpty(messageId)
         ? null

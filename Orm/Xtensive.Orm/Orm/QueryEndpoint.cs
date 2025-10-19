@@ -954,12 +954,10 @@ namespace Xtensive.Orm
     #region Private / internal methods
 
     /// <exception cref="ArgumentException"><paramref name="keyValues"/> array is empty.</exception>
-    private Key GetKeyByValues<T>(object[] keyValues)
+    private Key GetKeyByValues<T>(ReadOnlySpan<object> keyValues)
       where T : class, IEntity
     {
-      ArgumentNullException.ThrowIfNull(keyValues);
-      if (keyValues.Length == 0)
-        throw new ArgumentException(Strings.ExKeyValuesArrayIsEmpty, "keyValues");
+      ArgumentOutOfRangeException.ThrowIfZero(keyValues.Length);
       if (keyValues.Length == 1) {
         switch (keyValues[0]) {
           case Key key:
@@ -969,7 +967,7 @@ namespace Xtensive.Orm
         }
       }
       var session = Session;
-      return Key.Create(session.Domain, session.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, keyValues);
+      return Key.Create(session.Domain, session.StorageNodeId, session.Domain.Model.Types[typeof(T)], TypeReferenceAccuracy.BaseType, keyValues);
     }
 
     private Expression BuildRootExpression(Type elementType)
