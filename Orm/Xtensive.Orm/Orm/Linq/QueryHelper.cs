@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.04.02
 
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
@@ -62,8 +63,10 @@ namespace Xtensive.Orm.Linq
       return FastExpression.Lambda<Func<Tuple, bool>>(filterExpression, TupleParameters);
     }
 
+    private static readonly ConcurrentDictionary<Type, MethodCallExpression> RootCallExpressionsCache = new();
+
     internal static Expression CreateEntityQuery(Type elementType) =>
-      Domain.RootCallExpressionsCache.GetOrAdd(elementType, static t => Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(t)));
+      RootCallExpressionsCache.GetOrAdd(elementType, static t => Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(t)));
 
     public static bool IsDirectEntitySetQuery(Expression entitySet)
     {
