@@ -47,7 +47,7 @@ namespace Xtensive.Orm
 
     private static class Traits<T>
     {
-      public static readonly MethodCallExpression AllExpression =
+      public static readonly MethodCallExpression RootCallExpression =
         Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(typeof(T)));
     }
 
@@ -64,7 +64,7 @@ namespace Xtensive.Orm
     public IQueryable<T> All<T>() where T : class, IEntity =>
       Provider.CreateQuery<T>(RootBuilder != null
         ? RootBuilder.BuildRootExpression(typeof(T))
-        : Traits<T>.AllExpression);
+        : Traits<T>.RootCallExpression);
 
     /// <summary>
     /// The "starting point" for dynamic LINQ query -
