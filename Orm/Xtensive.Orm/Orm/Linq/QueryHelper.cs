@@ -4,10 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.04.02
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
@@ -66,10 +62,8 @@ namespace Xtensive.Orm.Linq
       return FastExpression.Lambda<Func<Tuple, bool>>(filterExpression, TupleParameters);
     }
 
-    private static Expression CreateEntityQuery(Type elementType, Domain domain)
-    {
-      return domain.RootCallExpressionsCache.GetOrAdd(elementType, (t) => Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(elementType)));
-    }
+    internal static Expression CreateEntityQuery(Type elementType) =>
+      Domain.RootCallExpressionsCache.GetOrAdd(elementType, static t => Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(t)));
 
     public static bool IsDirectEntitySetQuery(Expression entitySet)
     {
@@ -134,7 +128,7 @@ namespace Xtensive.Orm.Linq
           );
         return Expression.Call(
           WellKnownMembers.Queryable.Where.CachedMakeGenericMethod(elementType),
-          CreateEntityQuery(elementType, domain),
+          CreateEntityQuery(elementType),
           FastExpression.Lambda(whereExpression, whereParameter)
           );
       }
@@ -159,7 +153,7 @@ namespace Xtensive.Orm.Linq
 
       var outerQuery = Expression.Call(
         WellKnownMembers.Queryable.Where.CachedMakeGenericMethod(connectorType),
-        CreateEntityQuery(connectorType, domain),
+        CreateEntityQuery(connectorType),
         FastExpression.Lambda(filterExpression, filterParameter)
         );
 
@@ -171,7 +165,7 @@ namespace Xtensive.Orm.Linq
       var innerSelector = FastExpression.Lambda(innerSelectorParameter, innerSelectorParameter);
       var resultSelector = FastExpression.Lambda(innerSelectorParameter, outerSelectorParameter, innerSelectorParameter);
 
-      var innerQuery = CreateEntityQuery(elementType, domain);
+      var innerQuery = CreateEntityQuery(elementType);
       var joinMethodInfo = WellKnownMembers.Queryable.Join
         .MakeGenericMethod(new[] {
           connectorType,

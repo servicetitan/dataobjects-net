@@ -132,7 +132,7 @@ namespace Xtensive.Orm
 
     internal FastConcurrentLruCache<QueryKey, (QueryKey Key, ParameterizedQuery Query)> QueryCache { get; }
 
-    internal ConcurrentDictionary<Type, System.Linq.Expressions.MethodCallExpression> RootCallExpressionsCache { get; } = new();
+    internal static ConcurrentDictionary<Type, System.Linq.Expressions.MethodCallExpression> RootCallExpressionsCache { get; } = new();
 
     /// <summary>
     /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch certain entities.
