@@ -2,19 +2,13 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;
 using Xtensive.Orm.FullTextSearchCondition.Nodes;
 using Xtensive.Orm.Internals;
-using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Linq;
 using Xtensive.Reflection;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -51,7 +45,13 @@ namespace Xtensive.Orm
 
     public override int GetHashCode() => HashCode.Combine(Provider, RootBuilder);
 
-    /// <summary>
+    private static class Traits<T>
+    {
+      public static readonly MethodCallExpression RootCallExpression =
+        Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(typeof(T)));
+    }
+
+  /// <summary>
     /// The "starting point" for any LINQ query -
     /// a <see cref="IQueryable{T}"/> enumerating all the instances
     /// of type <typeparamref name="T"/>.
@@ -61,11 +61,10 @@ namespace Xtensive.Orm
     /// An <see cref="IQueryable{T}"/> enumerating all the instances
     /// of type <typeparamref name="T"/>.
     /// </returns>
-    public IQueryable<T> All<T>()
-      where T : class, IEntity
-    {
-      return Provider.CreateQuery<T>(BuildRootExpression(typeof(T)));
-    }
+    public IQueryable<T> All<T>() where T : class, IEntity =>
+      Provider.CreateQuery<T>(RootBuilder != null
+        ? RootBuilder.BuildRootExpression(typeof(T))
+        : Traits<T>.RootCallExpression);
 
     /// <summary>
     /// The "starting point" for dynamic LINQ query -
@@ -77,10 +76,11 @@ namespace Xtensive.Orm
     /// An <see cref="IQueryable"/> enumerating all the instances
     /// of type <paramref name="elementType"/>.
     /// </returns>
-    public IQueryable All(Type elementType)
-    {
-      return ((IQueryProvider) Provider).CreateQuery(BuildRootExpression(elementType));
-    }
+    public IQueryable All(Type elementType) =>
+      ((IQueryProvider) Provider).CreateQuery(RootBuilder != null
+        ? RootBuilder.BuildRootExpression(elementType)
+        : QueryHelper.CreateEntityQuery(elementType)
+      );
 
     #region Full-text related
 
@@ -970,13 +970,6 @@ namespace Xtensive.Orm
       return Key.Create(session.Domain, session.StorageNodeId, session.Domain.Model.Types[typeof(T)], TypeReferenceAccuracy.BaseType, keyValues);
     }
 
-    private Expression BuildRootExpression(Type elementType)
-    {
-      return RootBuilder!=null
-        ? RootBuilder.BuildRootExpression(elementType)
-        : Session.Domain.RootCallExpressionsCache.GetOrAdd(elementType, (t) => Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(t)));
-    }
-
     private static void ThrowKeyNotFoundException(Key key) =>
         throw new KeyNotFoundException(String.Format(Strings.EntityWithKeyXDoesNotExist, key));
 
@@ -987,7 +980,6 @@ namespace Xtensive.Orm
 
     internal QueryEndpoint(QueryProvider provider)
     {
-      ArgumentNullException.ThrowIfNull(provider);
       Provider = provider;
     }
 
