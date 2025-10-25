@@ -158,6 +158,14 @@ jobs:
         run: |
           docker stop $(docker ps -a -q)
 
+      - name: Temp log output
+        if: |
+          !cancelled()
+        run: |
+          echo "github event name: ${{ github.event_name }}"
+          echo "reproc step outcome: ${{ steps.reprocessing.outcome }}"
+          echo "complex step outcome: ${{ steps.complex_tests.outcome }}"
+
       - name: Publish raw test results as files
         if: |
           (!cancelled() && inputs.publish_raw_results) || failure()
@@ -172,8 +180,9 @@ jobs:
 
       - name: Make Final Test report
         if: |
-          (github.event_name == 'workflow_dispatch' && (steps.reprocessing.outcome != 'cancelled' || steps.complex_tests.outcome != 'cancelled'))
-            || (github.event_name != 'workflow_dispatch' && (steps.reprocessing.outcome == 'failure' || steps.complex_tests.outcome == 'failure'))
+          !cancelled() 
+            && ((github.event_name == 'push') || (github.event_name == 'pull_request') || (github.event_name == 'workflow_dispatch')
+              || (steps.reprocessing.outcome == 'failure' || steps.complex_tests.outcome == 'failure'))
         timeout-minutes: 1
         uses: dorny/test-reporter@v2.1.1
         with:
