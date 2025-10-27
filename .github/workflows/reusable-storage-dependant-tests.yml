@@ -16,7 +16,7 @@ on:
       target_framework:
         description: 'Target framework'
         required: true
-        default: 'net6.0'
+        default: 'net8.0'
         type: string
       specific_sha:
         description: 'Commit SHA to checkout'
@@ -157,14 +157,6 @@ jobs:
         timeout-minutes: 1
         run: |
           docker stop $(docker ps -a -q)
-
-      - name: Temp log output
-        if: |
-          !cancelled()
-        run: |
-          echo "github event name: ${{ github.event_name }}"
-          echo "reproc step outcome: ${{ steps.reprocessing.outcome }}"
-          echo "complex step outcome: ${{ steps.complex_tests.outcome }}"
 
       - name: Publish raw test results as files
         if: |
