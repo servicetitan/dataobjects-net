@@ -88,10 +88,10 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override ParameterizedExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       if (processedExpressions.TryGetValue(this, out var value)) {
-        return value;
+        return (ParameterizedExpression) value;
       }
 
       var result = new StructureExpression(PersistentType, Mapping);

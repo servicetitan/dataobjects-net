@@ -24,14 +24,14 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public EntityExpression EntityExpression { get; private set; }
 
-    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override ParameterizedExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       Expression result;
       if (processedExpressions.TryGetValue(this, out result))
-        return result;
+        return (ParameterizedExpression) result;
 
-      var entityExpression = (EntityExpression) EntityExpression.BindParameter(parameter, processedExpressions);
-      var rankExpression = (ColumnExpression) RankExpression.BindParameter(parameter, processedExpressions);
+      var entityExpression = EntityExpression.BindParameter(parameter, processedExpressions);
+      var rankExpression = RankExpression.BindParameter(parameter, processedExpressions);
       return new FullTextExpression(FullTextIndex, entityExpression, rankExpression, parameter);
     }
 

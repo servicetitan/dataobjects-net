@@ -42,16 +42,14 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public SelectManyGroupingInfo SelectManyInfo { get; private set; }
 
-    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override ParameterizedExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
-        return result;
-      var mappedKey = KeyExpression as IMappedExpression;
-      if (mappedKey==null)
+      if (processedExpressions.TryGetValue(this, out var value))
+        return (ParameterizedExpression) value;
+      if (!(KeyExpression is IMappedExpression mappedKey))
         return this;
       var processedKey = mappedKey.BindParameter(parameter, processedExpressions);
-      result = new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter, processedKey, SelectManyInfo);
+      var result = new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter, processedKey, SelectManyInfo);
       processedExpressions.Add(this, result);
       return result;
     }

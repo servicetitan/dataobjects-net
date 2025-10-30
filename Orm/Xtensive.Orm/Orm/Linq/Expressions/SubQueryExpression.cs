@@ -22,10 +22,8 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public ApplyParameter ApplyParameter { get; }
 
-    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
-    {
-      return this;
-    }
+    public override ParameterizedExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions) =>
+      this;
 
     public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {

@@ -109,8 +109,8 @@ namespace Xtensive.Orm.Linq.Expressions
         // Do not convert to LINQ. We want to avoid a closure creation here.
         newFields[i++] = (PersistentFieldExpression) field.BindParameter(parameter, processedExpressions);
       }
-      var keyExpression = (KeyExpression) Key.BindParameter(parameter, processedExpressions);
-      var entity = (EntityExpression) Entity?.BindParameter(parameter, processedExpressions);
+      var keyExpression = Key.BindParameter(parameter, processedExpressions);
+      var entity = Entity?.BindParameter(parameter, processedExpressions);
       var result = new EntityFieldExpression(
         PersistentType, Field, newFields, Mapping, keyExpression, entity, parameter, DefaultIfEmpty);
       if (Owner == null) {

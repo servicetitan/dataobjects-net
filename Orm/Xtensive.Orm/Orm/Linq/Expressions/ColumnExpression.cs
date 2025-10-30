@@ -32,10 +32,8 @@ namespace Xtensive.Orm.Linq.Expressions
       return new ColumnExpression(Type, newMapping, OuterParameter, DefaultIfEmpty);
     }
 
-    public Expression BindParameter(ParameterExpression parameter)
-    {
-      return BindParameter(parameter, new Dictionary<Expression, Expression>());
-    }
+    public ColumnExpression BindParameter(ParameterExpression parameter) =>
+      BindParameter(parameter, new Dictionary<Expression, Expression>());
 
     public override ColumnExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {

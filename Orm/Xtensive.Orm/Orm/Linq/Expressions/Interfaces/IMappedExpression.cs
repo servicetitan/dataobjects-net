@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Linq.Expressions
 {
   internal interface IMappedExpression
   {
-    Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions);
+    ParameterizedExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions);
     Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions);
     Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions);
     Expression Remap(ColumnMap map, Dictionary<Expression, Expression> processedExpressions);

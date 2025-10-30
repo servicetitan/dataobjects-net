@@ -1704,7 +1704,7 @@ namespace Xtensive.Orm.Linq
         var result = EntityExpression.Create(targetTypeInfo, offset, false);
         result.IsNullable = true;
         if (parameter != currentParameter) {
-          result = (EntityExpression) result.BindParameter(parameter, new Dictionary<Expression, Expression>());
+          result = result.BindParameter(parameter, new Dictionary<Expression, Expression>());
         }
 
         return result;
