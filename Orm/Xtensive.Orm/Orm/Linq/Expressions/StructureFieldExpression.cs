@@ -4,9 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.05
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
@@ -120,10 +117,10 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
+    public override StructureFieldExpression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
       if (processedExpressions.TryGetValue(this, out var value)) {
-        return value;
+        return (StructureFieldExpression) value;
       }
 
       var result = new StructureFieldExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);

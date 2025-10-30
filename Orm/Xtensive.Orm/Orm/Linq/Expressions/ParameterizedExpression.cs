@@ -4,8 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.18
 
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Xtensive.Orm.Linq.Expressions
@@ -42,7 +40,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return false;
     }
 
-    public abstract Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions);
+    public abstract ParameterizedExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions);
     public abstract Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions);
     public abstract Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions);
     public abstract Expression Remap(ColumnMap map, Dictionary<Expression, Expression> processedExpressions);

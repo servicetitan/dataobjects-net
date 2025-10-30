@@ -32,20 +32,16 @@ namespace Xtensive.Orm.Linq.Expressions
       return new ColumnExpression(Type, newMapping, OuterParameter, DefaultIfEmpty);
     }
 
-    public Expression BindParameter(ParameterExpression parameter)
-    {
-      return BindParameter(parameter, new Dictionary<Expression, Expression>());
-    }
+    public ColumnExpression BindParameter(ParameterExpression parameter) =>
+      BindParameter(parameter, new Dictionary<Expression, Expression>());
 
     public override ColumnExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       return new ColumnExpression(Type, Mapping, parameter, DefaultIfEmpty);
     }
 
-    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
-    {
-      return new ColumnExpression(Type, Mapping, null, DefaultIfEmpty);
-    }
+    public override ColumnExpression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions) =>
+      new(Type, Mapping, null, DefaultIfEmpty);
 
     public static ColumnExpression Create(Type type, ColNum columnIndex)
     {

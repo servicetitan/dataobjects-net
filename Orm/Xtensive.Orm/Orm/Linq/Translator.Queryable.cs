@@ -847,7 +847,7 @@ namespace Xtensive.Orm.Linq
 
             var resultColumn = ColumnExpression.Create(columnType, (ColNum) (resultDataSource.Header.Length - 1));
             if (isSubqueryParameter) {
-              resultColumn = (ColumnExpression) resultColumn.BindParameter(groupingParameter);
+              resultColumn = resultColumn.BindParameter(groupingParameter);
             }
             return convertResultColumn ? Expression.Convert(resultColumn, resultType) : (Expression) resultColumn;
           }

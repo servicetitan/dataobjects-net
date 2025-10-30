@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Linq
 
     public IReadOnlyList<Expression> ConstructorArguments { get; }
 
-    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override ParameterizedExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       GenericExpressionVisitor<IMappedExpression> genericVisitor = new(mapped => mapped.BindParameter(parameter, processedExpressions));
       var genericBinder = genericVisitor.Process;

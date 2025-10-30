@@ -90,13 +90,13 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
+    public override FieldExpression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      if (processedExpressions.TryGetValue(this, out var result)) {
-        return result;
+      if (processedExpressions.TryGetValue(this, out var value)) {
+        return (FieldExpression) value;
       }
 
-      result = new FieldExpression(ExtendedExpressionType.Field, Field, Mapping, null, DefaultIfEmpty);
+      var result = new FieldExpression(ExtendedExpressionType.Field, Field, Mapping, null, DefaultIfEmpty);
       if (owner == null) {
         return result;
       }

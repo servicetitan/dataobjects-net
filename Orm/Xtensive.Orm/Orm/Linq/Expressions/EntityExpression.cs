@@ -76,13 +76,13 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override EntityExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       if (processedExpressions.TryGetValue(this, out var value)) {
-        return value;
+        return (EntityExpression) value;
       }
 
-      var keyExpression = (KeyExpression) Key.BindParameter(parameter, processedExpressions);
+      var keyExpression = Key.BindParameter(parameter, processedExpressions);
       var result = new EntityExpression(PersistentType, keyExpression, parameter, DefaultIfEmpty);
       result.IsNullable = IsNullable;
       processedExpressions.Add(this, result);
@@ -96,13 +96,13 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
+    public override EntityExpression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
       if (processedExpressions.TryGetValue(this, out var value)) {
-        return value;
+        return (EntityExpression) value;
       }
 
-      var keyExpression = (KeyExpression) Key.RemoveOuterParameter(processedExpressions);
+      var keyExpression = Key.RemoveOuterParameter(processedExpressions);
       var result = new EntityExpression(PersistentType, keyExpression, null, DefaultIfEmpty);
       result.IsNullable = IsNullable;
       processedExpressions.Add(this, result);
@@ -177,7 +177,7 @@ namespace Xtensive.Orm.Linq.Expressions
       result.SetFields(fields);
       return entityFieldExpression.OuterParameter == null
         ? result
-        : (EntityExpression) result.BindParameter(
+        : result.BindParameter(
           entityFieldExpression.OuterParameter, new Dictionary<Expression, Expression>());
     }
 

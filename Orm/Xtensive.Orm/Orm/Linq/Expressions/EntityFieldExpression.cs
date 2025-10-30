@@ -4,8 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.06
 
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
@@ -103,14 +101,14 @@ namespace Xtensive.Orm.Linq.Expressions
         return (EntityFieldExpression)r;
       }
 
-      var newFields = new PersistentFieldExpression[fields.Count];
-      int i = 0;
-      foreach (var field in fields) {
+      var n = fields.Count;
+      var newFields = new PersistentFieldExpression[n];
+      for (int i = 0; i < n; ++i) {
         // Do not convert to LINQ. We want to avoid a closure creation here.
-        newFields[i++] = (PersistentFieldExpression) field.BindParameter(parameter, processedExpressions);
+        newFields[i] = (PersistentFieldExpression) fields[i].BindParameter(parameter, processedExpressions);
       }
-      var keyExpression = (KeyExpression) Key.BindParameter(parameter, processedExpressions);
-      var entity = (EntityExpression) Entity?.BindParameter(parameter, processedExpressions);
+      var keyExpression = Key.BindParameter(parameter, processedExpressions);
+      var entity = Entity?.BindParameter(parameter, processedExpressions);
       var result = new EntityFieldExpression(
         PersistentType, Field, newFields, Mapping, keyExpression, entity, parameter, DefaultIfEmpty);
       if (Owner == null) {
@@ -122,20 +120,21 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
+    public override EntityFieldExpression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      if (processedExpressions.TryGetValue(this, out var result)) {
-        return result;
+      if (processedExpressions.TryGetValue(this, out var value)) {
+        return (EntityFieldExpression) value;
       }
 
-      var newFields = new List<PersistentFieldExpression>(fields.Count);
+      var newFields = new PersistentFieldExpression[fields.Count];
+      int i = 0;
       foreach (var field in fields) {
         // Do not convert to LINQ. We want to avoid a closure creation here.
-        newFields.Add((PersistentFieldExpression) field.RemoveOuterParameter(processedExpressions));
+        newFields[i++] = (PersistentFieldExpression) field.RemoveOuterParameter(processedExpressions);
       }
-      var keyExpression = (KeyExpression) Key.RemoveOuterParameter(processedExpressions);
-      var entity = (EntityExpression) Entity?.RemoveOuterParameter(processedExpressions);
-      result = new EntityFieldExpression(
+      var keyExpression = Key.RemoveOuterParameter(processedExpressions);
+      var entity = Entity?.RemoveOuterParameter(processedExpressions);
+      var result = new EntityFieldExpression(
         PersistentType, Field, newFields, Mapping, keyExpression, entity, null, DefaultIfEmpty);
       if (Owner == null) {
         return result;
