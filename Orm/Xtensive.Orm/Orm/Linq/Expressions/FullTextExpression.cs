@@ -41,8 +41,8 @@ namespace Xtensive.Orm.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out result))
         return result;
 
-      var entityExpression = (EntityExpression) EntityExpression.RemoveOuterParameter(processedExpressions);
-      var rankExpression = (ColumnExpression) RankExpression.RemoveOuterParameter(processedExpressions);
+      var entityExpression = EntityExpression.RemoveOuterParameter(processedExpressions);
+      var rankExpression = RankExpression.RemoveOuterParameter(processedExpressions);
       return new FullTextExpression(FullTextIndex, entityExpression, rankExpression, null);
     }
 

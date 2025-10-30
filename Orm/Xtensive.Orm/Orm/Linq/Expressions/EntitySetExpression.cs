@@ -87,12 +87,11 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
+    public override EntitySetExpression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
-        return result;
-      result = new EntitySetExpression(Field, null, DefaultIfEmpty);
+      if (processedExpressions.TryGetValue(this, out var value))
+        return (EntitySetExpression) value;
+      var result = new EntitySetExpression(Field, null, DefaultIfEmpty);
       if (base.Owner==null)
         return result;
       processedExpressions.Add(this, result);

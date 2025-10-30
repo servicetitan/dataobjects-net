@@ -96,13 +96,13 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
+    public override EntityExpression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
       if (processedExpressions.TryGetValue(this, out var value)) {
-        return value;
+        return (EntityExpression) value;
       }
 
-      var keyExpression = (KeyExpression) Key.RemoveOuterParameter(processedExpressions);
+      var keyExpression = Key.RemoveOuterParameter(processedExpressions);
       var result = new EntityExpression(PersistentType, keyExpression, null, DefaultIfEmpty);
       result.IsNullable = IsNullable;
       processedExpressions.Add(this, result);

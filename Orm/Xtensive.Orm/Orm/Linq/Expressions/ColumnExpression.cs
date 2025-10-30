@@ -40,10 +40,8 @@ namespace Xtensive.Orm.Linq.Expressions
       return new ColumnExpression(Type, Mapping, parameter, DefaultIfEmpty);
     }
 
-    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
-    {
-      return new ColumnExpression(Type, Mapping, null, DefaultIfEmpty);
-    }
+    public override ColumnExpression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions) =>
+      new(Type, Mapping, null, DefaultIfEmpty);
 
     public static ColumnExpression Create(Type type, ColNum columnIndex)
     {
