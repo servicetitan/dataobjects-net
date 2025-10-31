@@ -22,8 +22,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       private readonly Module module;
       private readonly int metadataToken;
 
-      public bool Equals(CompilerKey other) => metadataToken == other.metadataToken
-        && (ReferenceEquals(module, other.module) || module == other.module);
+      public bool Equals(CompilerKey other) => metadataToken == other.metadataToken && module == other.module;
 
       public override bool Equals(object obj) => obj is CompilerKey other && Equals(other);
 
