@@ -4,33 +4,30 @@
 // Created by: Denis Krjuchkov
 // Created:    2011.10.27
 
-using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core;
-
 
 namespace Xtensive.Orm.Configuration
 {
   /// <summary>
   /// Registration entry for LINQ extension.
   /// </summary>
-  public sealed class LinqExtensionRegistration
+  public readonly struct LinqExtensionRegistration
   {
     /// <summary>
     /// Gets member this extension is intended for.
     /// </summary>
-    public MemberInfo Member { get; private set; }
+    public MemberInfo Member { get; }
 
     /// <summary>
     /// Gets substitution that is performed when LINQ translator encouters <see cref="Member"/> access.
     /// </summary>
-    public LambdaExpression Substitution { get; private set; }
+    public LambdaExpression Substitution { get; }
 
     /// <summary>
     /// Gets action that is performed when LINQ translator encouters <see cref="Member"/> access.
     /// </summary>
-    public Func<MemberInfo, Expression, Expression[], Expression> Compiler { get; private set; }
+    public Func<MemberInfo, Expression, Expression[], Expression> Compiler { get; }
 
 
     // Constructors
