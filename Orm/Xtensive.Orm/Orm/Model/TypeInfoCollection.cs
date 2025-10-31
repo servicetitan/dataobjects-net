@@ -4,9 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.27
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Frozen;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -21,7 +19,7 @@ namespace Xtensive.Orm.Model
     : NodeCollection<TypeInfo>,
       IFilterable<TypeAttributes, TypeInfo>
   {
-    private readonly Dictionary<Type, TypeInfo> typeTable = new();
+    private IDictionary<Type, TypeInfo> typeTable = new Dictionary<Type, TypeInfo>();
     private readonly Dictionary<string, TypeInfo> fullNameTable = new();
 
     private TypeIdRegistry typeIdRegistry;
@@ -253,6 +251,11 @@ namespace Xtensive.Orm.Model
         + " You might have forgotten to register type {0} as an element of domain model.", key);
     }
 
+    public override void Lock(bool recursive)
+    {
+      base.Lock(recursive);
+      typeTable = typeTable.ToFrozenDictionary();
+    }
 
     // Constructors
 
