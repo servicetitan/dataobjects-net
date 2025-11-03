@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     /// <param name="conflictHandlingMethod">Conflict handling method.</param>
     void RegisterCompilers(IEnumerable<KeyValuePair<MemberInfo, Func<MemberInfo, T, T[], T>>> compilerDefinitions, ConflictHandlingMethod conflictHandlingMethod);
 
-    public readonly struct BoundCompiler(Func<MemberInfo, T, T[], T> compiler, MemberInfo memberInfo)
+    readonly struct BoundCompiler(Func<MemberInfo, T, T[], T> compiler, MemberInfo memberInfo)
     {
       public bool IsNull => compiler == null;
 
