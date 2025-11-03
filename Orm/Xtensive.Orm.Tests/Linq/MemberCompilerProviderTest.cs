@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Tests.Linq
         .GetProperty("InternalProperty", BindingFlags.Instance | BindingFlags.NonPublic);
       Assert.IsNotNull(property);
       var result = provider.GetCompiler(property);
-      Assert.IsNull(result);
+      Assert.IsTrue(result.IsNull);
     }
 
     [Test]
