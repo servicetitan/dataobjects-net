@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Tests.Linq
   {
     private readonly string[] dummy = new string[10];
     
-    private static Func<string, string[],string> GetCompilerForMethod(
+    private static IMemberCompilerProvider<string>.BoundCompiler GetCompilerForMethod(
       IMemberCompilerProvider<string> provider, Type source, string methodName)
     {
       if (source.IsGenericTypeDefinition)
@@ -31,11 +31,11 @@ namespace Xtensive.Orm.Tests.Linq
       if (mi.IsGenericMethodDefinition)
         mi = mi.MakeGenericMethod(typeof(object));
       var result = provider.GetCompiler(mi);
-      Assert.IsNotNull(result);
+      Assert.IsFalse(result.IsNull);
       return result;
     }
 
-    private static Func<string, string[], string> GetCompilerForCtor(
+    private static IMemberCompilerProvider<string>.BoundCompiler GetCompilerForCtor(
       IMemberCompilerProvider<string> provider, Type source)
     {
       if (source.IsGenericTypeDefinition)
@@ -43,11 +43,11 @@ namespace Xtensive.Orm.Tests.Linq
 
       var ci = source.GetConstructors().First();
       var result = provider.GetCompiler(ci);
-      Assert.IsNotNull(result);
+      Assert.IsFalse(result.IsNull);
       return result;
     }
 
-    private static Func<string, string[], string> GetCompilerForField(
+    private static IMemberCompilerProvider<string>.BoundCompiler GetCompilerForField(
       IMemberCompilerProvider<string> provider, Type source, string fieldName)
     {
       if (source.IsGenericTypeDefinition)
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.Linq
       var fi = source.GetField(fieldName);
       Assert.IsNotNull(fi);
       var result = provider.GetCompiler(fi);
-      Assert.IsNotNull(result);
+      Assert.IsFalse(result.IsNull);
       return result;
     }
 
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Tests.Linq
           foreach (string s2 in new[]{"Generic", "NonGeneric"}) {
             string method = s1 + s2 + "Method";
             var d = GetCompilerForMethod(provider, t, method);
-            Assert.AreEqual(t.Name + "." + method, d(null, dummy));
+            Assert.AreEqual(t.Name + "." + method, d.Invoke(null, dummy));
           }
     }
 
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Linq
           foreach (string s2 in new[] { "InstanceProperty", "StaticProperty", "Item" }) {
             string method = s1 + s2;
             var d = GetCompilerForMethod(provider, t, method);
-            Assert.AreEqual(t.Name + "." + method, d(null, dummy));
+            Assert.AreEqual(t.Name + "." + method, d.Invoke(null, dummy));
           }
     }
 
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Linq
       foreach (var t in new[]{typeof(NonGenericTarget), typeof(GenericTarget<>)})
         foreach (string s in new[] {"InstanceField", "StaticField"}) {
           var d = GetCompilerForField(provider, t, s);
-          Assert.AreEqual(t.Name + "." + s, d(null, dummy));
+          Assert.AreEqual(t.Name + "." + s, d.Invoke(null, dummy));
         }
     }
 
@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Tests.Linq
       provider.RegisterCompilers(typeof(CtorCompiler));
       foreach (var t in new[]{typeof(NonGenericTarget), typeof(GenericTarget<>)}) {
         var d = GetCompilerForCtor(provider, t);
-        Assert.AreEqual(t.Name + Reflection.WellKnown.CtorName, d(null, dummy));
+        Assert.AreEqual(t.Name + Reflection.WellKnown.CtorName, d.Invoke(null, dummy));
       }
     }
 
@@ -128,8 +128,8 @@ namespace Xtensive.Orm.Tests.Linq
         .MakeGenericMethod(typeof(string));
 
       var d = provider.GetCompiler(mi);
-      Assert.IsNotNull(d);
-      Assert.AreEqual("OK", d(null, dummy));
+      Assert.IsFalse(d.IsNull);
+      Assert.AreEqual("OK", d.Invoke(null, dummy));
     }
 
     [Test]
@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Tests.Linq
       provider.RegisterCompilers(typeof(ConflictCompiler1));
       provider.RegisterCompilers(typeof(ConflictCompiler2), ConflictHandlingMethod.KeepOld);
       var d = GetCompilerForMethod(provider, typeof(ConflictTarget), "ConflictMethod");
-      Assert.AreEqual("Compiler1", d(null, dummy));
+      Assert.AreEqual("Compiler1", d.Invoke(null, dummy));
     }
 
     [Test]
@@ -170,7 +170,7 @@ namespace Xtensive.Orm.Tests.Linq
       provider.RegisterCompilers(typeof(ConflictCompiler1));
       provider.RegisterCompilers(typeof(ConflictCompiler2), ConflictHandlingMethod.Overwrite);
       var d = GetCompilerForMethod(provider, typeof(ConflictTarget), "ConflictMethod");
-      Assert.AreEqual("Compiler2", d(null, dummy));
+      Assert.AreEqual("Compiler2", d.Invoke(null, dummy));
     }
 
     [Test]
