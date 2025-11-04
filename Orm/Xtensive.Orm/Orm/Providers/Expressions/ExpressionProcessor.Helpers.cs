@@ -201,8 +201,10 @@ namespace Xtensive.Orm.Providers
 
     private SqlExpression CompileMember(MemberInfo member, SqlExpression instance, params SqlExpression[] arguments)
     {
-      var memberCompiler = memberCompilerProvider.GetCompiler(member)
-        ?? throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, member.GetFullName(true)));
+      var memberCompiler = memberCompilerProvider.GetCompiler(member);
+      if (memberCompiler.IsNull) {
+        throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, member.GetFullName(true)));
+      }
       return memberCompiler.Invoke(instance, arguments);
     }
 

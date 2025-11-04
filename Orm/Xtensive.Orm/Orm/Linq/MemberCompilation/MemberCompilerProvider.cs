@@ -4,9 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.02.09
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Frozen;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -36,23 +34,24 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       }
     }
 
-    private readonly Dictionary<CompilerKey, Delegate> compilers
-      = new Dictionary<CompilerKey, Delegate>();
+    private IDictionary<CompilerKey, Delegate> compilers = new Dictionary<CompilerKey, Delegate>();
 
     public Type ExpressionType => typeof(T);
+
+    public override void Lock(bool recursive)
+    {
+      base.Lock(recursive);
+      compilers = compilers.ToFrozenDictionary();
+    }
 
     public Delegate GetUntypedCompiler(MemberInfo target)
     {
       ArgumentNullException.ThrowIfNull(target);
-
-      return compilers.GetValueOrDefault(GetCompilerKey(target));
+      return compilers.TryGetValue(GetCompilerKey(target), out var v) ? v : null;
     }
 
-    public Func<T, T[], T> GetCompiler(MemberInfo target)
-    {
-      var compiler = (Func<MemberInfo, T, T[], T>) GetUntypedCompiler(target);
-      return compiler.Bind(target);
-    }
+    public IMemberCompilerProvider<T>.BoundCompiler GetCompiler(MemberInfo target) =>
+      new((Func<MemberInfo, T, T[], T>) GetUntypedCompiler(target), target);
 
     public void RegisterCompilers(Type compilerContainer)
     {

@@ -361,18 +361,18 @@ namespace Xtensive.Orm.Linq
       // Reflected type doesn't have custom compiler defined, so falling back to base class compiler
       var declaringType = memberInfo.DeclaringType;
       var reflectedType = memberInfo.ReflectedType;
-      if (customCompiler == null && declaringType != reflectedType && declaringType.IsAssignableFrom(reflectedType)) {
+      if (customCompiler.IsNull && declaringType != reflectedType && declaringType.IsAssignableFrom(reflectedType)) {
         var root = declaringType;
         var current = reflectedType;
-        while (current != root && customCompiler == null) {
+        while (current != root && customCompiler.IsNull) {
           current = current.BaseType;
           var member = current.GetProperty(memberInfo.Name, BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic);
           customCompiler = context.CustomCompilerProvider.GetCompiler(member);
         }
       }
 
-      if (customCompiler != null) {
-        var expression = customCompiler.Invoke(sourceExpression, Array.Empty<Expression>());
+      if (!customCompiler.IsNull) {
+        var expression = customCompiler.Invoke(sourceExpression, []);
         if (expression == null) {
           if (reflectedType.IsInterface)
             return Visit(BuildInterfaceExpression(ma));
@@ -435,7 +435,7 @@ namespace Xtensive.Orm.Linq
       using (CreateScope(new TranslatorState(State) { IsTailMethod = mc == context.Query && mc.IsQuery() })) {
         var method = mc.Method;
         var customCompiler = context.CustomCompilerProvider.GetCompiler(method);
-        if (customCompiler != null) {
+        if (!customCompiler.IsNull) {
           return Visit(customCompiler.Invoke(mc.Object, mc.Arguments.ToArray()));
         }
 
@@ -1841,7 +1841,7 @@ namespace Xtensive.Orm.Linq
       Expression current = Expression.Constant(defaultValue, propertyType);
       foreach (var field in fields) {
         var compiler = context.CustomCompilerProvider.GetCompiler(field);
-        if (compiler == null)
+        if (compiler.IsNull)
           continue;
         var expression = compiler.Invoke(Expression.TypeAs(ma.Expression, field.ReflectedType), null);
         current = Expression.Condition(Expression.TypeIs(ma.Expression, field.ReflectedType), expression, current);

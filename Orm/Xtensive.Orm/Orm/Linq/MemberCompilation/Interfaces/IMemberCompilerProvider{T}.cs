@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.02.09
 
-using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace Xtensive.Orm.Linq.MemberCompilation
@@ -36,12 +34,19 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     /// <param name="conflictHandlingMethod">Conflict handling method.</param>
     void RegisterCompilers(IEnumerable<KeyValuePair<MemberInfo, Func<MemberInfo, T, T[], T>>> compilerDefinitions, ConflictHandlingMethod conflictHandlingMethod);
 
+    readonly struct BoundCompiler(Func<MemberInfo, T, T[], T> compiler, MemberInfo memberInfo)
+    {
+      public bool IsNull => compiler == null;
+
+      public T Invoke(T arg2, T[] arg3) => compiler(memberInfo, arg2, arg3);
+    }
+
     /// <summary>
     /// Finds compiler for specified <see cref="MemberInfo"/>.
     /// </summary>
     /// <param name="target"><see cref="MemberInfo"/> to search compiler for.</param>
     /// <returns>compiler associated with <see cref="MethodInfo"/>
     /// or <see langword="null"/> if compiler is not found.</returns>
-    Func<T, T[], T> GetCompiler(MemberInfo target);
+    BoundCompiler GetCompiler(MemberInfo target);
   }
 }
