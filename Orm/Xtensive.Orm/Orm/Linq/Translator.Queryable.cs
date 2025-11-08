@@ -1253,7 +1253,10 @@ namespace Xtensive.Orm.Linq
     {
       var outerDataSource = outer.ItemProjector.DataSource;
       var outerLength = outerDataSource.Header.Length;
-      var tupleParameterBindings = outer.TupleParameterBindings.Union(inner.TupleParameterBindings).ToDictionary(pair => pair.Key, pair => pair.Value);
+      Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings = new(outer.TupleParameterBindings);
+      foreach (var pair in inner.TupleParameterBindings) {
+        tupleParameterBindings.TryAdd(pair.Key, pair.Value);
+      }
       outer = new ProjectionExpression(outer.Type, outer.ItemProjector.Remap(recordQuery, 0), tupleParameterBindings);
       inner = new ProjectionExpression(inner.Type, inner.ItemProjector.Remap(recordQuery, outerLength), tupleParameterBindings);
 
