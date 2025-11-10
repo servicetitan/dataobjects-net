@@ -5,7 +5,7 @@
 // Created:    2009.05.06
 
 using System.Linq.Expressions;
-using Xtensive.Core;
+using System.Collections.ObjectModel;
 
 namespace Xtensive.Linq
 {
@@ -103,14 +103,38 @@ namespace Xtensive.Linq
       }
     }
 
-    private bool VisitListInit(ListInitExpression x, ListInitExpression y)
+    private bool ElementInitsAreEqual(ReadOnlyCollection<ElementInit> x, ReadOnlyCollection<ElementInit> y)
     {
-      var self = this;    // To allow struct's methods inside closures
-      return VisitNew(x.NewExpression, y.NewExpression)
-        && x.Initializers.Count==y.Initializers.Count
-        && x.Initializers
-          .Zip(y.Initializers)
-          .All(p => self.VisitElementInit(p.First, p.Second));
+      var count = x.Count;
+      if (count != y.Count) {
+        return false;
+      }
+
+      for (int i = 0; i < count; ++i) {
+        if (!VisitElementInit(x[i], y[i])) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    private bool VisitListInit(ListInitExpression x, ListInitExpression y) =>
+      VisitNew(x.NewExpression, y.NewExpression) && ElementInitsAreEqual(x.Initializers, y.Initializers);
+
+    private bool MemberBindingsAreEqual(ReadOnlyCollection<MemberBinding> xBindings, ReadOnlyCollection<MemberBinding> yBindings)
+    {
+      var count = xBindings.Count;
+      if (count != yBindings.Count) {
+        return false;
+      }
+
+      for (int i = 0; i < count; ++i) {
+        if (!VisitMemberBinding(xBindings[i], yBindings[i])) {
+          return false;
+        }
+      }
+
+      return true;
     }
 
     /// <summary>
@@ -119,45 +143,19 @@ namespace Xtensive.Linq
     /// <param name="x">The x.</param>
     /// <param name="y">The y.</param>
     /// <returns></returns>
-    private bool VisitMemberInit(MemberInitExpression x, MemberInitExpression y)
-    {
-      var self = this;    // To allow struct's methods inside closures
-      return VisitNew(x.NewExpression, y.NewExpression)
-        && x.Bindings.Count==y.Bindings.Count
-        && x.Bindings
-          .Zip(y.Bindings)
-          .All(p => self.VisitMemberBinding(p.First, p.Second));
-    }
+    private bool VisitMemberInit(MemberInitExpression x, MemberInitExpression y) =>
+      VisitNew(x.NewExpression, y.NewExpression) && MemberBindingsAreEqual(x.Bindings, y.Bindings);
 
-    private bool VisitMemberBinding(MemberBinding x, MemberBinding y)
-    {
-      var bindingType = x.BindingType;
-      if (bindingType != y.BindingType || x.Member != y.Member)
-        return false;
-      var self = this;    // To allow struct's methods inside closures
-      switch (bindingType) {
-        case MemberBindingType.Assignment:
-          var ax = (MemberAssignment)x;
-          var ay = (MemberAssignment)y;
-          return Visit(ax.Expression, ay.Expression);
-        case MemberBindingType.MemberBinding:
-          var mbx = (MemberMemberBinding)x;
-          var mby = (MemberMemberBinding)y;
-          return mbx.Bindings.Count==mby.Bindings.Count
-                 && mbx.Bindings
-                    .Zip(mby.Bindings)
-                    .All(p => self.VisitMemberBinding(p.First, p.Second));
-        case MemberBindingType.ListBinding:
-          var mlx = (MemberListBinding)x;
-          var mly = (MemberListBinding)y;
-          return mlx.Initializers.Count==mly.Initializers.Count
-                 && mlx.Initializers
-                    .Zip(mly.Initializers)
-                    .All(p => self.VisitElementInit(p.First, p.Second));
-        default:
-          throw new ArgumentOutOfRangeException();
-      }
-    }
+    private bool VisitMemberBinding(MemberBinding x, MemberBinding y) =>
+      x.BindingType is var bindingType
+        && bindingType == y.BindingType
+        && x.Member == y.Member
+        && bindingType switch {
+          MemberBindingType.Assignment => Visit(((MemberAssignment) x).Expression, ((MemberAssignment) y).Expression),
+          MemberBindingType.MemberBinding => MemberBindingsAreEqual(((MemberMemberBinding) x).Bindings, ((MemberMemberBinding) y).Bindings),
+          MemberBindingType.ListBinding => ElementInitsAreEqual(((MemberListBinding) x).Initializers, ((MemberListBinding) y).Initializers),
+          _ => throw new ArgumentOutOfRangeException()
+        };
 
     private bool VisitElementInit(ElementInit x, ElementInit y)
     {
