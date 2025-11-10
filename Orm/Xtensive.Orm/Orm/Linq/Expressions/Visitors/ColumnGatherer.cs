@@ -4,18 +4,14 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.06
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
-  internal sealed class ColumnGatherer : PersistentExpressionVisitor
+  internal sealed class ColumnGatherer(ColumnExtractionModes columnExtractionModes) : PersistentExpressionVisitor
   {
-    private readonly ColumnExtractionModes columnExtractionModes;
     private readonly List<(ColNum, Expression)> columns = new();
     private SubQueryExpression topSubquery;
 
@@ -61,13 +57,15 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     {
       var gatherer = new ColumnGatherer(columnExtractionModes);
       gatherer.Visit(expression);
-      var distinct = gatherer.DistinctValues
-        ? gatherer.columns.Select(p=>p.Item1).Distinct()
-        : gatherer.columns.Select(p=>p.Item1);
-      var ordered = gatherer.OrderedValues
-        ? distinct.OrderBy(i => i)
-        : distinct;
-      return ordered.ToArray();
+      var columns = gatherer.columns.Select(p => p.Item1);
+      if (gatherer.DistinctValues && gatherer.OrderedValues) {
+        columns = new SortedSet<ColNum>(columns);
+      }
+      else {
+        columns = gatherer.DistinctValues ? columns.Distinct() : columns;
+        columns = gatherer.OrderedValues ? columns.OrderBy(i => i) : columns;
+      }
+      return columns.ToArray();
     }
 
     internal override Expression VisitMarker(MarkerExpression expression)
@@ -233,13 +231,6 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       VisitEntityExpression(expression.EntityExpression);
       VisitColumnExpression(expression.RankExpression);
       return expression;
-    }
-
-    // Constructors
-
-    private ColumnGatherer(ColumnExtractionModes columnExtractionModes)
-    {
-      this.columnExtractionModes = columnExtractionModes;
     }
   }
 }
