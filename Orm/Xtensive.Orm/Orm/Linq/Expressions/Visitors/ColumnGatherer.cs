@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       }
       else {
         columns = gatherer.DistinctValues ? columns.Distinct() : columns;
-        columns = gatherer.OrderedValues ? columns.OrderBy(i => i) : columns;
+        columns = gatherer.OrderedValues ? columns.Order() : columns;
       }
       return columns.ToArray();
     }
