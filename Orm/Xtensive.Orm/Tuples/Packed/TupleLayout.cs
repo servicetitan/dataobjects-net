@@ -105,9 +105,9 @@ namespace Xtensive.Tuples.Packed
 
       public static ValueFieldAccessor GetValue(Type probeType) =>
         TypeToAccessor.GetValueOrDefault(probeType)
-          ?? ((probeType.MetadataToken ^ NullableTypeMetadataToken) == 0
-            ? TryResolveEnum(probeType.GetGenericArguments()[0])
-            : TryResolveEnum(probeType));
+          ?? TryResolveEnum(probeType.MetadataToken == NullableTypeMetadataToken
+            ? probeType.GetGenericArguments()[0]
+            : probeType);
 
       private static ValueFieldAccessor TryResolveEnum(Type type) =>
         type.IsEnum ? TypeToAccessor.GetValueOrDefault(Enum.GetUnderlyingType(type)) : null;
