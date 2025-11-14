@@ -923,7 +923,7 @@ namespace Xtensive.Reflection
     /// <returns><see langword="True"/> if type is nullable type;
     /// otherwise, <see langword="false"/>.</returns>
     public static bool IsNullable(this Type type) =>
-      (type.MetadataToken ^ NullableTypeMetadataToken) == 0 && type.Module.ModuleHandle == SystemCoreLibModuleHandle;
+      type.MetadataToken == NullableTypeMetadataToken && type.Module.ModuleHandle == SystemCoreLibModuleHandle;
 
     /// <summary>
     /// Indicates whether <typeparamref name="T"/> type is a <see cref="Nullable{T}"/> type.
@@ -1067,7 +1067,7 @@ namespace Xtensive.Reflection
       var definitionMetadataToken = openGenericBaseType.MetadataToken;
       var definitionModule = openGenericBaseType.Module;
       while (type != null && !ReferenceEquals(type, WellKnownTypes.Object)) {
-        if ((type.MetadataToken ^ definitionMetadataToken) == 0 && ReferenceEquals(type.Module, definitionModule)) {
+        if (type.MetadataToken == definitionMetadataToken && ReferenceEquals(type.Module, definitionModule)) {
           return type;
         }
 
@@ -1111,14 +1111,13 @@ namespace Xtensive.Reflection
     {
       var metadataToken = openGenericInterface.MetadataToken;
       var module = openGenericInterface.Module;
-      if (type == null || ((type.MetadataToken ^ metadataToken) == 0 && ReferenceEquals(type.Module, module))) {
+      if (type == null || (type.MetadataToken == metadataToken && ReferenceEquals(type.Module, module))) {
         return type;
       }
 
       // We don't use LINQ as we don't want to create a closure here
       foreach (var implementedInterface in GetInterfacesUnordered(type)) {
-        if ((implementedInterface.MetadataToken ^ metadataToken) == 0
-          && ReferenceEquals(implementedInterface.Module, module)) {
+        if (implementedInterface.MetadataToken == metadataToken && ReferenceEquals(implementedInterface.Module, module)) {
           return implementedInterface;
         }
       }
