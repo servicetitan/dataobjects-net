@@ -52,7 +52,7 @@ namespace Xtensive.Tuples.Packed
       private static readonly ValueFieldAccessor GuidAccessor = new GuidFieldAccessor();
       private static readonly ValueFieldAccessor DateTimeOffsetAccessor = new DateTimeOffsetFieldAccessor();
 
-      private static readonly IReadOnlyDictionary<Type, ValueFieldAccessor> TypeToAccessor = new Dictionary<Type, ValueFieldAccessor>(TypeReferenceEqualityComparer.Instance)
+      private static readonly Dictionary<Type, ValueFieldAccessor> TypeToAccessor = new(TypeReferenceEqualityComparer.Instance)
       {
         [WellKnownTypes.Int64] = Int64Accessor,
         [WellKnownTypes.Guid] = GuidAccessor,
