@@ -52,6 +52,8 @@ namespace Xtensive.Tuples.Packed
       private static readonly ValueFieldAccessor GuidAccessor = new GuidFieldAccessor();
       private static readonly ValueFieldAccessor DateTimeOffsetAccessor = new DateTimeOffsetFieldAccessor();
 
+      private static readonly ObjectFieldAccessor ObjectAccessor = new();
+
       private sealed class TypeReferenceEqualityComparer : IEqualityComparer<Type>
       {
         public static readonly TypeReferenceEqualityComparer Instance = new();
@@ -98,8 +100,6 @@ namespace Xtensive.Tuples.Packed
         [WellKnownTypes.NullableUInt32] = UInt32Accessor,
         [WellKnownTypes.NullableUInt64] = UInt64Accessor
       };
-
-      private static readonly ObjectFieldAccessor ObjectAccessor = new ObjectFieldAccessor();
 
       private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
 
