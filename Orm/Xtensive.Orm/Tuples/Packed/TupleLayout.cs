@@ -116,14 +116,13 @@ namespace Xtensive.Tuples.Packed
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ConfigureFieldAccessor(ref PackedFieldDescriptor descriptor, Type fieldType) =>
-      descriptor.AccessorIndex = ((PackedFieldAccessor)ValueFieldAccessorResolver.GetValue(fieldType))?.Index ?? ObjectFieldAccessor.FixedIndex;
+      descriptor.AccessorIndex = ValueFieldAccessorResolver.GetValue(fieldType)?.Index ?? ObjectFieldAccessor.FixedIndex;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ConfigureLen1(ref Type fieldType, ref PackedFieldDescriptor descriptor, out int valuesLength,
       out int objectsLength)
     {
-      var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldType);
-      if (valueAccessor != null) {
+      if (ValueFieldAccessorResolver.GetValue(fieldType) is { } valueAccessor) {
         descriptor.AccessorIndex = valueAccessor.Index;
         descriptor.DataPosition = Val064BitCount;
 
