@@ -52,6 +52,13 @@ namespace Xtensive.Tuples.Packed
       private static readonly ValueFieldAccessor GuidAccessor = new GuidFieldAccessor();
       private static readonly ValueFieldAccessor DateTimeOffsetAccessor = new DateTimeOffsetFieldAccessor();
 
+      private sealed class TypeReferenceEqualityComparer : IEqualityComparer<Type>
+      {
+        public static readonly TypeReferenceEqualityComparer Instance = new();
+        public bool Equals(Type x, Type y) => ReferenceEquals(x, y);
+        public int GetHashCode(Type obj) => obj.MetadataToken ^ obj.GetHashCode();
+      }
+
       private static readonly Dictionary<Type, ValueFieldAccessor> TypeToAccessor = new(TypeReferenceEqualityComparer.Instance)
       {
         [WellKnownTypes.Int64] = Int64Accessor,
@@ -104,13 +111,6 @@ namespace Xtensive.Tuples.Packed
 
       private static ValueFieldAccessor TryResolveEnum(Type type) =>
         type.IsEnum ? TypeToAccessor.GetValueOrDefault(Enum.GetUnderlyingType(type)) : null;
-
-      private sealed class TypeReferenceEqualityComparer : IEqualityComparer<Type>
-      {
-        public static readonly TypeReferenceEqualityComparer Instance = new();
-        public bool Equals(Type x, Type y) => ReferenceEquals(x, y);
-        public int GetHashCode(Type obj) => obj.MetadataToken ^ obj.GetHashCode();
-      }
     }
 
     internal delegate void CounterIncrementer(ref Counters counters);
