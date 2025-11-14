@@ -58,7 +58,7 @@ namespace Xtensive.Tuples.Packed
       {
         public static readonly TypeReferenceEqualityComparer Instance = new();
         public bool Equals(Type x, Type y) => ReferenceEquals(x, y);
-        public int GetHashCode(Type obj) => obj.MetadataToken ^ obj.GetHashCode();
+        public int GetHashCode(Type obj) => obj.GetHashCode();
       }
 
       private static readonly Dictionary<Type, ValueFieldAccessor> TypeToAccessor = new(TypeReferenceEqualityComparer.Instance)
