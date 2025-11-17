@@ -217,7 +217,7 @@ namespace Xtensive.Orm.Linq
       );
 
     private static bool IsOwnerWrapper(this Type type) =>
-      (type.MetadataToken ^ OwnerWrapper<int>.GenericDef.MetadataToken) == 0
+      type.MetadataToken == OwnerWrapper<int>.GenericDef.MetadataToken
         && ReferenceEquals(type.Module, OwnerWrapper<int>.GenericDef.Module);
   }
 }
