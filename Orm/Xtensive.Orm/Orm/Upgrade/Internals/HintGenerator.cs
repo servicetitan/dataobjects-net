@@ -152,54 +152,33 @@ namespace Xtensive.Orm.Upgrade
       // searching for all required objects
       var targetTypeName = hint.TargetType.GetFullName();
       var targetType = currentModel.Types
-        .SingleOrDefault(type => type.UnderlyingType.Equals(targetTypeName, StringComparison.Ordinal));
-      if (targetType == null) {
-        throw new InvalidOperationException(string.Format(Strings.ExUpgradeHintTargetTypeNotFound, targetTypeName));
-      }
+          .SingleOrDefault(type => type.UnderlyingType.Equals(targetTypeName, StringComparison.Ordinal))
+        ?? throw new InvalidOperationException(string.Format(Strings.ExUpgradeHintTargetTypeNotFound, targetTypeName));
 
       var targetField = targetType.AllFields
-        .SingleOrDefault(field => field.Name.Equals(hint.TargetField, StringComparison.Ordinal));
-      if (targetField == null) {
-        throw new InvalidOperationException(string.Format(Strings.ExUpgradeHintTargetFieldNotFound, hint.TargetField));
-      }
+          .SingleOrDefault(field => field.Name.Equals(hint.TargetField, StringComparison.Ordinal))
+        ?? throw new InvalidOperationException(string.Format(Strings.ExUpgradeHintTargetFieldNotFound, hint.TargetField));
 
-      var targetHierarchy = targetType.Hierarchy;
+      var targetHierarchy = targetType.Hierarchy ?? throw TypeIsNotInHierarchy(targetTypeName);
 
       var sourceTypeName = hint.SourceType;
       var sourceType = extractedModel.Types
-        .SingleOrDefault(type => type.UnderlyingType.Equals(sourceTypeName, StringComparison.Ordinal));
-      if (sourceType == null) {
-        throw new InvalidOperationException(string.Format(Strings.ExUpgradeHintSourceTypeNotFound, sourceTypeName));
-      }
+          .SingleOrDefault(type => type.UnderlyingType.Equals(sourceTypeName, StringComparison.Ordinal))
+        ?? throw new InvalidOperationException(string.Format(Strings.ExUpgradeHintSourceTypeNotFound, sourceTypeName));
 
       var sourceField = sourceType.AllFields
-        .SingleOrDefault(field => field.Name.Equals(hint.SourceField, StringComparison.Ordinal));
-      if (sourceField == null) {
-        throw new InvalidOperationException(string.Format(Strings.ExUpgradeHintSourceFieldNotFound, hint.SourceField));
-      }
+          .SingleOrDefault(field => field.Name.Equals(hint.SourceField, StringComparison.Ordinal))
+        ?? throw new InvalidOperationException(string.Format(Strings.ExUpgradeHintSourceFieldNotFound, hint.SourceField));
 
-      var sourceHierarchy = sourceType.Hierarchy;
-
-      // checking that types have hierarchies
-      if (sourceHierarchy == null) {
-        throw TypeIsNotInHierarchy(hint.SourceType);
-      }
-
-      if (targetHierarchy == null) {
-        throw TypeIsNotInHierarchy(targetTypeName);
-      }
+      var sourceHierarchy = sourceType.Hierarchy ?? throw TypeIsNotInHierarchy(hint.SourceType);
 
       // building set of key columns
-      var pairedKeyColumns = AssociateMappedKeyFields(sourceHierarchy, targetHierarchy);
-      if (pairedKeyColumns == null) {
-        throw KeysDoNotMatch(sourceTypeName, targetTypeName);
-      }
+      var pairedKeyColumns = AssociateMappedKeyFields(sourceHierarchy, targetHierarchy)
+        ?? throw KeysDoNotMatch(sourceTypeName, targetTypeName);
 
       // building set of copied columns
-      var pairedColumns = AssociateMappedFields((sourceField, targetField));
-      if (pairedColumns == null) {
-        throw FieldsDoNotMatch(sourceField, targetField);
-      }
+      var pairedColumns = AssociateMappedFields((sourceField, targetField))
+        ?? throw FieldsDoNotMatch(sourceField, targetField);
 
       // building source/destination table/column names
       var targetTypes = GetAffectedMappedTypes(
@@ -240,22 +219,13 @@ namespace Xtensive.Orm.Upgrade
 
     private void GenerateCleanupByPrimaryKeyHints(StoredTypeInfo removedType, CleanupInfo cleanupInfo)
     {
-      IEnumerable<(StoredTypeInfo, IdentityPair)> typesToProcess;
       var hierarchy = removedType.Hierarchy;
-      switch (hierarchy.InheritanceSchema) {
-        case InheritanceSchema.ClassTable:
-          typesToProcess = GetTypesToCleanForClassTable(removedType, cleanupInfo);
-          break;
-        case InheritanceSchema.SingleTable:
-          typesToProcess = GetTypesToCleanForSingleTable(removedType, cleanupInfo);
-          break;
-        case InheritanceSchema.ConcreteTable:
-          typesToProcess = GetTypesToCleanForConcreteTable(removedType, cleanupInfo);
-          break;
-        default:
-          throw Exceptions.InternalError(string.Format(Strings.ExInheritanceSchemaIsInvalid, hierarchy.InheritanceSchema), UpgradeLog.Instance);
-      }
-
+      var typesToProcess = hierarchy.InheritanceSchema switch {
+        InheritanceSchema.ClassTable => GetTypesToCleanForClassTable(removedType, cleanupInfo),
+        InheritanceSchema.SingleTable => GetTypesToCleanForSingleTable(removedType, cleanupInfo),
+        InheritanceSchema.ConcreteTable => GetTypesToCleanForConcreteTable(removedType, cleanupInfo),
+        _ => throw Exceptions.InternalError(string.Format(Strings.ExInheritanceSchemaIsInvalid, hierarchy.InheritanceSchema), UpgradeLog.Instance),
+      };
       var deleteInfo = DataDeletionInfo.None;
       if ((cleanupInfo & CleanupInfo.TypeMovedToAnotherHierarchy) != 0)
         deleteInfo |= DataDeletionInfo.PostCopy;
@@ -285,8 +255,9 @@ namespace Xtensive.Orm.Upgrade
             return Array.Empty<(StoredTypeInfo, IdentityPair)>();
 
           var capacity = (2 * removedType.AllAncestors.Length) + removedType.AllDescendants.Length + 1;
-          var typesToProcess = new List<(StoredTypeInfo, IdentityPair)>(capacity);
-          typesToProcess.Add((removedType, CreateIdentityPair(removedType, removedType)));
+          var typesToProcess = new List<(StoredTypeInfo, IdentityPair)>(capacity) {
+            (removedType, CreateIdentityPair(removedType, removedType))
+          };
           foreach(var dType in removedType.AllDescendants) {
             typesToProcess.Add((removedType, CreateIdentityPair(removedType, removedType, dType.TypeId)));
             typesToProcess.Add((dType, null));
@@ -406,21 +377,21 @@ namespace Xtensive.Orm.Upgrade
       bool requiresInverseCleanup)
     {
       var field = association.ReferencingField;
-              var candidates = extractedModel.Types
-                .Where(t => !t.IsInterface
-                  && t.Fields.Any(f => f.IsInterfaceImplementation
-                    && f.Name.Equals(field.Name, StringComparison.Ordinal)
-                    && f.ValueType.Equals(field.ValueType, StringComparison.Ordinal)))
-                .ToList();
-              foreach (var candidate in candidates) {
-                  var inheritanceSchema = candidate.Hierarchy.InheritanceSchema;
-                  GenerateClearReferenceHints(
-                    removedType,
-                    GetAffectedMappedTypesAsArray(candidate, inheritanceSchema==InheritanceSchema.ConcreteTable),
-                    association,
-                    requiresInverseCleanup);
-              }
-          }
+      var candidates = extractedModel.Types
+        .Where(t => !t.IsInterface
+          && t.Fields.Any(f => f.IsInterfaceImplementation
+            && f.Name.Equals(field.Name, StringComparison.Ordinal)
+            && f.ValueType.Equals(field.ValueType, StringComparison.Ordinal)));
+
+      foreach (var candidate in candidates) {
+        var inheritanceSchema = candidate.Hierarchy.InheritanceSchema;
+        GenerateClearReferenceHints(
+          removedType,
+          GetAffectedMappedTypesAsArray(candidate, inheritanceSchema == InheritanceSchema.ConcreteTable),
+          association,
+          requiresInverseCleanup);
+      }
+    }
 
     private void ClearDirectAssociation(StoredTypeInfo removedType,
       StoredTypeInfo declaringType,
@@ -534,11 +505,9 @@ namespace Xtensive.Orm.Upgrade
           .Fields
         : association.ReferencingField.Fields;
       var pairedIdentityFields = JoinFieldsByOriginalName(identityFieldsOfRemovedType, identityFieldsOfUpdatedType);
-      var pairedIdentityColumns = AssociateMappedFields(pairedIdentityFields);
-      if (pairedIdentityColumns == null) {
-        throw new InvalidOperationException(
+      var pairedIdentityColumns = AssociateMappedFields(pairedIdentityFields)
+        ?? throw new InvalidOperationException(
           string.Format(Strings.ExPairedIdentityColumnsForTypesXAndXNotFound, removedType, updatedType));
-      }
 
       var sourceTablePath = GetTablePath(updatedType);
       var identities = pairedIdentityColumns.SelectToList(pair =>
@@ -587,11 +556,8 @@ namespace Xtensive.Orm.Upgrade
     {
       var affectedTables = new List<string>();
       var typeName = hint.Type;
-      var storedType = extractedModel.Types
-        .SingleOrDefault(type => type.UnderlyingType.Equals(typeName, StringComparison.Ordinal));
-      if (storedType == null) {
-        throw TypeNotFound(typeName);
-      }
+      var storedType = extractedModel.Types.SingleOrDefault(type => type.UnderlyingType.Equals(typeName, StringComparison.Ordinal))
+        ?? throw TypeNotFound(typeName);
 
       var inheritanceSchema = storedType.Hierarchy.InheritanceSchema;
 
@@ -617,17 +583,11 @@ namespace Xtensive.Orm.Upgrade
     private void UpdateAffectedColumns(ChangeFieldTypeHint hint)
     {
       var currentTypeName = hint.Type.GetFullName();
-      var currentType = currentModel.Types
-        .SingleOrDefault(type => type.UnderlyingType.Equals(currentTypeName, StringComparison.Ordinal));
-      if (currentType == null) {
-        throw TypeNotFound(currentTypeName);
-      }
+      var currentType = currentModel.Types.SingleOrDefault(type => type.UnderlyingType.Equals(currentTypeName, StringComparison.Ordinal))
+        ?? throw TypeNotFound(currentTypeName);
 
-      var currentField = currentType.AllFields
-        .SingleOrDefault(field => field.Name.Equals(hint.FieldName, StringComparison.Ordinal));
-      if (currentField==null) {
-        throw FieldNotFound(currentTypeName, hint.FieldName);
-      }
+      var currentField = currentType.AllFields.SingleOrDefault(field => field.Name.Equals(hint.FieldName, StringComparison.Ordinal))
+        ?? throw FieldNotFound(currentTypeName, hint.FieldName);
 
       hint.AffectedColumns = GetAffectedColumns(currentType, currentField).AsSafeWrapper();
     }
@@ -639,26 +599,41 @@ namespace Xtensive.Orm.Upgrade
       }
 
       var typeName = hint.Type;
-      var storedType = extractedModel.Types
-        .SingleOrDefault(type => type.UnderlyingType.Equals(typeName, StringComparison.Ordinal));
-      if (storedType == null) {
-        throw TypeNotFound(typeName);
-      }
+      var storedType = extractedModel.Types.SingleOrDefault(type => type.UnderlyingType.Equals(typeName, StringComparison.Ordinal))
+        ?? throw TypeNotFound(typeName);
 
+      const char dot = '.';
       StoredFieldInfo storedField = null;
       // Nested field, looks like a field of a structure
-      if (hint.Field.Contains(".", StringComparison.Ordinal)) {
-        var path = hint.Field.Split('.');
+      if (hint.Field.Contains(dot, StringComparison.Ordinal)) {
         var fields = storedType.AllFields;
-        var fieldName = string.Empty;
-        for (var i = 0; i < path.Length; i++) {
-          fieldName += string.IsNullOrEmpty(fieldName) ? path[i] : "." + path[i];
-          var parameter = fieldName;
-          storedField = fields.SingleOrDefault(field => field.Name.Equals(parameter, StringComparison.Ordinal));
-          if (storedField == null) {
-            throw FieldNotFound(typeName, hint.Field);
+        var hintFieldName = hint.Field;
+        var fieldNameAsSpan = hintFieldName.AsSpan();
+
+        var endOfName = hintFieldName.IndexOf(dot);
+        while (endOfName < hintFieldName.Length) {
+          ReadOnlySpan<char> slice;
+          if (endOfName == -1) {
+            endOfName = hintFieldName.Length;
+            slice = fieldNameAsSpan[..endOfName];
+          }
+          else {
+            slice = fieldNameAsSpan[..endOfName];
+            endOfName = hintFieldName.IndexOf(dot, endOfName + 1);
+          }
+          StoredFieldInfo result = null;
+          foreach (var f in fields) {
+            if (f.Name.AsSpan().Equals(slice, StringComparison.Ordinal)) {
+              if (result is null)
+                result = f;
+              else {
+                result = null;
+                break;
+              }
+            }
           }
 
+          storedField = result ?? throw FieldNotFound(typeName, hint.Field);
           fields = storedField.Fields;
         }
       }
@@ -773,17 +748,18 @@ namespace Xtensive.Orm.Upgrade
       // by table. Knowing that we basically cannot register table conflicts
       // on table basis, except for the case when root is conflict.
 
-      var capacity = currentModel.Types.Length - typeMapping.Count;
+      var capacity = Math.Abs(currentModel.Types.Length - typeMapping.Count);
       var currentTables = new HashSet<string>(capacity, StringComparer.Ordinal);
       foreach (var newType in currentNonConnectorTypes.Where(t => !reverseTypeMapping.ContainsKey(t))) {
         if (newType.Hierarchy == null
-          || (newType.Hierarchy.InheritanceSchema == InheritanceSchema.SingleTable && !newType.IsHierarchyRoot))
+          || (newType.Hierarchy.InheritanceSchema == InheritanceSchema.SingleTable && !newType.IsHierarchyRoot)) {
           continue;
+        }
         var key = $"{newType.MappingDatabase}.{newType.MappingSchema}.{newType.MappingName}";
-        currentTables.Add(key);
+        _ = currentTables.Add(key);
       }
 
-      var conflictsByTable = new HashSet<StoredTypeInfo>();
+      var conflictsByTable = new HashSet<StoredTypeInfo>(suspiciousTypes.Count);
 
       foreach (var rType in removedTypes) {
         var rTypeIdentifier = $"{rType.MappingDatabase}.{rType.MappingSchema}.{rType.MappingName}";
@@ -801,7 +777,7 @@ namespace Xtensive.Orm.Upgrade
         where type.IsEntity && (!type.IsAbstract) && (!type.IsGeneric) && (!type.IsInterface)
         where IsRemoved(type)
         select type
-        ).ToList();
+        ).ToList(Math.Max(extractedNonConnectorTypes.Count / 10, 8));
 
       bool IsRemoved(StoredTypeInfo type)
       {
@@ -816,7 +792,7 @@ namespace Xtensive.Orm.Upgrade
         where type.IsEntity && (!type.IsAbstract) && (!type.IsGeneric) && (!type.IsInterface)
         where IsMovedToAnotherHierarchy(type)
         select type
-        ).ToList();
+        ).ToList(Math.Max(extractedNonConnectorTypes.Count / 10, 8));
 
       bool IsMovedToAnotherHierarchy(StoredTypeInfo oldType)
       {
