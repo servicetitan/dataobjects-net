@@ -378,7 +378,7 @@ namespace Xtensive.Orm
 
     private Core.Disposable PreventRegistryChanges()
     {
-      return EntityChangeRegistry.DisableRegistrations();
+      return EntityChangeRegistry?.DisableRegistrations();
     }
   }
 }
