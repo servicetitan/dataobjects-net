@@ -1,1 +1,0 @@
-[postgresql] Server-side statement timeout handled as TimeoutException

@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2022 Xtensive LLC.
+// Copyright (C) 2014-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -57,7 +57,11 @@ namespace Xtensive.Orm.Internals
     /// Removes all registered items.
     /// </summary>
     public void Clear() => changes.Clear();
-    
-    private void Register(ReferenceFieldChangeInfo fieldChangeInfo) => changes.Add(fieldChangeInfo);
+
+    private void Register(ReferenceFieldChangeInfo fieldChangeInfo)
+    {
+      _ = changes.Add(fieldChangeInfo);
+    }
+
   }
 }
