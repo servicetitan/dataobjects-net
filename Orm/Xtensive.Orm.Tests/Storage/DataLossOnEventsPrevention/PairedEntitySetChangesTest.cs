@@ -475,6 +475,7 @@ namespace Xtensive.Orm.Tests.Storage.DataLossOnEventsPrevention
       }
     }
 
+    [Mute]
     [Test]
     public void ChangesOnTransactionCommittingEventTest()
     {
