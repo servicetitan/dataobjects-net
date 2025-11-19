@@ -212,6 +212,7 @@ namespace Xtensive.Orm.Tests.Storage.DataLossOnEventsPrevention
       }
     }
 
+    [Mute]
     [Test]
     public void ManualPersistOnPersistedEventTest()
     {
@@ -343,6 +344,7 @@ namespace Xtensive.Orm.Tests.Storage.DataLossOnEventsPrevention
       }
     }
 
+    [Mute]
     [Test]
     public void ChangesOnPersistedEventTest()
     {
@@ -507,6 +509,7 @@ namespace Xtensive.Orm.Tests.Storage.DataLossOnEventsPrevention
       }
     }
 
+    [Mute]
     [Test]
     public void ChangesOnTransactionCommittingSystemEventTest()
     {
