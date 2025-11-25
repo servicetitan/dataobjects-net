@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Providers
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);
       var queryAndBindings = BuildProviderQuery(index);
-      return CreateProvider(queryAndBindings.Query, queryAndBindings.Bindings.ToArray(), provider);
+      return CreateProvider(queryAndBindings.Query, queryAndBindings.Bindings, provider);
     }
 
     protected QueryAndBindings BuildProviderQuery(IndexInfo index)

@@ -516,8 +516,12 @@ namespace Xtensive.Orm.Providers
 
       if (lambda.Parameters.Count != sourceColumns.Length)
         throw Exceptions.InternalError(Strings.ExParametersCountIsNotSameAsSourceColumnListsCount, OrmLog.Instance);
-      if (sourceColumns.Any(list => list.Any(c => c is null)))
-        throw Exceptions.InternalError(Strings.ExSourceColumnListContainsNullValues, OrmLog.Instance);
+      foreach (var list in sourceColumns) {
+        foreach (var c in list) {
+          if (c is null)
+            throw Exceptions.InternalError(Strings.ExSourceColumnListContainsNullValues, OrmLog.Instance);
+        }
+      }
 
       this.compiler = compiler; // This might be null, check before use!
       this.lambda = lambda;
