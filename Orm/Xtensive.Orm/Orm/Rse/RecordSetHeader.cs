@@ -96,8 +96,14 @@ namespace Xtensive.Orm.Rse
     /// <returns>The constructed header.</returns>
     public RecordSetHeader Add(IReadOnlyList<Column> columns)
     {
-      var n = Columns.Count + columns.Count;
-      var newColumns = Columns.Columns.Concat(columns).ToArray(n);
+      var newColumns = new Column[Columns.Count + columns.Count];
+      int i = 0;
+      foreach (var c in Columns.Columns) {
+        newColumns[i++] = c;
+      }
+      foreach (var c in columns) {
+        newColumns[i++] = c;
+      }
 
       var newTupleDescriptor = CreateTupleDescriptor(newColumns);
 
