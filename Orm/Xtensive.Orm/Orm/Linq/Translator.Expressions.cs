@@ -1119,19 +1119,17 @@ namespace Xtensive.Orm.Linq
       expression = expression.StripCasts();
       if (expression is IEntityExpression iEntityExpression) {
         var keyFields = iEntityExpression.Key.KeyFields;
-        return keyFields
-          .Cast<Expression>()
-          .ToArray(keyFields.Count);
+        return keyFields.Cast<Expression>().ToArray();
       }
       if (expression.IsNull()) {
         return keyFieldTypes
           .Select(type => (Expression) Expression.Constant(null, type.ToNullable()))
-          .ToArray(keyFieldTypes.Count);
+          .ToArray();
       }
       if (IsConditionalOrWellknown(expression)) {
         return keyFieldTypes
           .Select((type, index) => GetConditionalKeyField(expression, type, index))
-          .ToArray(keyFieldTypes.Count);
+          .ToArray();
       }
 
       var nullEntityExpression = Expression.Constant(null, expression.Type);
@@ -1179,14 +1177,14 @@ namespace Xtensive.Orm.Linq
         return keyExpression
           .KeyFields
           .Cast<Expression>()
-          .ToArray(keyExpression.KeyFields.Count);
+          .ToArray();
       }
 
       if (expression.IsNull())
         return keyFields
           .Select(f => f.Type)
           .Select(type => (Expression) Expression.Constant(null, type.ToNullable()))
-          .ToArray(keyFields.Count);
+          .ToArray();
 
       var nullExpression = Expression.Constant(null, expression.Type);
       var isNullExpression = Expression.Equal(expression, nullExpression);
@@ -1205,7 +1203,7 @@ namespace Xtensive.Orm.Linq
           _ = State.NonVisitableExpressions.Add(checkForNulls);
           return checkForNulls;
         })
-        .ToArray(keyFields.Count);
+        .ToArray();
     }
 
     private Expression ProcessProjectionElement(Expression body)
@@ -1343,7 +1341,7 @@ namespace Xtensive.Orm.Linq
           .Select((methodInfo, index) => (methodInfo.Name, Argument: newExpression.Arguments[index]))
           .OrderBy(a => a.Name)
           .Select(a => a.Argument);
-        return arguments.ToArray(newExpression.Members.Count);
+        return arguments.ToArray();
       }
 
       if (expression.NodeType == ExpressionType.Constant) {
@@ -1358,7 +1356,7 @@ namespace Xtensive.Orm.Linq
 
           return orderedProps1
             .Select(p => (Expression) Expression.MakeMemberAccess(constantExpression, p))
-            .ToArray(orderedProps1.Length);
+            .ToArray();
         }
       }
 
@@ -1369,7 +1367,7 @@ namespace Xtensive.Orm.Linq
 
       return orderedProps
         .Select(p => (Expression) Expression.MakeMemberAccess(expression, p))
-        .ToArray(orderedProps.Length);
+        .ToArray();
 
       static int CompareProps(PropertyInfo p1, PropertyInfo p2)
       {
@@ -1795,7 +1793,7 @@ namespace Xtensive.Orm.Linq
       var tupleDescriptor = itemToTupleConverter.TupleDescriptor;
       Column[] columns = tupleDescriptor
         .Select(x => new SystemColumn(translatorContext.GetNextColumnAlias(), 0, x))
-        .ToArray(tupleDescriptor.Count);
+        .ToArray();
       var rsHeader = new RecordSetHeader(tupleDescriptor, columns);
       var rawProvider = new RawProvider(rsHeader, itemToTupleConverter.GetEnumerable());
       var recordset = new StoreProvider(rawProvider);

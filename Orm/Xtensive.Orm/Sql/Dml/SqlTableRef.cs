@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Dml
       var clone = new SqlTableRef {Name = Name, DataTable = DataTable};
       context.NodeMapping[this] = clone;
 
-      clone.columns = new SqlTableColumnCollection(columns.Select(column => (SqlTableColumn) column.Clone(context)).ToArray(columns.Count));
+      clone.columns = new SqlTableColumnCollection(columns.Select(column => (SqlTableColumn) column.Clone(context)).ToArray());
 
       return clone;
     }
@@ -65,8 +65,8 @@ namespace Xtensive.Sql.Dml
     {
       DataTable = dataTable;
       var  tableColumns = columnNames.Length == 0
-        ? dataTable.Columns.Select(column => SqlDml.TableColumn(this, column.Name)).ToArray(dataTable.Columns.Count)
-        : columnNames.Select(columnName => SqlDml.TableColumn(this, columnName)).ToArray(columnNames.Length);
+        ? dataTable.Columns.Select(column => SqlDml.TableColumn(this, column.Name)).ToArray()
+        : columnNames.Select(columnName => SqlDml.TableColumn(this, columnName)).ToArray();
       columns = new SqlTableColumnCollection(tableColumns);
     }
   }

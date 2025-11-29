@@ -208,7 +208,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
       switch (node.FunctionType) {
         case SqlFunctionType.Concat:
-          Visit(SqlDml.Concat(arguments.ToArray(node.Arguments.Count)));
+          Visit(SqlDml.Concat(arguments.ToArray()));
           return;
         case SqlFunctionType.DateTimeTruncate:
           Visit(SqlDml.Cast(arguments[0], new SqlValueType("Date")));

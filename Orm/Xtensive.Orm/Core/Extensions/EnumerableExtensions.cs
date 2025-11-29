@@ -580,7 +580,7 @@ namespace Xtensive.Core
           if (edgeTester.Invoke(left.Value, right.Value))
             new Edge(left, right);
       var result = TopologicalSorter.Sort(graph);
-      return result.HasLoops ? null : result.SortedNodes.SelectToList(node => node.Value);
+      return result.HasLoops ? null : result.SortedNodes.Select(node => node.Value).ToList();
     }
 
     internal static IReadOnlyList<T> ToReadOnlyList<T>(this IEnumerable<T> seq) =>

@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Providers
     }
 
     protected IReadOnlyList<SqlExpression> ExtractColumnExpressions(SqlSelect query) =>
-      query.Columns.Select(ExtractColumnExpression).ToArray(query.Columns.Count);
+      query.Columns.Select(ExtractColumnExpression).ToArray();
 
     protected SqlExpression ExtractColumnExpression(SqlColumn column)
     {

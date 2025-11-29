@@ -808,11 +808,10 @@ namespace Xtensive.Orm.Model
 
     private void CreateTupleDescriptor()
     {
-      var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset).ToList(columns.Count);
+      var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset).ToList();
       columns.Clear();                    // To prevent event handler leak
       columns.AddRange(orderedColumns);
-      TupleDescriptor = TupleDescriptor.Create(
-        Columns.Select(c => c.ValueType).ToArray(Columns.Count));
+      TupleDescriptor = TupleDescriptor.Create(Columns.Select(c => c.ValueType).ToArray());
     }
 
     private void BuildTuplePrototype()
@@ -876,8 +875,8 @@ namespace Xtensive.Orm.Model
         VersionExtractor = null;
         return;
       }
-      var types = versionColumns.Select(c => c.ValueType).ToArray(versionColumnsCount);
-      var map = versionColumns.Select(c => c.Field.MappingInfo.Offset).ToArray(versionColumnsCount);
+      var types = versionColumns.Select(c => c.ValueType).ToArray();
+      var map = versionColumns.Select(c => c.Field.MappingInfo.Offset).ToArray();
       var versionTupleDescriptor = TupleDescriptor.Create(types);
       VersionExtractor = new MapTransform(true, versionTupleDescriptor, map);
     }

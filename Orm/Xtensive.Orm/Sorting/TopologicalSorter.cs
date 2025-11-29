@@ -295,8 +295,8 @@ namespace Xtensive.Sorting
     {
       var (sorted, count) = SortInternal(nodes, out removedEdges, removeWholeNode);
       return (count == 0)
-        ? Array.Empty<TNodeItem>()
-        : sorted.ToArray(count);
+        ? []
+        : sorted.ToArray();
     }
 
     private static (IEnumerable<TNodeItem> sorted, int count) SortInternal<TNodeItem, TConnectionItem>(

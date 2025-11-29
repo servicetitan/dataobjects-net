@@ -186,14 +186,14 @@ namespace Xtensive.Orm.Rse
         .Where(g => g.Keys.All(k => columnsMap[k] >= 0))
         .Select(g => new ColumnGroup(
             g.TypeInfoRef,
-            g.Keys.Select(k => columnsMap[k]).ToArray(g.Keys.Count),
+            g.Keys.Select(k => columnsMap[k]).ToArray(),
             g.Columns
               .Select(c => columnsMap[c])
               .Where(static c => c >= 0).ToList()));
 
       return new RecordSetHeader(
-        TupleDescriptor.CreateFromNormalized(columns.Select(i => TupleDescriptor[i]).ToArray(columns.Count)),
-        columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum) newIndex)).ToArray(columns.Count),
+        TupleDescriptor.CreateFromNormalized(columns.Select(i => TupleDescriptor[i]).ToArray()),
+        columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone((ColNum) newIndex)).ToArray(),
         resultGroups.ToArray(),
         null,
         resultOrder);
@@ -230,7 +230,7 @@ namespace Xtensive.Orm.Rse
       var indexInfoColumns = indexInfo.Columns;
       var indexInfoKeyColumns = indexInfo.KeyColumns;
 
-      var resultFieldTypes = indexInfoColumns.Select(columnInfo => columnInfo.ValueType).ToArray(indexInfoColumns.Count);
+      var resultFieldTypes = indexInfoColumns.Select(columnInfo => columnInfo.ValueType).ToArray();
       var resultTupleDescriptor = TupleDescriptor.Create(resultFieldTypes);
 
       var keyOrderEnumerable = indexInfoKeyColumns.Select(static (p, i) => new KeyValuePair<ColNum, Direction>((ColNum) i, p.Value));
@@ -245,13 +245,12 @@ namespace Xtensive.Orm.Rse
       }
       var order = new DirectionCollection<ColNum>(keyOrderEnumerable);
 
-      var keyFieldTypes = indexInfoKeyColumns
-        .SelectToArray(static columnInfo => columnInfo.Key.ValueType);
+      var keyFieldTypes = indexInfoKeyColumns.Select(static columnInfo => columnInfo.Key.ValueType).ToArray();
       var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
 
       var resultColumns = indexInfoColumns
         .Select(static (c,i) => (Column) new MappedColumn(new ColumnInfoRef(c), (ColNum) i, c.ValueType))
-        .ToArray(indexInfoColumns.Count);
+        .ToArray();
       var resultGroups = new[]{indexInfo.Group};
 
       return new RecordSetHeader(
