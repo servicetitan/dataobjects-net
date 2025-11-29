@@ -246,7 +246,7 @@ namespace Xtensive.Core
     /// <typeparam name="T">The sequence element type.</typeparam>
     /// <returns>The resulting array.</returns>
     /// <exception cref="ArgumentException"><paramref name="length"/> is negative.</exception>
-    public static T[] ToArray<T>(this IEnumerable<T> sequence, int length)
+    internal static T[] ToArray<T>(this IEnumerable<T> sequence, int length)
     {
       ArgumentOutOfRangeException.ThrowIfNegative(length);
 
@@ -270,7 +270,7 @@ namespace Xtensive.Core
     /// <param name="capacity">The number of elements that the new list can initially store.</param>
     /// <typeparam name="TItem">The type of the elements of <paramref name="source" />.</typeparam>
     /// <returns>A <see cref="T:System.Collections.Generic.List`1" /> that contains elements from the input sequence.</returns>
-    public static List<TItem> ToList<TItem>(this IEnumerable<TItem> source, int capacity)
+    internal static List<TItem> ToList<TItem>(this IEnumerable<TItem> source, int capacity)
     {
       ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 
