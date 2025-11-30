@@ -152,7 +152,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           SqlDml.FunctionCall("TRUNCATE", arguments[0], SqlDml.Literal(0)).AcceptVisitor(this);
           return;
         case SqlFunctionType.Concat:
-          Visit(SqlDml.Concat(arguments.ToArray(node.Arguments.Count)));
+          Visit(SqlDml.Concat(arguments.ToArray()));
           return;
         case SqlFunctionType.CharLength:
           SqlDml.FunctionCall(translator.TranslateToString(SqlFunctionType.CharLength), node.Arguments[0]).AcceptVisitor(this);

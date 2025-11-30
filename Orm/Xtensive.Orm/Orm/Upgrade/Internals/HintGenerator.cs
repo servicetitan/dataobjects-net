@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Upgrade
       var upgradedTypesMapping = reverseTypeMapping
         .ToDictionary(item => item.Key.UnderlyingType, item => item.Value.UnderlyingType);
 
-      return new HintGenerationResult(hints.ToList(hints.Count), schemaHints, upgradedTypesMapping);
+      return new HintGenerationResult(hints.ToList(), schemaHints, upgradedTypesMapping);
     }
 
     #region Hint generation
@@ -510,14 +510,15 @@ namespace Xtensive.Orm.Upgrade
           string.Format(Strings.ExPairedIdentityColumnsForTypesXAndXNotFound, removedType, updatedType));
 
       var sourceTablePath = GetTablePath(updatedType);
-      var identities = pairedIdentityColumns.SelectToList(pair =>
-        CreateIdentityPair(removedType, updatedType, pair));
+      var identities = pairedIdentityColumns
+        .Select(pair => CreateIdentityPair(removedType, updatedType, pair))
+        .ToList();
       if (removedType.Hierarchy.InheritanceSchema != InheritanceSchema.ConcreteTable) {
         identities.Add(CreateIdentityPair(removedType, removedType));
       }
 
       var updatedColumns = pairedIdentityColumns
-        .SelectToList(pair => (GetColumnPath(updatedType, pair.Item2), (object) null));
+        .Select(pair => (GetColumnPath(updatedType, pair.Item2), (object) null)).ToList();
 
       if (association.ConnectorType == null) {
         schemaHints.Add(new UpdateDataHint(sourceTablePath, identities, updatedColumns));
@@ -826,15 +827,13 @@ namespace Xtensive.Orm.Upgrade
 
     private static StoredTypeInfo[] GetAffectedMappedTypesAsArray(StoredTypeInfo type, bool includeInheritors)
     {
-      var count = 1;
       IEnumerable<StoredTypeInfo> result = [type];
       if (includeInheritors) {
         result = result.Concat(type.AllDescendants);
-        count += type.AllDescendants.Length;
       }
       return type.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable
         ? result.Where(t => !t.IsAbstract).ToArray()
-        : result.ToArray(count);
+        : result.ToArray();
     }
 
     private IdentityPair CreateIdentityPair(StoredTypeInfo removedType, StoredTypeInfo updatedType, int? typeIdOverride = null)
@@ -961,8 +960,7 @@ namespace Xtensive.Orm.Upgrade
           tasks.Enqueue(newTask);
         }
       }
-      return result
-        .SelectToArray(mapping => (mapping.Item1.MappingName, mapping.Item2.MappingName));
+      return result.Select(mapping => (mapping.Item1.MappingName, mapping.Item2.MappingName)).ToArray();
     }
 
     #endregion

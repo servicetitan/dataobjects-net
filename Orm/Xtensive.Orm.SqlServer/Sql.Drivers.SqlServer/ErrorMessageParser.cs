@@ -190,7 +190,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
 
       CollectLastChunk(regexBuilder, template, offset);
-      return new PreparedTemplate(regexBuilder.ToString(), Enumerable.Range(1, count).ToArray(count));
+      return new PreparedTemplate(regexBuilder.ToString(), Enumerable.Range(1, count).ToArray());
     }
 
     private static PreparedTemplate PrepareNonEnglishTemplate(string template)

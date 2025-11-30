@@ -826,7 +826,7 @@ namespace Xtensive.Orm.Linq
             var aggregateDescriptors = groupingDataSource.AggregateColumns
               .Select(c => c.Descriptor)
               .Append(aggregateDescriptor)
-              .ToArray(groupingDataSource.AggregateColumns.Length + 1);
+              .ToArray();
 
             resultDataSource = new AggregateProvider(
               commonOriginDataSource,

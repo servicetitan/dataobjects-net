@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var entity = (Entity) target;
       var entitySet = (EntitySetBase) entity.GetFieldValue(Field);
       var fetchedKeys = entitySet.State.FetchedKeys;
-      return fetchedKeys.ToArray(fetchedKeys.Count);
+      return fetchedKeys.ToArray();
     }
 
     public IHasNestedNodes ReplaceNestedNodes(IReadOnlyList<BaseFieldNode> nestedNodes) =>

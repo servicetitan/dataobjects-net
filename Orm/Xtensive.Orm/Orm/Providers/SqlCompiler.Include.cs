@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Providers
 
       Func<ParameterContext, object> parameterAccessor;
       var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
-      var mappings = filterTupleDescriptor.Select(type => Driver.GetTypeMapping(type)).ToArray(filterTupleDescriptor.Count).AsSafeWrapper();
+      var mappings = filterTupleDescriptor.Select(type => Driver.GetTypeMapping(type)).ToArray().AsSafeWrapper();
       switch (algorithm) {
         case IncludeAlgorithm.Auto:
           if (tvpType != null) {
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Providers
       var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
       var filteredColumns = provider.FilteredColumns
         .Select(index => sourceColumns[index])
-        .ToArray(provider.FilteredColumns.Count);
+        .ToArray();
       tableDescriptor = DomainHandler.TemporaryTableManager
         .BuildDescriptor(Mapping, Guid.NewGuid().ToString(), filterTupleDescriptor);
       var filterQuery = tableDescriptor.QueryStatement.ShallowClone();
