@@ -941,16 +941,15 @@ namespace Xtensive.Orm
             .ToList()
         : CollectionUtils.ColNumRange(targetDescriptor.Count);
 
-      var keyFieldCount = ownerDescriptor.Count + itemColumnOffsets.Count;
       var keyFieldTypes = ownerDescriptor
         .Concat(itemColumnOffsets.Select(i => targetDescriptor[i]))
-        .ToArray(keyFieldCount);
+        .ToArray();
       var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
 
       var map = Enumerable.Range(0, ownerDescriptor.Count)
         .Select(i => ((ColNum)0, (ColNum) i))
         .Concat(itemColumnOffsets.Select(i => ((ColNum)1, i)))
-        .ToArray(keyFieldCount);
+        .ToArray();
       var seekTransform = new MapTransform(true, keyDescriptor, map);
 
       Func<Tuple, Entity> itemCtor = null;

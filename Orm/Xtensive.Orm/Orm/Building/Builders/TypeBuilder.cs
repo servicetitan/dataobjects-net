@@ -489,8 +489,7 @@ namespace Xtensive.Orm.Building.Builders
         .Select(static field => field.Column)
         .ToArray();
 
-      var keyTupleDescriptor = TupleDescriptor.Create(
-        keyColumns.Select(static c => c.ValueType).ToArray(keyColumns.Length));
+      var keyTupleDescriptor = TupleDescriptor.Create(keyColumns.Select(static c => c.ValueType).ToArray());
       var typeIdColumnIndex = -1;
       if (hierarchyDef.IncludeTypeId) {
         for (var i = 0; i < keyColumns.Length; i++) {

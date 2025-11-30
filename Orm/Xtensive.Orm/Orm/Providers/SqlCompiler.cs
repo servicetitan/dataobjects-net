@@ -308,7 +308,7 @@ namespace Xtensive.Orm.Providers
         pair => ((MappedColumn) headerColumns[pair.Key]).ColumnInfoRef.ColumnName!=typeIdColumnName;
       var keyColumns = provider.Header.Order
         .Where(filterNonTypeId)
-        .ToList(provider.Header.Order.Count);
+        .ToList();
 
       parameterBindings.Capacity = keyColumns.Count;
       for (int i = 0, count = keyColumns.Count; i < count; i++) {

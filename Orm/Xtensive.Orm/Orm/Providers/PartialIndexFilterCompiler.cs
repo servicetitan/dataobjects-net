@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Providers
       IReadOnlyList<SqlExpression> columns = filter.Fields
         .Select(field => field.Column.Name)
         .Select((name, i) => SqlDml.ColumnRef(table.Columns[i], name))
-        .ToArray(fieldsCount);
+        .ToArray();
 
       var processor = new ExpressionProcessor(filter.Expression, handlers, null, true, columns);
       var fragment = SqlDml.Fragment(processor.Translate());

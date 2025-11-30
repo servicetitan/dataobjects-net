@@ -399,8 +399,8 @@ namespace Xtensive.Orm.Rse.Transformation
     private static CalculateProvider RecreateCalculate(CalculateProvider provider, CompilableProvider source)
     {
       var ccds = provider.CalculatedColumns
-        .SelectToArray(
-          column => new CalculatedColumnDescriptor(column.Name, column.Type, column.Expression));
+        .Select(column => new CalculatedColumnDescriptor(column.Name, column.Type, column.Expression))
+        .ToArray();
       return source.Calculate(ccds);
     }
 

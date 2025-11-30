@@ -245,7 +245,7 @@ namespace Xtensive.Orm.Linq
       Expression = IsPersistableType(itemType)
         ? BuildField(itemType, ref index, types)
         : BuildLocalCollectionExpression(itemType, new HashSet<Type>(), ref index, null, types, sourceExpression);
-      TupleDescriptor = TupleDescriptor.Create(types.ToArray(types.Count));
+      TupleDescriptor = TupleDescriptor.Create(types.ToArray());
 
       return delegate(TItem item) {
         var tuple = Tuple.Create(TupleDescriptor);

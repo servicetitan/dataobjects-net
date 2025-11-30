@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Services
       if (request.ParameterBindings is ICollection<Providers.QueryParameterBinding> bindingCollection) {
         return new QueryTranslationResult(
           request.Statement,
-          bindingCollection.SelectToArray(b => new QueryParameterBinding(b)));
+          bindingCollection.Select(b => new QueryParameterBinding(b)).ToArray());
       }
       else
         return new QueryTranslationResult(request.Statement,

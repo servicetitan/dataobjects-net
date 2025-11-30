@@ -419,7 +419,7 @@ namespace Xtensive.Orm.Providers
       if (mc.AsTupleAccess(activeParameters) != null)
         return VisitTupleAccess(mc);
 
-      var arguments = mc.Arguments.SelectToArray(a => Visit(a));
+      var arguments = mc.Arguments.Select(a => Visit(a)).ToArray();
       var mi = mc.Method;
 
       if (mc.Object!=null && mc.Object.Type!=mi.ReflectedType) {
@@ -467,14 +467,14 @@ namespace Xtensive.Orm.Providers
 
     protected override SqlExpression VisitNew(NewExpression n)
     {
-      return CompileMember(n.Constructor, null, n.Arguments.SelectToArray(a => Visit(a)));
+      return CompileMember(n.Constructor, null, n.Arguments.Select(a => Visit(a)).ToArray());
     }
 
     protected override SqlExpression VisitNewArray(NewArrayExpression expression)
     {
       if (expression.NodeType!=ExpressionType.NewArrayInit)
         throw new NotSupportedException();
-      var expressions = expression.Expressions.SelectToArray(e => Visit(e));
+      var expressions = expression.Expressions.Select(e => Visit(e)).ToArray();
       return SqlDml.Container(expressions);
     }
 
@@ -516,8 +516,12 @@ namespace Xtensive.Orm.Providers
 
       if (lambda.Parameters.Count != sourceColumns.Length)
         throw Exceptions.InternalError(Strings.ExParametersCountIsNotSameAsSourceColumnListsCount, OrmLog.Instance);
-      if (sourceColumns.Any(list => list.Any(c => c is null)))
-        throw Exceptions.InternalError(Strings.ExSourceColumnListContainsNullValues, OrmLog.Instance);
+      foreach (var list in sourceColumns) {
+        foreach (var c in list) {
+          if (c is null)
+            throw Exceptions.InternalError(Strings.ExSourceColumnListContainsNullValues, OrmLog.Instance);
+        }
+      }
 
       this.compiler = compiler; // This might be null, check before use!
       this.lambda = lambda;

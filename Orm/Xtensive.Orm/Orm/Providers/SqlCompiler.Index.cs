@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Providers
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);
       var queryAndBindings = BuildProviderQuery(index);
-      return CreateProvider(queryAndBindings.Query, queryAndBindings.Bindings.ToArray(), provider);
+      return CreateProvider(queryAndBindings.Query, queryAndBindings.Bindings, provider);
     }
 
     protected QueryAndBindings BuildProviderQuery(IndexInfo index)
@@ -223,11 +223,11 @@ namespace Xtensive.Orm.Providers
         }
         else {
           var values = filterByTypes
-            .Select(t => GetDiscriminatorValue(discriminatorMap, t.TypeDiscriminatorValue)).ToArray(filterByTypesCount);
+            .Select(t => GetDiscriminatorValue(discriminatorMap, t.TypeDiscriminatorValue)).ToArray();
           filter = SqlDml.In(discriminatorColumn, SqlDml.Array(values));
           if (containsDefault) {
             var allValues = discriminatorMap
-              .Select(p => GetDiscriminatorValue(discriminatorMap, p.Item1)).ToArray(discriminatorMap.Count);
+              .Select(p => GetDiscriminatorValue(discriminatorMap, p.Item1)).ToArray();
             filter |= SqlDml.NotIn(discriminatorColumn, SqlDml.Array(allValues));
           }
         }
@@ -239,7 +239,7 @@ namespace Xtensive.Orm.Providers
           filter = filterByTypes.Count == 1
             ? typeIdColumn == TypeIdRegistry[filterByTypes.First()]
             : SqlDml.In(typeIdColumn,
-                SqlDml.Array(filterByTypes.Select(t => TypeIdRegistry[t]).ToArray(filterByTypes.Count)));
+                SqlDml.Array(filterByTypes.Select(t => TypeIdRegistry[t]).ToArray()));
         }
         else {
           if (filterByTypes.Count == 1) {
@@ -254,7 +254,7 @@ namespace Xtensive.Orm.Providers
                 bindings.Add(binding);
                 return binding.ParameterReference;
               })
-              .ToArray(filterByTypes.Count);
+              .ToArray();
             filter = SqlDml.In(typeIdColumn, SqlDml.Array(typeIdParameters));
           }
         }

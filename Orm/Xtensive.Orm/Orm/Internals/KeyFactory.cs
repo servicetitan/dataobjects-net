@@ -137,7 +137,7 @@ namespace Xtensive.Orm.Internals
       var descriptor = typeInfo.Key.TupleDescriptor;
       var keyTypeName = string.Format(GenericKeyNameFormat, WellKnownOrmTypes.KeyOfT.Namespace, WellKnownOrmTypes.Key.Name, descriptor.Count);
       var keyType = WellKnownOrmTypes.Key.Assembly.GetType(keyTypeName);
-      keyType = keyType.MakeGenericType(descriptor.ToArray(descriptor.Count));
+      keyType = keyType.MakeGenericType(descriptor.ToArray());
       var defaultConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, Key>>(
         null, keyType, "Create", Array.Empty<Type>());
       var keyIndexBasedConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, IReadOnlyList<ColNum>, Key>>(

@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Building.Builders
       if (untypedIndexes.Contains(primaryIndex) && primaryIndex.ReflectedType == root) {
         primaryIndex = type.Indexes.Single(i => i.DeclaringIndex == primaryIndex.DeclaringIndex && i.IsTyped);
       }
-      var filterByTypes = type.AllDescendants.Append(type).ToList(type.AllDescendants.Count + 1);
+      var filterByTypes = type.AllDescendants.Append(type).ToList();
 
       // Build virtual primary index
       if (ancestors.Count > 0) {

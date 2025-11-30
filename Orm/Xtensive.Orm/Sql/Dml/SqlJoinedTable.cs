@@ -60,7 +60,7 @@ namespace Xtensive.Sql.Dml
       var allLeftColumns = joinExpression.Left.Columns;
       var allRightColumns = joinExpression.Right.Columns;
 
-      columns = new SqlTableColumnCollection(allLeftColumns.Concat(allRightColumns).ToArray(allLeftColumns.Count + allRightColumns.Count));
+      columns = new SqlTableColumnCollection(allLeftColumns.Concat(allRightColumns).ToArray());
 
       AliasedColumns = new(leftColumns.Concat(rightColumns));
     }

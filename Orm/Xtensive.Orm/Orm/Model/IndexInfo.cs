@@ -341,14 +341,14 @@ namespace Xtensive.Orm.Model
     private void CreateTupleDescriptors()
     {
       tupleDescriptor = TupleDescriptor.Create(
-        Columns.Select(static c => c.ValueType).ToArray(Columns.Count));
+        Columns.Select(static c => c.ValueType).ToArray());
       keyTupleDescriptor = TupleDescriptor.Create(
-        KeyColumns.Select(static c => c.Key.ValueType).ToArray(KeyColumns.Count));
+        KeyColumns.Select(static c => c.Key.ValueType).ToArray());
     }
 
     private void CreateColumns()
     {
-      Columns = KeyColumns.Select(static pair => pair.Key).Concat(ValueColumns).ToArray(KeyColumns.Count + ValueColumns.Count).AsSafeWrapper();
+      Columns = KeyColumns.Select(static pair => pair.Key).Concat(ValueColumns).ToArray().AsSafeWrapper();
     }
 
     /// Unsubscribe ColumnInfoCollections from FieldInfo events to avoid memory leak.

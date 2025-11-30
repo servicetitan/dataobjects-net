@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         var newGenericDefType = hint.TargetType;
         if (genericTypeDefLookup.TryGetValue(newGenericDefType, out var instanceGroup)) {
           foreach (var triplet in instanceGroup.Instances) {
-            var newGenericArguments = triplet.Item3.SelectToArray(pair => pair.Item2);
+            var newGenericArguments = triplet.Item3.Select(pair => pair.Item2).ToArray();
             rewrittenHints.Add(new RenameFieldHint(newGenericDefType.MakeGenericType(newGenericArguments),
               hint.OldFieldName, hint.NewFieldName));
           }
@@ -528,10 +528,8 @@ namespace Xtensive.Orm.Upgrade.Internals
         let type = association.ConnectorType
         where type != null
         select type
-        ).ToHashSet();
-      return model.Types
-        .Where(type => !connectorTypes.Contains(type))
-        .ToArray(model.Types.Length - connectorTypes.Count);
+        );
+      return model.Types.Except(connectorTypes).ToArray();
     }
 
     public static ClassifiedCollection<string, (string, string[])> GetGenericTypes(StoredDomainModel model)

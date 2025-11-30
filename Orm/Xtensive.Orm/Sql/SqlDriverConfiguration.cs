@@ -45,7 +45,7 @@ namespace Xtensive.Sql
       // no deep cloning
       var accessors = (DbConnectionAccessors.Count == 0)
         ? Array.Empty<IDbConnectionAccessor>()
-        : DbConnectionAccessors.ToArray(DbConnectionAccessors.Count);
+        : DbConnectionAccessors.ToArray();
 
       return new SqlDriverConfiguration(accessors) {
         ForcedServerVersion = ForcedServerVersion,

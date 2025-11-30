@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Dml
 
     internal override SqlFunctionCall Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new(t.FunctionType, t.Arguments.Select(o => o.Clone(c)).ToArray(t.Arguments.Count)));
+        new(t.FunctionType, t.Arguments.Select(o => o.Clone(c)).ToArray()));
 
     public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
 

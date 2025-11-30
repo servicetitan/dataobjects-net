@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Linq.Expressions
       FieldExpression CreateField(ColumnInfo c) => FieldExpression.CreateField(c.Field, offset);
 
       var fields = entityType.IsLocked
-        ? entityType.Key.Columns.Select(CreateField).ToArray(entityType.Key.Columns.Count)
+        ? entityType.Key.Columns.Select(CreateField).ToArray()
         : entityType.Columns
           .Where(c => c.IsPrimaryKey)
           .OrderBy(c => c.Field.MappingInfo.Offset)

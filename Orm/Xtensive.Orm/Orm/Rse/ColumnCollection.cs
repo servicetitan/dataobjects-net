@@ -65,7 +65,7 @@ public readonly struct ColumnCollection
   public ColumnCollection Alias(string alias)
   {
     ArgumentException.ThrowIfNullOrEmpty(alias);
-    return new ColumnCollection(Columns.Select(column => column.Clone(alias + "." + column.Name)).ToArray(Count));
+    return new ColumnCollection(Columns.Select(column => column.Clone(alias + "." + column.Name)).ToArray());
   }
 
   // Constructors
