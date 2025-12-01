@@ -17,7 +17,7 @@ namespace Xtensive.Sql.Dml
       ISqlQueryExpression
   {
     private readonly SqlUserColumn asterisk = SqlDml.Column(SqlDml.Asterisk);
-    private readonly SqlColumnCollection columns = new();
+    private readonly SqlColumnCollection columns;
     private SqlLockType _lock;
     private SqlColumnCollection groupBy;
     private SqlExpression having;
@@ -256,15 +256,16 @@ namespace Xtensive.Sql.Dml
 
     // Constructors
 
-    internal SqlSelect(SqlTable from)
-      : this()
+    internal SqlSelect(SqlTable from, int? capacity = null)
+      : this(capacity ?? from.Columns.Count)
     {
       From = from;
     }
 
-    internal SqlSelect()
+    internal SqlSelect(int? capacity = null)
       : base(SqlNodeType.Select)
     {
+      columns = capacity.HasValue ? new(capacity.Value) : new();
     }
   }
 }

@@ -4,14 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using Xtensive.Core;
-using Xtensive.Linq;
-using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
@@ -24,22 +16,7 @@ namespace Xtensive.Orm.Providers
 {
   public partial class SqlCompiler
   {
-    protected readonly struct QueryAndBindings
-    {
-      public SqlSelect Query { get; }
-      public List<QueryParameterBinding> Bindings { get; }
-
-      public QueryAndBindings(SqlSelect initialQuery)
-      {
-        Query = initialQuery;
-        Bindings = new List<QueryParameterBinding>();
-      }
-      public QueryAndBindings(SqlSelect initialQuery, List<QueryParameterBinding> bindings)
-      {
-        Query = initialQuery;
-        Bindings = bindings;
-      }
-    }
+    protected record struct QueryAndBindings(SqlSelect Query, List<QueryParameterBinding> Bindings);
 
     private TypeMapping int32TypeMapping;
 
@@ -54,17 +31,13 @@ namespace Xtensive.Orm.Providers
     protected QueryAndBindings BuildProviderQuery(IndexInfo index)
     {
       if (index.IsVirtual) {
-        if ((index.Attributes & IndexAttributes.Union) > 0)
-          return BuildUnionQuery(index);
-        if ((index.Attributes & IndexAttributes.Join) > 0)
-          return BuildJoinQuery(index);
-        if ((index.Attributes & IndexAttributes.Filtered) > 0)
-          return BuildFilteredQuery(index);
-        if ((index.Attributes & IndexAttributes.View) > 0)
-          return BuildViewQuery(index);
-        if ((index.Attributes & IndexAttributes.Typed) > 0)
-          return BuildTypedQuery(index);
-        throw new NotSupportedException(String.Format(Strings.ExUnsupportedIndex, index.Name, index.Attributes));
+        var attrs = index.Attributes;
+        return (attrs & IndexAttributes.Union) > 0 ? BuildUnionQuery(index)
+          : (attrs & IndexAttributes.Join) > 0 ? BuildJoinQuery(index)
+          : (attrs & IndexAttributes.Filtered) > 0 ? BuildFilteredQuery(index)
+          : (attrs & IndexAttributes.View) > 0 ? BuildViewQuery(index)
+          : (attrs & IndexAttributes.Typed) > 0 ? BuildTypedQuery(index)
+          : throw new NotSupportedException(String.Format(Strings.ExUnsupportedIndex, index.Name, index.Attributes));
       }
       return BuildTableQuery(index);
     }
@@ -98,7 +71,7 @@ namespace Xtensive.Orm.Providers
           queryColumns.Add(tableRef[lookup[c.Field]]);
         }
       }
-      return new QueryAndBindings(query);
+      return new QueryAndBindings(query, []);
     }
 
     private QueryAndBindings BuildUnionQuery(IndexInfo index)
@@ -285,10 +258,9 @@ namespace Xtensive.Orm.Providers
       var baseQueryAndBindings = BuildProviderQuery(underlyingIndex);
       var baseQuery = baseQueryAndBindings.Query;
       var bindings = baseQueryAndBindings.Bindings;
-      var query = SqlDml.Select(baseQuery.From);
+      var query = SqlDml.Select(baseQuery.From, baseQuery.Columns.Count + 1);
       query.Where = baseQuery.Where;
 
-      var baseColumns = baseQuery.Columns.ToList();
       var typeIdColumnIndex = index.Columns
         .Select((c, i) => (c.Field, i))
         .Single(p => p.Field.IsTypeId && p.Field.IsSystem).i;
@@ -331,9 +303,13 @@ namespace Xtensive.Orm.Providers
         bindings = baseQueryAndBindings.Bindings;
       }
 
-      var typeIdColumnRef = SqlDml.ColumnRef(typeIdColumn, WellKnown.TypeIdFieldName);
-      baseColumns.Insert(typeIdColumnIndex, typeIdColumnRef);
-      query.Columns.AddRange(baseColumns);
+      var queryColumns = query.Columns;
+      int i = 0;
+      foreach (var column in baseQuery.Columns) {
+        if (i++ == typeIdColumnIndex)
+          queryColumns.Add(SqlDml.ColumnRef(typeIdColumn, WellKnown.TypeIdFieldName));
+        queryColumns.Add(column);
+      }
 
       return new QueryAndBindings(query, bindings);
     }
