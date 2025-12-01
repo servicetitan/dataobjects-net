@@ -303,12 +303,19 @@ namespace Xtensive.Orm.Providers
         bindings = baseQueryAndBindings.Bindings;
       }
 
+      var typeIdColumnRef = SqlDml.ColumnRef(typeIdColumn, WellKnown.TypeIdFieldName);
       var queryColumns = query.Columns;
+      bool inserted = false;
       int i = 0;
       foreach (var column in baseQuery.Columns) {
-        if (i++ == typeIdColumnIndex)
-          queryColumns.Add(SqlDml.ColumnRef(typeIdColumn, WellKnown.TypeIdFieldName));
+        if (i++ == typeIdColumnIndex) {
+          queryColumns.Add(typeIdColumnRef);
+          inserted = true;
+        }
         queryColumns.Add(column);
+      }
+      if (!inserted) {
+        queryColumns.Add(typeIdColumnRef);
       }
 
       return new QueryAndBindings(query, bindings);
