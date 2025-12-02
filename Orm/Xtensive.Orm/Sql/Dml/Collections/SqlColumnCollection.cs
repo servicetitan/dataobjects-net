@@ -65,6 +65,7 @@ namespace Xtensive.Sql.Dml
     /// Initializes new instance of this type.
     /// </summary>
     public SqlColumnCollection() { }
+    public SqlColumnCollection(int capacity) : base(capacity) { }
 
     /// <summary>
     /// Initializes new instance of this type.
