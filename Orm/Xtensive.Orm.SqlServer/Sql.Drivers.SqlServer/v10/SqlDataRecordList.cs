@@ -62,7 +62,7 @@ public class SqlDataRecordList(IReadOnlyList<Tuple> tuples, SqlDbType sqlDbType)
         SqlDataRecord record = new(metaData);
         HashSet<string> added = new(StringComparer.OrdinalIgnoreCase);
         foreach (var valueObj in tuples.Select(t => t.GetValueOrDefault(0)).Where(o => o != null)) {
-          string castValue = (string) valueObj;
+          var castValue = ((string) valueObj).TrimEnd();
           if (added.Add(castValue)) {
             record.SetSqlString(0, castValue);
             yield return record;

@@ -1691,10 +1691,10 @@ namespace Xtensive.Sql
       return result;
     }
 
-    public static SqlSelect Select(SqlTable table)
+    public static SqlSelect Select(SqlTable table, int? capacity = null)
     {
       ArgumentNullException.ThrowIfNull(table);
-      return new SqlSelect(table);
+      return new SqlSelect(table, capacity);
     }
 
     #endregion
