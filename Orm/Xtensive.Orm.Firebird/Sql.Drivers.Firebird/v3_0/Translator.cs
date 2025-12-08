@@ -278,9 +278,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v3_0
       }
     }
 
-    public override void SelectLimit(SqlCompilerContext context, SqlSelect node) => context.Output.Append("FIRST");
-    public override void SelectOffset(SqlCompilerContext context, SqlSelect node) => context.Output.Append("SKIP");
-    public override void UpdateLimit(SqlCompilerContext context) => context.Output.Append("ROWS");
+    public override void SelectLimit(SqlCompilerContext context, SqlSelect node) => context.Output.AppendSpacePrefixed("FIRST ");
+    public override void SelectOffset(SqlCompilerContext context, SqlSelect node) => context.Output.AppendSpacePrefixed("SKIP ");
+    public override void UpdateLimit(SqlCompilerContext context) => context.Output.AppendSpacePrefixed("ROWS ");
 
     /// <inheritdoc />
     public override void Translate(SqlCompilerContext context, SqlDelete node, DeleteSection section)
