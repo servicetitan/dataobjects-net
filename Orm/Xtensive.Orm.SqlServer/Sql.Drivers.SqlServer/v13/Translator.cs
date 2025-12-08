@@ -287,10 +287,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
       base.Translate(context, node, section);
     }
 
-    public override void SelectLimit(SqlCompilerContext context, SqlSelect node) => context.Output.Append("FETCH NEXT");
-    public override void SelectLimitEnd(SqlCompilerContext context, SqlSelect node) => context.Output.Append("ROWS ONLY");
-    public override void SelectOffset(SqlCompilerContext context, SqlSelect node) => context.Output.Append("OFFSET");
-    public override void SelectOffsetEnd(SqlCompilerContext context, SqlSelect node) => context.Output.Append("ROWS");
+    public override void SelectLimit(SqlCompilerContext context, SqlSelect node) => context.Output.AppendSpacePrefixed("FETCH NEXT ");
+    public override void SelectLimitEnd(SqlCompilerContext context, SqlSelect node) => context.Output.AppendSpacePrefixed("ROWS ONLY ");
+    public override void SelectOffset(SqlCompilerContext context, SqlSelect node) => context.Output.AppendSpacePrefixed("OFFSET ");
+    public override void SelectOffsetEnd(SqlCompilerContext context, SqlSelect node) => context.Output.AppendSpacePrefixed("ROWS ");
 
     public override void SelectExit(SqlCompilerContext context, SqlSelect node)
     {
@@ -328,7 +328,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
     }
 
     /// <inheritdoc/>
-    public override void UpdateLimit(SqlCompilerContext context) => context.Output.Append("TOP");
+    public override void UpdateLimit(SqlCompilerContext context) => context.Output.AppendSpacePrefixed("TOP ");
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlDelete node, DeleteSection section)
