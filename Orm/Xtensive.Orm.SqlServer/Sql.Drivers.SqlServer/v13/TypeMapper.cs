@@ -14,6 +14,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
 {
   internal class TypeMapper(SqlDriver driver) : Sql.TypeMapper(driver)
   {
+    public const string
+      LongListTypeName = "_DO_LongList",
+      GuidListTypeName = "_DO_GuidList",
+      StringListTypeName = "_DO_StringList";
+
     private static readonly SqlValueType
       Decimal20Type = new(SqlType.Decimal, 20, 0);
 
