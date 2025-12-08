@@ -1706,7 +1706,7 @@ namespace Xtensive.Sql
       return new SqlConcat(new [] {left, right});
     }
 
-    public static SqlConcat Concat(params SqlExpression[] items)
+    public static SqlConcat Concat(params IReadOnlyList<SqlExpression> items)
     {
       ArgumentNullException.ThrowIfNull(items);
       foreach (var item in items)
