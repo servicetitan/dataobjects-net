@@ -9,134 +9,151 @@ using System.Data.Common;
 using Microsoft.Data.SqlClient;
 using System.Data.SqlTypes;
 using Xtensive.Sql.Info;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Sql.Drivers.SqlServer.v13
+namespace Xtensive.Sql.Drivers.SqlServer.v13;
+
+internal class TypeMapper(SqlDriver driver) : Sql.TypeMapper(driver)
 {
-  internal class TypeMapper(SqlDriver driver) : Sql.TypeMapper(driver)
+  public const string
+    LongListTypeName = "_DO_LongList",
+    GuidListTypeName = "_DO_GuidList",
+    StringListTypeName = "_DO_StringList";
+
+  private static readonly SqlValueType
+    Decimal20Type = new(SqlType.Decimal, 20, 0);
+
+  private static readonly SqlDecimal MinDecimal = new SqlDecimal(decimal.MinValue);
+  private static readonly SqlDecimal MaxDecimal = new SqlDecimal(decimal.MaxValue);
+  private static readonly int NVarCharLength = 4000;
+  private static readonly int NVarCharMaxLength = int.MaxValue;
+
+  private ValueRange<DateTime> dateTimeRange;
+
+  public override bool IsParameterCastRequired(Type type)
   {
-    public const string
-      LongListTypeName = "_DO_LongList",
-      GuidListTypeName = "_DO_GuidList",
-      StringListTypeName = "_DO_StringList";
-
-    private static readonly SqlValueType
-      Decimal20Type = new(SqlType.Decimal, 20, 0);
-
-    private static readonly SqlDecimal MinDecimal = new SqlDecimal(decimal.MinValue);
-    private static readonly SqlDecimal MaxDecimal = new SqlDecimal(decimal.MaxValue);
-    private static readonly int NVarCharLength = 4000;
-    private static readonly int NVarCharMaxLength = int.MaxValue;
-
-    private ValueRange<DateTime> dateTimeRange;
-
-    public override bool IsParameterCastRequired(Type type)
-    {
-      switch (Type.GetTypeCode(type)) {
-        case TypeCode.Byte:
-        case TypeCode.SByte:
-        case TypeCode.Int16:
-        case TypeCode.UInt16:
-          return true;
-      }
-      if (type == typeof(Guid)) {
+    switch (Type.GetTypeCode(type)) {
+      case TypeCode.Byte:
+      case TypeCode.SByte:
+      case TypeCode.Int16:
+      case TypeCode.UInt16:
         return true;
-      }
-
-      return base.IsParameterCastRequired(type);
+    }
+    if (type == typeof(Guid)) {
+      return true;
     }
 
-    public override void BindSByte(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Int16;
-      parameter.Value = value ?? DBNull.Value;
+    return base.IsParameterCastRequired(type);
+  }
+
+  public override void BindSByte(DbParameter parameter, object value)
+  {
+    parameter.DbType = DbType.Int16;
+    parameter.Value = value ?? DBNull.Value;
+  }
+
+  public override void BindUShort(DbParameter parameter, object value)
+  {
+    parameter.DbType = DbType.Int32;
+    parameter.Value = value ?? DBNull.Value;
+  }
+
+  public override void BindUInt(DbParameter parameter, object value)
+  {
+    parameter.DbType = DbType.Int64;
+    parameter.Value = value ?? DBNull.Value;
+  }
+
+  public override void BindULong(DbParameter parameter, object value)
+  {
+    parameter.DbType = DbType.Decimal;
+    parameter.Value = value ?? DBNull.Value;
+  }
+
+  public override void BindDateTime(DbParameter parameter, object value)
+  {
+    parameter.DbType = DbType.DateTime2;
+    parameter.Value = value ?? DBNull.Value;
+  }
+
+  public override void BindString(DbParameter parameter, object value)
+  {
+    base.BindString(parameter, value);
+    var stringValue = value as string;
+    if (stringValue == null)
+      return;
+    parameter.Size = stringValue.Length <= NVarCharLength
+      ? NVarCharLength
+      : NVarCharMaxLength;
+  }
+
+  public override void BindDateOnly(DbParameter parameter, object value)
+  {
+    parameter.DbType = DbType.Date;
+    parameter.Value = value is not null ? (DateOnly) value : DBNull.Value;
+  }
+
+  public override void BindTimeOnly(DbParameter parameter, object value)
+  {
+    parameter.DbType = DbType.Time;
+    parameter.Value = value is not null ? (TimeOnly) value : DBNull.Value;
+  }
+
+  public override SqlValueType MapSByte(int? length, int? precision, int? scale) => SqlValueType.Int16;
+  public override SqlValueType MapUShort(int? length, int? precision, int? scale) => SqlValueType.Int32;
+  public override SqlValueType MapUInt(int? length, int? precision, int? scale) => SqlValueType.Int64;
+  public override SqlValueType MapULong(int? length, int? precision, int? scale) => Decimal20Type;
+
+  public override decimal ReadDecimal(DbDataReader reader, int index)
+  {
+    var nativeReader = (SqlDataReader) reader;
+    var sqlDecimal = nativeReader.GetSqlDecimal(index);
+    if (ShouldCompareValues(sqlDecimal)) {
+      if (sqlDecimal > MaxDecimal)
+        return decimal.MaxValue;
+      if (sqlDecimal < MinDecimal)
+        return decimal.MinValue;
     }
+    return InternalHelpers.TruncateToNetDecimal(sqlDecimal);
+  }
 
-    public override void BindUShort(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Int32;
-      parameter.Value = value ?? DBNull.Value;
-    }
+  public override DateTimeOffset ReadDateTimeOffset(DbDataReader reader, int index) =>
+    ((SqlDataReader) reader).GetDateTimeOffset(index);
 
-    public override void BindUInt(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Int64;
-      parameter.Value = value ?? DBNull.Value;
-    }
+  public override DateOnly ReadDateOnly(DbDataReader reader, int index) =>
+    reader.GetFieldValue<DateOnly>(index);
 
-    public override void BindULong(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Decimal;
-      parameter.Value = value ?? DBNull.Value;
-    }
+  public override TimeOnly ReadTimeOnly(DbDataReader reader, int index) =>
+    reader.GetFieldValue<TimeOnly>(index);
 
-    public override void BindDateTime(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.DateTime2;
-      parameter.Value = value ?? DBNull.Value;
-    }
+  private static void BindList(DbParameter parameter, object value, SqlDbType sqlDbType)
+  {
+    var sqlParameter = (SqlParameter) parameter;
+    sqlParameter.SqlDbType = SqlDbType.Structured;
+    sqlParameter.Value = new SqlDataRecordList((List<Tuple>) value, sqlDbType) switch { var o => o.IsEmpty ? null : o };
+    sqlParameter.TypeName =
+      sqlDbType switch {
+        SqlDbType.BigInt => LongListTypeName,
+        SqlDbType.UniqueIdentifier => GuidListTypeName,
+        _ => StringListTypeName
+      };
+  }
 
-    public override void BindString(DbParameter parameter, object value)
-    {
-      base.BindString(parameter, value);
-      var stringValue = value as string;
-      if (stringValue == null)
-        return;
-      parameter.Size = stringValue.Length <= NVarCharLength
-        ? NVarCharLength
-        : NVarCharMaxLength;
-    }
+  public override void BindLongList(DbParameter parameter, object value) => BindList(parameter, value, SqlDbType.BigInt);
+  public override void BindGuidList(DbParameter parameter, object value) => BindList(parameter, value, SqlDbType.UniqueIdentifier);
+  public override void BindStringList(DbParameter parameter, object value) => BindList(parameter, value, SqlDbType.NVarChar);
 
-    public override void BindDateOnly(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Date;
-      parameter.Value = value is not null ? (DateOnly) value : DBNull.Value;
-    }
+  public override void Initialize()
+  {
+    base.Initialize();
+    dateTimeRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
+  }
 
-    public override void BindTimeOnly(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Time;
-      parameter.Value = value is not null ? (TimeOnly) value : DBNull.Value;
-    }
-
-    public override SqlValueType MapSByte(int? length, int? precision, int? scale) => SqlValueType.Int16;
-    public override SqlValueType MapUShort(int? length, int? precision, int? scale) => SqlValueType.Int32;
-    public override SqlValueType MapUInt(int? length, int? precision, int? scale) => SqlValueType.Int64;
-    public override SqlValueType MapULong(int? length, int? precision, int? scale) => Decimal20Type;
-
-    public override decimal ReadDecimal(DbDataReader reader, int index)
-    {
-      var nativeReader = (SqlDataReader) reader;
-      var sqlDecimal = nativeReader.GetSqlDecimal(index);
-      if (ShouldCompareValues(sqlDecimal)) {
-        if (sqlDecimal > MaxDecimal)
-          return decimal.MaxValue;
-        if (sqlDecimal < MinDecimal)
-          return decimal.MinValue;
-      }
-      return InternalHelpers.TruncateToNetDecimal(sqlDecimal);
-    }
-
-    public override DateTimeOffset ReadDateTimeOffset(DbDataReader reader, int index) =>
-      ((SqlDataReader) reader).GetDateTimeOffset(index);
-
-    public override DateOnly ReadDateOnly(DbDataReader reader, int index) =>
-      reader.GetFieldValue<DateOnly>(index);
-
-    public override TimeOnly ReadTimeOnly(DbDataReader reader, int index) =>
-      reader.GetFieldValue<TimeOnly>(index);
-
-    public override void Initialize()
-    {
-      base.Initialize();
-      dateTimeRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
-    }
-
-    private bool ShouldCompareValues(SqlDecimal valueFromDatabase)
-    {
-      var floorDigitCount = valueFromDatabase.Precision - valueFromDatabase.Scale;
-      if (floorDigitCount >= 29) //29 is max count of floor in .net Decimal
-        return true;
-      return false;
-    }
+  private bool ShouldCompareValues(SqlDecimal valueFromDatabase)
+  {
+    var floorDigitCount = valueFromDatabase.Precision - valueFromDatabase.Scale;
+    if (floorDigitCount >= 29) //29 is max count of floor in .net Decimal
+      return true;
+    return false;
   }
 }

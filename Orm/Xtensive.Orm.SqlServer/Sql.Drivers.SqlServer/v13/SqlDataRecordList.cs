@@ -3,7 +3,7 @@ using System.Data;
 using Microsoft.Data.SqlClient.Server;
 using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Sql.Drivers.SqlServer.v10;
+namespace Xtensive.Sql.Drivers.SqlServer.v13;
 
 public class SqlDataRecordList(IReadOnlyList<Tuple> tuples, SqlDbType sqlDbType) : IEnumerable<SqlDataRecord>
 {
