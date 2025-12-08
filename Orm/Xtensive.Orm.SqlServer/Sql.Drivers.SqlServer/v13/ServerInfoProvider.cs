@@ -225,7 +225,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
           QueryFeatures.PagingRequiresOrderBy |
           QueryFeatures.ParameterAsColumn |
           QueryFeatures.Offset |
-          QueryFeatures.ZeroLimitIsError
+          QueryFeatures.ZeroLimitIsError |
+          QueryFeatures.TableValuedParameters
       };
       return queryInfo;
     }
