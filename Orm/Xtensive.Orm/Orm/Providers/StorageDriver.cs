@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Providers
         var tables = schema.Tables;
         var sysdiagrams = tables["sysdiagrams"];
         if (sysdiagrams!=null)
-          tables.Remove(sysdiagrams);
+          _ = tables.Remove(sysdiagrams);
       }
     }
 

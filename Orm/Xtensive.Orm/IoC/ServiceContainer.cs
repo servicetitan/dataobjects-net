@@ -102,7 +102,7 @@ namespace Xtensive.IoC
       return cInfo.Invoke(args.AsSpan());
     }
 
-#endregion
+    #endregion
 
     #region Private \ internal methods
 
@@ -265,7 +265,7 @@ namespace Xtensive.IoC
       var typeRegistry = new TypeRegistry(new ServiceTypeRegistrationProcessor());
 
       foreach (var typeRegistrationElement in configuration.Auto)
-        typeRegistry.Register(typeRegistrationElement.ToNative());
+        _ = typeRegistry.Register(typeRegistrationElement.ToNative());
       foreach (var type in typeRegistry)
         registrations.AddRange(ServiceRegistration.CreateAll(type));
       foreach (var serviceRegistrationElement in configuration.Explicit)
@@ -308,7 +308,7 @@ namespace Xtensive.IoC
       using (var toDispose = new DisposableSet()) {
         foreach (var lazy in instances.Values) {
           if (lazy.IsValueCreated && lazy.Value is IDisposable disposable) {
-            toDispose.Add(disposable);
+            _ = toDispose.Add(disposable);
           }
         }
       }

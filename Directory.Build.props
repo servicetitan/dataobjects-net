@@ -49,7 +49,7 @@
 
   <!--Release and Debug are for final builds, builds on build server, etc. Target frameworks are configurable here -->
   <PropertyGroup Label="Defaults"
-      Condition="$(Configuration.Contains('NET8')) == 'false' AND $(Configuration.Contains('NET7')) == 'false' AND $(Configuration.Contains('NET6')) == 'false'">
+      Condition="$(Configuration.Contains('NET10')) == 'false' AND $(Configuration.Contains('NET8')) == 'false'">
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>  <!-- the property -->
     <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->

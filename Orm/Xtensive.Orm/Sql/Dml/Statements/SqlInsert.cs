@@ -21,13 +21,6 @@ namespace Xtensive.Sql.Dml
     public SqlTableRef Into { get; set; }
 
     /// <summary>
-    /// Gets the values.
-    /// </summary>
-    /// <value>The values.</value>
-    [Obsolete("No longer in use. Use ValueRows.Add to add values")]
-    public Dictionary<SqlColumn, SqlExpression> Values { get; private set; } = new();
-
-    /// <summary>
     /// Gets rows of values.
     /// </summary>
     public SqlInsertValuesCollection ValueRows { get; private set; } = new SqlInsertValuesCollection();
