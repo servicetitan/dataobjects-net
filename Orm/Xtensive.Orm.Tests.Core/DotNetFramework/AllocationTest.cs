@@ -109,7 +109,6 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
           using (new Measurement("SlimObject", MeasurementOptions.Log, iterations))
             AllocateClass_SlimObject(iterations);
           TestHelper.CollectGarbage();
-          TestHelper.CollectGarbage();
           using (new Measurement("FinalizableSlimObject", MeasurementOptions.Log, iterations))
             AllocateClass_FinalizableSlimObject(iterations);
           TestHelper.CollectGarbage();
