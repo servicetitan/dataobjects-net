@@ -164,10 +164,11 @@ namespace Xtensive.Orm.Linq.Expressions
       var fieldMappingInfo = structureField.MappingInfo;
       var mapping = new Segment<ColNum>((ColNum)(offset + fieldMappingInfo.Offset), fieldMappingInfo.Length);
       var result = new StructureFieldExpression(persistentType, structureField, mapping, null, false);
-      var processedFields = new List<PersistentFieldExpression>(persistentType.Fields.Count);
+      var processedFields = new PersistentFieldExpression[persistentType.Fields.Count];
+      int i = 0;
       foreach (var field in persistentType.Fields) {
         // Do not convert to LINQ. We want to avoid a closure creation here.
-        processedFields.Add(BuildNestedFieldExpression(field, (ColNum) (offset + fieldMappingInfo.Offset)));
+        processedFields[i++] = BuildNestedFieldExpression(field, (ColNum) (offset + fieldMappingInfo.Offset));
       }
 
       result.SetFields(processedFields);
