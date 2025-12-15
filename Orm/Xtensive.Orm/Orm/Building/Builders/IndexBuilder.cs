@@ -632,7 +632,7 @@ namespace Xtensive.Orm.Building.Builders
         valueColumnMapping.Add((item.i, item.columns));
       }
 
-      result.ValueColumnsMap = valueColumnMapping;
+      result.ValueColumnsMap = valueColumnMapping.ToArray();
       result.ValueColumns.AddRange(GatherValueColumns(columnsToAdd));
       result.Name = nameBuilder.BuildIndexName(reflectedType, result);
       result.Group = BuildColumnGroup(result);
@@ -757,7 +757,7 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       result.ValueColumns.AddRange(valueColumns);
-      result.SelectColumns = columnMap;
+      result.SelectColumns = columnMap.ToArray();
       result.Name = nameBuilder.BuildIndexName(reflectedType, result);
       result.Group = BuildColumnGroup(result);
 
