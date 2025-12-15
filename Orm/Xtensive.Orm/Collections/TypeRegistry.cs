@@ -21,11 +21,13 @@ namespace Xtensive.Collections
     IEnumerable<Type>,
     ICloneable
   {
+    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+    private readonly List<Type> types = new List<Type>();
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private ISet<Type> typeSet = new HashSet<Type>();
-    private List<TypeRegistration> actions = new();
+    private List<TypeRegistration> actions = new List<TypeRegistration>();
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private readonly HashSet<TypeRegistration> actionSet = new();
+    private readonly HashSet<TypeRegistration> actionSet = new HashSet<TypeRegistration>();
     private readonly ITypeRegistrationProcessor processor;
     private bool isProcessingPendingActions = false;
     protected ServiceRegistration[] serviceRegistrations;
@@ -58,6 +60,7 @@ namespace Xtensive.Collections
         Register(new TypeRegistration(type));
       else if (typeSet.Add(type)) {
         serviceRegistrations = null;
+        types.Add(type);
         ((ISet<Assembly>)Assemblies).Add(type.Assembly);
       }
     }
@@ -161,7 +164,7 @@ namespace Xtensive.Collections
     public IEnumerator<Type> GetEnumerator()
     {
       ProcessPendingActions();
-      return typeSet.GetEnumerator();
+      return types.GetEnumerator();
     }
 
     /// <inheritdoc/>
@@ -179,7 +182,7 @@ namespace Xtensive.Collections
     {
       get {
         ProcessPendingActions();
-        return typeSet.Count;
+        return types.Count;
       }
     }
 
@@ -204,6 +207,7 @@ namespace Xtensive.Collections
       ArgumentValidator.EnsureArgumentIs(source, GetType(), "source");
       actions = new List<TypeRegistration>(source.actions);
       actionSet = new HashSet<TypeRegistration>(source.actionSet);
+      types = new List<Type>(source.types);
       typeSet = new HashSet<Type>(source.typeSet);
       processor = source.processor;
       Assemblies = new HashSet<Assembly>(source.Assemblies);
