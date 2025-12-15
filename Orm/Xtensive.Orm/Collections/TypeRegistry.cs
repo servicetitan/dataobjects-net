@@ -4,13 +4,10 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
-using System;
 using System.Collections;
 using System.Collections.Frozen;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.IoC;
 
@@ -24,13 +21,11 @@ namespace Xtensive.Collections
     IEnumerable<Type>,
     ICloneable
   {
-    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-    private readonly List<Type> types = new List<Type>();
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private ISet<Type> typeSet = new HashSet<Type>();
-    private readonly List<TypeRegistration> actions = new List<TypeRegistration>();
+    private List<TypeRegistration> actions = new();
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private readonly HashSet<TypeRegistration> actionSet = new HashSet<TypeRegistration>();
+    private readonly HashSet<TypeRegistration> actionSet = new();
     private readonly ITypeRegistrationProcessor processor;
     private bool isProcessingPendingActions = false;
     protected ServiceRegistration[] serviceRegistrations;
@@ -63,7 +58,6 @@ namespace Xtensive.Collections
         Register(new TypeRegistration(type));
       else if (typeSet.Add(type)) {
         serviceRegistrations = null;
-        types.Add(type);
         ((ISet<Assembly>)Assemblies).Add(type.Assembly);
       }
     }
@@ -110,9 +104,8 @@ namespace Xtensive.Collections
     public bool Register(in TypeRegistration action)
     {
       EnsureNotLocked();
-      if (actionSet.Contains(action))
+      if (!actionSet.Add(action))
         return false;
-      actionSet.Add(action);
       actions.Add(action);
       return true;
     }
@@ -126,8 +119,8 @@ namespace Xtensive.Collections
       isProcessingPendingActions = true;
       try {
         while (true) {
-          var oldActions = actions.ToList();
-          actions.Clear();
+          var oldActions = actions;
+          actions = new();
           foreach (var action in oldActions)
             processor.Process(this, action);
           if (actions.Count == 0)
@@ -168,7 +161,7 @@ namespace Xtensive.Collections
     public IEnumerator<Type> GetEnumerator()
     {
       ProcessPendingActions();
-      return types.GetEnumerator();
+      return typeSet.GetEnumerator();
     }
 
     /// <inheritdoc/>
@@ -186,7 +179,7 @@ namespace Xtensive.Collections
     {
       get {
         ProcessPendingActions();
-        return types.Count;
+        return typeSet.Count;
       }
     }
 
@@ -211,7 +204,6 @@ namespace Xtensive.Collections
       ArgumentValidator.EnsureArgumentIs(source, GetType(), "source");
       actions = new List<TypeRegistration>(source.actions);
       actionSet = new HashSet<TypeRegistration>(source.actionSet);
-      types = new List<Type>(source.types);
       typeSet = new HashSet<Type>(source.typeSet);
       processor = source.processor;
       Assemblies = new HashSet<Assembly>(source.Assemblies);
