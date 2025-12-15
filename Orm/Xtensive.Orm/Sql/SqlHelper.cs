@@ -583,9 +583,10 @@ namespace Xtensive.Sql
     public static async Task NotifyConnectionOpeningAsync(
       IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, bool reconnect = false, CancellationToken token = default)
     {
+      ConnectionEventData eventData = null;
       foreach (var accessor in connectionAccessors) {
         await accessor.ConnectionOpeningAsync(
-          new ConnectionEventData(connection, reconnect), token)
+            eventData ??= new ConnectionEventData(connection, reconnect), token)
           .ConfigureAwaitFalse();
       }
     }
