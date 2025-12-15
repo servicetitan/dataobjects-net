@@ -4,9 +4,8 @@
 // Created by: Alex Yakunin
 // Created:    2007.11.22
 
-using System;
 using System.Diagnostics;
-
+using System.Runtime.CompilerServices;
 
 namespace Xtensive.Core
 {
@@ -16,9 +15,11 @@ namespace Xtensive.Core
   [Serializable]
   public abstract class LockableBase: ILockable
   {
-
     /// <inheritdoc/>
     public bool IsLocked { [DebuggerStepThrough] get; private set; }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static void ThrowInstanceIsLockedException() => throw new InstanceIsLockedException(Strings.ExInstanceIsLocked);
 
     /// <summary>
     /// Ensures the object is not locked (see <see cref="ILockable.Lock()"/>) yet.
@@ -27,7 +28,7 @@ namespace Xtensive.Core
     public void EnsureNotLocked()
     {
       if (IsLocked) {
-        throw new InstanceIsLockedException(Strings.ExInstanceIsLocked);
+        ThrowInstanceIsLockedException();
       }
     }
 
