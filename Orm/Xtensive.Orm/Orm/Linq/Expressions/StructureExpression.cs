@@ -140,7 +140,7 @@ namespace Xtensive.Orm.Linq.Expressions
       int i = 0;
       foreach (var field in sourceFields) {
         // Do not convert to LINQ. We intentionally avoiding closure creation here
-        destinationFields[i] = BuildNestedFieldExpression(field, mapping.Offset);
+        destinationFields[i++] = BuildNestedFieldExpression(field, mapping.Offset);
       }
 
       return result;
