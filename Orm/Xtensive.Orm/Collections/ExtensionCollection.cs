@@ -92,7 +92,7 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    public override void Lock(bool recursive)
+    public override void Lock(bool recursive = true)
     {
       base.Lock(recursive);
       if (extensions!=null)

@@ -708,7 +708,7 @@ namespace Xtensive.Orm.Configuration
     /// Locks the instance and (possible) all dependent objects.
     /// </summary>
     /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
-    public override void Lock(bool recursive)
+    public override void Lock(bool recursive = true)
     {
       var multischema = GetIsMultischema();
       var multidatabase = GetIsMultidatabase();

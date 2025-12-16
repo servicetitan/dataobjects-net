@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Model
       reverseMapping[typeId] = type;
     }
 
-    public override void Lock(bool recursive)
+    public override void Lock(bool recursive = true)
     {
       base.Lock(recursive);
       mapping = mapping?.ToFrozenDictionary();

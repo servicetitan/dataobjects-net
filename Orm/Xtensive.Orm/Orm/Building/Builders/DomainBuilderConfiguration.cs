@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    public override void Lock(bool recursive)
+    public override void Lock(bool recursive = true)
     {
       base.Lock(recursive);
       if (recycledDefinitions!=null)

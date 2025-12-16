@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public NameMappingCollection DatabaseMapping { get; init; }  = new();
 
-    public override void Lock(bool recursive)
+    public override void Lock(bool recursive = true)
     {
       base.Lock(recursive);
 
