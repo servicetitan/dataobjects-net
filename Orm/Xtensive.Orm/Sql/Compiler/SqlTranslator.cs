@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Compiler
     public NumberFormatInfo FloatNumberFormat { get; private set; }
     public NumberFormatInfo DoubleNumberFormat { get; private set; }
 
-    public virtual string NewLine { get { return Environment.NewLine; } }
+    public string NewLine { get; } = "\n";
 
     public virtual string OpeningParenthesis => "(";
     public virtual string ClosingParenthesis => ")";
@@ -2491,26 +2491,23 @@ namespace Xtensive.Sql.Compiler
       }
       var expectedLength = BatchBegin.Length + BatchEnd.Length
         + ((BatchItemDelimiter.Length + NewLine.Length) * statements.Count)
-        + statements.Sum(statement => statement.Length);
-      var valueBuilder = new ValueStringBuilder(expectedLength);
-      valueBuilder.Append(BatchBegin);
+        + statements.Sum(static statement => statement.Length);
+      StringBuilder sb = new(BatchBegin, expectedLength);
       foreach (var statement in statements) {
-        var statementAsSpan = (ReadOnlySpan<char>) statement;
-        var actualStatement = statementAsSpan
+        var actualStatement = statement.AsSpan()
           .Trim()
           .TryCutPrefix(BatchBegin)
           .TryCutSuffix(BatchEnd)
           .TryCutSuffix(NewLine)
           .TryCutSuffix(BatchItemDelimiter)
           .Trim();
-        if (actualStatement.Length == 0)
-          continue;
-        valueBuilder.Append(actualStatement.ToString());
-        valueBuilder.Append(BatchItemDelimiter);
-        valueBuilder.Append(NewLine);
+        if (actualStatement.Length != 0) {
+          _ = sb.Append(actualStatement)
+            .Append(BatchItemDelimiter)
+            .Append(NewLine);
+        }
       }
-      valueBuilder.Append(BatchEnd);
-      return valueBuilder.ToString();
+      return sb.Append(BatchEnd).ToString();
     }
 
     /// <summary>
