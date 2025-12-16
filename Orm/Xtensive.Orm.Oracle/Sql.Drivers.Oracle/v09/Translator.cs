@@ -19,9 +19,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
   internal class Translator : SqlTranslator
   {
     /// <inheritdoc/>
-    public override string NewLine => "\n";
-
-    /// <inheritdoc/>
     public override string BatchBegin => "BEGIN\n";
 
     /// <inheritdoc/>
