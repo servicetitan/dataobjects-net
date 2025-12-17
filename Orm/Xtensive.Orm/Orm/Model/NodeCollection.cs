@@ -153,7 +153,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override void Lock(bool recursive)
+    public override void Lock(bool recursive = true)
     {
       base.Lock(recursive);
       NameIndex = NameIndex.ToFrozenDictionary();

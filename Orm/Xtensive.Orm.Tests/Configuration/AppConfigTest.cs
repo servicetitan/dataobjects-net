@@ -115,11 +115,11 @@ namespace Xtensive.Orm.Tests.Configuration
 
       var bad1 = configuration.Clone();
       bad1.DefaultDatabase = null;
-      AssertEx.ThrowsInvalidOperationException(bad1.Lock);
+      AssertEx.ThrowsInvalidOperationException(() => bad1.Lock());
 
       var bad2 = configuration.Clone();
       bad2.DefaultSchema = null;
-      AssertEx.ThrowsInvalidOperationException(bad2.Lock);
+      AssertEx.ThrowsInvalidOperationException(() => bad2.Lock());
 
       var good = configuration.Clone();
       good.DefaultDatabase = null;
