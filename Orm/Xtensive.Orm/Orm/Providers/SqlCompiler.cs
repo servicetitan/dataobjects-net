@@ -4,9 +4,7 @@
 // Created by: Vakhtina Elena
 // Created:    2009.02.13
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Buffers;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -339,13 +337,17 @@ namespace Xtensive.Orm.Providers
       var columnIndexes = provider.ColumnIndexes;
 
       var newIndex = 0;
-      var newColumns = new SqlColumn[columnIndexes.Count];
+      var n = columnIndexes.Count;
+      PooledArray<SqlColumn> pooledArray = new(n);
+      var newColumns = pooledArray.Array;
       foreach (var index in columnIndexes) {
         newColumns[newIndex++] = queryColumns[index];
       }
-
       queryColumns.Clear();
-      queryColumns.AddRange(newColumns);
+      queryColumns.EnsureCapacity(n);
+      for (var i = 0; i < n; ++i) {
+        queryColumns.Add(newColumns[i]);
+      }
 
       return CreateProvider(query, provider, compiledSource);
     }
