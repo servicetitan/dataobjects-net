@@ -344,7 +344,6 @@ namespace Xtensive.Orm.Providers
         newColumns[newIndex++] = queryColumns[index];
       }
       queryColumns.Clear();
-      queryColumns.EnsureCapacity(n);
       for (var i = 0; i < n; ++i) {
         queryColumns.Add(newColumns[i]);
       }
