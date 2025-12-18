@@ -71,9 +71,8 @@ namespace Xtensive.Orm.Model
     {
       if (!TryAdd(interfaceField, typeField)) {
         var oldTypeField = map[interfaceField];
-        var interfaceFields = reversedMap[oldTypeField];
+        reversedMap.Remove(oldTypeField, out var interfaceFields);
         map[interfaceField] = typeField;
-        reversedMap.Remove(oldTypeField);
         reversedMap.Add(typeField, interfaceFields);
       }
     }
