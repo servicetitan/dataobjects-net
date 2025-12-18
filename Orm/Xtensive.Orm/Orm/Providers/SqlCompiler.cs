@@ -336,10 +336,10 @@ namespace Xtensive.Orm.Providers
       var queryColumns = query.Columns;
       var columnIndexes = provider.ColumnIndexes;
 
-      var newIndex = 0;
       var n = columnIndexes.Count;
       using PooledArray<SqlColumn> pooledArray = new(n);
       var newColumns = pooledArray.Array;
+      var newIndex = 0;
       foreach (var index in columnIndexes) {
         newColumns[newIndex++] = queryColumns[index];
       }
