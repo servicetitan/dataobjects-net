@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.01.22
 
-using System;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Xtensive.Sql;
@@ -38,16 +37,10 @@ namespace Xtensive.Tuples.Packed
     /// </summary>
     protected Delegate NullableSetter;
 
-    public readonly int Rank;
-    public readonly int ValueBitCount;
+    public readonly byte ValueBitCount;
     protected readonly long ValueBitMask;
     public readonly byte Index;
-
-    public bool IsObjectAccessor
-    {
-      [MethodImpl(MethodImplOptions.AggressiveInlining)]
-      get => Rank < 0;
-    }
+    public readonly bool IsObjectAccessor;
 
     public readonly CounterIncrementer CounterIncrementer;
     public readonly PositionUpdater PositionUpdater;
@@ -65,21 +58,18 @@ namespace Xtensive.Tuples.Packed
     public virtual void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, MapperReader mr) =>
       throw new NotSupportedException($"{this} does not support reading from DbDataReader");
 
-    public T GetValue<T>(PackedTuple tuple, PackedFieldDescriptor descriptor, bool isNullable, out TupleFieldState fieldState)
+    public T GetValue<T>(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
+      var isNullable = null == default(T); // Is nullable value type or class
       if ((isNullable ? NullableGetter : Getter) is GetValueDelegate<T> getter) {
         return getter.Invoke(tuple, descriptor, out fieldState);
       }
-      var targetType = typeof(T);
 
-      //Dirty hack of nullable enum reading
-      if (isNullable) {
-        targetType = Nullable.GetUnderlyingType(targetType) ?? targetType;
-      }
-      if (targetType.IsEnum) {
-        return (T) Enum.ToObject(targetType, GetUntypedValue(tuple, descriptor, out fieldState));
-      }
-      return (T) GetUntypedValue(tuple, descriptor, out fieldState);
+      var targetType = isNullable
+        ? Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T)    //Dirty hack of nullable enum reading
+        : typeof(T);
+      var untypedValue = GetUntypedValue(tuple, descriptor, out fieldState);
+      return (T) (targetType.IsEnum ? Enum.ToObject(targetType, untypedValue) : untypedValue);
     }
 
     public abstract object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState);
@@ -103,13 +93,13 @@ namespace Xtensive.Tuples.Packed
 
     protected PackedFieldAccessor(int rank, byte index)
     {
-      Rank = rank;
       Index = index;
       if (All[Index] != null) {
         throw new IndexOutOfRangeException($"Duplicated Index {Index} of PackedFieldAccessor instance");
       }
       All[Index] = this;
-      ValueBitCount = 1 << Rank;
+      ValueBitCount = (byte)(1 << rank);
+      IsObjectAccessor = rank < 0;
 
       // What we want here is to shift 1L by ValueBitCount to left and then subtract 1
       // This gives us a mask. For example if bit count = 4 then
@@ -124,7 +114,7 @@ namespace Xtensive.Tuples.Packed
       // 1000_0000 << 1 = 0000_0000
       ValueBitMask = (1L << (ValueBitCount - 1) << 1) - 1;
 
-      CounterIncrementer = Rank switch {
+      CounterIncrementer = rank switch {
         0 => (ref Counters counters) => counters.Val001Counter++,
         3 => (ref Counters counters) => counters.Val008Counter++,
         4 => (ref Counters counters) => counters.Val016Counter++,
@@ -134,7 +124,7 @@ namespace Xtensive.Tuples.Packed
         _ => (ref Counters counters) => throw new NotSupportedException(),
       };
 
-      PositionUpdater = Rank switch {
+      PositionUpdater = rank switch {
         0 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val001Counter),
         3 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val008Counter),
         4 => (ref PackedFieldDescriptor descriptor, ref Counters counters) => UpdateDescriptorPosition(ref descriptor, ref counters.Val016Counter),
@@ -188,16 +178,10 @@ namespace Xtensive.Tuples.Packed
     { }
   }
 
-  internal abstract class ValueFieldAccessor : PackedFieldAccessor
+  internal abstract class ValueFieldAccessor(int bitCount, byte index)
+    : PackedFieldAccessor(BitOperations.Log2((uint)bitCount), index)
   {
     public Type FieldType { get; protected set; }
-
-    private static int GetRank(int bitSize) =>
-      BitOperations.Log2((uint)bitSize);
-
-    protected ValueFieldAccessor(int bitCount, byte index)
-      : base(GetRank(bitCount), index)
-    {}
   }
 
   internal abstract class ValueFieldAccessor<T> : ValueFieldAccessor
