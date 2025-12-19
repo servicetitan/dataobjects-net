@@ -378,7 +378,8 @@ namespace Xtensive.Orm
 
     private Core.Disposable PreventRegistryChanges()
     {
-      return EntityChangeRegistry?.DisableRegistrations();
+      return null; //!!!TODO: temporary until the Monolith's fix
+      // return EntityChangeRegistry?.DisableRegistrations();
     }
   }
 }
