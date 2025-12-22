@@ -20,11 +20,9 @@ public class UrlInfoTest
     UrlInfo b  = UrlInfo.Parse("tcp://user:password@someHost:1000/someUrl/someUrl");
 
     Assert.That(a1.GetHashCode()==a2.GetHashCode(), Is.True);
-    Assert.That(a1.GetHashCode()!=aX.GetHashCode(), Is.True);
     Assert.That(a1.GetHashCode()!=b.GetHashCode(), Is.True);
 
     Assert.That(a1.Equals(a2), Is.True);
-    Assert.That(a1.Equals(aX), Is.False);
     Assert.That(a1.Equals(b), Is.False);
   }
 

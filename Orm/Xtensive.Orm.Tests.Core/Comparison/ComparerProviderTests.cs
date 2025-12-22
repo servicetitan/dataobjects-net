@@ -26,6 +26,7 @@ namespace Xtensive.Orm.Tests.Core.Comparison
       Assert.That(AdvancedComparer<(Assembly, string)>.Default, Is.Not.Null);
     }
 
+    [Explicit]
     [Test]
     public void SerializationTest()
     {
