@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Tests.Issues
         };
         var op = new TestOperation(wo);
         var erpOrder = op.GetErpOrderReference();
-        Assert.AreEqual(wo.Str, erpOrder);
+        Assert.That(erpOrder, Is.EqualTo(wo.Str));
       }
     }
   }

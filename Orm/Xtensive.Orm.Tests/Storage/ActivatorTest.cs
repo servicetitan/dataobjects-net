@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Storage.ActivatorModel
     {
       syncRoot = new();
       // Логика, которая юзает syncRoot.
-      Assert.That(syncRoot != null, Is.True);
+      Assert.That(syncRoot, Is.Not.Null);
     }
 
     [Field, Key]
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (var t = session.OpenTransaction())
         {
           var obj1 = new  InitializebleClass();
-          Assert.That(obj1.syncRoot != null, Is.True);
+          Assert.That(obj1.syncRoot, Is.Not.Null);
           t.Complete();
         }
       }
@@ -85,8 +85,8 @@ namespace Xtensive.Orm.Tests.Storage
         using (var t = session.OpenTransaction())
         {
           var obj1 = session.Query.All<InitializebleClass>().First();
-          Assert.IsNotNull(obj1);
-          Assert.That(obj1.syncRoot != null, Is.True);
+          Assert.That(obj1, Is.Not.Null);
+          Assert.That(obj1.syncRoot, Is.Not.Null);
           t.Complete();
         }
       }
@@ -106,10 +106,10 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction()) {
           var ancestor = session.Query.SingleOrDefault<Ancestor>(key);
-          Assert.IsNotNull(ancestor);
+          Assert.That(ancestor, Is.Not.Null);
 
           var descendant = session.Query.SingleOrDefault<Descendant>(key);
-          Assert.IsNotNull(descendant);
+          Assert.That(descendant, Is.Not.Null);
         }        
       }
     }

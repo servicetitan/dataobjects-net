@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
@@ -13,7 +13,6 @@
     <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\Orm\Xtensive.Orm.Firebird\Xtensive.Orm.Firebird.csproj" />
     <ProjectReference Include="..\..\Orm\Xtensive.Orm.MySql\Xtensive.Orm.MySql.csproj" />

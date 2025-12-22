@@ -280,7 +280,7 @@ namespace Xtensive.Orm.Tests.Sql
 
     protected virtual void AssertExceptionType(SqlExceptionType expected, SqlExceptionType actual)
     {
-      Assert.AreEqual(expected, actual);
+      Assert.That(actual, Is.EqualTo(expected));
     }
 
     protected void AssertExceptionType(ISqlCompileUnit statement, SqlExceptionType expectedExceptionType)
