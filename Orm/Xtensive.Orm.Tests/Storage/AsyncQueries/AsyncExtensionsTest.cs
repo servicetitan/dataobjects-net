@@ -31,13 +31,13 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>();
-        Assert.IsTrue(await query.Take(0).AllAsync(teacher => teacher.Gender==Gender.Male));
-        Assert.IsTrue(await query.Take(0).AllAsync(teacher => teacher.Gender==Gender.Female));
-        Assert.IsFalse(
-          await query.Where(teacher => teacher.Gender==Gender.Female).AllAsync(teacher => teacher.Gender==Gender.Male));
-        Assert.IsFalse(await query.AllAsync(teacher => teacher.Gender==Gender.Male));
-        Assert.IsTrue(
-          await query.Where(teacher => teacher.Gender==Gender.Male).AllAsync(teacher => teacher.Gender==Gender.Male));
+        Assert.That(await query.Take(0).AllAsync(teacher => teacher.Gender==Gender.Male), Is.True);
+        Assert.That(await query.Take(0).AllAsync(teacher => teacher.Gender==Gender.Female), Is.True);
+        Assert.That(
+          await query.Where(teacher => teacher.Gender==Gender.Female).AllAsync(teacher => teacher.Gender==Gender.Male), Is.False);
+        Assert.That(await query.AllAsync(teacher => teacher.Gender==Gender.Male), Is.False);
+        Assert.That(
+          await query.Where(teacher => teacher.Gender==Gender.Male).AllAsync(teacher => teacher.Gender==Gender.Male), Is.True);
       }
     }
 
@@ -51,8 +51,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>();
-        Assert.IsTrue(await query.AnyAsync());
-        Assert.IsFalse(await query.Where(teacher => teacher.Name==null).AnyAsync());
+        Assert.That(await query.AnyAsync(), Is.True);
+        Assert.That(await query.Where(teacher => teacher.Name==null).AnyAsync(), Is.False);
         // TODO: Query translation fails
         // Assert.IsFalse(await query.Take(0).AnyAsync());
       }
@@ -66,15 +66,15 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>();
-        Assert.IsFalse(
-          await query.Where(teacher => teacher.Name==null).AnyAsync(teacher => teacher.Gender==Gender.Male));
-        Assert.IsFalse(
-          await query.Where(teacher => teacher.Name==null).AnyAsync(teacher => teacher.Gender==Gender.Female));
-        Assert.IsFalse(
-          await query.Where(teacher => teacher.Gender==Gender.Female).AnyAsync(teacher => teacher.Gender==Gender.Male));
-        Assert.IsTrue(await query.AnyAsync(teacher => teacher.Gender==Gender.Male));
-        Assert.IsTrue(
-          await query.Where(teacher => teacher.Gender==Gender.Male).AnyAsync(teacher => teacher.Gender==Gender.Male));
+        Assert.That(
+          await query.Where(teacher => teacher.Name==null).AnyAsync(teacher => teacher.Gender==Gender.Male), Is.False);
+        Assert.That(
+          await query.Where(teacher => teacher.Name==null).AnyAsync(teacher => teacher.Gender==Gender.Female), Is.False);
+        Assert.That(
+          await query.Where(teacher => teacher.Gender==Gender.Female).AnyAsync(teacher => teacher.Gender==Gender.Male), Is.False);
+        Assert.That(await query.AnyAsync(teacher => teacher.Gender==Gender.Male), Is.True);
+        Assert.That(
+          await query.Where(teacher => teacher.Gender==Gender.Male).AnyAsync(teacher => teacher.Gender==Gender.Male), Is.True);
       }
     }
 
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           ? Math.Truncate(allFactors.Average())
           : allFactors.Average();
 
-        Assert.AreEqual(expectedValue, await query.AverageAsync());
+        Assert.That(await query.AverageAsync(), Is.EqualTo(expectedValue));
       }
     }
 
@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => stat.IntFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
         _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
       }
     }
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           ? Math.Truncate(allFactors.Average())
           : allFactors.Average();
 
-        Assert.AreEqual(expectedValue, await query.AverageAsync(stat => stat.IntFactor));
+        Assert.That(await query.AverageAsync(stat => stat.IntFactor), Is.EqualTo(expectedValue));
       }
     }
 
@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.IntFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
         _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.IntFactor));
       }
     }
@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>()
           .Select(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+        Assert.That(await query.AverageAsync(), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -172,8 +172,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => (int?)stat.IntFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.IsNull(await emptyQuery.AverageAsync());
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.AverageAsync(), Is.Null);
       }
     }
 
@@ -187,9 +187,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
         foreach (var factor in nullFactors) {
-          Assert.IsNull(factor);
+          Assert.That(factor, Is.Null);
         }
-        Assert.AreEqual(nullFactors.Average(), await nullQuery.AverageAsync());
+        Assert.That(await nullQuery.AverageAsync(), Is.EqualTo(nullFactors.Average()));
       }
     }
 
@@ -204,9 +204,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var allFactors = (await query.ExecuteAsync())
           .Select(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor)
           .ToList();
-        Assert.AreEqual(
-          allFactors.Average(),
-          await query.AverageAsync(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor));
+        Assert.That(
+          await query.AverageAsync(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -218,8 +217,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (int?)stat.IntFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.IsNull(await emptyQuery.AverageAsync(stat => (int?)stat.IntFactor));
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.AverageAsync(stat => (int?)stat.IntFactor), Is.Null);
       }
     }
 
@@ -231,9 +230,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>();
 
         var nullFactors = (await query.ExecuteAsync()).Select(stat => default(int?)).ToList();
-        Assert.AreEqual(
-          nullFactors.Average(),
-          await query.AverageAsync(stat => stat.IntFactor >= 0 ? default(int?) : stat.IntFactor));
+        Assert.That(
+          await query.AverageAsync(stat => stat.IntFactor >= 0 ? default(int?) : stat.IntFactor), Is.EqualTo(nullFactors.Average()));
       }
     }
 
@@ -255,7 +253,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           ? Math.Truncate(allFactors.Average())
           : allFactors.Average();
 
-        Assert.AreEqual(expectedValue, await query.AverageAsync());
+        Assert.That(await query.AverageAsync(), Is.EqualTo(expectedValue));
       }
     }
 
@@ -268,7 +266,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => stat.LongFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
         _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
       }
     }
@@ -291,7 +289,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           ? Math.Truncate(allFactors.Average())
           : allFactors.Average();
 
-        Assert.AreEqual(expectedValue, await query.AverageAsync(stat => stat.LongFactor));
+        Assert.That(await query.AverageAsync(stat => stat.LongFactor), Is.EqualTo(expectedValue));
       }
     }
 
@@ -304,7 +302,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.LongFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
         _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.LongFactor));
       }
     }
@@ -319,7 +317,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>()
           .Select(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+        Assert.That(await query.AverageAsync(), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -332,8 +330,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => (long?)stat.LongFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.IsNull(await emptyQuery.AverageAsync());
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.AverageAsync(), Is.Null);
       }
     }
 
@@ -347,9 +345,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
         foreach (var factor in nullFactors) {
-          Assert.IsNull(factor);
+          Assert.That(factor, Is.Null);
         }
-        Assert.AreEqual(nullFactors.Average(), await nullQuery.AverageAsync());
+        Assert.That(await nullQuery.AverageAsync(), Is.EqualTo(nullFactors.Average()));
       }
     }
 
@@ -364,9 +362,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var allFactors = (await query.ExecuteAsync())
           .Select(stat => stat.LongFactor % 2 == 0 ? default(long?) : stat.LongFactor)
           .ToList();
-        Assert.AreEqual(
-          allFactors.Average(),
-          await query.AverageAsync(stat => stat.LongFactor % 2 == 0 ? default(long?) : stat.LongFactor));
+        Assert.That(
+          await query.AverageAsync(stat => stat.LongFactor % 2 == 0 ? default(long?) : stat.LongFactor), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -378,8 +375,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (long?)stat.LongFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.IsNull(await emptyQuery.AverageAsync(stat => (long?)stat.LongFactor));
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.AverageAsync(stat => (long?)stat.LongFactor), Is.Null);
       }
     }
 
@@ -391,9 +388,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>();
 
         var nullFactors = (await query.ExecuteAsync()).Select(stat => default(long?)).ToList();
-        Assert.AreEqual(
-          nullFactors.Average(),
-          await query.AverageAsync(stat => stat.IntFactor >= 0 ? default(long?) : stat.LongFactor));
+        Assert.That(
+          await query.AverageAsync(stat => stat.IntFactor >= 0 ? default(long?) : stat.LongFactor), Is.EqualTo(nullFactors.Average()));
       }
     }
 
@@ -406,7 +402,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>().Select(stat => stat.DoubleFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+        Assert.That(await query.AverageAsync(), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -419,7 +415,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => stat.DoubleFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
         _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
       }
     }
@@ -433,7 +429,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>();
         var allFactors = (await query.ExecuteAsync()).Select(stat => stat.DoubleFactor).ToList();
-        Assert.AreEqual(allFactors.Average(), await query.AverageAsync(stat => stat.DoubleFactor));
+        Assert.That(await query.AverageAsync(stat => stat.DoubleFactor), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -446,7 +442,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.DoubleFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
         _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.DoubleFactor));
       }
     }
@@ -461,7 +457,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>()
           .Select(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+        Assert.That(await query.AverageAsync(), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -474,8 +470,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => (double?)stat.DoubleFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.IsNull(await emptyQuery.AverageAsync());
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.AverageAsync(), Is.Null);
       }
     }
 
@@ -489,9 +485,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
         foreach (var factor in nullFactors) {
-          Assert.IsNull(factor);
+          Assert.That(factor, Is.Null);
         }
-        Assert.AreEqual(nullFactors.Average(), await nullQuery.AverageAsync());
+        Assert.That(await nullQuery.AverageAsync(), Is.EqualTo(nullFactors.Average()));
       }
     }
 
@@ -506,9 +502,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var allFactors = (await query.ExecuteAsync())
           .Select(stat => stat.LongFactor % 2 == 0 ? default(double?) : stat.DoubleFactor)
           .ToList();
-        Assert.AreEqual(
-          allFactors.Average(),
-          await query.AverageAsync(stat => stat.LongFactor % 2 == 0 ? default(double?) : stat.DoubleFactor));
+        Assert.That(
+          await query.AverageAsync(stat => stat.LongFactor % 2 == 0 ? default(double?) : stat.DoubleFactor), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -520,8 +515,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (double?)stat.DoubleFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.IsNull(await emptyQuery.AverageAsync(stat => (double?)stat.DoubleFactor));
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.AverageAsync(stat => (double?)stat.DoubleFactor), Is.Null);
       }
     }
 
@@ -533,9 +528,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>();
 
         var nullFactors = (await query.ExecuteAsync()).Select(stat => default(double?)).ToList();
-        Assert.AreEqual(
-          nullFactors.Average(),
-          await query.AverageAsync(stat => stat.IntFactor >= 0 ? default(double?) : stat.DoubleFactor));
+        Assert.That(
+          await query.AverageAsync(stat => stat.IntFactor >= 0 ? default(double?) : stat.DoubleFactor), Is.EqualTo(nullFactors.Average()));
       }
     }
 
@@ -548,7 +542,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>().Select(stat => stat.FloatFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+        Assert.That(await query.AverageAsync(), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -561,7 +555,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => stat.FloatFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
         _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
       }
     }
@@ -575,7 +569,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>();
         var allFactors = (await query.ExecuteAsync()).Select(stat => stat.FloatFactor).ToList();
-        Assert.AreEqual(allFactors.Average(), await query.AverageAsync(stat => stat.FloatFactor));
+        Assert.That(await query.AverageAsync(stat => stat.FloatFactor), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -588,7 +582,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.FloatFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
         _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.FloatFactor));
       }
     }
@@ -603,7 +597,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>()
           .Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+        Assert.That(await query.AverageAsync(), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -616,8 +610,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => (float?) stat.FloatFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.IsNull(await emptyQuery.AverageAsync());
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.AverageAsync(), Is.Null);
       }
     }
 
@@ -631,9 +625,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
         foreach (var factor in nullFactors) {
-          Assert.IsNull(factor);
+          Assert.That(factor, Is.Null);
         }
-        Assert.AreEqual(nullFactors.Average(), await nullQuery.AverageAsync());
+        Assert.That(await nullQuery.AverageAsync(), Is.EqualTo(nullFactors.Average()));
       }
     }
 
@@ -648,9 +642,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var allFactors = (await query.ExecuteAsync())
           .Select(stat => stat.LongFactor % 2 == 0 ? default(float?) : stat.FloatFactor)
           .ToList();
-        Assert.AreEqual(
-          allFactors.Average(),
-          await query.AverageAsync(stat => stat.LongFactor % 2 == 0 ? default(float?) : stat.FloatFactor));
+        Assert.That(
+          await query.AverageAsync(stat => stat.LongFactor % 2 == 0 ? default(float?) : stat.FloatFactor), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -662,8 +655,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (float?)stat.FloatFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.IsNull(await emptyQuery.AverageAsync(stat => (float?)stat.FloatFactor));
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.AverageAsync(stat => (float?)stat.FloatFactor), Is.Null);
       }
     }
 
@@ -675,9 +668,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>();
 
         var nullFactors = (await query.ExecuteAsync()).Select(stat => default(float?)).ToList();
-        Assert.AreEqual(
-          nullFactors.Average(),
-          await query.AverageAsync(stat => stat.IntFactor >= 0 ? default(float?) : stat.FloatFactor));
+        Assert.That(
+          await query.AverageAsync(stat => stat.IntFactor >= 0 ? default(float?) : stat.FloatFactor), Is.EqualTo(nullFactors.Average()));
       }
     }
 
@@ -690,7 +682,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>().Select(stat => stat.DecimalFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+        Assert.That(await query.AverageAsync(), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -703,7 +695,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => stat.DecimalFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
         _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
       }
     }
@@ -717,7 +709,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>();
         var allFactors = (await query.ExecuteAsync()).Select(stat => stat.DecimalFactor).ToList();
-        Assert.AreEqual(allFactors.Average(), await query.AverageAsync(stat => stat.DecimalFactor));
+        Assert.That(await query.AverageAsync(stat => stat.DecimalFactor), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -730,7 +722,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.DecimalFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
         _ = Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.DecimalFactor));
       }
     }
@@ -745,7 +737,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>()
           .Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+        Assert.That(await query.AverageAsync(), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -758,8 +750,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => (decimal?) stat.DecimalFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.IsNull(await emptyQuery.AverageAsync());
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.AverageAsync(), Is.Null);
       }
     }
 
@@ -773,9 +765,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
         foreach (var factor in nullFactors) {
-          Assert.IsNull(factor);
+          Assert.That(factor, Is.Null);
         }
-        Assert.AreEqual(nullFactors.Average(), await nullQuery.AverageAsync());
+        Assert.That(await nullQuery.AverageAsync(), Is.EqualTo(nullFactors.Average()));
       }
     }
 
@@ -790,9 +782,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var allFactors = (await query.ExecuteAsync())
           .Select(stat => stat.LongFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor)
           .ToList();
-        Assert.AreEqual(
-          allFactors.Average(),
-          await query.AverageAsync(stat => stat.LongFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor));
+        Assert.That(
+          await query.AverageAsync(stat => stat.LongFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor), Is.EqualTo(allFactors.Average()));
       }
     }
 
@@ -804,8 +795,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (decimal?)stat.DecimalFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.IsNull(await emptyQuery.AverageAsync(stat => (decimal?)stat.DecimalFactor));
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.AverageAsync(stat => (decimal?)stat.DecimalFactor), Is.Null);
       }
     }
 
@@ -817,9 +808,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>();
 
         var nullFactors = (await query.ExecuteAsync()).Select(stat => default(decimal?)).ToList();
-        Assert.AreEqual(
-          nullFactors.Average(),
-          await query.AverageAsync(stat => stat.IntFactor >= 0 ? default(decimal?) : stat.DecimalFactor));
+        Assert.That(
+          await query.AverageAsync(stat => stat.IntFactor >= 0 ? default(decimal?) : stat.DecimalFactor), Is.EqualTo(nullFactors.Average()));
       }
     }
 
@@ -832,8 +822,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>().Select(stat => stat.IntFactor);
 
-        Assert.IsTrue(await query.ContainsAsync(50));
-        Assert.IsFalse(await query.ContainsAsync(-1));
+        Assert.That(await query.ContainsAsync(50), Is.True);
+        Assert.That(await query.ContainsAsync(-1), Is.False);
       }
     }
 
@@ -847,20 +837,17 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>();
         var allStats = query.ToList();
 
-        Assert.AreEqual(0, await query.Where(stat => stat.IntFactor < 0).CountAsync());
-        Assert.AreEqual(
-          allStats.Count(stat => stat.IntFactor < 0),
-          await query.Where(stat => stat.IntFactor < 0).CountAsync());
+        Assert.That(await query.Where(stat => stat.IntFactor < 0).CountAsync(), Is.EqualTo(0));
+        Assert.That(
+          await query.Where(stat => stat.IntFactor < 0).CountAsync(), Is.EqualTo(allStats.Count(stat => stat.IntFactor < 0)));
 
-        Assert.AreEqual(10, await query.Where(stat => stat.IntFactor < 10).CountAsync());
-        Assert.AreEqual(
-          allStats.Count(stat => stat.IntFactor < 10),
-          await query.Where(stat => stat.IntFactor < 10).CountAsync());
+        Assert.That(await query.Where(stat => stat.IntFactor < 10).CountAsync(), Is.EqualTo(10));
+        Assert.That(
+          await query.Where(stat => stat.IntFactor < 10).CountAsync(), Is.EqualTo(allStats.Count(stat => stat.IntFactor < 10)));
 
-        Assert.AreEqual(100, await query.CountAsync());
-        Assert.AreEqual(
-          allStats.Count,
-          await query.CountAsync());
+        Assert.That(await query.CountAsync(), Is.EqualTo(100));
+        Assert.That(
+          await query.CountAsync(), Is.EqualTo(allStats.Count));
       }
     }
 
@@ -872,15 +859,13 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>();
         var allStats = query.ToList();
 
-        Assert.AreEqual(0, await query.CountAsync(stat => stat.IntFactor < 0));
-        Assert.AreEqual(
-          allStats.Count(stat => stat.IntFactor < 0),
-          await query.CountAsync(stat => stat.IntFactor < 0));
+        Assert.That(await query.CountAsync(stat => stat.IntFactor < 0), Is.EqualTo(0));
+        Assert.That(
+          await query.CountAsync(stat => stat.IntFactor < 0), Is.EqualTo(allStats.Count(stat => stat.IntFactor < 0)));
 
-        Assert.AreEqual(10, await query.CountAsync(stat => stat.IntFactor < 10));
-        Assert.AreEqual(
-          allStats.Count(stat => stat.IntFactor < 10),
-          await query.CountAsync(stat => stat.IntFactor < 10));
+        Assert.That(await query.CountAsync(stat => stat.IntFactor < 10), Is.EqualTo(10));
+        Assert.That(
+          await query.CountAsync(stat => stat.IntFactor < 10), Is.EqualTo(allStats.Count(stat => stat.IntFactor < 10)));
       }
     }
 
@@ -893,7 +878,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
         var allTeachers = query.ToList();
-        Assert.AreEqual(allTeachers[0], await query.FirstAsync());
+        Assert.That(await query.FirstAsync(), Is.EqualTo(allTeachers[0]));
       }
     }
 
@@ -914,7 +899,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
         var firstFemaleTeacher = query.AsEnumerable().First(teacher => teacher.Gender==Gender.Female);
-        Assert.AreEqual(firstFemaleTeacher, await query.FirstAsync(teacher => teacher.Gender==Gender.Female));
+        Assert.That(await query.FirstAsync(teacher => teacher.Gender==Gender.Female), Is.EqualTo(firstFemaleTeacher));
       }
     }
 
@@ -937,7 +922,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
         var allTeachers = query.ToList();
-        Assert.AreEqual(allTeachers[0], await query.FirstOrDefaultAsync());
+        Assert.That(await query.FirstOrDefaultAsync(), Is.EqualTo(allTeachers[0]));
       }
     }
 
@@ -947,7 +932,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().Take(0);
-        Assert.IsNull(await query.FirstOrDefaultAsync());
+        Assert.That(await query.FirstOrDefaultAsync(), Is.Null);
       }
     }
 
@@ -958,7 +943,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
         var firstFemaleTeacher = query.AsEnumerable().First(teacher => teacher.Gender==Gender.Female);
-        Assert.AreEqual(firstFemaleTeacher, await query.FirstOrDefaultAsync(teacher => teacher.Gender==Gender.Female));
+        Assert.That(await query.FirstOrDefaultAsync(teacher => teacher.Gender==Gender.Female), Is.EqualTo(firstFemaleTeacher));
       }
     }
 
@@ -968,7 +953,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>();
-        Assert.IsNull(await query.FirstOrDefaultAsync(teacher => teacher.Id < 0));
+        Assert.That(await query.FirstOrDefaultAsync(teacher => teacher.Id < 0), Is.Null);
       }
     }
 
@@ -983,7 +968,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
         var allTeachers = query.ToList();
-        Assert.AreEqual(allTeachers.Last(), await query.LastAsync());
+        Assert.That(await query.LastAsync(), Is.EqualTo(allTeachers.Last()));
       }
     }
 
@@ -1008,7 +993,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
         var lastInListFemaleTeacher = query.AsEnumerable().Last(teacher => teacher.Gender==Gender.Female);
-        Assert.AreEqual(lastInListFemaleTeacher, await query.LastAsync(teacher => teacher.Gender==Gender.Female));
+        Assert.That(await query.LastAsync(teacher => teacher.Gender==Gender.Female), Is.EqualTo(lastInListFemaleTeacher));
       }
     }
 
@@ -1033,7 +1018,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
         var allTeachers = query.ToList();
-        Assert.AreEqual(allTeachers.Last(), await query.LastOrDefaultAsync());
+        Assert.That(await query.LastOrDefaultAsync(), Is.EqualTo(allTeachers.Last()));
       }
     }
 
@@ -1044,7 +1029,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().Take(0);
-        Assert.IsNull(await query.LastOrDefaultAsync());
+        Assert.That(await query.LastOrDefaultAsync(), Is.Null);
       }
     }
 
@@ -1056,8 +1041,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
         var lastInListFemaleTeacher = query.AsEnumerable().First(teacher => teacher.Gender==Gender.Female);
-        Assert.AreEqual(
-          lastInListFemaleTeacher, await query.LastOrDefaultAsync(teacher => teacher.Gender==Gender.Female));
+        Assert.That(
+await query.LastOrDefaultAsync(teacher => teacher.Gender==Gender.Female), Is.EqualTo(lastInListFemaleTeacher));
       }
     }
 
@@ -1068,7 +1053,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>();
-        Assert.IsNull(await query.LastOrDefaultAsync(teacher => teacher.Id < 0));
+        Assert.That(await query.LastOrDefaultAsync(teacher => teacher.Id < 0), Is.Null);
       }
     }
 
@@ -1082,20 +1067,17 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>();
         var allStats = query.ToList();
 
-        Assert.AreEqual(0L, await query.Where(stat => stat.IntFactor < 0).LongCountAsync());
-        Assert.AreEqual(
-          allStats.LongCount(stat => stat.IntFactor < 0),
-          await query.Where(stat => stat.IntFactor < 0).LongCountAsync());
+        Assert.That(await query.Where(stat => stat.IntFactor < 0).LongCountAsync(), Is.EqualTo(0L));
+        Assert.That(
+          await query.Where(stat => stat.IntFactor < 0).LongCountAsync(), Is.EqualTo(allStats.LongCount(stat => stat.IntFactor < 0)));
 
-        Assert.AreEqual(10L, await query.Where(stat => stat.IntFactor < 10).LongCountAsync());
-        Assert.AreEqual(
-          allStats.LongCount(stat => stat.IntFactor < 10),
-          await query.Where(stat => stat.IntFactor < 10).LongCountAsync());
+        Assert.That(await query.Where(stat => stat.IntFactor < 10).LongCountAsync(), Is.EqualTo(10L));
+        Assert.That(
+          await query.Where(stat => stat.IntFactor < 10).LongCountAsync(), Is.EqualTo(allStats.LongCount(stat => stat.IntFactor < 10)));
 
-        Assert.AreEqual(100L, await query.LongCountAsync());
-        Assert.AreEqual(
-          allStats.LongCount(),
-          await query.LongCountAsync());
+        Assert.That(await query.LongCountAsync(), Is.EqualTo(100L));
+        Assert.That(
+          await query.LongCountAsync(), Is.EqualTo(allStats.LongCount()));
       }
     }
 
@@ -1107,15 +1089,13 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>();
         var allStats = query.ToList();
 
-        Assert.AreEqual(0L, await query.LongCountAsync(stat => stat.IntFactor < 0));
-        Assert.AreEqual(
-          allStats.LongCount(stat => stat.IntFactor < 0),
-          await query.LongCountAsync(stat => stat.IntFactor < 0));
+        Assert.That(await query.LongCountAsync(stat => stat.IntFactor < 0), Is.EqualTo(0L));
+        Assert.That(
+          await query.LongCountAsync(stat => stat.IntFactor < 0), Is.EqualTo(allStats.LongCount(stat => stat.IntFactor < 0)));
 
-        Assert.AreEqual(10L, await query.LongCountAsync(stat => stat.IntFactor < 10));
-        Assert.AreEqual(
-          allStats.LongCount(stat => stat.IntFactor < 10),
-          await query.LongCountAsync(stat => stat.IntFactor < 10));
+        Assert.That(await query.LongCountAsync(stat => stat.IntFactor < 10), Is.EqualTo(10L));
+        Assert.That(
+          await query.LongCountAsync(stat => stat.IntFactor < 10), Is.EqualTo(allStats.LongCount(stat => stat.IntFactor < 10)));
       }
     }
 
@@ -1133,11 +1113,11 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var maxFloat = allStats.Select(stat => stat.FloatFactor).Max();
         var maxDouble = allStats.Select(stat => stat.DoubleFactor).Max();
         var maxDecimal = allStats.Select(stat => stat.DecimalFactor).Max();
-        Assert.AreEqual(maxInt, await query.Select(stat => stat.IntFactor).MaxAsync());
-        Assert.AreEqual(maxLong, await query.Select(stat => stat.LongFactor).MaxAsync());
-        Assert.AreEqual(maxFloat, await query.Select(stat => stat.FloatFactor).MaxAsync());
-        Assert.AreEqual(maxDouble, await query.Select(stat => stat.DoubleFactor).MaxAsync());
-        Assert.AreEqual(maxDecimal, await query.Select(stat => stat.DecimalFactor).MaxAsync());
+        Assert.That(await query.Select(stat => stat.IntFactor).MaxAsync(), Is.EqualTo(maxInt));
+        Assert.That(await query.Select(stat => stat.LongFactor).MaxAsync(), Is.EqualTo(maxLong));
+        Assert.That(await query.Select(stat => stat.FloatFactor).MaxAsync(), Is.EqualTo(maxFloat));
+        Assert.That(await query.Select(stat => stat.DoubleFactor).MaxAsync(), Is.EqualTo(maxDouble));
+        Assert.That(await query.Select(stat => stat.DecimalFactor).MaxAsync(), Is.EqualTo(maxDecimal));
       }
     }
 
@@ -1153,16 +1133,11 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var maxFloat = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor).Max();
         var maxDouble = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor).Max();
         var maxDecimal = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor).Max();
-        Assert.AreEqual(maxInt,
-          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor).MaxAsync());
-        Assert.AreEqual(maxLong,
-          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor).MaxAsync());
-        Assert.AreEqual(maxFloat,
-          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor).MaxAsync());
-        Assert.AreEqual(maxDouble,
-          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor).MaxAsync());
-        Assert.AreEqual(maxDecimal,
-          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor).MaxAsync());
+        Assert.That(await query.Select(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor).MaxAsync(), Is.EqualTo(maxInt));
+        Assert.That(await query.Select(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor).MaxAsync(), Is.EqualTo(maxLong));
+        Assert.That(await query.Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor).MaxAsync(), Is.EqualTo(maxFloat));
+        Assert.That(await query.Select(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor).MaxAsync(), Is.EqualTo(maxDouble));
+        Assert.That(await query.Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor).MaxAsync(), Is.EqualTo(maxDecimal));
       }
     }
 
@@ -1175,7 +1150,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.Id < 0)
           .Select(stat => stat.IntFactor);
         var elements = query.ToList();
-        Assert.AreEqual(0, elements.Count);
+        Assert.That(elements.Count, Is.EqualTo(0));
         _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.MaxAsync());
       }
     }
@@ -1189,9 +1164,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.Id < 0)
           .Select(stat => (int?) stat.IntFactor);
         var elements = query.ToList();
-        Assert.AreEqual(0, elements.Count);
-        Assert.IsNull(elements.Max());
-        Assert.AreEqual(elements.Max(), await query.MaxAsync());
+        Assert.That(elements.Count, Is.EqualTo(0));
+        Assert.That(elements.Max(), Is.Null);
+        Assert.That(await query.MaxAsync(), Is.EqualTo(elements.Max()));
       }
     }
 
@@ -1207,11 +1182,11 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var maxFloat = allStats.Max(stat => stat.FloatFactor);
         var maxDouble = allStats.Max(stat => stat.DoubleFactor);
         var maxDecimal = allStats.Max(stat => stat.DecimalFactor);
-        Assert.AreEqual(maxInt, await query.MaxAsync(stat => stat.IntFactor));
-        Assert.AreEqual(maxLong, await query.MaxAsync(stat => stat.LongFactor));
-        Assert.AreEqual(maxFloat, await query.MaxAsync(stat => stat.FloatFactor));
-        Assert.AreEqual(maxDouble, await query.MaxAsync(stat => stat.DoubleFactor));
-        Assert.AreEqual(maxDecimal, await query.MaxAsync(stat => stat.DecimalFactor));
+        Assert.That(await query.MaxAsync(stat => stat.IntFactor), Is.EqualTo(maxInt));
+        Assert.That(await query.MaxAsync(stat => stat.LongFactor), Is.EqualTo(maxLong));
+        Assert.That(await query.MaxAsync(stat => stat.FloatFactor), Is.EqualTo(maxFloat));
+        Assert.That(await query.MaxAsync(stat => stat.DoubleFactor), Is.EqualTo(maxDouble));
+        Assert.That(await query.MaxAsync(stat => stat.DecimalFactor), Is.EqualTo(maxDecimal));
       }
     }
 
@@ -1227,16 +1202,11 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var maxFloat = allStats.Max(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor);
         var maxDouble = allStats.Max(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor);
         var maxDecimal = allStats.Max(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor);
-        Assert.AreEqual(maxInt,
-          await query.MaxAsync(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor));
-        Assert.AreEqual(maxLong,
-          await query.MaxAsync(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor));
-        Assert.AreEqual(maxFloat,
-          await query.MaxAsync(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor));
-        Assert.AreEqual(maxDouble,
-          await query.MaxAsync(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor));
-        Assert.AreEqual(maxDecimal,
-          await query.MaxAsync(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor));
+        Assert.That(await query.MaxAsync(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor), Is.EqualTo(maxInt));
+        Assert.That(await query.MaxAsync(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor), Is.EqualTo(maxLong));
+        Assert.That(await query.MaxAsync(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor), Is.EqualTo(maxFloat));
+        Assert.That(await query.MaxAsync(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor), Is.EqualTo(maxDouble));
+        Assert.That(await query.MaxAsync(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor), Is.EqualTo(maxDecimal));
       }
     }
 
@@ -1247,7 +1217,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>().Where(stat => stat.Id < 0);
         var elements = query.ToList();
-        Assert.AreEqual(0, elements.Count);
+        Assert.That(elements.Count, Is.EqualTo(0));
         _ = Assert.Throws<InvalidOperationException>(() => _ = elements.Max(stat => stat.IntFactor));
         _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.MaxAsync(stat => stat.IntFactor));
       }
@@ -1260,9 +1230,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>().Where(stat => stat.Id < 0);
         var elements = query.ToList();
-        Assert.AreEqual(0, elements.Count);
-        Assert.IsNull(elements.Max(stat => (int?) stat.IntFactor));
-        Assert.AreEqual(elements.Max(stat => (int?) stat.IntFactor), await query.MaxAsync(stat => (int?) stat.IntFactor));
+        Assert.That(elements.Count, Is.EqualTo(0));
+        Assert.That(elements.Max(stat => (int?) stat.IntFactor), Is.Null);
+        Assert.That(await query.MaxAsync(stat => (int?) stat.IntFactor), Is.EqualTo(elements.Max(stat => (int?) stat.IntFactor)));
       }
     }
 
@@ -1280,11 +1250,11 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var maxFloat = allStats.Select(stat => stat.FloatFactor).Min();
         var maxDouble = allStats.Select(stat => stat.DoubleFactor).Min();
         var maxDecimal = allStats.Select(stat => stat.DecimalFactor).Min();
-        Assert.AreEqual(maxInt, await query.Select(stat => stat.IntFactor).MinAsync());
-        Assert.AreEqual(maxLong, await query.Select(stat => stat.LongFactor).MinAsync());
-        Assert.AreEqual(maxFloat, await query.Select(stat => stat.FloatFactor).MinAsync());
-        Assert.AreEqual(maxDouble, await query.Select(stat => stat.DoubleFactor).MinAsync());
-        Assert.AreEqual(maxDecimal, await query.Select(stat => stat.DecimalFactor).MinAsync());
+        Assert.That(await query.Select(stat => stat.IntFactor).MinAsync(), Is.EqualTo(maxInt));
+        Assert.That(await query.Select(stat => stat.LongFactor).MinAsync(), Is.EqualTo(maxLong));
+        Assert.That(await query.Select(stat => stat.FloatFactor).MinAsync(), Is.EqualTo(maxFloat));
+        Assert.That(await query.Select(stat => stat.DoubleFactor).MinAsync(), Is.EqualTo(maxDouble));
+        Assert.That(await query.Select(stat => stat.DecimalFactor).MinAsync(), Is.EqualTo(maxDecimal));
       }
     }
 
@@ -1300,16 +1270,11 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var maxFloat = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor).Min();
         var maxDouble = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor).Min();
         var maxDecimal = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor).Min();
-        Assert.AreEqual(maxInt,
-          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor).MinAsync());
-        Assert.AreEqual(maxLong,
-          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor).MinAsync());
-        Assert.AreEqual(maxFloat,
-          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor).MinAsync());
-        Assert.AreEqual(maxDouble,
-          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor).MinAsync());
-        Assert.AreEqual(maxDecimal,
-          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor).MinAsync());
+        Assert.That(await query.Select(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor).MinAsync(), Is.EqualTo(maxInt));
+        Assert.That(await query.Select(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor).MinAsync(), Is.EqualTo(maxLong));
+        Assert.That(await query.Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor).MinAsync(), Is.EqualTo(maxFloat));
+        Assert.That(await query.Select(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor).MinAsync(), Is.EqualTo(maxDouble));
+        Assert.That(await query.Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor).MinAsync(), Is.EqualTo(maxDecimal));
       }
     }
 
@@ -1322,7 +1287,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.Id < 0)
           .Select(stat => stat.IntFactor);
         var elements = query.ToList();
-        Assert.AreEqual(0, elements.Count);
+        Assert.That(elements.Count, Is.EqualTo(0));
         _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.MinAsync());
       }
     }
@@ -1336,9 +1301,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.Id < 0)
           .Select(stat => (int?) stat.IntFactor);
         var elements = query.ToList();
-        Assert.AreEqual(0, elements.Count);
-        Assert.IsNull(elements.Min());
-        Assert.AreEqual(elements.Min(), await query.MinAsync());
+        Assert.That(elements.Count, Is.EqualTo(0));
+        Assert.That(elements.Min(), Is.Null);
+        Assert.That(await query.MinAsync(), Is.EqualTo(elements.Min()));
       }
     }
 
@@ -1354,11 +1319,11 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var maxFloat = allStats.Min(stat => stat.FloatFactor);
         var maxDouble = allStats.Min(stat => stat.DoubleFactor);
         var maxDecimal = allStats.Min(stat => stat.DecimalFactor);
-        Assert.AreEqual(maxInt, await query.MinAsync(stat => stat.IntFactor));
-        Assert.AreEqual(maxLong, await query.MinAsync(stat => stat.LongFactor));
-        Assert.AreEqual(maxFloat, await query.MinAsync(stat => stat.FloatFactor));
-        Assert.AreEqual(maxDouble, await query.MinAsync(stat => stat.DoubleFactor));
-        Assert.AreEqual(maxDecimal, await query.MinAsync(stat => stat.DecimalFactor));
+        Assert.That(await query.MinAsync(stat => stat.IntFactor), Is.EqualTo(maxInt));
+        Assert.That(await query.MinAsync(stat => stat.LongFactor), Is.EqualTo(maxLong));
+        Assert.That(await query.MinAsync(stat => stat.FloatFactor), Is.EqualTo(maxFloat));
+        Assert.That(await query.MinAsync(stat => stat.DoubleFactor), Is.EqualTo(maxDouble));
+        Assert.That(await query.MinAsync(stat => stat.DecimalFactor), Is.EqualTo(maxDecimal));
       }
     }
 
@@ -1374,16 +1339,11 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var maxFloat = allStats.Min(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor);
         var maxDouble = allStats.Min(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor);
         var maxDecimal = allStats.Min(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor);
-        Assert.AreEqual(maxInt,
-          await query.MinAsync(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor));
-        Assert.AreEqual(maxLong,
-          await query.MinAsync(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor));
-        Assert.AreEqual(maxFloat,
-          await query.MinAsync(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor));
-        Assert.AreEqual(maxDouble,
-          await query.MinAsync(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor));
-        Assert.AreEqual(maxDecimal,
-          await query.MinAsync(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor));
+        Assert.That(await query.MinAsync(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor), Is.EqualTo(maxInt));
+        Assert.That(await query.MinAsync(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor), Is.EqualTo(maxLong));
+        Assert.That(await query.MinAsync(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor), Is.EqualTo(maxFloat));
+        Assert.That(await query.MinAsync(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor), Is.EqualTo(maxDouble));
+        Assert.That(await query.MinAsync(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor), Is.EqualTo(maxDecimal));
       }
     }
 
@@ -1394,7 +1354,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>().Where(stat => stat.Id < 0);
         var elements = query.ToList();
-        Assert.AreEqual(0, elements.Count);
+        Assert.That(elements.Count, Is.EqualTo(0));
         _ = Assert.Throws<InvalidOperationException>(() => _ = elements.Min(stat => stat.IntFactor));
         _ = Assert.ThrowsAsync<InvalidOperationException>(() => query.MinAsync(stat => stat.IntFactor));
       }
@@ -1407,9 +1367,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>().Where(stat => stat.Id < 0);
         var elements = query.ToList();
-        Assert.AreEqual(0, elements.Count);
-        Assert.IsNull(elements.Min(stat => (int?) stat.IntFactor));
-        Assert.AreEqual(elements.Min(stat => (int?) stat.IntFactor), await query.MinAsync(stat => (int?) stat.IntFactor));
+        Assert.That(elements.Count, Is.EqualTo(0));
+        Assert.That(elements.Min(stat => (int?) stat.IntFactor), Is.Null);
+        Assert.That(await query.MinAsync(stat => (int?) stat.IntFactor), Is.EqualTo(elements.Min(stat => (int?) stat.IntFactor)));
       }
     }
 
@@ -1422,7 +1382,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id).Take(1);
         var allTeachers = query.ToList();
-        Assert.AreEqual(allTeachers[0], await query.SingleAsync());
+        Assert.That(await query.SingleAsync(), Is.EqualTo(allTeachers[0]));
       }
     }
 
@@ -1453,7 +1413,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
         var allTeachers = query.ToList();
-        Assert.AreEqual(allTeachers[0], await query.SingleAsync(teacher => teacher.Id==allTeachers[0].Id));
+        Assert.That(await query.SingleAsync(teacher => teacher.Id==allTeachers[0].Id), Is.EqualTo(allTeachers[0]));
       }
     }
 
@@ -1486,7 +1446,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id).Take(1);
         var allTeachers = query.ToList();
-        Assert.AreEqual(allTeachers[0], await query.SingleOrDefaultAsync());
+        Assert.That(await query.SingleOrDefaultAsync(), Is.EqualTo(allTeachers[0]));
       }
     }
 
@@ -1496,7 +1456,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().Take(0);
-        Assert.IsNull(await query.SingleOrDefaultAsync());
+        Assert.That(await query.SingleOrDefaultAsync(), Is.Null);
       }
     }
 
@@ -1517,7 +1477,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
         var allTeachers = query.ToList();
-        Assert.AreEqual(allTeachers[0], await query.SingleOrDefaultAsync(teacher => teacher.Id==allTeachers[0].Id));
+        Assert.That(await query.SingleOrDefaultAsync(teacher => teacher.Id==allTeachers[0].Id), Is.EqualTo(allTeachers[0]));
       }
     }
 
@@ -1527,7 +1487,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<Teacher>();
-        Assert.IsNull(await query.SingleOrDefaultAsync(teacher => teacher.Id < 0));
+        Assert.That(await query.SingleOrDefaultAsync(teacher => teacher.Id < 0), Is.Null);
       }
     }
 
@@ -1551,7 +1511,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>().Select(stat => stat.IntFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+        Assert.That(await query.SumAsync(), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -1564,8 +1524,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => stat.IntFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(0, await emptyQuery.SumAsync());
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(), Is.EqualTo(0));
       }
     }
 
@@ -1578,7 +1538,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>();
         var allFactors = (await query.ExecuteAsync()).Select(stat => stat.IntFactor).ToList();
-        Assert.AreEqual(allFactors.Sum(), await query.SumAsync(stat => stat.IntFactor));
+        Assert.That(await query.SumAsync(stat => stat.IntFactor), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -1591,8 +1551,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.IntFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(0, await emptyQuery.SumAsync(stat => stat.IntFactor));
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(stat => stat.IntFactor), Is.EqualTo(0));
       }
     }
 
@@ -1606,7 +1566,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>()
           .Select(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+        Assert.That(await query.SumAsync(), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -1619,8 +1579,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => (int?)stat.IntFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync());
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(), Is.EqualTo(emptyFactors.Sum()));
       }
     }
 
@@ -1634,9 +1594,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
         foreach (var factor in nullFactors) {
-          Assert.IsNull(factor);
+          Assert.That(factor, Is.Null);
         }
-        Assert.AreEqual(nullFactors.Sum(), await nullQuery.SumAsync());
+        Assert.That(await nullQuery.SumAsync(), Is.EqualTo(nullFactors.Sum()));
       }
     }
 
@@ -1651,9 +1611,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var allFactors = (await query.ExecuteAsync())
           .Select(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor)
           .ToList();
-        Assert.AreEqual(
-          allFactors.Sum(),
-          await query.SumAsync(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor));
+        Assert.That(
+          await query.SumAsync(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -1665,8 +1624,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (int?)stat.IntFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (int?)stat.IntFactor));
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(stat => (int?)stat.IntFactor), Is.EqualTo(emptyFactors.Sum()));
       }
     }
 
@@ -1678,9 +1637,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>();
 
         var nullFactors = (await query.ExecuteAsync()).Select(stat => default(int?)).ToList();
-        Assert.AreEqual(
-          nullFactors.Sum(),
-          await query.SumAsync(stat => stat.IntFactor >= 0 ? default(int?) : stat.IntFactor));
+        Assert.That(
+          await query.SumAsync(stat => stat.IntFactor >= 0 ? default(int?) : stat.IntFactor), Is.EqualTo(nullFactors.Sum()));
       }
     }
 
@@ -1693,7 +1651,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>().Select(stat => stat.LongFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+        Assert.That(await query.SumAsync(), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -1706,8 +1664,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => stat.LongFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(0L, await emptyQuery.SumAsync());
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(), Is.EqualTo(0L));
       }
     }
 
@@ -1720,7 +1678,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>();
         var allFactors = (await query.ExecuteAsync()).Select(stat => stat.LongFactor).ToList();
-        Assert.AreEqual(allFactors.Sum(), await query.SumAsync(stat => stat.LongFactor));
+        Assert.That(await query.SumAsync(stat => stat.LongFactor), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -1733,8 +1691,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.LongFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(0L, await emptyQuery.SumAsync(stat => stat.LongFactor));
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(stat => stat.LongFactor), Is.EqualTo(0L));
       }
     }
 
@@ -1748,7 +1706,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>()
           .Select(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+        Assert.That(await query.SumAsync(), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -1761,8 +1719,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => (long?)stat.LongFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync());
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(), Is.EqualTo(emptyFactors.Sum()));
       }
     }
 
@@ -1776,9 +1734,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
         foreach (var factor in nullFactors) {
-          Assert.IsNull(factor);
+          Assert.That(factor, Is.Null);
         }
-        Assert.AreEqual(nullFactors.Sum(), await nullQuery.SumAsync());
+        Assert.That(await nullQuery.SumAsync(), Is.EqualTo(nullFactors.Sum()));
       }
     }
 
@@ -1793,9 +1751,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var allFactors = (await query.ExecuteAsync())
           .Select(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor)
           .ToList();
-        Assert.AreEqual(
-          allFactors.Sum(),
-          await query.SumAsync(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor));
+        Assert.That(
+          await query.SumAsync(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -1807,8 +1764,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (long?)stat.LongFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (long?)stat.LongFactor));
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(stat => (long?)stat.LongFactor), Is.EqualTo(emptyFactors.Sum()));
       }
     }
 
@@ -1820,9 +1777,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>();
 
         var nullFactors = (await query.ExecuteAsync()).Select(stat => default(long?)).ToList();
-        Assert.AreEqual(
-          nullFactors.Sum(),
-          await query.SumAsync(stat => stat.IntFactor >= 0 ? default(long?) : stat.LongFactor));
+        Assert.That(
+          await query.SumAsync(stat => stat.IntFactor >= 0 ? default(long?) : stat.LongFactor), Is.EqualTo(nullFactors.Sum()));
       }
     }
 
@@ -1835,7 +1791,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>().Select(stat => stat.DoubleFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+        Assert.That(await query.SumAsync(), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -1848,8 +1804,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => stat.DoubleFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(0.0, await emptyQuery.SumAsync());
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(), Is.EqualTo(0.0));
       }
     }
 
@@ -1862,7 +1818,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>();
         var allFactors = (await query.ExecuteAsync()).Select(stat => stat.DoubleFactor).ToList();
-        Assert.AreEqual(allFactors.Sum(), await query.SumAsync(stat => stat.DoubleFactor));
+        Assert.That(await query.SumAsync(stat => stat.DoubleFactor), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -1875,8 +1831,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.DoubleFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(0.0, await emptyQuery.SumAsync(stat => stat.DoubleFactor));
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(stat => stat.DoubleFactor), Is.EqualTo(0.0));
       }
     }
 
@@ -1890,7 +1846,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>()
           .Select(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+        Assert.That(await query.SumAsync(), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -1903,8 +1859,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => (double?)stat.DoubleFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync());
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(), Is.EqualTo(emptyFactors.Sum()));
       }
     }
 
@@ -1918,9 +1874,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
         foreach (var factor in nullFactors) {
-          Assert.IsNull(factor);
+          Assert.That(factor, Is.Null);
         }
-        Assert.AreEqual(nullFactors.Sum(), await nullQuery.SumAsync());
+        Assert.That(await nullQuery.SumAsync(), Is.EqualTo(nullFactors.Sum()));
       }
     }
 
@@ -1935,9 +1891,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var allFactors = (await query.ExecuteAsync())
           .Select(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor)
           .ToList();
-        Assert.AreEqual(
-          allFactors.Sum(),
-          await query.SumAsync(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor));
+        Assert.That(
+          await query.SumAsync(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -1949,8 +1904,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (double?)stat.DoubleFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (double?)stat.DoubleFactor));
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(stat => (double?)stat.DoubleFactor), Is.EqualTo(emptyFactors.Sum()));
       }
     }
 
@@ -1962,9 +1917,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>();
 
         var nullFactors = (await query.ExecuteAsync()).Select(stat => default(double?)).ToList();
-        Assert.AreEqual(
-          nullFactors.Sum(),
-          await query.SumAsync(stat => stat.IntFactor >= 0 ? default(double?) : stat.DoubleFactor));
+        Assert.That(
+          await query.SumAsync(stat => stat.IntFactor >= 0 ? default(double?) : stat.DoubleFactor), Is.EqualTo(nullFactors.Sum()));
       }
     }
 
@@ -1977,7 +1931,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>().Select(stat => stat.FloatFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+        Assert.That(await query.SumAsync(), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -1990,8 +1944,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => stat.FloatFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(0.0f, await emptyQuery.SumAsync());
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(), Is.EqualTo(0.0f));
       }
     }
 
@@ -2004,7 +1958,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>();
         var allFactors = (await query.ExecuteAsync()).Select(stat => stat.FloatFactor).ToList();
-        Assert.AreEqual(allFactors.Sum(), await query.SumAsync(stat => stat.FloatFactor));
+        Assert.That(await query.SumAsync(stat => stat.FloatFactor), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -2017,8 +1971,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.FloatFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(0.0f, await emptyQuery.SumAsync(stat => stat.FloatFactor));
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(stat => stat.FloatFactor), Is.EqualTo(0.0f));
       }
     }
 
@@ -2032,7 +1986,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>()
           .Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+        Assert.That(await query.SumAsync(), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -2045,8 +1999,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => (float?)stat.FloatFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync());
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(), Is.EqualTo(emptyFactors.Sum()));
       }
     }
 
@@ -2060,9 +2014,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
         foreach (var factor in nullFactors) {
-          Assert.IsNull(factor);
+          Assert.That(factor, Is.Null);
         }
-        Assert.AreEqual(nullFactors.Sum(), await nullQuery.SumAsync());
+        Assert.That(await nullQuery.SumAsync(), Is.EqualTo(nullFactors.Sum()));
       }
     }
 
@@ -2077,9 +2031,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var allFactors = (await query.ExecuteAsync())
           .Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor)
           .ToList();
-        Assert.AreEqual(
-          allFactors.Sum(),
-          await query.SumAsync(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor));
+        Assert.That(
+          await query.SumAsync(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -2091,8 +2044,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (float?)stat.FloatFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (float?)stat.FloatFactor));
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(stat => (float?)stat.FloatFactor), Is.EqualTo(emptyFactors.Sum()));
       }
     }
 
@@ -2104,9 +2057,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>();
 
         var nullFactors = (await query.ExecuteAsync()).Select(stat => default(float?)).ToList();
-        Assert.AreEqual(
-          nullFactors.Sum(),
-          await query.SumAsync(stat => stat.IntFactor >= 0 ? default(float?) : stat.FloatFactor));
+        Assert.That(
+          await query.SumAsync(stat => stat.IntFactor >= 0 ? default(float?) : stat.FloatFactor), Is.EqualTo(nullFactors.Sum()));
       }
     }
 
@@ -2119,7 +2071,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>().Select(stat => stat.DecimalFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+        Assert.That(await query.SumAsync(), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -2132,8 +2084,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => stat.DecimalFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(0.0m, await emptyQuery.SumAsync());
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(), Is.EqualTo(0.0m));
       }
     }
 
@@ -2146,7 +2098,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>();
         var allFactors = (await query.ExecuteAsync()).Select(stat => stat.DecimalFactor).ToList();
-        Assert.AreEqual(allFactors.Sum(), await query.SumAsync(stat => stat.DecimalFactor));
+        Assert.That(await query.SumAsync(stat => stat.DecimalFactor), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -2159,8 +2111,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.DecimalFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(0.0f, await emptyQuery.SumAsync(stat => stat.DecimalFactor));
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(stat => stat.DecimalFactor), Is.EqualTo(0.0f));
       }
     }
 
@@ -2174,7 +2126,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>()
           .Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor);
         var allFactors = (await query.ExecuteAsync()).ToList();
-        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+        Assert.That(await query.SumAsync(), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -2187,8 +2139,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           .Where(stat => stat.IntFactor < 0).Select(stat => (decimal?)stat.DecimalFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync());
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(), Is.EqualTo(emptyFactors.Sum()));
       }
     }
 
@@ -2202,9 +2154,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
         var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
         foreach (var factor in nullFactors) {
-          Assert.IsNull(factor);
+          Assert.That(factor, Is.Null);
         }
-        Assert.AreEqual(nullFactors.Sum(), await nullQuery.SumAsync());
+        Assert.That(await nullQuery.SumAsync(), Is.EqualTo(nullFactors.Sum()));
       }
     }
 
@@ -2219,9 +2171,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var allFactors = (await query.ExecuteAsync())
           .Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor)
           .ToList();
-        Assert.AreEqual(
-          allFactors.Sum(),
-          await query.SumAsync(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor));
+        Assert.That(
+          await query.SumAsync(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor), Is.EqualTo(allFactors.Sum()));
       }
     }
 
@@ -2233,8 +2184,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (decimal?)stat.DecimalFactor).ToList();
-        Assert.AreEqual(0, emptyFactors.Count);
-        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (decimal?)stat.DecimalFactor));
+        Assert.That(emptyFactors.Count, Is.EqualTo(0));
+        Assert.That(await emptyQuery.SumAsync(stat => (decimal?)stat.DecimalFactor), Is.EqualTo(emptyFactors.Sum()));
       }
     }
 
@@ -2246,9 +2197,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<StatRecord>();
 
         var nullFactors = (await query.ExecuteAsync()).Select(stat => default(decimal?)).ToList();
-        Assert.AreEqual(
-          nullFactors.Sum(),
-          await query.SumAsync(stat => stat.IntFactor >= 0 ? default(decimal?) : stat.DecimalFactor));
+        Assert.That(
+          await query.SumAsync(stat => stat.IntFactor >= 0 ? default(decimal?) : stat.DecimalFactor), Is.EqualTo(nullFactors.Sum()));
       }
     }
 
@@ -2262,7 +2212,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
         var allTeachers = query.ToList();
         var allTeachersAsync = await query.ToListAsync();
-        Assert.IsTrue(allTeachers.SequenceEqual(allTeachersAsync));
+        Assert.That(allTeachers.SequenceEqual(allTeachersAsync), Is.True);
 
         var firstTeacher = allTeachers[0];
         var disceplines = firstTeacher.Disciplines.Where(d => d.Discepline != null).ToList();
@@ -2290,7 +2240,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
         var allTeachers = query.ToArray();
         var allTeachersAsync = await query.ToArrayAsync();
-        Assert.IsTrue(allTeachers.SequenceEqual(allTeachersAsync));
+        Assert.That(allTeachers.SequenceEqual(allTeachersAsync), Is.True);
 
         var firstTeacher = allTeachers[0];
         var disceplines = firstTeacher.Disciplines.Where(d => d.Discepline != null).ToArray();
@@ -2318,9 +2268,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<Teacher>();
         var allTeachers = query.ToDictionary(teacher => teacher.Id);
         var allTeachersAsync = await query.ToDictionaryAsync(teacher => teacher.Id);
-        Assert.AreEqual(allTeachers.Count, allTeachersAsync.Count);
+        Assert.That(allTeachersAsync.Count, Is.EqualTo(allTeachers.Count));
         foreach (var teacherId in allTeachers.Keys) {
-          Assert.AreEqual(allTeachers[teacherId], allTeachersAsync[teacherId]);
+          Assert.That(allTeachersAsync[teacherId], Is.EqualTo(allTeachers[teacherId]));
         }
 
         var firstTeacher = allTeachers.Values.First();
@@ -2346,9 +2296,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<Teacher>();
         var allTeachers = query.ToDictionary(teacher => teacher.Id, teacher => teacher.Id);
         var allTeachersAsync = await query.ToDictionaryAsync(teacher => teacher.Id, teacher => teacher.Id);
-        Assert.AreEqual(allTeachers.Count, allTeachersAsync.Count);
+        Assert.That(allTeachersAsync.Count, Is.EqualTo(allTeachers.Count));
         foreach (var teacherId in allTeachers.Keys) {
-          Assert.AreEqual(allTeachers[teacherId], allTeachersAsync[teacherId]);
+          Assert.That(allTeachersAsync[teacherId], Is.EqualTo(allTeachers[teacherId]));
         }
 
         var firstTeacher = session.Query.All<Teacher>().First();
@@ -2377,9 +2327,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<Teacher>();
         var allTeachers = query.ToHashSet();
         var allTeachersAsync = await query.ToHashSetAsync();
-        Assert.AreEqual(allTeachers.Count, allTeachersAsync.Count);
+        Assert.That(allTeachersAsync.Count, Is.EqualTo(allTeachers.Count));
         foreach (var teacher in allTeachers) {
-          Assert.IsTrue(allTeachersAsync.Contains(teacher));
+          Assert.That(allTeachersAsync.Contains(teacher), Is.True);
         }
 
         var firstTeacher = session.Query.All<Teacher>().First();
@@ -2407,10 +2357,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<Teacher>();
         var teachersByGender = query.ToLookup(teacher => teacher.Gender);
         var teachersByGenderAsync = await query.ToLookupAsync(teacher => teacher.Gender);
-        Assert.AreEqual(teachersByGender.Count, teachersByGenderAsync.Count);
+        Assert.That(teachersByGenderAsync.Count, Is.EqualTo(teachersByGender.Count));
         foreach (var grouping in teachersByGender) {
-          Assert.IsTrue(grouping.OrderBy(teacher => teacher.Id)
-            .SequenceEqual(teachersByGenderAsync[grouping.Key].OrderBy(teacher => teacher.Id)));
+          Assert.That(grouping.OrderBy(teacher => teacher.Id)
+            .SequenceEqual(teachersByGenderAsync[grouping.Key].OrderBy(teacher => teacher.Id)), Is.True);
         }
 
         var firstTeacher = session.Query.All<Teacher>().First();
@@ -2458,10 +2408,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var query = session.Query.All<Teacher>();
         var teachersByGender = query.ToLookup(teacher => teacher.Gender, teacher => teacher.Id);
         var teachersByGenderAsync = await query.ToLookupAsync(teacher => teacher.Gender, teacher => teacher.Id);
-        Assert.AreEqual(teachersByGender.Count, teachersByGenderAsync.Count);
+        Assert.That(teachersByGenderAsync.Count, Is.EqualTo(teachersByGender.Count));
         foreach (var grouping in teachersByGender) {
-          Assert.IsTrue(grouping.OrderBy(teacherId => teacherId)
-            .SequenceEqual(teachersByGenderAsync[grouping.Key].OrderBy(teacherId => teacherId)));
+          Assert.That(grouping.OrderBy(teacherId => teacherId)
+            .SequenceEqual(teachersByGenderAsync[grouping.Key].OrderBy(teacherId => teacherId)), Is.True);
         }
 
         var firstTeacher = session.Query.All<Teacher>().First();

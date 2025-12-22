@@ -460,7 +460,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           var expectedSchema = nodeConfig.SchemaMapping.Apply(baseSch1);
 
           fullName = resolver.GetNodeName(DOTests1Db, Schema1, "TestEntity1");
-          Assert.That(fullName, Is.EqualTo(string.Format("{0}:{1}:TestEntity1", expectedDatabase, expectedSchema)));
+          Assert.That(fullName, Is.EqualTo($"{expectedDatabase}:{expectedSchema}:TestEntity1"));
 
           var table = extractionResult
             .Catalogs[nodeConfig.DatabaseMapping.Apply(baseDb1)]
@@ -468,7 +468,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
             .Tables["TestEntity1"];
           fullName = resolver.GetNodeName(table);
 
-          Assert.That(fullName, Is.EqualTo(string.Format("{0}:{1}:TestEntity1", expectedDatabase, expectedSchema)));
+          Assert.That(fullName, Is.EqualTo($"{expectedDatabase}:{expectedSchema}:TestEntity1"));
 
           table = extractionResult
             .Catalogs[nodeConfig.DatabaseMapping.Apply(baseDb1)]
@@ -477,7 +477,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           fullName = resolver.GetNodeName(table);
           expectedDatabase = nodeConfig.DatabaseMapping.Apply(baseDb1);
           expectedSchema = nodeConfig.SchemaMapping.Apply(baseSch2);
-          Assert.That(fullName, Is.EqualTo(string.Format("{0}:{1}:TestEntity2", expectedDatabase, expectedSchema)));
+          Assert.That(fullName, Is.EqualTo($"{expectedDatabase}:{expectedSchema}:TestEntity2"));
 
           table = extractionResult
             .Catalogs[nodeConfig.DatabaseMapping.Apply(baseDb2)]
@@ -486,13 +486,13 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           expectedDatabase = nodeConfig.DatabaseMapping.Apply(baseDb2);
           expectedSchema = nodeConfig.SchemaMapping.Apply(baseSch1);
           fullName = resolver.GetNodeName(table);
-          Assert.That(fullName, Is.EqualTo(string.Format("{0}:{1}:TestEntity3", expectedDatabase, expectedSchema)));
+          Assert.That(fullName, Is.EqualTo($"{expectedDatabase}:{expectedSchema}:TestEntity3"));
 
           var typeinfo = domain.Model.Types[typeof(model.Part1.TestEntity1)];
           expectedDatabase = nodeConfig.DatabaseMapping.Apply(baseDb1);
           expectedSchema = nodeConfig.SchemaMapping.Apply(baseSch1);
           fullName = resolver.GetNodeName(typeinfo);
-          Assert.That(fullName, Is.EqualTo(string.Format("{0}:{1}:TestEntity1", expectedDatabase, expectedSchema)));
+          Assert.That(fullName, Is.EqualTo($"{expectedDatabase}:{expectedSchema}:TestEntity1"));
 
           var resolveResult = resolver.Resolve(extractionResult, fullName);
           Assert.That(resolveResult.Schema.GetNameInternal(), Is.EqualTo(expectedSchema));
@@ -506,7 +506,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           expectedDatabase = nodeConfig.DatabaseMapping.Apply(baseDb1);
           expectedSchema = nodeConfig.SchemaMapping.Apply(baseSch2);
           fullName = resolver.GetNodeName(typeinfo);
-          Assert.That(fullName, Is.EqualTo(string.Format("{0}:{1}:TestEntity2", expectedDatabase, expectedSchema)));
+          Assert.That(fullName, Is.EqualTo($"{expectedDatabase}:{expectedSchema}:TestEntity2"));
 
           resolveResult = resolver.Resolve(extractionResult, fullName);
           Assert.That(resolveResult.Schema.GetNameInternal(), Is.EqualTo(expectedSchema));
@@ -521,7 +521,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           expectedDatabase = nodeConfig.DatabaseMapping.Apply(baseDb2);
           expectedSchema = nodeConfig.SchemaMapping.Apply(baseSch1);
           fullName = resolver.GetNodeName(typeinfo);
-          Assert.That(fullName, Is.EqualTo(string.Format("{0}:{1}:TestEntity3", expectedDatabase, expectedSchema)));
+          Assert.That(fullName, Is.EqualTo($"{expectedDatabase}:{expectedSchema}:TestEntity3"));
 
           resolveResult = resolver.Resolve(extractionResult, fullName);
           Assert.That(resolveResult.Schema.GetNameInternal(), Is.EqualTo(expectedSchema));
@@ -624,7 +624,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           var expectedSchema = nodeConfig.SchemaMapping.Apply(baseSch1);
 
           fullName = resolver.GetNodeName(DOTests1Db, Schema1, "TestEntity1");
-          Assert.That(fullName, Is.EqualTo(string.Format("{0}:{1}:TestEntity1", expectedDatabase, expectedSchema)));
+          Assert.That(fullName, Is.EqualTo($"{expectedDatabase}:{expectedSchema}:TestEntity1"));
 
 
           var table = extractionResult
@@ -634,7 +634,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           fullName = resolver.GetNodeName(table);
           expectedDatabase = baseDb1;
           expectedSchema = baseSch1;
-          Assert.That(fullName, Is.EqualTo(string.Format("{0}:{1}:TestEntity1", expectedDatabase, expectedSchema)));
+          Assert.That(fullName, Is.EqualTo($"{expectedDatabase}:{expectedSchema}:TestEntity1"));
 
           table = extractionResult
             .Catalogs[baseDb1]
@@ -643,7 +643,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           fullName = resolver.GetNodeName(table);
           expectedDatabase = baseDb1;
           expectedSchema = baseSch2;
-          Assert.That(fullName, Is.EqualTo(string.Format("{0}:{1}:TestEntity2", expectedDatabase, expectedSchema)));
+          Assert.That(fullName, Is.EqualTo($"{expectedDatabase}:{expectedSchema}:TestEntity2"));
 
           table = extractionResult
             .Catalogs[baseDb2]
@@ -652,13 +652,13 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           expectedDatabase = baseDb2;
           expectedSchema = baseSch1;
           fullName = resolver.GetNodeName(table);
-          Assert.That(fullName, Is.EqualTo(string.Format("{0}:{1}:TestEntity3", expectedDatabase, expectedSchema)));
+          Assert.That(fullName, Is.EqualTo($"{expectedDatabase}:{expectedSchema}:TestEntity3"));
 
           var typeinfo = domain.Model.Types[typeof(model.Part1.TestEntity1)];
           expectedDatabase = nodeConfig.DatabaseMapping.Apply(baseDb1);
           expectedSchema = nodeConfig.SchemaMapping.Apply(baseSch1);
           fullName = resolver.GetNodeName(typeinfo);
-          Assert.That(fullName, Is.EqualTo(string.Format("{0}:{1}:TestEntity1", expectedDatabase, expectedSchema)));
+          Assert.That(fullName, Is.EqualTo($"{expectedDatabase}:{expectedSchema}:TestEntity1"));
 
           var resolveResult = resolver.Resolve(extractionResult, fullName);
           expectedDatabase = baseDb1;
@@ -674,7 +674,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           expectedDatabase = nodeConfig.DatabaseMapping.Apply(baseDb1);
           expectedSchema = nodeConfig.SchemaMapping.Apply(baseSch2);
           fullName = resolver.GetNodeName(typeinfo);
-          Assert.That(fullName, Is.EqualTo(string.Format("{0}:{1}:TestEntity2", expectedDatabase, expectedSchema)));
+          Assert.That(fullName, Is.EqualTo($"{expectedDatabase}:{expectedSchema}:TestEntity2"));
 
           resolveResult = resolver.Resolve(extractionResult, fullName);
           expectedDatabase = baseDb1;
@@ -691,7 +691,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           expectedDatabase = nodeConfig.DatabaseMapping.Apply(baseDb2);
           expectedSchema = nodeConfig.SchemaMapping.Apply(baseSch1);
           fullName = resolver.GetNodeName(typeinfo);
-          Assert.That(fullName, Is.EqualTo(string.Format("{0}:{1}:TestEntity3", expectedDatabase, expectedSchema)));
+          Assert.That(fullName, Is.EqualTo($"{expectedDatabase}:{expectedSchema}:TestEntity3"));
 
           resolveResult = resolver.Resolve(extractionResult, fullName);
           expectedDatabase = baseDb2;

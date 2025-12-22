@@ -38,7 +38,7 @@ namespace Xtensive.Extensions
         actionSequence.ContainsActionsOfType<SecondaryIndexInfo>(types);
       
       // Assert
-      Assert.AreEqual(result, expectedResult);
+      Assert.That(result, Is.EqualTo(expectedResult));
     }
     
     [Test]
@@ -62,7 +62,7 @@ namespace Xtensive.Extensions
         actionSequence.ContainsActionsOfType<SecondaryIndexInfo>(types);
       
       // Assert
-      Assert.AreEqual(result, expectedResult);
+      Assert.That(result, Is.EqualTo(expectedResult));
     }
 
     [Test]
@@ -83,7 +83,7 @@ namespace Xtensive.Extensions
         actionSequence.ContainsActionsOfType<SecondaryIndexInfo>(new[] { actionType });
       
       // Assert
-      Assert.IsFalse(result);
+      Assert.That(result, Is.False);
     }    
     
     [Test]
@@ -105,7 +105,7 @@ namespace Xtensive.Extensions
         });
       
       // Assert
-      Assert.IsFalse(result);
+      Assert.That(result, Is.False);
     }
     
     [Test]
@@ -130,7 +130,7 @@ namespace Xtensive.Extensions
         });
       
       // Assert
-      Assert.IsFalse(result);
+      Assert.That(result, Is.False);
     }
 
     private static StorageModel CreateStorage() => new("storage");

@@ -65,9 +65,16 @@ namespace Xtensive.Sql.Dml.Collections
         else {
           //re-arrange values to be the same order
           //and also make sure all columns exist
-          var rowList = columns.Select(column =>
-            row.GetValueOrDefault(column) ??
-            throw new ArgumentException($"There is no mentioning of column '{column.Name}' in previously added rows.")).ToArray();
+          var rowList = new List<SqlExpression>();
+          foreach (var column in columns) {
+            if (row.TryGetValue(column, out var value)) {
+              rowList.Add(value);
+            }
+            else {
+              throw new ArgumentException($"There is no mentioning of column '{column.Name}' in previously added rows.");
+            }
+          }
+
           rows.Add(SqlDml.Row(rowList));
         }
       }

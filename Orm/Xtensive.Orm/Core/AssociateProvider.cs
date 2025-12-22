@@ -37,13 +37,13 @@ namespace Xtensive.Core
     }
 
     [NonSerialized]
+    private readonly object highPriorityLocationsLock = new object();
+
+    [NonSerialized]
     private ConcurrentDictionary<(Type, Type), Lazy<object>> cache;
 
     private object[] constructorParams;
     private string[] typeSuffixes;
-
-    [NonSerialized]
-    private Lock highPriorityLocationsLock = new();
 
     private List<(Assembly, string)> highPriorityLocations = new();
 

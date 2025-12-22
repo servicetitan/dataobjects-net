@@ -19,11 +19,13 @@ public class UrlInfoTest
     UrlInfo aX = UrlInfo.Parse("tcp://user:password@someHost:1000/someUrl/someUrl?someParameter2=someValue2&someParameter=someValue");
     UrlInfo b  = UrlInfo.Parse("tcp://user:password@someHost:1000/someUrl/someUrl");
 
-    Assert.IsTrue(a1.GetHashCode()==a2.GetHashCode());
-    Assert.IsTrue(a1.GetHashCode()!=b.GetHashCode());
+    Assert.That(a1.GetHashCode()==a2.GetHashCode(), Is.True);
+    Assert.That(a1.GetHashCode()!=aX.GetHashCode(), Is.True);
+    Assert.That(a1.GetHashCode()!=b.GetHashCode(), Is.True);
 
-    Assert.IsTrue(a1.Equals(a2));
-    Assert.IsFalse(a1.Equals(b));
+    Assert.That(a1.Equals(a2), Is.True);
+    Assert.That(a1.Equals(aX), Is.False);
+    Assert.That(a1.Equals(b), Is.False);
   }
 
   [Test]
@@ -37,22 +39,22 @@ public class UrlInfoTest
       Resource = "other/resource",
       Params = new Dictionary<string, string> { { "a", "b" } }
     };
-    Assert.AreEqual("unkProto://user:xxx@someHost:2000/other/resource?a=b", a2.ToString());
-    Assert.IsTrue(a2.Equals(a2));
-    Assert.IsFalse(a1.Equals(a2));
+    Assert.That("unkProto://user:xxx@someHost:2000/other/resource?a=b", Is.EqualTo(a2.ToString()));
+    Assert.That(a2.Equals(a2), Is.True);
+    Assert.That(a1.Equals(a2), Is.False);
     var a3 = UrlInfo.Parse("unkProto://user:xxx@someHost:2000/other/resource?a=b");
-    Assert.IsTrue(a2 == a3);
+    Assert.That(a2 == a3, Is.True);
   }
 
   [Test]
   public void TestUrlProps()
   {
     var url = UrlInfo.Parse("sqlserver://int:xxx@127.0.0.1:51571/db");
-    Assert.AreEqual("sqlserver", url.Protocol);
-    Assert.AreEqual("int", url.User);
-    Assert.AreEqual("xxx", url.Password);
-    Assert.AreEqual("127.0.0.1", url.Host);
-    Assert.AreEqual(51571, url.Port);
-    Assert.AreEqual("db", url.Resource);
+    Assert.That(url.Protocol, Is.EqualTo("sqlserver"));
+    Assert.That(url.User, Is.EqualTo("int"));
+    Assert.That(url.Password, Is.EqualTo("xxx"));
+    Assert.That(url.Host, Is.EqualTo("127.0.0.1"));
+    Assert.That(url.Port, Is.EqualTo(51571));
+    Assert.That(url.Resource, Is.EqualTo("db"));
   }
 }

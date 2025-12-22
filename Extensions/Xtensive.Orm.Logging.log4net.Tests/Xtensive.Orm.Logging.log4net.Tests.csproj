@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <DocumentationFile />
     <Configurations>Debug;Release;Debug-NET8;Release-NET8;Debug-NET10;Release-NET10</Configurations>

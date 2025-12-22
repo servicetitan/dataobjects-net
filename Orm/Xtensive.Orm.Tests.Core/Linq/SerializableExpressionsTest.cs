@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
       foreach (var origin in Expressions) {
         Console.WriteLine(origin.ToString(true));
         var converted = origin.ToSerializableExpression().ToExpression();
-        Assert.AreEqual(origin.ToExpressionTree(), converted.ToExpressionTree());
+        Assert.That(converted.ToExpressionTree(), Is.EqualTo(origin.ToExpressionTree()));
         Console.WriteLine("OK");
       }
     }
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
           stream.Seek(0, SeekOrigin.Begin);
           var serialized = (SerializableExpression) serializer.ReadObject(stream);
           stream.SetLength(0);
-          Assert.AreEqual(expression.ToExpressionTree(), serialized.ToExpression().ToExpressionTree());
+          Assert.That(serialized.ToExpression().ToExpressionTree(), Is.EqualTo(expression.ToExpressionTree()));
           Console.WriteLine("OK");
         }
       }
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
           stream.Seek(0, SeekOrigin.Begin);
           var serialized = (SerializableExpression) serializer.Deserialize(stream);
           stream.SetLength(0);
-          Assert.AreEqual(expression.ToExpressionTree(), serialized.ToExpression().ToExpressionTree());
+          Assert.That(serialized.ToExpression().ToExpressionTree(), Is.EqualTo(expression.ToExpressionTree()));
           Console.WriteLine("OK");
         }
       }
@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
         //          length += stream.Length;
         //          stream.SetLength(0);
         //        }
-        Console.Out.WriteLine("Stream size: {0} Kb", length / 1024);
+        Console.Out.WriteLine($"Stream size: {length / 1024} Kb");
       }
     }
 

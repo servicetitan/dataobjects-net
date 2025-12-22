@@ -22,12 +22,12 @@ namespace Xtensive.Orm.Tests.Rse
     [Mute]
     [Test]
     public void TempTableMustNotBeCached() =>
-      Assert.AreNotEqual(ExecuteIn(ExecuteCachedIn), ExecuteIn(ExecuteCachedIn));
+      Assert.That(ExecuteIn(ExecuteCachedIn), Is.Not.EqualTo(ExecuteIn(ExecuteCachedIn)));
 
     [Mute]
     [Test]
     public void TempTableMustNotBeCachedScalar() =>
-      Assert.AreNotEqual(ExecuteIn(ExecuteCachedInScalar), ExecuteIn(ExecuteCachedInScalar));
+      Assert.That(ExecuteIn(ExecuteCachedInScalar), Is.Not.EqualTo(ExecuteIn(ExecuteCachedInScalar)));
 
     // returns temporary table Name
     private string ExecuteIn(Action<Session> action)

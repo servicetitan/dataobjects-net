@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -120,7 +120,7 @@ namespace Xtensive.Orm.Tests.Storage.ReadOnlySupport
         throw;
       }
       catch (Exception e) {
-        Debug.WriteLine("Error in TestFixureSetUp: {0}", e);
+        Debug.WriteLine($"Error in TestFixureSetUp: {e}");
         throw;
       }
     }

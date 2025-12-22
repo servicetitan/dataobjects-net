@@ -27,8 +27,8 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
         
-        Assert.IsTrue(CheckIndexHint(queryString, "Invoice", "PK_Invoice"));
-        Assert.IsTrue(CheckIndexHint(queryString, "Customer", "Customer.IX_FirstName"));
+        Assert.That(CheckIndexHint(queryString, "Invoice", "PK_Invoice"), Is.True);
+        Assert.That(CheckIndexHint(queryString, "Customer", "Customer.IX_FirstName"), Is.True);
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -48,8 +48,8 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
         
-        Assert.IsTrue(CheckIndexHint(queryString, "Invoice", "PK_Invoice"));
-        Assert.IsTrue(CheckIndexHint(queryString, "Customer", "Customer.IX_FirstName"));
+        Assert.That(CheckIndexHint(queryString, "Invoice", "PK_Invoice"), Is.True);
+        Assert.That(CheckIndexHint(queryString, "Customer", "Customer.IX_FirstName"), Is.True);
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -70,8 +70,8 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
         
-        Assert.IsTrue(CheckIndexHint(queryString, "Invoice", "PK_Invoice"));
-        Assert.IsTrue(CheckIndexHint(queryString, "Customer", "Customer.IX_FirstName"));
+        Assert.That(CheckIndexHint(queryString, "Invoice", "PK_Invoice"), Is.True);
+        Assert.That(CheckIndexHint(queryString, "Customer", "Customer.IX_FirstName"), Is.True);
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -90,8 +90,8 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
         
-        Assert.IsTrue(CheckIndexHint(queryString, "Customer", "PK_Customer"));
-        Assert.IsTrue(CheckIndexHint(queryString, "Customer", "Customer.IX_FirstName"));
+        Assert.That(CheckIndexHint(queryString, "Customer", "PK_Customer"), Is.True);
+        Assert.That(CheckIndexHint(queryString, "Customer", "Customer.IX_FirstName"), Is.True);
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -112,8 +112,8 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
         
-        Assert.IsTrue(CheckIndexHint(queryString, "Customer", "PK_Customer"));
-        Assert.IsTrue(CheckIndexHint(queryString, "Invoice", "PK_Invoice"));
+        Assert.That(CheckIndexHint(queryString, "Customer", "PK_Customer"), Is.True);
+        Assert.That(CheckIndexHint(queryString, "Invoice", "PK_Invoice"), Is.True);
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -134,8 +134,8 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
         
-        Assert.IsTrue(CheckIndexHint(queryString, "Customer", "PK_Customer"));
-        Assert.IsTrue(CheckIndexHint(queryString, "Invoice", "PK_Invoice"));
+        Assert.That(CheckIndexHint(queryString, "Customer", "PK_Customer"), Is.True);
+        Assert.That(CheckIndexHint(queryString, "Invoice", "PK_Invoice"), Is.True);
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
         
-        Assert.IsTrue(CheckIndexHint(queryString, "Invoice", "PK_Invoice"));
+        Assert.That(CheckIndexHint(queryString, "Invoice", "PK_Invoice"), Is.True);
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
         
-        Assert.IsFalse(CheckIndexHint(queryString, "Customer", "Customer.IX_NotExists"));
+        Assert.That(CheckIndexHint(queryString, "Customer", "Customer.IX_NotExists"), Is.False);
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -193,8 +193,8 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
         
-        Assert.IsTrue(CheckIndexHint(queryString, "Customer", "PK_Customer"));
-        Assert.IsTrue(CheckIndexHint(queryString, "Customer", "Customer.IX_FirstName"));
+        Assert.That(CheckIndexHint(queryString, "Customer", "PK_Customer"), Is.True);
+        Assert.That(CheckIndexHint(queryString, "Customer", "Customer.IX_FirstName"), Is.True);
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -213,7 +213,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
         
-        Assert.IsTrue(CheckIndexHint(queryString, "Customer", "Customer.IX_FirstName"));
+        Assert.That(CheckIndexHint(queryString, "Customer", "Customer.IX_FirstName"), Is.True);
         Assert.DoesNotThrow(() => query.Run());
       }
     }
