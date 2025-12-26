@@ -335,7 +335,6 @@ namespace Xtensive.Orm.Providers
       var queryColumns = query.Columns;
       var columnIndexes = provider.ColumnIndexes;
 
-      var n = columnIndexes.Count;
       var newIndex = 0;
       var newColumns = new SqlColumn[columnIndexes.Count];
       foreach (var index in columnIndexes) {
