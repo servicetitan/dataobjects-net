@@ -4,7 +4,6 @@
 // Created by: Vakhtina Elena
 // Created:    2009.02.13
 
-using System.Buffers;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
