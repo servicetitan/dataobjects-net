@@ -4,9 +4,6 @@
 // Created by: Vakhtina Elena
 // Created:    2009.02.13
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -343,7 +340,6 @@ namespace Xtensive.Orm.Providers
       foreach (var index in columnIndexes) {
         newColumns[newIndex++] = queryColumns[index];
       }
-
       queryColumns.Clear();
       queryColumns.AddRange(newColumns);
 

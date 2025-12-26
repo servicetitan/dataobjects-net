@@ -36,6 +36,8 @@ namespace Xtensive.Sql.Dml
     public void Add(SqlExpression expression) =>
       base.Add(expression as SqlColumn ?? SqlDml.ColumnRef(SqlDml.Column(expression)));
 
+    public new void Add(SqlColumn column) => base.Add(column);
+
     /// <summary>
     /// Builds a <see cref="SqlColumnRef"/> by the specified <paramref name="expression"/> and
     /// <paramref name="alias"/>; then adds it to the end of the <see cref="SqlColumnCollection"/>.
