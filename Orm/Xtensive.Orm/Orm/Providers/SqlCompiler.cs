@@ -337,16 +337,13 @@ namespace Xtensive.Orm.Providers
       var columnIndexes = provider.ColumnIndexes;
 
       var n = columnIndexes.Count;
-      using PooledArray<SqlColumn> pooledArray = new(n);
-      var newColumns = pooledArray.Array;
       var newIndex = 0;
+      var newColumns = new SqlColumn[columnIndexes.Count];
       foreach (var index in columnIndexes) {
         newColumns[newIndex++] = queryColumns[index];
       }
       queryColumns.Clear();
-      for (var i = 0; i < n; ++i) {
-        queryColumns.Add(newColumns[i]);
-      }
+      queryColumns.AddRange(newColumns);
 
       return CreateProvider(query, provider, compiledSource);
     }
