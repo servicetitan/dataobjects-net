@@ -434,15 +434,10 @@ namespace Xtensive.Orm.Rse.Transformation
 
     #region Private methods
 
-    private static List<ColNum> Merge(IEnumerable<ColNum> left, IEnumerable<ColNum> right) =>
-      left.Union(right).OrderBy(i => i).ToList();
-
-    private static List<int> Merge(IEnumerable<int> left, IEnumerable<int> right)
+    private static List<ColNum> Merge(IEnumerable<ColNum> left, IEnumerable<ColNum> right)
     {
-      var hs = new HashSet<int>(left);
-      foreach (var r in right) {
-        _ = hs.Add(r);
-      }
+      HashSet<ColNum> hs = new(left);
+      hs.UnionWith(right);
       var resultList = hs.ToList();
       resultList.Sort();
       return resultList;
