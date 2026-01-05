@@ -18,9 +18,7 @@ namespace Xtensive.IoC
   [Serializable]
   public readonly struct ServiceRegistration
   {
-    private static readonly ConcurrentDictionary<ServiceRegistrationKey, Lazy<ServiceRegistration[]>> serviceRegistrationsByType = new();
-
-    private static readonly Func<ServiceRegistrationKey, Lazy<ServiceRegistration[]>> ServiceRegistrationsExtractor = ServiceRegistrationsExtractorImpl;
+    private static readonly ConcurrentDictionary<ServiceRegistrationKey, ServiceRegistration[]> serviceRegistrationsByType = new();
 
     /// <summary>
     /// Gets the type of the service.
@@ -74,26 +72,24 @@ namespace Xtensive.IoC
     /// An array of <see cref="ServiceRegistration"/> objects.
     /// </returns>
     public static ServiceRegistration[] CreateAll(Type type, bool defaultOnly) =>
-      serviceRegistrationsByType.GetOrAdd(new ServiceRegistrationKey(type, defaultOnly), ServiceRegistrationsExtractor).Value;
-
-    private static Lazy<ServiceRegistration[]> ServiceRegistrationsExtractorImpl(ServiceRegistrationKey key) =>
-      new Lazy<ServiceRegistration[]>(() => {
-        (var type, var defaultOnly) = key;
-        ArgumentNullException.ThrowIfNull(type);
-        if (type.IsAbstract) {
-          return Array.Empty<ServiceRegistration>();
-        }
-
-        var attributes = type.GetAttributes<ServiceAttribute>(AttributeSearchOptions.InheritNone);
-        var registrations = new List<ServiceRegistration>(attributes.Count);
-        foreach (var sa in attributes) {
-          if (!defaultOnly || sa.Default) {
-            registrations.Add(new ServiceRegistration(sa.Type, sa.Name.IsNullOrEmpty() ? null : sa.Name, type, sa.Singleton));
+      serviceRegistrationsByType.GetOrAdd(new ServiceRegistrationKey(type, defaultOnly),
+        static key => {
+          (var type, var defaultOnly) = key;
+          ArgumentNullException.ThrowIfNull(type);
+          if (type.IsAbstract) {
+            return Array.Empty<ServiceRegistration>();
           }
-        }
-        return registrations.ToArray();
-      });
 
+          var attributes = type.GetAttributes<ServiceAttribute>(AttributeSearchOptions.InheritNone);
+          var registrations = new List<ServiceRegistration>(attributes.Count);
+          foreach (var sa in attributes) {
+            if (!defaultOnly || sa.Default) {
+              registrations.Add(new ServiceRegistration(sa.Type, sa.Name.IsNullOrEmpty() ? null : sa.Name, type, sa.Singleton));
+            }
+          }
+
+          return registrations.ToArray();
+        });
 
     // Constructors
 
