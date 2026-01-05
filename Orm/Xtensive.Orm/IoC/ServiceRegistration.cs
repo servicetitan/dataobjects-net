@@ -77,7 +77,7 @@ namespace Xtensive.IoC
           (var type, var defaultOnly) = key;
           ArgumentNullException.ThrowIfNull(type);
           if (type.IsAbstract) {
-            return Array.Empty<ServiceRegistration>();
+            return [];
           }
 
           var attributes = type.GetAttributes<ServiceAttribute>(AttributeSearchOptions.InheritNone);
