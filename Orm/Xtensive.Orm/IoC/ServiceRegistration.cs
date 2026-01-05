@@ -25,7 +25,7 @@ namespace Xtensive.IoC
     /// <summary>
     /// Gets the type of the service.
     /// </summary>
-    public Type Type { get; private set; }
+    public Type Type { get; }
 
     /// <summary>
     /// Gets the name of the service.
