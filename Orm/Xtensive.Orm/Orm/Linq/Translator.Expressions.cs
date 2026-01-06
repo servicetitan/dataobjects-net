@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Linq
     private static readonly Type OrmQueryableExtensionsType = typeof(QueryableExtensions);
     private static readonly IReadOnlyList<ParameterExpression> ParameterContextParams = [Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context")];
     private static readonly ParameterExpression ParameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
-    private static readonly ConcurrentDictionary<(Type, MemberInfo), PropertyInfo> memberCache = new();
+    private static readonly ConcurrentDictionary<(Type Type, MemberInfo MemberInfo), PropertyInfo> memberCache = new();
 
     private static readonly ConstantExpression
       NullExpression = Expression.Constant(null),
@@ -349,7 +349,8 @@ namespace Xtensive.Orm.Linq
           && !memberInfoReflectedType.IsInterface) {
           ma = Expression.MakeMemberAccess(
             sourceExpression,
-            memberCache.GetOrAdd((sourceExpressionType, memberInfo), static t => t.Item1.GetProperty(t.Item2.Name, t.Item2.GetBindingFlags())));
+            memberCache.GetOrAdd((sourceExpressionType, memberInfo),
+              static t => t.Type.GetProperty(t.MemberInfo.Name, t.MemberInfo.GetBindingFlags())));
 
           memberInfo = ma.Member;
           sourceExpression = ma.Expression;
