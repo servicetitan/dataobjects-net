@@ -4,13 +4,9 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.27
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;
@@ -38,6 +34,7 @@ namespace Xtensive.Orm.Linq
     private static readonly Type OrmQueryableExtensionsType = typeof(QueryableExtensions);
     private static readonly IReadOnlyList<ParameterExpression> ParameterContextParams = [Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context")];
     private static readonly ParameterExpression ParameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+    private static readonly ConcurrentDictionary<(Type, MemberInfo), PropertyInfo> memberCache = new();
 
     private static readonly ConstantExpression
       NullExpression = Expression.Constant(null),
@@ -345,11 +342,14 @@ namespace Xtensive.Orm.Linq
       var sourceExpression = ma.Expression;
 
       if (sourceExpression != null) {
-        if (sourceExpression.Type != memberInfo.ReflectedType
+        var sourceExpressionType = sourceExpression.Type;
+        var memberInfoReflectedType = memberInfo.ReflectedType;
+        if (sourceExpressionType != memberInfoReflectedType
           && memberInfo is PropertyInfo
-          && !memberInfo.ReflectedType.IsInterface) {
+          && !memberInfoReflectedType.IsInterface) {
           ma = Expression.MakeMemberAccess(
-            sourceExpression, sourceExpression.Type.GetProperty(memberInfo.Name, memberInfo.GetBindingFlags()));
+            sourceExpression,
+            memberCache.GetOrAdd((sourceExpressionType, memberInfo), static t => t.Item1.GetProperty(t.Item2.Name, t.Item2.GetBindingFlags())));
 
           memberInfo = ma.Member;
           sourceExpression = ma.Expression;
