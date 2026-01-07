@@ -4,14 +4,11 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.05
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions.Visitors;
-using Xtensive.Orm.Model;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq.Expressions
@@ -102,18 +99,25 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public static KeyExpression Create(TypeInfo entityType, ColNum offset)
     {
-      var mapping = new Segment<ColNum>(offset, entityType.Key.TupleDescriptor.Count);
-
-      FieldExpression CreateField(ColumnInfo c) => FieldExpression.CreateField(c.Field, offset);
-
-      var fields = entityType.IsLocked
-        ? entityType.Key.Columns.Select(CreateField).ToArray()
-        : entityType.Columns
-          .Where(c => c.IsPrimaryKey)
-          .OrderBy(c => c.Field.MappingInfo.Offset)
-          .Select(CreateField)
-          .ToArray();
-      return new KeyExpression(entityType, fields, mapping, WellKnownMembers.IEntityKey, null, false);
+      var entityTypeKey = entityType.Key;
+      IReadOnlyList<FieldExpression> fields;
+      if (entityType.IsLocked) {
+        var columns = entityTypeKey.Columns;
+        var n = columns.Count;
+        var ar = new FieldExpression[n];
+        for (int i = 0; i < n; ++i) {
+          ar[i] = FieldExpression.CreateField(columns[i].Field, offset);
+        }
+        fields = ar;
+      }
+      else {
+        List<FieldExpression> list = new(1);
+        foreach (var c in entityType.Columns.Where(c => c.IsPrimaryKey).OrderBy(c => c.Field.MappingInfo.Offset)) {
+          list.Add(FieldExpression.CreateField(c.Field, offset));
+        }
+        fields = list;
+      }
+      return new(entityType, fields, new Segment<ColNum>(offset, entityTypeKey.TupleDescriptor.Count), WellKnownMembers.IEntityKey, null, false);
     }
 
     internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitKeyExpression(this);
