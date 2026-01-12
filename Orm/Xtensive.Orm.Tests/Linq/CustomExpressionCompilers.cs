@@ -161,7 +161,7 @@ namespace Xtensive.Orm.Tests.Linq
         new Assignment() {Active = true, Start = new DateTime(2009, 11, 23), End = null};
         new Assignment() {Active = false, Start = new DateTime(2009, 10, 3), End = null};
         new Assignment() {Active = false, Start = new DateTime(2020, 01, 10), End = new DateTime(2044, 12, 3)};
-        new Assignment() {Active = true, Start = new DateTime(2026, 01, 10), End = new DateTime(2045, 11, 3)};
+        new Assignment() {Active = true, Start = new DateTime(2040, 01, 10), End = new DateTime(2045, 11, 3)};
         new Assignment() {Active = true, Start = new DateTime(2010, 01, 10), End = new DateTime(2035, 11, 3)};
 
         var currentCount = session.Query.All<Assignment>().Count(a => a.Current);
