@@ -2,11 +2,8 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using Xtensive.Sql.Model;
 
@@ -163,10 +160,11 @@ namespace Xtensive.Sql.Compiler
 
     internal void FlushBuffer()
     {
-      if (stringBuilder.Length > 0) {
-        children.Add(TextNode.Create(stringBuilder.ToString()));
+      if (stringBuilder.Length is > 0 and var len) {
+        var s = stringBuilder.ToString();
+        children.Add(TextNode.Create(s));
         lastNodeIsText = true;
-        lastChar = stringBuilder[^1];
+        lastChar = s[len - 1];
         _ = stringBuilder.Clear();
         lastCharIsPunctuation = false;
       }
