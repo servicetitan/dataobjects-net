@@ -167,7 +167,7 @@ namespace Xtensive.Sql.Compiler
         var s = stringBuilder.ToString();
         children.Add(TextNode.Create(s));
         lastNodeIsText = true;
-        lastChar = s[len-1];
+        lastChar = s[len - 1];
         _ = stringBuilder.Clear();
         lastCharIsPunctuation = false;
       }
