@@ -163,10 +163,11 @@ namespace Xtensive.Sql.Compiler
 
     internal void FlushBuffer()
     {
-      if (stringBuilder.Length > 0) {
-        children.Add(TextNode.Create(stringBuilder.ToString()));
+      if (stringBuilder.Length is > 0 and var len) {
+        var s = stringBuilder.ToString();
+        children.Add(TextNode.Create(s));
         lastNodeIsText = true;
-        lastChar = stringBuilder[^1];
+        lastChar = s[len-1];
         _ = stringBuilder.Clear();
         lastCharIsPunctuation = false;
       }
