@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
 
     private void Test(double speedFactor)
     {
-      TestLog.Info("Class size: {0} bytes", ClassSize);
+      TestLog.Info($"Class size: {ClassSize} bytes");
       TestClassAllocation(speedFactor);
       TestStructAllocation(speedFactor);
     }
@@ -108,7 +108,6 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
         using (TestLog.InfoRegion("Allocation to nothing")) {
           using (new Measurement("SlimObject", MeasurementOptions.Log, iterations))
             AllocateClass_SlimObject(iterations);
-          TestHelper.CollectGarbage();
           TestHelper.CollectGarbage();
           using (new Measurement("FinalizableSlimObject", MeasurementOptions.Log, iterations))
             AllocateClass_FinalizableSlimObject(iterations);

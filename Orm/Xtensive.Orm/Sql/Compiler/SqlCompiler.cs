@@ -931,7 +931,7 @@ namespace Xtensive.Sql.Compiler
         AppendTranslated(node, DeclareCursorSection.Holdability);
         AppendTranslated(node, DeclareCursorSection.Returnability);
         AppendTranslated(node, DeclareCursorSection.For);
-
+        AppendSpaceIfNecessary();
         node.Cursor.Query.AcceptVisitor(this);
         if (node.Cursor.Columns.Count != 0) {
           foreach (SqlColumnRef item in node.Cursor.Columns) {

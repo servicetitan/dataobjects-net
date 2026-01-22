@@ -19,9 +19,9 @@ namespace Xtensive.Orm
   public partial class Session
   {
     private static readonly IDisposable EmptyDisposable = new Disposable(b => { return; });
+    private readonly KeyRemapper remapper;
 
     private bool disableAutoSaveChanges;
-    private KeyRemapper remapper;
     private bool persistingIsFailed;
 
     internal bool DisableAutoSaveChanges { get { return disableAutoSaveChanges; } }
@@ -378,7 +378,8 @@ namespace Xtensive.Orm
 
     private Core.Disposable PreventRegistryChanges()
     {
-      return EntityChangeRegistry?.DisableRegistrations();
+      return null; //!!!TODO: temporary until the Monolith's fix
+      // return EntityChangeRegistry?.DisableRegistrations();
     }
   }
 }

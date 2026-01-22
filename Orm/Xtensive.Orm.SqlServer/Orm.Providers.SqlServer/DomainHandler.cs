@@ -20,11 +20,6 @@ namespace Xtensive.Orm.Providers.SqlServer
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration) => new SqlCompiler(Handlers, configuration);
 
     /// <inheritdoc/>
-    protected override SearchConditionCompiler CreateSearchConditionVisitor()
-    {
-      if (Domain.StorageProviderInfo.StorageVersion.Major < 11)
-        return new SearchConditionCompilerV09();
-      return new SearchConditionCompilerV11();
-    }
+    protected override SearchConditionCompiler CreateSearchConditionVisitor() => new SearchConditionCompilerV11();
   }
 }

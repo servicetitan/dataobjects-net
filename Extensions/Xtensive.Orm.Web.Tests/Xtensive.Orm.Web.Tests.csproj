@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(ExtensionsKeyFile)</AssemblyOriginatorKeyFile>
-    <Configurations>Debug;Release;Debug-NET6;Release-NET6;Debug-NET7;Release-NET7;Debug-NET8;Release-NET8</Configurations>
+    <Configurations>Debug;Release;Debug-NET8;Release-NET8;Debug-NET10;Release-NET10</Configurations>
   </PropertyGroup>
   <Import Project="$(SolutionDir)MSBuild\DataObjects.Net.InternalBuild.targets" />
   <ItemGroup>
@@ -13,7 +13,6 @@
     <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\Orm\Xtensive.Orm.Firebird\Xtensive.Orm.Firebird.csproj" />
     <ProjectReference Include="..\..\Orm\Xtensive.Orm.MySql\Xtensive.Orm.MySql.csproj" />

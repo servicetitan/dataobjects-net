@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override void Lock(bool recursive)
+    public override void Lock(bool recursive = true)
     {
       if (IsLocked)
         return;

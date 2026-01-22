@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-    <Configurations>Debug;Release;Debug-NET6;Release-NET6;Debug-NET7;Release-NET7;Debug-NET8;Release-NET8</Configurations>
+    <Configurations>Debug;Release;Debug-NET8;Release-NET8;Debug-NET10;Release-NET10</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>Xtensive.Orm.Web</PackageId>
@@ -11,6 +11,7 @@
     <PackageDescription>Adds integration with ASP.NET for $(DoProductName)-powered projects</PackageDescription>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(ExtensionsKeyFile)</AssemblyOriginatorKeyFile>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
   <PropertyGroup Label="Nuget ReadMe" Condition="$(GeneratePackageOnBuild) == 'true'">
     <PackageReadmeFile>ReadMe.md</PackageReadmeFile>

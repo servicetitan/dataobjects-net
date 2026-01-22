@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2022 Xtensive LLC.
+// Copyright (C) 2003-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Compiler
     public NumberFormatInfo FloatNumberFormat { get; private set; }
     public NumberFormatInfo DoubleNumberFormat { get; private set; }
 
-    public virtual string NewLine { get { return Environment.NewLine; } }
+    public string NewLine { get; } = "\n";
 
     public virtual string OpeningParenthesis => "(";
     public virtual string ClosingParenthesis => ")";
@@ -77,18 +77,23 @@ namespace Xtensive.Sql.Compiler
     /// Gets the <see cref="DateOnly"/> format string.
     /// See <see cref="DateOnly.ToString(string)"/> for details
     /// </summary>
-    public virtual string DateOnlyFormatString => throw new NotImplementedException();
+    public abstract string DateOnlyFormatString { get; }
+
+    /// <summary>
+    /// Gets the <see cref="TimeOnly"/> format string.
+    /// </summary>
+    public abstract string TimeOnlyFormatString { get; }
+
+    /// <summary>
+    /// Gets the <see cref="DateTimeOffset"/> format string
+    /// </summary>
+    public virtual string DateTimeOffsetFormatString => throw new NotImplementedException();
 
     /// <summary>
     /// Gets the time span format string.
     /// See <see cref="SqlHelper.TimeSpanToString"/> for details.
     /// </summary>
     public abstract string TimeSpanFormatString { get; }
-
-    /// <summary>
-    /// Gets the <see cref="TimeOnly"/> format string.
-    /// </summary>
-    public virtual string TimeOnlyFormatString => throw new NotImplementedException();
 
     /// <summary>
     /// Gets the parameter prefix.
@@ -1216,6 +1221,11 @@ namespace Xtensive.Sql.Compiler
       _ = context.Output.Append(node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
+    /// <summary>
+    /// Translates <see cref="SqlTruncateTable"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
     public virtual void Translate(SqlCompilerContext context, SqlTruncateTable node)
     {
       _ = context.Output.Append("TRUNCATE TABLE ");
@@ -1502,10 +1512,10 @@ namespace Xtensive.Sql.Compiler
         case byte[]:
           throw new NotSupportedException(string.Format(Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
         case DateOnly dateOnly:
-          output.Append(dateOnly.ToString(DateOnlyFormatString, DateTimeFormat));
+          _ = output.Append(dateOnly.ToString(DateOnlyFormatString, DateTimeFormat));
           break;
         case TimeOnly timeOnly:
-          output.Append(timeOnly.ToString(TimeOnlyFormatString, DateTimeFormat));
+          _ = output.Append(timeOnly.ToString(TimeOnlyFormatString, DateTimeFormat));
           break;
         default:
           _ = output.Append(literalValue.ToString());
@@ -1962,6 +1972,11 @@ namespace Xtensive.Sql.Compiler
 
     #region Enums and other types that require translation to string
 
+    /// <summary>
+    /// Translates <see cref="SqlNodeType"/> and writes the result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="type">Enum value to translate.</param>
     public virtual void Translate(IOutput output, SqlNodeType type)
     {
       _ = output.Append(type switch {
@@ -2027,7 +2042,6 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     /// <param name="output">The output to write to.</param>
     /// <param name="type">Enum value to translate.</param>
-    /// <returns>SQL variant of join type.</returns>
     public virtual void Translate(IOutput output, SqlJoinType type)
     {
       _ = output.Append(type switch {
@@ -2042,6 +2056,11 @@ namespace Xtensive.Sql.Compiler
       });
     }
 
+    /// <summary>
+    /// Translates <see cref="SqlMatchType"/> ant writes result to the <paramref name="output"/>
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="type">Enum value to translate/</param>
     public virtual void Translate(IOutput output, SqlMatchType type)
     {
       _ = output.Append(type switch {
@@ -2051,6 +2070,11 @@ namespace Xtensive.Sql.Compiler
       });
     }
 
+    /// <summary>
+    /// Translates <see cref="ReferentialAction"/> ant writes result to the <paramref name="output"/>
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="action">Enum value to translate/</param>
     public virtual void Translate(IOutput output, ReferentialAction action)
     {
       _ = output.Append(action switch {
@@ -2427,6 +2451,11 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    /// <summary>
+    /// Translates identifier name and writes result to <paramref name="output"/>
+    /// </summary>
+    /// <param name="output">The output.</param>
+    /// <param name="name">The identifier.</param>
     public void TranslateIdentifier(IOutput output, string name)
     {
       if (string.IsNullOrEmpty(name))
@@ -2462,26 +2491,23 @@ namespace Xtensive.Sql.Compiler
       }
       var expectedLength = BatchBegin.Length + BatchEnd.Length
         + ((BatchItemDelimiter.Length + NewLine.Length) * statements.Count)
-        + statements.Sum(statement => statement.Length);
-      var builder = new StringBuilder(expectedLength);
-      _ = builder.Append(BatchBegin);
+        + statements.Sum(static statement => statement.Length);
+      StringBuilder sb = new(BatchBegin, expectedLength);
       foreach (var statement in statements) {
-        var statementAsSpan = (ReadOnlySpan<char>) statement;
-        var actualStatement = statementAsSpan
+        var actualStatement = statement.AsSpan()
           .Trim()
           .TryCutPrefix(BatchBegin)
           .TryCutSuffix(BatchEnd)
           .TryCutSuffix(NewLine)
           .TryCutSuffix(BatchItemDelimiter)
           .Trim();
-        if (actualStatement.Length == 0)
-          continue;
-        _ = builder.Append(actualStatement)
-          .Append(BatchItemDelimiter)
-          .Append(NewLine);
+        if (actualStatement.Length != 0) {
+          _ = sb.Append(actualStatement)
+            .Append(BatchItemDelimiter)
+            .Append(NewLine);
+        }
       }
-      _ = builder.Append(BatchEnd);
-      return builder.ToString();
+      return sb.Append(BatchEnd).ToString();
     }
 
     /// <summary>
@@ -2492,6 +2518,7 @@ namespace Xtensive.Sql.Compiler
     /// <remarks>
     /// Use TranslateString instead of this method within SqlTranslators/SqlCompilers where possible.
     /// </remarks>
+    [Obsolete]
     public virtual string QuoteString(string str)
     {
       //Use TranslateString instead of this method within SqlTranslators/SqlCompilers where possible

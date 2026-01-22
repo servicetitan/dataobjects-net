@@ -11,6 +11,8 @@ namespace Xtensive.Orm.Internals
   public readonly struct PinnerDisposableRemover(HashSet<EntityState> roots, EntityState state) : IDisposable
   {
     public void Dispose() => roots?.Remove(state);
+
+    internal bool IsDefault => roots==null && state==null;
   }
 
   internal struct Pinner(Session session)

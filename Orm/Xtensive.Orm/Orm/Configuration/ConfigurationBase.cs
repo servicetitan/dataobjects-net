@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc/>
-    public override void Lock(bool recursive)
+    public override void Lock(bool recursive = true)
     {
       Validate();
       base.Lock(recursive);

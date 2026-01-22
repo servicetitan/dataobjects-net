@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Rse.Transformation
       }
       var filteredColumns = provider.FilteredColumns
         .Select(el => (ColNum) mappings[provider].IndexOf(el))
-        .ToArray(provider.FilteredColumns.Count);
+        .ToArray();
       return new IncludeProvider(source, provider.Algorithm, provider.IsInlined,
         provider.FilterDataSource, provider.ResultColumnName, filteredColumns);
     }
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Rse.Transformation
       var requiredColumns = mappings[provider];
       var remappedColumns = requiredColumns
         .Select(c => provider.ColumnIndexes[c])
-        .ToList(requiredColumns.Count);
+        .ToList();
 
       mappings[provider.Source] = remappedColumns;
       var source = VisitCompilable(provider.Source);
@@ -262,7 +262,7 @@ namespace Xtensive.Orm.Rse.Transformation
       using ColumnMap sourceMap = new(mappings[provider.Source]);
       var currentMap = mappings[provider];
 
-      mappings[provider] = provider.Header.Columns.Columns.Select(c => c.Index).ToList(provider.Header.Columns.Count);
+      mappings[provider] = provider.Header.Columns.Columns.Select(c => c.Index).ToList();
 
       if (source == provider.Source) {
         return provider;
@@ -279,7 +279,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       var groupColumnIndexes = provider.GroupColumnIndexes
         .Select(index => (ColNum)sourceMap.IndexOf(index))
-        .ToArray(provider.GroupColumnIndexes.Count);
+        .ToArray();
 
       return new AggregateProvider(source, groupColumnIndexes, columns);
     }
@@ -408,7 +408,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       var columns = expectedColumns
         .Select(originalIndex => (OriginalIndex: originalIndex, NewIndex: (ColNum) returningColumns.IndexOf(originalIndex)))
-        .Select(x => x.NewIndex < 0 ? x.OriginalIndex : x.NewIndex).ToArray(expectedColumns.Count);
+        .Select(x => x.NewIndex < 0 ? x.OriginalIndex : x.NewIndex).ToArray();
       return new SelectProvider(provider, columns);
     }
 
@@ -434,16 +434,11 @@ namespace Xtensive.Orm.Rse.Transformation
 
     #region Private methods
 
-    private static List<ColNum> Merge(IEnumerable<ColNum> left, IEnumerable<ColNum> right) =>
-      left.Union(right).OrderBy(i => i).ToList();
-
-    private static List<int> Merge(IEnumerable<int> left, IEnumerable<int> right)
+    private static List<ColNum> Merge(IEnumerable<ColNum> left, IEnumerable<ColNum> right)
     {
-      var hs = new HashSet<int>(left);
-      foreach (var r in right) {
-        _ = hs.Add(r);
-      }
-      var resultList = hs.ToList(hs.Count);
+      HashSet<ColNum> hs = new(left);
+      hs.UnionWith(right);
+      var resultList = hs.ToList();
       resultList.Sort();
       return resultList;
     }
@@ -522,9 +517,9 @@ namespace Xtensive.Orm.Rse.Transformation
       ref List<ColNum> rightMapping, ref CompilableProvider right, bool skipSort)
     {
       if (!skipSort) {
-        leftMapping = leftMapping.Distinct().ToList(leftMapping.Count);
+        leftMapping = leftMapping.Distinct().ToList();
         leftMapping.Sort();
-        rightMapping = rightMapping.Distinct().ToList(rightMapping.Count);
+        rightMapping = rightMapping.Distinct().ToList();
         rightMapping.Sort();
       }
 

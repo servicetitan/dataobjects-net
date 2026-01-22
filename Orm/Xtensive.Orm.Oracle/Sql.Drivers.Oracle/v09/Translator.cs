@@ -19,9 +19,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
   internal class Translator : SqlTranslator
   {
     /// <inheritdoc/>
-    public override string NewLine => "\n";
-
-    /// <inheritdoc/>
     public override string BatchBegin => "BEGIN\n";
 
     /// <inheritdoc/>
@@ -39,7 +36,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     /// <inheritdoc/>
     public override string TimeSpanFormatString => "(INTERVAL '{0}{1} {2}:{3}:{4}.{5:000}' DAY(6) TO SECOND(3))";
 
-    public string DateTimeOffsetFormatString => @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\ zzz\'\)";
+    public override string DateTimeOffsetFormatString => @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\ zzz\'\)";
 
     public override void Initialize()
     {
@@ -61,6 +58,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     public override SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithQuotes;
 
     /// <inheritdoc/>
+    [Obsolete]
     public override string QuoteString(string str) => "N" + base.QuoteString(str);
 
     /// <inheritdoc/>

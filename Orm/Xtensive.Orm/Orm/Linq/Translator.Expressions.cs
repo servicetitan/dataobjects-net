@@ -133,7 +133,7 @@ namespace Xtensive.Orm.Linq
               || u.Type.IsAssignableFrom(u.Operand.Type)
               || !WellKnownOrmInterfaces.Entity.IsAssignableFrom(u.Operand.Type))
               return base.VisitUnary(u);
-            throw new InvalidOperationException(String.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u, u.Operand.Type, u.Type));
+            throw new InvalidOperationException(string.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u, u.Operand.Type, u.Type));
           }
           else if (u.Type == WellKnownTypes.Object && State.ShouldOmitConvertToObject) {
             var expression = u.StripCasts();
@@ -286,7 +286,7 @@ namespace Xtensive.Orm.Linq
           return newArrayExpression.Expressions[(int) indexExpression.Value];
         }
 
-        throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionXOfTypeXIsNotSupported, binaryExpression.ToString(true), binaryExpression.NodeType));
+        throw new NotSupportedException(string.Format(Strings.ExBinaryExpressionXOfTypeXIsNotSupported, binaryExpression.ToString(true), binaryExpression.NodeType));
       }
 
       return resultBinaryExpression;
@@ -571,15 +571,15 @@ namespace Xtensive.Orm.Linq
     {
       TypeInfo type;
       if (!context.Model.Types.TryGetValue(elementType, out type))
-        throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+        throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
       var fullTextIndex = type.FullTextIndex;
       if (fullTextIndex == null)
-        throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHaveFullTextIndex, elementType.FullName));
+        throw new InvalidOperationException(string.Format(Strings.ExEntityDoesNotHaveFullTextIndex, elementType.FullName));
       var searchCriteria = expressions[0];
       if (compiledQueryScope != null
           && searchCriteria.NodeType == ExpressionType.Constant
           && searchCriteria.Type == WellKnownTypes.String)
-        throw new InvalidOperationException(String.Format(Strings.ExFreeTextNotSupportedInCompiledQueries, ((ConstantExpression) searchCriteria).Value));
+        throw new InvalidOperationException(string.Format(Strings.ExFreeTextNotSupportedInCompiledQueries, ((ConstantExpression) searchCriteria).Value));
 
       // Prepare parameter
       Func<ParameterContext, string> compiledParameter;
@@ -629,10 +629,10 @@ namespace Xtensive.Orm.Linq
     {
       TypeInfo type;
       if (!context.Model.Types.TryGetValue(elementType, out type))
-        throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+        throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
       var fullTextIndex = type.FullTextIndex;
       if (fullTextIndex == null)
-        throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHaveFullTextIndex, elementType.FullName));
+        throw new InvalidOperationException(string.Format(Strings.ExEntityDoesNotHaveFullTextIndex, elementType.FullName));
       if (!context.ProviderInfo.Supports(ProviderFeatures.SingleKeyRankTableFullText))
         throw new NotSupportedException(Strings.ExCurrentProviderDoesNotSupportContainsTableFunctionality);
 
@@ -841,7 +841,7 @@ namespace Xtensive.Orm.Linq
           var leftKeyExpression = left as KeyExpression;
           var rightKeyExpression = right as KeyExpression;
           if (leftKeyExpression == null && rightKeyExpression == null)
-            throw new InvalidOperationException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotKeyExpression, originalBinaryExpression.ToString(true)));
+            throw new InvalidOperationException(string.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotKeyExpression, originalBinaryExpression.ToString(true)));
           // Check key compatibility
           leftKeyExpression.EnsureKeyExpressionCompatible(rightKeyExpression, originalBinaryExpression);
           // Key split to it's fields.
@@ -857,7 +857,7 @@ namespace Xtensive.Orm.Linq
           if (leftEntityExpression == null && rightEntityExpression == null)
             if (!IsConditionalOrWellknown(left) && !IsConditionalOrWellknown(right))
               throw new NotSupportedException(
-                String.Format(
+                string.Format(
                   Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotEntityExpressionEntityFieldExpression,
                   binaryExpression));
           var type = left.Type == WellKnownTypes.Object
@@ -892,7 +892,7 @@ namespace Xtensive.Orm.Linq
           var leftStructureExpression = left as StructureFieldExpression;
           var rightStructureExpression = right as StructureFieldExpression;
           if (leftStructureExpression == null && rightStructureExpression == null)
-            throw new NotSupportedException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotStructureExpression, binaryExpression));
+            throw new NotSupportedException(string.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotStructureExpression, binaryExpression));
 
           StructureFieldExpression structureFieldExpression = (leftStructureExpression ?? rightStructureExpression);
           leftExpressions = GetStructureFields(left, structureFieldExpression.Fields, structureFieldExpression.Type);
@@ -956,7 +956,7 @@ namespace Xtensive.Orm.Linq
             pairExpression = Expression.NotEqual(leftItem, rightItem);
             break;
           default:
-            throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported,
+            throw new NotSupportedException(string.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported,
               binaryExpression.NodeType));
         }
 
@@ -1119,19 +1119,17 @@ namespace Xtensive.Orm.Linq
       expression = expression.StripCasts();
       if (expression is IEntityExpression iEntityExpression) {
         var keyFields = iEntityExpression.Key.KeyFields;
-        return keyFields
-          .Cast<Expression>()
-          .ToArray(keyFields.Count);
+        return keyFields.Cast<Expression>().ToArray();
       }
       if (expression.IsNull()) {
         return keyFieldTypes
           .Select(type => (Expression) Expression.Constant(null, type.ToNullable()))
-          .ToArray(keyFieldTypes.Count);
+          .ToArray();
       }
       if (IsConditionalOrWellknown(expression)) {
         return keyFieldTypes
           .Select((type, index) => GetConditionalKeyField(expression, type, index))
-          .ToArray(keyFieldTypes.Count);
+          .ToArray();
       }
 
       var nullEntityExpression = Expression.Constant(null, expression.Type);
@@ -1179,14 +1177,14 @@ namespace Xtensive.Orm.Linq
         return keyExpression
           .KeyFields
           .Cast<Expression>()
-          .ToArray(keyExpression.KeyFields.Count);
+          .ToArray();
       }
 
       if (expression.IsNull())
         return keyFields
           .Select(f => f.Type)
           .Select(type => (Expression) Expression.Constant(null, type.ToNullable()))
-          .ToArray(keyFields.Count);
+          .ToArray();
 
       var nullExpression = Expression.Constant(null, expression.Type);
       var isNullExpression = Expression.Equal(expression, nullExpression);
@@ -1205,7 +1203,7 @@ namespace Xtensive.Orm.Linq
           _ = State.NonVisitableExpressions.Add(checkForNulls);
           return checkForNulls;
         })
-        .ToArray(keyFields.Count);
+        .ToArray();
     }
 
     private Expression ProcessProjectionElement(Expression body)
@@ -1290,7 +1288,7 @@ namespace Xtensive.Orm.Linq
         }
         return null;
       });
-      entityFinder.Replace(expression);
+      _ = entityFinder.Replace(expression);
       return found;
     }
 
@@ -1319,10 +1317,10 @@ namespace Xtensive.Orm.Linq
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
     {
       if (State.Parameters.Count == 0)
-        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters, subQuery), OrmLog.Instance);
+        throw Exceptions.InternalError(string.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters, subQuery), OrmLog.Instance);
 
       if (!resultType.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT))
-        throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXResultTypeIsNotIEnumerable, subQuery), OrmLog.Instance);
+        throw Exceptions.InternalError(string.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXResultTypeIsNotIEnumerable, subQuery), OrmLog.Instance);
 
       ApplyParameter applyParameter = context.GetApplyParameter(context.Bindings[State.Parameters[0]]);
       if (subQuery.Type != resultType)
@@ -1343,7 +1341,7 @@ namespace Xtensive.Orm.Linq
           .Select((methodInfo, index) => (methodInfo.Name, Argument: newExpression.Arguments[index]))
           .OrderBy(a => a.Name)
           .Select(a => a.Argument);
-        return arguments.ToArray(newExpression.Members.Count);
+        return arguments.ToArray();
       }
 
       if (expression.NodeType == ExpressionType.Constant) {
@@ -1358,7 +1356,7 @@ namespace Xtensive.Orm.Linq
 
           return orderedProps1
             .Select(p => (Expression) Expression.MakeMemberAccess(constantExpression, p))
-            .ToArray(orderedProps1.Length);
+            .ToArray();
         }
       }
 
@@ -1369,7 +1367,7 @@ namespace Xtensive.Orm.Linq
 
       return orderedProps
         .Select(p => (Expression) Expression.MakeMemberAccess(expression, p))
-        .ToArray(orderedProps.Length);
+        .ToArray();
 
       static int CompareProps(PropertyInfo p1, PropertyInfo p2)
       {
@@ -1795,7 +1793,7 @@ namespace Xtensive.Orm.Linq
       var tupleDescriptor = itemToTupleConverter.TupleDescriptor;
       Column[] columns = tupleDescriptor
         .Select(x => new SystemColumn(translatorContext.GetNextColumnAlias(), 0, x))
-        .ToArray(tupleDescriptor.Count);
+        .ToArray();
       var rsHeader = new RecordSetHeader(tupleDescriptor, columns);
       var rawProvider = new RawProvider(rsHeader, itemToTupleConverter.GetEnumerable());
       var recordset = new StoreProvider(rawProvider);

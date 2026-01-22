@@ -4,136 +4,107 @@
 // Created by: Alexey Kochetov
 // Created:    2007.09.24
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using Xtensive.Core;
 
-namespace Xtensive.Collections
+namespace Xtensive.Collections;
+
+/// <summary>
+/// Lightweight base class for any collection.
+/// </summary>
+[Serializable]
+[DebuggerDisplay("Count = {Count}")]
+public class CollectionBaseSlim<TItem> : List<TItem>, ILockable
 {
+  /// <inheritdoc/>
+  public bool IsLocked { [DebuggerStepThrough] get; private set; }
+
+  [MethodImpl(MethodImplOptions.NoInlining)]
+  private static void ThrowInstanceIsLockedException() => throw new InstanceIsLockedException(Strings.ExInstanceIsLocked);
+
   /// <summary>
-  /// Lightweight base class for any collection.
+  /// Ensures the object is not locked (see <see cref="ILockable.Lock()"/>) yet.
   /// </summary>
-  [Serializable]
-  [DebuggerDisplay("Count = {Count}")]
-  public class CollectionBaseSlim<TItem>: LockableBase,
-    ICollection<TItem>, IReadOnlyList<TItem>
+  /// <exception cref="InstanceIsLockedException">The instance is locked.</exception>
+  public void EnsureNotLocked()
   {
-    [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-    private readonly List<TItem> items;
-
-    /// <inheritdoc/>
-    public virtual bool IsReadOnly {
-      [DebuggerStepThrough]
-      get => IsLocked;
+    if (IsLocked) {
+      ThrowInstanceIsLockedException();
     }
+  }
 
-    /// <inheritdoc/>
-    public int Count
-    {
-      [DebuggerStepThrough]
-      get => items.Count;
-    }
+  /// <inheritdoc/>
+  public virtual void Lock(bool recursive = true) => IsLocked = true;
 
-    /// <inheritdoc/>
-    public virtual TItem this[int index]
-    {
-      [DebuggerStepThrough]
-      get => items[index];
-    }
-
-    /// <inheritdoc/>
+  /// <inheritdoc/>
+  public virtual bool IsReadOnly {
     [DebuggerStepThrough]
-    public virtual bool Contains(TItem item)
-      => items.Contains(item);
+    get => IsLocked;
+  }
 
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public virtual void CopyTo(TItem[] array, int arrayIndex)
-      => items.CopyTo(array, arrayIndex);
+  /// <inheritdoc/>
+  [DebuggerStepThrough]
+  public new virtual bool Contains(TItem item) => base.Contains(item);
 
-    #region GetEnumerator<...> methods
+  #region Modification methods: Add, Remove, etc.
 
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public List<TItem>.Enumerator GetEnumerator()
-      => items.GetEnumerator();
+  /// <inheritdoc/>
+  public new virtual void Add(TItem item)
+  {
+    EnsureNotLocked();
+    base.Add(item);
+  }
 
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    IEnumerator<TItem> IEnumerable<TItem>.GetEnumerator()
-      => items.GetEnumerator();
-    
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    IEnumerator IEnumerable.GetEnumerator()
-      => items.GetEnumerator();
+  /// <summary>
+  /// Adds the elements of the specified collection to the end of the <see cref="CollectionBaseSlim{TItem}"/>.
+  /// </summary>
+  /// <param name="collection">The collection whose elements should be added to the end of the <see cref="CollectionBaseSlim{TItem}"/>. The collection itself cannot be null, but it can contain elements that are null, if type T is a reference type.</param>
+  /// <exception cref="T:System.ArgumentNullException">collection is null.</exception>
+  public new virtual void AddRange(IEnumerable<TItem> collection)
+  {
+    EnsureNotLocked();
+    base.AddRange(collection);
+  }
 
-    #endregion
+  /// <inheritdoc/>
+  public new virtual bool Remove(TItem item)
+  {
+    EnsureNotLocked();
+    return base.Remove(item);
+  }
 
-    #region Modification methods: Add, Remove, etc.
+  /// <inheritdoc/>
+  public new virtual void Clear()
+  {
+    EnsureNotLocked();
+    base.Clear();
+  }
 
-    /// <inheritdoc/>
-    public virtual void Add(TItem item)
-    {
-      EnsureNotLocked();
-      items.Add(item);
-    }
+  #endregion
 
-    /// <summary>
-    /// Adds the elements of the specified collection to the end of the <see cref="CollectionBaseSlim{TItem}"/>.
-    /// </summary>
-    /// <param name="collection">The collection whose elements should be added to the end of the <see cref="CollectionBaseSlim{TItem}"/>. The collection itself cannot be null, but it can contain elements that are null, if type T is a reference type.</param>
-    /// <exception cref="T:System.ArgumentNullException">collection is null.</exception>
-    public virtual void AddRange(IEnumerable<TItem> collection)
-    {
-      EnsureNotLocked();
-      items.AddRange(collection);
-    }
+  // Constructors
 
-    /// <inheritdoc/>
-    public virtual bool Remove(TItem item)
-    {
-      EnsureNotLocked();
-      return items.Remove(item);
-    }
+  /// <summary>
+  /// Initializes a new instance of this type.
+  /// </summary>
+  public CollectionBaseSlim()
+  {
+  }
 
-    /// <inheritdoc/>
-    public virtual void Clear()
-    {
-      EnsureNotLocked();
-      items.Clear();
-    }
+  /// <summary>
+  /// Initializes a new instance of this type.
+  /// </summary>
+  /// <param name="capacity">The capacity.</param>
+  public CollectionBaseSlim(int capacity) : base(capacity)
+  {
+  }
 
-    #endregion
-
-    // Constructors
-
-    /// <summary>
-    /// Initializes a new instance of this type.
-    /// </summary>
-    public CollectionBaseSlim()
-    {
-      items = new List<TItem>();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this type.
-    /// </summary>
-    /// <param name="capacity">The capacity.</param>
-    public CollectionBaseSlim(int capacity)
-    {
-      items = new List<TItem>(capacity);
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this type.
-    /// </summary>
-    /// <param name="collection">The collection.</param>
-    public CollectionBaseSlim(IEnumerable<TItem> collection)
-    {
-      items = new List<TItem>(collection);
-    }
+  /// <summary>
+  /// Initializes a new instance of this type.
+  /// </summary>
+  /// <param name="collection">The collection.</param>
+  public CollectionBaseSlim(IEnumerable<TItem> collection) : base(collection)
+  {
   }
 }

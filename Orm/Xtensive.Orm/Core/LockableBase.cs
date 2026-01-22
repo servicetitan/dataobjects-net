@@ -4,50 +4,34 @@
 // Created by: Alex Yakunin
 // Created:    2007.11.22
 
-using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
+namespace Xtensive.Core;
 
-namespace Xtensive.Core
+/// <summary>
+/// Base class for <see cref="ILockable"/> implementors.
+/// </summary>
+[Serializable]
+public abstract class LockableBase(bool isLocked = false) : ILockable
 {
+  /// <inheritdoc/>
+  public bool IsLocked { [DebuggerStepThrough] get; private set; } = isLocked;
+
+  [MethodImpl(MethodImplOptions.NoInlining)]
+  private static void ThrowInstanceIsLockedException() => throw new InstanceIsLockedException(Strings.ExInstanceIsLocked);
+
   /// <summary>
-  /// Base class for <see cref="ILockable"/> implementors.
+  /// Ensures the object is not locked (see <see cref="ILockable.Lock()"/>) yet.
   /// </summary>
-  [Serializable]
-  public abstract class LockableBase: ILockable
+  /// <exception cref="InstanceIsLockedException">The instance is locked.</exception>
+  public void EnsureNotLocked()
   {
-
-    /// <inheritdoc/>
-    public bool IsLocked { [DebuggerStepThrough] get; private set; }
-
-    /// <summary>
-    /// Ensures the object is not locked (see <see cref="ILockable.Lock()"/>) yet.
-    /// </summary>
-    /// <exception cref="InstanceIsLockedException">The instance is locked.</exception>
-    public void EnsureNotLocked()
-    {
-      if (IsLocked) {
-        throw new InstanceIsLockedException(Strings.ExInstanceIsLocked);
-      }
-    }
-
-    /// <inheritdoc/>
-    public void Lock() => Lock(true);
-
-    /// <inheritdoc/>
-    public virtual void Lock(bool recursive) => IsLocked = true;
-
-
-
-    // Constructors
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    /// <param name="isLocked">Initial <see cref="IsLocked"/> property value.</param>
-    protected LockableBase(bool isLocked = false)
-    {
-      IsLocked = isLocked;
+    if (IsLocked) {
+      ThrowInstanceIsLockedException();
     }
   }
+
+  /// <inheritdoc/>
+  public virtual void Lock(bool recursive = true) => IsLocked = true;
 }

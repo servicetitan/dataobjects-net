@@ -558,7 +558,7 @@ namespace Xtensive.Sql
       ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsArithmeticExpression(operand);
       if (part == SqlDateTimePart.Nothing) {
-        throw new ArgumentException(string.Format("Unable to extract {0} part", SqlDateTimePart.Nothing.ToString()));
+        throw new ArgumentException($"Unable to extract {SqlDateTimePart.Nothing.ToString()} part");
       }
       return new SqlExtract(part, operand);
     }
@@ -568,7 +568,7 @@ namespace Xtensive.Sql
       ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsArithmeticExpression(operand);
       if (part == SqlDatePart.Nothing) {
-        throw new ArgumentException(string.Format("Unable to extract {0} part", SqlDatePart.Nothing.ToString()));
+        throw new ArgumentException($"Unable to extract {SqlDatePart.Nothing.ToString()} part");
       }
       return new SqlExtract(part, operand);
     }
@@ -578,7 +578,7 @@ namespace Xtensive.Sql
       ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsArithmeticExpression(operand);
       if (part == SqlTimePart.Nothing) {
-        throw new ArgumentException(string.Format("Unable to extract {0} part", SqlTimePart.Nothing.ToString()));
+        throw new ArgumentException($"Unable to extract {SqlTimePart.Nothing.ToString()} part");
       }
       return new SqlExtract(part, operand);
     }
@@ -588,7 +588,7 @@ namespace Xtensive.Sql
       ArgumentNullException.ThrowIfNull(operand);
       SqlValidator.EnsureIsArithmeticExpression(operand);
       if (part == SqlIntervalPart.Nothing) {
-        throw new ArgumentException(string.Format("Unable to extract {0} part", SqlIntervalPart.Nothing.ToString()));
+        throw new ArgumentException($"Unable to extract {SqlIntervalPart.Nothing.ToString()} part");
       }
       return new SqlExtract(part, operand);
     }
@@ -1691,10 +1691,10 @@ namespace Xtensive.Sql
       return result;
     }
 
-    public static SqlSelect Select(SqlTable table)
+    public static SqlSelect Select(SqlTable table, int? capacity = null)
     {
       ArgumentNullException.ThrowIfNull(table);
-      return new SqlSelect(table);
+      return new SqlSelect(table, capacity);
     }
 
     #endregion
@@ -1706,7 +1706,7 @@ namespace Xtensive.Sql
       return new SqlConcat(new [] {left, right});
     }
 
-    public static SqlConcat Concat(params SqlExpression[] items)
+    public static SqlConcat Concat(params IReadOnlyList<SqlExpression> items)
     {
       ArgumentNullException.ThrowIfNull(items);
       foreach (var item in items)

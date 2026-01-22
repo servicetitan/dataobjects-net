@@ -97,9 +97,8 @@ namespace Xtensive.Tuples.Packed
 
     public override T GetValue<T>(int fieldIndex, out TupleFieldState fieldState)
     {
-      var isNullable = null == default(T); // Is nullable value type or class
       var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
-      return descriptor.Accessor.GetValue<T>(this, descriptor, isNullable, out fieldState);
+      return descriptor.Accessor.GetValue<T>(this, descriptor, out fieldState);
     }
 
     public override void SetValue(int fieldIndex, object fieldValue)

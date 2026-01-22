@@ -51,7 +51,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
       else {
         var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
-        if (connectionAccessorEx == null) {
+        if (connectionAccessorEx is null) {
           OpenWithCheckFast(DefaultCheckConnectionQuery);
         }
         else {
@@ -69,7 +69,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
 
       var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
-      if (connectionAccessorEx == null) {
+      if (connectionAccessorEx is null) {
         return OpenWithCheckFastAsync(DefaultCheckConnectionQuery, cancellationToken);
       }
       else {
@@ -89,7 +89,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
         ? DefaultCheckConnectionQuery
         : initializationScript;
       var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
-      if (connectionAccessorEx == null) {
+      if (connectionAccessorEx is null) {
         OpenWithCheckFast(script);
       }
       else {
@@ -108,7 +108,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
         ? DefaultCheckConnectionQuery
         : initializationScript;
       var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
-      return connectionAccessorEx == null
+      return connectionAccessorEx is null
         ? OpenWithCheckFastAsync(script, token)
         : OpenWithCheckAndNotificationAsync(script, connectionAccessorEx, token);
     }

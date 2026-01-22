@@ -23,14 +23,9 @@ namespace Xtensive.Core
     bool IsLocked { get; }
 
     /// <summary>
-    /// Locks the instance recursively.
-    /// </summary>
-    void Lock() => Lock(true);
-
-    /// <summary>
     /// Locks the instance and (possibly) all dependent objects.
     /// </summary>
     /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
-    void Lock(bool recursive);
+    void Lock(bool recursive = true);
   }
 }

@@ -4,12 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2009.10.12
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Reflection;
-using ServiceRegistrationKey = System.ValueTuple<System.Type, bool>;
 
 namespace Xtensive.IoC
 {
@@ -19,37 +16,34 @@ namespace Xtensive.IoC
   /// Describes single service mapping entry for <see cref="ServiceContainer"/>.
   /// </summary>
   [Serializable]
-  public sealed class ServiceRegistration
+  public readonly struct ServiceRegistration
   {
-    private static readonly ConcurrentDictionary<ServiceRegistrationKey, Lazy<ServiceRegistration[]>> serviceRegistrationsByType =
-      new ConcurrentDictionary<ServiceRegistrationKey, Lazy<ServiceRegistration[]>>();
-
-    private static readonly Func<ServiceRegistrationKey, Lazy<ServiceRegistration[]>> ServiceRegistrationsExtractor = ServiceRegistrationsExtractorImpl;
+    private static readonly ConcurrentDictionary<ServiceRegistrationKey, ServiceRegistration[]> serviceRegistrationsByType = new();
 
     /// <summary>
     /// Gets the type of the service.
     /// </summary>
-    public Type Type { get; private set; }
+    public Type Type { get; }
 
     /// <summary>
     /// Gets the name of the service.
     /// </summary>
-    public string Name { get; private set; }
+    public string Name { get; }
 
     /// <summary>
     /// Gets the type it is mapped to.
     /// </summary>
-    public Type MappedType { get; private set; }
+    public Type MappedType { get; }
 
     /// <summary>
     /// Gets the instance it is mapped to.
     /// </summary>
-    public object MappedInstance { get; private set; }
+    public object MappedInstance { get; }
 
     /// <summary>
     /// Gets a value indicating whether this service is singleton.
     /// </summary>
-    public bool Singleton { get; private set; }
+    public bool Singleton { get; }
 
 
     // Static constructor-like methods
@@ -78,26 +72,24 @@ namespace Xtensive.IoC
     /// An array of <see cref="ServiceRegistration"/> objects.
     /// </returns>
     public static ServiceRegistration[] CreateAll(Type type, bool defaultOnly) =>
-      serviceRegistrationsByType.GetOrAdd(new ServiceRegistrationKey(type, defaultOnly), ServiceRegistrationsExtractor).Value;
-
-    private static Lazy<ServiceRegistration[]> ServiceRegistrationsExtractorImpl(ServiceRegistrationKey key) =>
-      new Lazy<ServiceRegistration[]>(() => {
-        (var type, var defaultOnly) = key;
-        ArgumentNullException.ThrowIfNull(type);
-        if (type.IsAbstract) {
-          return Array.Empty<ServiceRegistration>();
-        }
-
-        var attributes = type.GetAttributes<ServiceAttribute>(AttributeSearchOptions.InheritNone);
-        var registrations = new List<ServiceRegistration>(attributes.Count);
-        foreach (var sa in attributes) {
-          if (!defaultOnly || sa.Default) {
-            registrations.Add(new ServiceRegistration(sa.Type, sa.Name.IsNullOrEmpty() ? null : sa.Name, type, sa.Singleton));
+      serviceRegistrationsByType.GetOrAdd(new ServiceRegistrationKey(type, defaultOnly),
+        static key => {
+          (var type, var defaultOnly) = key;
+          ArgumentNullException.ThrowIfNull(type);
+          if (type.IsAbstract) {
+            return [];
           }
-        }
-        return registrations.ToArray();
-      });
 
+          var attributes = type.GetAttributes<ServiceAttribute>(AttributeSearchOptions.InheritNone);
+          var registrations = new List<ServiceRegistration>(attributes.Count);
+          foreach (var sa in attributes) {
+            if (!defaultOnly || sa.Default) {
+              registrations.Add(new ServiceRegistration(sa.Type, sa.Name.IsNullOrEmpty() ? null : sa.Name, type, sa.Singleton));
+            }
+          }
+
+          return registrations.ToArray();
+        });
 
     // Constructors
 

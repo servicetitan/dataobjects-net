@@ -4,11 +4,7 @@
 // Created by: Alex Ustinov
 // Created:    2007.07.10
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -321,7 +317,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override void Lock(bool recursive)
+    public override void Lock(bool recursive = true)
     {
       base.Lock(recursive);
       if (!recursive)
@@ -341,14 +337,14 @@ namespace Xtensive.Orm.Model
     private void CreateTupleDescriptors()
     {
       tupleDescriptor = TupleDescriptor.Create(
-        Columns.Select(static c => c.ValueType).ToArray(Columns.Count));
+        Columns.Select(static c => c.ValueType).ToArray());
       keyTupleDescriptor = TupleDescriptor.Create(
-        KeyColumns.Select(static c => c.Key.ValueType).ToArray(KeyColumns.Count));
+        KeyColumns.Select(static c => c.Key.ValueType).ToArray());
     }
 
     private void CreateColumns()
     {
-      Columns = KeyColumns.Select(static pair => pair.Key).Concat(ValueColumns).ToArray(KeyColumns.Count + ValueColumns.Count).AsSafeWrapper();
+      Columns = KeyColumns.Select(static pair => pair.Key).Concat(ValueColumns).ToArray().AsSafeWrapper();
     }
 
     /// Unsubscribe ColumnInfoCollections from FieldInfo events to avoid memory leak.

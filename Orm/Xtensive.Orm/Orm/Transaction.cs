@@ -52,7 +52,7 @@ namespace Xtensive.Orm
     public static void Require(Session session)
     {
       ArgumentNullException.ThrowIfNull(session);
-      session.DemandTransaction();
+      _ = session.DemandTransaction();
     }
 
     #endregion

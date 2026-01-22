@@ -65,7 +65,7 @@ namespace Xtensive.Collections
       return type.IsSubclassOf(BaseType) && (ns.IsNullOrEmpty() || (type.FullName.IndexOf(ns + ".", StringComparison.InvariantCulture) >= 0));
     }
 
-    private static IList<Type> FindTypes(Assembly assembly, Type baseType, TypeFilter filter)
+    private static IReadOnlyList<Type> FindTypes(Assembly assembly, Type baseType, TypeFilter filter)
     {
       ArgumentNullException.ThrowIfNull(assembly);
       ArgumentNullException.ThrowIfNull(baseType);

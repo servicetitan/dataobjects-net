@@ -708,7 +708,7 @@ namespace Xtensive.Orm.Configuration
     /// Locks the instance and (possible) all dependent objects.
     /// </summary>
     /// <param name="recursive"><see langword="True"/> if all dependent objects should be locked as well.</param>
-    public override void Lock(bool recursive)
+    public override void Lock(bool recursive = true)
     {
       var multischema = GetIsMultischema();
       var multidatabase = GetIsMultidatabase();
@@ -854,7 +854,7 @@ namespace Xtensive.Orm.Configuration
     /// the <see cref="Domain"/> with specified <paramref name="name"/>.</exception>
     public static DomainConfiguration Load(string sectionName, string name)
     {
-      var section = (ConfigurationSection)ConfigurationManager.GetSection(sectionName);
+      var section = (ConfigurationSection)System.Configuration.ConfigurationManager.GetSection(sectionName);
       if (section == null) {
         throw new InvalidOperationException(string.Format(
           Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));

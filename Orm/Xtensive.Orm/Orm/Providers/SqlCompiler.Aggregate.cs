@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Providers
       var columnNames = columns.Select((c, i) =>
         i >= sqlSelect.Columns.Count
           ? sqlSelect.From.Columns[i].Name
-          : sqlSelect.Columns[i].Name).ToArray(columns.Count);
+          : sqlSelect.Columns[i].Name).ToArray();
       sqlSelect.Columns.Clear();
 
       var groupColumnIndexes = provider.GroupColumnIndexes;

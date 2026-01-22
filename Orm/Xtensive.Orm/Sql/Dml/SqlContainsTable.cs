@@ -85,15 +85,13 @@ namespace Xtensive.Sql.Dml
       TargetTable = SqlDml.TableRef(dataTable);
       SearchCondition = searchCondition;
       TopNByRank = topNByRank;
-      var targetColumnCount = targetColumnNames.Count;
-      if (targetColumnCount == 0) {
-        TargetColumns = new SqlTableColumnCollection([Asterisk]);
-      }
-      else {
-        TargetColumns = new SqlTableColumnCollection(targetColumnNames.Select(columnName => SqlDml.TableColumn(this, columnName)).ToArray(targetColumnCount));
-      }
+      TargetColumns = new SqlTableColumnCollection(
+        targetColumnNames.Count == 0
+          ? [Asterisk]
+          : targetColumnNames.Select(columnName => SqlDml.TableColumn(this, columnName)).ToArray()
+        );
 
-      columns = new SqlTableColumnCollection(columnNames.Select(columnName => SqlDml.TableColumn(this, columnName)).ToArray(columnNames.Count));
+      columns = new SqlTableColumnCollection(columnNames.Select(columnName => SqlDml.TableColumn(this, columnName)).ToArray());
     }
   }
 }

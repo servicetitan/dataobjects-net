@@ -4,13 +4,10 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
-using System;
 using System.Collections;
 using System.Collections.Frozen;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.IoC;
 
@@ -28,7 +25,7 @@ namespace Xtensive.Collections
     private readonly List<Type> types = new List<Type>();
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private ISet<Type> typeSet = new HashSet<Type>();
-    private readonly List<TypeRegistration> actions = new List<TypeRegistration>();
+    private List<TypeRegistration> actions = new List<TypeRegistration>();
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly HashSet<TypeRegistration> actionSet = new HashSet<TypeRegistration>();
     private readonly ITypeRegistrationProcessor processor;
@@ -110,9 +107,8 @@ namespace Xtensive.Collections
     public bool Register(in TypeRegistration action)
     {
       EnsureNotLocked();
-      if (actionSet.Contains(action))
+      if (!actionSet.Add(action))
         return false;
-      actionSet.Add(action);
       actions.Add(action);
       return true;
     }
@@ -126,8 +122,8 @@ namespace Xtensive.Collections
       isProcessingPendingActions = true;
       try {
         while (true) {
-          var oldActions = actions.ToList();
-          actions.Clear();
+          var oldActions = actions;
+          actions = new();
           foreach (var action in oldActions)
             processor.Process(this, action);
           if (actions.Count == 0)

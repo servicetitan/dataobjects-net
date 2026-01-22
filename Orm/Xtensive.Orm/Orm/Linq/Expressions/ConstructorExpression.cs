@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Linq
         Bindings.ToDictionary(kvp => kvp.Key, kvp => genericBinder(kvp.Value)),
         NativeBindings.ToDictionary(kvp=>kvp.Key, kvp => genericBinder(kvp.Value)),
         Constructor,
-        ConstructorArguments.Select(genericBinder).ToArray(ConstructorArguments.Count));
+        ConstructorArguments.Select(genericBinder).ToArray());
     }
 
     public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)

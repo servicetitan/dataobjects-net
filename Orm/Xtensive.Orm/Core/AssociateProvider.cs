@@ -37,13 +37,13 @@ namespace Xtensive.Core
     }
 
     [NonSerialized]
+    private readonly object highPriorityLocationsLock = new object();
+
+    [NonSerialized]
     private ConcurrentDictionary<(Type, Type), Lazy<object>> cache;
 
     private object[] constructorParams;
     private string[] typeSuffixes;
-
-    [NonSerialized]
-    private Lock highPriorityLocationsLock = new();
 
     private List<(Assembly, string)> highPriorityLocations = new();
 
@@ -305,7 +305,7 @@ namespace Xtensive.Core
       typeSuffixes = (string[]) info.GetValue(nameof(typeSuffixes), typeof(string[]));
 
       var highPriorityLocationsSerializable = (List<(string, string)>) info.GetValue(nameof(highPriorityLocations), typeof(List<(string, string)>));
-      highPriorityLocations = highPriorityLocationsSerializable.SelectToList(ls => (Assembly.Load(ls.Item1), ls.Item2));
+      highPriorityLocations = highPriorityLocationsSerializable.Select(ls => (Assembly.Load(ls.Item1), ls.Item2)).ToList();
     }
 
     /// <summary>
@@ -333,7 +333,7 @@ namespace Xtensive.Core
       info.AddValue(nameof(constructorParams), constructorParamsExceptThis, constructorParams.GetType());
       info.AddValue(nameof(typeSuffixes), typeSuffixes, typeSuffixes.GetType());
 
-      var highPriorityLocationsSerializable = HighPriorityLocations.SelectToList(l => (l.Item1.FullName, l.Item2));
+      var highPriorityLocationsSerializable = HighPriorityLocations.Select(l => (l.Item1.FullName, l.Item2)).ToList();
       info.AddValue(nameof(highPriorityLocations), highPriorityLocationsSerializable, highPriorityLocationsSerializable.GetType());
     }
   }

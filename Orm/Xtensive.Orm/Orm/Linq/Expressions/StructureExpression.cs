@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public IReadOnlyList<PersistentFieldExpression> Fields => fields;
 
-    private void SetFields(List<PersistentFieldExpression> value)
+    private void SetFields(IReadOnlyList<PersistentFieldExpression> value)
     {
       fields = value;
       foreach (var fieldExpression in fields.OfType<FieldExpression>()) {
@@ -42,10 +42,11 @@ namespace Xtensive.Orm.Linq.Expressions
       var mapping = new Segment<ColNum>((ColNum) (Mapping.Offset + offset), Mapping.Length);
       var result = new StructureExpression(PersistentType, mapping);
       processedExpressions.Add(this, result);
-      var processedFields = new List<PersistentFieldExpression>(fields.Count);
+      var processedFields = new PersistentFieldExpression[fields.Count];
+      int i = 0;
       foreach (var field in fields) {
         // Do not convert to LINQ. We intentionally avoiding closure creation here
-        processedFields.Add(field.Remap(offset, processedExpressions));
+        processedFields[i++] = field.Remap(offset, processedExpressions);
       }
 
       result.SetFields(processedFields);
@@ -96,10 +97,11 @@ namespace Xtensive.Orm.Linq.Expressions
 
       var result = new StructureExpression(PersistentType, Mapping);
       processedExpressions.Add(this, result);
-      var processedFields = new List<PersistentFieldExpression>(fields.Count);
+      var processedFields = new PersistentFieldExpression[fields.Count];
+      int i = 0;
       foreach (var field in fields) {
         // Do not convert to LINQ. We intentionally avoiding closure creation here
-        processedFields.Add((PersistentFieldExpression) field.BindParameter(parameter, processedExpressions));
+        processedFields[i++] = (PersistentFieldExpression) field.BindParameter(parameter, processedExpressions);
       }
 
       result.SetFields(processedFields);
@@ -114,10 +116,11 @@ namespace Xtensive.Orm.Linq.Expressions
 
       var result = new StructureExpression(PersistentType, Mapping);
       processedExpressions.Add(this, result);
-      var processedFields = new List<PersistentFieldExpression>(fields.Count);
+      var processedFields = new PersistentFieldExpression[fields.Count];
+      int i = 0;
       foreach (var field in fields) {
         // Do not convert to LINQ. We intentionally avoiding closure creation here
-        processedFields.Add((PersistentFieldExpression) field.RemoveOuterParameter(processedExpressions));
+        processedFields[i++] = (PersistentFieldExpression) field.RemoveOuterParameter(processedExpressions);
       }
 
       result.SetFields(processedFields);
@@ -131,12 +134,13 @@ namespace Xtensive.Orm.Linq.Expressions
       }
 
       var sourceFields = typeInfo.Fields;
-      var destinationFields = new List<PersistentFieldExpression>(sourceFields.Count);
+      var destinationFields = new PersistentFieldExpression[sourceFields.Count];
       var result = new StructureExpression(typeInfo, mapping);
       result.SetFields(destinationFields);
+      int i = 0;
       foreach (var field in sourceFields) {
         // Do not convert to LINQ. We intentionally avoiding closure creation here
-        destinationFields.Add(BuildNestedFieldExpression(field, mapping.Offset));
+        destinationFields[i++] = BuildNestedFieldExpression(field, mapping.Offset);
       }
 
       return result;
