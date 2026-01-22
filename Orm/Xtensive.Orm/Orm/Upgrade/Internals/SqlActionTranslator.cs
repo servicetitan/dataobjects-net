@@ -65,6 +65,8 @@ namespace Xtensive.Orm.Upgrade
     private readonly HashSet<TableColumn> recreatedColumns = new HashSet<TableColumn>();
     private readonly Dictionary<string, SequenceDescriptor> removedGeneratorDescriptors = new Dictionary<string, SequenceDescriptor>();
     private readonly List<(Table, string)> removedForeignKeysDueToIndexes = new List<(Table, string)>();
+    // Track columns added in the current batch (for SQL Server batch separation)
+    private readonly HashSet<(Table, string)> newlyAddedColumnsInCurrentBatch = new HashSet<(Table, string)>();
 
 
     private UpgradeActionSequenceBuilder currentOutput;
@@ -405,6 +407,13 @@ namespace Xtensive.Orm.Upgrade
       if (!string.IsNullOrEmpty(columnInfo.DefaultSqlExpression))
         column.DefaultValue = SqlDml.Native(columnInfo.DefaultSqlExpression);
       currentOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddColumn(column)));
+      
+      // Track newly added column for batch separation (SQL Server requires separate batches
+      // when CREATE INDEX with WHERE clause references a column added in the same batch)
+      if (currentOutput.Stage == SqlUpgradeStage.Upgrade)
+      {
+        newlyAddedColumnsInCurrentBatch.Add((table, column.Name));
+      }
     }
 
     private void VisitRemoveColumnAction(RemoveNodeAction removeColumnAction)
@@ -562,7 +571,59 @@ namespace Xtensive.Orm.Upgrade
       var index = CreateSecondaryIndex(table, secondaryIndexInfo);
       if (index.IsUnique && !allowCreateConstraints)
         return;
+      
+      // SQL Server doesn't allow CREATE INDEX with WHERE clause to reference a column
+      // that was added in the same batch. Break the batch if needed.
+      if (index.Where != null && currentOutput.Stage == SqlUpgradeStage.Upgrade)
+      {
+        var filterExpression = index.Where.ToString();
+        // Check if filter references any newly added columns
+        foreach (var (addedTable, addedColumnName) in newlyAddedColumnsInCurrentBatch)
+        {
+          if (addedTable == table)
+          {
+            // Check if the column name appears in the filter expression
+            // Use word boundary matching to avoid false positives (e.g., "Id" matching "Id2")
+            var columnPattern = $"[{addedColumnName}]";
+            var unquotedPattern = addedColumnName;
+            
+            // Check for quoted column name [ColumnName] or unquoted column name
+            if (filterExpression.Contains(columnPattern, StringComparison.OrdinalIgnoreCase) ||
+                ContainsColumnName(filterExpression, unquotedPattern))
+            {
+              currentOutput.BreakBatch();
+              // Clear tracking after breaking batch since columns are now available
+              newlyAddedColumnsInCurrentBatch.Clear();
+              break;
+            }
+          }
+        }
+      }
+      
       currentOutput.RegisterCommand(SqlDdl.Create(index));
+    }
+    
+    private static bool ContainsColumnName(string expression, string columnName)
+    {
+      // Check if column name appears as a word boundary (not part of another identifier)
+      var index = expression.IndexOf(columnName, StringComparison.OrdinalIgnoreCase);
+      while (index >= 0)
+      {
+        var before = index > 0 ? expression[index - 1] : ' ';
+        var after = index + columnName.Length < expression.Length 
+          ? expression[index + columnName.Length] 
+          : ' ';
+        
+        // Column name is valid if surrounded by non-identifier characters
+        if (!char.IsLetterOrDigit(before) && before != '_' && 
+            !char.IsLetterOrDigit(after) && after != '_')
+        {
+          return true;
+        }
+        
+        index = expression.IndexOf(columnName, index + 1, StringComparison.OrdinalIgnoreCase);
+      }
+      return false;
     }
 
     private void VisitRemoveSecondaryIndexAction(RemoveNodeAction action)
@@ -1322,6 +1383,12 @@ namespace Xtensive.Orm.Upgrade
 
     private void ProcessActions(Modelling.Comparison.UpgradeStage modellingStage, SqlUpgradeStage stage)
     {
+      currentOutput = currentOutput.ForStage(stage);
+      // Clear tracking when entering Upgrade stage (each stage is a separate batch)
+      if (stage == SqlUpgradeStage.Upgrade)
+      {
+        newlyAddedColumnsInCurrentBatch.Clear();
+      }
       currentOutput = currentOutput.ForStage(stage);
       var actionName = modellingStage.ToString();
       var groupingAction = actions
