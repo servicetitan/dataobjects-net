@@ -4,12 +4,9 @@
 // Created to test fix for SQL Server batch separation when CREATE INDEX with WHERE clause
 // references a column added in the same batch.
 
-using System;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;
 using V1 = Xtensive.Orm.Tests.Issues.Issue_SqlServerFilteredIndexWithNewColumn.Model.Version1;
 using V2 = Xtensive.Orm.Tests.Issues.Issue_SqlServerFilteredIndexWithNewColumn.Model.Version2;
@@ -94,18 +91,18 @@ namespace Xtensive.Orm.Tests.Issues.Issue_SqlServerFilteredIndexWithNewColumn
       using (var tx = session.OpenTransaction())
       {
         var entity = session.Query.All<V2.TestEntity>().FirstOrDefault();
-        Assert.NotNull(entity);
-        Assert.AreEqual("Test", entity.Name);
+        Assert.That(entity, Is.Not.Null);
+        Assert.That(entity.Name, Is.EqualTo("Test"));
         
         // Verify the new field exists
         var newEntity = new V2.TestEntity { Name = "Test2", Z = 42 };
-        Assert.AreEqual(42, newEntity.Z);
+        Assert.That(newEntity.Z, Is.EqualTo(42));
         tx.Complete();
       }
     }
 
     [Test]
-    public async System.Threading.Tasks.Task UpgradeWithFilteredIndexOnNewColumnAsyncTest()
+    public async Task UpgradeWithFilteredIndexOnNewColumnAsyncTest()
     {
       // Build initial domain with version 1
       using (var domain = BuildDomain("1", DomainUpgradeMode.Recreate))
@@ -122,8 +119,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue_SqlServerFilteredIndexWithNewColumn
       using (var tx = session.OpenTransaction())
       {
         var entity = session.Query.All<V2.TestEntity>().FirstOrDefault();
-        Assert.NotNull(entity);
-        Assert.AreEqual("Test", entity.Name);
+        Assert.That(entity, Is.Not.Null);
+        Assert.That(entity.Name, Is.EqualTo("Test"));
         tx.Complete();
       }
     }
@@ -139,7 +136,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_SqlServerFilteredIndexWithNewColumn
       return Domain.Build(configuration);
     }
 
-    private async System.Threading.Tasks.Task<Domain> BuildDomainAsync(string version, DomainUpgradeMode upgradeMode)
+    private async Task<Domain> BuildDomainAsync(string version, DomainUpgradeMode upgradeMode)
     {
       var ns = typeof(V1.TestEntity).Namespace;
       var nsPrefix = ns.Substring(0, ns.Length - 1);
