@@ -573,9 +573,8 @@ namespace Xtensive.Orm.Upgrade
       
       // SQL Server doesn't allow CREATE INDEX with WHERE clause to reference a column
       // that was added in the same batch. Break the batch if needed.
-      if (index.Where != null && currentOutput.Stage == SqlUpgradeStage.Upgrade)
-      {
-        var filterExpression = index.Where.ToString();
+      if (index.Where is SqlNative sqlNative && currentOutput.Stage == SqlUpgradeStage.Upgrade) {
+        var filterExpression = sqlNative.Value;
         // Check if filter references any newly added columns
         foreach (var (addedTable, addedColumnName) in newlyAddedColumnsInCurrentBatch)
         {
