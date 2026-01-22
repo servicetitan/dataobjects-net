@@ -1,9 +1,3 @@
-// Copyright (C) 2026 Xtensive LLC.
-// This code is distributed under MIT license terms.
-// See the License.txt file in the project root for more information.
-// Created to test fix for SQL Server batch separation when CREATE INDEX with WHERE clause
-// references a column added in the same batch.
-
 using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
@@ -72,14 +66,15 @@ namespace Xtensive.Orm.Tests.Issues.Issue_SqlServerFilteredIndexWithNewColumn
   [TestFixture]
   public class UpgradeTest
   {
+    // Created to test fix for SQL Server batch separation when CREATE INDEX with WHERE clause
+    // references a column added in the same batch.
     [Test]
     public void UpgradeWithFilteredIndexOnNewColumnTest()
     {
       // Build initial domain with version 1
       using (var domain = BuildDomain("1", DomainUpgradeMode.Recreate))
       using (var session = domain.OpenSession())
-      using (var tx = session.OpenTransaction())
-      {
+      using (var tx = session.OpenTransaction()) {
         var entity = new V1.TestEntity { Name = "Test" };
         tx.Complete();
       }
@@ -88,8 +83,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_SqlServerFilteredIndexWithNewColumn
       // Without the fix, this would fail with "Invalid column name 'Z'"
       using (var domain = BuildDomain("2", DomainUpgradeMode.Perform))
       using (var session = domain.OpenSession())
-      using (var tx = session.OpenTransaction())
-      {
+      using (var tx = session.OpenTransaction()) {
         var entity = session.Query.All<V2.TestEntity>().FirstOrDefault();
         Assert.That(entity, Is.Not.Null);
         Assert.That(entity.Name, Is.EqualTo("Test"));
@@ -105,19 +99,17 @@ namespace Xtensive.Orm.Tests.Issues.Issue_SqlServerFilteredIndexWithNewColumn
     public async Task UpgradeWithFilteredIndexOnNewColumnAsyncTest()
     {
       // Build initial domain with version 1
-      using (var domain = BuildDomain("1", DomainUpgradeMode.Recreate))
-      using (var session = domain.OpenSession())
-      using (var tx = session.OpenTransaction())
-      {
+      await using (var domain = await BuildDomainAsync("1", DomainUpgradeMode.Recreate))
+      await using (var session = await domain.OpenSessionAsync())
+      await using (var tx = await session.OpenTransactionAsync()) {
         var entity = new V1.TestEntity { Name = "Test" };
         tx.Complete();
       }
 
       // Upgrade to version 2 - this should succeed with the fix
-      using (var domain = await BuildDomainAsync("2", DomainUpgradeMode.Perform))
-      using (var session = domain.OpenSession())
-      using (var tx = session.OpenTransaction())
-      {
+      await using (var domain = await BuildDomainAsync("2", DomainUpgradeMode.Perform))
+      await using (var session = await domain.OpenSessionAsync())
+      await using (var tx = await session.OpenTransactionAsync()) {
         var entity = session.Query.All<V2.TestEntity>().FirstOrDefault();
         Assert.That(entity, Is.Not.Null);
         Assert.That(entity.Name, Is.EqualTo("Test"));

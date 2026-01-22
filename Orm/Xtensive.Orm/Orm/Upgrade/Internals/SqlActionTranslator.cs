@@ -576,10 +576,8 @@ namespace Xtensive.Orm.Upgrade
       if (index.Where is SqlNative sqlNative && currentOutput.Stage == SqlUpgradeStage.Upgrade) {
         var filterExpression = sqlNative.Value;
         // Check if filter references any newly added columns
-        foreach (var (addedTable, addedColumnName) in newlyAddedColumnsInCurrentBatch)
-        {
-          if (addedTable == table)
-          {
+        foreach (var (addedTable, addedColumnName) in newlyAddedColumnsInCurrentBatch) {
+          if (addedTable == table) {
             // Check if the column name appears in the filter expression
             // Use word boundary matching to avoid false positives (e.g., "Id" matching "Id2")
             var columnPattern = $"[{addedColumnName}]";
@@ -587,8 +585,7 @@ namespace Xtensive.Orm.Upgrade
             
             // Check for quoted column name [ColumnName] or unquoted column name
             if (filterExpression.Contains(columnPattern, StringComparison.OrdinalIgnoreCase) ||
-                ContainsColumnName(filterExpression, unquotedPattern))
-            {
+                ContainsColumnName(filterExpression, unquotedPattern)) {
               currentOutput.BreakBatch();
               // Clear tracking after breaking batch since columns are now available
               newlyAddedColumnsInCurrentBatch.Clear();
@@ -605,8 +602,7 @@ namespace Xtensive.Orm.Upgrade
     {
       // Check if column name appears as a word boundary (not part of another identifier)
       var index = expression.IndexOf(columnName, StringComparison.OrdinalIgnoreCase);
-      while (index >= 0)
-      {
+      while (index >= 0) {
         var before = index > 0 ? expression[index - 1] : ' ';
         var after = index + columnName.Length < expression.Length 
           ? expression[index + columnName.Length] 
@@ -614,8 +610,7 @@ namespace Xtensive.Orm.Upgrade
         
         // Column name is valid if surrounded by non-identifier characters
         if (!char.IsLetterOrDigit(before) && before != '_' && 
-            !char.IsLetterOrDigit(after) && after != '_')
-        {
+            !char.IsLetterOrDigit(after) && after != '_') {
           return true;
         }
         
@@ -1382,8 +1377,7 @@ namespace Xtensive.Orm.Upgrade
     {
       currentOutput = currentOutput.ForStage(stage);
       // Clear tracking when entering Upgrade stage (each stage is a separate batch)
-      if (stage == SqlUpgradeStage.Upgrade)
-      {
+      if (stage == SqlUpgradeStage.Upgrade) {
         newlyAddedColumnsInCurrentBatch.Clear();
       }
       currentOutput = currentOutput.ForStage(stage);
