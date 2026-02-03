@@ -6,7 +6,7 @@
     <Configurations>Debug;Release;Debug-NET8;Release-NET8;Debug-NET10;Release-NET10</Configurations>
   </PropertyGroup>
   <PropertyGroup>
-    <LangVersion>4.7</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(OrmKeyFile)</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
