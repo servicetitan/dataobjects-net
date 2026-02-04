@@ -4,13 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.14
 
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Linq;
@@ -43,6 +38,7 @@ namespace Xtensive.Orm.Providers
     private readonly TypeMappingRegistry allMappings;
     private readonly bool isLoggingEnabled;
     private readonly bool hasSavepoints;
+    private readonly SqlCompilerConfiguration options;
 
     private readonly IReadOnlyDictionary<Type, Func<IDbConnectionAccessor>> connectionAccessorFactories;
 
@@ -83,15 +79,7 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    public SqlCompilationResult Compile(ISqlCompileUnit statement)
-    {
-      var options = new SqlCompilerConfiguration {
-        DatabaseQualifiedObjects = configuration.IsMultidatabase,
-        ParametrizeSchemaNames = configuration.ShareQueryCacheOverNodes,
-        CommentLocation = configuration.TagsLocation.ToCommentLocation(),
-      };
-      return underlyingDriver.Compile(statement, options);
-    }
+    public SqlCompilationResult Compile(ISqlCompileUnit statement) => underlyingDriver.Compile(statement, options);
 
     public DbDataReaderAccessor GetDataReaderAccessor(in TupleDescriptor descriptor)
     {
@@ -274,6 +262,13 @@ namespace Xtensive.Orm.Providers
       isLoggingEnabled = SqlLog.IsLogged(LogLevel.Info); // Just to cache this value
       ServerInfo = underlyingDriver.ServerInfo;
       connectionAccessorFactories = factoryCache;
+
+      options = new SqlCompilerConfiguration {
+        DatabaseQualifiedObjects = configuration.IsMultidatabase,
+        ParametrizeSchemaNames = configuration.ShareQueryCacheOverNodes,
+        CommentLocation = configuration.TagsLocation.ToCommentLocation(),
+      };
+      underlyingDriver.ValidateCompilerConfiguration(options);
     }
   }
 }

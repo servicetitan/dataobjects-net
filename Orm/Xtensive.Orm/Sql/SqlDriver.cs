@@ -2,11 +2,6 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Orm.Model;
@@ -72,11 +67,8 @@ namespace Xtensive.Sql
     /// <param name="configuration">The options of compilation.</param>
     /// <param name="typeIdRegistry">TypeId registry.</param>
     /// <returns>Result of compilation.</returns>
-    public SqlCompilationResult Compile(ISqlCompileUnit statement, in SqlCompilerConfiguration configuration, TypeIdRegistry typeIdRegistry = null)
-    {
-      ValidateCompilerConfiguration(configuration);
-      return CreateCompiler().Compile(statement, configuration);
-    }
+    public SqlCompilationResult Compile(ISqlCompileUnit statement, in SqlCompilerConfiguration configuration, TypeIdRegistry typeIdRegistry = null) =>
+      CreateCompiler().Compile(statement, configuration);
 
     /// <summary>
     /// Gets <see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.
@@ -469,7 +461,7 @@ namespace Xtensive.Sql
       return extractor;
     }
 
-    private void ValidateCompilerConfiguration(in SqlCompilerConfiguration configuration)
+    internal void ValidateCompilerConfiguration(in SqlCompilerConfiguration configuration)
     {
       var supported = ServerInfo.Query.Features.Supports(QueryFeatures.MultidatabaseQueries);
       var requested = configuration.DatabaseQualifiedObjects;
