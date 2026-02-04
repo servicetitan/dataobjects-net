@@ -5,7 +5,7 @@ on:
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DO_CONFIG_FILE: "/tmp/do-test.cfg"
-  DO_TargetFrameworks: net9.0
+  DO_TargetFrameworks: net10.0
   SQL_PASSWD: dbatools.I0
 jobs:
   test-with-sql:
@@ -20,7 +20,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.x
+          dotnet-version: 10.x
       - name: Setup MSSQL Tools
         uses:  rails-sqlserver/setup-mssql@v1
         with:

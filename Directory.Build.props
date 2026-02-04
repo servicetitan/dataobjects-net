@@ -42,7 +42,7 @@
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
     <!-- Enable Usage of BinaryFormatter in test projects -->
     <EnableUnsafeBinaryFormatterSerialization
-      Condition="('$(TargetFramework)'=='net10.0' OR '$(TargetFramework)'=='net9.0') AND $(MSBuildProjectName.Contains('Tests')) == 'true'">true</EnableUnsafeBinaryFormatterSerialization>
+      Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">true</EnableUnsafeBinaryFormatterSerialization>
      <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
@@ -53,7 +53,7 @@
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>  <!-- the property -->
     <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net9.0</TargetFrameworks> <!-- fallback to default -->
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net10.0</TargetFrameworks> <!-- fallback to default -->
   </PropertyGroup>
 
   <PropertyGroup Condition = "$(Configuration.Contains('Debug')) == 'true'">
