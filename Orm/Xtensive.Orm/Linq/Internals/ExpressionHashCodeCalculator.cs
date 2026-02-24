@@ -101,11 +101,12 @@ namespace Xtensive.Linq
 
     #region Private / internal methods
 
-    private int HashExpressionSequence(IEnumerable<Expression> expressions)
+    private int HashExpressionSequence(IReadOnlyList<Expression> expressions)
     {
       HashCode hashCode = new();
-      foreach (var e in expressions)
-        hashCode.Add(Visit(e));
+      for (int i = 0, n = expressions.Count; i < n; ++i) {
+        hashCode.Add(Visit(expressions[i]));
+      }
       return hashCode.ToHashCode();
     }
 
