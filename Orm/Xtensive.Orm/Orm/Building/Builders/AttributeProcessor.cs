@@ -445,21 +445,12 @@ namespace Xtensive.Orm.Building.Builders
       MethodInfo method = null;
       var memberName = string.Format(memberNameFormat, providerType.FullName, providerMember);
 
-      // Check for property
-      var property = providerType.GetProperty(providerMember, bindingFlags);
-      if (property != null) {
-        method = property.GetGetMethod() ?? property.GetGetMethod(true);
-      }
-
-      // Check for method
-      if (method == null) {
-        method = providerType.GetMethod(providerMember, bindingFlags, null, Type.EmptyTypes, null);
-      }
-
-      // Check for method in the BaseType
-      while (method == null && providerType.BaseType != null) {
-        providerType = providerType.BaseType;
-        method = providerType.GetMethod(providerMember, bindingFlags, null, Type.EmptyTypes, null);
+      // Check for Property or Method of the providerType and its bases
+      for (; method == null && providerType != null; providerType = providerType.BaseType) {
+        var property = providerType.GetProperty(providerMember, bindingFlags);
+        method = property?.GetGetMethod()
+          ?? property?.GetGetMethod(true)
+          ?? providerType.GetMethod(providerMember, bindingFlags, null, Type.EmptyTypes, null);
       }
 
       if (method == null) {
