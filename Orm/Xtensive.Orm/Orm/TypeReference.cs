@@ -12,4 +12,4 @@ namespace Xtensive.Orm;
 /// Reference to <see cref="TypeInfo"/> with the specified degree of accuracy.
 /// </summary>
 [Serializable]
-public record struct TypeReference(TypeInfo Type, TypeReferenceAccuracy Accuracy);
+public readonly record struct TypeReference(TypeInfo Type, TypeReferenceAccuracy Accuracy);
