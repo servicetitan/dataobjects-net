@@ -13,11 +13,11 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Internals
 {
-  internal record struct QueryKey(object Key, int MetadataToken, ModuleHandle ModuleHandle, string StorageNodeId);
+  internal readonly record struct QueryKey(object Key, int MetadataToken, ModuleHandle ModuleHandle, string StorageNodeId);
 
   internal class CompiledQueryRunner
   {
-    private record struct ClosureTypeInfo(Type ParameterType, PropertyInfo ValueMemberInfo, FieldInfo[] Fields);
+    private readonly record struct ClosureTypeInfo(Type ParameterType, PropertyInfo ValueMemberInfo, FieldInfo[] Fields);
 
     private static readonly ExtendedExpressionReplacer NoopReplacer = new(e => e);
 

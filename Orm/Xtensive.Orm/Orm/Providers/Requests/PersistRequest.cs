@@ -11,7 +11,7 @@ using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Orm.Providers;
 
-public record struct PreparedPersistRequest(
+public readonly record struct PreparedPersistRequest(
   SqlCompilationResult CompiledStatement,
   IReadOnlyCollection<PersistParameterBinding> ParameterBindings
 );

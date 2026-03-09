@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Model;
 /// </summary>
 [Serializable]
 [DebuggerDisplay("Type = {TypeInfoRef}, Keys = {Keys}, Columns = {Columns}")]
-public record struct ColumnGroup
+public readonly record struct ColumnGroup
 (
   TypeInfoRef TypeInfoRef,
   IReadOnlyList<ColNum> Keys,      // indexes of key columns.

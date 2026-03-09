@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
     }
 
-    private record struct RootContainerCacheEntry(
+    private readonly record struct RootContainerCacheEntry(
       RootContainerCacheKey Key,
       SortedDictionary<ColNum, ColumnInfo> Columns,
       IReadOnlyList<ColNum> ColumnsToBeLoaded

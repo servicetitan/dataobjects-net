@@ -12,4 +12,4 @@ namespace Xtensive.Orm.Model;
 /// Describes a field that is a part of a primary key.
 /// </summary>
 [Serializable]
-public record struct KeyField(string Name, Direction Direction = Direction.Positive);
+public readonly record struct KeyField(string Name, Direction Direction = Direction.Positive);
