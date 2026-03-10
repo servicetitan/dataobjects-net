@@ -1637,21 +1637,11 @@ namespace Xtensive.Orm.Linq
 
       var outerItemProjector = outer.ItemProjector.RemoveOwner();
       var innerItemProjector = inner.ItemProjector.RemoveOwner();
-      var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
-      var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
-      ColNum[] outerColumns, innerColumns;
-      if (!outerColumnList.Except(innerColumnList).Any() && outerColumnList.Count == innerColumnList.Count) {
-        var outerColumnListCopy = outerColumnList.ToArray();
-        Array.Sort(outerColumnListCopy);
-        outerColumns = outerColumnListCopy;
-
-        var innerColumnListCopy = innerColumnList.ToArray();
-        Array.Sort(innerColumnListCopy);
-        innerColumns = innerColumnListCopy;
-      }
-      else {
-        outerColumns = outerColumnList.ToArray();
-        innerColumns = innerColumnList.ToArray();
+      var outerColumns = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
+      var innerColumns = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
+      if (outerColumns.ToHashSet().SetEquals(innerColumns)) {
+        Array.Sort(outerColumns);
+        Array.Sort(innerColumns);
       }
 
       var outerRecordSet = ShouldWrapDataSourceWithSelect(outerItemProjector, outerColumns)
