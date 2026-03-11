@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return ordered.ToArray();
     }
     
-    public static IReadOnlyList<ColNum> GetColumns(Expression expression, ColumnExtractionModes columnExtractionModes)
+    public static ColNum[] GetColumns(Expression expression, ColumnExtractionModes columnExtractionModes)
     {
       var gatherer = new ColumnGatherer(columnExtractionModes);
       gatherer.Visit(expression);

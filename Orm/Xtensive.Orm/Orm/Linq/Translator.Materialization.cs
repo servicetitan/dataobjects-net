@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Linq
     {
       var originProvider = origin.ItemProjector.DataSource;
 
-      var usedColumns = origin.ItemProjector
+      IReadOnlyList<ColNum> usedColumns = origin.ItemProjector
         .GetColumns(ColumnExtractionModes.KeepSegment | ColumnExtractionModes.KeepTypeId | ColumnExtractionModes.OmitLazyLoad);
 
       if (usedColumns.Count == 0)

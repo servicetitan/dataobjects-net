@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Linq.Expressions
       }
     }
 
-    public IReadOnlyList<ColNum> GetColumns(ColumnExtractionModes columnExtractionModes) =>
+    public ColNum[] GetColumns(ColumnExtractionModes columnExtractionModes) =>
       ColumnGatherer.GetColumns(Item, columnExtractionModes);
 
     public IReadOnlyList<(ColNum, Expression)> GetColumnsAndExpressions(ColumnExtractionModes columnExtractionModes) =>
