@@ -18,7 +18,13 @@ namespace Xtensive.Modelling
   /// </summary>
   public sealed class PropertyAccessor
   {
-    private static readonly MethodInfo InnerInitializeMethodDefinition;
+    private static readonly MethodInfo InnerInitializeMethodDefinition = typeof(PropertyAccessor)
+      .GetMethod(nameof(InnerInitialize),
+        BindingFlags.Instance | BindingFlags.NonPublic,
+        null,
+        Array.Empty<Type>(),
+        null)
+      ?.GetGenericMethodDefinition();
 
     private Func<object, object> getter;
     private Action<object, object> setter;
@@ -191,20 +197,6 @@ namespace Xtensive.Modelling
         if (d!=null)
           setter = (o,v) => d((TType) o, (TProperty) v);
       }
-    }
-
-
-    // Constructors
-
-    static PropertyAccessor()
-    {
-      InnerInitializeMethodDefinition = typeof(PropertyAccessor)
-        .GetMethod(nameof(InnerInitialize),
-          BindingFlags.Instance | BindingFlags.NonPublic,
-          null,
-          Array.Empty<Type>(),
-          null)
-        ?.GetGenericMethodDefinition();
     }
 
     /// <summary>

@@ -9,7 +9,7 @@ namespace Xtensive
   internal static class OrmLog
   {
     private static readonly string Name = "Xtensive.Orm";
-    private static readonly BaseLog instance;
+    private static readonly BaseLog instance = LogManager.Default.AutoInitialize().GetLog(Name);
 
     public static BaseLog Instance { get { return instance; } }
 
@@ -98,22 +98,15 @@ namespace Xtensive
       instance.FatalError(null, null, exception);
       return exception;
     }
-
-    static OrmLog()
-    {
-      var manager = LogManager.Default;
-      manager.AutoInitialize();
-      instance = manager.GetLog(Name);
-    }
   }
 
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   internal static class UpgradeLog
   {
     private static readonly string Name = "Xtensive.Orm.Upgrade";
-    private static readonly BaseLog instance;
+    private static readonly BaseLog instance = LogManager.Default.AutoInitialize().GetLog(Name);
 
-    public static BaseLog Instance { get { return instance; } }
+    public static BaseLog Instance => instance;
 
     public static bool IsLogged(LogLevel type)
     {
@@ -204,22 +197,15 @@ namespace Xtensive
       instance.FatalError(null, null, exception);
       return exception;
     }
-
-    static UpgradeLog()
-    {
-      var manager = LogManager.Default;
-      manager.AutoInitialize();
-      instance = manager.GetLog(Name);
-    }
   }
 
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   internal static class BuildLog
   {
     private static readonly string Name = "Xtensive.Orm.Building";
-    private static readonly BaseLog instance;
+    private static readonly BaseLog instance = LogManager.Default.AutoInitialize().GetLog(Name);
 
-    public static BaseLog Instance { get { return instance; } }
+    public static BaseLog Instance => instance;
 
     public static bool IsLogged(LogLevel type)
     {
@@ -306,22 +292,15 @@ namespace Xtensive
       instance.FatalError(null, null, exception);
       return exception;
     }
-
-    static BuildLog()
-    {
-      var manager = LogManager.Default;
-      manager.AutoInitialize();
-      instance = manager.GetLog(Name);
-    }
   }
 
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   internal static class SqlLog
   {
     private static readonly string Name = "Xtensive.Orm.Sql";
-    private static readonly BaseLog instance;
+    private static readonly BaseLog instance = LogManager.Default.AutoInitialize().GetLog(Name);
 
-    public static BaseLog Instance { get { return instance; } }
+    public static BaseLog Instance => instance;
 
     public static bool IsLogged(LogLevel type)
     {
@@ -408,22 +387,15 @@ namespace Xtensive
       instance.FatalError(null, null, exception);
       return exception;
     }
-
-    static SqlLog()
-    {
-      var manager = LogManager.Default;
-      manager.AutoInitialize();
-      instance = manager.GetLog(Name);
-    }
   }
 
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   internal static class CoreLog
   {
     private static readonly string Name = "Xtensive.Orm.Core";
-    private static readonly BaseLog instance;
+    private static readonly BaseLog instance = LogManager.Default.AutoInitialize().GetLog(Name);
 
-    public static BaseLog Instance { get { return instance; } }
+    public static BaseLog Instance => instance;
 
     public static bool IsLogged(LogLevel type)
     {
@@ -512,22 +484,15 @@ namespace Xtensive
       instance.FatalError(null, null, exception);
       return exception;
     }
-
-    static CoreLog()
-    {
-      var manager = LogManager.Default;
-      manager.AutoInitialize();
-      instance = manager.GetLog(Name);
-    }
   }
 
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   internal static class TestLog
   {
     private static readonly string Name = "Xtensive.Orm.Tests";
-    private static readonly BaseLog instance;
+    private static readonly BaseLog instance = LogManager.Default.AutoInitialize().GetLog(Name);
 
-    public static BaseLog Instance { get { return instance; } }
+    public static BaseLog Instance => instance;
 
     public static bool IsLogged(LogLevel type)
     {
@@ -613,13 +578,6 @@ namespace Xtensive
     {
       instance.FatalError(null, null, exception);
       return exception;
-    }
-
-    static TestLog()
-    {
-      var manager = LogManager.Default;
-      manager.AutoInitialize();
-      instance = manager.GetLog(Name);
     }
   }
 }

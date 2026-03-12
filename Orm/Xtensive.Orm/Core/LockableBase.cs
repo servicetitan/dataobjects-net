@@ -35,3 +35,12 @@ public abstract class LockableBase(bool isLocked = false) : ILockable
   /// <inheritdoc/>
   public virtual void Lock(bool recursive = true) => IsLocked = true;
 }
+
+internal static class LockableBaseExtensions
+{
+  internal static T InitLocked<T>(this T lockable, bool recursive = true) where T : ILockable
+  {
+    lockable.Lock(recursive);
+    return lockable;
+  }
+}

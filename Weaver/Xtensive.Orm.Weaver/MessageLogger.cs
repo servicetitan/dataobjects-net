@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Weaver
 {
   public sealed class MessageLogger
   {
-    private static readonly Dictionary<MessageCode, string> Messages;
+    private static readonly Dictionary<MessageCode, string> Messages = new();
 
     private readonly MessageWriter writer;
 
@@ -82,8 +82,6 @@ namespace Xtensive.Orm.Weaver
 
     static MessageLogger()
     {
-      Messages = new Dictionary<MessageCode, string>();
-
       RegisterMessage(MessageCode.ErrorInternal, "Internal error");
       RegisterMessage(MessageCode.ErrorInputFileIsNotFound, "Input file is not found");
       RegisterMessage(MessageCode.ErrorStrongNameKeyIsNotFound, "Strong name key file is not found");

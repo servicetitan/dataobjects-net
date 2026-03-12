@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Model
   [Serializable]
   public sealed class FieldMap: LockableBase, IEnumerable<KeyValuePair<FieldInfo, FieldInfo>>
   {
-    internal static readonly FieldMap Empty;
+    internal static readonly FieldMap Empty = new FieldMap().InitLocked();
 
     private readonly Dictionary<FieldInfo, FieldInfo> map = new Dictionary<FieldInfo, FieldInfo>();
     private readonly Dictionary<FieldInfo, HashSet<FieldInfo>> reversedMap = new Dictionary<FieldInfo, HashSet<FieldInfo>>();
@@ -97,12 +97,6 @@ namespace Xtensive.Orm.Model
 
     internal FieldMap()
     {
-    }
-
-    static FieldMap()
-    {
-      Empty = new FieldMap();
-      Empty.Lock();
     }
   }
 }

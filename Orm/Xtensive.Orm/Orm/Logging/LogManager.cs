@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Logging
         throw new InvalidOperationException(Strings.ExLogManagerAlreadyInitialized);
     }
 
-    internal void AutoInitialize()
+    internal LogManager AutoInitialize()
     {
       var configuration =
         ConfigurationManager.GetSection(WellKnown.DefaultConfigurationSection)!=null
@@ -87,6 +87,7 @@ namespace Xtensive.Orm.Logging
           Initialize(configuration);
         }
       }
+      return this;
     }
 
     /// <summary>

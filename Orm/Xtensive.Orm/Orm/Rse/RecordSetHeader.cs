@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Rse
   [Serializable]
   public sealed class RecordSetHeader
   {
-    private static readonly DirectionCollection<ColNum> EmptyOrder = new();
+    private static readonly DirectionCollection<ColNum> EmptyOrder = new DirectionCollection<ColNum>().InitLocked();
 
     private TupleDescriptor orderTupleDescriptor;
 
@@ -356,11 +356,6 @@ namespace Xtensive.Orm.Rse
       else {
         Order = EmptyOrder;
       }
-    }
-
-    static RecordSetHeader()
-    {
-      EmptyOrder.Lock();
     }
   }
 }

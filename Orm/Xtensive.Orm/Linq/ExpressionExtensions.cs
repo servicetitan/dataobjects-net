@@ -4,15 +4,12 @@
 // Created by: Alexis Kochetov
 // Created:    2009.04.21
 
-using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Reflection;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Linq
@@ -22,10 +19,12 @@ namespace Xtensive.Linq
   /// </summary>
   public static class ExpressionExtensions
   {
-    private static readonly ConcurrentDictionary<Type, MethodInfo> valueAccessors =
-      new ConcurrentDictionary<Type, MethodInfo>();
+    private static readonly ConcurrentDictionary<Type, MethodInfo> valueAccessors = new();
 
-    private static readonly Func<Type, MethodInfo> TupleValueAccessorFactory;
+    private static MethodInfo tupleGenericAccessor = WellKnownOrmTypes.Tuple.GetMethods()
+      .Single(mi => mi.Name == nameof(Tuple.GetValueOrDefault) && mi.IsGenericMethod);
+
+    private static readonly Func<Type, MethodInfo> TupleValueAccessorFactory = type => tupleGenericAccessor.CachedMakeGenericMethod(type);
 
     ///<summary>
     /// Makes <see cref="Tuples.Tuple.GetValueOrDefault{T}"/> method call.
@@ -71,15 +70,5 @@ namespace Xtensive.Linq
     /// <param name="expression">The expression to convert.</param>
     /// <returns>Expression tree that wraps <paramref name="expression"/>.</returns>
     internal static ExpressionTree ToExpressionTree(this Expression expression) => new(expression);
-
-
-    // Type initializer
-
-    static ExpressionExtensions()
-    {
-      var tupleGenericAccessor = WellKnownOrmTypes.Tuple.GetMethods()
-        .Single(mi => mi.Name == nameof(Tuple.GetValueOrDefault) && mi.IsGenericMethod);
-      TupleValueAccessorFactory = type => tupleGenericAccessor.CachedMakeGenericMethod(type);
-    }
   }
 }

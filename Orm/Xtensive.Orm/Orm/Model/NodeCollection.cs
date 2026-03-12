@@ -7,6 +7,7 @@
 using System.Collections.Frozen;
 using System.Diagnostics;
 using Xtensive.Collections;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Model
 {
@@ -23,7 +24,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets empty collection.
     /// </summary>
-    public readonly static NodeCollection<TNode> Empty;
+    public readonly static NodeCollection<TNode> Empty= new NodeCollection<TNode>(null, "Empty").InitLocked(false);
 
     /// <summary>
     /// Gets the owner.
@@ -182,14 +183,6 @@ namespace Xtensive.Orm.Model
       NameIndex = nameIndex;
       Owner = owner;
       Name = name;
-    }
-
-    // Type initializer
-    
-    static NodeCollection()
-    {
-      Empty = new NodeCollection<TNode>(null, "Empty");
-      Empty.Lock(false);
     }
   }
 }

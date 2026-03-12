@@ -4,9 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2010.11.19
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 
 namespace Xtensive.Collections
 {
@@ -20,7 +18,7 @@ namespace Xtensive.Collections
     /// <summary>
     /// Gets the empty <see cref="SinglyLinkedList{T}"/>.
     /// </summary>
-    public static SinglyLinkedList<T> Empty { get; private set; }
+    public static SinglyLinkedList<T> Empty { get; } = new();
 
     private readonly T head;
 
@@ -127,12 +125,5 @@ namespace Xtensive.Collections
       Count = Tail.Count + 1;
     }
 
-    /// <summary>
-    /// Initializes this type.
-    /// </summary>
-    static SinglyLinkedList()
-    {
-      Empty = new SinglyLinkedList<T>();
-    }
   }
 }
