@@ -114,11 +114,5 @@ namespace Xtensive.Orm.Configuration
       foreach (var item in items)
         Add(item.Key, item.Value);
     }
-
-    private static bool LockEmpty()
-    {
-      Empty.Lock();
-      return true;
-    }
   }
 }

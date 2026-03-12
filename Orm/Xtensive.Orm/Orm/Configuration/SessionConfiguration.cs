@@ -345,11 +345,5 @@ namespace Xtensive.Orm.Configuration
       }
     }
 
-
-    private static bool LockDefault()
-    {
-      Default.Lock(true);
-      return true;
-    }
   }
 }
