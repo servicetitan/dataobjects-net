@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Model
     : NodeCollection<FieldInfo>,
       IFilterable<FieldAttributes, FieldInfo>
   {
-    internal new static readonly FieldInfoCollection Empty;
+    internal new static readonly FieldInfoCollection Empty = new FieldInfoCollection(null, "Empty").InitLocked();
 
     /// <inheritdoc/>
     public IEnumerable<FieldInfo> Find(FieldAttributes criteria) => Find(criteria, MatchType.Partial);
@@ -56,14 +56,6 @@ namespace Xtensive.Orm.Model
     public FieldInfoCollection(Node owner, string name)
       : base(owner, name)
     {
-    }
-
-    // Type initializer
-
-    static FieldInfoCollection()
-    {
-      Empty = new FieldInfoCollection(null, "Empty");
-      Empty.Lock();
     }
   }
 }

@@ -4,9 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using JetBrains.Annotations;
 using Xtensive.Core;
 
@@ -21,7 +19,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets empty <see cref="NameMappingCollection"/>.
     /// </summary>
-    public static readonly NameMappingCollection Empty = new();
+    public static readonly NameMappingCollection Empty = new NameMappingCollection().InitLocked();
 
     private readonly Dictionary<string, string> items = new();
 
@@ -115,11 +113,6 @@ namespace Xtensive.Orm.Configuration
 
       foreach (var item in items)
         Add(item.Key, item.Value);
-    }
-
-    static NameMappingCollection()
-    {
-      Empty.Lock();
     }
   }
 }

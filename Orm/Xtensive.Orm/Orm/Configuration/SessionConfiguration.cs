@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Default <see cref="SessionConfiguration"/>.
     /// </summary>
-    public static readonly SessionConfiguration Default = new SessionConfiguration(WellKnown.Sessions.Default);
+    public static readonly SessionConfiguration Default = new SessionConfiguration(WellKnown.Sessions.Default).InitLocked();
 
     private SessionOptions options = DefaultSessionOptions;
     private string userName = string.Empty;
@@ -345,12 +345,5 @@ namespace Xtensive.Orm.Configuration
       }
     }
 
-
-    // Type initializer
-
-    static SessionConfiguration()
-    {
-      Default.Lock(true);
-    }
   }
 }

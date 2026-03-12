@@ -4,17 +4,19 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.20
 
-using System;
-using System.Collections.ObjectModel;
+using System.Reflection;
 
 namespace Xtensive.Orm.Weaver
 {
   public static class WellKnown
   {
-    public static readonly ReadOnlyCollection<byte> XtensivePublicKeyToken;
+    private static readonly AssemblyName thisAssembly = typeof(WellKnown).Assembly.GetName();
+    public static readonly IReadOnlyList<byte> XtensivePublicKeyToken = thisAssembly.GetPublicKeyToken();
 
     public static readonly string OrmAssemblyShortName = "Xtensive.Orm";
-    public static readonly string OrmAssemblyFullName;
+    public static readonly string OrmAssemblyFullName = string.Format(
+      "{0}, Version={1}, Culture=neutral, PublicKeyToken={2}",
+      OrmAssemblyShortName, thisAssembly.Version, WeavingHelper.FormatPublicKeyToken(XtensivePublicKeyToken.ToArray()));
 
     public static readonly string EntityType = "Xtensive.Orm.Entity";
     public static readonly string EntityInterfaceType = "Xtensive.Orm.IEntity";
@@ -36,17 +38,5 @@ namespace Xtensive.Orm.Weaver
 
     public static readonly string Constructor = ".ctor";
     public static readonly string FactoryMethod = "~Xtensive.Orm.CreateObject";
-
-    static WellKnown()
-    {
-      var thisAssembly = typeof(WellKnown).Assembly.GetName();
-      var publicKeyToken = thisAssembly.GetPublicKeyToken();
-
-      OrmAssemblyFullName = string.Format(
-        "{0}, Version={1}, Culture=neutral, PublicKeyToken={2}",
-        OrmAssemblyShortName, thisAssembly.Version, WeavingHelper.FormatPublicKeyToken(publicKeyToken));
-
-      XtensivePublicKeyToken = new ReadOnlyCollection<byte>(publicKeyToken);
-    }
   }
 }

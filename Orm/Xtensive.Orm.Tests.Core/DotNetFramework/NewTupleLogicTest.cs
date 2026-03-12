@@ -77,8 +77,14 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
 
     public class NonBoxingTuple : TestTuple
     {
-      private static Delegate[] getters;
-      private static Delegate[] setters;
+      private static Delegate[] getters = [
+        delegate(TestTuple t, out TupleFieldState s) {
+          s = TupleFieldState.Available;
+          return ((NonBoxingTuple) t).value1;
+        }
+      ];
+
+      private static Delegate[] setters = [(TestTuple t, long v) => ((NonBoxingTuple) t).value1 = v];
       protected long value1;
 
       public override object GetValue(int i, out TupleFieldState fieldState)
@@ -104,20 +110,6 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       public override Delegate GetValueSetter(int i)
       {
         return setters[i];
-      }
-
-      static NonBoxingTuple()
-      {
-        getters = new Delegate[1];
-        TupleFieldGetter<long> getter1 = delegate(TestTuple t, out TupleFieldState s) {
-          s = TupleFieldState.Available;
-          return ((NonBoxingTuple) t).value1;
-        };
-        getters[0] = getter1;
-
-        setters = new Delegate[1];
-        Action<TestTuple, long> setter1 = (t,v) => ((NonBoxingTuple) t).value1 = v;
-        setters[0] = setter1;
       }
     }
 

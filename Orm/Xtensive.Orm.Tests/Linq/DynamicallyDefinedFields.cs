@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Tests.Linq.DynamicallyDefinedFieldsModel
 
   public class TestData
   {
-    public static TestData CorrectData { get; private set; }
+    public static TestData CorrectData { get; } = new();
 
     public string AreaName { get; set; }
 
@@ -173,11 +173,6 @@ namespace Xtensive.Orm.Tests.Linq.DynamicallyDefinedFieldsModel
 
     public Key InterfaceImplementorKey { get; set; }
     public string InterfaceImplementorFieldName { get; set; }
-
-    static TestData()
-    {
-      CorrectData = new TestData();
-    }
   }
 }
 
