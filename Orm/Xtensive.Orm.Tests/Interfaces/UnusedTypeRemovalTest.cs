@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Interfaces
     public void MainTest()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(IFirst).Assembly, typeof(IFirst).Namespace);
+      config.Types.RegisterCaching(typeof(IFirst).Assembly, typeof(IFirst).Namespace);
 
       var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
       var message = ex.Message;

@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Tests.Interfaces
     public void MainTest()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(Root1).Assembly, typeof(Root1).Namespace);
+      config.Types.RegisterCaching(typeof (Root1).Assembly, typeof (Root1).Namespace);
       var ex = Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
       var message = ex.Message;
       Assert.That(message.Contains("IChild") && message.Contains("different key structure") && message.Contains("Root1 & Root2"),
