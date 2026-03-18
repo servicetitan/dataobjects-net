@@ -22,6 +22,7 @@ namespace Xtensive.Core
   /// </summary>
   public static class ExpressionExtensions
   {
+    private readonly static ConcurrentDictionary<Type, object> StructDefaultValues = new();
     private readonly static ConcurrentDictionary<Type, ConstantExpression> StructDefaultConstantExpressions = new();
 
     /// <summary>
@@ -127,15 +128,28 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="defaultExpression">The expression to convert.</param>
     /// <returns>Result constant expression.</returns>
-    public static ConstantExpression ToConstantExpression(this DefaultExpression defaultExpression) =>
-      StructDefaultConstantExpressions.GetOrAdd(
-        defaultExpression.Type,
-        static (t, expr) => Expression.Constant(
-          t.IsValueType
-            ? ((Func<object>) Expression.Lambda(Expression.Convert(expr, WellKnownTypes.Object)).Compile()).Invoke()
-            : null,
-          t),
-        defaultExpression);
+    public static ConstantExpression ToConstantExpression(this DefaultExpression defaultExpression)
+    {
+      var value = GetDefaultValue(defaultExpression);
+
+      return Expression.Constant(value, defaultExpression.Type);
+    }
+
+    /// <summary>
+    /// Gets the value represented by given <see cref="DefaultExpression"/>.
+    /// </summary>
+    /// <param name="defaultExpression">The default value expression.</param>
+    /// <returns>Object value of default value.</returns>
+    public static object GetDefaultValue(this DefaultExpression defaultExpression)
+    {
+      if (defaultExpression.Type != typeof(void) && defaultExpression.Type.IsValueType) {
+        return StructDefaultValues.GetOrAdd<DefaultExpression>(
+          defaultExpression.Type,
+          (type, expr) => { return ((Func<object>) Expression.Lambda(Expression.Convert(expr, WellKnownTypes.Object)).Compile()).Invoke(); },
+          defaultExpression);
+      }
+      return null;
+    }
 
     /// <summary>
     /// Gets return type of <see cref="LambdaExpression"/>.

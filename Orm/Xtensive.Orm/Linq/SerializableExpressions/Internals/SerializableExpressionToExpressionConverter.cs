@@ -18,7 +18,7 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
     {
       private readonly SerializableExpressionToExpressionConverter converter;
 
-      public void Dispose() => converter.parameterScopes.Pop();
+      public void Dispose() => converter.parameterScopes.TryPop(out _);
 
       public LambdaParameterScope(SerializableExpressionToExpressionConverter converter, Dictionary<string, ParameterExpression> currentScope)
       {
@@ -57,6 +57,11 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
         case ExpressionType.ArrayLength:
         case ExpressionType.Quote:
         case ExpressionType.TypeAs:
+        case ExpressionType.Decrement:
+        case ExpressionType.Increment:
+        case ExpressionType.IsFalse:
+        case ExpressionType.IsTrue:
+        case ExpressionType.OnesComplement:
           result = VisitUnary((SerializableUnaryExpression)e);
           break;
         case ExpressionType.Add:
@@ -82,16 +87,24 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
         case ExpressionType.RightShift:
         case ExpressionType.LeftShift:
         case ExpressionType.ExclusiveOr:
+        case ExpressionType.Power:
+        case ExpressionType.Assign:
           result = VisitBinary((SerializableBinaryExpression)e);
           break;
         case ExpressionType.TypeIs:
           result = VisitTypeIs((SerializableTypeBinaryExpression)e);
+          break;
+        case ExpressionType.TypeEqual:
+          result = VisitTypeEqual((SerializableTypeBinaryExpression) e);
           break;
         case ExpressionType.Conditional:
           result = VisitConditional((SerializableConditionalExpression)e);
           break;
         case ExpressionType.Constant:
           result = VisitConstant((SerializableConstantExpression)e);
+          break;
+        case ExpressionType.Default:
+          result = VisitDefault((SerializableDefaultExpression)e);
           break;
         case ExpressionType.Parameter:
           result = VisitParameter((SerializableParameterExpression)e);
@@ -144,9 +157,19 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
       return Expression.TypeIs(Visit(tb.Expression), tb.TypeOperand);
     }
 
+    private Expression VisitTypeEqual(SerializableTypeBinaryExpression tb)
+    {
+      return Expression.TypeEqual(Visit(tb.Expression), tb.TypeOperand);
+    }
+
     private Expression VisitConstant(SerializableConstantExpression c)
     {
       return Expression.Constant(c.Value, c.Type);
+    }
+
+    private Expression VisitDefault(SerializableDefaultExpression d)
+    {
+      return Expression.Default(d.Type);
     }
 
     private Expression VisitConditional(SerializableConditionalExpression c)
@@ -271,8 +294,7 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private ParameterExpression FindParameterFast(Type type, string name)
     {
-      if (parameterScopes.Count > 0) {
-        var currentParameters = parameterScopes.Peek();
+      if (parameterScopes.TryPeek(out var currentParameters)) {
         if (currentParameters.TryGetValue(name, out var replacement) && replacement.Type == type)
           return replacement;
       }
@@ -281,7 +303,7 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private ParameterExpression FindParameterSlow(Type type, string name)
     {
-      foreach (var scope in parameterScopes) {
+      foreach (var scope in parameterScopes.Skip(1)) {
         if (scope.TryGetValue(name, out var replacement) && replacement.Type == type)
           return replacement;
       }
