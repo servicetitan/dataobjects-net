@@ -512,6 +512,21 @@ namespace Xtensive.Orm
       (T)(object)(await SingleOrDefaultAsync(GetKeyByValues<T>([key1, key2]), ct));
 
     /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
+    /// in the current <see cref="session"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="keyValues">Key values.</param>
+    /// <param name="token">The token to cancel this operation.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
+    /// <see langword="null"/>, if there is no such entity.
+    /// </returns>
+    public async Task<T> SingleOrDefaultAsync<T>(object[] keyValues, CancellationToken token = default)
+      where T : class, IEntity =>
+      (T) (object) (await SingleOrDefaultAsync(GetKeyByValues<T>(keyValues), token));
+
+    /// <summary>
     /// Fetches multiple instances of specified type  by provided <paramref name="keys"/>.
     /// </summary>
     /// <param name="keys">The source sequence.</param>
