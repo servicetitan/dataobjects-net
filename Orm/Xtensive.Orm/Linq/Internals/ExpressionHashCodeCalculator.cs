@@ -42,10 +42,15 @@ namespace Xtensive.Linq
     protected override int VisitConstant(ConstantExpression c) =>
       c.Value?.GetHashCode() ?? NullHashCode;
 
-    protected override int VisitDefault(DefaultExpression d) =>
-      d.Type.IsValueType
-        ? d.ToConstantExpression().Value.GetHashCode()
-        : NullHashCode;
+    protected override int VisitDefault(DefaultExpression d)
+    {
+      if (d.Type.IsValueType) {
+        return d.GetDefaultValue()?.GetHashCode() ?? NullHashCode;
+      }
+      else {
+        return NullHashCode;
+      }
+    }
 
     protected override int VisitConditional(ConditionalExpression c) =>
       HashCode.Combine(Visit(c.Test), Visit(c.IfTrue), Visit(c.IfFalse));
