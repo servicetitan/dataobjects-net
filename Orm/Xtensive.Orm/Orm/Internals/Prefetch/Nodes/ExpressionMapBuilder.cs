@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return call;
     }
 
-    protected override MemberExpression VisitMemberAccess(MemberExpression m)
+    protected override MemberExpression VisitMember(MemberExpression m)
     {
       ValidateMemberAccess(m);
       result.RegisterChild(m.Expression, m);
