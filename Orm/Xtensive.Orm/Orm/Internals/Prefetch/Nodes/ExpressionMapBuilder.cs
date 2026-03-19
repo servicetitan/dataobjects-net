@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return p;
     }
 
-    protected override Expression VisitLambda<T>(Expression<T> l)
+    protected override LambdaExpression VisitLambda(LambdaExpression l)
     {
       var oldParameter = currentParameter;
       currentParameter = l.Parameters.First();
