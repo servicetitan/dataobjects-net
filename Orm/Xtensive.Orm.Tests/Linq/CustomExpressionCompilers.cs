@@ -142,10 +142,11 @@ namespace Xtensive.Orm.Tests.Linq
         var expected1 = session.Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
         Assert.That(expected1.Count, Is.GreaterThan(0));
         var fullNames1 = session.Query.All<Person>().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
-        Assert.That(expected1, Is.EqualTo(fullNames1));
+        Assert.That(expected1.SequenceEqual(fullNames1), Is.True);
+
         var expected2 = session.Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
         var fullNames2 = session.Query.All<Person>().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
-        Assert.That(expected2, Is.EqualTo(fullNames2));
+        Assert.That(expected2.SequenceEqual(fullNames2), Is.True);
         // Rollback
       }
     }

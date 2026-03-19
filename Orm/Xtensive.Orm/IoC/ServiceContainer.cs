@@ -187,7 +187,7 @@ namespace Xtensive.IoC
         FindConstructorInvoker(containerType, configurationType, parentType)?.Invoke(configuration, parent)
         ?? FindConstructorInvoker(containerType, configurationType)?.Invoke(configuration)
         ?? FindConstructorInvoker(containerType, parentType)?.Invoke(parent)
-        ?? throw new ArgumentException(Strings.ExContainerTypeDoesNotProvideASuitableConstructor, "containerType")
+        ?? throw new ArgumentException(Strings.ExContainerTypeDoesNotProvideASuitableConstructor, nameof(containerType))
       );
     }
 

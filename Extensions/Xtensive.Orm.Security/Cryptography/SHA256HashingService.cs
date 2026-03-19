@@ -16,10 +16,7 @@ namespace Xtensive.Orm.Security.Cryptography
   public class SHA256HashingService : GenericHashingService
   {
     /// <inheritdoc/>
-#pragma warning disable SYSLIB0021 // Type or member is obsolete
-    // direct creation is more efficient than SHA256.Create()
-    protected override HashAlgorithm GetHashAlgorithm() => new SHA256Managed();
-#pragma warning restore SYSLIB0021 // Type or member is obsolete
+    protected override HashAlgorithm GetHashAlgorithm() => SHA256.Create();
 
     /// <inheritdoc />
     protected override int HashSizeInBytes => SHA256.HashSizeInBytes;
