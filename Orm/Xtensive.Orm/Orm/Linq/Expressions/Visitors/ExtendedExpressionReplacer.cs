@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return result ?? base.Visit(e);
     }
 
-    internal override Expression VisitProjectionExpression(ProjectionExpression projectionExpression)
+    protected override ProjectionExpression VisitProjectionExpression(ProjectionExpression projectionExpression)
     {
       var item = Visit(projectionExpression.ItemProjector.Item);
       var provider = providerVisitor.VisitCompilable(projectionExpression.ItemProjector.DataSource);
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return projectionExpression;
     }
 
-    internal override Expression VisitGroupingExpression(GroupingExpression expression)
+    protected override GroupingExpression VisitGroupingExpression(GroupingExpression expression)
     {
       var keyExpression = Visit(expression.KeyExpression);
       if (keyExpression!=expression.KeyExpression)
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return expression;
     }
 
-    internal override Expression VisitFullTextExpression(FullTextExpression expression)
+    protected override FullTextExpression VisitFullTextExpression(FullTextExpression expression)
     {
       var rankExpression = (ColumnExpression) Visit(expression.RankExpression);
       var entityExpression = (EntityExpression) Visit(expression.EntityExpression);
@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return expression;
     }
 
-    internal override Expression VisitSubQueryExpression(SubQueryExpression expression)
+    protected override SubQueryExpression VisitSubQueryExpression(SubQueryExpression expression)
     {
       return expression;
     }
@@ -76,42 +76,42 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return result ?? original;
     }
 
-    internal override Expression VisitFieldExpression(FieldExpression expression)
+    protected override FieldExpression VisitFieldExpression(FieldExpression expression)
     {
       return expression;
     }
 
-    internal override Expression VisitStructureFieldExpression(StructureFieldExpression expression)
+    protected override StructureFieldExpression VisitStructureFieldExpression(StructureFieldExpression expression)
     {
       return expression;
     }
 
-    internal override Expression VisitKeyExpression(KeyExpression expression)
+    protected override KeyExpression VisitKeyExpression(KeyExpression expression)
     {
       return expression;
     }
 
-    internal override Expression VisitEntityExpression(EntityExpression expression)
+    protected override EntityExpression VisitEntityExpression(EntityExpression expression)
     {
       return expression;
     }
 
-    internal override Expression VisitEntityFieldExpression(EntityFieldExpression expression)
+    protected override EntityFieldExpression VisitEntityFieldExpression(EntityFieldExpression expression)
     {
       return expression;
     }
 
-    internal override Expression VisitEntitySetExpression(EntitySetExpression expression)
+    protected override EntitySetExpression VisitEntitySetExpression(EntitySetExpression expression)
     {
       return expression;
     }
 
-    internal override Expression VisitColumnExpression(ColumnExpression expression)
+    protected override ColumnExpression VisitColumnExpression(ColumnExpression expression)
     {
       return expression;
     }
 
-    internal override Expression VisitConstructorExpression(ConstructorExpression expression)
+    protected override ConstructorExpression VisitConstructorExpression(ConstructorExpression expression)
     {
       var bindings = new Dictionary<MemberInfo, Expression>(expression.Bindings.Count);
       var nativeBindings = new Dictionary<MemberInfo, Expression>(expression.NativeBindings.Count);
@@ -143,7 +143,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         arguments);
     }
 
-    internal override Expression VisitMarker(MarkerExpression expression)
+    protected override MarkerExpression VisitMarker(MarkerExpression expression)
     {
       var target = Visit(expression.Target);
       return target == expression.Target 

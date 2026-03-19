@@ -788,6 +788,7 @@ namespace Xtensive.Orm.Configuration
       types = configuration.Types.Clone();
       linqExtensions = configuration.LinqExtensions.Clone();
       namingConvention = configuration.NamingConvention.Clone();
+      keyCacheSize = configuration.KeyCacheSize;
       keyGeneratorCacheSize = configuration.KeyGeneratorCacheSize;
       queryCacheSize = configuration.QueryCacheSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
@@ -814,7 +815,7 @@ namespace Xtensive.Orm.Configuration
       versioningConvention = configuration.VersioningConvention.Clone();
       preferTypeIdsAsQueryParameters = configuration.PreferTypeIdsAsQueryParameters;
       maxNumberOfConditons = configuration.MaxNumberOfConditions;
-      extensionConfigurations = (ExtensionConfigurationCollection) configuration.ExtensionConfigurations.Clone();
+      extensionConfigurations = configuration.ExtensionConfigurations.Clone();
     }
 
     /// <summary>

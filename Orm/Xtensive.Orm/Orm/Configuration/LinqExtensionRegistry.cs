@@ -78,8 +78,14 @@ namespace Xtensive.Orm.Configuration
     /// Clones this instance.
     /// </summary>
     /// <returns>Clone of this instance.</returns>
-    public LinqExtensionRegistry Clone() => new(this);
     object ICloneable.Clone() => Clone();
+
+    /// <summary>
+    /// Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public LinqExtensionRegistry Clone() => new LinqExtensionRegistry(this);
+
 
     // Constructors
 

@@ -92,6 +92,8 @@ namespace Xtensive.Orm.Configuration
       DatabaseMapping.Lock();
     }
 
+    object ICloneable.Clone() => Clone();
+
     /// <summary>
     /// Creates clone of this instance.
     /// </summary>

@@ -170,14 +170,19 @@ namespace Xtensive.Tuples
     #region CreateNew, Clone, Reset methods
 
     /// <inheritdoc/>
-    public override Tuple CreateNew()
+    public override DifferentialTuple CreateNew()
     {
       return new DifferentialTuple(origin.CreateNew());
     }
 
     /// <inheritdoc/>
-    public override DifferentialTuple Clone() =>
-      new(origin.Clone(), difference?.Clone(), backupedDifference?.Clone());
+    public override DifferentialTuple Clone()
+    {
+      return new DifferentialTuple(
+        origin.Clone(), 
+        difference==null ? null : difference.Clone(), 
+        backupedDifference==null ? null : (DifferentialTuple) backupedDifference.Clone());
+    }
 
     /// <summary>
     /// Resets all the changes in <see cref="Difference"/> by re-creating it.

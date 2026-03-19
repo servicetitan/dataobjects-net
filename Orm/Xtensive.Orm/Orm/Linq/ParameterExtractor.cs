@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Linq
 
     protected override Expression VisitUnknown(Expression e) => e;
 
-    protected override Expression VisitConstant(ConstantExpression c)
+    protected override ConstantExpression VisitConstant(ConstantExpression c)
     {
       isParameter |= c.GetMemberType() is MemberType.Entity or MemberType.Structure;
       return c;

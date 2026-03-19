@@ -106,8 +106,13 @@ namespace Xtensive.Collections
     #region ICloneable methods
 
     /// <inheritdoc/>
-    public ExtensionCollection Clone() => new(this);
     object ICloneable.Clone() => Clone();
+
+    /// <summary>
+    /// Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public ExtensionCollection Clone() => new(this);
 
     #endregion
 
