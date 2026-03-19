@@ -92,6 +92,48 @@ namespace Xtensive.Orm.Providers
     public override void Dispose() => command.Dispose();
 
     /// <inheritdoc/>
-    public override async ValueTask DisposeAsync() => await command.DisposeAsync().ConfigureAwaitFalse();
+    public async ValueTask DisposeAsync()
+    {
+      if (source is Command command) {
+        await command.DisposeAsync().ConfigureAwait(false);
+      }
+      else {
+        if (source is IAsyncEnumerator<Tuple> asyncSource) {
+          // true async enumerable source
+          await asyncSource.DisposeAsync().ConfigureAwait(false);
+        }
+        else {
+          // preloaded collection of elements,
+          // like in case of delayed query which has already been read from database
+          // or greedy enumeration
+          ((IEnumerator<Tuple>) source).Dispose();
+        }
+      }
+    }
+
+    /// <summary>
+    /// Creates <see cref="DataReader"/> wrapping enumerable collection of <see cref="Tuple"/>s.
+    /// </summary>
+    /// <param name="tuples">Collection of <see cref="Tuple"/>s to read from.</param>
+    public DataReader(IEnumerable<Tuple> tuples)
+    {
+      source = tuples.GetEnumerator();
+      accessor = null;
+      token = CancellationToken.None;
+    }
+
+    /// <summary>
+    /// Creates <see cref="DataReader"/> wrapping active <see cref="Command"/> instance.
+    /// </summary>
+    /// <param name="command"><see cref="Command"/> instance to read data from.</param>
+    /// <param name="accessor"><see cref="DbDataReaderAccessor"/> instance
+    /// transforming raw database records to <see cref="Tuple"/>s.</param>
+    /// <param name="token"><see cref="CancellationToken"/> to terminate operation if necessary.</param>
+    public DataReader(Command command, DbDataReaderAccessor accessor, CancellationToken token)
+    {
+      source = command;
+      this.accessor = accessor;
+      this.token = token;
+    }
   }
 }
