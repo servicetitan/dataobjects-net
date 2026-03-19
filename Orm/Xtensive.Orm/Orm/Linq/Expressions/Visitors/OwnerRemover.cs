@@ -17,32 +17,32 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     public static Expression RemoveOwner(Expression target) =>
       Instance.Visit(target);
 
-    protected override GroupingExpression VisitGroupingExpression(GroupingExpression expression)
+    internal protected override GroupingExpression VisitGroupingExpression(GroupingExpression expression)
     {
       return expression;
     }
 
-    protected override SubQueryExpression VisitSubQueryExpression(SubQueryExpression expression)
+    internal protected override SubQueryExpression VisitSubQueryExpression(SubQueryExpression expression)
     {
       return expression;
     }
 
-    protected override FieldExpression VisitFieldExpression(FieldExpression expression)
+    internal protected override FieldExpression VisitFieldExpression(FieldExpression expression)
     {
       return expression.RemoveOwner();
     }
 
-    protected override FieldExpression VisitStructureFieldExpression(StructureFieldExpression expression)
+    internal protected override FieldExpression VisitStructureFieldExpression(StructureFieldExpression expression)
     {
       return expression.RemoveOwner();
     }
 
-    protected override KeyExpression VisitKeyExpression(KeyExpression expression)
+    internal protected override KeyExpression VisitKeyExpression(KeyExpression expression)
     {
       return expression;
     }
 
-    protected override ConstructorExpression VisitConstructorExpression(ConstructorExpression expression)
+    internal protected override ConstructorExpression VisitConstructorExpression(ConstructorExpression expression)
     {
       var oldConstructorArguments = expression.ConstructorArguments;
       var newConstructorArguments = VisitExpressionList(oldConstructorArguments);
@@ -70,22 +70,22 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return new ConstructorExpression(expression.Type, bindings, nativeBingings, expression.Constructor, newConstructorArguments.ToReadOnlyList());
     }
 
-    protected override EntityExpression VisitEntityExpression(EntityExpression expression)
+    internal protected override EntityExpression VisitEntityExpression(EntityExpression expression)
     {
       return expression;
     }
 
-    protected override FieldExpression VisitEntityFieldExpression(EntityFieldExpression expression)
+    internal protected override FieldExpression VisitEntityFieldExpression(EntityFieldExpression expression)
     {
       return expression.RemoveOwner();
     }
 
-    protected override EntitySetExpression VisitEntitySetExpression(EntitySetExpression expression)
+    internal protected override EntitySetExpression VisitEntitySetExpression(EntitySetExpression expression)
     {
       return expression;
     }
 
-    protected override ColumnExpression VisitColumnExpression(ColumnExpression expression)
+    internal protected override ColumnExpression VisitColumnExpression(ColumnExpression expression)
     {
       return expression;
     }

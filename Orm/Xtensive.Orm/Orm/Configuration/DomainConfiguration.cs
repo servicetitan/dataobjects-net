@@ -788,7 +788,6 @@ namespace Xtensive.Orm.Configuration
       types = configuration.Types.Clone();
       linqExtensions = configuration.LinqExtensions.Clone();
       namingConvention = configuration.NamingConvention.Clone();
-      keyCacheSize = configuration.KeyCacheSize;
       keyGeneratorCacheSize = configuration.KeyGeneratorCacheSize;
       queryCacheSize = configuration.QueryCacheSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;

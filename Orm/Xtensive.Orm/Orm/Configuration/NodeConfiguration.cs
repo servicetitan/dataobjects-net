@@ -108,8 +108,6 @@ namespace Xtensive.Orm.Configuration
         TypeIdRegistry = TypeIdRegistry,
       };
 
-    object ICloneable.Clone() => Clone();
-
     internal void Validate(DomainConfiguration configuration)
     {
       if (string.IsNullOrEmpty(nodeId))

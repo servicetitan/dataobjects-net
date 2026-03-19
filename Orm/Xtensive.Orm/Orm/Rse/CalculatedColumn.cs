@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <inheritdoc/>
-    public override CalculatedColumn Clone(int newIndex)
+    public override CalculatedColumn Clone(ColNum newIndex)
     {
       return new CalculatedColumn(this, newIndex);
     }

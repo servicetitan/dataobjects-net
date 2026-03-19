@@ -155,8 +155,6 @@ namespace Xtensive.Orm.Configuration
       return result;
     }
 
-    object ICloneable.Clone() => Clone();
-
     private SessionConfiguration GetConfiguration(string name, SessionConfiguration fallback)
     {
       return !IsLocked ? this[name] : fallback;

@@ -113,8 +113,6 @@ namespace Xtensive.Orm.Configuration
       return result;
     }
 
-    object ICloneable.Clone() => Clone();
-
     #endregion
   }
 }

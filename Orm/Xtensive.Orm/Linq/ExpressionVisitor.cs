@@ -105,6 +105,15 @@ namespace Xtensive.Linq
     protected override Expression VisitMember(MemberExpression m) =>
       Visit(m, m.Expression, static (m, expression) => Expression.MakeMemberAccess(expression, m.Member));
 
+
+    protected virtual MemberExpression VisitMemberAccess(MemberExpression m)
+    {
+      Expression expression = Visit(m.Expression);
+      if (expression!=m.Expression)
+        return Expression.MakeMemberAccess(expression, m.Member);
+      return m;
+    }
+
     /// <inheritdoc/>
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
@@ -129,7 +138,7 @@ namespace Xtensive.Linq
     protected override Expression VisitLambda<T>(Expression<T> l) =>
       Visit((LambdaExpression)l, l.Body, static (l, body) => FastExpression.Lambda(l.Type, body, l.Parameters));
 
-    protected Expression VisitLambda(LambdaExpression lambda) => base.Visit(lambda);
+    protected virtual Expression VisitLambda(LambdaExpression lambda) => base.Visit(lambda);
 
     private TOriginal Visit<TOriginal, TSubExpression>(TOriginal original, TSubExpression subExpression, Func<TOriginal, Expression, TOriginal> func) where TSubExpression : Expression
     {

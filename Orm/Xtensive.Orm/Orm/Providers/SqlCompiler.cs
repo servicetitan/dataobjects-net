@@ -409,7 +409,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override SqlStoreProvider VisitStore(StoreProvider provider)
+    internal protected override SqlStoreProvider VisitStore(StoreProvider provider)
     {
       var source = provider.Source is RawProvider rawProvider
             ? (ExecutableProvider) (new Rse.Providers.ExecutableRawProvider(rawProvider))

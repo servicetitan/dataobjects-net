@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Rse
   public class SystemColumn : DerivedColumn
   {
     /// <inheritdoc/>
-    public override SystemColumn Clone(int newIndex)
+    public override SystemColumn Clone(ColNum newIndex)
     {
       return new SystemColumn(this, newIndex);
     }

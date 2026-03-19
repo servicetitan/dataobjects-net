@@ -41,8 +41,6 @@ namespace Xtensive.Orm.Configuration
       return result;
     }
 
-    object ICloneable.Clone() => Clone();
-
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {

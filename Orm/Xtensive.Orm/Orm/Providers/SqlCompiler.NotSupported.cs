@@ -12,19 +12,19 @@ namespace Xtensive.Orm.Providers
   public partial class SqlCompiler 
   {
     /// <inheritdoc/>
-    protected internal override SqlProvider VisitRaw(RawProvider provider)
+    internal protected override SqlProvider VisitRaw(RawProvider provider)
     {
       throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
-    protected internal override SqlProvider VisitFreeText(FreeTextProvider provider)
+    internal protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
       throw new NotSupportedException();
     }
 
     /// <inheritdoc/>
-    protected internal override SqlProvider VisitContainsTable(ContainsTableProvider provider)
+    internal protected override SqlProvider VisitContainsTable(ContainsTableProvider provider)
     {
       throw new NotSupportedException();
     }

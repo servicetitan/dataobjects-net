@@ -60,8 +60,6 @@ namespace Xtensive.Orm.Configuration
       return result;
     }
 
-    object ICloneable.Clone() => Clone();
-
     /// <inheritdoc/>
     public VersioningConvention()
     {
@@ -70,4 +68,3 @@ namespace Xtensive.Orm.Configuration
     }
   }
 }
-
