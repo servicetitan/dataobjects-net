@@ -21,7 +21,15 @@ internal static class PrefetchActionContainer
       ? Prefetch
       : null;
 
-    void Prefetch(SessionHandler sh, IEnumerable<Key> keys)
+    // Returns null if associations is empty
+    public Action<SessionHandler, IEnumerable<Key>> BuildPrefetchAction(IEnumerable<AssociationInfo> associations)
+    {
+      fields = associations.Select(static association => new PrefetchFieldDescriptor(association.OwnerField, true, false))
+        .ToArray();
+      return fields.Count > 0 ? Prefetch : null;
+    }
+
+    private void Prefetch(SessionHandler sh, IEnumerable<Key> keys)
     {
       foreach (var key in keys)
         sh.Prefetch(key, type, fields);

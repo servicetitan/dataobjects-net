@@ -106,6 +106,11 @@ namespace Xtensive.Reflection
       if (parameterTypes.All(o => o is not null)) {
         return type.GetConstructor(bindingFlags, null, parameterTypes, null);
       }
+      else if (parameterTypes.All(o => o is Type)) {
+        return type.GetConstructor(bindingFlags, null,
+          parameterTypes.SelectToArray(o => (Type) o), null);
+      }
+
       ConstructorInfo lastMatch = null;
 
       foreach (var ci in type.GetConstructors(bindingFlags)) {

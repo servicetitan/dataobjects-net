@@ -34,8 +34,8 @@ namespace Xtensive.Orm.Linq
       var genericBinder = genericVisitor.Process;
       return new ConstructorExpression(
         Type,
-        Bindings.ToDictionary(kvp => kvp.Key, kvp => genericBinder(kvp.Value)),
-        NativeBindings.ToDictionary(kvp=>kvp.Key, kvp => genericBinder(kvp.Value)),
+        Bindings.ToDictionary(kvp => kvp.Key, kvp => genericBinder(kvp.Value), Bindings.Count),
+        NativeBindings.ToDictionary(kvp=>kvp.Key, kvp => genericBinder(kvp.Value), NativeBindings.Count),
         Constructor,
         ConstructorArguments.Select(genericBinder).ToArray());
     }
