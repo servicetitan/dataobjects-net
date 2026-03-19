@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Upgrade.Model
           ea.Execute(() => {
             throw new ValidationException(Strings.ExInvalidPrimaryKeyStructure, Path);
           });
-        if (all.Zip(tableColumns, (column, tableColumn) => (column, tableColumn)).Any(p => p.Item1 != p.Item2))
+        if (keys.Concat(values).Zip(tableColumns, (column, tableColumn) => (column, tableColumn)).Any(p => p.Item1 != p.Item2))
           ea.Execute(() => {
             throw new ValidationException(Strings.ExInvalidPrimaryKeyStructure, Path);
           });

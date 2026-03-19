@@ -201,7 +201,7 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private Expression VisitLambda(SerializableLambdaExpression l)
     {
-      var parameters = l.Parameters.SelectToArray(p => (ParameterExpression) Visit(p));
+      var parameters = l.Parameters.Select(p => (ParameterExpression) Visit(p)).ToArray();
       using (CreateParameterScope(parameters)) {
         return FastExpression.Lambda(l.Type, Visit(l.Body), parameters);
       }

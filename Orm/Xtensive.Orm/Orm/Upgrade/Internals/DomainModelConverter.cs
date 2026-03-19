@@ -440,7 +440,7 @@ namespace Xtensive.Orm.Upgrade
 
     private static void CreateReferenceForeignKey(TableInfo referencingTable, TableInfo referencedTable, FieldInfo referencingField, string foreignKeyName)
     {
-      var foreignColumns = referencingField.Columns.SelectToArray(column => referencingTable.Columns[column.Name]);
+      var foreignColumns = referencingField.Columns.Select(column => referencingTable.Columns[column.Name]).ToArray();
       var foreignKey = new ForeignKeyInfo(referencingTable, foreignKeyName) {
         PrimaryKey = referencedTable.PrimaryIndex,
         OnRemoveAction = ReferentialAction.None,

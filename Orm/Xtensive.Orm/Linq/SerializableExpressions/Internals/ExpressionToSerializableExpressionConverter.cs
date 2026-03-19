@@ -223,17 +223,17 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
     private SerializableElementInit[] VisitElementInitSequence(IList<ElementInit> initializers)
     {
       return initializers
-        .SelectToArray(initializer => new SerializableElementInit
+        .Select(initializer => new SerializableElementInit
           {
             AddMethod = initializer.AddMethod,
             Arguments = VisitExpressionSequence(initializer.Arguments)
-          });
+          }).ToArray();
     }
 
     private SerializableExpression[] VisitExpressionSequence<T>(IList<T> expressions)
       where T : Expression
     {
-      return expressions.SelectToArray(e => Visit(e));
+      return expressions.Select(e => Visit(e)).ToArray();
     }
 
     #endregion

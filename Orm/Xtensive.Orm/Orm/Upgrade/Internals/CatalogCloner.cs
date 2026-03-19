@@ -339,12 +339,12 @@ namespace Xtensive.Orm.Upgrade.Internals
 
       if (sourceConstraint is UniqueConstraint uniqueConstraint) {
         if (sourceConstraint is PrimaryKey primaryKey) {
-          var columns = primaryKey.Columns.SelectToArray(c => newTable.TableColumns[c.Name]);
+          var columns = primaryKey.Columns.Select(c => newTable.TableColumns[c.Name]).ToArray();
           var pk = newTable.CreatePrimaryKey(primaryKey.Name, columns);
           CopyDbName(pk, primaryKey);
         }
         else {
-          var columns = uniqueConstraint.Columns.SelectToArray(c => newTable.TableColumns[c.Name]);
+          var columns = uniqueConstraint.Columns.Select(c => newTable.TableColumns[c.Name]).ToArray();
           var uc = newTable.CreateUniqueConstraint(uniqueConstraint.Name, columns);
           CopyDbName(uc, uniqueConstraint);
         }

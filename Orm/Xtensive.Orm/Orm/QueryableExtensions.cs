@@ -369,11 +369,11 @@ namespace Xtensive.Orm
     /// <exception cref="NotSupportedException">Queryable is not a <see cref="Xtensive.Orm.Linq"/> query.</exception>
     public static IQueryable<TResult> LeftJoinEx<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
     {
-      ArgumentValidator.EnsureArgumentNotNull(outer, nameof(outer));
-      ArgumentValidator.EnsureArgumentNotNull(inner, nameof(inner));
-      ArgumentValidator.EnsureArgumentNotNull(outerKeySelector, nameof(outerKeySelector));
-      ArgumentValidator.EnsureArgumentNotNull(innerKeySelector, nameof(innerKeySelector));
-      ArgumentValidator.EnsureArgumentNotNull(resultSelector, nameof(resultSelector));
+      ArgumentNullException.ThrowIfNull(outer);
+      ArgumentNullException.ThrowIfNull(inner);
+      ArgumentNullException.ThrowIfNull(outerKeySelector);
+      ArgumentNullException.ThrowIfNull(innerKeySelector);
+      ArgumentNullException.ThrowIfNull(resultSelector);
 
       var outerProviderType = outer.Provider.GetType();
       if (outerProviderType != WellKnownOrmTypes.QueryProvider) {
