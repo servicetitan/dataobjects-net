@@ -38,6 +38,9 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
     public static void Gather(Expression filterExpression, Expression filterDataTuple, ApplyParameter filteredTuple, ArraySegment<MappingEntry?> mapping)
     {
+      var mapping = new MappingEntry[columnCount];
+      System.Array.Fill(mapping, null);
+
       var visitor = new IncludeFilterMappingGatherer(filterDataTuple, filteredTuple, mapping);
       _ = visitor.Visit(filterExpression);
       if (mapping.Contains(null))
