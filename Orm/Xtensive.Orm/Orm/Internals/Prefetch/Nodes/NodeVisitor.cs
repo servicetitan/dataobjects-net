@@ -5,8 +5,6 @@
 // Created:    2011.01.14
 
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using Xtensive.Core;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
@@ -37,7 +35,9 @@ namespace Xtensive.Orm.Internals.Prefetch
         }
         index++;
       }
-      return list?.AsSafeWrapper() ?? nodes;
+      return list==null
+        ? nodes
+        : list;
     }
 
     public virtual Node VisitKeyExtractorNode<T>(KeyExtractorNode<T> keyExtractorNode)

@@ -444,8 +444,35 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
+    protected override IReadOnlyList<ElementInit> VisitElementInitializerList(IReadOnlyList<ElementInit> original)
+    {
+      for (int i = 0, n = original.Count; i < n; i++) {
+        VisitElementInitializer(original[i]);
+        if (i < n - 1) {
+          Write(",");
+          WriteLine(IndentType.Same);
+        }
+      }
+
+      return original;
+    }
+
     protected override IReadOnlyList<Expression> VisitExpressionList(
       IReadOnlyList<Expression> expressions)
+    {
+      for (int i = 0, n = expressions.Count; i < n; i++) {
+        Visit(expressions[i]);
+        if (i < n - 1) {
+          Write(",");
+          WriteLine(IndentType.Same);
+        }
+      }
+
+      return expressions;
+    }
+
+    /// <inheritdoc/>
+    protected override IReadOnlyList<Expression> VisitExpressionList(IReadOnlyList<Expression> expressions)
     {
       for (int i = 0, n = expressions.Count; i < n; i++) {
         Visit(expressions[i]);
@@ -578,7 +605,7 @@ namespace Xtensive.Linq
         if (mc.Method.GetAttributes<ExtensionAttribute>(AttributeSearchOptions.InheritNone).Count > 0) {
           // A special case: extension method
           Visit(mc.Arguments[0]);
-          arguments = new System.Collections.ObjectModel.ReadOnlyCollection<Expression>(mc.Arguments.Skip(1).ToList());
+          arguments = new System.Collections.ObjectModel.ReadOnlyCollection<Expression>(mc.Arguments.Skip(1).ToList(mc.Arguments.Count - 1));
         }
         else {
           Write(GetTypeName(mc.Method.DeclaringType));

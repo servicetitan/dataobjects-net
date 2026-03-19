@@ -37,6 +37,19 @@ namespace Xtensive.Linq
       return result;
     }
 
+    protected override IReadOnlyList<Expression> VisitExpressionList(IReadOnlyList<Expression> expressions)
+    {
+      bool isChanged = false;
+      var results = new Expression[expressions.Count];
+      for (int i = 0, n = expressions.Count; i < n; i++) {
+        var expression = expressions[i];
+        var p = Visit(expression);
+        results[i] = p;
+        isChanged |= !ReferenceEquals(expression, p);
+      }
+      return isChanged ? results : expressions;
+    }
+
     /// <summary>
     /// Visits the unknown expression.
     /// </summary>
@@ -71,6 +84,24 @@ namespace Xtensive.Linq
     /// <returns>Visit result.</returns>
     protected virtual IEnumerable<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original) =>
       VisitList(original, VisitElementInitializer);
+
+    /// <summary>
+    /// Visits the element initializer list.
+    /// </summary>
+    /// <param name="original">The original element initializer list.</param>
+    /// <returns>Visit result.</returns>
+    protected virtual IReadOnlyList<ElementInit> VisitElementInitializerList(IReadOnlyList<ElementInit> original)
+    {
+      var results = new ElementInit[original.Count];
+      bool isChanged = false;
+      for (int i = 0, n = original.Count; i < n; i++) {
+        var originalIntializer = original[i];
+        ElementInit p = VisitElementInitializer(originalIntializer);
+        results[i] = p;
+        isChanged |= !ReferenceEquals(originalIntializer, p);
+      }
+      return isChanged ? results : original;
+    }
 
     /// <inheritdoc/>
     protected override Expression VisitUnary(UnaryExpression u) =>
@@ -241,11 +272,13 @@ namespace Xtensive.Linq
 
     public static IEnumerable<T> VisitList<T>(IReadOnlyList<T> original, Func<T, T> func) where T : class
     {
-      for (int i = 0, n = original.Count; i < n; ++i) {
-        var originalValue = original[i];
-        if (func(originalValue) is var p && !ReferenceEquals(p, originalValue)) {
-          return VisitListIterator(original, func, p, i);
-        }
+      var results = new List<MemberBinding>(original.Count);
+      bool isChanged = false;
+      for (int i = 0, n = original.Count; i < n; i++) {
+        var originalBinding = original[i];
+        MemberBinding p = VisitBinding(originalBinding);
+        results.Add(p);
+        isChanged |= !ReferenceEquals(originalBinding, p);
       }
       return original;
     }
@@ -261,11 +294,28 @@ namespace Xtensive.Linq
       }
     }
     
-    protected override MemberListBinding VisitMemberListBinding(MemberListBinding binding)
+    /// <summary>
+    /// Visits the binding list.
+    /// </summary>
+    /// <param name="original">The original binding list.</param>
+    /// <returns>Visit result.</returns>
+    protected virtual IReadOnlyList<MemberBinding> VisitBindingList(IReadOnlyList<MemberBinding> original)
     {
-      var bindingInitializers = binding.Initializers;
-      IEnumerable<ElementInit> initializers = VisitElementInitializerList(bindingInitializers);
-      if (initializers != bindingInitializers)
+      var results = new MemberBinding[original.Count];
+      bool isChanged = false;
+      for (int i = 0, n = original.Count; i < n; i++) {
+        var originalBinding = original[i];
+        MemberBinding p = VisitBinding(originalBinding);
+        results[i] = p;
+        isChanged |= !ReferenceEquals(originalBinding, p);
+      }
+      return isChanged ? results : original;
+    }
+
+    protected virtual MemberListBinding VisitMemberListBinding(MemberListBinding binding)
+    {
+      IEnumerable<ElementInit> initializers = VisitElementInitializerList((IReadOnlyList<ElementInit>) binding.Initializers);
+      if (initializers!=binding.Initializers)
         return Expression.ListBind(binding.Member, initializers);
       return binding;
     }

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -22,38 +22,46 @@ namespace Xtensive.Sql.Compiler
       var joins = new List<SqlJoinExpression>(1);
       Traverse(root, joins);
 
-      List<SqlTable> tables = new();
-      List<SqlJoinType> joinTypes = new();
-      List<SqlExpression> conditions = new();
+      var tables = new List<SqlTable>();
+      var joinTypes = new List<SqlJoinType>(joins.Count);
+      var conditions = new List<SqlExpression>(joins.Count);
 
       foreach (var item in joins) {
-        var left = item.Left;
-        if (!(left is SqlJoinedTable))
-          tables.Add(left);
-        var right = item.Right;
-        if (!(right is SqlJoinedTable))
-          tables.Add(right);
+        if (item.Left is not SqlJoinedTable)
+          tables.Add(item.Left);
+        if (item.Right is not SqlJoinedTable)
+          tables.Add(item.Right);
         joinTypes.Add(item.JoinType);
         conditions.Add(item.Expression);
       }
 
       var pivot = tables[0];
       tables.RemoveAt(0);
-      return new(pivot, tables, joinTypes, conditions);
+      return new JoinSequence(pivot, tables, joinTypes, conditions);
     }
 
     private static void Traverse(SqlJoinedTable root, List<SqlJoinExpression> output)
     {
-      var joinExpression = root.JoinExpression;
-      if (joinExpression.Left is SqlJoinedTable joinedLeft) {
+      var left = root.JoinExpression.Left;
+      if (left is SqlJoinedTable joinedLeft)
         Traverse(joinedLeft, output);
       }
 
       output.Add(joinExpression);
 
-      if (joinExpression.Right is SqlJoinedTable joinedRight) {
+      var right = root.JoinExpression.Right;
+      if (right is SqlJoinedTable joinedRight)
         Traverse(joinedRight, output);
-      }
+    }
+
+
+    // Constructors
+    private JoinSequence(SqlTable pivot, IReadOnlyList<SqlTable> tables, IReadOnlyList<SqlJoinType> joinTypes, IReadOnlyList<SqlExpression> conditions)
+    {
+      Pivot = pivot;
+      Tables = tables;
+      JoinTypes = joinTypes;
+      Conditions = conditions;
     }
   }
 }

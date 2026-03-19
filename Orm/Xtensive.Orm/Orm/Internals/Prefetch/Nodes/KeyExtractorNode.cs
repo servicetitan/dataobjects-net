@@ -13,22 +13,24 @@ namespace Xtensive.Orm.Internals.Prefetch
 {
   internal sealed class KeyExtractorNode<T> : Node, IHasNestedNodes
   {
-    public Func<T, IReadOnlyCollection<Key>> KeyExtractor { get; }
+    public Func<T, IReadOnlyList<Key>> KeyExtractor { get; }
 
     public IReadOnlyList<BaseFieldNode> NestedNodes { get; }
 
-    IReadOnlyCollection<Key> IHasNestedNodes.ExtractKeys(object target)
+    IReadOnlyList<Key> IHasNestedNodes.ExtractKeys(object target)
     {
       return ExtractKeys((T) target);
     }
 
-    public IReadOnlyCollection<Key> ExtractKeys(T target)
+    public IReadOnlyList<Key> ExtractKeys(T target)
     {
       return KeyExtractor.Invoke(target);
     }
 
-    public IHasNestedNodes ReplaceNestedNodes(IReadOnlyList<BaseFieldNode> nestedNodes) =>
-      new KeyExtractorNode<T>(KeyExtractor, nestedNodes);
+    public IHasNestedNodes ReplaceNestedNodes(IReadOnlyList<BaseFieldNode> nestedNodes)
+    {
+      return new KeyExtractorNode<T>(KeyExtractor, nestedNodes);
+    }
 
     public override Node Accept(NodeVisitor visitor)
     {
@@ -40,7 +42,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return $"KeyExtraction<{typeof(T).Name}>";
     }
 
-    public KeyExtractorNode(Func<T, IReadOnlyCollection<Key>> extractor, IReadOnlyList<BaseFieldNode> nestedNodes)
+    public KeyExtractorNode(Func<T, IReadOnlyList<Key>> extractor, IReadOnlyList<BaseFieldNode> nestedNodes)
       : base("*")
     {
       ArgumentNullException.ThrowIfNull(extractor);
