@@ -129,7 +129,7 @@ namespace Xtensive.Modelling.Comparison
       SourceModel = (IModel) difference.Source;
       TargetModel = (IModel) difference.Target;
       Hints = hints ?? new HintSet(SourceModel, TargetModel);
-      Comparer = comparer;
+      Comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
       if (Hints.SourceModel != SourceModel) {
         throw new ArgumentOutOfRangeException("hints.SourceModel");
       }

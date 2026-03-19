@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Tuples;
