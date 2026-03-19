@@ -106,6 +106,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private void ValidateParameter(ParameterExpression p)
     {
       if (currentParameter!=p)
+
         throw new NotSupportedException("Outer parameter should not be accessed from nested Prefetch() call");
     }
 
