@@ -328,7 +328,7 @@ namespace Xtensive.Orm
     /// <returns></returns>
     /// <exception cref="ArgumentNullException">One of provided arguments is <see langword="null" />.</exception>
     /// <exception cref="NotSupportedException">Queryable is not a <see cref="Xtensive.Orm.Linq"/> query.</exception>
-    public static IQueryable<TResult> LeftOuterJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
+    public static IQueryable<TResult> LeftJoinEx<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
     {
       ArgumentNullException.ThrowIfNull(outer);
       ArgumentNullException.ThrowIfNull(inner);
@@ -337,14 +337,19 @@ namespace Xtensive.Orm
       ArgumentNullException.ThrowIfNull(resultSelector);
 
       var outerProviderType = outer.Provider.GetType();
-      if (outerProviderType!=WellKnownOrmTypes.QueryProvider) {
+      if (outerProviderType != WellKnownOrmTypes.QueryProvider) {
         var errorMessage = Strings.ExLeftJoinDoesNotSupportQueryProviderOfTypeX;
         throw new NotSupportedException(string.Format(errorMessage, outerProviderType));
       }
 
-      var expression = Expression.Call(null, Traits<TOuter, TInner, TKey, TResult>.ExtensionLeftJoinMethodInfo, new[] {outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector});
+      var genericMethod = WellKnownMembers.Queryable.ExtensionLeftJoin.MakeGenericMethod(new[] { typeof(TOuter), typeof(TInner), typeof(TKey), typeof(TResult) });
+      var expression = Expression.Call(null, genericMethod, new[] { outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector });
       return outer.Provider.CreateQuery<TResult>(expression);
     }
+
+
+    public static IQueryable<TResult> LeftOuterJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector) =>
+        LeftJoinEx(outer, inner, outerKeySelector, innerKeySelector, resultSelector);
 
     /// <summary>
     /// Runs query to database asynchronously and returns completed task for other <see cref="IQueryable{T}"/>.

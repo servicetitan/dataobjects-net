@@ -2562,7 +2562,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var p = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"], "p");
       var pr = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductReview"], "pr");
-      var select = SqlDml.Select(p.LeftOuterJoin(pr, p["ProductID"]==pr["ProductID"]));
+      var select = SqlDml.Select(p.LeftJoinEx(pr, p["ProductID"]==pr["ProductID"]));
       select.Columns.AddRange(p["Name"], pr["ProductReviewID"]);
 
       Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);

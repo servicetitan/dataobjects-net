@@ -33,7 +33,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v12_0
       var typesTable = PgType;
 
       var select = SqlDml.Select(columnsTable
-        .LeftOuterJoin(defaultValuesTable,
+        .LeftJoinEx(defaultValuesTable,
           columnsTable["attrelid"] == defaultValuesTable["adrelid"]
           && columnsTable["attnum"] == defaultValuesTable["adnum"])
         .InnerJoin(typesTable, typesTable["oid"] == columnsTable["atttypid"]));
@@ -103,7 +103,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v12_0
       //not automatically created indexes of our tables
       var select = SqlDml.Select(indexTable
         .InnerJoin(relationsTable, relationsTable["oid"] == indexTable["indexrelid"])
-        .LeftOuterJoin(tableSpacesTable, tableSpacesTable["oid"] == relationsTable["reltablespace"]));
+        .LeftJoinEx(tableSpacesTable, tableSpacesTable["oid"] == relationsTable["reltablespace"]));
       select.Where = SqlDml.In(indexTable["indrelid"], CreateOidRow(tableMap.Keys)) && !SqlDml.Exists(subSelect);
       select.Columns.Add(indexTable["indrelid"]);
       select.Columns.Add(indexTable["indexrelid"]);
