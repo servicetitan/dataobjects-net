@@ -151,10 +151,20 @@ namespace Xtensive.Orm.Linq
 
     private IReadOnlyList<Expression> VisitNewExpressionArguments(NewExpression n)
     {
+    private IReadOnlyList<Expression> VisitNewExpressionArguments(NewExpression n, out ParameterInfo[] constructorParameters)
+    {
       var origArguments = n.Arguments;
       int count = origArguments.Count;
       var arguments = new Expression[count];
       for (int i = 0; i < count; i++) {
+      constructorParameters = n.GetConstructorParameters();
+      if (n.Arguments.Count == 0) {
+        return Array.Empty<Expression>();
+      }
+      var arguments = new Expression[n.Arguments.Count];
+      var origArguments = n.Arguments;
+
+      for (int i = 0, count = origArguments.Count; i < count; i++) {
         var argument = origArguments[i];
 
         Expression body;
@@ -178,6 +188,7 @@ namespace Xtensive.Orm.Linq
       }
       return arguments;
     }
+
 
     private void VisitNewExpressionArgumentsSkipResults(NewExpression n)
     {
