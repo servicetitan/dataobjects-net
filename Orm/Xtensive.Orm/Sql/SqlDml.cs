@@ -1020,7 +1020,7 @@ namespace Xtensive.Sql
         expressions[0] = left;
         expressions[1] = right;
         for (int i = 0; i<l; i++) {
-          ArgumentNullException.ThrowIfNull(values[i], "values");
+          ArgumentNullException.ThrowIfNull(values[i], $"values[{i}]");
           SqlValidator.EnsureIsArithmeticExpression(values[i]);
           expressions[i+2] = values[i];
         }
@@ -1050,7 +1050,7 @@ namespace Xtensive.Sql
       ArgumentNullException.ThrowIfNull(left);
       ArgumentNullException.ThrowIfNull(right);
       if (expression is not null && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
-        throw new ArgumentException(Strings.ExJoinExpressionShouldBeNullForCrossApplyAndOuterApply, "expression");
+        throw new ArgumentException(Strings.ExJoinExpressionShouldBeNullForCrossApplyAndOuterApply, nameof(expression));
       return new SqlJoinedTable(new SqlJoinExpression(joinType, left, right, expression));
     }
 
@@ -1060,7 +1060,7 @@ namespace Xtensive.Sql
       ArgumentNullException.ThrowIfNull(left);
       ArgumentNullException.ThrowIfNull(right);
       if (expression is not null && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
-        throw new ArgumentException(Strings.ExJoinExpressionShouldBeNullForCrossApplyAndOuterApply, "expression");
+        throw new ArgumentException(Strings.ExJoinExpressionShouldBeNullForCrossApplyAndOuterApply, nameof(expression));
       return new SqlJoinedTable(new SqlJoinExpression(joinType, left, right, expression), leftColumns, rightColumns);
     }
 
@@ -1395,7 +1395,7 @@ namespace Xtensive.Sql
     {
       ArgumentNullException.ThrowIfNull(argument);
       if (type!=TypeCode.Decimal && type!=TypeCode.Double)
-        throw new ArgumentOutOfRangeException("type");
+        throw new ArgumentOutOfRangeException(nameof(type));
       return new SqlRound(argument, length, type, mode);
     }
 
@@ -1663,7 +1663,7 @@ namespace Xtensive.Sql
 
     public static SqlUpdate Update(SqlTableRef tableRef)
     {
-      ArgumentNullException.ThrowIfNull(tableRef, "table");
+      ArgumentNullException.ThrowIfNull(tableRef);
       return new SqlUpdate(tableRef);
     }
 
@@ -1674,7 +1674,7 @@ namespace Xtensive.Sql
 
     public static SqlInsert Insert(SqlTableRef tableRef)
     {
-      ArgumentNullException.ThrowIfNull(tableRef, "table");
+      ArgumentNullException.ThrowIfNull(tableRef);
       return new SqlInsert(tableRef);
     }
 
@@ -1973,7 +1973,7 @@ namespace Xtensive.Sql
 
     public static SqlTableColumn TableColumn(SqlTable sqlTable)
     {
-      ArgumentNullException.ThrowIfNull(sqlTable, "table");
+      ArgumentNullException.ThrowIfNull(sqlTable);
       return new SqlTableColumn(sqlTable, string.Empty);
     }
 

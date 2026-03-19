@@ -34,9 +34,9 @@ namespace Xtensive.Core
       ArgumentNullException.ThrowIfNull(source);
       ArgumentNullException.ThrowIfNull(target);
       if (targetIndex < 0 || targetIndex > target.Length)
-        throw new ArgumentOutOfRangeException("targetIndex");
+        throw new ArgumentOutOfRangeException(nameof(targetIndex));
       if ((target.Length - targetIndex) < source.Count)
-        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, "target");
+        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, nameof(target));
 
       foreach (TItem item in source)
         target[targetIndex++] = item;
@@ -58,11 +58,11 @@ namespace Xtensive.Core
       ArgumentNullException.ThrowIfNull(source);
       ArgumentNullException.ThrowIfNull(target);
       if (targetIndex < 0 || targetIndex > target.Length)
-        throw new ArgumentOutOfRangeException("targetIndex");
+        throw new ArgumentOutOfRangeException(nameof(targetIndex));
       if ((target.Length - targetIndex) < source.Count)
-        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, "target");
+        throw new ArgumentException(Strings.ExDestionationArrayIsTooSmall, nameof(target));
       if (target.Rank != 1)
-        throw new ArgumentException(Strings.ExArrayIsMultidimensional, "target");
+        throw new ArgumentException(Strings.ExArrayIsMultidimensional, nameof(target));
 //      if (target.GetType().GetElementType().IsAssignableFrom(typeof(T)))
 //        throw new ArgumentException(Strings.ExIncompatibleArrayType, "target");
 

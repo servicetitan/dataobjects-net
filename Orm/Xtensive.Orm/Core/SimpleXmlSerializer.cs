@@ -33,7 +33,7 @@ namespace Xtensive.Core
     /// <returns>Deserialized instance.</returns>
     public T Deserialize(string value)
     {
-      ArgumentNullException.ThrowIfNull(value, "serialized");
+      ArgumentNullException.ThrowIfNull(value);
 
       using StringReader reader = new(value);
       return (T) serializer.Deserialize(reader);

@@ -178,7 +178,7 @@ namespace Xtensive.Core
       var me = expression as MemberExpression;
       if (me==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (MemberExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (MemberExpression)), nameof(expression));
       return me.Member;
     }
 
@@ -227,7 +227,7 @@ namespace Xtensive.Core
       var mce = expression as MethodCallExpression;
       if (mce==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (MethodCallExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (MethodCallExpression)), nameof(expression));
       return mce.Method;
     }
 
@@ -244,7 +244,7 @@ namespace Xtensive.Core
       var ie = expression as IndexExpression;
       if (ie==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (IndexExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (IndexExpression)), nameof(expression));
       return ie.Indexer;
     }
 
@@ -261,7 +261,7 @@ namespace Xtensive.Core
       var ne = expression as NewExpression;
       if (ne==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (NewExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (NewExpression)), nameof(expression));
       return ne.Constructor;
     }
 

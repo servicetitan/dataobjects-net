@@ -16,6 +16,7 @@ namespace Xtensive.Core
   public static class StringBuilderExtensions
   {
     private const char IndentChar = ' ';
+    private const string LowerHexChars = "0123456789abcdef";
 
     /// <summary>
     /// Appends the specified <see cref="string"/> indented by specified count of spaces.
@@ -79,10 +80,9 @@ namespace Xtensive.Core
       ArgumentNullException.ThrowIfNull(builder);
       ArgumentNullException.ThrowIfNull(values);
 
-      const string lowerHexChars = "0123456789abcdef";
       foreach (var item in values) {
-        _ = builder.Append(lowerHexChars[item >> 4])
-          .Append(lowerHexChars[item & 0xF]);
+        _ = builder.Append(LowerHexChars[item >> 4])
+          .Append(LowerHexChars[item & 0xF]);
       }
       return builder;
     }
@@ -99,10 +99,9 @@ namespace Xtensive.Core
     {
       ArgumentNullException.ThrowIfNull(builder);
 
-      const string lowerHexChars = "0123456789abcdef";
       foreach (var item in values) {
-        _ = builder.Append(lowerHexChars[item >> 4])
-          .Append(lowerHexChars[item & 0xF]);
+        _ = builder.Append(LowerHexChars[item >> 4])
+          .Append(LowerHexChars[item & 0xF]);
       }
       return builder;
     }

@@ -71,10 +71,10 @@ namespace Xtensive.Collections
       ArgumentNullException.ThrowIfNull(extensionType);
       if (extensionType.IsValueType)
         throw new ArgumentException(string.Format(
-          Strings.ExTypeXMustBeReferenceType, extensionType.GetShortName()), "extensionType");
+          Strings.ExTypeXMustBeReferenceType, extensionType.GetShortName()), nameof(extensionType));
       if (value!=null && !extensionType.IsAssignableFrom(value.GetType()))
         throw new ArgumentException(string.Format(
-          Strings.ExTypeXMustImplementY, value.GetType(), extensionType.GetShortName()), "value");
+          Strings.ExTypeXMustImplementY, value.GetType(), extensionType.GetShortName()), nameof(value));
       
       if (extensions==null)
         if (value==null)

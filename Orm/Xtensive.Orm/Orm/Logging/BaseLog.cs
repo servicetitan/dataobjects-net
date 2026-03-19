@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Logging
     /// <returns><see cref="IDisposable"/> object. Region will closed by disposing of this object.</returns>
     public IndentManager.IndentScope DebugRegion(string messageId, params ReadOnlySpan<object> parameters)
     {
-      ArgumentNullException.ThrowIfNull(messageId, "message");
+      ArgumentNullException.ThrowIfNull(messageId);
       if (!IsLogged(LogLevel.Debug))
         return IndentManager.IncreaseIndent();
       var message = Strings.ResourceManager.GetString(messageId, Strings.Culture) ?? messageId;
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Logging
     /// <returns><see cref="IDisposable"/> object. Region will closed by disposing of this object.</returns>
     public IndentManager.IndentScope InfoRegion(string messageId, params ReadOnlySpan<object> parameters)
     {
-      ArgumentNullException.ThrowIfNull(messageId, "message");
+      ArgumentNullException.ThrowIfNull(messageId);
       if (!IsLogged(LogLevel.Info))
         return IndentManager.IncreaseIndent();
       var message = Strings.ResourceManager.GetString(messageId, Strings.Culture) ?? messageId;
