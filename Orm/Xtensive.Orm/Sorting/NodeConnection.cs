@@ -83,8 +83,8 @@ namespace Xtensive.Sorting
       ArgumentNullException.ThrowIfNull(source);
       ArgumentNullException.ThrowIfNull(destination);
       ConnectionItem = connectionItem;
-      Source = source;
-      Destination = destination;
+      Source = source ?? throw new ArgumentNullException(nameof(source));
+      Destination = destination ?? throw new ArgumentNullException(nameof(destination));
       ConnectionType = connectionType;
     }
   }

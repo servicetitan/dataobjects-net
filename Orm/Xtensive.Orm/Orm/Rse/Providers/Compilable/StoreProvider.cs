@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Rse.Providers
 
       Name = name;
 
-      this.header = header;
+      this.header = header ?? throw new ArgumentNullException(nameof(header));
 
       Initialize();
     }
@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Rse.Providers
       ArgumentNullException.ThrowIfNull(source);
 
       Name = Guid.NewGuid().ToString();
-      Source = source;
+      Source = source ?? throw new ArgumentNullException(nameof(source));
 
       header = source.Header;
 

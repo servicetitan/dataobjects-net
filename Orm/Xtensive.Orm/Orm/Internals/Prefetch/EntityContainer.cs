@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Tuples;
@@ -91,9 +92,9 @@ namespace Xtensive.Orm.Internals.Prefetch
       ArgumentNullException.ThrowIfNull(type);
       ArgumentNullException.ThrowIfNull(manager, "processor");
       Key = key;
-      Type = type;
+      Type = type ?? throw new ArgumentNullException(nameof(type));
       ExactType = exactType;
-      Manager = manager;
+      Manager = manager ?? throw new ArgumentNullException(nameof(manager));
     }
   }
 }

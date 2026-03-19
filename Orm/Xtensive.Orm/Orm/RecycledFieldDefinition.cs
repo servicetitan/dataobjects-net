@@ -66,9 +66,9 @@ namespace Xtensive.Orm
       ArgumentException.ThrowIfNullOrEmpty(fieldName);
       ArgumentNullException.ThrowIfNull(fieldType);
 
-      OwnerType = ownerType;
+      OwnerType = ownerType ?? throw new ArgumentNullException(nameof(ownerType));
       FieldName = fieldName;
-      FieldType = fieldType;
+      FieldType = fieldType ?? throw new ArgumentNullException(nameof(fieldType));
     }
 
     public override string ToString()

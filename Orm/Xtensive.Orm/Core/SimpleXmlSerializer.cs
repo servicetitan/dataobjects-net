@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.07.18
 
+using System;
 using System.IO;
 using System.Text;
 using System.Xml;

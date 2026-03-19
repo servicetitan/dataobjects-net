@@ -342,18 +342,17 @@ namespace Xtensive.Sql
         else if (constraint.Domain!=null && constraint.Domain!=domain)
           throw new ArgumentException(Strings.ExConstraintBelongsToOtherDomain, "action");
       }
-      else if (action is SqlDropConstraint) {
-        DomainConstraint constraint = ((SqlDropConstraint)action).Constraint as DomainConstraint;
-        if (constraint==null)
-          throw new ArgumentException(Strings.ExInvalidConstraintType, "action");
-        else if (constraint.Domain!=null && constraint.Domain!=domain)
-          throw new ArgumentException(Strings.ExConstraintBelongsToOtherDomain, "action");
+      else if (action is SqlDropConstraint dropConstraint) {
+        if (dropConstraint.Constraint is not DomainConstraint domainConstraint)
+          throw new ArgumentException(Strings.ExInvalidConstraintType, nameof(action));
+        else if (domainConstraint.Domain!=null && domainConstraint.Domain!=domain)
+          throw new ArgumentException(Strings.ExConstraintBelongsToOtherDomain, nameof(action));
       }
-      else if (action is SqlSetDefault && ((SqlSetDefault)action).Column!=null ||
-               action is SqlDropDefault && ((SqlDropDefault)action).Column!=null)
-        throw new ArgumentException(Strings.ExInvalidActionType, "action");
+      else if (action is SqlSetDefault setDefaultAction && setDefaultAction.Column!=null ||
+               action is SqlDropDefault dropDefaultAction && dropDefaultAction.Column!=null)
+        throw new ArgumentException(Strings.ExInvalidActionType, nameof(action));
       else if (action is SqlAddColumn || action is SqlDropColumn || action is SqlAlterIdentityInfo)
-        throw new ArgumentException(Strings.ExInvalidActionType, "action");
+        throw new ArgumentException(Strings.ExInvalidActionType, nameof(action));
       return new SqlAlterDomain(domain, action);
     }
 
@@ -441,6 +440,7 @@ namespace Xtensive.Sql
 
     public static SqlDropDefault DropDefault(TableColumn column)
     {
+      ArgumentNullException.ThrowIfNull(column);
       return new SqlDropDefault(column);
     }
 

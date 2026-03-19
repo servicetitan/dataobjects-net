@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2011.03.02
 
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;

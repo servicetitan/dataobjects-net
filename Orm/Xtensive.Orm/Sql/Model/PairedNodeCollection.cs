@@ -106,7 +106,7 @@ namespace Xtensive.Sql.Model
       ArgumentException.ThrowIfNullOrEmpty(property);
       ArgumentNullException.ThrowIfNull(equalityComparer);
 
-      this.owner = owner;
+      this.owner = owner ?? throw new ArgumentNullException(nameof(owner));
       this.property = property;
     }
 

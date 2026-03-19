@@ -41,8 +41,8 @@ namespace Xtensive.Orm.Providers
       ArgumentNullException.ThrowIfNull(closureObject);
       ArgumentException.ThrowIfNullOrEmpty(fieldName);
 
-      Mapping = mapping;
-      ClosureObject = closureObject;
+      Mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
+      ClosureObject = closureObject ?? throw new ArgumentNullException(nameof(closureObject));
       FieldName = fieldName;
       BindingType = bindingType;
     }

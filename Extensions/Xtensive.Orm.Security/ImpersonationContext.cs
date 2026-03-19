@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Security

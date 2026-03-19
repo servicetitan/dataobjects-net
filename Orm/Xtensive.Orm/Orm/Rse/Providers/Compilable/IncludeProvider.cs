@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Rse.Providers
       ArgumentNullException.ThrowIfNull(filteredColumns);
       Algorithm = algorithm;
       IsInlined = isInlined;
-      FilterDataSource = filterDataSource;
+      FilterDataSource = filterDataSource ?? throw new ArgumentNullException(nameof(filterDataSource));
       ResultColumnName = resultColumnName;
       FilteredColumns = filteredColumns;
 

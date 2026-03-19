@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Operations
     {
       ArgumentNullException.ThrowIfNull(executeAction);
       this.prepareAction = prepareAction;
-      this.executeAction = executeAction;
+      this.executeAction = executeAction ?? throw new ArgumentNullException(nameof(executeAction));
       this.arguments = arguments;
     }
   }

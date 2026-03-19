@@ -227,7 +227,7 @@ namespace Xtensive.Caching
     {
       ArgumentNullException.ThrowIfNull(keyExtractor);
       this.trackResurrection = trackResurrection;
-      this.KeyExtractor = keyExtractor;
+      this.KeyExtractor = keyExtractor ?? throw new ArgumentNullException(nameof(keyExtractor));
     }
 
     // Dispose pattern

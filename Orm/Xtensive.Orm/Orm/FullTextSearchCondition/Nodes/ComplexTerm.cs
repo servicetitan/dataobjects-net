@@ -1,9 +1,10 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
+// Copyright (C) 2003-2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
 // Created:    2016.12.09
 
+using System;
 using Xtensive.Core;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;
 
