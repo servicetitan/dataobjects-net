@@ -113,6 +113,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
     internal protected override ConstructorExpression VisitConstructorExpression(ConstructorExpression expression)
     {
+      IList<Expression> arguments = new List<Expression>();
       var bindings = new Dictionary<MemberInfo, Expression>(expression.Bindings.Count);
       var nativeBindings = new Dictionary<MemberInfo, Expression>(expression.NativeBindings.Count);
       bool recreate = false;
@@ -140,7 +141,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         bindings,
         nativeBindings,
         expression.Constructor,
-        arguments);
+        arguments.Count > 0 ? arguments : Array.Empty<Expression>());
     }
 
     internal protected override MarkerExpression VisitMarker(MarkerExpression expression)

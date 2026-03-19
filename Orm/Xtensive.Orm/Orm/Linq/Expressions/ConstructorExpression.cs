@@ -14,6 +14,8 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Expressions.Visitors;
+using System.Linq;
+using System.Net.Http.Headers;
 
 namespace Xtensive.Orm.Linq
 {
@@ -30,26 +32,32 @@ namespace Xtensive.Orm.Linq
 
     public override ParameterizedExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      GenericExpressionVisitor<IMappedExpression> genericVisitor = new(mapped => mapped.BindParameter(parameter, processedExpressions));
-      var genericBinder = genericVisitor.Process;
+      Func<Expression, Expression> genericBinder =
+        e => GenericExpressionVisitor<IMappedExpression>.Process(e, mapped => mapped.BindParameter(parameter, processedExpressions));
+
       return new ConstructorExpression(
         Type,
         Bindings.ToDictionary(kvp => kvp.Key, kvp => genericBinder(kvp.Value), Bindings.Count),
         NativeBindings.ToDictionary(kvp=>kvp.Key, kvp => genericBinder(kvp.Value), NativeBindings.Count),
         Constructor,
-        ConstructorArguments.Select(genericBinder).ToArray());
+        ReferenceEquals(ConstructorArguments, Array.Empty<Expression>())
+          ? ConstructorArguments
+          : ConstructorArguments.Select(genericBinder).ToArray());
     }
 
     public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      GenericExpressionVisitor<IMappedExpression> genericVisitor = new(mapped => mapped.RemoveOuterParameter(processedExpressions));
-      var genericRemover = genericVisitor.Process;
+      Func<Expression, Expression> genericRemover =
+        e => GenericExpressionVisitor<IMappedExpression>.Process(e, mapped => mapped.RemoveOuterParameter(processedExpressions));
+
       var result = new ConstructorExpression(
         Type,
         Bindings.ToDictionary(kvp => kvp.Key, kvp => genericRemover(kvp.Value)),
         NativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => genericRemover(kvp.Value)),
         Constructor,
-        ConstructorArguments.Select(genericRemover).ToArray());
+        ReferenceEquals(ConstructorArguments, Array.Empty<Expression>())
+          ? ConstructorArguments
+          : ConstructorArguments.Select(genericRemover).ToArray());
       return result;
     }
 
@@ -61,10 +69,12 @@ namespace Xtensive.Orm.Linq
           return mapped.Remap(offset, new Dictionary<Expression, Expression>());
         return (Expression) mapped;
       };
-      GenericExpressionVisitor<IMappedExpression> genericVisitor = new(remapper);
-      var newBindings = Bindings.ToDictionary(kvp => kvp.Key, kvp => genericVisitor.Process(kvp.Value));
-      var newConstructorArguments = ConstructorArguments.Select(genericVisitor.Process).ToArray();
-      var newNativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => genericVisitor.Process(kvp.Value));
+
+      var newBindings = Bindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
+      var newConstructorArguments = ReferenceEquals(ConstructorArguments, Array.Empty<Expression>())
+        ? ConstructorArguments
+        : ConstructorArguments.Select(arg =>  GenericExpressionVisitor<IMappedExpression>.Process(arg, remapper));
+      var newNativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
       var result = new ConstructorExpression(
         Type,
         newBindings,
@@ -82,20 +92,26 @@ namespace Xtensive.Orm.Linq
           return mapped.Remap(map, new Dictionary<Expression, Expression>());
         return (Expression) mapped;
       };
-      GenericExpressionVisitor<IMappedExpression> genericVisitor = new(remapper);
-      var newBindings = Bindings.ToDictionary(kvp => kvp.Key, kvp => genericVisitor.Process(kvp.Value));
-      var newConstructorArguments = ConstructorArguments.Select(genericVisitor.Process).ToArray();
-      var newNativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => genericVisitor.Process(kvp.Value));
+
+      var newBindings = Bindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
+      var newConstructorArguments = ReferenceEquals(ConstructorArguments, Array.Empty<Expression>())
+        ? ConstructorArguments
+        : ConstructorArguments.Select(arg =>  GenericExpressionVisitor<IMappedExpression>.Process(arg, remapper));
+      var newNativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
       return new ConstructorExpression(Type, newBindings, newNativeBindings, Constructor, newConstructorArguments);
     }
 
-    internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitConstructorExpression(this);
-
-    public ConstructorExpression(Type type, Dictionary<MemberInfo, Expression> bindings, Dictionary<MemberInfo, Expression> nativeBindings, ConstructorInfo constructor, IReadOnlyList<Expression> constructorArguments)
+    public ConstructorExpression(Type type,
+      Dictionary<MemberInfo, Expression> bindings,
+      Dictionary<MemberInfo, Expression> nativeBindings,
+      ConstructorInfo constructor,
+      IEnumerable<Expression> constructorArguments)
       : base(ExtendedExpressionType.Constructor, type, null, false)
     {
       Bindings = bindings ?? new Dictionary<MemberInfo, Expression>();
       NativeBindings = nativeBindings;
+      // consistently use keep empty array instead of any other empty collection,
+      // there are checks that help to not instanciate collections
       ConstructorArguments = constructorArguments ?? Array.Empty<Expression>();
       Constructor = constructor;
     }

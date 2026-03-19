@@ -4,6 +4,8 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.26
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
@@ -44,8 +46,23 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
     internal protected override ConstructorExpression VisitConstructorExpression(ConstructorExpression expression)
     {
-      var oldConstructorArguments = expression.ConstructorArguments;
-      var newConstructorArguments = VisitExpressionList(oldConstructorArguments);
+      IReadOnlyList<Expression> oldConstructorArguments;
+      IReadOnlyList<Expression> newConstructorArguments;
+
+      if (ReferenceEquals(expression.ConstructorArguments, Array.Empty<Expression>())) {
+        oldConstructorArguments = newConstructorArguments = Array.Empty<Expression>();
+      }
+      else if (expression.ConstructorArguments is IReadOnlyList<Expression> argsAsList) {
+        oldConstructorArguments = argsAsList;
+        newConstructorArguments = VisitExpressionList(argsAsList); // creates a copy internally
+      }
+      else {
+        oldConstructorArguments = expression.ConstructorArguments.ToList();
+        if (oldConstructorArguments.Count == 0)
+          oldConstructorArguments = newConstructorArguments = Array.Empty<Expression>();
+        else
+          newConstructorArguments = VisitExpressionList(oldConstructorArguments);
+      }
 
       var oldBindings = expression.Bindings.Values.ToArray();
       var newBindings = VisitExpressionList(oldBindings);
