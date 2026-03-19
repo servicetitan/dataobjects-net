@@ -23,6 +23,7 @@ namespace Xtensive.Collections
     /// <exception cref="T:System.ArgumentOutOfRangeException">
     /// <paramref name="count"/> is less than 0.-or-
     /// <paramref name="start"/> + <paramref name="count"/> -1 is larger than <see cref="F:System.Int32.MaxValue"/>.</exception>
+    [Obsolete("Enumerable.Range().ToArray() is several times faster")]
     public static int[] RangeToArray(int start, int count)
     {
       ArgumentOutOfRangeException.ThrowIfNegative(count);
@@ -40,7 +41,8 @@ namespace Xtensive.Collections
     /// <exception cref="T:System.ArgumentOutOfRangeException">
     /// <paramref name="count"/> is less than 0.-or-
     /// <paramref name="start"/> + <paramref name="count"/> -1 is larger than <see cref="F:System.Int32.MaxValue"/>.</exception>
-    public static List<ColNum> RangeToList(ColNum start, ColNum count)
+    [Obsolete("Enumerable.Range().ToList() is several times faster")]
+    public static List<ColNum> RangeToList(int start, int count)
     {
       ArgumentOutOfRangeException.ThrowIfNegative(count);
       var result = new List<ColNum>(count);

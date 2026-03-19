@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     public virtual CompilableProvider RemoveRedundantColumns()
     {
-      mappings.Add(rootProvider, CollectionUtils.RangeToList(0, rootProvider.Header.Length));
+      mappings.Add(rootProvider, Enumerable.Range(0, rootProvider.Header.Length).ToList());
       var visitedProvider = VisitCompilable(rootProvider);
       return visitedProvider != rootProvider
         ? visitedProvider
@@ -87,25 +87,25 @@ namespace Xtensive.Orm.Rse.Transformation
     /// <inheritdoc/>
     internal protected override FreeTextProvider VisitFreeText(FreeTextProvider provider)
     {
-      mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
+      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
       return provider;
     }
 
     internal protected override CompilableProvider VisitContainsTable(ContainsTableProvider provider)
     {
-      mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
+      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
       return provider;
     }
 
     internal protected override IndexProvider VisitIndex(IndexProvider provider)
     {
-      mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
+      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
       return provider;
     }
 
     internal protected override SeekProvider VisitSeek(SeekProvider provider)
     {
-      mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
+      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
       return provider;
     }
 
@@ -479,11 +479,6 @@ namespace Xtensive.Orm.Rse.Transformation
       for (int i = 0; i < biggestIndex + 1; i++) {
         if (usageMap[i])
           resultList.Add(i);
-      }
-      if (resultList.Count != uniqueCount) {
-        //
-        result = null;
-        return false;
       }
       result = resultList;
       return true;
