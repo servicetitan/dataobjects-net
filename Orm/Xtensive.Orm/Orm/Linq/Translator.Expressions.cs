@@ -516,6 +516,7 @@ namespace Xtensive.Orm.Linq
         // Visit Queryable extensions.
         if (methodDeclaringType == typeof(QueryableExtensions)) {
           return methodName switch {
+            Reflection.WellKnown.QueryableExtensions.LeftJoinEx => VisitLeftJoin(mc),
             Reflection.WellKnown.QueryableExtensions.LeftOuterJoin => VisitLeftJoin(mc),
             Reflection.WellKnown.QueryableExtensions.In => VisitIn(mc),
             Reflection.WellKnown.QueryableExtensions.Lock => VisitLock(mc),

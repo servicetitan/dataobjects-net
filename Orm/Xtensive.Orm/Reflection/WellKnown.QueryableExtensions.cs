@@ -13,6 +13,7 @@ namespace Xtensive.Reflection
     {
       public const string Count = nameof(Orm.QueryableExtensions.Count);
       public const string LeftOuterJoin = nameof(Orm.QueryableExtensions.LeftOuterJoin);
+      public const string LeftJoinEx = nameof(Orm.QueryableExtensions.LeftJoinEx);
       public const string Lock = nameof(Orm.QueryableExtensions.Lock);
       public const string Take = nameof(Orm.QueryableExtensions.Take);
       public const string Skip = nameof(Orm.QueryableExtensions.Skip);
