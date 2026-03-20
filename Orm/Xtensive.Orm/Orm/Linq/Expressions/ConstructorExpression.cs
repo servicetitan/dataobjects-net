@@ -97,6 +97,8 @@ namespace Xtensive.Orm.Linq
       return new ConstructorExpression(Type, newBindings, newNativeBindings, Constructor, newConstructorArguments);
     }
 
+    internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitConstructorExpression(this);
+
     public ConstructorExpression(Type type,
       Dictionary<MemberInfo, Expression> bindings,
       Dictionary<MemberInfo, Expression> nativeBindings,
