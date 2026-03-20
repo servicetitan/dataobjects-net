@@ -58,7 +58,7 @@ namespace Xtensive.Orm.ReferentialIntegrity
       if (isEmpty) {
         return;
       }
-      var processedEntities = new List<Entity>();
+      IReadOnlyList<Entity> processedEntities = Array.Empty<Entity>();
       var notifiedEntities = new HashSet<Entity>();
       try {
         var operations = Session.Operations;

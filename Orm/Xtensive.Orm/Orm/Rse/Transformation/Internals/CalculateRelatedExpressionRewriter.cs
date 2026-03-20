@@ -10,6 +10,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Tuple = Xtensive.Tuples.Tuple;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
+using System;
 
 namespace Xtensive.Orm.Rse.Transformation
 {

@@ -4,6 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2015.01.22
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;

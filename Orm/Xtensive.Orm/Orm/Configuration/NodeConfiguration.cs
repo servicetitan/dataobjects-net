@@ -92,6 +92,8 @@ namespace Xtensive.Orm.Configuration
       DatabaseMapping.Lock();
     }
 
+    object ICloneable.Clone() => Clone();
+
     /// <summary>
     /// Creates clone of this instance.
     /// </summary>
@@ -105,8 +107,6 @@ namespace Xtensive.Orm.Configuration
         SchemaMapping = SchemaMapping.Clone(),
         TypeIdRegistry = TypeIdRegistry,
       };
-
-    object ICloneable.Clone() => Clone();
 
     internal void Validate(DomainConfiguration configuration)
     {

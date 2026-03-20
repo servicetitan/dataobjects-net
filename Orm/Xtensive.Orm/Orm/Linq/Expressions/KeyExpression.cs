@@ -77,10 +77,25 @@ namespace Xtensive.Orm.Linq.Expressions
       for (int i = 0; i < n; ++i) {
         fields[i] = KeyFields[i].BindParameter(parameter, processedExpressions);
       }
+      return BindParameterWithNoCheck(parameter, processedExpressions);
+    }
+
+    // Having this code as a separate method helps to avoid closure allocation during BindParameter call
+    // in case processedExpressions dictionary already contains a result.
+    private KeyExpression BindParameterWithNoCheck(
+      ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    {
+      var fields = KeyFields.Select(BindParameter).ToArray(KeyFields.Count);
       var result = new KeyExpression(EntityType, fields, Mapping, UnderlyingProperty, parameter, DefaultIfEmpty);
 
       processedExpressions.Add(this, result);
       return result;
+
+
+      FieldExpression BindParameter(FieldExpression f)
+      {
+        return (FieldExpression) f.BindParameter(parameter, processedExpressions);
+      }
     }
 
     public override KeyExpression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
@@ -94,17 +109,29 @@ namespace Xtensive.Orm.Linq.Expressions
       for (int i = 0; i < n; ++i) {
         fields[i] = KeyFields[i].RemoveOuterParameter(processedExpressions);
       }
+      return RemoveOuterParameterWithNoCheck(processedExpressions);
+    }
+
+    // Having this code as a separate method helps to avoid closure allocation during RemoveOuterParameter call
+    // in case processedExpressions dictionary already contains a result.
+    private KeyExpression RemoveOuterParameterWithNoCheck(Dictionary<Expression, Expression> processedExpressions)
+    {
+      var fields = KeyFields.Select(RemoveOuterParameter).ToArray(KeyFields.Count);
       var result = new KeyExpression(EntityType, fields, Mapping, UnderlyingProperty, null, DefaultIfEmpty);
 
       processedExpressions.Add(this, result);
       return result;
+
+
+      FieldExpression RemoveOuterParameter(FieldExpression f)
+      {
+        return (FieldExpression) f.RemoveOuterParameter(processedExpressions);
+      }
     }
 
     public static KeyExpression Create(TypeInfo entityType, ColNum offset)
     {
       var mapping = new Segment<ColNum>(offset, entityType.Key.TupleDescriptor.Count);
-
-      FieldExpression CreateField(ColumnInfo c) => FieldExpression.CreateField(c.Field, offset);
 
       var fields = entityType.IsLocked
         ? entityType.Key.Columns.Select(CreateField).ToArray()
@@ -114,6 +141,12 @@ namespace Xtensive.Orm.Linq.Expressions
           .Select(CreateField)
           .ToArray();
       return new KeyExpression(entityType, fields, mapping, WellKnownMembers.IEntityKey, null, false);
+
+
+      FieldExpression CreateField(ColumnInfo c)
+      {
+        return FieldExpression.CreateField(c.Field, offset);
+      }
     }
 
     internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitKeyExpression(this);

@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public TypeInfo ElementType { get; }
 
-    public IReadOnlyCollection<Key> ExtractKeys(object target)
+    public IReadOnlyList<Key> ExtractKeys(object target)
     {
       if (target == null) {
         return Array.Empty<Key>();

@@ -149,10 +149,15 @@ namespace Xtensive.Orm.Linq
       return new Materializer(projectorExpression.CachingCompile());
     }
 
-    private IReadOnlyList<Expression> VisitNewExpressionArguments(NewExpression n)
+    private IReadOnlyList<Expression> VisitNewExpressionArguments(NewExpression n, out ParameterInfo[] constructorParameters)
     {
+      constructorParameters = n.GetConstructorParameters();
       var origArguments = n.Arguments;
       int count = origArguments.Count;
+      if (count == 0) {
+        return [];
+      }
+
       var arguments = new Expression[count];
       for (int i = 0; i < count; i++) {
         var argument = origArguments[i];
@@ -164,20 +169,17 @@ namespace Xtensive.Orm.Linq
             context.RegisterPossibleQueryReuse(n.Members[i]);
           }
         }
-        arguments[i] = body.StripMarkers().IsProjection()
+        body = body.IsProjection()
           ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
           : ProcessProjectionElement(body);
-      }
-      var constructorParameters = n.GetConstructorParameters();
-      for (int i = 0; i < count; i++) {
         var parameterType = constructorParameters[i].ParameterType;
-        ref var argument = ref arguments[i];
-        if (argument.Type != parameterType) {
-          argument = Expression.Convert(argument, parameterType);
-        }
+        arguments[i] = body.Type != parameterType
+          ? Expression.Convert(body, parameterType)
+          : body;
       }
       return arguments;
     }
+
 
     private void VisitNewExpressionArgumentsSkipResults(NewExpression n)
     {

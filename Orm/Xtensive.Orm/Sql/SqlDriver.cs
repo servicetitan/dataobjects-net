@@ -130,7 +130,7 @@ namespace Xtensive.Sql
 
         if (tasksForCatalog.All(t => !t.AllSchemas)) {
           // extracting all the schemes we need
-          var schemasToExtract = tasksForCatalog.Select(t => t.Schema).ToArray();
+          var schemasToExtract = tasksForCatalog.Select(static t => t.Schema).ToArray();
           var catalog = BuildExtractor(connection)
             .ExtractSchemes(catalogName, schemasToExtract);
           CleanSchemas(catalog, schemasToExtract);

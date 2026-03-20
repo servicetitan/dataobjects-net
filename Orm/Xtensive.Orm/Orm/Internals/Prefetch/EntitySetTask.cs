@@ -259,7 +259,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       this.referencingFieldDescriptor = referencingFieldDescriptor;
       this.isOwnerCached = isOwnerCached;
       ItemCountLimit = referencingFieldDescriptor.EntitySetItemCountLimit;
-      this.manager = manager;
+      this.manager = manager ?? throw new ArgumentNullException(nameof(manager));
       cacheKey = new ItemsQueryCacheKey(ReferencingField, ItemCountLimit);
     }
   }

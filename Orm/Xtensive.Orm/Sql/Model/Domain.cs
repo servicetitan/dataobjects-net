@@ -79,10 +79,7 @@ namespace Xtensive.Sql.Model
     /// Gets the constraints.
     /// </summary>
     /// <value>The constraints.</value>
-    public PairedNodeCollection<Domain, DomainConstraint> DomainConstraints
-    {
-      get { return constraints; }
-    }
+    public PairedNodeCollection<Domain, DomainConstraint> DomainConstraints => constraints;
 
     #region IConstrainable members
 

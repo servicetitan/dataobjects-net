@@ -4,12 +4,8 @@
 // Created by: Alexey Gamzov
 // Created:    2009.05.21
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Internals;
@@ -30,6 +26,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     internal static readonly IReadOnlySet<Parameter<Tuple>> EmptyTupleParameters = new HashSet<Parameter<Tuple>>();
 
+    private const int NumberOfItemsOnStack = 64;
     private static readonly MethodInfo BuildPersistentTupleMethod = typeof(ExpressionMaterializer).GetMethod(nameof(BuildPersistentTuple), BindingFlags.NonPublic | BindingFlags.Static);
     private static readonly MethodInfo GetTupleSegmentMethod = typeof(ExpressionMaterializer).GetMethod(nameof(GetTupleSegment), BindingFlags.NonPublic | BindingFlags.Static);
     private static readonly MethodInfo GetParameterValueMethod = WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
@@ -85,7 +82,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     #region Visitor methods overrsides
 
-    internal override Expression VisitFullTextExpression(FullTextExpression expression)
+    internal protected override Expression VisitFullTextExpression(FullTextExpression expression)
     {
       var rankMaterializer = Visit(expression.RankExpression);
       var entityMaterializer = Visit(expression.EntityExpression);
@@ -99,7 +96,7 @@ namespace Xtensive.Orm.Linq.Materialization
         entityMaterializer);
     }
 
-    internal override Expression VisitMarker(MarkerExpression expression)
+    internal protected override Expression VisitMarker(MarkerExpression expression)
     {
       var target = expression.Target;
       var processedTarget = Visit(target);
@@ -114,7 +111,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return processedTarget;
     }
 
-    internal override Expression VisitGroupingExpression(GroupingExpression groupingExpression)
+    internal protected override Expression VisitGroupingExpression(GroupingExpression groupingExpression)
     {
       // 1. Prepare subquery parameters.
       var translatedQuery = PrepareSubqueryParameters(groupingExpression,
@@ -146,7 +143,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return Expression.Convert(resultExpression, groupingExpression.Type);
     }
 
-    internal override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
+    internal protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
     {
       // 1. Prepare subquery parameters.
       var translatedQuery = PrepareSubqueryParameters(
@@ -209,7 +206,7 @@ namespace Xtensive.Orm.Linq.Materialization
       }
     }
 
-    internal override Expression VisitFieldExpression(FieldExpression expression)
+    internal protected override Expression VisitFieldExpression(FieldExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
 
@@ -240,11 +237,11 @@ namespace Xtensive.Orm.Linq.Materialization
       return MaterializeThroughOwner(expression, tupleExpression);
     }
 
-    internal override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression) =>
+    internal protected override Expression VisitLocalCollectionExpression(LocalCollectionExpression expression) =>
       throw new NotSupportedException(
         string.Format(Strings.ExUnableToMaterializeBackLocalCollectionItem, expression.ToString()));
 
-    internal override Expression VisitStructureFieldExpression(StructureFieldExpression expression)
+    internal protected override Expression VisitStructureFieldExpression(StructureFieldExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
 
@@ -252,10 +249,29 @@ namespace Xtensive.Orm.Linq.Materialization
       if (expression.Owner==null) {
         var typeInfo = expression.PersistentType;
         var tuplePrototype = typeInfo.TuplePrototype;
-        var mappingInfo = expression.Fields
-          .OfType<FieldExpression>()
-          .Where(f => f.ExtendedType==ExtendedExpressionType.Field)
-          .Select(f => (f.Field.MappingInfo.Offset, f.Mapping.Offset));
+
+        var mappingSequence = expression.Fields
+          .OfExactlyFieldExpression()
+          .OrderBy(static f => f.Field.MappingInfo.Offset)
+          .Select(f => (f.Field.MappingInfo.Offset, f.Mapping.Offset))
+          .Distinct();
+
+        (ColNum, ColNum)[] mappingInfo;
+        if (expression.Fields.Count > NumberOfItemsOnStack * 2) {
+          mappingInfo = mappingSequence.ToArray();
+        }
+        else {
+          Span<(ColNum, ColNum)> mappingInfoSpan = (expression.Fields.Count < NumberOfItemsOnStack)
+            ? stackalloc (ColNum, ColNum)[expression.Fields.Count]
+            : new (ColNum, ColNum)[expression.Fields.Count];
+
+          int actualCount = 0;
+          foreach (var map in mappingSequence) {
+            mappingInfoSpan[actualCount++] = map;
+          }
+
+          mappingInfo = mappingInfoSpan.Slice(0, actualCount).ToArray();
+        }
 
         var columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
 
@@ -276,7 +292,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return MaterializeThroughOwner(expression, tupleExpression);
     }
 
-    internal override Expression VisitConstructorExpression(ConstructorExpression expression)
+    internal protected override Expression VisitConstructorExpression(ConstructorExpression expression)
     {
       var newExpression = expression.Constructor==null
         ? Expression.New(expression.Type) // Value type with default ctor (expression.Constructor is null in that case)
@@ -286,22 +302,41 @@ namespace Xtensive.Orm.Linq.Materialization
 
       return expression.NativeBindings.Count == 0
         ? newExpression
-        : (Expression) Expression.MemberInit(newExpression, expression
-        .NativeBindings
-        .Where(item => Translator.FilterBindings(item.Key, item.Key.Name, item.Value.Type))
-        .Select(item => Expression.Bind(item.Key, Visit(item.Value))).Cast<MemberBinding>());
+        : Expression.MemberInit(newExpression, expression
+          .NativeBindings
+          .Where(item => Translator.FilterBindings(item.Key, item.Key.Name, item.Value.Type))
+          .Select(item => Expression.Bind(item.Key, Visit(item.Value))).Cast<MemberBinding>());
     }
 
-    internal override Expression VisitStructureExpression(StructureExpression expression)
+    internal protected override Expression VisitStructureExpression(StructureExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
 
       var typeInfo = expression.PersistentType;
       var tuplePrototype = typeInfo.TuplePrototype;
-      var mappingInfo = expression.Fields
-        .OfType<FieldExpression>()
-        .Where(f => f.ExtendedType==ExtendedExpressionType.Field)        
-        .Select(f => (f.Field.MappingInfo.Offset, f.Mapping.Offset));
+
+      var mappingSequence = expression.Fields
+        .OfExactlyFieldExpression()
+        .OrderBy(static f => f.Field.MappingInfo.Offset)
+        .Select(static f => (f.Field.MappingInfo.Offset, f.Mapping.Offset))
+        .Distinct();
+
+      (ColNum, ColNum)[] mappingInfo;
+      if (expression.Fields.Count > NumberOfItemsOnStack * 2) {
+        mappingInfo = mappingSequence.ToArray();
+      }
+      else {
+        Span<(ColNum, ColNum)> mappingInfoSpan = (expression.Fields.Count < NumberOfItemsOnStack)
+          ? stackalloc (ColNum, ColNum)[expression.Fields.Count]
+          : new (ColNum, ColNum)[expression.Fields.Count];
+
+        int actualCount = 0;
+        foreach (var map in mappingSequence) {
+          mappingInfoSpan[actualCount++] = map;
+        }
+
+        mappingInfo = mappingInfoSpan.Slice(0, actualCount).ToArray();
+      }
 
       var columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
 
@@ -319,7 +354,7 @@ namespace Xtensive.Orm.Linq.Materialization
         expression.Type);
     }
 
-    internal override Expression VisitKeyExpression(KeyExpression expression)
+    internal protected override Expression VisitKeyExpression(KeyExpression expression)
     {
       // TODO: http://code.google.com/p/dataobjectsdotnet/issues/detail?id=336
       Expression tupleExpression = Expression.Call(
@@ -337,7 +372,7 @@ namespace Xtensive.Orm.Linq.Materialization
         tupleExpression);
     }
 
-    internal override Expression VisitEntityExpression(EntityExpression expression)
+    internal protected override Expression VisitEntityExpression(EntityExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
       return CreateEntity(expression, tupleExpression);
@@ -360,11 +395,28 @@ namespace Xtensive.Orm.Linq.Materialization
       var typeIdField = expression.Fields.SingleOrDefault(f => f.Name==WellKnown.TypeIdFieldName);
       var typeIdIndex = typeIdField == null ? -1 : typeIdField.Mapping.Offset;
 
-      var mappingInfo = expression.Fields
-        .OfType<FieldExpression>()
-        .Where(f => f.ExtendedType==ExtendedExpressionType.Field)
-        .Select(f => (f.Field.MappingInfo.Offset, f.Mapping.Offset))
-        .ToHashSet();
+      var mappingSequence = expression.Fields
+        .OfExactlyFieldExpression()
+        .OrderBy(static f => f.Field.MappingInfo.Offset)
+        .Select(static f => (f.Field.MappingInfo.Offset, f.Mapping.Offset))
+        .Distinct();
+
+      (ColNum, ColNum)[] mappingInfo;
+      if (expression.Fields.Count > NumberOfItemsOnStack * 4) {
+        mappingInfo = mappingSequence.ToArray();
+      }
+      else {
+        Span<(ColNum, ColNum)> mappingInfoSpan = (expression.Fields.Count < NumberOfItemsOnStack)
+          ? stackalloc (ColNum, ColNum)[expression.Fields.Count]
+          : new (ColNum, ColNum)[expression.Fields.Count];
+
+        int actualCount = 0;
+        foreach (var map in mappingSequence) {
+          mappingInfoSpan[actualCount++] = map;
+        }
+
+        mappingInfo = mappingInfoSpan.Slice(0, actualCount).ToArray();
+      }
 
       var exprIndex = Expr.Constant(index);
       var isMaterializedExpression = Expression.Call(
@@ -392,7 +444,7 @@ namespace Xtensive.Orm.Linq.Materialization
     }
 
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
-    internal override Expression VisitEntityFieldExpression(EntityFieldExpression expression)
+    internal protected override Expression VisitEntityFieldExpression(EntityFieldExpression expression)
     {
       if (expression.Entity!=null)
         return Visit(expression.Entity);
@@ -403,7 +455,7 @@ namespace Xtensive.Orm.Linq.Materialization
         : CreateEntity(expression, tupleExpression);
     }
 
-    internal override Expression VisitEntitySetExpression(EntitySetExpression expression)
+    internal protected override Expression VisitEntitySetExpression(EntitySetExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
       var materializedEntitySetExpression = MaterializeThroughOwner(expression, tupleExpression);
@@ -416,7 +468,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return prefetchEntitySetExpression;
     }
 
-    internal override Expression VisitColumnExpression(ColumnExpression expression)
+    internal protected override Expression VisitColumnExpression(ColumnExpression expression)
     {
       var tupleExpression = GetTupleExpression(expression);
       return tupleExpression.MakeTupleAccess(expression.Type, expression.Mapping.Offset);

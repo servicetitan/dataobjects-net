@@ -814,7 +814,7 @@ namespace Xtensive.Orm.Configuration
       versioningConvention = configuration.VersioningConvention.Clone();
       preferTypeIdsAsQueryParameters = configuration.PreferTypeIdsAsQueryParameters;
       maxNumberOfConditons = configuration.MaxNumberOfConditions;
-      extensionConfigurations = (ExtensionConfigurationCollection) configuration.ExtensionConfigurations.Clone();
+      extensionConfigurations = configuration.ExtensionConfigurations.Clone();
     }
 
     /// <summary>

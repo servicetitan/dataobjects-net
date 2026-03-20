@@ -2,11 +2,7 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -45,11 +41,32 @@ namespace Xtensive.Orm.Providers
 
     public override void Dispose() => source.Dispose();
 
-    public override async ValueTask DisposeAsync() => await ((IAsyncEnumerator<Tuple>) source).DisposeAsync().ConfigureAwaitFalse();
+    /// <inheritdoc/>
+    public async override ValueTask DisposeAsync()
+    {
+      if (source is IAsyncEnumerator<Tuple> asyncSource) {
+        // true async enumerable source
+        await asyncSource.DisposeAsync().ConfigureAwaitFalse();
+      }
+      else {
+        // preloaded collection of elements,
+        // like in case of delayed query which has already been read from database
+        // or greedy enumeration
+        ((IEnumerator<Tuple>) source).Dispose();
+      }
+    }
 
     public override ValueTask<bool> MoveNextAsync() => ValueTask.FromResult(MoveNext());
+
   }
 
+  /// <summary>
+  /// Creates <see cref="DataReader"/> wrapping active <see cref="Command"/> instance.
+  /// </summary>
+  /// <param name="command"><see cref="Command"/> instance to read data from.</param>
+  /// <param name="accessor"><see cref="DbDataReaderAccessor"/> instance
+  /// transforming raw database records to <see cref="Tuple"/>s.</param>
+  /// <param name="token"><see cref="CancellationToken"/> to terminate operation if necessary.</param>
   internal sealed class CommandDataReader(Command command, DbDataReaderAccessor accessor, CancellationToken token) : DataReader
   {
     /// <summary>
@@ -60,6 +77,9 @@ namespace Xtensive.Orm.Providers
 
     /// <inheritdoc cref="IEnumerator{T}.Current"/>
     public override Tuple Current => command.ReadTupleWith(accessor);
+
+    public override ValueTask DisposeAsync() => command.DisposeAsync();
+
 
     /// <inheritdoc/>
     public override bool MoveNext()
@@ -90,8 +110,5 @@ namespace Xtensive.Orm.Providers
 
     /// <inheritdoc/>
     public override void Dispose() => command.Dispose();
-
-    /// <inheritdoc/>
-    public override async ValueTask DisposeAsync() => await command.DisposeAsync().ConfigureAwaitFalse();
   }
 }

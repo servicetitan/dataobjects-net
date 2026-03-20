@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Collections;
-
+using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -46,6 +46,7 @@ namespace Xtensive.Orm.Rse.Providers
     public AliasProvider(CompilableProvider source, string alias)
       : base(ProviderType.Alias, source)
     {
+      ArgumentException.ThrowIfNullOrEmpty(alias);
       Alias = alias;
       Initialize();
     }

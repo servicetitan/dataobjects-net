@@ -23,6 +23,7 @@ namespace Xtensive.Collections
     /// <exception cref="T:System.ArgumentOutOfRangeException">
     /// <paramref name="count"/> is less than 0.-or-
     /// <paramref name="start"/> + <paramref name="count"/> -1 is larger than <see cref="F:System.Int32.MaxValue"/>.</exception>
+    [Obsolete("Enumerable.Range().ToArray() is several times faster")]
     public static int[] RangeToArray(int start, int count)
     {
       ArgumentOutOfRangeException.ThrowIfNegative(count);
@@ -40,15 +41,19 @@ namespace Xtensive.Collections
     /// <exception cref="T:System.ArgumentOutOfRangeException">
     /// <paramref name="count"/> is less than 0.-or-
     /// <paramref name="start"/> + <paramref name="count"/> -1 is larger than <see cref="F:System.Int32.MaxValue"/>.</exception>
-    public static List<ColNum> RangeToList(ColNum start, ColNum count)
+    public static List<ColNum> RangeToList(int start, int count)
     {
       ArgumentOutOfRangeException.ThrowIfNegative(count);
       var result = new List<ColNum>(count);
-      result.AddRange(Enumerable.Range(start, count).Select(i => (ColNum) i));
+      for (int i = 0; i < count; ++i) {
+        result.Add((ColNum)(start + i));
+      }
       return result;
     }
 
-    private static readonly IReadOnlyList<ColNum>[] preallocatedRanges = Enumerable.Range(0, 100).Select(len => (IReadOnlyList<ColNum>)Enumerable.Range(0, len).Select(i => (ColNum)i).ToArray()).ToArray();
+    private static readonly IReadOnlyList<ColNum>[] preallocatedRanges = Enumerable.Range(0, 100)
+      .Select(len => (IReadOnlyList<ColNum>)Enumerable.Range(0, len).Select(i => (ColNum)i).ToArray())
+      .ToArray();
 
     public static IReadOnlyList<ColNum> ColNumRange(int count) =>
       count < preallocatedRanges.Length ? preallocatedRanges[count] : Enumerable.Range(0, count).Select(i => (ColNum)i).ToArray();

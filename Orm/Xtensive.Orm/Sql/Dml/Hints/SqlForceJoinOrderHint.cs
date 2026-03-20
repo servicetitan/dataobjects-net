@@ -19,7 +19,7 @@ namespace Xtensive.Sql.Dml
 
     internal override SqlForceJoinOrderHint Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        new(t.Tables?.Select(table => (SqlTable) table.Clone()).ToArray()));
+        new SqlForceJoinOrderHint(t.Tables?.Select(table => (SqlTable) table.Clone()).ToArray()));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

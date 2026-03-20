@@ -91,9 +91,9 @@ namespace Xtensive.Orm.Internals.Prefetch
       ArgumentNullException.ThrowIfNull(type);
       ArgumentNullException.ThrowIfNull(manager, "processor");
       Key = key;
-      Type = type;
+      Type = type ?? throw new ArgumentNullException(nameof(type));
       ExactType = exactType;
-      Manager = manager;
+      Manager = manager ?? throw new ArgumentNullException(nameof(manager));
     }
   }
 }

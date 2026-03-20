@@ -27,6 +27,12 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc />
+    object ICloneable.Clone() => Clone();
+
+    /// <summary>
+    /// Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
     public DatabaseConfigurationCollection Clone()
     {
       var result = new DatabaseConfigurationCollection();
@@ -34,8 +40,6 @@ namespace Xtensive.Orm.Configuration
         result.Add(alias.Clone());
       return result;
     }
-
-    object ICloneable.Clone() => Clone();
 
     /// <inheritdoc/>
     public override void Lock(bool recursive)

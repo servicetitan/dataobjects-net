@@ -91,7 +91,7 @@ namespace Xtensive.Orm
       set {
         ArgumentNullException.ThrowIfNull(value);
         if (state!=null)
-          throw Exceptions.AlreadyInitialized("State");
+          throw Exceptions.AlreadyInitialized(nameof(State));
         state = value;
         state.Entity = this;
       }

@@ -336,7 +336,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     internal protected override CompilableProvider VisitStore(StoreProvider provider)
     {
-      if (!(provider.Source is CompilableProvider compilableSource)) {
+      if (provider.Source is not CompilableProvider compilableSource) {
         return provider;
       }
 
@@ -443,18 +443,45 @@ namespace Xtensive.Orm.Rse.Transformation
       return resultList;
     }
 
-    private static List<int> Merge(List<int> leftMap, IEnumerable<int> rightMap)
+    private static bool TryMergeFast(IEnumerable<int> leftMap, IEnumerable<int> rightMap, out List<int> result)
     {
-      var preReturn = leftMap.Union(rightMap).ToList(leftMap.Count * 2);
-      preReturn.Sort();
-      return preReturn;
-    }
+      Span<bool> usageMap = stackalloc bool[512];
+      usageMap.Fill(false);
+      var uniqueCount = 0;
+      var biggestIndex = 0;
 
-    private static List<int> Merge(List<int> leftMap, IList<int> rightMap)
-    {
-      var preReturn = leftMap.Union(rightMap).ToList(leftMap.Count + rightMap.Count);
-      preReturn.Sort();
-      return preReturn;
+      // leftMap.Concat(rightMap) is slower!
+      foreach (var idx in leftMap) {
+        if (idx >= usageMap.Length) {
+          result = null;
+          return false;
+        }
+        if (!usageMap[idx]) {
+          uniqueCount++;
+          usageMap[idx] = true;
+        }
+        if (biggestIndex < idx)
+          biggestIndex = idx;
+      }
+      foreach (var idx in rightMap) {
+        if (idx >= usageMap.Length) {
+          result = null;
+          return false;
+        }
+        if (!usageMap[idx]) {
+          uniqueCount++;
+          usageMap[idx] = true;
+        }
+        if (biggestIndex < idx)
+          biggestIndex = idx;
+      }
+      var resultList = new List<int>(uniqueCount);
+      for (int i = 0; i < biggestIndex + 1; i++) {
+        if (usageMap[i])
+          resultList.Add(i);
+      }
+      result = resultList;
+      return true;
     }
 
     private static List<ColNum> MergeMappings(Provider originalLeft, IReadOnlyList<ColNum> leftMap, IReadOnlyList<ColNum> rightMap)

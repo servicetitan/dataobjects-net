@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return new KeyExtractorNode<T>(GetExtractor<T>(), nestedNodes);
     }
 
-    private static Func<T, IReadOnlyCollection<Key>> GetExtractor<T>()
+    private static Func<T, IReadOnlyList<Key>> GetExtractor<T>()
     {
       return target => new[] {((IEntity) target).Key};
     }

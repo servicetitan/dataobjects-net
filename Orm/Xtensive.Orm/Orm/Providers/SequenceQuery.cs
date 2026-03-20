@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -47,8 +47,8 @@ namespace Xtensive.Orm.Providers
       ArgumentException.ThrowIfNullOrEmpty(insertQuery);
       ArgumentException.ThrowIfNullOrEmpty(selectQuery);
 
-      InsertQuery = insertQuery;
-      SelectQuery = selectQuery;
+      InsertQuery = insertQuery ?? throw new ArgumentNullException(nameof(insertQuery));
+      SelectQuery = selectQuery ?? throw new ArgumentNullException(nameof(selectQuery));
       Compartment = compartment;
     }
 

@@ -239,8 +239,8 @@ namespace Xtensive.Caching
       ArgumentNullException.ThrowIfNull(keyExtractor);
       ArgumentNullException.ThrowIfNull(sizeExtractor);
       this.maxSize = maxSize;
-      this.KeyExtractor = keyExtractor;
-      this.sizeExtractor = sizeExtractor;
+      this.KeyExtractor = keyExtractor ?? throw new ArgumentNullException(nameof(keyExtractor));
+      this.sizeExtractor = sizeExtractor ?? throw new ArgumentNullException(nameof(sizeExtractor));
       this.chainedCache = chainedCache;
       // deque = new TopDeque<TKey, KeyValuePair<TKey, TItem>>(1 + (int) maxSize);
       deque = new TopDeque<TKey, KeyValuePair<TKey, TItem>>();

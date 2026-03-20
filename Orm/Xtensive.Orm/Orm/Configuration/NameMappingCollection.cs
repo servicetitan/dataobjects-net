@@ -93,8 +93,13 @@ namespace Xtensive.Orm.Configuration
     /// Creates clone of this instance.
     /// </summary>
     /// <returns>Clone of this instance.</returns>
-    public NameMappingCollection Clone() => new(this);
     object ICloneable.Clone() => Clone();
+
+    /// <summary>
+    /// Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public NameMappingCollection Clone() => new NameMappingCollection(this);
 
     /// <summary>
     /// Initializes new instance of this type.

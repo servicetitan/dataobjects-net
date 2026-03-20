@@ -516,6 +516,8 @@ namespace Xtensive.Orm.Linq
         // Visit Queryable extensions.
         if (methodDeclaringType == typeof(QueryableExtensions)) {
           return methodName switch {
+            Reflection.WellKnown.QueryableExtensions.LeftJoin => VisitLeftJoin(mc),
+            Reflection.WellKnown.QueryableExtensions.LeftJoinEx => VisitLeftJoin(mc),
             Reflection.WellKnown.QueryableExtensions.LeftOuterJoin => VisitLeftJoin(mc),
             Reflection.WellKnown.QueryableExtensions.In => VisitIn(mc),
             Reflection.WellKnown.QueryableExtensions.Lock => VisitLock(mc),
@@ -707,14 +709,13 @@ namespace Xtensive.Orm.Linq
       // ReSharper restore ConditionIsAlwaysTrueOrFalse
       // ReSharper restore HeuristicUnreachableCode
 
-      var arguments = VisitNewExpressionArguments(newExpression);
-      if (strippedMarkersExpression.IsAnonymousConstructor()) {
-        return newExpressionMembers is null
+      var arguments = VisitNewExpressionArguments(newExpression, out var constructorParameters);
+      if (newExpression.IsAnonymousConstructor()) {
+        return newExpression.Members == null
           ? Expression.New(newExpression.Constructor, arguments)
           : Expression.New(newExpression.Constructor, arguments, newExpressionMembers);
       }
 
-      var constructorParameters = newExpression.GetConstructorParameters();
       if (constructorParameters.Length != arguments.Count)
         throw Exceptions.InternalError(Strings.ExInvalidNumberOfParametersInNewExpression, OrmLog.Instance);
 

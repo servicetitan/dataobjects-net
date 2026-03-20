@@ -9,6 +9,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Tuples;
 using Xtensive.Orm.Model;
+using System;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {

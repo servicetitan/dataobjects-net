@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     private Dictionary<string, string> CloneSchemas(Catalog newCatalog, Catalog sourceCatalog, MappingResolver mappingResolver)
     {
-      var schemaMap = new Dictionary<string, string>();
+      var schemaMap = new Dictionary<string, string>(sourceCatalog.Schemas.Count);
       foreach (var schema in sourceCatalog.Schemas) {
         var complexName = mappingResolver.GetNodeName(newCatalog.Name, schema.Name, "Dummy");
         var names = complexName.Split(NameElementSeparator);
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       }
 
       foreach (var partitionSchema in source.PartitionSchemas)
-        newCatalog.CreatePartitionSchema(partitionSchema.Name, pfMap[partitionSchema.PartitionFunction], partitionSchema.Filegroups.ToArray());
+        _ = newCatalog.CreatePartitionSchema(partitionSchema.Name, pfMap[partitionSchema.PartitionFunction], partitionSchema.Filegroups.ToArray());
     }
 
     private void CloneSchemas(Catalog newCatalog, Catalog source, Dictionary<string, string> schemaMap)
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       foreach (var sourceDomain in sourceSchema.Domains) {
         var newDomain = newSchema.CreateDomain(sourceDomain.Name, sourceDomain.DataType);
         CopyDbName(newDomain, sourceDomain);
-        if (sourceDomain.Collation!=null)
+        if (sourceDomain.Collation is not null)
           newDomain.Collation = collationsMap[sourceDomain.Collation];
         if (sourceDomain.DefaultValue is not null)
           newDomain.DefaultValue = sourceDomain.DefaultValue.Clone();
@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         CopyDbName(newView, sourceView);
         newView.CheckOptions = sourceView.CheckOptions;
         if (sourceView.Definition is not null) {
-          newView.Definition = (SqlNative) sourceView.Definition.Clone();
+          newView.Definition = sourceView.Definition.Clone(new Sql.SqlNodeCloneContext());
         }
         CloneViewColumns(newView, sourceView);
         CloneIndexes(newView, sourceView);
@@ -185,7 +185,7 @@ namespace Xtensive.Orm.Upgrade.Internals
           newColumn.DefaultValue = sourceTableColumn.DefaultValue.Clone();
 
         var schema = newTable.Schema;
-        if (sourceTableColumn.Collation!=null) {
+        if (sourceTableColumn.Collation is not null) {
           Collation collation;
           if (collationsMap.TryGetValue(sourceTableColumn.Collation, out collation))
             newColumn.Collation = collation;
@@ -194,13 +194,13 @@ namespace Xtensive.Orm.Upgrade.Internals
             collationsMap.Add(sourceTableColumn.Collation, newColumn.Collation);
           }
         }
-        if (sourceTableColumn.Domain!=null)
+        if (sourceTableColumn.Domain is not null)
           newColumn.Domain = schema.Domains[sourceTableColumn.Domain.Name];
         if (sourceTableColumn.Expression is not null)
           newColumn.Expression = sourceTableColumn.Expression.Clone();
         newColumn.IsNullable = sourceTableColumn.IsNullable;
         newColumn.IsPersisted = sourceTableColumn.IsPersisted;
-        if (sourceTableColumn.SequenceDescriptor!=null)
+        if (sourceTableColumn.SequenceDescriptor is not null)
           newColumn.SequenceDescriptor = sourceTableColumn.SequenceDescriptor.Clone();
       }
     }
@@ -236,12 +236,11 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     private void CloneIndex(DataTable newTable, Index sourceIndex)
     {
-      var ftIndex = sourceIndex as FullTextIndex;
-      if (ftIndex!=null) {
+      if (sourceIndex is FullTextIndex ftIndex) {
         var ft = newTable.CreateFullTextIndex(ftIndex.Name);
         CopyDbName(ft, ftIndex);
         foreach (var tableColumn in GetKeyColumns(newTable, sourceIndex))
-          ft.CreateIndexColumn(tableColumn);
+          _ = ft.CreateIndexColumn(tableColumn);
 
         ft.NonkeyColumns.AddRange(GetNonKeyColumns(newTable, ft));
         ft.Filegroup = ftIndex.Filegroup;
@@ -256,12 +255,11 @@ namespace Xtensive.Orm.Upgrade.Internals
         ClonePartitionDescriptor(ft, sourceIndex);
         return;
       }
-      var spatialIndex = sourceIndex as SpatialIndex;
-      if (spatialIndex!=null) {
+      if (sourceIndex is SpatialIndex spatialIndex) {
         var spatial = newTable.CreateSpatialIndex(spatialIndex.Name);
         CopyDbName(spatial, spatialIndex);
         foreach (var tableColumn in GetKeyColumns(newTable, sourceIndex))
-          spatial.CreateIndexColumn(tableColumn);
+          _ = spatial.CreateIndexColumn(tableColumn);
 
         spatial.NonkeyColumns.AddRange(GetNonKeyColumns(newTable, spatial));
         spatial.Filegroup = spatialIndex.Filegroup;
@@ -277,7 +275,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       var index = newTable.CreateIndex(sourceIndex.Name);
       CopyDbName(index, sourceIndex);
       foreach (var tableColumn in GetKeyColumns(newTable, sourceIndex))
-        index.CreateIndexColumn(tableColumn);
+        _ = index.CreateIndexColumn(tableColumn);
 
       index.Filegroup = sourceIndex.Filegroup;
       index.FillFactor = sourceIndex.FillFactor;
@@ -292,41 +290,35 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     private DataTableColumn[] GetKeyColumns(DataTable newTable, Index sourceIndex)
     {
-      var table = newTable as Table;
-      if (table!=null)
-        return sourceIndex.Columns.Select(el => table.TableColumns[el.Column.Name]).Cast<DataTableColumn>().ToArray();
+      if (newTable is Table table)
+        return sourceIndex.Columns.Select(el => table.TableColumns[el.Column.Name] as DataTableColumn).ToArray();
 
-      var view = newTable as View;
-      if (view!=null)
-        return sourceIndex.Columns.Select(el => view.ViewColumns[el.Column.Name]).Cast<DataTableColumn>().ToArray();
+      if (newTable is View view)
+        return sourceIndex.Columns.Select(el => view.ViewColumns[el.Column.Name] as DataTableColumn).ToArray();
 
       throw new ArgumentOutOfRangeException("newTable", Strings.ExUnexpectedTypeOfParameter);
     }
 
     private DataTableColumn[] GetNonKeyColumns(DataTable newTable, Index sourceIndex)
     {
-      var table = newTable as Table;
-      if (table!=null) 
-        return sourceIndex.NonkeyColumns.Select(el => table.TableColumns[el.Name]).Cast<DataTableColumn>().ToArray();
+      if (newTable is Table table)
+        return sourceIndex.NonkeyColumns.Select(el => table.TableColumns[el.Name] as DataTableColumn).ToArray();
 
-      var view = newTable as View;
-      if (view!=null) 
-        return sourceIndex.NonkeyColumns.Select(el => view.ViewColumns[el.Name]).Cast<DataTableColumn>().ToArray();
+      if (newTable is View view)
+        return sourceIndex.NonkeyColumns.Select(el => view.ViewColumns[el.Name] as DataTableColumn).ToArray();
 
       throw new ArgumentOutOfRangeException("newTable", Strings.ExUnexpectedTypeOfParameter);
     }
 
     private void CloneTableConstraint(Table newTable, TableConstraint sourceConstraint)
     {
-      var checkConstraint = sourceConstraint as CheckConstraint;
-      if (checkConstraint!=null) {
+      if (sourceConstraint is CheckConstraint checkConstraint) {
         var c = newTable.CreateCheckConstraint(checkConstraint.Name, checkConstraint.Condition.Clone());
         CopyDbName(c, checkConstraint);
         return;
       }
 
-      var defaultConstraint = sourceConstraint as DefaultConstraint;
-      if (defaultConstraint!=null) {
+      if (sourceConstraint is DefaultConstraint defaultConstraint) {
         var c = newTable.CreateDefaultConstraint(defaultConstraint.Name, newTable.TableColumns[defaultConstraint.Column.Name]);
         c.NameIsStale = defaultConstraint.NameIsStale;
         CopyDbName(c, defaultConstraint);
@@ -337,12 +329,10 @@ namespace Xtensive.Orm.Upgrade.Internals
         return;
       }
 
-      var uniqueConstraint = sourceConstraint as UniqueConstraint;
-      if (uniqueConstraint!=null) {
-        var primaryKey = sourceConstraint as PrimaryKey;
-        if (primaryKey!=null) {
+      if (sourceConstraint is UniqueConstraint uniqueConstraint) {
+        if (sourceConstraint is PrimaryKey primaryKey) {
           var columns = primaryKey.Columns.Select(c => newTable.TableColumns[c.Name]).ToArray();
-          var pk =newTable.CreatePrimaryKey(primaryKey.Name, columns);
+          var pk = newTable.CreatePrimaryKey(primaryKey.Name, columns);
           CopyDbName(pk, primaryKey);
         }
         else {
@@ -352,13 +342,13 @@ namespace Xtensive.Orm.Upgrade.Internals
         }
         return;
       }
-      throw new ArgumentOutOfRangeException("sourceConstraint", Strings.ExUnexpectedTypeOfParameter);
+      throw new ArgumentOutOfRangeException(nameof(sourceConstraint), Strings.ExUnexpectedTypeOfParameter);
     }
 
     private void ClonePartitionDescriptor(IPartitionable newObject, IPartitionable oldObject)
     {
       var oldPartitionDescriptor = oldObject.PartitionDescriptor;
-      if (oldPartitionDescriptor==null)
+      if (oldPartitionDescriptor is null)
         return;
 
       var column = GetPartitionColumn(newObject, oldPartitionDescriptor);
@@ -372,41 +362,35 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     private void ClonePartition(PartitionDescriptor newPartitionDescriptor, Partition oldPartition)
     {
-      var hashPartition = oldPartition as HashPartition;
-      if (hashPartition!=null) {
+      if (oldPartition is HashPartition hashPartition) {
         var newPartition = newPartitionDescriptor.CreateHashPartition(hashPartition.Filegroup);
         CopyDbName(oldPartition, newPartition);
         return;
       }
-      var listPartition = oldPartition as ListPartition;
-      if (listPartition!=null) {
+      if (oldPartition is ListPartition listPartition) {
         var newPartition = newPartitionDescriptor.CreateListPartition(listPartition.Filegroup, (string[]) listPartition.Values.Clone());
         CopyDbName(oldPartition, newPartition);
         return;
       }
-      var rangePartition = oldPartition as RangePartition;
-      if (rangePartition!=null) {
+      if (oldPartition is RangePartition rangePartition) {
         var newPartition = newPartitionDescriptor.CreateRangePartition(rangePartition.Filegroup, rangePartition.Boundary);
         CopyDbName(oldPartition, newPartition);
         return;
       }
-      throw new ArgumentOutOfRangeException("oldPartition", Strings.ExUnexpectedTypeOfParameter);
+      throw new ArgumentOutOfRangeException(nameof(oldPartition), Strings.ExUnexpectedTypeOfParameter);
     }
 
     private TableColumn GetPartitionColumn(IPartitionable newObject, PartitionDescriptor oldPartitionDescriptor)
     {
-      var table = newObject as Table;
-      if (table!=null)
+      if (newObject is Table table)
         return table.TableColumns[oldPartitionDescriptor.Column.Name];
 
-      var index = newObject as Index;
-      if (index!=null) {
-        var tableColumn = index.Columns[oldPartitionDescriptor.Column.Name].Column as TableColumn;
-        if (tableColumn!=null)
+      if (newObject is Index index) {
+        if (index.Columns[oldPartitionDescriptor.Column.Name].Column is TableColumn tableColumn)
           return tableColumn;
         throw new InvalidOperationException(Strings.ExUnableToGetTableColumnInstanceFromIndex);
       }
-      throw new ArgumentOutOfRangeException("newObject", Strings.ExUnexpectedTypeOfParameter);
+      throw new ArgumentOutOfRangeException(nameof(newObject), Strings.ExUnexpectedTypeOfParameter);
     }
 
     private void CopyDbName(Node newNode, Node sourceNode)

@@ -179,7 +179,7 @@ namespace Xtensive.IoC
       ArgumentNullException.ThrowIfNull(containerType);
       if (!iServiceContainerType.IsAssignableFrom(containerType))
         throw new ArgumentException(string.Format(
-          Strings.ExContainerTypeMustImplementX, iServiceContainerType.Name), "containerType");
+          Strings.ExContainerTypeMustImplementX, iServiceContainerType.Name));
 
       Type configurationType = configuration?.GetType(),
         parentType = parent?.GetType();
@@ -187,7 +187,7 @@ namespace Xtensive.IoC
         FindConstructorInvoker(containerType, configurationType, parentType)?.Invoke(configuration, parent)
         ?? FindConstructorInvoker(containerType, configurationType)?.Invoke(configuration)
         ?? FindConstructorInvoker(containerType, parentType)?.Invoke(parent)
-        ?? throw new ArgumentException(Strings.ExContainerTypeDoesNotProvideASuitableConstructor, "containerType")
+        ?? throw new ArgumentException(Strings.ExContainerTypeDoesNotProvideASuitableConstructor, nameof(containerType))
       );
     }
 

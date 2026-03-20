@@ -775,7 +775,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = CreateConfiguration(upgradeMode, types, keyCacheSize);
 
       using (Upgrader.EnableForVersion(version, modelParts)) {
-        return await BuildDomainFromConfig(configuration, true).ConfigureAwait(false);
+        return await BuildDomainFromConfig(configuration, true).ConfigureAwaitFalse();
       }
     }
 

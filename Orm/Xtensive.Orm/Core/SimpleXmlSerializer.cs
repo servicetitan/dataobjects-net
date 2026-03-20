@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.07.18
 
+using System;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -32,7 +33,7 @@ namespace Xtensive.Core
     /// <returns>Deserialized instance.</returns>
     public T Deserialize(string value)
     {
-      ArgumentNullException.ThrowIfNull(value, "serialized");
+      ArgumentNullException.ThrowIfNull(value);
 
       using StringReader reader = new(value);
       return (T) serializer.Deserialize(reader);

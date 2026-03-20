@@ -116,7 +116,7 @@ namespace Xtensive.Caching
     {
       ArgumentNullException.ThrowIfNull(keyExtractor);
       if (capacity < 0)
-        throw new ArgumentOutOfRangeException("capacity", capacity, Strings.ExArgumentValueMustBeGreaterThanOrEqualToZero);
+        throw new ArgumentOutOfRangeException(nameof(capacity), capacity, Strings.ExArgumentValueMustBeGreaterThanOrEqualToZero);
       this.KeyExtractor = keyExtractor;
       items = new Dictionary<TKey, TItem>(capacity);
     }

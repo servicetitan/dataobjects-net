@@ -373,7 +373,7 @@ namespace Xtensive.Modelling
       ArgumentNullException.ThrowIfNull(parent);
       ArgumentException.ThrowIfNullOrEmpty(name);
       this.name = name;
-      this.parent = parent;
+      this.parent = parent ?? throw new ArgumentNullException(nameof(parent));
       Initialize();
     }
 

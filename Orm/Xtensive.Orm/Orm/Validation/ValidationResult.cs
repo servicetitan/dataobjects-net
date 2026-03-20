@@ -1,3 +1,4 @@
+using System;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 

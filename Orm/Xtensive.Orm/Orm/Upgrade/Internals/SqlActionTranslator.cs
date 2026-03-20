@@ -1410,13 +1410,13 @@ namespace Xtensive.Orm.Upgrade
       sequenceQueryBuilder = handlers.SequenceQueryBuilder;
       typeIdColumnName = handlers.NameBuilder.TypeIdColumnName;
 
-      this.resolver = resolver;
-      this.sqlModel = sqlModel;
-      this.actions = actions;
-      this.sourceModel = sourceModel;
-      this.targetModel = targetModel;
-      this.enforceChangedColumns = enforceChangedColumns;
-      this.sqlExecutor = sqlExecutor;
+      this.resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
+      this.sqlModel = sqlModel ?? throw new ArgumentNullException(nameof(sqlModel));
+      this.actions = actions ?? throw new ArgumentNullException(nameof(actions));
+      this.sourceModel = sourceModel ?? throw new ArgumentNullException(nameof(sourceModel));
+      this.targetModel = targetModel ?? throw new ArgumentNullException(nameof(targetModel));
+      this.enforceChangedColumns = enforceChangedColumns ?? throw new ArgumentNullException(nameof(enforceChangedColumns));
+      this.sqlExecutor = sqlExecutor ?? throw new ArgumentNullException(nameof(sqlExecutor));
       this.allowCreateConstraints = allowCreateConstraints;
 
       if (providerInfo.Supports(ProviderFeatures.Collations)) {

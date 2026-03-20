@@ -152,8 +152,7 @@ namespace Xtensive.Orm.Model
     {
       if (item==null)
         return false;
-      TypeInfo result;
-      if (!TryGetValue(item.UnderlyingType, out result))
+      if (!TryGetValue(item.UnderlyingType, out var result))
         return false;
       return result==item;
     }

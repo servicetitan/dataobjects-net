@@ -168,16 +168,48 @@ namespace Xtensive.Orm.Upgrade
     private void CompleteUpgradeTransaction()
     {
       var connection = context.Services.Connection;
-      if (connection.ActiveTransaction is not null) {
-        context.Services.StorageDriver.CommitTransaction(null, connection, true);
+      var driver = context.Services.StorageDriver;
+
+      if (connection.ActiveTransaction == null) {
+        return;
+      }
+
+      try {
+        driver.CommitTransaction(null, connection);
+      }
+      catch {
+        // If transaction has become broken during commit its rollback leads to new exception
+        // which will overwrite the original one.
+        // Check for active transaction should work because on exception within 
+        // driver.Commit it is set to NULL.
+        if (connection.ActiveTransaction != null) {
+          driver.RollbackTransaction(null, connection);
+        }
+        throw;
       }
     }
 
     private async ValueTask CompleteUpgradeTransactionAsync(CancellationToken token)
     {
       var connection = context.Services.Connection;
-      if (connection.ActiveTransaction is not null) {
-        await context.Services.StorageDriver.CommitTransactionAsync(null, connection, true, token);
+      var driver = context.Services.StorageDriver;
+
+      if (connection.ActiveTransaction == null) {
+        return;
+      }
+
+      try {
+        await driver.CommitTransactionAsync(null, connection, token: token);
+      }
+      catch {
+        // If transaction has become broken during commit its rollback leads to new exception
+        // which will overwrite the original one.
+        // Check for active transaction should work because on exception within 
+        // driver.Commit it is set to NULL.
+        if (connection.ActiveTransaction != null) {
+          await driver.RollbackTransactionAsync(null, connection, token);
+        }
+        throw;
       }
     }
 

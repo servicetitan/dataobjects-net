@@ -172,7 +172,8 @@ namespace Xtensive.Orm.Building.Builders
       foreach (var type in context.Model.Types.Entities) {
         var associations = type.GetOwnerAssociations()
           .Where(static a => a.OnOwnerRemove is OnRemoveAction.Cascade or OnRemoveAction.Clear);
-        if (PrefetchActionContainer.BuildPrefetchAction(type, associations) is { } action) {
+        var action = new PrefetchActionContainer(type).BuildPrefetchAction(associations);
+        if (action != null) {
           domain.PrefetchActionMap.Add(type, action);
         }
       }

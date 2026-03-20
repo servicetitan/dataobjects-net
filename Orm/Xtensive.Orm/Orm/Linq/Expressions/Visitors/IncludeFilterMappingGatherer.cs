@@ -37,14 +37,14 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     private static readonly IReadOnlyList<ParameterExpression> CalculatedColumnParameters = [CalculatedColumnParameter];
 
     public static void Gather(Expression filterExpression, Expression filterDataTuple, ApplyParameter filteredTuple, ArraySegment<MappingEntry?> mapping)
-    {
+    {    
       var visitor = new IncludeFilterMappingGatherer(filterDataTuple, filteredTuple, mapping);
       _ = visitor.Visit(filterExpression);
       if (mapping.Contains(null))
         throw Exceptions.InternalError("Failed to gather mappings for IncludeProvider", OrmLog.Instance);
     }
 
-    protected override Expression VisitBinary(BinaryExpression b)
+    protected override BinaryExpression VisitBinary(BinaryExpression b)
     {
       var result = (BinaryExpression) base.VisitBinary(b);
       var expressions = new[] {result.Left, result.Right};

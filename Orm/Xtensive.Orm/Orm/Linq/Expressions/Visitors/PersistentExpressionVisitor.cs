@@ -13,11 +13,11 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
   internal abstract class PersistentExpressionVisitor : ExtendedExpressionVisitor
   {
-    internal override Expression VisitProjectionExpression(ProjectionExpression projectionExpression) =>
+    internal protected override Expression VisitProjectionExpression(ProjectionExpression projectionExpression) =>
       throw Exceptions.InternalError(string.Format(Strings.ExXDoesNotSupportX,
         typeof(PersistentExpressionVisitor), WellKnownOrmTypes.ProjectionExpression), OrmLog.Instance);
 
-    internal override Expression VisitItemProjectorExpression(ItemProjectorExpression itemProjectorExpression)
+    internal protected override Expression VisitItemProjectorExpression(ItemProjectorExpression itemProjectorExpression)
     {
       throw Exceptions.InternalError(String.Format(Strings.ExXDoesNotSupportX, typeof (PersistentExpressionVisitor), typeof (ItemProjectorExpression)), OrmLog.Instance);
     }

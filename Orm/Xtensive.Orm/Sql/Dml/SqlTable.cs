@@ -83,9 +83,9 @@ namespace Xtensive.Sql.Dml
       return InnerJoin(right, null);
     }
 
-    public virtual SqlJoinedTable LeftOuterJoin(SqlTable right)
+    public virtual SqlJoinedTable LeftJoinEx(SqlTable right)
     {
-      return LeftOuterJoin(right, null);
+      return LeftJoinEx(right, null);
     }
 
     public virtual SqlJoinedTable RightOuterJoin(SqlTable right)
@@ -103,7 +103,7 @@ namespace Xtensive.Sql.Dml
       return SqlDml.Join(SqlJoinType.InnerJoin, this, right, expression);
     }
 
-    public virtual SqlJoinedTable LeftOuterJoin(SqlTable right, SqlExpression expression)
+    public virtual SqlJoinedTable LeftJoinEx(SqlTable right, SqlExpression expression)
     {
       return SqlDml.Join(SqlJoinType.LeftOuterJoin, this, right, expression);
     }

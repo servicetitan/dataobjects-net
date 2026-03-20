@@ -48,9 +48,9 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       ArgumentNullException.ThrowIfNull(predicate);
       if (predicateColumns.Count == 0)
-        throw Exceptions.CollectionIsEmpty("predicateColumns");
+        throw Exceptions.CollectionIsEmpty(nameof(predicateColumns));
       if (currentColumns.Count == 0)
-        throw Exceptions.CollectionIsEmpty("currentColumns");
+        throw Exceptions.CollectionIsEmpty(nameof(currentColumns));
       sourceColumns = predicateColumns;
       targetColumns = currentColumns;
     }

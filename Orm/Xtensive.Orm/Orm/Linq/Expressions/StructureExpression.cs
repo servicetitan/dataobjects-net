@@ -28,10 +28,10 @@ namespace Xtensive.Orm.Linq.Expressions
 
     private void SetFields(IReadOnlyList<PersistentFieldExpression> value)
     {
-      fields = value;
-      foreach (var fieldExpression in fields.OfType<FieldExpression>()) {
-        fieldExpression.Owner = this;
-      }
+        fields = value;
+        foreach (var fieldExpression in fields.OfAnyFieldExpression()) {
+          fieldExpression.Owner = this;
+        }
     }
 
     public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)
@@ -135,14 +135,13 @@ namespace Xtensive.Orm.Linq.Expressions
 
       var sourceFields = typeInfo.Fields;
       var destinationFields = new PersistentFieldExpression[sourceFields.Count];
-      var result = new StructureExpression(typeInfo, mapping);
-      result.SetFields(destinationFields);
       int i = 0;
       foreach (var field in sourceFields) {
         // Do not convert to LINQ. We intentionally avoiding closure creation here
         destinationFields[i++] = BuildNestedFieldExpression(field, mapping.Offset);
       }
-
+      var result = new StructureExpression(typeInfo, mapping);
+      result.SetFields(destinationFields);
       return result;
     }
 

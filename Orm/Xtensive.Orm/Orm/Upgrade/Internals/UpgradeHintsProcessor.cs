@@ -209,8 +209,6 @@ namespace Xtensive.Orm.Upgrade.Internals
       currentNonConnectorTypes = GetNonConnectorTypes(currentModel);
 
       var newModelTypes = currentNonConnectorTypes.ToDictionary(type => type.UnderlyingType, currentModel.Types.Length);
-      //var renameLookup = renameTypeHints.ToDictionary(hint => hint.OldType, renameTypeHints.Count);
-      //var removeLookup = removeTypeHints.ToDictionary(hint => hint.Type, removeTypeHints.Count);
 
       // Types that are neither mapped nor removed.
       var suspects = new HashSet<StoredTypeInfo>();

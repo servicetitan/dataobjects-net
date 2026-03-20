@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return e;
     }
 
-    protected override Expression VisitParameter(ParameterExpression p)
+    protected override ParameterExpression VisitParameter(ParameterExpression p)
     {
       ValidateParameter(p);
       return p;
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return l;
     }
 
-    protected override Expression VisitMethodCall(MethodCallExpression call)
+    protected override MethodCallExpression VisitMethodCall(MethodCallExpression call)
     {
       // Unpack nested "target.Prefetch(lambda)" call
       // We will directly map lambda to target to simplify work for NodeBuilder.
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return call;
     }
 
-    protected override Expression VisitMember(MemberExpression m)
+    protected override MemberExpression VisitMember(MemberExpression m)
     {
       ValidateMemberAccess(m);
       result.RegisterChild(m.Expression, m);
@@ -106,6 +106,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private void ValidateParameter(ParameterExpression p)
     {
       if (currentParameter!=p)
+
         throw new NotSupportedException("Outer parameter should not be accessed from nested Prefetch() call");
     }
 

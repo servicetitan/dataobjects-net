@@ -81,7 +81,7 @@ namespace Xtensive.Tuples.Transform.Internals
     {
       ArgumentNullException.ThrowIfNull(sources, "tuples");
       // Other checks are omitted: this transform should be fast, so delayed errors are ok
-      this.tuples = sources;
+      this.tuples = sources ?? throw new ArgumentNullException(nameof(sources));
     }
   }
 }

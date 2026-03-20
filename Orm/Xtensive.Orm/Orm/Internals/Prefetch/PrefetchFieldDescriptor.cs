@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       if (entitySetItemCountLimit != null) {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(entitySetItemCountLimit.Value, 0);
       }
-      Field = field;
+      Field = field ?? throw new ArgumentNullException(nameof(field));
       FetchFieldsOfReferencedEntity = fetchFieldsOfReferencedEntity;
       EntitySetItemCountLimit = entitySetItemCountLimit;
       FetchLazyFields = fetchLazyFields;

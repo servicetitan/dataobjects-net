@@ -245,7 +245,7 @@ namespace Xtensive.Caching
         ArgumentValidator.EnsureArgumentIsInRange(maxSize, 1, long.MaxValue, "maxSize");
       ArgumentNullException.ThrowIfNull(keyExtractor);
       this.maxSize = maxSize;
-      this.KeyExtractor = keyExtractor;
+      this.KeyExtractor = keyExtractor ?? throw new ArgumentNullException(nameof(keyExtractor));
       this.cacheConverter = cacheConverter;
       this.chainedCache = chainedCache;
       // deque = new TopDeque<TKey, TCached>(1 + (int) maxSize);

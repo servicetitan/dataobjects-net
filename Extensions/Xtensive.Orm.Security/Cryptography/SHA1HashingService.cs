@@ -16,13 +16,10 @@ namespace Xtensive.Orm.Security.Cryptography
   public class SHA1HashingService : GenericHashingService
   {
     /// <inheritdoc/>
-#pragma warning disable SYSLIB0021 // Type or member is obsolete
-    // direct creation is more efficient than SHA1.Create()
-    protected override HashAlgorithm GetHashAlgorithm() => new SHA1Managed();
-#pragma warning restore SYSLIB0021 // Type or member is obsolete
-    
-    /// <inheritdoc />
-    protected override int HashSizeInBytes => SHA1.HashSizeInBytes;
+    protected override int HashSizeInBytes => 20;
+
+    /// <inheritdoc/>
+    protected override HashAlgorithm GetHashAlgorithm() => SHA1.Create();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SHA1HashingService"/> class.

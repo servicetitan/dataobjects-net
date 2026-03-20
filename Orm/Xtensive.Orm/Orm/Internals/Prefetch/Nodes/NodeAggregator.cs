@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var result = source
         .GroupBy(ken => ken.Path, (path, @group) => 
           (Node) @group.First().ReplaceNestedNodes(
-              @group.SelectMany(ken => ken.NestedNodes).ToList().AsSafeWrapper()))
+              @group.SelectMany(ken => ken.NestedNodes).ToList()))
         .Select(aggregator.Visit)
         .Cast<KeyExtractorNode<T>>()
         .ToList();
@@ -36,11 +36,11 @@ namespace Xtensive.Orm.Internals.Prefetch
           result.Add(node);
         else {
           var nodeToVisit = (BaseFieldNode) container.ReplaceNestedNodes(
-            group.Cast<IHasNestedNodes>().SelectMany(c => c.NestedNodes).ToList().AsSafeWrapper());
+            group.Cast<IHasNestedNodes>().SelectMany(c => c.NestedNodes).ToList());
           result.Add((BaseFieldNode) Visit(nodeToVisit));
         }
       }
-      return result.AsSafeWrapper();
+      return result;
     }
 
     // Constructor

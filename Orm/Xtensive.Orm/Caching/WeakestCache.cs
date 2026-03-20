@@ -360,7 +360,7 @@ namespace Xtensive.Caching
       ArgumentNullException.ThrowIfNull(keyExtractor);
       this.trackKeyResurrection = trackKeyResurrection;
       this.trackItemResurrection = trackItemResurrection;
-      this.KeyExtractor = keyExtractor;
+      this.KeyExtractor = keyExtractor ?? throw new ArgumentNullException(nameof(keyExtractor));
       items = new Dictionary<object, WeakEntry>(1024, new WeakEntryEqualityComparer());
     }
 

@@ -21,7 +21,7 @@ namespace Xtensive.Linq
   {
     private readonly Dictionary<Expression, Expression> cache = isCaching ? new() : null;
 
-    protected virtual IEnumerable<Expression> VisitExpressionList(IReadOnlyList<Expression> expressions) =>
+    protected virtual IReadOnlyList<Expression> VisitExpressionList(IReadOnlyList<Expression> expressions) =>
       VisitList(expressions, Visit);
 
     public override Expression Visit(Expression e)
@@ -71,6 +71,24 @@ namespace Xtensive.Linq
     /// <returns>Visit result.</returns>
     protected virtual IEnumerable<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original) =>
       VisitList(original, VisitElementInitializer);
+
+    /// <summary>
+    /// Visits the element initializer list.
+    /// </summary>
+    /// <param name="original">The original element initializer list.</param>
+    /// <returns>Visit result.</returns>
+    protected virtual IReadOnlyList<ElementInit> VisitElementInitializerList(IReadOnlyList<ElementInit> original)
+    {
+      var results = new ElementInit[original.Count];
+      bool isChanged = false;
+      for (int i = 0, n = original.Count; i < n; i++) {
+        var originalIntializer = original[i];
+        ElementInit p = VisitElementInitializer(originalIntializer);
+        results[i] = p;
+        isChanged |= !ReferenceEquals(originalIntializer, p);
+      }
+      return isChanged ? results : original;
+    }
 
     /// <inheritdoc/>
     protected override Expression VisitUnary(UnaryExpression u) =>
@@ -236,12 +254,12 @@ namespace Xtensive.Linq
     /// </summary>
     /// <param name="original">The original binding list.</param>
     /// <returns>Visit result.</returns>
-    protected virtual IEnumerable<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original) =>
+    protected virtual IReadOnlyList<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original) =>
       VisitList(original, VisitBinding);
 
-    public static IEnumerable<T> VisitList<T>(IReadOnlyList<T> original, Func<T, T> func) where T : class
+    public static IReadOnlyList<T> VisitList<T>(IReadOnlyList<T> original, Func<T, T> func) where T : class
     {
-      for (int i = 0, n = original.Count; i < n; ++i) {
+      for (int i = 0, n = original.Count; i < n; i++) {
         var originalValue = original[i];
         if (func(originalValue) is var p && !ReferenceEquals(p, originalValue)) {
           return VisitListIterator(original, func, p, i);
@@ -250,22 +268,41 @@ namespace Xtensive.Linq
       return original;
     }
 
-    private static IEnumerable<T> VisitListIterator<T>(IReadOnlyList<T> original, Func<T, T> func, T p, int pIdx) where T : class
+    private static IReadOnlyList<T> VisitListIterator<T>(IReadOnlyList<T> original, Func<T, T> func, T p, int pIdx) where T : class
     {
+      T[] result = new T[original.Count];
       for (var i = 0; i < pIdx; ++i) {
-        yield return original[i];
+        result[i] = original[i];
       }
-      yield return p;
+      result[pIdx] = p;
       for (int i = pIdx + 1, n = original.Count; i < n; ++i) {
-        yield return func(original[i]);
+        result[i] = func(original[i]);
       }
+      return result;
     }
     
+    /// <summary>
+    /// Visits the binding list.
+    /// </summary>
+    /// <param name="original">The original binding list.</param>
+    /// <returns>Visit result.</returns>
+    protected virtual IReadOnlyList<MemberBinding> VisitBindingList(IReadOnlyList<MemberBinding> original)
+    {
+      var results = new MemberBinding[original.Count];
+      bool isChanged = false;
+      for (int i = 0, n = original.Count; i < n; i++) {
+        var originalBinding = original[i];
+        MemberBinding p = VisitBinding(originalBinding);
+        results[i] = p;
+        isChanged |= !ReferenceEquals(originalBinding, p);
+      }
+      return isChanged ? results : original;
+    }
+
     protected override MemberListBinding VisitMemberListBinding(MemberListBinding binding)
     {
-      var bindingInitializers = binding.Initializers;
-      IEnumerable<ElementInit> initializers = VisitElementInitializerList(bindingInitializers);
-      if (initializers != bindingInitializers)
+      IEnumerable<ElementInit> initializers = VisitElementInitializerList((IReadOnlyList<ElementInit>) binding.Initializers);
+      if (initializers!=binding.Initializers)
         return Expression.ListBind(binding.Member, initializers);
       return binding;
     }
