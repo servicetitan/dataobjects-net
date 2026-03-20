@@ -135,14 +135,13 @@ namespace Xtensive.Orm.Linq.Expressions
 
       var sourceFields = typeInfo.Fields;
       var destinationFields = new PersistentFieldExpression[sourceFields.Count];
-      var result = new StructureExpression(typeInfo, mapping);
-      result.SetFields(destinationFields);
       int i = 0;
       foreach (var field in sourceFields) {
         // Do not convert to LINQ. We intentionally avoiding closure creation here
         destinationFields[i++] = BuildNestedFieldExpression(field, mapping.Offset);
       }
-
+      var result = new StructureExpression(typeInfo, mapping);
+      result.SetFields(destinationFields);
       return result;
     }
 
