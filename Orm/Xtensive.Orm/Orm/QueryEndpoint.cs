@@ -290,7 +290,7 @@ namespace Xtensive.Orm
     {
       if (key == null)
         return null;
-      var result = await SingleOrDefaultAsync(key, token).ConfigureAwait(false);
+      var result = await SingleOrDefaultAsync(key, token).ConfigureAwaitFalse();
       if (result == null)
         throw new KeyNotFoundException(string.Format(
           Strings.EntityWithKeyXDoesNotExist, key));
@@ -338,7 +338,7 @@ namespace Xtensive.Orm
           }
 
           state = (isAsync)
-            ? await Session.Handler.FetchEntityStateAsync(key, token).ConfigureAwait(false)
+            ? await Session.Handler.FetchEntityStateAsync(key, token).ConfigureAwaitFalse()
             : Session.Handler.FetchEntityState(key);
         }
         else if (state.Tuple == null) {
@@ -347,7 +347,7 @@ namespace Xtensive.Orm
           if (stateKeyType != keyType && !stateKeyType.IsAssignableFrom(keyType)) {
             Session.RemoveStateFromCache(state.Key, true);
             state = (isAsync)
-              ? await Session.Handler.FetchEntityStateAsync(key, token).ConfigureAwait(false)
+              ? await Session.Handler.FetchEntityStateAsync(key, token).ConfigureAwaitFalse()
               : Session.Handler.FetchEntityState(key);
           }
         }
@@ -426,7 +426,7 @@ namespace Xtensive.Orm
     public async Task<T> SingleAsync<T>(object[] keyValues, CancellationToken token = default)
       where T : class, IEntity
     {
-      return (T) (object) (await SingleAsync(GetKeyByValues<T>(keyValues), token).ConfigureAwait(false));
+      return (T) (object) (await SingleAsync(GetKeyByValues<T>(keyValues), token).ConfigureAwaitFalse());
     }
 
     /// <summary>
@@ -460,7 +460,7 @@ namespace Xtensive.Orm
     public async Task<T> SingleOrDefaultAsync<T>(Key key, CancellationToken token = default)
       where T : class, IEntity
     {
-      return (T) (object) (await SingleOrDefaultAsync(key, token).ConfigureAwait(false));
+      return (T) (object) (await SingleOrDefaultAsync(key, token).ConfigureAwaitFalse());
     }
 
     /// <summary>
