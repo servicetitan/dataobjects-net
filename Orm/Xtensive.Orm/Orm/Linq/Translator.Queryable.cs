@@ -418,8 +418,6 @@ namespace Xtensive.Orm.Linq
       var sourceTypeInfo = context.Model.Types[sourceType];
       var map = Enumerable.Repeat((ColNum)(-1), recordSet.Header.Columns.Count).ToArray();
       ColNum targetFieldIndex = 0;
-
-      var targetFieldIndex = 0;
       var targetFields = targetTypeInfo.Fields.Where(f => f.IsPrimitive);
       foreach (var targetField in targetFields) {
         var sourceFieldInfo = targetType.IsInterface && sourceType.IsClass

@@ -16,6 +16,9 @@ namespace Xtensive.Orm.Security.Cryptography
   public class SHA1HashingService : GenericHashingService
   {
     /// <inheritdoc/>
+    protected override int HashSizeInBytes => 20;
+
+    /// <inheritdoc/>
     protected override HashAlgorithm GetHashAlgorithm() => SHA1.Create();
 
     /// <summary>

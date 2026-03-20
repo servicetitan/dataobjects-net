@@ -199,7 +199,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       try {
-        await driver.CommitTransactionAsync(null, connection, token);
+        await driver.CommitTransactionAsync(null, connection, token: token);
       }
       catch {
         // If transaction has become broken during commit its rollback leads to new exception

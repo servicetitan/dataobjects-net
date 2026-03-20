@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Rse.Providers
     public AliasProvider(CompilableProvider source, string alias)
       : base(ProviderType.Alias, source)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(alias, nameof(alias));
+      ArgumentException.ThrowIfNullOrEmpty(alias);
       Alias = alias;
       Initialize();
     }

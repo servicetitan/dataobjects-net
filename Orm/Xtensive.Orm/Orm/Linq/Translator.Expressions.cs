@@ -716,7 +716,7 @@ namespace Xtensive.Orm.Linq
           : Expression.New(newExpression.Constructor, arguments, newExpressionMembers);
       }
 
-      if (constructorParameters.Length != arguments.Length)
+      if (constructorParameters.Length != arguments.Count)
         throw Exceptions.InternalError(Strings.ExInvalidNumberOfParametersInNewExpression, OrmLog.Instance);
 
       var bindings = GetBindingsForConstructor(constructorParameters, arguments, newExpression);

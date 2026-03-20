@@ -28,13 +28,10 @@ namespace Xtensive.Orm.Linq.Expressions
 
     private void SetFields(IReadOnlyList<PersistentFieldExpression> value)
     {
-      get => fields;
-      private set {
         fields = value;
         foreach (var fieldExpression in fields.OfAnyFieldExpression()) {
           fieldExpression.Owner = this;
         }
-      }
     }
 
     public override Expression Remap(ColNum offset, Dictionary<Expression, Expression> processedExpressions)

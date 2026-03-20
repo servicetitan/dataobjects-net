@@ -23,12 +23,9 @@ namespace Xtensive.Orm.Linq.Expressions
 
     private void SetFields(IReadOnlyList<PersistentFieldExpression> value)
     {
-      get => fields;
-      private set {
-        fields = value;
-        foreach (var fieldExpression in fields.OfAnyFieldExpression()) {
-          fieldExpression.Owner = this;
-        }
+      fields = value;
+      foreach (var fieldExpression in fields.OfAnyFieldExpression()) {
+        fieldExpression.Owner = this;
       }
     }
 

@@ -4,12 +4,9 @@
 // Created by: Alexey Kochetov
 // Created:    2008.11.25
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using Xtensive.Core;
@@ -455,20 +452,6 @@ namespace Xtensive.Linq
       }
 
       return original;
-    }
-
-    protected override IReadOnlyList<Expression> VisitExpressionList(
-      IReadOnlyList<Expression> expressions)
-    {
-      for (int i = 0, n = expressions.Count; i < n; i++) {
-        Visit(expressions[i]);
-        if (i < n - 1) {
-          Write(",");
-          WriteLine(IndentType.Same);
-        }
-      }
-
-      return expressions;
     }
 
     /// <inheritdoc/>

@@ -67,9 +67,9 @@ namespace Xtensive.Orm.Linq
       };
 
       var newBindings = Bindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
-      var newConstructorArguments = ReferenceEquals(ConstructorArguments, Array.Empty<Expression>())
+      var newConstructorArguments = ConstructorArguments.Count == 0
         ? ConstructorArguments
-        : ConstructorArguments.Select(arg =>  GenericExpressionVisitor<IMappedExpression>.Process(arg, remapper));
+        : ConstructorArguments.Select(arg =>  GenericExpressionVisitor<IMappedExpression>.Process(arg, remapper)).ToArray();
       var newNativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
       var result = new ConstructorExpression(
         Type,
@@ -90,9 +90,9 @@ namespace Xtensive.Orm.Linq
       };
 
       var newBindings = Bindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
-      var newConstructorArguments = ReferenceEquals(ConstructorArguments, Array.Empty<Expression>())
+      var newConstructorArguments = ConstructorArguments.Count == 0
         ? ConstructorArguments
-        : ConstructorArguments.Select(arg =>  GenericExpressionVisitor<IMappedExpression>.Process(arg, remapper));
+        : ConstructorArguments.Select(arg =>  GenericExpressionVisitor<IMappedExpression>.Process(arg, remapper)).ToArray();
       var newNativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
       return new ConstructorExpression(Type, newBindings, newNativeBindings, Constructor, newConstructorArguments);
     }
@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Linq
       Dictionary<MemberInfo, Expression> bindings,
       Dictionary<MemberInfo, Expression> nativeBindings,
       ConstructorInfo constructor,
-      IEnumerable<Expression> constructorArguments)
+      IReadOnlyList<Expression> constructorArguments)
       : base(ExtendedExpressionType.Constructor, type, null, false)
     {
       Bindings = bindings ?? new Dictionary<MemberInfo, Expression>();

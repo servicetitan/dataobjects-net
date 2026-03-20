@@ -99,12 +99,6 @@ namespace Xtensive.Orm.Rse
       return new SortProvider(source, columnIndexes);
     }
 
-    public static CompilableProvider Alias(this CompilableProvider source, string alias)
-    {
-      ArgumentException.ThrowIfNullOrEmpty(alias);
-      return new AliasProvider(source, alias);
-    }
-
     /// <summary>
     /// Applies <see cref="AliasProvider"/> to the given source.
     /// </summary>
@@ -112,12 +106,6 @@ namespace Xtensive.Orm.Rse
     /// <param name="alias">Alias.</param>
     /// <returns><see cref="AliasProvider"/> instance.</returns>
     public static CompilableProvider Alias(this CompilableProvider source, string alias) => new AliasProvider(source, alias);
-
-    public static CompilableProvider Select(this CompilableProvider source, IReadOnlyList<ColNum> columnIndexes)
-    {
-      ArgumentNullException.ThrowIfNull(columnIndexes);
-      return new SelectProvider(source, columnIndexes);
-    }
 
     /// <summary>
     /// Applies <see cref="FilterProvider"/> to the given source.
@@ -133,7 +121,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="source">Compilable provider.</param>
     /// <param name="columnIndexes">Column indexes to select from the source.</param>
     /// <returns><see cref="SelectProvider"/> instance.</returns>
-    public static CompilableProvider Select(this CompilableProvider source, IReadOnlyList<int> columnIndexes) => new SelectProvider(source, columnIndexes);
+    public static CompilableProvider Select(this CompilableProvider source, IReadOnlyList<ColNum> columnIndexes) => new SelectProvider(source, columnIndexes);
 
     /// <summary>
     /// Applies <see cref="SeekProvider"/> to the given source.
@@ -172,7 +160,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="descriptors">Descriptors of aggregate columns.</param>
     /// <returns><see cref="AggregateProvider"/> instance.</returns>
     public static CompilableProvider Aggregate(this CompilableProvider recordQuery,
-      int[] groupIndexes, IReadOnlyList<AggregateColumnDescriptor> descriptors)
+      ColNum[] groupIndexes, IReadOnlyList<AggregateColumnDescriptor> descriptors)
       => new AggregateProvider(recordQuery, groupIndexes, descriptors);
 
     /// <summary>

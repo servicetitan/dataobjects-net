@@ -4,12 +4,8 @@
 // Created by: Alexey Gamzov
 // Created:    2009.05.21
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Internals;
@@ -257,17 +253,17 @@ namespace Xtensive.Orm.Linq.Materialization
         var mappingSequence = expression.Fields
           .OfExactlyFieldExpression()
           .OrderBy(static f => f.Field.MappingInfo.Offset)
-          .Select(static f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
+          .Select(f => (f.Field.MappingInfo.Offset, f.Mapping.Offset))
           .Distinct();
 
-        Pair<int>[] mappingInfo;
+        (ColNum, ColNum)[] mappingInfo;
         if (expression.Fields.Count > NumberOfItemsOnStack * 2) {
           mappingInfo = mappingSequence.ToArray();
         }
         else {
-          Span<Pair<int>> mappingInfoSpan = (expression.Fields.Count < NumberOfItemsOnStack)
-            ? stackalloc Pair<int>[expression.Fields.Count]
-            : new Pair<int>[expression.Fields.Count];
+          Span<(ColNum, ColNum)> mappingInfoSpan = (expression.Fields.Count < NumberOfItemsOnStack)
+            ? stackalloc (ColNum, ColNum)[expression.Fields.Count]
+            : new (ColNum, ColNum)[expression.Fields.Count];
 
           int actualCount = 0;
           foreach (var map in mappingSequence) {
@@ -322,17 +318,17 @@ namespace Xtensive.Orm.Linq.Materialization
       var mappingSequence = expression.Fields
         .OfExactlyFieldExpression()
         .OrderBy(static f => f.Field.MappingInfo.Offset)
-        .Select(static f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
+        .Select(static f => (f.Field.MappingInfo.Offset, f.Mapping.Offset))
         .Distinct();
 
-      Pair<int>[] mappingInfo;
+      (ColNum, ColNum)[] mappingInfo;
       if (expression.Fields.Count > NumberOfItemsOnStack * 2) {
         mappingInfo = mappingSequence.ToArray();
       }
       else {
-        Span<Pair<int>> mappingInfoSpan = (expression.Fields.Count < NumberOfItemsOnStack)
-          ? stackalloc Pair<int>[expression.Fields.Count]
-          : new Pair<int>[expression.Fields.Count];
+        Span<(ColNum, ColNum)> mappingInfoSpan = (expression.Fields.Count < NumberOfItemsOnStack)
+          ? stackalloc (ColNum, ColNum)[expression.Fields.Count]
+          : new (ColNum, ColNum)[expression.Fields.Count];
 
         int actualCount = 0;
         foreach (var map in mappingSequence) {
@@ -402,17 +398,17 @@ namespace Xtensive.Orm.Linq.Materialization
       var mappingSequence = expression.Fields
         .OfExactlyFieldExpression()
         .OrderBy(static f => f.Field.MappingInfo.Offset)
-        .Select(static f => new Pair<int>(f.Field.MappingInfo.Offset, f.Mapping.Offset))
+        .Select(static f => (f.Field.MappingInfo.Offset, f.Mapping.Offset))
         .Distinct();
 
-      Pair<int>[] mappingInfo;
+      (ColNum, ColNum)[] mappingInfo;
       if (expression.Fields.Count > NumberOfItemsOnStack * 4) {
         mappingInfo = mappingSequence.ToArray();
       }
       else {
-        Span<Pair<int>> mappingInfoSpan = (expression.Fields.Count < NumberOfItemsOnStack)
-          ? stackalloc Pair<int>[expression.Fields.Count]
-          : new Pair<int>[expression.Fields.Count];
+        Span<(ColNum, ColNum)> mappingInfoSpan = (expression.Fields.Count < NumberOfItemsOnStack)
+          ? stackalloc (ColNum, ColNum)[expression.Fields.Count]
+          : new (ColNum, ColNum)[expression.Fields.Count];
 
         int actualCount = 0;
         foreach (var map in mappingSequence) {

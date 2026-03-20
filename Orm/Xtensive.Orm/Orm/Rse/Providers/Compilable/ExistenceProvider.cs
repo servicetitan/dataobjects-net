@@ -4,9 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.03.20
 
-using System;
-using System.Diagnostics;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
@@ -45,7 +42,7 @@ namespace Xtensive.Orm.Rse.Providers
     public ExistenceProvider(CompilableProvider source, string existenceColumnName)
       : base(ProviderType.Existence, source)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(existenceColumnName, nameof(existenceColumnName));
+      ArgumentException.ThrowIfNullOrEmpty(existenceColumnName);
       ExistenceColumnName = existenceColumnName;
       Initialize();
     }

@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Linq.Expressions
     /// <returns>Filtered results.</returns>
     public static IEnumerable<FieldExpression> OfAnyFieldExpression(this IEnumerable<PersistentFieldExpression> fields)
     {
-      // Faster that .OfType<FieldExpression>()
+      // Faster than .OfType<FieldExpression>()
       return fields
         .Where(static f => f.ExtendedType is ExtendedExpressionType.Field
             or ExtendedExpressionType.EntityField

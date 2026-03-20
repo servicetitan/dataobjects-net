@@ -32,29 +32,10 @@ namespace Xtensive.Orm.Linq.Expressions
       for (int i = 0; i < n; ++i) {
         fields[i] = KeyFields[i].Remap(offset, processedExpressions);
       }
-
-      return processedExpressions.TryGetValue(this, out var value)
-        ? value
-        : RemapWithNoCheck(offset, processedExpressions);
-    }
-
-    // Having this code as a separate method helps to avoid closure allocation during Remap call
-    // in case processedExpressions dictionary already contains a result.
-    private Expression RemapWithNoCheck(int offset, Dictionary<Expression, Expression> processedExpressions)
-    {
-      var newMapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
-
-      var fields = KeyFields.Select(Remap).ToArray(KeyFields.Count);
       var result = new KeyExpression(EntityType, fields, newMapping, UnderlyingProperty, OuterParameter, DefaultIfEmpty);
 
       processedExpressions.Add(this, result);
       return result;
-
-
-      FieldExpression Remap(FieldExpression f)
-      {
-        return (FieldExpression) f.Remap(offset, processedExpressions);
-      }
     }
 
     public override KeyExpression Remap(ColumnMap map, Dictionary<Expression, Expression> processedExpressions)
@@ -101,7 +82,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     // Having this code as a separate method helps to avoid closure allocation during BindParameter call
     // in case processedExpressions dictionary already contains a result.
-    private Expression BindParameterWithNoCheck(
+    private KeyExpression BindParameterWithNoCheck(
       ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       var fields = KeyFields.Select(BindParameter).ToArray(KeyFields.Count);
@@ -133,7 +114,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     // Having this code as a separate method helps to avoid closure allocation during RemoveOuterParameter call
     // in case processedExpressions dictionary already contains a result.
-    private Expression RemoveOuterParameterWithNoCheck(Dictionary<Expression, Expression> processedExpressions)
+    private KeyExpression RemoveOuterParameterWithNoCheck(Dictionary<Expression, Expression> processedExpressions)
     {
       var fields = KeyFields.Select(RemoveOuterParameter).ToArray(KeyFields.Count);
       var result = new KeyExpression(EntityType, fields, Mapping, UnderlyingProperty, null, DefaultIfEmpty);

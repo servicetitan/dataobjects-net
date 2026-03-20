@@ -291,10 +291,10 @@ namespace Xtensive.Orm.Upgrade.Internals
     private DataTableColumn[] GetKeyColumns(DataTable newTable, Index sourceIndex)
     {
       if (newTable is Table table)
-        return sourceIndex.Columns.SelectToArray(el => table.TableColumns[el.Column.Name] as DataTableColumn);
+        return sourceIndex.Columns.Select(el => table.TableColumns[el.Column.Name] as DataTableColumn).ToArray();
 
       if (newTable is View view)
-        return sourceIndex.Columns.SelectToArray(el => view.ViewColumns[el.Column.Name] as DataTableColumn);
+        return sourceIndex.Columns.Select(el => view.ViewColumns[el.Column.Name] as DataTableColumn).ToArray();
 
       throw new ArgumentOutOfRangeException("newTable", Strings.ExUnexpectedTypeOfParameter);
     }
@@ -302,10 +302,10 @@ namespace Xtensive.Orm.Upgrade.Internals
     private DataTableColumn[] GetNonKeyColumns(DataTable newTable, Index sourceIndex)
     {
       if (newTable is Table table)
-        return sourceIndex.NonkeyColumns.SelectToArray(el => table.TableColumns[el.Name] as DataTableColumn);
+        return sourceIndex.NonkeyColumns.Select(el => table.TableColumns[el.Name] as DataTableColumn).ToArray();
 
       if (newTable is View view)
-        return sourceIndex.NonkeyColumns.SelectToArray(el => view.ViewColumns[el.Name] as DataTableColumn);
+        return sourceIndex.NonkeyColumns.Select(el => view.ViewColumns[el.Name] as DataTableColumn).ToArray();
 
       throw new ArgumentOutOfRangeException("newTable", Strings.ExUnexpectedTypeOfParameter);
     }

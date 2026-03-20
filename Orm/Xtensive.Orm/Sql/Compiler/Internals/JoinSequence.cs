@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.05.18
 
-using System.Collections.Generic;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Compiler
@@ -42,26 +41,16 @@ namespace Xtensive.Sql.Compiler
 
     private static void Traverse(SqlJoinedTable root, List<SqlJoinExpression> output)
     {
-      var left = root.JoinExpression.Left;
+      var joinExpression = root.JoinExpression;
+      var left = joinExpression.Left;
       if (left is SqlJoinedTable joinedLeft)
         Traverse(joinedLeft, output);
-      }
 
       output.Add(joinExpression);
 
       var right = root.JoinExpression.Right;
       if (right is SqlJoinedTable joinedRight)
         Traverse(joinedRight, output);
-    }
-
-
-    // Constructors
-    private JoinSequence(SqlTable pivot, IReadOnlyList<SqlTable> tables, IReadOnlyList<SqlJoinType> joinTypes, IReadOnlyList<SqlExpression> conditions)
-    {
-      Pivot = pivot;
-      Tables = tables;
-      JoinTypes = joinTypes;
-      Conditions = conditions;
     }
   }
 }
