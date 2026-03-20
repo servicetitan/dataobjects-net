@@ -46,12 +46,14 @@ namespace Xtensive.Collections
       ArgumentOutOfRangeException.ThrowIfNegative(count);
       var result = new List<ColNum>(count);
       for (int i = 0; i < count; ++i) {
-        result[i] = (ColNum)(start + i);
+        result.Add((ColNum)(start + i));
       }
       return result;
     }
 
-    private static readonly IReadOnlyList<ColNum>[] preallocatedRanges = Enumerable.Range(0, 100).Select(len => (IReadOnlyList<ColNum>)Enumerable.Range(0, len).Select(i => (ColNum)i).ToArray()).ToArray();
+    private static readonly IReadOnlyList<ColNum>[] preallocatedRanges = Enumerable.Range(0, 100)
+      .Select(len => (IReadOnlyList<ColNum>)Enumerable.Range(0, len).Select(i => (ColNum)i).ToArray())
+      .ToArray();
 
     public static IReadOnlyList<ColNum> ColNumRange(int count) =>
       count < preallocatedRanges.Length ? preallocatedRanges[count] : Enumerable.Range(0, count).Select(i => (ColNum)i).ToArray();
