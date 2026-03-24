@@ -573,15 +573,20 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private void RestoreMappings(Dictionary<Provider, List<ColNum>> savedMappings) => mappings = savedMappings;
 
-    private IDisposable SetOuterColumnUsage(ApplyParameter parameter, List<ColNum> usages)
+    private readonly record struct Disposer(ColumnMappingInspector inspector, ApplyParameter parameter) : IDisposable
+    {
+      public void Dispose()
+      {
+        inspector.outerColumnUsages.Remove(parameter);
+        inspector.outerColumnUsageStack.Pop();
+      }
+    }
+
+    private Disposer SetOuterColumnUsage(ApplyParameter parameter, List<ColNum> usages)
     {
       outerColumnUsages.Add(parameter, usages);
       outerColumnUsageStack.Push(usages);
-      return new Disposable(
-        x => { 
-          _ = outerColumnUsages.Remove(parameter);
-          _ = outerColumnUsageStack.Pop();
-        });
+      return new(this, parameter);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
