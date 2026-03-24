@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     {    
       var visitor = new IncludeFilterMappingGatherer(filterDataTuple, filteredTuple, mapping);
       _ = visitor.Visit(filterExpression);
-      if (mapping.Contains(null))
+      if (mapping.IndexOf(null) >= 0)
         throw Exceptions.InternalError("Failed to gather mappings for IncludeProvider", OrmLog.Instance);
     }
 
