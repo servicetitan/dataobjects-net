@@ -573,7 +573,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private void RestoreMappings(Dictionary<Provider, List<ColNum>> savedMappings) => mappings = savedMappings;
 
-    private readonly record struct Disposer(ColumnMappingInspector inspector, ApplyParameter parameter) : IDisposable
+    private readonly struct Disposer(ColumnMappingInspector inspector, ApplyParameter parameter) : IDisposable
     {
       public void Dispose()
       {
