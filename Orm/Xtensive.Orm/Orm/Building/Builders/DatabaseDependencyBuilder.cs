@@ -136,9 +136,8 @@ namespace Xtensive.Orm.Building.Builders
 
     private void Visit(string database)
     {
-      if (visited.Contains(database))
+      if (!visited.Add(database))
         return;
-      visited.Add(database);
       var references = referenceRegistry.Keys
         .Where(r => r.OwnerDatabase==database);
       foreach (var reference in references) {
