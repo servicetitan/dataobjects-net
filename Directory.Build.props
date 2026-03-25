@@ -66,6 +66,9 @@
    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)'=='net10.0'">
+    <LangVersion>14.0</LangVersion> <!-- default language for net10.0 -->
+  </PropertyGroup>
   <PropertyGroup>
     <NoLogo>true</NoLogo>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>

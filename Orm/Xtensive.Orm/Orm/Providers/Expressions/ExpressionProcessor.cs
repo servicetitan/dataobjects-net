@@ -419,6 +419,10 @@ namespace Xtensive.Orm.Providers
       if (mc.AsTupleAccess(activeParameters) != null)
         return VisitTupleAccess(mc);
 
+      if (mc.Method.Name.Equals(nameof(Enumerable.Contains), StringComparison.Ordinal)) {
+        // there might be "innovative" implicit cast to ReadOnlySpan inside, which is not supported by expression tree but yet existing
+        mc = mc.TryTransformToOldFashionContains();
+      }
       var arguments = mc.Arguments.Select(a => Visit(a)).ToArray();
       var mi = mc.Method;
 
