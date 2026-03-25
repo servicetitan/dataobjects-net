@@ -39,6 +39,8 @@ public abstract class QueryableVisitor : ExpressionVisitor
     [nameof(Queryable.GroupJoin)] = QueryableMethodKind.GroupJoin,
     [nameof(Queryable.Intersect)] = QueryableMethodKind.Intersect,
     [nameof(Queryable.Join)] = QueryableMethodKind.Join,
+    [nameof(Queryable.LeftJoin)] = QueryableMethodKind.LeftJoin,
+    [nameof(Queryable.RightJoin)] = QueryableMethodKind.RightJoin,
     [nameof(Queryable.Last)] = QueryableMethodKind.Last,
     [nameof(Queryable.LastOrDefault)] = QueryableMethodKind.LastOrDefault,
     [nameof(Queryable.LongCount)] = QueryableMethodKind.LongCount,
