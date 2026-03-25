@@ -45,9 +45,7 @@ namespace Xtensive.Orm
 
     public override int GetHashCode() => HashCode.Combine(Provider, RootBuilder);
 
-    internal readonly record struct ExpressionOfTypeQueryable<T>(MethodCallExpression Expression);
-
-    private static class Traits<T>
+    internal readonly record struct ExpressionOfTypeQueryable<T>(MethodCallExpression Value)
     {
       public static readonly ExpressionOfTypeQueryable<T> RootCallExpression =
         new(Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(typeof(T))));
@@ -66,7 +64,7 @@ namespace Xtensive.Orm
     public IQueryable<T> All<T>() where T : class, IEntity =>
       RootBuilder != null
         ? Provider.CreateQuery<T>(RootBuilder.BuildRootExpression(typeof(T)))
-        : new Queryable<T>(Provider, Traits<T>.RootCallExpression);
+        : new Queryable<T>(Provider, ExpressionOfTypeQueryable<T>.RootCallExpression);
 
     /// <summary>
     /// The "starting point" for dynamic LINQ query -

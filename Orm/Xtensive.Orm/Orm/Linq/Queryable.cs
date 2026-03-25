@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Linq
     internal Queryable(QueryProvider provider, QueryEndpoint.ExpressionOfTypeQueryable<T> expression)
     {
       this.provider = provider;
-      this.expression = expression.Expression;
+      this.expression = expression.Value;
     }
   }
 }
