@@ -13,7 +13,7 @@ namespace Xtensive.Linq
   /// Enumerates supported <see cref="IQueryable{T}"/> methods.
   /// </summary>
   [Serializable]
-  public enum QueryableMethodKind
+  public enum QueryableMethodKind : byte
   {
 #pragma warning disable 1591
     Default = Unknown,
@@ -40,6 +40,8 @@ namespace Xtensive.Linq
     GroupJoin,
     Intersect,
     Join,
+    LeftJoin,
+    RightJoin,
     Last,
     LastOrDefault,
     LongCount,

@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -121,16 +121,17 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo Where;
 
       // Queryable extensions
-      public static readonly MethodInfo ExtensionCount = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Count), 0, 1);
-      public static readonly MethodInfo ExtensionLeftJoin = GetQueryableExtensionsMethod(nameof(QueryableExtensions.LeftOuterJoin), 4, 5);
-      public static readonly MethodInfo ExtensionLeftJoinEx = GetQueryableExtensionsMethod(nameof(QueryableExtensions.LeftJoinEx), 4, 5);
-      public static readonly MethodInfo ExtensionLock = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Lock), 1, 3);
-      public static readonly MethodInfo ExtensionTake = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Take), 1, 2);
-      public static readonly MethodInfo ExtensionSkip = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Skip), 1, 2);
-      public static readonly MethodInfo ExtensionElementAt = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAt), 1, 2);
-      public static readonly MethodInfo ExtensionElementAtOrDefault = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAtOrDefault), 1, 2);
-      public static readonly MethodInfo ExtensionTag = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Tag), 1, 2);
-      public static readonly MethodInfo ExtensionWithIndexHint = GetQueryableExtensionsMethod(nameof(QueryableExtensions.WithIndexHint), 2, 2);
+      public static readonly MethodInfo ExtensionCount = GetQueryableExtensionsMethod(nameof(QueryableExtensionsEx.Count), 0, 1);
+
+      public static readonly MethodInfo ExtensionLeftJoinEx = GetQueryableExtensionsMethod(nameof(QueryableExtensionsEx.LeftJoinEx), 4, 5);
+      public static readonly MethodInfo ExtensionLeftJoin = GetQueryableExtensionsMethod(nameof(QueryableExtensionsEx.LeftOuterJoin), 4, 5);
+      public static readonly MethodInfo ExtensionLock = GetQueryableExtensionsMethod(nameof(QueryableExtensionsEx.Lock), 1, 3);
+      public static readonly MethodInfo ExtensionTake = GetQueryableExtensionsMethod(nameof(QueryableExtensionsEx.Take), 1, 2);
+      public static readonly MethodInfo ExtensionSkip = GetQueryableExtensionsMethod(nameof(QueryableExtensionsEx.Skip), 1, 2);
+      public static readonly MethodInfo ExtensionElementAt = GetQueryableExtensionsMethod(nameof(QueryableExtensionsEx.ElementAt), 1, 2);
+      public static readonly MethodInfo ExtensionElementAtOrDefault = GetQueryableExtensionsMethod(nameof(QueryableExtensionsEx.ElementAtOrDefault), 1, 2);
+      public static readonly MethodInfo ExtensionTag = GetQueryableExtensionsMethod(nameof(QueryableExtensionsEx.Tag), 1, 2);
+      public static readonly MethodInfo ExtensionWithIndexHint = GetQueryableExtensionsMethod(nameof(QueryableExtensionsEx.WithIndexHint), 2, 2);
 
       static Queryable()
       {

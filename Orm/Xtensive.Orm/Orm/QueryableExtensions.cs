@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2022 Xtensive LLC.
+// Copyright (C) 2009-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -17,7 +17,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// Extends LINQ methods for <see cref="Xtensive.Orm.Linq"/> queries.
   /// </summary>
-  public static partial class QueryableExtensions
+  public static partial class QueryableExtensionsEx
   {
     private static class Traits<T>
     {
@@ -313,6 +313,7 @@ namespace Xtensive.Orm
       values == null ? false : values.Contains(source);
 #pragma warning restore IDE0060 // Remove unused parameter
 
+#if !NET10_0_OR_GREATER
     /// <summary>
     /// Correlates the elements of two sequences based on matching keys.
     /// </summary>
@@ -347,6 +348,7 @@ namespace Xtensive.Orm
       var expression = Expression.Call(null, genericMethod, new[] { outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector });
       return outer.Provider.CreateQuery<TResult>(expression);
     }
+#endif
 
 
     public static IQueryable<TResult> LeftOuterJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector) =>
@@ -381,7 +383,7 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, outerProviderType));
       }
 
-      var genericMethod = WellKnownMembers.Queryable.ExtensionLeftJoin.MakeGenericMethod(new[] { typeof(TOuter), typeof(TInner), typeof(TKey), typeof(TResult) });
+      var genericMethod = WellKnownMembers.Queryable.ExtensionLeftJoinEx.MakeGenericMethod(new[] { typeof(TOuter), typeof(TInner), typeof(TKey), typeof(TResult) });
       var expression = Expression.Call(null, genericMethod, new[] { outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector });
       return outer.Provider.CreateQuery<TResult>(expression);
     }

@@ -14,7 +14,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// Extends LINQ methods for <see cref="Xtensive.Orm.Linq"/> queries.
   /// </summary>
-  public static partial class QueryableExtensions
+  public static partial class QueryableExtensionsEx
   {
     private static class ParameterTraits<TSource>
     {
