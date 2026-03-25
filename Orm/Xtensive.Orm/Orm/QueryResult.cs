@@ -49,16 +49,20 @@ namespace Xtensive.Orm
       return reader.AsEnumerator();
     }
 
+    internal IAsyncEnumerator<TItem> GetAsyncEnumerator()
+    {
+      EnsureResultsAlive();
+      return reader.AsAsyncEnumerator();
+    }
+
     /// <summary>
     /// Transforms <see cref="QueryResult{TItem}"/> to an <see cref="IAsyncEnumerable{T}"/> sequence.
     /// </summary>
     public async IAsyncEnumerable<TItem> AsAsyncEnumerable()
     {
-      EnsureResultsAlive();
-      await using (var enumerator = reader.AsAsyncEnumerator()) {
-        while (await enumerator.MoveNextAsync().ConfigureAwaitFalse()) {
-          yield return enumerator.Current;
-        }
+      await using var enumerator = GetAsyncEnumerator();
+      while (await enumerator.MoveNextAsync().ConfigureAwaitFalse()) {
+        yield return enumerator.Current;
       }
     }
 
