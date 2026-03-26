@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Linq
     {
       var result = await provider.ExecuteSequenceAsync<T>(expression, cancellationToken).ConfigureAwaitFalse();
       await using var enumerator = result.GetAsyncEnumerator();
-      while (await enumerator.MoveNextAsync()) {
+      while (await enumerator.MoveNextAsync().ConfigureAwaitFalse()) {
         cancellationToken.ThrowIfCancellationRequested();
         yield return enumerator.Current;
       }
