@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Linq
     /// <inheritdoc/>
     public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
-      var result = (await provider.ExecuteSequenceAsync<T>(expression, cancellationToken).ConfigureAwaitFalse());
+      var result = await provider.ExecuteSequenceAsync<T>(expression, cancellationToken).ConfigureAwaitFalse();
       await using var enumerator = result.GetAsyncEnumerator();
       while (await enumerator.MoveNextAsync()) {
         cancellationToken.ThrowIfCancellationRequested();
