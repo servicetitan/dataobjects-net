@@ -4,13 +4,8 @@
 // Created by: Alexis Kochetov
 // Created:    2009.07.01
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Linq
@@ -47,9 +42,10 @@ namespace Xtensive.Orm.Linq
     public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
       var result = await provider.ExecuteSequenceAsync<T>(expression, cancellationToken).ConfigureAwaitFalse();
-      var asyncSource = result.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwaitFalse();
-      await foreach (var element in asyncSource) {
-        yield return element;
+      await using var enumerator = result.GetAsyncEnumerator();
+      while (await enumerator.MoveNextAsync().ConfigureAwaitFalse()) {
+        cancellationToken.ThrowIfCancellationRequested();
+        yield return enumerator.Current;
       }
     }
 
@@ -68,6 +64,12 @@ namespace Xtensive.Orm.Linq
 
       this.provider = provider;
       this.expression = expression;
+    }
+
+    internal Queryable(QueryProvider provider, QueryEndpoint.ExpressionOfTypeQueryable<T> expression)
+    {
+      this.provider = provider;
+      this.expression = expression.Value;
     }
   }
 }
