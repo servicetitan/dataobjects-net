@@ -4,9 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2007.10.02
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
@@ -168,7 +165,7 @@ namespace Xtensive.Orm.Building.Builders
                     NonAbstractTypeWithDescendants(implementor, hierarchyImplementors));
 
                   var indexToApplyView = typeIndexes.Count > 0
-                    ? BuildJoinIndex(implementor, typeIndexes.Prepend(filterIndex))
+                    ? BuildJoinIndex(implementor, typeIndexes.Prepend(filterIndex).ToArray())
                     : filterIndex;
                   var indexView = BuildViewIndex(@interface, indexToApplyView);
                   underlyingIndex.UnderlyingIndexes.Add(indexView);
@@ -556,7 +553,7 @@ namespace Xtensive.Orm.Building.Builders
       return result;
     }
 
-    private IndexInfo BuildJoinIndex(TypeInfo reflectedType, IEnumerable<IndexInfo> indexesToJoin)
+    private IndexInfo BuildJoinIndex(TypeInfo reflectedType, IReadOnlyCollection<IndexInfo> indexesToJoin)
     {
       var nameBuilder = context.NameBuilder;
       var firstIndex = indexesToJoin.First();
@@ -587,7 +584,8 @@ namespace Xtensive.Orm.Building.Builders
         _ = types.Add(t);
       }
 
-      var valueColumnMap = new List<List<ColNum>>();
+      var valueColumnMap = new List<ColNum>[indexesToJoin.Count];
+      int j = 0;
       foreach (var index in indexesToJoin) {
         var columnMap = new List<ColNum>();
         ColNum columnIndex = -1;
@@ -614,25 +612,26 @@ namespace Xtensive.Orm.Building.Builders
           }
           columnMap.Add(columnIndex);
         }
-        valueColumnMap.Add(columnMap);
+        valueColumnMap[j++] = columnMap;
       }
       var orderedIndexes = indexesToJoin
         .Select((index, i) => (index, columns: valueColumnMap[i], i: (ColNum) i))
         .OrderBy(a => typeOrder[a.index.ValueColumns.First().Field.ReflectedType]);
 
       var columnsToAdd = new List<ColumnInfo>();
-      var valueColumnMapping = new List<(ColNum, List<ColNum>)>();
+      var valueColumnMapping = new (ColNum, List<ColNum>)[indexesToJoin.Count];
+      j = 0;
       foreach(var item in orderedIndexes) {
-        if (valueColumnMapping.Count == 0)
+        if (j == 0)
           item.columns.InsertRange(0, CollectionUtils.ColNumRange(result.IncludedColumns.Count));
         foreach (var columnIndex in item.columns) {
           var column = item.index.ValueColumns[columnIndex];
           columnsToAdd.Add(column);
         }
-        valueColumnMapping.Add((item.i, item.columns));
+        valueColumnMapping[j++] = (item.i, item.columns);
       }
 
-      result.ValueColumnsMap = valueColumnMapping.ToArray();
+      result.ValueColumnsMap = valueColumnMapping;
       result.ValueColumns.AddRange(GatherValueColumns(columnsToAdd));
       result.Name = nameBuilder.BuildIndexName(reflectedType, result);
       result.Group = BuildColumnGroup(result);
