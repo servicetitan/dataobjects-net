@@ -56,13 +56,13 @@
     <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net10.0</TargetFrameworks> <!-- fallback to default -->
   </PropertyGroup>
 
-  <PropertyGroup Condition = "$(Configuration.Contains('Debug')) == 'true'">
+  <PropertyGroup Condition = "$(Configuration.Contains('Debug')) == 'true' AND $(MSBuildProjectName.Contains('Tests.VB')) == 'false'">
    <DefineConstants>$(DefineConstants);TRACE;DEBUG</DefineConstants>
    <DebugSymbols>true</DebugSymbols>
    <DebugType>portable</DebugType>
   </PropertyGroup>
 
-  <PropertyGroup Condition = "$(Configuration.Contains('Release')) == 'true'">
+  <PropertyGroup Condition = "$(Configuration.Contains('Release')) == 'true' AND $(MSBuildProjectName.Contains('Tests.VB')) == 'false'">
    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
   </PropertyGroup>
 
