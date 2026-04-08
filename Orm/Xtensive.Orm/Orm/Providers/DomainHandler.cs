@@ -124,11 +124,11 @@ namespace Xtensive.Orm.Providers
     /// Gets compiler containers specific to current storage provider.
     /// </summary>
     /// <returns>Compiler containers for current provider.</returns>
-    protected virtual IEnumerable<Type> GetProviderCompilerContainers() =>
-      providerCompilerContainers ??= GetProviderCompilerContainersImpl();
-
-    private static IReadOnlyList<Type> GetProviderCompilerContainersImpl()
+    protected virtual IEnumerable<Type> GetProviderCompilerContainers()
     {
+      if (providerCompilerContainers != null) {
+        return providerCompilerContainers;
+      }
       IEnumerable<Type> basicCompilerContainers = new[] {
         typeof (NullableCompilers),
         typeof (StringCompilers),
@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Providers
         });
       }
 
-      return result.ToList();
+      return providerCompilerContainers = result.ToList();
     }
 
     protected virtual SearchConditionCompiler CreateSearchConditionVisitor()
