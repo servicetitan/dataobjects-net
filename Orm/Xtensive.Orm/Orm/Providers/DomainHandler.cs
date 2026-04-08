@@ -118,13 +118,14 @@ namespace Xtensive.Orm.Providers
         ? new CompositePostCompiler([new SqlSelectCorrector(Handlers.ProviderInfo), new SqlProviderPreparer(Handlers)])
         : new CompositePostCompiler([new SqlSelectCorrector(Handlers.ProviderInfo)]);
 
+    private static IReadOnlyList<Type> providerCompilerContainers;
+
     /// <summary>
     /// Gets compiler containers specific to current storage provider.
     /// </summary>
     /// <returns>Compiler containers for current provider.</returns>
-    protected virtual IEnumerable<Type> GetProviderCompilerContainers() => ProviderCompilerContainers;
-
-    private static IReadOnlyList<Type> ProviderCompilerContainers => field ??= GetProviderCompilerContainersImpl();
+    protected virtual IEnumerable<Type> GetProviderCompilerContainers() =>
+      providerCompilerContainers ??= GetProviderCompilerContainersImpl();
 
     private static IReadOnlyList<Type> GetProviderCompilerContainersImpl()
     {
