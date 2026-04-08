@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Providers
         });
       }
 
-      return providerCompilerContainers = result.ToList();
+      return providerCompilerContainers = result.ToArray();
     }
 
     protected virtual SearchConditionCompiler CreateSearchConditionVisitor()
