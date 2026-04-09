@@ -157,8 +157,8 @@ namespace Xtensive.Orm.Providers
         });
       }
 
-      if (defaultLoadedAssemblies.Any(static a => a.GetName().Name.Equals("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase))
-        || defaultLoadedAssemblies.Any(static a => a.GetName().Name.Equals("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase))) {
+      if (defaultLoadedAssemblies.Any(static a => a.GetName()?.Name.Equals("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase) == true)
+        || defaultLoadedAssemblies.Any(static a => a.GetName()?.Name.Equals("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase) == true)) {
         result = result.Concat(new[] {
           typeof (VbConversionsCompilers),
           typeof (VbStringsCompilers),
