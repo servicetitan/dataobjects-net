@@ -118,12 +118,17 @@ namespace Xtensive.Orm.Providers
         ? new CompositePostCompiler([new SqlSelectCorrector(Handlers.ProviderInfo), new SqlProviderPreparer(Handlers)])
         : new CompositePostCompiler([new SqlSelectCorrector(Handlers.ProviderInfo)]);
 
+    private static IReadOnlyList<Type> providerCompilerContainers;
+
     /// <summary>
     /// Gets compiler containers specific to current storage provider.
     /// </summary>
     /// <returns>Compiler containers for current provider.</returns>
     protected virtual IEnumerable<Type> GetProviderCompilerContainers()
     {
+      if (providerCompilerContainers != null) {
+        return providerCompilerContainers;
+      }
       IEnumerable<Type> basicCompilerContainers = new[] {
         typeof (NullableCompilers),
         typeof (StringCompilers),
@@ -140,11 +145,10 @@ namespace Xtensive.Orm.Providers
         
       };
       var result = basicCompilerContainers;
-      var defaultLoadedAssemblies = AssemblyLoadContext.Default.Assemblies;
-      var currentLoadedAssemblies = AssemblyLoadContext.CurrentContextualReflectionContext.Assemblies;
+      var defaultLoadedAssemblies = AssemblyLoadContext.Default.Assemblies.ToList();
       // dynamic registration to not cause assembly loading
-      if (defaultLoadedAssemblies.Any(static a => a.GetName().Name.Equals("FSharp.Core", StringComparison.OrdinalIgnoreCase))
-        || defaultLoadedAssemblies.Any(static a => a.GetName().Name.Equals("FSharp.Core", StringComparison.OrdinalIgnoreCase))) {
+      if (defaultLoadedAssemblies.Any(static a => a.GetName().Name?.Equals("FSharp.Core", StringComparison.OrdinalIgnoreCase) == true)
+        || defaultLoadedAssemblies.Any(static a => a.GetName().Name?.Equals("FSharp.Core", StringComparison.OrdinalIgnoreCase) == true)) {
         result = result.Concat(new[] {
           typeof (FSharpMathOperationsCompilers),
           typeof (FSharpOperatorsCompilers),
@@ -153,8 +157,8 @@ namespace Xtensive.Orm.Providers
         });
       }
 
-      if (defaultLoadedAssemblies.Any(static a => a.GetName().Name.Equals("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase))
-        || defaultLoadedAssemblies.Any(static a => a.GetName().Name.Equals("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase))) {
+      if (defaultLoadedAssemblies.Any(static a => a.GetName()?.Name.Equals("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase) == true)
+        || defaultLoadedAssemblies.Any(static a => a.GetName()?.Name.Equals("Microsoft.VisualBasic", StringComparison.OrdinalIgnoreCase) == true)) {
         result = result.Concat(new[] {
           typeof (VbConversionsCompilers),
           typeof (VbStringsCompilers),
@@ -162,7 +166,7 @@ namespace Xtensive.Orm.Providers
         });
       }
 
-      return result;
+      return providerCompilerContainers = result.ToArray();
     }
 
     protected virtual SearchConditionCompiler CreateSearchConditionVisitor()
