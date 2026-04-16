@@ -620,19 +620,24 @@ namespace Xtensive.Orm.Tests.Sql
     #region Set operations and edge cases
 
     [Test]
-    public void DoesNotPruneSetOperations()
+    public void PrunesUnionWrappedInQueryRef()
     {
-      // SELECT u.Col0
-      // FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t
-      //       UNION ALL
-      //       SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) u
-      // UNION requires matched column counts → no pruning on the SqlQueryRef
-      var t = SqlDml.TableRef(table1);
-      var selectA = SqlDml.Select(t);
-      selectA.Columns.AddRange(t.Columns.ToArray<SqlColumn>());
+      // Before: SELECT u.Col0
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t
+      //               UNION ALL
+      //               SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) u
+      // After:  SELECT u.Col0
+      //         FROM (SELECT t.Col0 FROM table1 t
+      //               UNION ALL
+      //               SELECT t.Col0 FROM table1 t) u
+      // Both sides of the UNION are pruned to the same column indices.
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var selectA = SqlDml.Select(t1);
+      selectA.Columns.AddRange(t1.Columns.ToArray<SqlColumn>());
 
-      var selectB = SqlDml.Select(t);
-      selectB.Columns.AddRange(t.Columns.ToArray<SqlColumn>());
+      var t2 = SqlDml.TableRef(table1, "t2");
+      var selectB = SqlDml.Select(t2);
+      selectB.Columns.AddRange(t2.Columns.ToArray<SqlColumn>());
 
       var union = selectA.UnionAll(selectB);
       var queryRef = SqlDml.QueryRef(union, "u");
@@ -640,10 +645,44 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(queryRef[0]);
 
-      var originalColumnCount = queryRef.Columns.Count;
       SqlColumnPruner.Process(outerSelect);
 
-      Assert.That(queryRef.Columns.Count, Is.EqualTo(originalColumnCount));
+      Assert.That(queryRef.Columns.Count, Is.EqualTo(1));
+      Assert.That(selectA.Columns.Count, Is.EqualTo(1));
+      Assert.That(selectB.Columns.Count, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void PrunesUnionDistinctWrappedInQueryRef()
+    {
+      // Before: SELECT u.Col0
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t
+      //               UNION
+      //               SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) u
+      // After:  SELECT u.Col0
+      //         FROM (SELECT t.Col0 FROM table1 t
+      //               UNION
+      //               SELECT t.Col0 FROM table1 t) u
+      // Same as UNION ALL — both sides pruned to the same column indices.
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var selectA = SqlDml.Select(t1);
+      selectA.Columns.AddRange(t1.Columns.ToArray<SqlColumn>());
+
+      var t2 = SqlDml.TableRef(table1, "t2");
+      var selectB = SqlDml.Select(t2);
+      selectB.Columns.AddRange(t2.Columns.ToArray<SqlColumn>());
+
+      var union = selectA.Union(selectB);
+      var queryRef = SqlDml.QueryRef(union, "u");
+
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      Assert.That(queryRef.Columns.Count, Is.EqualTo(1));
+      Assert.That(selectA.Columns.Count, Is.EqualTo(1));
+      Assert.That(selectB.Columns.Count, Is.EqualTo(1));
     }
 
     [Test]
@@ -763,13 +802,15 @@ namespace Xtensive.Orm.Tests.Sql
     [Test]
     public void JoinFromSidesRecurseIndependently()
     {
-      // When FROM is a join, the pruner recurses into each join side.
-      // Before: SELECT …
+      // When FROM is a join with SqlQueryRef sides, the pruner prunes each side independently.
+      // Before: SELECT l.Col0, r.Name
       //         FROM (SELECT t1.Col0, t1.Col1, t1.Col2 FROM table1 t1) l
       //         JOIN (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) r ON l.Col0 = r.Id
-      // The inner selects of l and r are visited for their own FROM pruning.
-      // The join sides themselves are not pruned (no parent SqlQueryRef wraps them),
-      // but the test verifies no exceptions and that inner FROM sources are processed.
+      // After:  SELECT l.Col0, r.Name
+      //         FROM (SELECT t1.Col0 FROM table1 t1) l
+      //         JOIN (SELECT t2.Id, t2.Name FROM table2 t2) r ON l.Col0 = r.Id
+      // Left side pruned from 3 to 1 (only Col0 used in select + join condition).
+      // Right side pruned from 3 to 2 (Id used in join condition, Name in select).
       var t1 = SqlDml.TableRef(table1, "t1");
       var leftInner = SqlDml.Select(t1);
       leftInner.Columns.Add(t1["Col0"]);
@@ -790,11 +831,12 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(leftRef["Col0"]);
       outerSelect.Columns.Add(rightRef["Name"]);
 
-      Assert.DoesNotThrow(() => SqlColumnPruner.Process(outerSelect));
-      // Join sides themselves are not pruned (FROM is a join, not a SqlQueryRef),
-      // but inner selects of the join sides are visited without error.
-      Assert.That(leftInner.Columns.Count, Is.EqualTo(3));
-      Assert.That(rightInner.Columns.Count, Is.EqualTo(3));
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(leftRef, "Col0");
+      AssertSelectColumnCount(leftInner, 1);
+      AssertColumnNames(rightRef, "Id", "Name");
+      AssertSelectColumnCount(rightInner, 2);
     }
 
     [Test]
@@ -829,6 +871,140 @@ namespace Xtensive.Orm.Tests.Sql
 
       AssertColumnNames(wrapRef, "Col0", "Name");
       AssertSelectColumnCount(joinSelect, 2);
+    }
+
+    [Test]
+    public void JoinSidesWithQueryRefsPrunedThroughWrapper()
+    {
+      // Pruning cascades through a wrapping SqlQueryRef into inner join sides.
+      // Before: SELECT x.Col0, x.Name
+      //         FROM (SELECT l.Col0, l.Col1, l.Col2, r.Id, r.Name, r.Value
+      //               FROM (SELECT t1.Col0, t1.Col1, t1.Col2 FROM table1 t1) l
+      //               JOIN (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) r ON l.Col0 = r.Id) x
+      // After:  SELECT x.Col0, x.Name
+      //         FROM (SELECT l.Col0, r.Name
+      //               FROM (SELECT t1.Col0 FROM table1 t1) l
+      //               JOIN (SELECT t2.Id, t2.Name FROM table2 t2) r ON l.Col0 = r.Id) x
+      // Three-level pruning: outer wrapper → join wrapper → join sides.
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var leftInner = SqlDml.Select(t1);
+      leftInner.Columns.Add(t1["Col0"]);
+      leftInner.Columns.Add(t1["Col1"]);
+      leftInner.Columns.Add(t1["Col2"]);
+
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var rightInner = SqlDml.Select(t2);
+      rightInner.Columns.Add(t2["Id"]);
+      rightInner.Columns.Add(t2["Name"]);
+      rightInner.Columns.Add(t2["Value"]);
+
+      var leftRef = SqlDml.QueryRef(leftInner, "l");
+      var rightRef = SqlDml.QueryRef(rightInner, "r");
+
+      var joined = leftRef.InnerJoin(rightRef, leftRef["Col0"] == rightRef["Id"]);
+      var joinSelect = SqlDml.Select(joined);
+      joinSelect.Columns.Add(leftRef["Col0"]);
+      joinSelect.Columns.Add(leftRef["Col1"]);
+      joinSelect.Columns.Add(leftRef["Col2"]);
+      joinSelect.Columns.Add(rightRef["Id"]);
+      joinSelect.Columns.Add(rightRef["Name"]);
+      joinSelect.Columns.Add(rightRef["Value"]);
+
+      var wrapRef = SqlDml.QueryRef(joinSelect, "x");
+      var outerSelect = SqlDml.Select(wrapRef);
+      outerSelect.Columns.Add(wrapRef["Col0"]);
+      outerSelect.Columns.Add(wrapRef["Name"]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      // Outer wrapper pruned from 6 to 2 columns
+      AssertColumnNames(wrapRef, "Col0", "Name");
+      AssertSelectColumnCount(joinSelect, 2);
+
+      // Left join side pruned from 3 to 1 (only Col0 used in select + join condition)
+      AssertColumnNames(leftRef, "Col0");
+      AssertSelectColumnCount(leftInner, 1);
+
+      // Right join side pruned from 3 to 2 (Id for join condition, Name for select)
+      AssertColumnNames(rightRef, "Id", "Name");
+      AssertSelectColumnCount(rightInner, 2);
+    }
+
+    [Test]
+    public void UnionFromDifferentTablesPrunedThroughQueryRef()
+    {
+      // UNION sides with different source tables are pruned by index.
+      // Before: SELECT u.Col0, u.Col2
+      //         FROM (SELECT t1.Col0, t1.Col1, t1.Col2 FROM table1 t1
+      //               UNION ALL
+      //               SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) u
+      // After:  SELECT u.Col0, u.Col2
+      //         FROM (SELECT t1.Col0, t1.Col2 FROM table1 t1
+      //               UNION ALL
+      //               SELECT t2.Id, t2.Value FROM table2 t2) u
+      // Column index 1 removed from both sides.
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var selectA = SqlDml.Select(t1);
+      selectA.Columns.Add(t1["Col0"]);
+      selectA.Columns.Add(t1["Col1"]);
+      selectA.Columns.Add(t1["Col2"]);
+
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var selectB = SqlDml.Select(t2);
+      selectB.Columns.Add(t2["Id"]);
+      selectB.Columns.Add(t2["Name"]);
+      selectB.Columns.Add(t2["Value"]);
+
+      var union = selectA.UnionAll(selectB);
+      var queryRef = SqlDml.QueryRef(union, "u");
+
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+      outerSelect.Columns.Add(queryRef[2]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      Assert.That(queryRef.Columns.Count, Is.EqualTo(2));
+      Assert.That(selectA.Columns.Count, Is.EqualTo(2));
+      Assert.That(selectB.Columns.Count, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void UnionDistinctFromDifferentTablesPrunedThroughQueryRef()
+    {
+      // Before: SELECT u.Col0, u.Col2
+      //         FROM (SELECT t1.Col0, t1.Col1, t1.Col2 FROM table1 t1
+      //               UNION
+      //               SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) u
+      // After:  SELECT u.Col0, u.Col2
+      //         FROM (SELECT t1.Col0, t1.Col2 FROM table1 t1
+      //               UNION
+      //               SELECT t2.Id, t2.Value FROM table2 t2) u
+      // Column index 1 removed from both sides.
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var selectA = SqlDml.Select(t1);
+      selectA.Columns.Add(t1["Col0"]);
+      selectA.Columns.Add(t1["Col1"]);
+      selectA.Columns.Add(t1["Col2"]);
+
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var selectB = SqlDml.Select(t2);
+      selectB.Columns.Add(t2["Id"]);
+      selectB.Columns.Add(t2["Name"]);
+      selectB.Columns.Add(t2["Value"]);
+
+      var union = selectA.Union(selectB);
+      var queryRef = SqlDml.QueryRef(union, "u");
+
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+      outerSelect.Columns.Add(queryRef[2]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      Assert.That(queryRef.Columns.Count, Is.EqualTo(2));
+      Assert.That(selectA.Columns.Count, Is.EqualTo(2));
+      Assert.That(selectB.Columns.Count, Is.EqualTo(2));
     }
 
     #endregion

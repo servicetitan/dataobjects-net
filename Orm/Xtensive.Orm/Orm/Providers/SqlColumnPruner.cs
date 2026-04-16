@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Providers
@@ -29,8 +30,13 @@ namespace Xtensive.Orm.Providers
       // Prune this level's FROM source first (top-down enables cascading
       // through multiple nesting levels — the inner select sees the
       // already-reduced column set).
-      if (select.From is SqlQueryRef queryRef && queryRef.Query is SqlSelect) {
+      if (select.From is SqlQueryRef queryRef) {
         TryPruneQueryRef(select, queryRef);
+      }
+
+      // When FROM is a join, prune each side that is a SqlQueryRef
+      if (select.From is SqlJoinedTable) {
+        TryPruneJoinSides(select);
       }
 
       // Then recurse into FROM sources to prune deeper levels
@@ -45,13 +51,34 @@ namespace Xtensive.Orm.Providers
     private void RecurseIntoTable(SqlTable table)
     {
       switch (table) {
-        case SqlQueryRef queryRef when queryRef.Query is SqlSelect innerSelect:
-          PruneSelect(innerSelect);
+        case SqlQueryRef queryRef:
+          if (queryRef.Query is SqlSelect innerSelect) {
+            PruneSelect(innerSelect);
+          }
+          else if (queryRef.Query is SqlQueryExpression queryExpr) {
+            RecurseIntoQueryExpression(queryExpr);
+          }
           break;
         case SqlJoinedTable joined:
           RecurseIntoTable(joined.JoinExpression.Left);
           RecurseIntoTable(joined.JoinExpression.Right);
           break;
+      }
+    }
+
+    private void RecurseIntoQueryExpression(SqlQueryExpression expr)
+    {
+      RecurseIntoQueryExpressionSide(expr.Left);
+      RecurseIntoQueryExpressionSide(expr.Right);
+    }
+
+    private void RecurseIntoQueryExpressionSide(ISqlQueryExpression side)
+    {
+      if (side is SqlSelect select) {
+        PruneSelect(select);
+      }
+      else if (side is SqlQueryExpression nested) {
+        RecurseIntoQueryExpression(nested);
       }
     }
 
@@ -193,6 +220,61 @@ namespace Xtensive.Orm.Providers
       }
 
       queryRef.PruneColumns(indicesToKeep);
+    }
+
+    private void TryPruneJoinSides(SqlSelect select)
+    {
+      var joinQueryRefs = new List<SqlQueryRef>();
+      CollectQueryRefsFromJoinTree(select.From, joinQueryRefs);
+
+      foreach (var sideRef in joinQueryRefs) {
+        var columnCount = sideRef.Columns.Count;
+        if (columnCount == 0) {
+          continue;
+        }
+
+        var usedColumns = new HashSet<SqlTableColumn>(ReferenceEqualityComparer.Instance);
+        CollectUsedColumnsFromSelect(select, sideRef, usedColumns);
+        CollectUsedColumnsFromJoinConditions(select.From, sideRef, usedColumns);
+
+        if (usedColumns.Count >= columnCount) {
+          continue;
+        }
+
+        var indicesToKeep = new List<int>(usedColumns.Count);
+        for (int i = 0; i < columnCount; i++) {
+          if (usedColumns.Contains(sideRef.Columns[i])) {
+            indicesToKeep.Add(i);
+          }
+        }
+
+        if (indicesToKeep.Count == 0 || indicesToKeep.Count >= columnCount) {
+          continue;
+        }
+
+        sideRef.PruneColumns(indicesToKeep);
+      }
+    }
+
+    private static void CollectQueryRefsFromJoinTree(SqlTable table, List<SqlQueryRef> result)
+    {
+      if (table is SqlQueryRef qr) {
+        result.Add(qr);
+      }
+      else if (table is SqlJoinedTable jt) {
+        CollectQueryRefsFromJoinTree(jt.JoinExpression.Left, result);
+        CollectQueryRefsFromJoinTree(jt.JoinExpression.Right, result);
+      }
+    }
+
+    private void CollectUsedColumnsFromJoinConditions(
+      SqlTable table, SqlTable targetTable, HashSet<SqlTableColumn> usedColumns)
+    {
+      if (table is SqlJoinedTable jt) {
+        CollectUsedColumns(jt.JoinExpression.Expression, targetTable, usedColumns);
+        CollectUsedColumnsFromJoinConditions(jt.JoinExpression.Left, targetTable, usedColumns);
+        CollectUsedColumnsFromJoinConditions(jt.JoinExpression.Right, targetTable, usedColumns);
+      }
     }
 
     private void CollectUsedColumnsFromSelect(

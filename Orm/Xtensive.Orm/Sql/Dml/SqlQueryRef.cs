@@ -35,22 +35,47 @@ namespace Xtensive.Sql.Dml
 
     internal void PruneColumns(List<int> indicesToKeep)
     {
-      if (query is not SqlSelect innerSelect) {
+      if (query is SqlSelect innerSelect) {
+        PruneSelectColumns(innerSelect.Columns, indicesToKeep);
+      }
+      else if (query is SqlQueryExpression queryExpression) {
+        PruneQueryExpressionColumns(queryExpression, indicesToKeep);
+      }
+      else {
         return;
       }
 
-      var selectColumns = innerSelect.Columns;
       var newQueryColumns = new List<SqlTableColumn>(indicesToKeep.Count);
-      var keptSelectColumns = new List<SqlColumn>(indicesToKeep.Count);
-
       foreach (var idx in indicesToKeep) {
         newQueryColumns.Add(columns[idx]);
-        keptSelectColumns.Add(selectColumns[idx]);
       }
-
-      selectColumns.Clear();
-      selectColumns.AddRange(keptSelectColumns);
       columns = new SqlTableColumnCollection(newQueryColumns);
+    }
+
+    private static void PruneSelectColumns(SqlColumnCollection selectColumns, List<int> indicesToKeep)
+    {
+      var keptColumns = new List<SqlColumn>(indicesToKeep.Count);
+      foreach (var idx in indicesToKeep) {
+        keptColumns.Add(selectColumns[idx]);
+      }
+      selectColumns.Clear();
+      selectColumns.AddRange(keptColumns);
+    }
+
+    private static void PruneQueryExpressionColumns(SqlQueryExpression expr, List<int> indicesToKeep)
+    {
+      PruneQueryExpressionSide(expr.Left, indicesToKeep);
+      PruneQueryExpressionSide(expr.Right, indicesToKeep);
+    }
+
+    private static void PruneQueryExpressionSide(ISqlQueryExpression side, List<int> indicesToKeep)
+    {
+      if (side is SqlSelect select) {
+        PruneSelectColumns(select.Columns, indicesToKeep);
+      }
+      else if (side is SqlQueryExpression nested) {
+        PruneQueryExpressionColumns(nested, indicesToKeep);
+      }
     }
 
     internal SqlQueryRef(ISqlQueryExpression query)
