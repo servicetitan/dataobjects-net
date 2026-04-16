@@ -705,17 +705,14 @@ namespace Xtensive.Orm.Tests.Sql
     }
 
     [Test]
-    public void PrunesUnionDistinctWrappedInQueryRef()
+    public void DoesNotPruneUnionDistinct()
     {
-      // Before: SELECT u.Col0
-      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t
-      //               UNION
-      //               SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) u
-      // After:  SELECT u.Col0
-      //         FROM (SELECT t.Col0 FROM table1 t
-      //               UNION
-      //               SELECT t.Col0 FROM table1 t) u
-      // Same as UNION ALL — both sides pruned to the same column indices.
+      // UNION (without ALL) deduplicates rows using all projected columns,
+      // so removing columns can change the result set. No pruning allowed.
+      // SELECT u.Col0
+      // FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t
+      //       UNION
+      //       SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) u
       var t1 = SqlDml.TableRef(table1, "t1");
       var selectA = SqlDml.Select(t1);
       selectA.Columns.AddRange(t1.Columns.ToArray<SqlColumn>());
@@ -730,11 +727,12 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(queryRef[0]);
 
+      var originalColumnCount = queryRef.Columns.Count;
       SqlColumnPruner.Process(outerSelect);
 
-      Assert.That(queryRef.Columns.Count, Is.EqualTo(1));
-      Assert.That(selectA.Columns.Count, Is.EqualTo(1));
-      Assert.That(selectB.Columns.Count, Is.EqualTo(1));
+      Assert.That(queryRef.Columns.Count, Is.EqualTo(originalColumnCount));
+      Assert.That(selectA.Columns.Count, Is.EqualTo(5));
+      Assert.That(selectB.Columns.Count, Is.EqualTo(5));
     }
 
     [Test]
@@ -1105,17 +1103,11 @@ namespace Xtensive.Orm.Tests.Sql
     }
 
     [Test]
-    public void UnionDistinctFromDifferentTablesPrunedThroughQueryRef()
+    public void DoesNotPruneExceptOrIntersect()
     {
-      // Before: SELECT u.Col0, u.Col2
-      //         FROM (SELECT t1.Col0, t1.Col1, t1.Col2 FROM table1 t1
-      //               UNION
-      //               SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) u
-      // After:  SELECT u.Col0, u.Col2
-      //         FROM (SELECT t1.Col0, t1.Col2 FROM table1 t1
-      //               UNION
-      //               SELECT t2.Id, t2.Value FROM table2 t2) u
-      // Column index 1 removed from both sides.
+      // EXCEPT and INTERSECT use all projected columns for comparison,
+      // so removing columns can change the result set. No pruning allowed.
+      // SELECT u.Col0 FROM (SELECT ... EXCEPT SELECT ...) u
       var t1 = SqlDml.TableRef(table1, "t1");
       var selectA = SqlDml.Select(t1);
       selectA.Columns.Add(t1["Col0"]);
@@ -1128,18 +1120,198 @@ namespace Xtensive.Orm.Tests.Sql
       selectB.Columns.Add(t2["Name"]);
       selectB.Columns.Add(t2["Value"]);
 
+      var except = selectA.Except(selectB);
+      var queryRef = SqlDml.QueryRef(except, "u");
+
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+
+      var originalColumnCount = queryRef.Columns.Count;
+      SqlColumnPruner.Process(outerSelect);
+
+      Assert.That(queryRef.Columns.Count, Is.EqualTo(originalColumnCount));
+      Assert.That(selectA.Columns.Count, Is.EqualTo(3));
+      Assert.That(selectB.Columns.Count, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void UnionDistinctSidesStillPrunedInternally()
+    {
+      // The UNION itself is not pruned (column list stays intact),
+      // but each side's inner subqueries ARE pruned independently.
+      // Before: SELECT u.Col0 FROM (
+      //           SELECT t.Col0, t.Col1 FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1) t
+      //           UNION
+      //           SELECT t2.Id, t2.Name FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2) t2) u
+      // After:  SELECT u.Col0 FROM (
+      //           SELECT t.Col0, t.Col1 FROM (SELECT t.Col0, t.Col1 FROM table1) t
+      //           UNION
+      //           SELECT t2.Id, t2.Name FROM (SELECT t2.Id, t2.Name FROM table2) t2) u
+      // The UNION keeps 2 columns per side, but inner subqueries are pruned.
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var innerA = SqlDml.Select(t1);
+      for (int i = 0; i < t1.Columns.Count; i++) {
+        innerA.Columns.Add(t1[i]);
+      }
+      var aRef = SqlDml.QueryRef(innerA, "t");
+      var selectA = SqlDml.Select(aRef);
+      selectA.Columns.Add(aRef["Col0"]);
+      selectA.Columns.Add(aRef["Col1"]);
+
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var innerB = SqlDml.Select(t2);
+      innerB.Columns.Add(t2["Id"]);
+      innerB.Columns.Add(t2["Name"]);
+      innerB.Columns.Add(t2["Value"]);
+      var bRef = SqlDml.QueryRef(innerB, "t2");
+      var selectB = SqlDml.Select(bRef);
+      selectB.Columns.Add(bRef["Id"]);
+      selectB.Columns.Add(bRef["Name"]);
+
       var union = selectA.Union(selectB);
       var queryRef = SqlDml.QueryRef(union, "u");
 
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(queryRef[0]);
-      outerSelect.Columns.Add(queryRef[2]);
 
       SqlColumnPruner.Process(outerSelect);
 
+      // UNION column list is NOT pruned (still 2 per side)
       Assert.That(queryRef.Columns.Count, Is.EqualTo(2));
       Assert.That(selectA.Columns.Count, Is.EqualTo(2));
       Assert.That(selectB.Columns.Count, Is.EqualTo(2));
+
+      // But inner subqueries ARE pruned: table1 side from 5 to 2, table2 side from 3 to 2
+      AssertColumnNames(aRef, "Col0", "Col1");
+      AssertSelectColumnCount(innerA, 2);
+      AssertColumnNames(bRef, "Id", "Name");
+      AssertSelectColumnCount(innerB, 2);
+    }
+
+    [Test]
+    public void ChainedUnionAllIsPruned()
+    {
+      // A UNION ALL B UNION ALL C — the entire tree is UNION ALL, so pruning is allowed.
+      // Before: SELECT u.Col0
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2 FROM table1 t
+      //               UNION ALL
+      //               SELECT t.Col0, t.Col1, t.Col2 FROM table1 t
+      //               UNION ALL
+      //               SELECT t.Col0, t.Col1, t.Col2 FROM table1 t) u
+      // After:  SELECT u.Col0
+      //         FROM (SELECT t.Col0 FROM table1 t
+      //               UNION ALL
+      //               SELECT t.Col0 FROM table1 t
+      //               UNION ALL
+      //               SELECT t.Col0 FROM table1 t) u
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var selectA = SqlDml.Select(t1);
+      selectA.Columns.Add(t1["Col0"]);
+      selectA.Columns.Add(t1["Col1"]);
+      selectA.Columns.Add(t1["Col2"]);
+
+      var t2 = SqlDml.TableRef(table1, "t2");
+      var selectB = SqlDml.Select(t2);
+      selectB.Columns.Add(t2["Col0"]);
+      selectB.Columns.Add(t2["Col1"]);
+      selectB.Columns.Add(t2["Col2"]);
+
+      var t3 = SqlDml.TableRef(table1, "t3");
+      var selectC = SqlDml.Select(t3);
+      selectC.Columns.Add(t3["Col0"]);
+      selectC.Columns.Add(t3["Col1"]);
+      selectC.Columns.Add(t3["Col2"]);
+
+      var union = selectA.UnionAll(selectB).UnionAll(selectC);
+      var queryRef = SqlDml.QueryRef(union, "u");
+
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      Assert.That(queryRef.Columns.Count, Is.EqualTo(1));
+      Assert.That(selectA.Columns.Count, Is.EqualTo(1));
+      Assert.That(selectB.Columns.Count, Is.EqualTo(1));
+      Assert.That(selectC.Columns.Count, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void DoesNotPruneUnionAllWithNestedUnionDistinctOnLeft()
+    {
+      // (A UNION B) UNION ALL C — left subtree is UNION (not ALL), so no pruning.
+      // SELECT u.Col0
+      // FROM ((SELECT ... UNION SELECT ...) UNION ALL SELECT ...) u
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var selectA = SqlDml.Select(t1);
+      selectA.Columns.Add(t1["Col0"]);
+      selectA.Columns.Add(t1["Col1"]);
+      selectA.Columns.Add(t1["Col2"]);
+
+      var t2 = SqlDml.TableRef(table1, "t2");
+      var selectB = SqlDml.Select(t2);
+      selectB.Columns.Add(t2["Col0"]);
+      selectB.Columns.Add(t2["Col1"]);
+      selectB.Columns.Add(t2["Col2"]);
+
+      var t3 = SqlDml.TableRef(table1, "t3");
+      var selectC = SqlDml.Select(t3);
+      selectC.Columns.Add(t3["Col0"]);
+      selectC.Columns.Add(t3["Col1"]);
+      selectC.Columns.Add(t3["Col2"]);
+
+      var union = selectA.Union(selectB).UnionAll(selectC);
+      var queryRef = SqlDml.QueryRef(union, "u");
+
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+
+      var originalColumnCount = queryRef.Columns.Count;
+      SqlColumnPruner.Process(outerSelect);
+
+      Assert.That(queryRef.Columns.Count, Is.EqualTo(originalColumnCount));
+      Assert.That(selectA.Columns.Count, Is.EqualTo(3));
+      Assert.That(selectB.Columns.Count, Is.EqualTo(3));
+      Assert.That(selectC.Columns.Count, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void DoesNotPruneUnionAllWithNestedExceptOnRight()
+    {
+      // A UNION ALL (B EXCEPT C) — right subtree is EXCEPT, so no pruning.
+      // SELECT u.Col0
+      // FROM (SELECT ... UNION ALL (SELECT ... EXCEPT SELECT ...)) u
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var selectA = SqlDml.Select(t1);
+      selectA.Columns.Add(t1["Col0"]);
+      selectA.Columns.Add(t1["Col1"]);
+      selectA.Columns.Add(t1["Col2"]);
+
+      var t2 = SqlDml.TableRef(table1, "t2");
+      var selectB = SqlDml.Select(t2);
+      selectB.Columns.Add(t2["Col0"]);
+      selectB.Columns.Add(t2["Col1"]);
+      selectB.Columns.Add(t2["Col2"]);
+
+      var t3 = SqlDml.TableRef(table1, "t3");
+      var selectC = SqlDml.Select(t3);
+      selectC.Columns.Add(t3["Col0"]);
+      selectC.Columns.Add(t3["Col1"]);
+      selectC.Columns.Add(t3["Col2"]);
+
+      var union = selectA.UnionAll(selectB.Except(selectC));
+      var queryRef = SqlDml.QueryRef(union, "u");
+
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+
+      var originalColumnCount = queryRef.Columns.Count;
+      SqlColumnPruner.Process(outerSelect);
+
+      Assert.That(queryRef.Columns.Count, Is.EqualTo(originalColumnCount));
+      Assert.That(selectA.Columns.Count, Is.EqualTo(3));
+      Assert.That(selectB.Columns.Count, Is.EqualTo(3));
+      Assert.That(selectC.Columns.Count, Is.EqualTo(3));
     }
 
     #endregion

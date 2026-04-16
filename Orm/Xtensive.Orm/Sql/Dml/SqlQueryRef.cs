@@ -38,7 +38,7 @@ namespace Xtensive.Sql.Dml
       if (query is SqlSelect innerSelect) {
         PruneSelectColumns(innerSelect.Columns, indicesToKeep);
       }
-      else if (query is SqlQueryExpression queryExpression) {
+      else if (query is SqlQueryExpression queryExpression && IsUnionAllTree(queryExpression)) {
         PruneQueryExpressionColumns(queryExpression, indicesToKeep);
       }
       else {
@@ -60,6 +60,20 @@ namespace Xtensive.Sql.Dml
       }
       selectColumns.Clear();
       selectColumns.AddRange(keptColumns);
+    }
+
+    private static bool IsUnionAllTree(SqlQueryExpression expr)
+    {
+      if (expr.NodeType != SqlNodeType.Union || !expr.All) {
+        return false;
+      }
+      if (expr.Left is SqlQueryExpression leftExpr && !IsUnionAllTree(leftExpr)) {
+        return false;
+      }
+      if (expr.Right is SqlQueryExpression rightExpr && !IsUnionAllTree(rightExpr)) {
+        return false;
+      }
+      return true;
     }
 
     private static void PruneQueryExpressionColumns(SqlQueryExpression expr, List<int> indicesToKeep)
