@@ -16,8 +16,11 @@ namespace Xtensive.Orm.Providers
     public ExecutableProvider Process(ExecutableProvider rootProvider)
     {
       var sqlProvider = rootProvider as SqlProvider;
-      if (sqlProvider!=null)
-        SqlSelectProcessor.Process(sqlProvider.Request.Statement, providerInfo);
+      if (sqlProvider!=null) {
+        var statement = sqlProvider.Request.Statement;
+        SqlSelectProcessor.Process(statement, providerInfo);
+        SqlColumnPruner.Process(statement);
+      }
       return rootProvider;
     }
 

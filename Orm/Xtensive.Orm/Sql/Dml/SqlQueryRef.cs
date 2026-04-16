@@ -33,6 +33,26 @@ namespace Xtensive.Sql.Dml
       visitor.Visit(this);
     }
 
+    internal void PruneColumns(List<int> indicesToKeep)
+    {
+      if (query is not SqlSelect innerSelect) {
+        return;
+      }
+
+      var selectColumns = innerSelect.Columns;
+      var newQueryColumns = new List<SqlTableColumn>(indicesToKeep.Count);
+      var keptSelectColumns = new List<SqlColumn>(indicesToKeep.Count);
+
+      foreach (var idx in indicesToKeep) {
+        newQueryColumns.Add(columns[idx]);
+        keptSelectColumns.Add(selectColumns[idx]);
+      }
+
+      selectColumns.Clear();
+      selectColumns.AddRange(keptSelectColumns);
+      columns = new SqlTableColumnCollection(newQueryColumns);
+    }
+
     internal SqlQueryRef(ISqlQueryExpression query)
       : this(query, string.Empty)
     {
