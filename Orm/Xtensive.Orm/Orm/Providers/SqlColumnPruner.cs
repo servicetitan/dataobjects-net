@@ -285,13 +285,55 @@ namespace Xtensive.Orm.Providers
       SqlTable table, SqlTable targetTable, HashSet<SqlTableColumn> usedColumns)
     {
       if (table is SqlQueryRef qr) {
-        if (!ReferenceEquals(qr, targetTable) && qr.Query is SqlSelect innerSelect) {
-          CollectUsedColumnsFromSelect(innerSelect, targetTable, usedColumns);
+        if (!ReferenceEquals(qr, targetTable)) {
+          CollectUsedColumnsFromEntireSubtree(qr, targetTable, usedColumns);
         }
       }
       else if (table is SqlJoinedTable jt) {
+        CollectUsedColumns(jt.JoinExpression.Expression, targetTable, usedColumns);
         CollectUsedColumnsFromCorrelatedJoinSides(jt.JoinExpression.Left, targetTable, usedColumns);
         CollectUsedColumnsFromCorrelatedJoinSides(jt.JoinExpression.Right, targetTable, usedColumns);
+      }
+    }
+
+    private void CollectUsedColumnsFromEntireSubtree(
+      SqlQueryRef queryRef, SqlTable targetTable, HashSet<SqlTableColumn> usedColumns)
+    {
+      if (queryRef.Query is SqlSelect innerSelect) {
+        CollectUsedColumnsFromSelect(innerSelect, targetTable, usedColumns);
+        if (innerSelect.From != null) {
+          CollectUsedColumnsFromCorrelatedJoinSides(innerSelect.From, targetTable, usedColumns);
+        }
+      }
+      else if (queryRef.Query is SqlQueryExpression queryExpr) {
+        CollectUsedColumnsFromQueryExpressionSubtree(queryExpr, targetTable, usedColumns);
+      }
+    }
+
+    private void CollectUsedColumnsFromQueryExpressionSubtree(
+      SqlQueryExpression queryExpr, SqlTable targetTable, HashSet<SqlTableColumn> usedColumns)
+    {
+      switch (queryExpr.Left) {
+        case SqlSelect leftSelect:
+          CollectUsedColumnsFromSelect(leftSelect, targetTable, usedColumns);
+          if (leftSelect.From != null) {
+            CollectUsedColumnsFromCorrelatedJoinSides(leftSelect.From, targetTable, usedColumns);
+          }
+          break;
+        case SqlQueryExpression leftExpr:
+          CollectUsedColumnsFromQueryExpressionSubtree(leftExpr, targetTable, usedColumns);
+          break;
+      }
+      switch (queryExpr.Right) {
+        case SqlSelect rightSelect:
+          CollectUsedColumnsFromSelect(rightSelect, targetTable, usedColumns);
+          if (rightSelect.From != null) {
+            CollectUsedColumnsFromCorrelatedJoinSides(rightSelect.From, targetTable, usedColumns);
+          }
+          break;
+        case SqlQueryExpression rightExpr:
+          CollectUsedColumnsFromQueryExpressionSubtree(rightExpr, targetTable, usedColumns);
+          break;
       }
     }
 

@@ -1371,6 +1371,1058 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.That(selectC.Columns.Count, Is.EqualTo(3));
     }
 
+    [Test]
+    public void DeeplyNestedOuterApplyCorrelatedReferencePreservesColumns()
+    {
+      // A correlated reference to [d].[Col3] appears two levels deep:
+      // inside [h], which is nested inside [i]'s FROM clause.
+      // Before: SELECT d.Col0, i.Id
+      //         FROM (SELECT t1.Col0, t1.Col1, t1.Col2, t1.Col3, t1.Col4 FROM table1 t1) d
+      //         OUTER APPLY (SELECT h.Id FROM
+      //           (SELECT t2.Id, t2.Name FROM table2 t2 WHERE t2.Id = d.Col3) h) i
+      // After:  SELECT d.Col0, i.Id
+      //         FROM (SELECT t1.Col0, t1.Col3 FROM table1 t1) d
+      //         OUTER APPLY (SELECT h.Id FROM
+      //           (SELECT t2.Id, t2.Name FROM table2 t2 WHERE t2.Id = d.Col3) h) i
+      // Col3 is NOT in the outer SELECT but IS referenced deep inside the APPLY.
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var innerD = SqlDml.Select(t1);
+      for (int i = 0; i < t1.Columns.Count; i++) {
+        innerD.Columns.Add(t1[i]);
+      }
+      var dRef = SqlDml.QueryRef(innerD, "d");
+
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var innerH = SqlDml.Select(t2);
+      innerH.Columns.Add(t2["Id"]);
+      innerH.Columns.Add(t2["Name"]);
+      innerH.Where = t2["Id"] == dRef["Col3"];
+      var hRef = SqlDml.QueryRef(innerH, "h");
+
+      var innerI = SqlDml.Select(hRef);
+      innerI.Columns.Add(hRef["Id"]);
+      var iRef = SqlDml.QueryRef(innerI, "i");
+
+      var applied = SqlDml.Join(SqlJoinType.LeftOuterApply, dRef, iRef);
+      var outerSelect = SqlDml.Select(applied);
+      outerSelect.Columns.Add(dRef["Col0"]);
+      outerSelect.Columns.Add(iRef["Id"]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      // Col3 preserved because it's referenced deep inside the APPLY
+      AssertColumnNames(dRef, "Col0", "Col3");
+      AssertSelectColumnCount(innerD, 2);
+    }
+
+    [Test]
+    public void TriplyNestedOuterApplyCorrelatedReferencePreservesColumns()
+    {
+      // A correlated reference appears three levels deep inside an APPLY chain.
+      // [i] wraps a select whose FROM is a join containing [h],
+      // and [h] wraps a select whose WHERE references [d].[Col4].
+      // Before: SELECT d.Col0, b.Name, i.Id
+      //         FROM (SELECT t1.Col0, t1.Col1, t1.Col2, t1.Col3, t1.Col4 FROM table1 t1) d
+      //         OUTER APPLY (SELECT t2.Name FROM table2 t2 WHERE t2.Id = d.Col2) b
+      //         OUTER APPLY (SELECT h.Id FROM
+      //           (SELECT t2.Id FROM table2 t2 WHERE t2.Id = d.Col4) h) i
+      // After:  SELECT d.Col0, b.Name, i.Id
+      //         FROM (SELECT t1.Col0, t1.Col2, t1.Col4 FROM table1 t1) d
+      //         OUTER APPLY (...) b
+      //         OUTER APPLY (...) i
+      // Col2 referenced by [b]'s WHERE; Col4 referenced deep inside [i].
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var innerD = SqlDml.Select(t1);
+      for (int i = 0; i < t1.Columns.Count; i++) {
+        innerD.Columns.Add(t1[i]);
+      }
+      var dRef = SqlDml.QueryRef(innerD, "d");
+
+      var t2b = SqlDml.TableRef(table2, "t2b");
+      var innerB = SqlDml.Select(t2b);
+      innerB.Columns.Add(t2b["Name"]);
+      innerB.Where = t2b["Id"] == dRef["Col2"];
+      var bRef = SqlDml.QueryRef(innerB, "b");
+
+      var t2h = SqlDml.TableRef(table2, "t2h");
+      var innerH = SqlDml.Select(t2h);
+      innerH.Columns.Add(t2h["Id"]);
+      innerH.Where = t2h["Id"] == dRef["Col4"];
+      var hRef = SqlDml.QueryRef(innerH, "h");
+
+      var innerI = SqlDml.Select(hRef);
+      innerI.Columns.Add(hRef["Id"]);
+      var iRef = SqlDml.QueryRef(innerI, "i");
+
+      var applied = dRef.LeftOuterApply(bRef).LeftOuterApply(iRef);
+      var outerSelect = SqlDml.Select(applied);
+      outerSelect.Columns.Add(dRef["Col0"]);
+      outerSelect.Columns.Add(bRef["Name"]);
+      outerSelect.Columns.Add(iRef["Id"]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      // Col0 from outer SELECT, Col2 from [b]'s WHERE, Col4 from deep inside [i]
+      AssertColumnNames(dRef, "Col0", "Col2", "Col4");
+      AssertSelectColumnCount(innerD, 3);
+    }
+
+    #endregion
+
+    #region CollectUsedColumns — expression type coverage
+
+    [Test]
+    public void TrimExpressionPreservesColumn()
+    {
+      // Before: SELECT TRIM(q.Col1)
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      // After:  SELECT TRIM(q.Col1)
+      //         FROM (SELECT t.Col1 FROM table1 t) q
+      var innerSelect = CreateInnerSelect();
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(SqlDml.Trim(queryRef[1]));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(queryRef, "Col1");
+      AssertSelectColumnCount(innerSelect, 1);
+    }
+
+    [Test]
+    public void ExtractExpressionPreservesColumn()
+    {
+      // Before: SELECT EXTRACT(YEAR FROM q.Col0)
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      // After:  SELECT EXTRACT(YEAR FROM q.Col0)
+      //         FROM (SELECT t.Col0 FROM table1 t) q
+      var innerSelect = CreateInnerSelect();
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(SqlDml.Extract(SqlDateTimePart.Year, queryRef[0]));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(queryRef, "Col0");
+      AssertSelectColumnCount(innerSelect, 1);
+    }
+
+    [Test]
+    public void RoundExpressionPreservesBothArguments()
+    {
+      // Before: SELECT ROUND(q.Col0, q.Col3)
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      // After:  SELECT ROUND(q.Col0, q.Col3)
+      //         FROM (SELECT t.Col0, t.Col3 FROM table1 t) q
+      // Both Argument and Length operands must be preserved.
+      var innerSelect = CreateInnerSelect();
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(
+        SqlDml.Round(queryRef[0], queryRef[3], TypeCode.Decimal, MidpointRounding.AwayFromZero));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(queryRef, "Col0", "Col3");
+      AssertSelectColumnCount(innerSelect, 2);
+    }
+
+    [Test]
+    public void CollateExpressionPreservesColumn()
+    {
+      // Before: SELECT q.Col1 COLLATE Latin1_General_CI_AS
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      // After:  SELECT q.Col1 COLLATE Latin1_General_CI_AS
+      //         FROM (SELECT t.Col1 FROM table1 t) q
+      var catalog = table1.Schema.Catalog;
+      var schema = table1.Schema;
+      var collation = schema.CreateCollation("Latin1_General_CI_AS");
+      try {
+        var innerSelect = CreateInnerSelect();
+        var queryRef = SqlDml.QueryRef(innerSelect, "q");
+        var outerSelect = SqlDml.Select(queryRef);
+        outerSelect.Columns.Add(SqlDml.Collate(queryRef[1], collation));
+
+        SqlColumnPruner.Process(outerSelect);
+
+        AssertColumnNames(queryRef, "Col1");
+        AssertSelectColumnCount(innerSelect, 1);
+      }
+      finally {
+        schema.Collations.Remove(collation);
+      }
+    }
+
+    [Test]
+    public void VariantExpressionPreservesBothBranches()
+    {
+      // Before: SELECT VARIANT(q.Col1, q.Col3)
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      // After:  SELECT VARIANT(q.Col1, q.Col3)
+      //         FROM (SELECT t.Col1, t.Col3 FROM table1 t) q
+      // Both Main and Alternative branches must be preserved.
+      var innerSelect = CreateInnerSelect();
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(SqlDml.Variant("v1", queryRef[1], queryRef[3]));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(queryRef, "Col1", "Col3");
+      AssertSelectColumnCount(innerSelect, 2);
+    }
+
+    [Test]
+    public void DynamicFilterPreservesColumns()
+    {
+      // Before: SELECT q.Col0
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      //         WHERE DynamicFilter(q.Col2, q.Col4)
+      // After:  SELECT q.Col0
+      //         FROM (SELECT t.Col0, t.Col2, t.Col4 FROM table1 t) q
+      //         WHERE DynamicFilter(q.Col2, q.Col4)
+      // Columns inside the DynamicFilter expression list must be preserved.
+      var innerSelect = CreateInnerSelect();
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+      outerSelect.Where = SqlDml.DynamicFilter("df1", new SqlExpression[] { queryRef[2], queryRef[4] });
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(queryRef, "Col0", "Col2", "Col4");
+      AssertSelectColumnCount(innerSelect, 3);
+    }
+
+    [Test]
+    public void ColumnStubPreservesReferencedColumn()
+    {
+      // Before: SELECT ColumnStub(q.Col2)
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      // After:  SELECT ColumnStub(q.Col2)
+      //         FROM (SELECT t.Col2 FROM table1 t) q
+      // SqlColumnStub wraps a column reference that must be tracked through.
+      var innerSelect = CreateInnerSelect();
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(SqlDml.ColumnStub(queryRef[2]));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(queryRef, "Col2");
+      AssertSelectColumnCount(innerSelect, 1);
+    }
+
+    [Test]
+    public void InWithRowExpressionPreservesColumns()
+    {
+      // Before: SELECT q.Col0
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      //         WHERE q.Col3 IN (q.Col1, q.Col4)
+      // After:  SELECT q.Col0
+      //         FROM (SELECT t.Col0, t.Col1, t.Col3, t.Col4 FROM table1 t) q
+      //         WHERE q.Col3 IN (q.Col1, q.Col4)
+      // The IN expression uses a SqlRow (extends SqlExpressionList) — all elements must be tracked.
+      var innerSelect = CreateInnerSelect();
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+      outerSelect.Where = SqlDml.In(queryRef[3], SqlDml.Row(queryRef[1], queryRef[4]));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(queryRef, "Col0", "Col1", "Col3", "Col4");
+      AssertSelectColumnCount(innerSelect, 4);
+    }
+
+    [Test]
+    public void LikeWithEscapePreservesAllThreeParts()
+    {
+      // Before: SELECT q.Col0
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      //         WHERE q.Col1 LIKE q.Col2 ESCAPE q.Col3
+      // After:  SELECT q.Col0
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3 FROM table1 t) q
+      //         WHERE q.Col1 LIKE q.Col2 ESCAPE q.Col3
+      // All three parts of LIKE (Expression, Pattern, Escape) must be preserved.
+      var innerSelect = CreateInnerSelect();
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+      outerSelect.Where = SqlDml.Like(queryRef[1], queryRef[2], queryRef[3]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(queryRef, "Col0", "Col1", "Col2", "Col3");
+      AssertSelectColumnCount(innerSelect, 4);
+    }
+
+    [Test]
+    public void UserColumnPreservesInnerExpression()
+    {
+      // Before: SELECT (q.Col3 + q.Col4) AS computed
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      // After:  SELECT (q.Col3 + q.Col4) AS computed
+      //         FROM (SELECT t.Col3, t.Col4 FROM table1 t) q
+      // SqlDml.Column(expr) wraps in SqlUserColumn — inner expression must be tracked.
+      var innerSelect = CreateInnerSelect();
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(SqlDml.Column(queryRef[3] + queryRef[4]));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(queryRef, "Col3", "Col4");
+      AssertSelectColumnCount(innerSelect, 2);
+    }
+
+    #endregion
+
+    #region FindAndPruneSubqueries — recursion through expression wrappers
+
+    [Test]
+    public void SubqueryInsideCaseExpressionIsPruned()
+    {
+      // Before: SELECT CASE WHEN 1=1
+      //                THEN (SELECT s.Id FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s)
+      //                ELSE 0 END
+      //         FROM table1 t1
+      // After:  SELECT CASE WHEN 1=1
+      //                THEN (SELECT s.Id FROM (SELECT t2.Id FROM table2 t2) s)
+      //                ELSE 0 END
+      //         FROM table1 t1
+      // The subquery inside the CASE THEN branch is discovered and its inner pruned (3 → 1).
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Id"]);
+
+      var caseExpr = SqlDml.Case();
+      caseExpr[SqlDml.Literal(1) == SqlDml.Literal(1)] = SqlDml.SubQuery(subOuter);
+      caseExpr.Else = SqlDml.Literal(0);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(caseExpr);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(subRef, "Id");
+      AssertSelectColumnCount(subInner, 1);
+    }
+
+    [Test]
+    public void SubqueryInsideCastIsPruned()
+    {
+      // Before: SELECT CAST((SELECT s.Id
+      //                       FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s) AS INT)
+      //         FROM table1 t1
+      // After:  SELECT CAST((SELECT s.Id
+      //                       FROM (SELECT t2.Id FROM table2 t2) s) AS INT)
+      //         FROM table1 t1
+      // The subquery inside the CAST is discovered and its inner pruned (3 → 1).
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Id"]);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(SqlDml.Cast(SqlDml.SubQuery(subOuter), SqlType.Int32));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(subRef, "Id");
+      AssertSelectColumnCount(subInner, 1);
+    }
+
+    [Test]
+    public void SubqueryInsideFunctionCallIsPruned()
+    {
+      // Before: SELECT COALESCE(
+      //                  (SELECT s.Name FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s),
+      //                  'default')
+      //         FROM table1 t1
+      // After:  SELECT COALESCE(
+      //                  (SELECT s.Name FROM (SELECT t2.Name FROM table2 t2) s),
+      //                  'default')
+      //         FROM table1 t1
+      // The subquery inside the COALESCE function call is discovered and its inner pruned (3 → 1).
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Name"]);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(
+        SqlDml.Coalesce(SqlDml.SubQuery(subOuter), SqlDml.Literal("default")));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(subRef, "Name");
+      AssertSelectColumnCount(subInner, 1);
+    }
+
+    [Test]
+    public void SubqueryInsideUserColumnIsPruned()
+    {
+      // Before: SELECT (SELECT s.Value
+      //                 FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s) AS computed
+      //         FROM table1 t1
+      // After:  SELECT (SELECT s.Value
+      //                 FROM (SELECT t2.Value FROM table2 t2) s) AS computed
+      //         FROM table1 t1
+      // SqlDml.Column(subquery) wraps in SqlUserColumn — the pruner recurses into it (3 → 1).
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Value"]);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(SqlDml.Column(SqlDml.SubQuery(subOuter)));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(subRef, "Value");
+      AssertSelectColumnCount(subInner, 1);
+    }
+
+    [Test]
+    public void SubqueryInsideLikePatternIsPruned()
+    {
+      // Before: SELECT t1.Col0 FROM table1 t1
+      //         WHERE t1.Col1 LIKE (SELECT s.Name
+      //           FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s)
+      // After:  SELECT t1.Col0 FROM table1 t1
+      //         WHERE t1.Col1 LIKE (SELECT s.Name
+      //           FROM (SELECT t2.Name FROM table2 t2) s)
+      // The subquery used as a LIKE pattern is discovered and its inner pruned (3 → 1).
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Name"]);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(t1["Col0"]);
+      outerSelect.Where = SqlDml.Like(t1["Col1"], SqlDml.SubQuery(subOuter));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(subRef, "Name");
+      AssertSelectColumnCount(subInner, 1);
+    }
+
+    [Test]
+    public void SubqueryInsideBetweenIsPruned()
+    {
+      // Before: SELECT t1.Col0 FROM table1 t1
+      //         WHERE t1.Col0 BETWEEN (SELECT s.Id
+      //           FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s) AND 100
+      // After:  SELECT t1.Col0 FROM table1 t1
+      //         WHERE t1.Col0 BETWEEN (SELECT s.Id
+      //           FROM (SELECT t2.Id FROM table2 t2) s) AND 100
+      // The subquery inside BETWEEN is discovered and its inner pruned (3 → 1).
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Id"]);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(t1["Col0"]);
+      outerSelect.Where = SqlDml.Between(t1["Col0"], SqlDml.SubQuery(subOuter), SqlDml.Literal(100));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(subRef, "Id");
+      AssertSelectColumnCount(subInner, 1);
+    }
+
+    [Test]
+    public void SubqueryInsideTrimIsPruned()
+    {
+      // Before: SELECT TRIM((SELECT s.Name
+      //           FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s))
+      //         FROM table1 t1
+      // After:  SELECT TRIM((SELECT s.Name
+      //           FROM (SELECT t2.Name FROM table2 t2) s))
+      //         FROM table1 t1
+      // The subquery inside TRIM is discovered and its inner pruned (3 → 1).
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Name"]);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(SqlDml.Trim(SqlDml.SubQuery(subOuter)));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(subRef, "Name");
+      AssertSelectColumnCount(subInner, 1);
+    }
+
+    [Test]
+    public void SubqueryInsideExtractIsPruned()
+    {
+      // Before: SELECT EXTRACT(YEAR FROM (SELECT s.Id
+      //           FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s))
+      //         FROM table1 t1
+      // After:  SELECT EXTRACT(YEAR FROM (SELECT s.Id
+      //           FROM (SELECT t2.Id FROM table2 t2) s))
+      //         FROM table1 t1
+      // The subquery inside EXTRACT is discovered and its inner pruned (3 → 1).
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Id"]);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(SqlDml.Extract(SqlDateTimePart.Year, SqlDml.SubQuery(subOuter)));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(subRef, "Id");
+      AssertSelectColumnCount(subInner, 1);
+    }
+
+    [Test]
+    public void SubqueryInsideVariantIsPruned()
+    {
+      // Before: SELECT VARIANT(
+      //                  (SELECT s.Name FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s),
+      //                  'fallback')
+      //         FROM table1 t1
+      // After:  SELECT VARIANT(
+      //                  (SELECT s.Name FROM (SELECT t2.Name FROM table2 t2) s),
+      //                  'fallback')
+      //         FROM table1 t1
+      // The subquery inside the VARIANT main branch is discovered and its inner pruned (3 → 1).
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Name"]);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(
+        SqlDml.Variant("v1", SqlDml.SubQuery(subOuter), SqlDml.Literal("fallback")));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(subRef, "Name");
+      AssertSelectColumnCount(subInner, 1);
+    }
+
+    [Test]
+    public void SubqueryInsideRowNumberOrderByIsPruned()
+    {
+      // Before: SELECT t1.Col0,
+      //                ROW_NUMBER() OVER (ORDER BY
+      //                  (SELECT s.Id FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s))
+      //         FROM table1 t1
+      // After:  SELECT t1.Col0,
+      //                ROW_NUMBER() OVER (ORDER BY
+      //                  (SELECT s.Id FROM (SELECT t2.Id FROM table2 t2) s))
+      //         FROM table1 t1
+      // The subquery inside ROW_NUMBER's ORDER BY is discovered and its inner pruned (3 → 1).
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Id"]);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(t1["Col0"]);
+      var rn = SqlDml.RowNumber();
+      rn.OrderBy.Add(SqlDml.SubQuery(subOuter));
+      outerSelect.Columns.Add(rn);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(subRef, "Id");
+      AssertSelectColumnCount(subInner, 1);
+    }
+
+    [Test]
+    public void SubqueryInsideMetadataIsPruned()
+    {
+      // Before: SELECT METADATA(
+      //                  (SELECT s.Value FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s),
+      //                  tag)
+      //         FROM table1 t1
+      // After:  SELECT METADATA(
+      //                  (SELECT s.Value FROM (SELECT t2.Value FROM table2 t2) s),
+      //                  tag)
+      //         FROM table1 t1
+      // The subquery inside METADATA is discovered and its inner pruned (3 → 1).
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Value"]);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(SqlDml.Metadata(SqlDml.SubQuery(subOuter), new object()));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(subRef, "Value");
+      AssertSelectColumnCount(subInner, 1);
+    }
+
+    #endregion
+
+    #region RecurseIntoExpressionSubqueries — clause-level coverage
+
+    [Test]
+    public void SubqueryInHavingClauseIsPruned()
+    {
+      // Before: SELECT t1.Col0 FROM table1 t1
+      //         GROUP BY t1.Col0
+      //         HAVING COUNT(*) > (SELECT s.Id
+      //           FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s)
+      // After:  SELECT t1.Col0 FROM table1 t1
+      //         GROUP BY t1.Col0
+      //         HAVING COUNT(*) > (SELECT s.Id
+      //           FROM (SELECT t2.Id FROM table2 t2) s)
+      // The subquery embedded in the HAVING clause is discovered and its inner pruned (3 → 1).
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Id"]);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(t1["Col0"]);
+      outerSelect.GroupBy.Add(t1["Col0"]);
+      outerSelect.Having = SqlDml.Count() > SqlDml.SubQuery(subOuter);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(subRef, "Id");
+      AssertSelectColumnCount(subInner, 1);
+    }
+
+    [Test]
+    public void SubqueryInOrderByClauseIsPruned()
+    {
+      // Before: SELECT t1.Col0 FROM table1 t1
+      //         ORDER BY (SELECT s.Name
+      //           FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s)
+      // After:  SELECT t1.Col0 FROM table1 t1
+      //         ORDER BY (SELECT s.Name
+      //           FROM (SELECT t2.Name FROM table2 t2) s)
+      // The subquery embedded in the ORDER BY clause is discovered and its inner pruned (3 → 1).
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Name"]);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(t1["Col0"]);
+      outerSelect.OrderBy.Add(SqlDml.SubQuery(subOuter));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(subRef, "Name");
+      AssertSelectColumnCount(subInner, 1);
+    }
+
+    [Test]
+    public void SubqueryInGroupByClauseIsPruned()
+    {
+      // Before: SELECT t1.Col0 FROM table1 t1
+      //         GROUP BY (SELECT s.Id
+      //           FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s)
+      // After:  SELECT t1.Col0 FROM table1 t1
+      //         GROUP BY (SELECT s.Id
+      //           FROM (SELECT t2.Id FROM table2 t2) s)
+      // The subquery embedded in the GROUP BY clause is discovered and its inner pruned (3 → 1).
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Id"]);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(t1["Col0"]);
+      outerSelect.GroupBy.Add(SqlDml.SubQuery(subOuter));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(subRef, "Id");
+      AssertSelectColumnCount(subInner, 1);
+    }
+
+    #endregion
+
+    #region Correlated subtree scanning
+
+    [Test]
+    public void CorrelatedReferenceInsideUnionSiblingPreservesColumns()
+    {
+      // OUTER APPLY sibling wraps a UNION ALL — the correlated reference is inside
+      // one of the UNION sides, testing CollectUsedColumnsFromEntireSubtree → SqlQueryExpression path.
+      // Before: SELECT d.Col0, i.Id
+      //         FROM (SELECT t1.Col0, t1.Col1, t1.Col2, t1.Col3, t1.Col4 FROM table1 t1) d
+      //         OUTER APPLY (SELECT u.Id FROM (
+      //           SELECT t2.Id FROM table2 t2 WHERE t2.Id = d.Col3
+      //           UNION ALL
+      //           SELECT t2.Id FROM table2 t2 WHERE t2.Id = d.Col4
+      //         ) u) i
+      // After:  SELECT d.Col0, i.Id
+      //         FROM (SELECT t1.Col0, t1.Col3, t1.Col4 FROM table1 t1) d
+      //         OUTER APPLY (...) i
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var innerD = SqlDml.Select(t1);
+      for (int i = 0; i < t1.Columns.Count; i++) {
+        innerD.Columns.Add(t1[i]);
+      }
+      var dRef = SqlDml.QueryRef(innerD, "d");
+
+      var t2a = SqlDml.TableRef(table2, "t2a");
+      var unionLeft = SqlDml.Select(t2a);
+      unionLeft.Columns.Add(t2a["Id"]);
+      unionLeft.Where = t2a["Id"] == dRef["Col3"];
+
+      var t2b = SqlDml.TableRef(table2, "t2b");
+      var unionRight = SqlDml.Select(t2b);
+      unionRight.Columns.Add(t2b["Id"]);
+      unionRight.Where = t2b["Id"] == dRef["Col4"];
+
+      var union = unionLeft.UnionAll(unionRight);
+      var uRef = SqlDml.QueryRef(union, "u");
+      var innerI = SqlDml.Select(uRef);
+      innerI.Columns.Add(uRef["Id"]);
+      var iRef = SqlDml.QueryRef(innerI, "i");
+
+      var applied = SqlDml.Join(SqlJoinType.LeftOuterApply, dRef, iRef);
+      var outerSelect = SqlDml.Select(applied);
+      outerSelect.Columns.Add(dRef["Col0"]);
+      outerSelect.Columns.Add(iRef["Id"]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(dRef, "Col0", "Col3", "Col4");
+      AssertSelectColumnCount(innerD, 3);
+    }
+
+    [Test]
+    public void CorrelatedReferenceInsideNestedJoinInSibling()
+    {
+      // Before: SELECT d.Col0, i.Name
+      //         FROM (SELECT t1.Col0, t1.Col1, t1.Col2, t1.Col3, t1.Col4 FROM table1 t1) d
+      //         OUTER APPLY (SELECT r.Name
+      //           FROM table2 r
+      //           JOIN table2 r2 ON r.Id = r2.Id
+      //           WHERE r.Id = d.Col2) i
+      // After:  SELECT d.Col0, i.Name
+      //         FROM (SELECT t1.Col0, t1.Col2 FROM table1 t1) d
+      //         OUTER APPLY (...) i
+      // Col2 is only referenced in the APPLY sibling's WHERE — must be preserved.
+      // The APPLY's FROM contains a JOIN tree, which the scanner must walk through.
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var innerD = SqlDml.Select(t1);
+      for (int i = 0; i < t1.Columns.Count; i++) {
+        innerD.Columns.Add(t1[i]);
+      }
+      var dRef = SqlDml.QueryRef(innerD, "d");
+
+      var r = SqlDml.TableRef(table2, "r");
+      var r2 = SqlDml.TableRef(table2, "r2");
+      var joinedInner = r.InnerJoin(r2, r["Id"] == r2["Id"]);
+      var innerI = SqlDml.Select(joinedInner);
+      innerI.Columns.Add(r["Name"]);
+      innerI.Where = r["Id"] == dRef["Col2"];
+      var iRef = SqlDml.QueryRef(innerI, "i");
+
+      var applied = SqlDml.Join(SqlJoinType.LeftOuterApply, dRef, iRef);
+      var outerSelect = SqlDml.Select(applied);
+      outerSelect.Columns.Add(dRef["Col0"]);
+      outerSelect.Columns.Add(iRef["Name"]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(dRef, "Col0", "Col2");
+      AssertSelectColumnCount(innerD, 2);
+    }
+
+    #endregion
+
+    #region Edge cases
+
+    [Test]
+    public void DoesNotPruneIntersect()
+    {
+      // Before: SELECT u.Col0
+      //         FROM (SELECT t1.Col0, t1.Col1, t1.Col2 FROM table1 t1
+      //               INTERSECT
+      //               SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) u
+      // After:  (no change — all 3 columns kept on both sides)
+      // INTERSECT uses all projected columns for comparison — removing any column
+      // can change the result set, so no pruning is allowed.
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var selectA = SqlDml.Select(t1);
+      selectA.Columns.Add(t1["Col0"]);
+      selectA.Columns.Add(t1["Col1"]);
+      selectA.Columns.Add(t1["Col2"]);
+
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var selectB = SqlDml.Select(t2);
+      selectB.Columns.Add(t2["Id"]);
+      selectB.Columns.Add(t2["Name"]);
+      selectB.Columns.Add(t2["Value"]);
+
+      var intersect = selectA.Intersect(selectB);
+      var queryRef = SqlDml.QueryRef(intersect, "u");
+
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+
+      var originalColumnCount = queryRef.Columns.Count;
+      SqlColumnPruner.Process(outerSelect);
+
+      Assert.That(queryRef.Columns.Count, Is.EqualTo(originalColumnCount));
+      Assert.That(selectA.Columns.Count, Is.EqualTo(3));
+      Assert.That(selectB.Columns.Count, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void SharedExpressionNodeProcessedSafely()
+    {
+      // Before: SELECT (q.Col0 + q.Col2)
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      //         WHERE (q.Col0 + q.Col2) > 0
+      // After:  SELECT (q.Col0 + q.Col2)
+      //         FROM (SELECT t.Col0, t.Col2 FROM table1 t) q
+      //         WHERE (q.Col0 + q.Col2) > 0
+      // The same expression object appears in both SELECT and WHERE.
+      // The visited-dedup in FindAndPruneSubqueries must handle re-encounters gracefully.
+      var innerSelect = CreateInnerSelect();
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+      var outerSelect = SqlDml.Select(queryRef);
+
+      var sharedExpr = queryRef[0] + queryRef[2];
+      outerSelect.Columns.Add(sharedExpr);
+      outerSelect.Where = sharedExpr > SqlDml.Literal(0);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(queryRef, "Col0", "Col2");
+      AssertSelectColumnCount(innerSelect, 2);
+    }
+
+    [Test]
+    public void QueryRefFromUnionRecursesIntoSidesEvenWithoutPruning()
+    {
+      // Before: SELECT u.Col0
+      //         FROM (SELECT r.Col0, r.Col1
+      //                 FROM (SELECT t.Col0, t.Col1, t.Col2 FROM table1 t) r
+      //               INTERSECT
+      //               SELECT r2.Col0, r2.Col1
+      //                 FROM (SELECT t2.Col0, t2.Col1, t2.Col2 FROM table1 t2) r2) u
+      // After:  SELECT u.Col0
+      //         FROM (SELECT r.Col0, r.Col1
+      //                 FROM (SELECT t.Col0, t.Col1 FROM table1 t) r
+      //               INTERSECT
+      //               SELECT r2.Col0, r2.Col1
+      //                 FROM (SELECT t2.Col0, t2.Col1 FROM table1 t2) r2) u
+      // The INTERSECT itself is NOT pruned (still 2 columns per side),
+      // but the inner subqueries on each side ARE pruned (3 → 2).
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var innerA = SqlDml.Select(t1);
+      innerA.Columns.Add(t1["Col0"]);
+      innerA.Columns.Add(t1["Col1"]);
+      innerA.Columns.Add(t1["Col2"]);
+      var aRef = SqlDml.QueryRef(innerA, "r");
+      var selectA = SqlDml.Select(aRef);
+      selectA.Columns.Add(aRef["Col0"]);
+      selectA.Columns.Add(aRef["Col1"]);
+
+      var t2 = SqlDml.TableRef(table1, "t2");
+      var innerB = SqlDml.Select(t2);
+      innerB.Columns.Add(t2["Col0"]);
+      innerB.Columns.Add(t2["Col1"]);
+      innerB.Columns.Add(t2["Col2"]);
+      var bRef = SqlDml.QueryRef(innerB, "r2");
+      var selectB = SqlDml.Select(bRef);
+      selectB.Columns.Add(bRef["Col0"]);
+      selectB.Columns.Add(bRef["Col1"]);
+
+      var intersect = selectA.Intersect(selectB);
+      var queryRef = SqlDml.QueryRef(intersect, "u");
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      // INTERSECT not pruned — still 2 columns per side
+      Assert.That(queryRef.Columns.Count, Is.EqualTo(2));
+
+      // But inner subqueries ARE pruned (3 → 2)
+      AssertColumnNames(aRef, "Col0", "Col1");
+      AssertSelectColumnCount(innerA, 2);
+      AssertColumnNames(bRef, "Col0", "Col1");
+      AssertSelectColumnCount(innerB, 2);
+    }
+
+    [Test]
+    public void EmptyInnerSelectDoesNotThrow()
+    {
+      // Before: SELECT 1 FROM (SELECT FROM table1 t1) q
+      // After:  (no change — zero columns, nothing to prune)
+      // A SqlQueryRef with zero inner columns should be handled gracefully.
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var innerSelect = SqlDml.Select(t1);
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(SqlDml.Literal(1));
+
+      Assert.DoesNotThrow(() => SqlColumnPruner.Process(outerSelect));
+    }
+
+    [Test]
+    public void NullFromSourceDoesNotThrow()
+    {
+      // Before: SELECT 42
+      // After:  (no change — no FROM source, nothing to prune)
+      var select = SqlDml.Select();
+      select.Columns.Add(SqlDml.Literal(42));
+
+      Assert.DoesNotThrow(() => SqlColumnPruner.Process(select));
+    }
+
+    [Test]
+    public void RecursesIntoNestedQueryExpressionSide()
+    {
+      // Before: SELECT u.Col0
+      //         FROM (
+      //           (SELECT a.Col0, a.Col1 FROM (SELECT t.Col0, t.Col1, t.Col2 FROM table1 t) a
+      //            UNION ALL
+      //            SELECT b.Col0, b.Col1 FROM (SELECT t.Col0, t.Col1, t.Col2 FROM table1 t) b)
+      //           UNION ALL
+      //           SELECT c.Col0, c.Col1 FROM (SELECT t.Col0, t.Col1, t.Col2 FROM table1 t) c
+      //         ) u
+      // After:  SELECT u.Col0
+      //         FROM (
+      //           (SELECT a.Col0 FROM (SELECT t.Col0 FROM table1 t) a
+      //            UNION ALL
+      //            SELECT b.Col0 FROM (SELECT t.Col0 FROM table1 t) b)
+      //           UNION ALL
+      //           SELECT c.Col0 FROM (SELECT t.Col0 FROM table1 t) c
+      //         ) u
+      // (A UNION ALL B) UNION ALL C — left side is itself a SqlQueryExpression.
+      // Each leaf's inner subquery is pruned from 3 to 1 column.
+      var t1a = SqlDml.TableRef(table1, "t1a");
+      var innerA = SqlDml.Select(t1a);
+      innerA.Columns.Add(t1a["Col0"]);
+      innerA.Columns.Add(t1a["Col1"]);
+      innerA.Columns.Add(t1a["Col2"]);
+      var aRef = SqlDml.QueryRef(innerA, "a");
+      var selectA = SqlDml.Select(aRef);
+      selectA.Columns.Add(aRef["Col0"]);
+      selectA.Columns.Add(aRef["Col1"]);
+
+      var t1b = SqlDml.TableRef(table1, "t1b");
+      var innerB = SqlDml.Select(t1b);
+      innerB.Columns.Add(t1b["Col0"]);
+      innerB.Columns.Add(t1b["Col1"]);
+      innerB.Columns.Add(t1b["Col2"]);
+      var bRef = SqlDml.QueryRef(innerB, "b");
+      var selectB = SqlDml.Select(bRef);
+      selectB.Columns.Add(bRef["Col0"]);
+      selectB.Columns.Add(bRef["Col1"]);
+
+      var t1c = SqlDml.TableRef(table1, "t1c");
+      var innerC = SqlDml.Select(t1c);
+      innerC.Columns.Add(t1c["Col0"]);
+      innerC.Columns.Add(t1c["Col1"]);
+      innerC.Columns.Add(t1c["Col2"]);
+      var cRef = SqlDml.QueryRef(innerC, "c");
+      var selectC = SqlDml.Select(cRef);
+      selectC.Columns.Add(cRef["Col0"]);
+      selectC.Columns.Add(cRef["Col1"]);
+
+      var union = selectA.UnionAll(selectB).UnionAll(selectC);
+      var queryRef = SqlDml.QueryRef(union, "u");
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      // Inner subqueries pruned from 3 to 1 (only Col0 needed)
+      AssertColumnNames(aRef, "Col0");
+      AssertSelectColumnCount(innerA, 1);
+      AssertColumnNames(bRef, "Col0");
+      AssertSelectColumnCount(innerB, 1);
+      AssertColumnNames(cRef, "Col0");
+      AssertSelectColumnCount(innerC, 1);
+    }
+
     #endregion
 
     #region Helpers
