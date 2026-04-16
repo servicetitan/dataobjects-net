@@ -441,6 +441,58 @@ namespace Xtensive.Orm.Tests.Sql
       AssertSelectColumnCount(innerSelect, 3);
     }
 
+    [Test]
+    public void MetadataWrappedColumnPreservesReference()
+    {
+      // SqlMetadata wraps an inner Expression (used by BooleanExpressionConverter).
+      // The pruner must recurse into it to detect column references.
+      // Before: SELECT q.Col0, METADATA(q.Col3 = 1, tag)
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      // After:  SELECT q.Col0, METADATA(q.Col3 = 1, tag)
+      //         FROM (SELECT t.Col0, t.Col3 FROM table1 t) q
+      // Col3 is only referenced inside the SqlMetadata wrapper — must not be pruned.
+      var innerSelect = CreateInnerSelect();
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+
+      var metadataExpr = SqlDml.Metadata(SqlDml.Equals(queryRef[3], SqlDml.Literal(1)), new object());
+
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+      outerSelect.Columns.Add(metadataExpr);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(queryRef, "Col0", "Col3");
+      AssertSelectColumnCount(innerSelect, 2);
+    }
+
+    [Test]
+    public void NestedMetadataInsideCastPreservesReference()
+    {
+      // Mirrors the BooleanToInt pattern: METADATA(CAST(CASE WHEN q.Col2 THEN 1 ELSE 0 END AS bit), tag)
+      // Before: SELECT q.Col0, METADATA(CAST(CASE WHEN q.Col2 ... END AS int), tag)
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      // After:  SELECT q.Col0, METADATA(CAST(CASE WHEN q.Col2 ... END AS int), tag)
+      //         FROM (SELECT t.Col0, t.Col2 FROM table1 t) q
+      var innerSelect = CreateInnerSelect();
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+
+      var caseExpr = SqlDml.Case();
+      caseExpr.Add(queryRef[2], SqlDml.Literal(1));
+      caseExpr.Else = SqlDml.Literal(0);
+      var castExpr = SqlDml.Cast(caseExpr, new SqlValueType(SqlType.Int32));
+      var metadataExpr = SqlDml.Metadata(castExpr, new object());
+
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+      outerSelect.Columns.Add(metadataExpr);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      AssertColumnNames(queryRef, "Col0", "Col2");
+      AssertSelectColumnCount(innerSelect, 2);
+    }
+
     #endregion
 
     #region Subqueries
@@ -928,6 +980,89 @@ namespace Xtensive.Orm.Tests.Sql
       // Right join side pruned from 3 to 2 (Id for join condition, Name for select)
       AssertColumnNames(rightRef, "Id", "Name");
       AssertSelectColumnCount(rightInner, 2);
+    }
+
+    [Test]
+    public void OuterApplyCorrelatedReferencePreservesColumns()
+    {
+      // OUTER APPLY subqueries reference columns from a sibling join side.
+      // The pruner must not remove columns referenced by correlated siblings.
+      // Before: SELECT a.Col0, a.Col1, b.Name
+      //         FROM (SELECT t1.Col0, t1.Col1, t1.Col2, t1.Col3, t1.Col4 FROM table1 t1) a
+      //         OUTER APPLY (SELECT t2.Name FROM table2 t2 WHERE t2.Id = a.Col3) b
+      // After:  SELECT a.Col0, a.Col1, b.Name
+      //         FROM (SELECT t1.Col0, t1.Col1, t1.Col3 FROM table1 t1) a
+      //         OUTER APPLY (SELECT t2.Name FROM table2 t2 WHERE t2.Id = a.Col3) b
+      // Col3 is not in the outer SELECT but IS referenced by the APPLY's WHERE → must be kept.
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var innerA = SqlDml.Select(t1);
+      for (int i = 0; i < t1.Columns.Count; i++) {
+        innerA.Columns.Add(t1[i]);
+      }
+      var aRef = SqlDml.QueryRef(innerA, "a");
+
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var innerB = SqlDml.Select(t2);
+      innerB.Columns.Add(t2["Name"]);
+      innerB.Where = t2["Id"] == aRef["Col3"];
+      var bRef = SqlDml.QueryRef(innerB, "b");
+
+      var applied = aRef.LeftOuterApply(bRef);
+      var outerSelect = SqlDml.Select(applied);
+      outerSelect.Columns.Add(aRef["Col0"]);
+      outerSelect.Columns.Add(aRef["Col1"]);
+      outerSelect.Columns.Add(bRef["Name"]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      // Col3 preserved because the APPLY subquery references it
+      AssertColumnNames(aRef, "Col0", "Col1", "Col3");
+      AssertSelectColumnCount(innerA, 3);
+    }
+
+    [Test]
+    public void MultipleOuterApplyCorrelatedReferences()
+    {
+      // Multiple OUTER APPLY subqueries each reference different columns from [a].
+      // Before: SELECT a.Col0, b.Name, c.Value
+      //         FROM (SELECT t1.Col0, t1.Col1, t1.Col2, t1.Col3, t1.Col4 FROM table1 t1) a
+      //         OUTER APPLY (SELECT t2.Name FROM table2 t2 WHERE t2.Id = a.Col2) b
+      //         OUTER APPLY (SELECT t2.Value FROM table2 t2 WHERE t2.Id = a.Col4) c
+      // After:  SELECT a.Col0, b.Name, c.Value
+      //         FROM (SELECT t1.Col0, t1.Col2, t1.Col4 FROM table1 t1) a
+      //         OUTER APPLY (SELECT t2.Name FROM table2 t2 WHERE t2.Id = a.Col2) b
+      //         OUTER APPLY (SELECT t2.Value FROM table2 t2 WHERE t2.Id = a.Col4) c
+      // Col2 and Col4 are each referenced by one APPLY sibling — both must be kept.
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var innerA = SqlDml.Select(t1);
+      for (int i = 0; i < t1.Columns.Count; i++) {
+        innerA.Columns.Add(t1[i]);
+      }
+      var aRef = SqlDml.QueryRef(innerA, "a");
+
+      var t2b = SqlDml.TableRef(table2, "t2b");
+      var innerB = SqlDml.Select(t2b);
+      innerB.Columns.Add(t2b["Name"]);
+      innerB.Where = t2b["Id"] == aRef["Col2"];
+      var bRef = SqlDml.QueryRef(innerB, "b");
+
+      var t2c = SqlDml.TableRef(table2, "t2c");
+      var innerC = SqlDml.Select(t2c);
+      innerC.Columns.Add(t2c["Value"]);
+      innerC.Where = t2c["Id"] == aRef["Col4"];
+      var cRef = SqlDml.QueryRef(innerC, "c");
+
+      var applied = aRef.LeftOuterApply(bRef).LeftOuterApply(cRef);
+      var outerSelect = SqlDml.Select(applied);
+      outerSelect.Columns.Add(aRef["Col0"]);
+      outerSelect.Columns.Add(bRef["Name"]);
+      outerSelect.Columns.Add(cRef["Value"]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      // Col0 from outer SELECT, Col2 from [b]'s WHERE, Col4 from [c]'s WHERE
+      AssertColumnNames(aRef, "Col0", "Col2", "Col4");
+      AssertSelectColumnCount(innerA, 3);
     }
 
     [Test]

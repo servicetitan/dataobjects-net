@@ -191,6 +191,9 @@ namespace Xtensive.Orm.Providers
             }
           }
           break;
+        case SqlMetadata metadata:
+          FindAndPruneSubqueries(metadata.Expression);
+          break;
       }
     }
 
@@ -236,6 +239,7 @@ namespace Xtensive.Orm.Providers
         var usedColumns = new HashSet<SqlTableColumn>(ReferenceEqualityComparer.Instance);
         CollectUsedColumnsFromSelect(select, sideRef, usedColumns);
         CollectUsedColumnsFromJoinConditions(select.From, sideRef, usedColumns);
+        CollectUsedColumnsFromCorrelatedJoinSides(select.From, sideRef, usedColumns);
 
         if (usedColumns.Count >= columnCount) {
           continue;
@@ -274,6 +278,20 @@ namespace Xtensive.Orm.Providers
         CollectUsedColumns(jt.JoinExpression.Expression, targetTable, usedColumns);
         CollectUsedColumnsFromJoinConditions(jt.JoinExpression.Left, targetTable, usedColumns);
         CollectUsedColumnsFromJoinConditions(jt.JoinExpression.Right, targetTable, usedColumns);
+      }
+    }
+
+    private void CollectUsedColumnsFromCorrelatedJoinSides(
+      SqlTable table, SqlTable targetTable, HashSet<SqlTableColumn> usedColumns)
+    {
+      if (table is SqlQueryRef qr) {
+        if (!ReferenceEquals(qr, targetTable) && qr.Query is SqlSelect innerSelect) {
+          CollectUsedColumnsFromSelect(innerSelect, targetTable, usedColumns);
+        }
+      }
+      else if (table is SqlJoinedTable jt) {
+        CollectUsedColumnsFromCorrelatedJoinSides(jt.JoinExpression.Left, targetTable, usedColumns);
+        CollectUsedColumnsFromCorrelatedJoinSides(jt.JoinExpression.Right, targetTable, usedColumns);
       }
     }
 
@@ -397,6 +415,10 @@ namespace Xtensive.Orm.Providers
           }
           break;
 
+        case SqlMetadata metadata:
+          CollectUsedColumns(metadata.Expression, targetTable, usedColumns);
+          break;
+
         // Leaf nodes — no column references to collect
         case SqlNull:
         case SqlLiteral:
@@ -407,7 +429,6 @@ namespace Xtensive.Orm.Providers
         case SqlVariable:
         case SqlCursor:
         case SqlContainer:
-        case SqlMetadata:
           break;
 
         default:
