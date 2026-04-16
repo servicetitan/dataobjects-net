@@ -35,7 +35,7 @@ namespace Xtensive.Sql.Dml
 
     internal void PruneColumns(List<int> indicesToKeep)
     {
-      if (query is SqlSelect innerSelect) {
+      if (query is SqlSelect innerSelect && !innerSelect.Distinct) {
         PruneSelectColumns(innerSelect.Columns, indicesToKeep);
       }
       else if (query is SqlQueryExpression queryExpression && IsUnionAllTree(queryExpression)) {

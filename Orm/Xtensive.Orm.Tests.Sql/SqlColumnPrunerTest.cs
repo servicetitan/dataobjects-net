@@ -705,6 +705,63 @@ namespace Xtensive.Orm.Tests.Sql
     }
 
     [Test]
+    public void DoesNotPruneSelectDistinct()
+    {
+      // SELECT DISTINCT uses all projected columns for deduplication.
+      // Removing columns can change the result set — no pruning allowed.
+      // SELECT q.Col0 FROM (SELECT DISTINCT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      // The inner SELECT DISTINCT must keep all 5 columns.
+      var innerSelect = CreateInnerSelect();
+      innerSelect.Distinct = true;
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      Assert.That(queryRef.Columns.Count, Is.EqualTo(5));
+      AssertSelectColumnCount(innerSelect, 5);
+    }
+
+    [Test]
+    public void SelectDistinctInnerSubqueriesStillPruned()
+    {
+      // The DISTINCT select itself is not pruned, but its inner subqueries are.
+      // Before: SELECT q.Col0
+      //         FROM (SELECT DISTINCT r.Col0, r.Col1, r.Col2
+      //               FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) r
+      //              ) q
+      // After:  SELECT q.Col0
+      //         FROM (SELECT DISTINCT r.Col0, r.Col1, r.Col2
+      //               FROM (SELECT t.Col0, t.Col1, t.Col2 FROM table1 t) r
+      //              ) q
+      // The DISTINCT keeps 3 columns, but its inner subquery is pruned from 5 to 3.
+      var baseSelect = CreateInnerSelect();
+      var baseRef = SqlDml.QueryRef(baseSelect, "r");
+
+      var distinctSelect = SqlDml.Select(baseRef);
+      distinctSelect.Columns.Add(baseRef["Col0"]);
+      distinctSelect.Columns.Add(baseRef["Col1"]);
+      distinctSelect.Columns.Add(baseRef["Col2"]);
+      distinctSelect.Distinct = true;
+
+      var queryRef = SqlDml.QueryRef(distinctSelect, "q");
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+
+      SqlColumnPruner.Process(outerSelect);
+
+      // DISTINCT select is NOT pruned (still 3 columns)
+      Assert.That(queryRef.Columns.Count, Is.EqualTo(3));
+      AssertSelectColumnCount(distinctSelect, 3);
+
+      // But the inner subquery IS pruned (from 5 to 3 — only columns used by DISTINCT)
+      AssertColumnNames(baseRef, "Col0", "Col1", "Col2");
+      AssertSelectColumnCount(baseSelect, 3);
+    }
+
+    [Test]
     public void DoesNotPruneUnionDistinct()
     {
       // UNION (without ALL) deduplicates rows using all projected columns,
