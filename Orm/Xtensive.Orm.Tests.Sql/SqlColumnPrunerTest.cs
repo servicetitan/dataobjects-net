@@ -591,6 +591,115 @@ namespace Xtensive.Orm.Tests.Sql
       AssertSelectColumnCount(subInner, 2);
     }
 
+    [Test]
+    public void DeeplyNestedCorrelatedSubqueryPreservesColumns()
+    {
+      // A correlated reference to the outer table [l] is buried two levels deep
+      // inside a subquery's own FROM tree.
+      // Before: SELECT l.Col0,
+      //           (SELECT SUM(g.Id) FROM
+      //             (SELECT s.Id FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s
+      //              WHERE s.Id = l.Col3 AND s.Name = l.Col4) g) AS agg
+      //         FROM (SELECT t1.Col0, t1.Col1, t1.Col2, t1.Col3, t1.Col4 FROM table1 t1) l
+      //         JOIN table2 r ON l.Col0 = r.Id
+      // After:  SELECT l.Col0,
+      //           (SELECT SUM(g.Id) FROM
+      //             (SELECT s.Id FROM (SELECT t2.Id, t2.Name FROM table2 t2) s
+      //              WHERE s.Id = l.Col3 AND s.Name = l.Col4) g) AS agg
+      //         FROM (SELECT t1.Col0, t1.Col3, t1.Col4 FROM table1 t1) l
+      //         JOIN table2 r ON l.Col0 = r.Id
+      // Col3 and Col4 are only referenced inside the subquery's nested FROM, not
+      // in the immediate subquery SELECT — the pruner must scan the entire subtree.
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var innerL = SqlDml.Select(t1);
+      for (int i = 0; i < t1.Columns.Count; i++) {
+        innerL.Columns.Add(t1[i]);
+      }
+      var lRef = SqlDml.QueryRef(innerL, "l");
+
+      var t2s = SqlDml.TableRef(table2, "t2s");
+      var innerS = SqlDml.Select(t2s);
+      innerS.Columns.Add(t2s["Id"]);
+      innerS.Columns.Add(t2s["Name"]);
+      innerS.Columns.Add(t2s["Value"]);
+      var sRef = SqlDml.QueryRef(innerS, "s");
+
+      var innerG = SqlDml.Select(sRef);
+      innerG.Columns.Add(sRef["Id"]);
+      innerG.Where = sRef["Id"] == lRef["Col3"] & sRef["Name"] == lRef["Col4"];
+      var gRef = SqlDml.QueryRef(innerG, "g");
+
+      var subqSelect = SqlDml.Select(gRef);
+      subqSelect.Columns.Add(SqlDml.Sum(gRef["Id"]));
+
+      var rTable = SqlDml.TableRef(table2, "r");
+      var joined = lRef.InnerJoin(rTable, lRef["Col0"] == rTable["Id"]);
+      var outerSelect = SqlDml.Select(joined);
+      outerSelect.Columns.Add(lRef["Col0"]);
+      outerSelect.Columns.Add(SqlDml.SubQuery(subqSelect));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      // Col0 from outer SELECT + join, Col3 and Col4 from deep inside the subquery
+      AssertColumnNames(lRef, "Col0", "Col3", "Col4");
+      AssertSelectColumnCount(innerL, 3);
+      // The subquery's inner [s] should also be pruned (Value removed)
+      AssertColumnNames(sRef, "Id", "Name");
+      AssertSelectColumnCount(innerS, 2);
+    }
+
+    [Test]
+    public void CorrelatedSubqueryWithGroupByReferencesOuterTable()
+    {
+      // Mirrors the real ORM pattern: a GROUP BY subquery joined with a table,
+      // and correlated subqueries in the SELECT list referencing the grouped alias.
+      // Before: SELECT f.Col0,
+      //           (SELECT COUNT(*) FROM
+      //             (SELECT t2.Id FROM table2 t2
+      //              WHERE t2.Id = g.Col0 AND t2.Name = g.Col1) h) AS cnt
+      //         FROM (SELECT t1.Col0, t1.Col1, t1.Col2
+      //               FROM table1 t1 GROUP BY t1.Col0, t1.Col1, t1.Col2) g
+      //         JOIN table1 f ON g.Col0 = f.Col0
+      // After:  SELECT f.Col0,
+      //           (SELECT COUNT(*) FROM
+      //             (SELECT t2.Id FROM table2 t2
+      //              WHERE t2.Id = g.Col0 AND t2.Name = g.Col1) h) AS cnt
+      //         FROM (SELECT t1.Col0, t1.Col1
+      //               FROM table1 t1 GROUP BY t1.Col0, t1.Col1, t1.Col2) g
+      //         JOIN table1 f ON g.Col0 = f.Col0
+      // g.Col1 is only referenced deep inside the correlated subquery — must be kept.
+      var t1g = SqlDml.TableRef(table1, "t1g");
+      var innerG = SqlDml.Select(t1g);
+      innerG.Columns.Add(t1g["Col0"]);
+      innerG.Columns.Add(t1g["Col1"]);
+      innerG.Columns.Add(t1g["Col2"]);
+      innerG.GroupBy.Add(t1g["Col0"]);
+      innerG.GroupBy.Add(t1g["Col1"]);
+      innerG.GroupBy.Add(t1g["Col2"]);
+      var gRef = SqlDml.QueryRef(innerG, "g");
+
+      var t2h = SqlDml.TableRef(table2, "t2h");
+      var innerH = SqlDml.Select(t2h);
+      innerH.Columns.Add(t2h["Id"]);
+      innerH.Where = t2h["Id"] == gRef["Col0"] & t2h["Name"] == gRef["Col1"];
+      var hRef = SqlDml.QueryRef(innerH, "h");
+
+      var subqSelect = SqlDml.Select(hRef);
+      subqSelect.Columns.Add(SqlDml.Count());
+
+      var fTable = SqlDml.TableRef(table1, "f");
+      var joined = gRef.InnerJoin(fTable, gRef["Col0"] == fTable["Col0"]);
+      var outerSelect = SqlDml.Select(joined);
+      outerSelect.Columns.Add(fTable["Col0"]);
+      outerSelect.Columns.Add(SqlDml.SubQuery(subqSelect));
+
+      SqlColumnPruner.Process(outerSelect);
+
+      // Col0 from join condition, Col1 from deep inside the subquery — Col2 pruned
+      AssertColumnNames(gRef, "Col0", "Col1");
+      AssertSelectColumnCount(innerG, 2);
+    }
+
     #endregion
 
     #region Nesting

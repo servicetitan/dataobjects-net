@@ -416,6 +416,9 @@ namespace Xtensive.Orm.Providers
         case SqlSubQuery sub:
           if (sub.Query is SqlSelect innerSelect) {
             CollectUsedColumnsFromSelect(innerSelect, targetTable, usedColumns);
+            if (innerSelect.From != null) {
+              CollectUsedColumnsFromCorrelatedJoinSides(innerSelect.From, targetTable, usedColumns);
+            }
           }
           break;
         case SqlExpressionList list:
