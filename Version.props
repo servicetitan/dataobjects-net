@@ -3,7 +3,7 @@
 
 <PropertyGroup>
     <DoVersion>7.3.15</DoVersion>
-    <DoVersionSuffix>servicetitan-test-pruner</DoVersionSuffix>
+    <DoVersionSuffix>servicetitan-test-pruner2</DoVersionSuffix>
 </PropertyGroup>
 
 </Project>
