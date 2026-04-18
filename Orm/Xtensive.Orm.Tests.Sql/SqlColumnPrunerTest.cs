@@ -2,6 +2,7 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -17,6 +18,7 @@ namespace Xtensive.Orm.Tests.Sql
   {
     private Table table1;
     private Table table2;
+    private ProviderInfo providerInfo;
 
     [OneTimeSetUp]
     public void SetUp()
@@ -35,6 +37,20 @@ namespace Xtensive.Orm.Tests.Sql
       _ = table2.CreateColumn("Id", new SqlValueType(SqlType.Int32));
       _ = table2.CreateColumn("Name", new SqlValueType(SqlType.VarChar));
       _ = table2.CreateColumn("Value", new SqlValueType(SqlType.VarChar));
+
+      // Minimal ProviderInfo for invoking SqlSelectProcessor.
+      // Column pruning logic itself does not consult any provider feature flags,
+      // so ProviderFeatures.None is sufficient.
+      providerInfo = new ProviderInfo(
+        providerName: "test",
+        storageVersion: new Version(1, 0),
+        providerFeatures: ProviderFeatures.None,
+        maxIdentifierLength: 128,
+        constantPrimaryIndexName: "PK",
+        defaultDatabase: "test",
+        defaultSchema: "dbo",
+        supportedTypes: Enumerable.Empty<Type>(),
+        maxQueryParameterCount: 1000);
     }
 
     #region Basic pruning
@@ -50,7 +66,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
       outerSelect.Columns.Add(queryRef[2]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col2");
       AssertSelectColumnCount(innerSelect, 2);
@@ -69,7 +85,7 @@ namespace Xtensive.Orm.Tests.Sql
         outerSelect.Columns.Add(queryRef[i]);
       }
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col1", "Col2", "Col3", "Col4");
       AssertSelectColumnCount(innerSelect, 5);
@@ -85,7 +101,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(queryRef[3]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col3");
       AssertSelectColumnCount(innerSelect, 1);
@@ -106,7 +122,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(col0Ref);
       outerSelect.Columns.Add(col4Ref);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col4");
       Assert.That(queryRef.Columns[0], Is.SameAs(col0Ref));
@@ -128,7 +144,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
       outerSelect.Where = queryRef[3] == SqlDml.Literal("test");
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col3");
       AssertSelectColumnCount(innerSelect, 2);
@@ -145,7 +161,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
       outerSelect.OrderBy.Add(queryRef[4]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col4");
       AssertSelectColumnCount(innerSelect, 2);
@@ -162,7 +178,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(SqlDml.Count());
       outerSelect.GroupBy.Add(queryRef[1]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col1");
       AssertSelectColumnCount(innerSelect, 1);
@@ -180,7 +196,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.GroupBy.Add(queryRef[0]);
       outerSelect.Having = SqlDml.Count(queryRef[2]) > SqlDml.Literal(1);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col2");
       AssertSelectColumnCount(innerSelect, 2);
@@ -198,7 +214,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Where = queryRef[1] == SqlDml.Literal("a")
                            & queryRef[3] != SqlDml.Null;
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col1", "Col3");
       AssertSelectColumnCount(innerSelect, 3);
@@ -224,7 +240,7 @@ namespace Xtensive.Orm.Tests.Sql
       caseExpr.Else = queryRef[3];
       outerSelect.Columns.Add(caseExpr);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col1", "Col2", "Col3");
       AssertSelectColumnCount(innerSelect, 3);
@@ -248,7 +264,7 @@ namespace Xtensive.Orm.Tests.Sql
       caseExpr.Else = queryRef[3];
       outerSelect.Columns.Add(caseExpr);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col1", "Col2", "Col3");
       AssertSelectColumnCount(innerSelect, 4);
@@ -264,7 +280,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(SqlDml.Cast(queryRef[2], SqlType.Int32));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col2");
       AssertSelectColumnCount(innerSelect, 1);
@@ -280,7 +296,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(SqlDml.Coalesce(queryRef[1], queryRef[4]));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col1", "Col4");
       AssertSelectColumnCount(innerSelect, 2);
@@ -298,7 +314,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(SqlDml.Sum(queryRef[3]));
       outerSelect.GroupBy.Add(queryRef[1]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col1", "Col3");
       AssertSelectColumnCount(innerSelect, 2);
@@ -315,7 +331,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
       outerSelect.Where = SqlDml.Like(queryRef[1], queryRef[2]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col1", "Col2");
       AssertSelectColumnCount(innerSelect, 3);
@@ -332,7 +348,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
       outerSelect.Where = SqlDml.Between(queryRef[1], queryRef[2], queryRef[3]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col1", "Col2", "Col3");
       AssertSelectColumnCount(innerSelect, 4);
@@ -348,7 +364,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(queryRef[0] + queryRef[3]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col3");
       AssertSelectColumnCount(innerSelect, 2);
@@ -364,7 +380,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(-queryRef[0]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0");
       AssertSelectColumnCount(innerSelect, 1);
@@ -386,7 +402,7 @@ namespace Xtensive.Orm.Tests.Sql
       rn.OrderBy.Add(queryRef[2]);
       outerSelect.Columns.Add(rn);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col2");
       AssertSelectColumnCount(innerSelect, 2);
@@ -412,7 +428,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Where = queryRef[3] > SqlDml.Literal(0);
       outerSelect.OrderBy.Add(queryRef[4]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col1", "Col2", "Col3", "Col4");
       AssertSelectColumnCount(innerSelect, 5);
@@ -435,7 +451,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0] * SqlDml.Literal(2));
       outerSelect.Where = queryRef[3] != SqlDml.Null;
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col1", "Col3");
       AssertSelectColumnCount(innerSelect, 3);
@@ -460,7 +476,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
       outerSelect.Columns.Add(metadataExpr);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col3");
       AssertSelectColumnCount(innerSelect, 2);
@@ -487,7 +503,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
       outerSelect.Columns.Add(metadataExpr);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col2");
       AssertSelectColumnCount(innerSelect, 2);
@@ -518,7 +534,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
       outerSelect.Columns.Add(subquery);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col3");
       AssertSelectColumnCount(innerSelect, 2);
@@ -544,7 +560,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
       outerSelect.Where = SqlDml.Exists(existsSelect);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col4");
       AssertSelectColumnCount(innerSelect, 2);
@@ -581,7 +597,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
       outerSelect.Columns.Add(SqlDml.SubQuery(subOuter));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       // Outer query pruned to Col0, Col3
       AssertColumnNames(queryRef, "Col0", "Col3");
@@ -638,7 +654,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(lRef["Col0"]);
       outerSelect.Columns.Add(SqlDml.SubQuery(subqSelect));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       // Col0 from outer SELECT + join, Col3 and Col4 from deep inside the subquery
       AssertColumnNames(lRef, "Col0", "Col3", "Col4");
@@ -693,7 +709,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(fTable["Col0"]);
       outerSelect.Columns.Add(SqlDml.SubQuery(subqSelect));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       // Col0 from join condition, Col1 from deep inside the subquery — Col2 pruned
       AssertColumnNames(gRef, "Col0", "Col1");
@@ -729,7 +745,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(outerRef[0]);
       outerSelect.Columns.Add(outerRef[2]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(outerRef, "Col0", "Col4");
       AssertSelectColumnCount(middleSelect, 2);
@@ -765,7 +781,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(outerRef);
       outerSelect.Columns.Add(outerRef[0]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       // Outer prunes middle to just Col0
       AssertColumnNames(outerRef, "Col0");
@@ -806,7 +822,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(queryRef[0]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       Assert.That(queryRef.Columns.Count, Is.EqualTo(1));
       Assert.That(selectA.Columns.Count, Is.EqualTo(1));
@@ -827,7 +843,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(queryRef[0]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       Assert.That(queryRef.Columns.Count, Is.EqualTo(5));
       AssertSelectColumnCount(innerSelect, 5);
@@ -859,7 +875,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(queryRef[0]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       // DISTINCT select is NOT pruned (still 3 columns)
       Assert.That(queryRef.Columns.Count, Is.EqualTo(3));
@@ -894,7 +910,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
 
       var originalColumnCount = queryRef.Columns.Count;
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       Assert.That(queryRef.Columns.Count, Is.EqualTo(originalColumnCount));
       Assert.That(selectA.Columns.Count, Is.EqualTo(5));
@@ -908,7 +924,7 @@ namespace Xtensive.Orm.Tests.Sql
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Literal(1));
 
-      Assert.DoesNotThrow(() => SqlColumnPruner.Process(select));
+      Assert.DoesNotThrow(() => RunSelectCorrector(select));
     }
 
     [Test]
@@ -921,7 +937,7 @@ namespace Xtensive.Orm.Tests.Sql
       select.Columns.Add(t[0]);
       select.Columns.Add(t[2]);
 
-      Assert.DoesNotThrow(() => SqlColumnPruner.Process(select));
+      Assert.DoesNotThrow(() => RunSelectCorrector(select));
       Assert.That(select.Columns.Count, Is.EqualTo(2));
     }
 
@@ -962,7 +978,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Where = middleRef["rn"] > SqlDml.Literal(10)
                            & middleRef["rn"] <= SqlDml.Literal(20);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       // Middle should have Col0, Col1, rn (3 cols)
       AssertColumnNames(middleRef, "Col0", "Col1", "rn");
@@ -988,7 +1004,7 @@ namespace Xtensive.Orm.Tests.Sql
         SqlDml.Concat(queryRef[1], SqlDml.Literal(" "), queryRef[2]),
         "FullName");
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col1", "Col2");
       AssertSelectColumnCount(innerSelect, 3);
@@ -1009,7 +1025,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(SqlDml.Max(queryRef[3]));
       outerSelect.GroupBy.Add(queryRef[1]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col1", "Col3");
       AssertSelectColumnCount(innerSelect, 3);
@@ -1047,7 +1063,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(leftRef["Col0"]);
       outerSelect.Columns.Add(rightRef["Name"]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(leftRef, "Col0");
       AssertSelectColumnCount(leftInner, 1);
@@ -1083,7 +1099,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(wrapRef["Col0"]);
       outerSelect.Columns.Add(wrapRef["Name"]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(wrapRef, "Col0", "Name");
       AssertSelectColumnCount(joinSelect, 2);
@@ -1131,7 +1147,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(wrapRef["Col0"]);
       outerSelect.Columns.Add(wrapRef["Name"]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       // Outer wrapper pruned from 6 to 2 columns
       AssertColumnNames(wrapRef, "Col0", "Name");
@@ -1177,7 +1193,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(aRef["Col1"]);
       outerSelect.Columns.Add(bRef["Name"]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       // Col3 preserved because the APPLY subquery references it
       AssertColumnNames(aRef, "Col0", "Col1", "Col3");
@@ -1222,7 +1238,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(bRef["Name"]);
       outerSelect.Columns.Add(cRef["Value"]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       // Col0 from outer SELECT, Col2 from [b]'s WHERE, Col4 from [c]'s WHERE
       AssertColumnNames(aRef, "Col0", "Col2", "Col4");
@@ -1261,7 +1277,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
       outerSelect.Columns.Add(queryRef[2]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       Assert.That(queryRef.Columns.Count, Is.EqualTo(2));
       Assert.That(selectA.Columns.Count, Is.EqualTo(2));
@@ -1293,7 +1309,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
 
       var originalColumnCount = queryRef.Columns.Count;
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       Assert.That(queryRef.Columns.Count, Is.EqualTo(originalColumnCount));
       Assert.That(selectA.Columns.Count, Is.EqualTo(3));
@@ -1340,7 +1356,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(queryRef[0]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       // UNION column list is NOT pruned (still 2 per side)
       Assert.That(queryRef.Columns.Count, Is.EqualTo(2));
@@ -1394,7 +1410,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(queryRef[0]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       Assert.That(queryRef.Columns.Count, Is.EqualTo(1));
       Assert.That(selectA.Columns.Count, Is.EqualTo(1));
@@ -1433,7 +1449,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
 
       var originalColumnCount = queryRef.Columns.Count;
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       Assert.That(queryRef.Columns.Count, Is.EqualTo(originalColumnCount));
       Assert.That(selectA.Columns.Count, Is.EqualTo(3));
@@ -1472,7 +1488,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
 
       var originalColumnCount = queryRef.Columns.Count;
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       Assert.That(queryRef.Columns.Count, Is.EqualTo(originalColumnCount));
       Assert.That(selectA.Columns.Count, Is.EqualTo(3));
@@ -1517,7 +1533,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(dRef["Col0"]);
       outerSelect.Columns.Add(iRef["Id"]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       // Col3 preserved because it's referenced deep inside the APPLY
       AssertColumnNames(dRef, "Col0", "Col3");
@@ -1569,7 +1585,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(bRef["Name"]);
       outerSelect.Columns.Add(iRef["Id"]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       // Col0 from outer SELECT, Col2 from [b]'s WHERE, Col4 from deep inside [i]
       AssertColumnNames(dRef, "Col0", "Col2", "Col4");
@@ -1592,7 +1608,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(SqlDml.Trim(queryRef[1]));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col1");
       AssertSelectColumnCount(innerSelect, 1);
@@ -1610,7 +1626,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(SqlDml.Extract(SqlDateTimePart.Year, queryRef[0]));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0");
       AssertSelectColumnCount(innerSelect, 1);
@@ -1630,7 +1646,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(
         SqlDml.Round(queryRef[0], queryRef[3], TypeCode.Decimal, MidpointRounding.AwayFromZero));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col3");
       AssertSelectColumnCount(innerSelect, 2);
@@ -1652,7 +1668,7 @@ namespace Xtensive.Orm.Tests.Sql
         var outerSelect = SqlDml.Select(queryRef);
         outerSelect.Columns.Add(SqlDml.Collate(queryRef[1], collation));
 
-        SqlColumnPruner.Process(outerSelect);
+        RunSelectCorrector(outerSelect);
 
         AssertColumnNames(queryRef, "Col1");
         AssertSelectColumnCount(innerSelect, 1);
@@ -1675,7 +1691,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(SqlDml.Variant("v1", queryRef[1], queryRef[3]));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col1", "Col3");
       AssertSelectColumnCount(innerSelect, 2);
@@ -1697,7 +1713,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
       outerSelect.Where = SqlDml.DynamicFilter("df1", new SqlExpression[] { queryRef[2], queryRef[4] });
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col2", "Col4");
       AssertSelectColumnCount(innerSelect, 3);
@@ -1716,7 +1732,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(SqlDml.ColumnStub(queryRef[2]));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col2");
       AssertSelectColumnCount(innerSelect, 1);
@@ -1738,7 +1754,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
       outerSelect.Where = SqlDml.In(queryRef[3], SqlDml.Row(queryRef[1], queryRef[4]));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col1", "Col3", "Col4");
       AssertSelectColumnCount(innerSelect, 4);
@@ -1760,7 +1776,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
       outerSelect.Where = SqlDml.Like(queryRef[1], queryRef[2], queryRef[3]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col1", "Col2", "Col3");
       AssertSelectColumnCount(innerSelect, 4);
@@ -1779,7 +1795,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(SqlDml.Column(queryRef[3] + queryRef[4]));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col3", "Col4");
       AssertSelectColumnCount(innerSelect, 2);
@@ -1818,7 +1834,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(t1);
       outerSelect.Columns.Add(caseExpr);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(subRef, "Id");
       AssertSelectColumnCount(subInner, 1);
@@ -1847,7 +1863,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(t1);
       outerSelect.Columns.Add(SqlDml.Cast(SqlDml.SubQuery(subOuter), SqlType.Int32));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(subRef, "Id");
       AssertSelectColumnCount(subInner, 1);
@@ -1879,7 +1895,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(
         SqlDml.Coalesce(SqlDml.SubQuery(subOuter), SqlDml.Literal("default")));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(subRef, "Name");
       AssertSelectColumnCount(subInner, 1);
@@ -1908,7 +1924,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(t1);
       outerSelect.Columns.Add(SqlDml.Column(SqlDml.SubQuery(subOuter)));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(subRef, "Value");
       AssertSelectColumnCount(subInner, 1);
@@ -1938,7 +1954,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(t1["Col0"]);
       outerSelect.Where = SqlDml.Like(t1["Col1"], SqlDml.SubQuery(subOuter));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(subRef, "Name");
       AssertSelectColumnCount(subInner, 1);
@@ -1968,7 +1984,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(t1["Col0"]);
       outerSelect.Where = SqlDml.Between(t1["Col0"], SqlDml.SubQuery(subOuter), SqlDml.Literal(100));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(subRef, "Id");
       AssertSelectColumnCount(subInner, 1);
@@ -1997,7 +2013,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(t1);
       outerSelect.Columns.Add(SqlDml.Trim(SqlDml.SubQuery(subOuter)));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(subRef, "Name");
       AssertSelectColumnCount(subInner, 1);
@@ -2026,7 +2042,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(t1);
       outerSelect.Columns.Add(SqlDml.Extract(SqlDateTimePart.Year, SqlDml.SubQuery(subOuter)));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(subRef, "Id");
       AssertSelectColumnCount(subInner, 1);
@@ -2058,7 +2074,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(
         SqlDml.Variant("v1", SqlDml.SubQuery(subOuter), SqlDml.Literal("fallback")));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(subRef, "Name");
       AssertSelectColumnCount(subInner, 1);
@@ -2092,7 +2108,7 @@ namespace Xtensive.Orm.Tests.Sql
       rn.OrderBy.Add(SqlDml.SubQuery(subOuter));
       outerSelect.Columns.Add(rn);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(subRef, "Id");
       AssertSelectColumnCount(subInner, 1);
@@ -2123,7 +2139,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(t1);
       outerSelect.Columns.Add(SqlDml.Metadata(SqlDml.SubQuery(subOuter), new object()));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(subRef, "Value");
       AssertSelectColumnCount(subInner, 1);
@@ -2160,7 +2176,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.GroupBy.Add(t1["Col0"]);
       outerSelect.Having = SqlDml.Count() > SqlDml.SubQuery(subOuter);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(subRef, "Id");
       AssertSelectColumnCount(subInner, 1);
@@ -2190,7 +2206,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(t1["Col0"]);
       outerSelect.OrderBy.Add(SqlDml.SubQuery(subOuter));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(subRef, "Name");
       AssertSelectColumnCount(subInner, 1);
@@ -2220,7 +2236,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(t1["Col0"]);
       outerSelect.GroupBy.Add(SqlDml.SubQuery(subOuter));
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(subRef, "Id");
       AssertSelectColumnCount(subInner, 1);
@@ -2273,10 +2289,57 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(dRef["Col0"]);
       outerSelect.Columns.Add(iRef["Id"]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(dRef, "Col0", "Col3", "Col4");
       AssertSelectColumnCount(innerD, 3);
+    }
+
+    [Test]
+    public void CorrelatedReferenceInsideUnionWrappedInScalarSubQueryPreservesColumns()
+    {
+      // Variant of CorrelatedReferenceInsideUnionSiblingPreservesColumns where
+      // the UNION is the body of a scalar SqlSubQuery expression instead of a
+      // SqlQueryRef in the FROM clause. This exercises the SqlSubQuery dispatch
+      // arm of CollectUsedColumns, whose .Query may be either SqlSelect or
+      // SqlQueryExpression; only the SqlSelect arm is currently handled, so the
+      // correlated references inside the union sides are silently invisible to
+      // the collector and Col3/Col4 get incorrectly pruned away.
+      // Before: SELECT a.Col0,
+      //                (SELECT t2L.Id FROM table2 t2L WHERE t2L.Id = a.Col3
+      //                 UNION ALL
+      //                 SELECT t2R.Id FROM table2 t2R WHERE t2R.Id = a.Col4)
+      //         FROM (SELECT t1.Col0, t1.Col1, t1.Col2, t1.Col3, t1.Col4 FROM table1 t1) a
+      // After:  SELECT a.Col0, (...)
+      //         FROM (SELECT t1.Col0, t1.Col3, t1.Col4 FROM table1 t1) a
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var innerA = SqlDml.Select(t1);
+      for (int i = 0; i < t1.Columns.Count; i++) {
+        innerA.Columns.Add(t1[i]);
+      }
+      var aRef = SqlDml.QueryRef(innerA, "a");
+
+      var t2L = SqlDml.TableRef(table2, "t2L");
+      var unionLeft = SqlDml.Select(t2L);
+      unionLeft.Columns.Add(t2L["Id"]);
+      unionLeft.Where = t2L["Id"] == aRef["Col3"];
+
+      var t2R = SqlDml.TableRef(table2, "t2R");
+      var unionRight = SqlDml.Select(t2R);
+      unionRight.Columns.Add(t2R["Id"]);
+      unionRight.Where = t2R["Id"] == aRef["Col4"];
+
+      var union = unionLeft.UnionAll(unionRight);
+      var scalarSub = SqlDml.SubQuery(union);
+
+      var outerSelect = SqlDml.Select(aRef);
+      outerSelect.Columns.Add(aRef["Col0"]);
+      outerSelect.Columns.Add(scalarSub);
+
+      RunSelectCorrector(outerSelect);
+
+      AssertColumnNames(aRef, "Col0", "Col3", "Col4");
+      AssertSelectColumnCount(innerA, 3);
     }
 
     [Test]
@@ -2313,7 +2376,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(dRef["Col0"]);
       outerSelect.Columns.Add(iRef["Name"]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(dRef, "Col0", "Col2");
       AssertSelectColumnCount(innerD, 2);
@@ -2352,7 +2415,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(queryRef[0]);
 
       var originalColumnCount = queryRef.Columns.Count;
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       Assert.That(queryRef.Columns.Count, Is.EqualTo(originalColumnCount));
       Assert.That(selectA.Columns.Count, Is.EqualTo(3));
@@ -2378,7 +2441,7 @@ namespace Xtensive.Orm.Tests.Sql
       outerSelect.Columns.Add(sharedExpr);
       outerSelect.Where = sharedExpr > SqlDml.Literal(0);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       AssertColumnNames(queryRef, "Col0", "Col2");
       AssertSelectColumnCount(innerSelect, 2);
@@ -2426,7 +2489,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(queryRef[0]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       // INTERSECT not pruned — still 2 columns per side
       Assert.That(queryRef.Columns.Count, Is.EqualTo(2));
@@ -2451,7 +2514,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(SqlDml.Literal(1));
 
-      Assert.DoesNotThrow(() => SqlColumnPruner.Process(outerSelect));
+      Assert.DoesNotThrow(() => RunSelectCorrector(outerSelect));
     }
 
     [Test]
@@ -2462,7 +2525,7 @@ namespace Xtensive.Orm.Tests.Sql
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Literal(42));
 
-      Assert.DoesNotThrow(() => SqlColumnPruner.Process(select));
+      Assert.DoesNotThrow(() => RunSelectCorrector(select));
     }
 
     [Test]
@@ -2521,7 +2584,7 @@ namespace Xtensive.Orm.Tests.Sql
       var outerSelect = SqlDml.Select(queryRef);
       outerSelect.Columns.Add(queryRef[0]);
 
-      SqlColumnPruner.Process(outerSelect);
+      RunSelectCorrector(outerSelect);
 
       // Inner subqueries pruned from 3 to 1 (only Col0 needed)
       AssertColumnNames(aRef, "Col0");
@@ -2530,6 +2593,186 @@ namespace Xtensive.Orm.Tests.Sql
       AssertSelectColumnCount(innerB, 1);
       AssertColumnNames(cRef, "Col0");
       AssertSelectColumnCount(innerC, 1);
+    }
+
+    #endregion
+
+    #region Regressions for issues discovered during the SqlColumnPruner / SqlSelectProcessor merge
+
+    [Test]
+    public void NullWhereClauseDoesNotDisablePruning()
+    {
+      // Before: SELECT q.Col0, q.Col2
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      //         /* no WHERE clause */
+      // After:  SELECT q.Col0, q.Col2
+      //         FROM (SELECT t.Col0, t.Col2 FROM table1 t) q
+      //
+      // Regression: in the original SqlColumnPruner, the guard against null clauses
+      // used `if (expr == null) return;`. SqlExpression overloads `operator ==` to
+      // construct a SqlBinary (returning a non-null reference) and `operator true`
+      // returns false, so `if (expr == null)` never enters the body — `expr` then
+      // falls through to the switch statement's `default` branch, which conservatively
+      // marks all target-table columns as used. The net effect: any SqlSelect whose
+      // Where clause was null disabled pruning of its FROM source.
+      //
+      // The fix replaces `== null` with `is null`, which is a true reference null
+      // check that cannot be intercepted by user-defined operators.
+      //
+      // This test pins the correct behavior: when Where is null and only Col0/Col2
+      // are referenced in the SELECT list, the inner subquery must be pruned to
+      // those two columns.
+      var innerSelect = CreateInnerSelect();
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+      outerSelect.Columns.Add(queryRef[2]);
+
+      Assert.That(outerSelect.Where, Is.Null,
+        "Test precondition: outer SELECT must have a null Where clause to exercise the regression.");
+
+      RunSelectCorrector(outerSelect);
+
+      AssertColumnNames(queryRef, "Col0", "Col2");
+      AssertSelectColumnCount(innerSelect, 2);
+    }
+
+    [Test]
+    public void NullHavingClauseDoesNotDisablePruning()
+    {
+      // Before: SELECT COUNT(*)
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      //         GROUP BY q.Col1
+      //         /* no HAVING clause */
+      // After:  SELECT COUNT(*)
+      //         FROM (SELECT t.Col1 FROM table1 t) q
+      //         GROUP BY q.Col1
+      //
+      // Companion regression to NullWhereClauseDoesNotDisablePruning — the same
+      // faulty null-check also affected the Having clause path. With Having=null
+      // and only Col1 referenced (in GROUP BY), the inner subquery must still be
+      // pruned to one column.
+      var innerSelect = CreateInnerSelect();
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(SqlDml.Count());
+      outerSelect.GroupBy.Add(queryRef[1]);
+
+      Assert.That(outerSelect.Having, Is.Null,
+        "Test precondition: outer SELECT must have a null Having clause to exercise the regression.");
+
+      RunSelectCorrector(outerSelect);
+
+      AssertColumnNames(queryRef, "Col1");
+      AssertSelectColumnCount(innerSelect, 1);
+    }
+
+    [Test]
+    public void NullOrderByExpressionDoesNotDisablePruning()
+    {
+      // Before: SELECT q.Col0
+      //         FROM (SELECT t.Col0, t.Col1, t.Col2, t.Col3, t.Col4 FROM table1 t) q
+      //         ORDER BY q.Col3
+      //         /* no WHERE / HAVING clauses; ORDER BY entries with null Expression
+      //            are tolerated by the same `is null` guard */
+      // After:  SELECT q.Col0
+      //         FROM (SELECT t.Col0, t.Col3 FROM table1 t) q
+      //         ORDER BY q.Col3
+      //
+      // SqlOrder.Expression can in principle be null (defensive coverage of the
+      // same `is null` guard exercised inside CollectUsedColumns). The pruner
+      // must continue scanning sibling order-by entries and other clauses
+      // without bailing out or marking all columns as used.
+      var innerSelect = CreateInnerSelect();
+      var queryRef = SqlDml.QueryRef(innerSelect, "q");
+      var outerSelect = SqlDml.Select(queryRef);
+      outerSelect.Columns.Add(queryRef[0]);
+      outerSelect.OrderBy.Add(queryRef[3]);
+
+      RunSelectCorrector(outerSelect);
+
+      AssertColumnNames(queryRef, "Col0", "Col3");
+      AssertSelectColumnCount(innerSelect, 2);
+    }
+
+    [Test]
+    public void SubqueryInsideVariantAlternativeBranchIsPruned()
+    {
+      // Before: SELECT VARIANT(
+      //                  'primary',
+      //                  (SELECT s.Value FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s))
+      //         FROM table1 t1
+      // After:  SELECT VARIANT(
+      //                  'primary',
+      //                  (SELECT s.Value FROM (SELECT t2.Value FROM table2 t2) s))
+      //         FROM table1 t1
+      //
+      // Regression: Visit(SqlVariant) in SqlSelectProcessor used to be an empty
+      // method, so subqueries embedded in either branch of a SqlVariant were
+      // never visited and therefore never pruned. The fix routes the visitor
+      // into both Main and Alternative.
+      //
+      // SubqueryInsideVariantIsPruned already covers the Main branch; this test
+      // pins the Alternative branch independently (subquery in Alternative,
+      // literal in Main) so a future regression affecting only one side cannot
+      // slip through.
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Value"]);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(
+        SqlDml.Variant("v1", SqlDml.Literal("primary"), SqlDml.SubQuery(subOuter)));
+
+      RunSelectCorrector(outerSelect);
+
+      AssertColumnNames(subRef, "Value");
+      AssertSelectColumnCount(subInner, 1);
+    }
+
+    [Test]
+    public void SubqueryInsideCaseWhenConditionIsPruned()
+    {
+      // Regression: Visit(SqlCase) in SqlSelectProcessor used to visit only Value
+      // and Else, skipping the When/Then key/value pairs entirely. A subquery
+      // embedded in a WHEN condition (the key) therefore was never visited and
+      // never pruned. The fix iterates over the case's key/value pairs as well.
+      //
+      // Before: SELECT CASE WHEN
+      //                  (SELECT s.Id FROM (SELECT t2.Id, t2.Name, t2.Value FROM table2 t2) s)
+      //                  IS NOT NULL THEN 1 ELSE 0 END
+      //         FROM table1 t1
+      // After:  SELECT CASE WHEN
+      //                  (SELECT s.Id FROM (SELECT t2.Id FROM table2 t2) s)
+      //                  IS NOT NULL THEN 1 ELSE 0 END
+      //         FROM table1 t1
+      var t2 = SqlDml.TableRef(table2, "t2");
+      var subInner = SqlDml.Select(t2);
+      subInner.Columns.Add(t2["Id"]);
+      subInner.Columns.Add(t2["Name"]);
+      subInner.Columns.Add(t2["Value"]);
+      var subRef = SqlDml.QueryRef(subInner, "s");
+      var subOuter = SqlDml.Select(subRef);
+      subOuter.Columns.Add(subRef["Id"]);
+
+      var caseExpr = SqlDml.Case();
+      caseExpr[SqlDml.IsNotNull(SqlDml.SubQuery(subOuter))] = SqlDml.Literal(1);
+      caseExpr.Else = SqlDml.Literal(0);
+
+      var t1 = SqlDml.TableRef(table1, "t1");
+      var outerSelect = SqlDml.Select(t1);
+      outerSelect.Columns.Add(caseExpr);
+
+      RunSelectCorrector(outerSelect);
+
+      AssertColumnNames(subRef, "Id");
+      AssertSelectColumnCount(subInner, 1);
     }
 
     #endregion
@@ -2544,6 +2787,20 @@ namespace Xtensive.Orm.Tests.Sql
         select.Columns.Add(t[i]);
       }
       return select;
+    }
+
+    /// <summary>
+    /// Runs the production post-compilation pipeline through
+    /// <see cref="SqlSelectCorrector"/>, the same entry point production code
+    /// reaches via <see cref="IPostCompiler"/>. Tests deliberately go through
+    /// the corrector rather than its inner mechanics so that internal
+    /// refactorings (e.g. moving column pruning between <c>SqlSelectProcessor</c>
+    /// and <c>SqlColumnPruner</c>) do not break the suite — only end-to-end
+    /// pruning behavior is asserted.
+    /// </summary>
+    private void RunSelectCorrector(SqlSelect rootSelect)
+    {
+      new SqlSelectCorrector(providerInfo).Process(rootSelect);
     }
 
     private static void AssertColumnNames(SqlQueryRef queryRef, params string[] expectedNames)
