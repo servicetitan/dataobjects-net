@@ -282,14 +282,18 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlFunctionCall node)
     {
-      foreach (var argument in node.Arguments)
-        Visit(argument);
+      // Indexed for over Arguments (typed as IReadOnlyList<SqlExpression>) avoids the boxed
+      // IEnumerator<T> allocation that 'foreach' would create on every function-call visit.
+      var args = node.Arguments;
+      for (int i = 0, n = args.Count; i < n; i++)
+        Visit(args[i]);
     }
 
     public void Visit(SqlCustomFunctionCall node)
     {
-      foreach (var argument in node.Arguments)
-        Visit(argument);
+      var args = node.Arguments;
+      for (int i = 0, n = args.Count; i < n; i++)
+        Visit(args[i]);
     }
 
     public void Visit(SqlIf node)
@@ -439,18 +443,25 @@ namespace Xtensive.Orm.Providers
     {
       foreach (var column in node.Columns)
         Visit(column);
-      foreach (var column in node.GroupByReadOnly)
-        Visit(column);
-      foreach (var column in node.OrderByReadOnly)
-        Visit(column);
+      // GroupByReadOnly / OrderByReadOnly / Hints are typed as IReadOnlyList<T>; foreach over
+      // those would allocate a boxed enumerator on every Visit(SqlSelect) — a hot per-statement
+      // hub. Indexed for keeps the iteration on the stack with zero allocations and routes to
+      // Array.Empty<T>'s cheap Count/this[] when the property is empty (the common case).
+      var groupBy = node.GroupByReadOnly;
+      for (int i = 0, n = groupBy.Count; i < n; i++)
+        Visit(groupBy[i]);
+      var orderBy = node.OrderByReadOnly;
+      for (int i = 0, n = orderBy.Count; i < n; i++)
+        Visit(orderBy[i]);
       if (node.From != null)
         Visit(node.From);
       VisitNullable(node.Having);
       VisitNullable(node.Limit);
       VisitNullable(node.Offset);
       VisitNullable(node.Where);
-      foreach (var hint in node.Hints)
-        Visit(hint);
+      var hints = node.Hints;
+      for (int i = 0, n = hints.Count; i < n; i++)
+        Visit(hints[i]);
 
       if (node.Columns.Count==0)
         node.Columns.Add(SqlDml.Null, "NULL");
@@ -500,8 +511,9 @@ namespace Xtensive.Orm.Providers
       VisitNullable(node.Where);
       foreach (var value in node.Values.Values)
         Visit(value);
-      foreach (var hint in node.Hints)
-        Visit(hint);
+      var hints = node.Hints;
+      for (int i = 0, n = hints.Count; i < n; i++)
+        Visit(hints[i]);
     }
 
     public void Visit(SqlUserColumn node)
@@ -511,8 +523,9 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlUserFunctionCall node)
     {
-      foreach (var argument in node.Arguments)
-        Visit(argument);
+      var args = node.Arguments;
+      for (int i = 0, n = args.Count; i < n; i++)
+        Visit(args[i]);
     }
 
     public void Visit(SqlDeclareVariable node)

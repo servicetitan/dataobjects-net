@@ -24,11 +24,16 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     public int Count => columnList.Count;
 
-    /// <inheritdoc cref="IEnumerable.GetEnumerator"/>>
-    IEnumerator IEnumerable.GetEnumerator() => columnList.GetEnumerator();
+    // Public 'GetEnumerator' returning a custom struct enumerator. The C# foreach pattern
+    // binds to this method (not the explicit IEnumerable<T> implementation), so iterating
+    // this collection costs zero heap allocations even though the backing field is typed
+    // as IReadOnlyList<T> (which itself only exposes a boxed enumerator). This collection
+    // is hot — every SQL table reference walks its columns during compile / pruning.
+    public Enumerator GetEnumerator() => new(columnList);
 
-    /// <inheritdoc cref="IEnumerable{T}.GetEnumerator"/>>
-    IEnumerator<SqlTableColumn> IEnumerable<SqlTableColumn>.GetEnumerator() => columnList.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    IEnumerator<SqlTableColumn> IEnumerable<SqlTableColumn>.GetEnumerator() => GetEnumerator();
 
     /// <summary>
     /// Gets the column at the specified <paramref name="index"/>.
@@ -54,7 +59,12 @@ namespace Xtensive.Sql.Dml
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SqlTableColumn FindColumnInList(string name)
     {
-      foreach (var column in columnList) {
+      // Indexed loop instead of foreach to avoid the boxed IEnumerator<T> from columnList
+      // (typed as IReadOnlyList<T>). This is the small-collection branch of the column lookup
+      // and the hottest path through SqlTableRef[name] / SqlQueryRef[name].
+      var list = columnList;
+      for (int i = 0, n = list.Count; i < n; i++) {
+        var column = list[i];
         if (Comparer.Equals(column.Name, name)) {
           return column;
         }
@@ -100,6 +110,50 @@ namespace Xtensive.Sql.Dml
     internal SqlTableColumnCollection(IReadOnlyList<SqlTableColumn> columns)
     {
       columnList = columns;
+    }
+
+    /// <summary>
+    /// Struct enumerator over <see cref="SqlTableColumnCollection"/>. Lives on the stack
+    /// and indexes the underlying read-only list directly, so 'foreach' over the parent
+    /// collection performs zero heap allocations.
+    /// </summary>
+    public struct Enumerator : IEnumerator<SqlTableColumn>
+    {
+      private readonly IReadOnlyList<SqlTableColumn> list;
+      private readonly int count;
+      private int index;
+      private SqlTableColumn current;
+
+      internal Enumerator(IReadOnlyList<SqlTableColumn> list)
+      {
+        this.list = list;
+        count = list.Count;
+        index = 0;
+        current = null;
+      }
+
+      public readonly SqlTableColumn Current => current;
+
+      readonly object IEnumerator.Current => current;
+
+      public bool MoveNext()
+      {
+        if (index < count) {
+          current = list[index++];
+          return true;
+        }
+
+        current = null;
+        return false;
+      }
+
+      void IEnumerator.Reset()
+      {
+        index = 0;
+        current = null;
+      }
+
+      public readonly void Dispose() { }
     }
   }
 }

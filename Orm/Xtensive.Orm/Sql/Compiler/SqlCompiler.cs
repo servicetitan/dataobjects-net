@@ -1197,10 +1197,14 @@ namespace Xtensive.Sql.Compiler
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
 
-        if (node.Arguments.Count > 0) {
+        var args = node.Arguments;
+        var argCount = args.Count;
+        if (argCount > 0) {
           using (context.EnterCollectionScope()) {
-            var argumentPosition = 0;
-            foreach (var item in node.Arguments) {
+            // Indexed for over Arguments (IReadOnlyList<SqlExpression>) — avoids the
+            // per-call boxed enumerator on every visited SQL function call.
+            for (var argumentPosition = 0; argumentPosition < argCount; argumentPosition++) {
+              var item = args[argumentPosition];
               AppendCollectionDelimiterIfNecessary(() => AppendTranslated(node, FunctionCallSection.ArgumentDelimiter, argumentPosition));
               AppendSpaceIfNecessary();
               translator.Translate(context, node, FunctionCallSection.ArgumentEntry, argumentPosition);
@@ -1208,7 +1212,6 @@ namespace Xtensive.Sql.Compiler
               item.AcceptVisitor(this);
               AppendSpaceIfNecessary();
               translator.Translate(context, node, FunctionCallSection.ArgumentExit, argumentPosition);
-              argumentPosition++;
             }
           }
         }
@@ -1687,13 +1690,18 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     protected virtual void VisitSelectGroupBy(SqlSelect node)
     {
-      if (node.GroupByReadOnly.Count <= 0) {
+      var groupBy = node.GroupByReadOnly;
+      var count = groupBy.Count;
+      if (count <= 0) {
         return;
       }
       // group by
       translator.SelectGroupBy(context, node);
       using (context.EnterCollectionScope()) {
-        foreach (var item in node.GroupByReadOnly) {
+        // Indexed for over GroupByReadOnly (IReadOnlyList<SqlColumn>) avoids the boxed
+        // IEnumerator<T> that 'foreach' would allocate once per visited SELECT.
+        for (var i = 0; i < count; i++) {
+          var item = groupBy[i];
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           var cr = item as SqlColumnRef;
           if (cr is not null) {
@@ -1718,13 +1726,16 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     protected virtual void VisitSelectOrderBy(SqlSelect node)
     {
-      if (node.OrderByReadOnly.Count <= 0) {
+      var orderBy = node.OrderByReadOnly;
+      var count = orderBy.Count;
+      if (count <= 0) {
         return;
       }
 
       translator.SelectOrderBy(context, node);
       using (context.EnterCollectionScope()) {
-        foreach (var item in node.OrderByReadOnly) {
+        for (var i = 0; i < count; i++) {
+          var item = orderBy[i];
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           item.AcceptVisitor(this);
         }
@@ -1993,10 +2004,13 @@ namespace Xtensive.Sql.Compiler
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
 
-        if (node.Arguments.Count > 0) {
+        var args = node.Arguments;
+        var argCount = args.Count;
+        if (argCount > 0) {
           using (context.EnterCollectionScope()) {
             var argumentPosition = 0;
-            foreach (var item in node.Arguments) {
+            for (var i = 0; i < argCount; i++) {
+              var item = args[i];
               AppendCollectionDelimiterIfNecessary(() => AppendTranslated(node, FunctionCallSection.ArgumentDelimiter, argumentPosition++));
               item.AcceptVisitor(this);
             }

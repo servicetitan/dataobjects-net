@@ -66,7 +66,10 @@ namespace Xtensive.Sql.Dml.Collections
           //re-arrange values to be the same order
           //and also make sure all columns exist
           var rowList = new List<SqlExpression>(columns.Count);
-          foreach (var column in columns) {
+          // Indexed for over the IReadOnlyList<SqlColumn> field — foreach would allocate
+          // a boxed enumerator on every multi-row INSERT add.
+          for (int i = 0, n = columns.Count; i < n; i++) {
+            var column = columns[i];
             if (row.TryGetValue(column, out var value)) {
               rowList.Add(value);
             }
@@ -101,10 +104,14 @@ namespace Xtensive.Sql.Dml.Collections
       columns = null;
     }
 
-    /// <inheritdoc/>
-    public IEnumerator<SqlRow> GetEnumerator() => rows.GetEnumerator();
+    // Returns the concrete List<T>.Enumerator struct so 'foreach (var row in coll)' resolves
+    // to this method via the C# foreach pattern and avoids the boxed IEnumerator<T> allocation.
+    // Iteration on this collection happens once per row written by an INSERT, so the saving
+    // is one heap object per compile of every batched INSERT statement.
+    public List<SqlRow>.Enumerator GetEnumerator() => rows.GetEnumerator();
 
-    /// <inheritdoc/>
+    IEnumerator<SqlRow> IEnumerable<SqlRow>.GetEnumerator() => GetEnumerator();
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     internal SqlInsertValuesCollection Clone(SqlNodeCloneContext ctx)
@@ -116,8 +123,8 @@ namespace Xtensive.Sql.Dml.Collections
       }
 
       var clonedList = new List<SqlColumn>(columns.Count);
-      foreach (var oldColumn in columns) {
-        clonedList.Add((SqlColumn) ctx.NodeMapping[oldColumn]);
+      for (int i = 0, n = columns.Count; i < n; i++) {
+        clonedList.Add((SqlColumn) ctx.NodeMapping[columns[i]]);
       }
       clone.columns = clonedList;
 

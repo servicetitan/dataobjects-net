@@ -72,7 +72,12 @@ namespace Xtensive.Sql.Dml
     /// <value>The collection of columns.</value>
     public SqlColumnCollection GroupBy => groupBy ??= new();
 
-    public IReadOnlyList<SqlColumn> GroupByReadOnly => groupBy ??= [];
+    // Use '??' (not '??=') so the '[]' literal target-types to the property's
+    // IReadOnlyList<SqlColumn> return type and lowers to Array.Empty<SqlColumn>()
+    // — a JIT-inlined static singleton with zero allocation. With '??=' the
+    // literal would target-type to the field's concrete SqlColumnCollection
+    // and allocate a real instance on every first read of an empty SELECT.
+    public IReadOnlyList<SqlColumn> GroupByReadOnly => groupBy ?? [];
 
     /// <summary>
     /// Gets or sets the having clause.
@@ -94,7 +99,7 @@ namespace Xtensive.Sql.Dml
     /// <value>The order by clause.</value>
     public SqlOrderCollection OrderBy => orderBy ??= new();
 
-    public IReadOnlyList<SqlOrder> OrderByReadOnly => orderBy ??= [];
+    public IReadOnlyList<SqlOrder> OrderByReadOnly => orderBy ?? [];
 
     /// <summary>
     /// Gets or sets a value indicating whether this <see cref="SqlSelect"/> is distinct.
@@ -168,9 +173,12 @@ namespace Xtensive.Sql.Dml
         clone.Lock = t.Lock;
         clone.Comment = t.Comment?.Clone(c);
 
-        if (t.Hints.Count > 0)
-          foreach (SqlHint hint in t.Hints)
-            clone.AddHint(hint.Clone(c));
+        // Indexed for over Hints (typed as IReadOnlyList<SqlHint>) — foreach would allocate
+        // a boxed enumerator; clones are taken on every cached-corrector lookup, so this
+        // matters at warm steady state.
+        var hints = t.Hints;
+        for (int i = 0, n = hints.Count; i < n; i++)
+          clone.AddHint(hints[i].Clone(c));
 
         return clone;
       });
@@ -185,14 +193,27 @@ namespace Xtensive.Sql.Dml
         : SqlDml.Select(From);
       result.Columns.AddRange(Columns);
       result.Distinct = Distinct;
-      result.GroupBy.AddRange(GroupByReadOnly);
+      // Skip the GroupBy/OrderBy copy entirely when the source has no entries. The getters
+      // are 'groupBy/orderBy ??= new()', so even an empty AddRange would allocate a fresh
+      // SqlColumnCollection / SqlOrderCollection on the clone — wasted for the common case
+      // of SELECTs without GROUP BY / ORDER BY. When the source is non-empty, AddRange is
+      // preferred over a per-element loop because List<T>.AddRange takes the ICollection<T>
+      // fast path: it pre-sizes capacity once and bulk-copies, avoiding per-Add capacity
+      // checks and a possible array regrow.
+      if (groupBy is { Count: > 0 } gb)
+        result.GroupBy.AddRange(gb);
       result.Having = Having;
       result.Offset = Offset;
       result.Limit = Limit;
-      foreach (var order in OrderByReadOnly)
-        result.OrderBy.Add(order);
-      foreach (var hint in Hints)
-        result.AddHint(hint);
+      if (orderBy is { Count: > 0 } ob)
+        result.OrderBy.AddRange(ob);
+      // Hints has no bulk-add API ('AddHint' is the only mutator) and the field is private
+      // to SqlQueryStatement. Indexed for over the IReadOnlyList<T> property avoids a boxed
+      // enumerator and, when the source is empty, performs zero allocations because
+      // result.AddHint is never reached.
+      var hints = Hints;
+      for (int i = 0, n = hints.Count; i < n; i++)
+        result.AddHint(hints[i]);
       result.Where = Where;
       result.Lock = Lock;
       result.Comment = Comment;
