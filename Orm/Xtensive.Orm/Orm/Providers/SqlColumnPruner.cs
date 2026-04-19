@@ -416,6 +416,7 @@ namespace Xtensive.Orm.Providers
         // Leaf nodes — no column references to collect.
         case SqlNull:
         case SqlLiteral:
+        case SqlArray:
         case SqlParameterRef:
         case SqlNative:
         case SqlPlaceholder:
