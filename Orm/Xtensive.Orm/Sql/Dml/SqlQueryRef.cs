@@ -33,6 +33,65 @@ namespace Xtensive.Sql.Dml
       visitor.Visit(this);
     }
 
+    internal void PruneColumns(List<int> indicesToKeep)
+    {
+      if (query is SqlSelect innerSelect && !innerSelect.Distinct) {
+        PruneSelectColumns(innerSelect.Columns, indicesToKeep);
+      }
+      else if (query is SqlQueryExpression queryExpression && IsUnionAllTree(queryExpression)) {
+        PruneQueryExpressionColumns(queryExpression, indicesToKeep);
+      }
+      else {
+        return;
+      }
+
+      var newQueryColumns = new List<SqlTableColumn>(indicesToKeep.Count);
+      foreach (var idx in indicesToKeep) {
+        newQueryColumns.Add(columns[idx]);
+      }
+      columns = new SqlTableColumnCollection(newQueryColumns);
+    }
+
+    private static void PruneSelectColumns(SqlColumnCollection selectColumns, List<int> indicesToKeep)
+    {
+      var keptColumns = new List<SqlColumn>(indicesToKeep.Count);
+      foreach (var idx in indicesToKeep) {
+        keptColumns.Add(selectColumns[idx]);
+      }
+      selectColumns.Clear();
+      selectColumns.AddRange(keptColumns);
+    }
+
+    private static bool IsUnionAllTree(SqlQueryExpression expr)
+    {
+      if (expr.NodeType != SqlNodeType.Union || !expr.All) {
+        return false;
+      }
+      if (expr.Left is SqlQueryExpression leftExpr && !IsUnionAllTree(leftExpr)) {
+        return false;
+      }
+      if (expr.Right is SqlQueryExpression rightExpr && !IsUnionAllTree(rightExpr)) {
+        return false;
+      }
+      return true;
+    }
+
+    private static void PruneQueryExpressionColumns(SqlQueryExpression expr, List<int> indicesToKeep)
+    {
+      PruneQueryExpressionSide(expr.Left, indicesToKeep);
+      PruneQueryExpressionSide(expr.Right, indicesToKeep);
+    }
+
+    private static void PruneQueryExpressionSide(ISqlQueryExpression side, List<int> indicesToKeep)
+    {
+      if (side is SqlSelect select) {
+        PruneSelectColumns(select.Columns, indicesToKeep);
+      }
+      else if (side is SqlQueryExpression nested) {
+        PruneQueryExpressionColumns(nested, indicesToKeep);
+      }
+    }
+
     internal SqlQueryRef(ISqlQueryExpression query)
       : this(query, string.Empty)
     {
