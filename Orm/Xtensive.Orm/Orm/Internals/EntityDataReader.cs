@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Internals
     private readonly record struct CacheItem
     (
       RecordSetHeader Header,
-      IReadOnlyList<RecordPartMapping> Mappings
+      RecordPartMapping[] Mappings
     );
 
     private readonly ICache<RecordSetHeader, CacheItem> cache;
@@ -68,15 +68,17 @@ namespace Xtensive.Orm.Internals
       return source.Select(tuple => ParseRow(tuple, context, cacheItem.Mappings));
     }
 
-    private Record ParseRow(Tuple tuple, MaterializationContext context, IReadOnlyList<RecordPartMapping> recordPartMappings)
+    private Record ParseRow(Tuple tuple, MaterializationContext context, RecordPartMapping[] recordPartMappings)
     {
-      var count = recordPartMappings.Count;
+      var mappingsSpan = recordPartMappings.AsSpan();
+      var count = mappingsSpan.Length;
       if (count == 1) {
-        return new Record(tuple, ParseColumnGroup(tuple, context, 0, recordPartMappings[0]));
+        return new Record(tuple, ParseColumnGroup(tuple, context, 0, mappingsSpan[0]));
       }
       var pairs = new (Key, Tuple)[count];
-      for (var i = 0; i < count; i++) {
-        pairs[i] = ParseColumnGroup(tuple, context, i, recordPartMappings[i]);
+      var pairsSpan = pairs.AsSpan();
+      for (var i = 0; i < pairsSpan.Length; i++) {
+        pairsSpan[i] = ParseColumnGroup(tuple, context, i, mappingsSpan[i]);
       }
       return new Record(tuple, pairs);
     }

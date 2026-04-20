@@ -609,9 +609,10 @@ namespace Xtensive.Orm.Linq.Materialization
       var keyDescriptor = entityType.Key.TupleDescriptor;
       var length = mapping.Length;
       var map = new ColNum[length];
+      var mapSpan = map.AsSpan();
       var offset = mapping.Offset;
-      for (var i = 0; i < length; i++) {
-        map[i] = (ColNum)(offset + i);
+      for (var i = 0; i < mapSpan.Length; i++) {
+        mapSpan[i] = (ColNum)(offset + i);
       }
       return new MapTransform(true, keyDescriptor, map);
     }
