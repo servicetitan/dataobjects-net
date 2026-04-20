@@ -15,6 +15,7 @@ using Xtensive.Orm.Linq.Rewriters;
 using Xtensive.Orm.Rse;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
+using Xtensive.Tuples.Transform;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Materialization
@@ -28,13 +29,11 @@ namespace Xtensive.Orm.Linq.Materialization
 
     private const int NumberOfItemsOnStack = 64;
     private static readonly MethodInfo BuildPersistentTupleMethod = typeof(ExpressionMaterializer).GetMethod(nameof(BuildPersistentTuple), BindingFlags.NonPublic | BindingFlags.Static);
-    private static readonly MethodInfo GetTupleSegmentMethod = typeof(ExpressionMaterializer).GetMethod(nameof(GetTupleSegment), BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly MethodInfo ApplyKeySegmentTransformMethod = typeof(ExpressionMaterializer).GetMethod(nameof(ApplyKeySegmentTransform), BindingFlags.NonPublic | BindingFlags.Static);
     private static readonly MethodInfo GetParameterValueMethod = WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
     private static readonly PropertyInfo ParameterContextProperty = WellKnownOrmTypes.ItemMaterializationContext.GetProperty(nameof(ItemMaterializationContext.ParameterContext));
     private static readonly MethodInfo GetTupleParameterValueMethod = GetParameterValueMethod.CachedMakeGenericMethod(WellKnownOrmTypes.Tuple);
-    private static readonly IReadOnlyList<ParameterExpression> TupleParameters = [QueryHelper.TupleParameter];
     private static readonly ParameterExpression MaterializationContextParameter = Expression.Parameter(WellKnownOrmTypes.ItemMaterializationContext, "mc");
-    private static readonly IReadOnlyList<ParameterExpression> TupleAndMaterializationContextParameters = [QueryHelper.TupleParameter, MaterializationContextParameter];
     private static readonly ConstantExpression TypeReferenceAccuracyConstantExpression = Expression.Constant(TypeReferenceAccuracy.BaseType);
     private static readonly MethodInfo GetTypeInfoMethod = typeof(ItemMaterializationContext).GetMethod(nameof(ItemMaterializationContext.GetTypeInfo));
 
@@ -357,10 +356,14 @@ namespace Xtensive.Orm.Linq.Materialization
     internal protected override Expression VisitKeyExpression(KeyExpression expression)
     {
       // TODO: http://code.google.com/p/dataobjectsdotnet/issues/detail?id=336
+      // Precompute a MapTransform for the key segment once at materializer compile time
+      // so that at runtime we avoid allocating a SegmentTransformTuple wrapper and an
+      // intermediate regular tuple for every materialized row.
+      var keyTransform = CreateKeySegmentTransform(expression.EntityType, expression.Mapping);
       Expression tupleExpression = Expression.Call(
-        GetTupleSegmentMethod,
+        ApplyKeySegmentTransformMethod,
         GetTupleExpression(expression),
-        Expression.Constant(expression.Mapping));
+        Expression.Constant(keyTransform));
       return Expression.Call(
         WellKnownMembers.Key.Create,
         Expression.Constant(context.Domain),
@@ -598,7 +601,20 @@ namespace Xtensive.Orm.Linq.Materialization
       return result;
     }
 
-    private static Tuple GetTupleSegment(Tuple tuple, in Segment<ColNum> segment) => tuple.GetSegment(segment).ToRegular();
+    private static Tuple ApplyKeySegmentTransform(Tuple tuple, MapTransform transform) =>
+      transform.Apply(TupleTransformType.Tuple, tuple);
+
+    private static MapTransform CreateKeySegmentTransform(Orm.Model.TypeInfo entityType, in Segment<ColNum> mapping)
+    {
+      var keyDescriptor = entityType.Key.TupleDescriptor;
+      var length = mapping.Length;
+      var map = new ColNum[length];
+      var offset = mapping.Offset;
+      for (var i = 0; i < length; i++) {
+        map[i] = (ColNum)(offset + i);
+      }
+      return new MapTransform(true, keyDescriptor, map);
+    }
 
     #endregion
 

@@ -55,8 +55,16 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public static T GetDefault<T>() => default;
 
-    public static bool IsNull(Tuple tuple, IReadOnlyList<ColNum> columns) =>
-      columns.All(column => tuple.GetFieldState(column).IsNull());
+    public static bool IsNull(Tuple tuple, IReadOnlyList<ColNum> columns)
+    {
+      var count = columns.Count;
+      for (var i = 0; i < count; i++) {
+        if (!tuple.GetFieldState(columns[i]).IsNull()) {
+          return false;
+        }
+      }
+      return true;
+    }
 
     public static object ThrowEmptySequenceException() =>
       throw new InvalidOperationException(Strings.ExSequenceContainsNoElements);

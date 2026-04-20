@@ -17,6 +17,14 @@ namespace Xtensive.Orm.Linq.Materialization
     private readonly EntityMappingCache[] entityMappings = new EntityMappingCache[entityCount];
 
     /// <summary>
+    /// Shared per-row buffer reused by <see cref="ItemMaterializationContext"/> across rows
+    /// of the same query to avoid a per-row <see cref="Entity"/>[] allocation.
+    /// Safe because <see cref="ItemMaterializationContext"/> is constructed and fully consumed
+    /// on a single logical row before the next row begins.
+    /// </summary>
+    internal readonly Entity[] EntitiesBuffer = new Entity[entityCount];
+
+    /// <summary>
     /// Gets the session in which materialization is executing.
     /// </summary>
     public Session Session => session;
@@ -65,7 +73,9 @@ namespace Xtensive.Orm.Linq.Materialization
       }
 
       var allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
-      var keyIndexes = allIndexes.Take(keyInfo.TupleDescriptor.Count).ToArray();
+      var keyCount = keyInfo.TupleDescriptor.Count;
+      var keyIndexes = new ColNum[keyCount];
+      Array.Copy(allIndexes, keyIndexes, keyCount);
 
       var transform    = new MapTransform(true, descriptor, allIndexes);
       var keyTransform = new MapTransform(true, keyInfo.TupleDescriptor, keyIndexes);
