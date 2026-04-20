@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2022 Xtensive LLC.
+// Copyright (C) 2014-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alena Mikshina
@@ -22,19 +22,15 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlCustomFunctionCall>(expression);
       FunctionType = replacingExpression.FunctionType;
       Arguments = replacingExpression.Arguments;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (!context.NodeMapping.TryGetValue(this, out var clone)) {
-        context.NodeMapping[this] = clone = new SqlCustomFunctionCall(FunctionType, Arguments.Select(o => (SqlExpression) o.Clone(context)).ToArray(Arguments.Count));
-      }
-      return clone;
-    }
+    internal override SqlCustomFunctionCall Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlCustomFunctionCall(t.FunctionType, t.Arguments.Select(o => o.Clone(c)).ToArray(t.Arguments.Count)));
 
     public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
 

@@ -19,19 +19,19 @@ namespace Xtensive.Orm.Linq
   {
     public static Type Extract(BinaryExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       if (expression.Right.StripMarkers() is KeyExpression key) {
         return key.EntityType.UnderlyingType;
       }
 
-      var expr = VisitBinaryExpession(expression);
+      var expr = VisitBinaryExpression(expression);
       if (expr.Type.IsSubclassOf(WellKnownOrmTypes.Entity)) {
         return expr.Type;
       }
       throw new NotSupportedException(string.Format(Strings.ExCurrentTypeXIsNotSupported, expr.Type));
     }
 
-    private static Expression VisitBinaryExpession(BinaryExpression binaryExpression)
+    private static Expression VisitBinaryExpression(BinaryExpression binaryExpression)
     {
       if (!(binaryExpression.Right is MemberExpression memberExpression)) {
         throw new InvalidOperationException(string.Format(Strings.ExCantConvertXToY, binaryExpression.Type, typeof(MemberExpression)));

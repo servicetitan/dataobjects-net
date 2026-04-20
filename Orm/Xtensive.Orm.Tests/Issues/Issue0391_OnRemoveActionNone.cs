@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Customer).Assembly, typeof (Customer).Namespace);
+      config.Types.RegisterCaching(typeof (Customer).Assembly, typeof (Customer).Namespace);
       return config;
     }
 
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Tests.Issues
           var o = new Order();
           o.Customer = c;
           c.Remove();
-          Assert.IsTrue(o.HasCustomerKey());
+          Assert.That(o.HasCustomerKey(), Is.True);
           
           t.Complete();
         }

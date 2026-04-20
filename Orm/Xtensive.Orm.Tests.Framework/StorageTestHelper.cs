@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
+using System.Threading;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
@@ -17,15 +19,13 @@ namespace Xtensive.Orm.Tests
   {
     public static bool IsFetched(Session session, Key key)
     {
-      EntityState dummy;
-      return session.EntityStateCache.TryGetItem(key, false, out dummy);
+      return session.EntityStateCache.TryGetItem(key, false, out var _);
     }
 
-    public static object GetNativeTransaction()
+    public static object GetNativeTransaction(Session session)
     {
-      var handler = Session.Demand().Handler;
-      var sqlHandler = handler as SqlSessionHandler;
-      if (sqlHandler!=null)
+      var handler = session.Handler;
+      if (handler is SqlSessionHandler sqlHandler)
         return sqlHandler.Connection.ActiveTransaction;
       throw new NotSupportedException();
     }
@@ -66,14 +66,47 @@ namespace Xtensive.Orm.Tests
       }
     }
 
+    /// <summary>
+    /// Waits for full-text indexes of MS SQL to be populated.
+    /// Every now and then it gets state of them from database or waits timeout to be reached.
+    /// </summary>
+    /// <param name="domain"></param>
+    public static void WaitFullTextIndexesPopulated(Domain domain, TimeSpan timeout)
+    {
+      if (StorageProviderInfo.Instance.Provider == StorageProvider.SqlServer) {
+        var driver = TestSqlDriver.Create(domain.Configuration.ConnectionInfo);
+        using (var connection = driver.CreateConnection()) {
+
+          var date = DateTime.UtcNow.Add(timeout);
+          while (!CheckFtIndexesPopulated(connection) && DateTime.UtcNow < date) {
+            Thread.Sleep(TimeSpan.FromSeconds(2));
+          }
+        }
+      }
+
+      static bool CheckFtIndexesPopulated(SqlConnection connection)
+      {
+        connection.Open();
+        try {
+          using (var command = connection.CreateCommand()) {
+            command.CommandText = $"SELECT COUNT(*) FROM sys.fulltext_indexes WHERE has_crawl_completed = 0";
+            return ((int) command.ExecuteScalar()) == 0;
+          }
+        }
+        finally {
+          connection.Close();
+        }
+      }
+    }
+
     private static void CreateUsers(SqlConnection connection, IEnumerable<string> schemasToCreate)
     {
       var translator = connection.Driver.Translator;
       foreach (var schema in schemasToCreate) {
         var userName = translator.QuoteIdentifier(schema);
         var password = schema;
-        ExecuteQuery(connection, string.Format("create user {0} identified by {1}", userName, password));
-        ExecuteQuery(connection, string.Format("alter user {0} quota unlimited on system", userName));
+        ExecuteQuery(connection, $"create user {userName} identified by {password}");
+        ExecuteQuery(connection, $"alter user {userName} quota unlimited on system");
       }
     }
 
@@ -86,14 +119,14 @@ namespace Xtensive.Orm.Tests
 
     private static void ExecuteQuery(SqlConnection connection, ISqlCompileUnit query)
     {
-      using (var command = connection.CreateCommand(query))
-        command.ExecuteNonQuery();
+      using var command = connection.CreateCommand(query);
+      _ = command.ExecuteNonQuery();
     }
 
     private static void ExecuteQuery(SqlConnection connection, string query)
     {
-      using (var command = connection.CreateCommand(query))
-        command.ExecuteNonQuery();
+      using var command = connection.CreateCommand(query);
+      _ = command.ExecuteNonQuery();
     }
   }
 }

@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Tests.Model
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (MyEntity).Assembly, typeof (MyEntity).Namespace);
+      config.Types.RegisterCaching(typeof (MyEntity).Assembly, typeof (MyEntity).Namespace);
       return config;
     }
 
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Tests.Model
         using (var t = session.OpenTransaction()) {
 
           var myEntity = session.Query.Single<MyEntity>(key);
-          Assert.IsTrue(myEntity.ValidateState());
+          Assert.That(myEntity.ValidateState(), Is.True);
 
           t.Complete();
         }

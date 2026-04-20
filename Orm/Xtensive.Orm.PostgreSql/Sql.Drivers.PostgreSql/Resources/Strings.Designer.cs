@@ -19,7 +19,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Strings {
@@ -61,6 +61,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t find schema &apos;{0}&apos; owner with oid &apos;{1}&apos; in the list of roles..
+        /// </summary>
+        internal static string ExCantFindSchemaXOwnerWithIdYInTheListOfRoles {
+            get {
+                return ResourceManager.GetString("ExCantFindSchemaXOwnerWithIdYInTheListOfRoles", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to FreeText search on custom columns not supported..
         /// </summary>
         internal static string ExFreeTextSearchOnCustomColumnsNotSupported {
@@ -70,11 +79,20 @@ namespace Xtensive.Sql.Drivers.PostgreSql.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to PostgreSQL below 8.3 is not supported..
+        ///   Looks up a localized string similar to PostgreSQL below 11 is not supported..
         /// </summary>
-        internal static string ExPostgreSqlBelow83IsNotSupported {
+        internal static string ExPostgreSqlBelow11IsNotSupported {
             get {
-                return ResourceManager.GetString("ExPostgreSqlBelow83IsNotSupported", resourceCulture);
+                return ResourceManager.GetString("ExPostgreSqlBelow11IsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Schema &apos;{0}&apos; either does not exist or belongs to another user..
+        /// </summary>
+        internal static string ExSchemaXDoesNotExistOrBelongsToAnotherUser {
+            get {
+                return ResourceManager.GetString("ExSchemaXDoesNotExistOrBelongsToAnotherUser", resourceCulture);
             }
         }
         

@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
         var bytesColumn = GetColumnInfo(Upgrader.TargetStorageModel, person.TypeInfo, "Bytes");
         var driver = TestSqlDriver.Create(domain.Configuration.ConnectionInfo);
         var expected = driver.TypeMappings[typeof(byte[])].MapType().Length;
-        Assert.AreEqual(expected, bytesColumn.Type.Length);
+        Assert.That(bytesColumn.Type.Length, Is.EqualTo(expected));
 
         tx.Complete();
       }
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
         AssertEx.HasSameElements(new byte[] { 1, 2, 3 }, person.Bytes);
 
         var bytesColumn = GetColumnInfo(Upgrader.TargetStorageModel, person.TypeInfo, "Bytes");
-        Assert.AreEqual(null, bytesColumn.Type.Length);
+        Assert.That(bytesColumn.Type.Length, Is.EqualTo(null));
       }
     }
 
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), nsPrefix + version);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), nsPrefix + version);
       configuration.Types.Register(typeof (Upgrader));
 
       using (Upgrader.Enable(version)) {

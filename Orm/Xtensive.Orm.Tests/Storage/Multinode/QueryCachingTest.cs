@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode.QueryCachingTestModel
       }
 
       return !TypeIdPerNode.TryGetValue(CurrentNodeId, out var result)
-        ? throw new Exception(string.Format("No map for node {0}", CurrentNodeId))
+        ? throw new Exception($"No map for node {CurrentNodeId}")
         : result;
     }
   }
@@ -107,11 +107,12 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     protected override DomainConfiguration BuildConfiguration()
     {
+      CustomUpgradeHandler.TypeIdPerNode.Clear();
       CustomUpgradeHandler.TypeIdPerNode.Add(TestNodeId2, 200);
       CustomUpgradeHandler.TypeIdPerNode.Add(TestNodeId3, 300);
 
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(BaseTestEntity).Assembly, typeof(BaseTestEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof(BaseTestEntity).Assembly, typeof(BaseTestEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.DefaultSchema = DefaultSchema;
       return configuration;
@@ -425,7 +426,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       return (nodeId == WellKnown.DefaultNodeId)
         ? CustomUpgradeHandler.TypeIdPerNode.Values.ToArray()
         : CustomUpgradeHandler.TypeIdPerNode.Where(i => i.Key != nodeId)
-            .Select(i => i.Value).Union(EnumerableUtils.One(100)).ToArray();
+            .Select(i => i.Value).Union(Enumerable.Repeat(100, 1)).ToArray();
     }
 
     private List<BaseTestEntity> ExecuteSimpleQueryCaching(Session session) =>

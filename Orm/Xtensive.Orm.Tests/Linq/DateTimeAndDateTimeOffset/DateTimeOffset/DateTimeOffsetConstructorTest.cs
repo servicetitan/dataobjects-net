@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -501,13 +501,13 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (TestEntity).Assembly, typeof (TestEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof (TestEntity).Assembly, typeof (TestEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       var providerInfo = StorageProviderInfo.Instance.Info;
       if (providerInfo.ProviderName == WellKnown.Provider.PostgreSql) {
         var localZone = EkaterinburgZone;
         var localZoneString = ((localZone < TimeSpan.Zero) ? "-" : "+") + localZone.ToString(@"hh\:mm");
-        configuration.ConnectionInitializationSql = string.Format("SET TIME ZONE INTERVAL '{0}' HOUR TO MINUTE", localZoneString);
+        configuration.ConnectionInitializationSql = $"SET TIME ZONE INTERVAL '{localZoneString}' HOUR TO MINUTE";
       }
 
       return configuration;

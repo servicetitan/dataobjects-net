@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.10.08
 
@@ -26,14 +26,12 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       config.Sessions.Default.CacheSize = 2;
       config.KeyCacheSize = 2;
       config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
+      config.Types.RegisterCaching(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
       return config;
     }
 
-    [OneTimeSetUp]
-    public override void TestFixtureSetUp()
+    protected override void PopulateData()
     {
-      base.TestFixtureSetUp();
       using (var session = Domain.OpenSession())
       using (var transactionScope = session.OpenTransaction()) {
         for (int i = 0; i < 111; i++)
@@ -49,7 +47,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         keys = session.Query.All<Order>().Select(p => p.Key).ToList();
-        Assert.Greater(keys.Count, 0);
+        Assert.That(keys.Count, Is.GreaterThan(0));
       }
 
       using (var session = Domain.OpenSession())
@@ -81,8 +79,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var tx = session.OpenTransaction()) {
         keys = session.Query.All<Person>().Take(221).AsEnumerable().Select(p => Key.Create<Person>(Domain, p.Key.Value))
           .ToList();
-        Assert.IsTrue(keys.All(key => !key.HasExactType));
-        Assert.Greater(keys.Count, 0);
+        Assert.That(keys.All(key => !key.HasExactType), Is.True);
+        Assert.That(keys.Count, Is.GreaterThan(0));
       }
 
       using (var session = Domain.OpenSession())
@@ -104,7 +102,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var tx = session.OpenTransaction()) {
         keys = session.Query.All<Order>().Take(221).AsEnumerable().Select(p => Key.Create<Order>(Domain, p.Key.Value))
           .ToList();
-        Assert.Greater(keys.Count, 0);
+        Assert.That(keys.Count, Is.GreaterThan(0));
       }
 
       using (var session = Domain.OpenSession())
@@ -118,9 +116,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(order.Key, orderType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           EntitySetState state;
           session.Handler.LookupState(order.Key, detailsField, out state);
-          Assert.IsTrue(state.IsFullyLoaded);
+          Assert.That(state.IsFullyLoaded, Is.True);
           foreach (var detailKey in state) {
-            Assert.IsTrue(detailKey.HasExactType);
+            Assert.That(detailKey.HasExactType, Is.True);
             var detailState = session.EntityStateCache[detailKey, false];
             PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(detailKey, detailKey.TypeInfo, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
           }

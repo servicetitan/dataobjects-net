@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013-2021 Xtensive LLC.
+// Copyright (C) 2013-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -278,9 +278,9 @@ namespace Xtensive.Orm.Tests.Issues
 
     private ConnectionInfo connectionInfo;
 
-    private static string multiDatabaseConnectionString;
-    private static string singleDatabaseConnectionStringDatabase1;
-    private static string singleDatabaseConnectionStringDatabase2;
+    private string multiDatabaseConnectionString;
+    private string singleDatabaseConnectionStringDatabase1;
+    private string singleDatabaseConnectionStringDatabase2;
 
     protected override void  CheckRequirements()
     {
@@ -305,7 +305,7 @@ namespace Xtensive.Orm.Tests.Issues
       BuildMultipleDomain(Database2Name, Database1Name);
     }
 
-    private static void BuildMultipleDomain(string coreDatabaseName, string wmsDatabaseName)
+    private void BuildMultipleDomain(string coreDatabaseName, string wmsDatabaseName)
     {
       var domainConfiguration = new DomainConfiguration(multiDatabaseConnectionString) {
         DefaultDatabase = WmsAlias,
@@ -324,7 +324,7 @@ namespace Xtensive.Orm.Tests.Issues
       domainConfiguration.Databases.Add(coreDatabase);
       domainConfiguration.Databases.Add(wmsDatabase);
 
-      domainConfiguration.Types.Register(typeof(Model2.Upgrader).Assembly, typeof(Model2.Upgrader).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(Model2.Upgrader).Assembly, typeof(Model2.Upgrader).Namespace);
 
       domainConfiguration.MappingRules.Map(typeof(Model2.Core.Area).Namespace).ToDatabase(CoreAlias);
       domainConfiguration.MappingRules.Map(typeof(Model2.WMS.StoredObject).Namespace).ToDatabase(WmsAlias);
@@ -332,7 +332,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var domain = Domain.Build(domainConfiguration)) { }
     }
 
-    private static void BuildSingleDomain(string wmsDatabaseName)
+    private void BuildSingleDomain(string wmsDatabaseName)
     {
       var domainConfiguration = new DomainConfiguration(singleDatabaseConnectionStringDatabase1) {
         UpgradeMode = DomainUpgradeMode.Recreate,
@@ -402,24 +402,26 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void InitializeConnectionStrings()
     {
-
       connectionInfo = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage);
+      if (connectionInfo == null) {
+        connectionInfo = DomainConfigurationFactory.Create().ConnectionInfo;
+      }
 
       var connectionUrl = connectionInfo.ConnectionUrl;
 
       var initialString = (!string.IsNullOrEmpty(connectionUrl.User) && !string.IsNullOrEmpty(connectionUrl.Password))
-        ? string.Format("{0}://{1}:{2}@", connectionUrl.Protocol, connectionUrl.User, connectionUrl.Password)
-        : string.Format("{0}://", connectionUrl.Protocol);
+        ? $"{connectionUrl.Protocol}://{connectionUrl.User}:{connectionUrl.Password}@"
+        : $"{connectionUrl.Protocol}://";
 
       var stringBuilder = new StringBuilder(initialString)
-        .AppendFormat("{0}{1}", connectionUrl.Host, (connectionUrl.Port > 0) ? string.Format(":{0}", connectionUrl.Port) : string.Empty)
+        .AppendFormat($"{connectionUrl.Host}{((connectionUrl.Port > 0) ? string.Format(":{0}", connectionUrl.Port) : string.Empty)}")
         .Append("/{0}{1}");
 
       var paramsString = string.Empty;
       foreach (var pair in connectionUrl.Params) {
         paramsString += string.IsNullOrEmpty(paramsString)
-          ? string.Format("?{0}={1}", pair.Key, pair.Value)
-          : string.Format("&{0}={1}", pair.Key, pair.Value);
+          ? $"?{pair.Key}={pair.Value}"
+          : $"&{pair.Key}={pair.Value}";
       }
 
       singleDatabaseConnectionStringDatabase1 = string.Format(stringBuilder.ToString(), Database1Name, paramsString);

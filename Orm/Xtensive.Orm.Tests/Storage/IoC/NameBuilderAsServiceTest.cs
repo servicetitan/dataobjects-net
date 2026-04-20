@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Tests.Storage.IoC
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (FakeClass).Assembly, typeof (FakeClass).Namespace);
+      config.Types.RegisterCaching(typeof (FakeClass).Assembly, typeof (FakeClass).Namespace);
       return config;
     }
 
@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Tests.Storage.IoC
     public void MainTest()
     {
       var ns = Domain.Services.Get<NameBuilder>();
-      Assert.IsNotNull(ns);
+      Assert.That(ns, Is.Not.Null);
     }
   }
 }

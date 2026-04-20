@@ -1,10 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.07.21
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Sql;
@@ -31,37 +32,31 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       EnsureTableNotExists(testSchema, LobTestTable);
     }
 
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Oracle);
-    }
+    protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.Oracle);
 
     [Test]
     public void MultipleResultsTest()
     {
       var select1 = SqlDml.Select(SqlDml.Literal("1"));
       var select2 = SqlDml.Select(SqlDml.Literal("2"));
-      var query = string.Format(
-        "begin open :p1 for {0}; open :p2 for {1}; end;",
-        Driver.Compile(select1).GetCommandText(),
-        Driver.Compile(select2).GetCommandText());
+      var query = $"begin open :p1 for {Driver.Compile(select1).GetCommandText()}; open :p2 for {Driver.Compile(select2).GetCommandText()}; end;";
       using (var command = Connection.CreateCommand()) {
         var p1 = Connection.CreateCursorParameter();
         p1.ParameterName = "p1";
-        command.Parameters.Add(p1);
+        _ = command.Parameters.Add(p1);
         var p2 = Connection.CreateCursorParameter();
         p2.ParameterName = "p2";
-        command.Parameters.Add(p2);
+        _ = command.Parameters.Add(p2);
         command.CommandText = query;
         using (var reader = command.ExecuteReader()) {
-          Assert.IsTrue(reader.Read());
-          Assert.AreEqual(reader.GetValue(0), "1");
-          Assert.IsFalse(reader.Read());
-          Assert.IsTrue(reader.NextResult());
-          Assert.IsTrue(reader.Read());
-          Assert.AreEqual(reader.GetValue(0), "2");
-          Assert.IsFalse(reader.Read());
-          Assert.IsFalse(reader.NextResult());
+          Assert.That(reader.Read(), Is.True);
+          Assert.That(reader.GetValue(0), Is.EqualTo("1"));
+          Assert.That(reader.Read(), Is.False);
+          Assert.That(reader.NextResult(), Is.True);
+          Assert.That(reader.Read(), Is.True);
+          Assert.That(reader.GetValue(0), Is.EqualTo("2"));
+          Assert.That(reader.Read(), Is.False);
+          Assert.That(reader.NextResult(), Is.False);
         }
       }
     }
@@ -71,17 +66,17 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
     {
       var table = testSchema.CreateTable(BatchTestTable);
       CreateIdColumn(table);
-      ExecuteNonQuery(SqlDdl.Create(table));
+      _ = ExecuteNonQuery(SqlDdl.Create(table));
       var tableRef = SqlDml.TableRef(table);
       
       var singleStatementBatch = SqlDml.Batch();
       singleStatementBatch.Add(CreateInsert(tableRef));
-      ExecuteNonQuery(singleStatementBatch);
+      _ = ExecuteNonQuery(singleStatementBatch);
 
       var multiStatementBatch = SqlDml.Batch();
       multiStatementBatch.Add(CreateInsert(tableRef));
       multiStatementBatch.Add(CreateInsert(tableRef));
-      ExecuteNonQuery(multiStatementBatch);
+      _ = ExecuteNonQuery(multiStatementBatch);
 
       var innerEmptyBatch = SqlDml.Batch();
       var innerSingleStatementBatch = SqlDml.Batch();
@@ -92,11 +87,11 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       outerBatch.Add(innerEmptyBatch);
       outerBatch.Add(innerSingleStatementBatch);
       outerBatch.Add(multiStatementBatch);
-      ExecuteNonQuery(outerBatch);
+      _ = ExecuteNonQuery(outerBatch);
 
       var countQuery = SqlDml.Select(tableRef);
       countQuery.Columns.Add(SqlDml.Count());
-      Assert.AreEqual(6, Convert.ToInt32(ExecuteScalar(countQuery)));
+      Assert.That(Convert.ToInt32(ExecuteScalar(countQuery)), Is.EqualTo(6));
     }
 
     [Test]
@@ -106,12 +101,10 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       CreateIdColumn(table);
       table.CreateColumn("bin_lob", new SqlValueType(SqlType.VarBinaryMax)).IsNullable = true;
       table.CreateColumn("char_lob", new SqlValueType(SqlType.VarCharMax)).IsNullable = true;
-      ExecuteNonQuery(SqlDdl.Create(table));
+      _ = ExecuteNonQuery(SqlDdl.Create(table));
 
       var tableRef = SqlDml.TableRef(table);
-      var insert = CreateInsert(tableRef);
-      insert.Values.Add(tableRef["bin_lob"], SqlDml.ParameterRef("p_bin"));
-      insert.Values.Add(tableRef["char_lob"], SqlDml.ParameterRef("p_char"));
+      var insert = CreateInsert(tableRef, ("id", nextId++), ("bin_lob", SqlDml.ParameterRef("p_bin")), ("char_lob", SqlDml.ParameterRef("p_char")));
 
       var charBuffer = Enumerable.Range(0, 10000)
         .Select(i => (char) (i % (char.MaxValue - 1) + 1))
@@ -131,9 +124,9 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
         charParameter.ParameterName = "p_char";
         charLob.Write(charBuffer, 0, charBuffer.Length);
         charLob.BindTo(charParameter);
-        command.Parameters.Add(charParameter);
-        command.Parameters.Add(binParameter);
-        command.ExecuteNonQuery();
+        _ = command.Parameters.Add(charParameter);
+        _ = command.Parameters.Add(binParameter);
+        _ = command.ExecuteNonQuery();
       }
 
       var select = SqlDml.Select(tableRef);
@@ -142,33 +135,41 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       select.Where = SqlDml.Native("rownum")==1;
       using (var comand = Connection.CreateCommand(select))
       using (var reader = comand.ExecuteReader()) {
-        Assert.IsTrue(reader.Read());
+        Assert.That(reader.Read(), Is.True);
         Compare(binBuffer, (byte[]) reader[0]);
         Compare(charBuffer, ((string) reader[1]).ToCharArray());
       }
     }
 
-    private void CreateIdColumn(Table table)
-    {
-      table.CreateColumn("id", new SqlValueType(SqlType.Decimal, 10, 0));
-    }
+    private void CreateIdColumn(Table table) => table.CreateColumn("id", new SqlValueType(SqlType.Decimal, 10, 0));
 
     private void Compare<T>(T[] expected, T[] actual)
     {
       if ((expected!=null)!=(actual!=null))
-        Assert.Fail("expected: {0}; actual {1}", expected, actual);
+        Assert.Fail($"expected: {expected}; actual {actual}");
       if (expected==null)
         return;
       if (expected.Length!=actual.Length)
-        Assert.Fail("expected length: {0}; actual length {1}", expected.Length, actual.Length);
+        Assert.Fail($"expected length: {expected.Length}; actual length {actual.Length}");
       for (int i = 0; i < expected.Length; i++)
-        Assert.AreEqual(expected[i], actual[i]);
+        Assert.That(actual[i], Is.EqualTo(expected[i]));
     }
 
     private SqlInsert CreateInsert(SqlTableRef tableRef)
     {
       var insert = SqlDml.Insert(tableRef);
-      insert.Values.Add(tableRef["id"], nextId++);
+      insert.ValueRows.Add(new Dictionary<SqlColumn, SqlExpression>(1) { { tableRef["id"], nextId++ } });
+      return insert;
+    }
+
+    private SqlInsert CreateInsert(SqlTableRef tableRef, params (string, SqlExpression)[] values)
+    {
+      var insert = SqlDml.Insert(tableRef);
+      var row = new Dictionary<SqlColumn, SqlExpression>(values.Length);
+      foreach (var value in values) {
+        row.Add(tableRef[value.Item1], value.Item2);
+      }
+      insert.ValueRows.Add(row);
       return insert;
     }
   }

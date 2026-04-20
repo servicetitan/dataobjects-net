@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
@@ -48,6 +48,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly List<string> enforceChangedColumns = new List<string>();
     private readonly ISqlExecutor sqlExecutor;
     private readonly bool allowCreateConstraints;
+    private readonly bool removeFkBeforeIndex;
 
     private readonly string collationName;
     private readonly ActionSequence actions;
@@ -63,6 +64,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
     private readonly HashSet<TableColumn> recreatedColumns = new HashSet<TableColumn>();
     private readonly Dictionary<string, SequenceDescriptor> removedGeneratorDescriptors = new Dictionary<string, SequenceDescriptor>();
+    private readonly List<(Table, string)> removedForeignKeysDueToIndexes = new List<(Table, string)>();
 
 
     private UpgradeActionSequenceBuilder currentOutput;
@@ -319,8 +321,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void RecreateTableWithNewName(Table oldTable, Schema newSchema, string newName)
     {
-      string lockedTable;
-      sqlModel.LockedTables.TryGetValue(resolver.GetNodeName(oldTable), out lockedTable);
+      _ = sqlModel.LockedTables.TryGetValue(resolver.GetNodeName(oldTable), out var lockedTable);
       if (!lockedTable.IsNullOrEmpty())
         throw new SchemaSynchronizationException(lockedTable);
       var newTable = newSchema.CreateTable(newName);
@@ -343,7 +344,7 @@ namespace Xtensive.Orm.Upgrade
         else {
           newColumn.DefaultValue = oldColumn.DefaultValue;
         }
-        recreatedColumns.Add(oldColumn);
+        _ = recreatedColumns.Add(oldColumn);
       }
 
       // Clone primary key
@@ -375,7 +376,7 @@ namespace Xtensive.Orm.Upgrade
       // Removing table
       currentOutput.RegisterCommand(SqlDdl.Drop(oldTable));
 
-      newTable.Schema.Tables.Remove(newTable);
+      _ = newTable.Schema.Tables.Remove(newTable);
     }
 
     private void VisitCreateColumnAction(CreateNodeAction createColumnAction)
@@ -419,7 +420,7 @@ namespace Xtensive.Orm.Upgrade
 
       if (providerInfo.Supports(ProviderFeatures.ColumnDrop)) {
         commandOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropColumn(column)));
-        table.TableColumns.Remove(column);
+        _ = table.TableColumns.Remove(column);
         return;
       }
 
@@ -428,7 +429,7 @@ namespace Xtensive.Orm.Upgrade
       var tempName = GetTemporaryName(table);
 
       // Recreate table without dropped column
-      table.TableColumns.Remove(column);
+      _ = table.TableColumns.Remove(column);
       RecreateTableWithNewName(table, table.Schema, tempName);
       RenameSchemaTable(table, table.Schema, table.Schema, tempName);
 
@@ -535,7 +536,7 @@ namespace Xtensive.Orm.Upgrade
       var primaryKey = table.TableConstraints[primaryIndexInfo.Name];
 
       currentOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(primaryKey)));
-      table.TableConstraints.Remove(primaryKey);
+      _ = table.TableConstraints.Remove(primaryKey);
     }
 
     private void VisitAlterPrimaryKeyAction(NodeAction action)
@@ -565,8 +566,16 @@ namespace Xtensive.Orm.Upgrade
         return;
 
       var index = table.Indexes[secondaryIndexInfo.Name];
+      if (removeFkBeforeIndex && secondaryIndexInfo.Parent.ForeignKeys.TryGetValue(secondaryIndexInfo.Name, out var dependantFk)) {
+        var foreignKey = table.TableConstraints[dependantFk.Name];
+        if (foreignKey != null) {
+          removedForeignKeysDueToIndexes.Add((table, foreignKey.Name));
+          preCleanupDataOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(foreignKey)));
+          _ = table.TableConstraints.Remove(foreignKey);
+        }
+      }
       preCleanupDataOutput.RegisterCommand(SqlDdl.Drop(index));
-      table.Indexes.Remove(index);
+      _ = table.Indexes.Remove(index);
     }
 
     private void VisitAlterSecondaryIndexAction(NodeAction action)
@@ -597,9 +606,14 @@ namespace Xtensive.Orm.Upgrade
       if (table==null)
         return;
 
+      if (removeFkBeforeIndex && removedForeignKeysDueToIndexes.Contains((table, foreignKeyInfo.Name))) {
+        // index removal already causes FK removal
+        return;
+      }
+
       var foreignKey = table.TableConstraints[foreignKeyInfo.Name];
       preCleanupDataOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(foreignKey)));
-      table.TableConstraints.Remove(foreignKey);
+      _ = table.TableConstraints.Remove(foreignKey);
     }
 
     private void VisitAlterForeignKeyAction(NodeAction action)
@@ -641,7 +655,7 @@ namespace Xtensive.Orm.Upgrade
         var node = resolver.Resolve(sqlModel, sequenceInfo.Name);
         var sequence = node.GetSequence();
         currentOutput.RegisterCommand(SqlDdl.Drop(sequence));
-        node.Schema.Sequences.Remove(sequence);
+        _ = node.Schema.Sequences.Remove(sequence);
       }
       else {
         DropGeneratorTable(sequenceInfo);
@@ -721,7 +735,7 @@ namespace Xtensive.Orm.Upgrade
         ? currentOutput.ForStage(SqlUpgradeStage.NonTransactionalProlog)
         : currentOutput;
       fullTextOutput.RegisterCommand(SqlDdl.Drop(ftIndex));
-      table.Indexes.Remove(ftIndex);
+      _ = table.Indexes.Remove(ftIndex);
     }
 
     private void ProcessClearDataActions(bool postCopy)
@@ -846,8 +860,7 @@ namespace Xtensive.Orm.Upgrade
         if (referencedNode!=null && referencingNode!=null)
             new NodeConnection<TableInfo, ForeignKeyInfo>(referencedNode, referencingNode, foreignKey).BindToNodes();
       }
-      List<NodeConnection<TableInfo, ForeignKeyInfo>> edges;
-      var sortedTables = TopologicalSorter.Sort(nodes, out edges);
+      var sortedTables = TopologicalSorter.SortToList(nodes, out List<NodeConnection<TableInfo, ForeignKeyInfo>> edges);
       // TODO: Process removed edges
 
       // Build DML commands
@@ -879,9 +892,9 @@ namespace Xtensive.Orm.Upgrade
       // Rename old column
       var tempName = GetTemporaryName(column);
       if(recreatedColumns.Contains(column)) {
-        recreatedColumns.Remove(column);
+        _ = recreatedColumns.Remove(column);
         RenameColumn(column, tempName);
-        recreatedColumns.Add(column);
+        _ = recreatedColumns.Add(column);
       }
       else
         RenameColumn(column, tempName);
@@ -912,15 +925,16 @@ namespace Xtensive.Orm.Upgrade
         }
         else {
           var getValue = SqlDml.Case();
-          getValue.Add(SqlDml.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));
+          _ = getValue.Add(SqlDml.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));
 
-          if (newSqlType.Type==SqlType.DateTimeOffset)
-            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.DateTimeToDateTimeOffset(tableRef[tempName]));
-          else if (newSqlType.Type==SqlType.DateTime && providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation))
-            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(SqlDml.Extract(SqlDateTimeOffsetPart.DateTime, tableRef[tempName]), newSqlType));
-          else
-            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(tableRef[tempName], newSqlType));
-
+          SqlExpression convertExpression;
+          if (IsDateTimeType(newSqlType.Type) || IsDateTimeType(column.DataType.Type)) {
+            convertExpression = GetDataConversion(column.DataType, newSqlType, tableRef[tempName]);
+          }
+          else {
+            convertExpression = SqlDml.Cast(tableRef[tempName], newSqlType);
+          }
+          _ = getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), convertExpression);
           copyValues.Values[tableRef[originalName]] = getValue;
         }
         upgradeOutput.BreakBatch();
@@ -931,14 +945,64 @@ namespace Xtensive.Orm.Upgrade
       DropColumn(table.TableColumns[tempName], cleanupOutput);
     }
 
+    private static SqlExpression GetDataConversion(SqlValueType oldType, SqlValueType newType, SqlTableColumn sqlTableColumn)
+    {
+      var oldSqlType = oldType.Type;
+      var newSqlType = newType.Type;
+
+      if (oldSqlType == SqlType.DateTime && newSqlType == SqlType.DateTimeOffset) {
+        return SqlDml.DateTimeToDateTimeOffset(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.DateTimeOffset && newSqlType == SqlType.DateTime) {
+        return SqlDml.DateTimeOffsetToDateTime(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.DateTime && newSqlType == SqlType.Date) {
+        return SqlDml.DateTimeToDate(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.DateTime && newSqlType == SqlType.Time) {
+        return SqlDml.DateTimeToTime(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.DateTimeOffset && newSqlType == SqlType.Date) {
+        return SqlDml.DateTimeOffsetToDate(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.DateTimeOffset && newSqlType == SqlType.Time) {
+        return SqlDml.DateTimeOffsetToTime(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.Date && newSqlType == SqlType.DateTime) {
+        return SqlDml.DateToDateTime(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.Date && newSqlType == SqlType.DateTimeOffset) {
+        return SqlDml.DateToDateTimeOffset(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.Time && newSqlType == SqlType.DateTime) {
+        return SqlDml.TimeToDateTime(sqlTableColumn);
+      }
+      if (oldSqlType == SqlType.Time && newSqlType == SqlType.DateTimeOffset) {
+        return SqlDml.TimeToDateTimeOffset(sqlTableColumn);
+      }
+      //Date -> Time = invalid in most cases.
+      //Time -> Date = invalid in most cases.
+      //let storage throw exception on attempt
+
+      return SqlDml.Cast(sqlTableColumn, newType);
+    }
+
+    private static bool IsDateTimeType(in SqlType type)
+    {
+      return type == SqlType.DateTime
+        || type == SqlType.DateTimeOffset
+        || type == SqlType.Date
+        || type == SqlType.Time;
+    }
+
     private Table CreateTable(TableInfo tableInfo)
     {
       var node = resolver.Resolve(sqlModel, tableInfo.Name);
       var table = node.Schema.CreateTable(node.Name);
       foreach (var columnInfo in tableInfo.Columns)
-        CreateColumn(columnInfo, table);
+        _ = CreateColumn(columnInfo, table);
       if (tableInfo.PrimaryIndex!=null)
-        CreatePrimaryKey(tableInfo, table);
+        _ = CreatePrimaryKey(tableInfo, table);
       createdTables.Add(table);
       return table;
     }
@@ -1001,7 +1065,7 @@ namespace Xtensive.Orm.Upgrade
         if (driver.ServerInfo.DataTypes[column.DataType.Type].Features.Supports(DataTypeFeatures.Spatial)) {
 
           var spatialIndex = table.CreateSpatialIndex(indexInfo.Name);
-          spatialIndex.CreateIndexColumn(column);
+          _ = spatialIndex.CreateIndexColumn(column);
           return spatialIndex;
         }
       }
@@ -1010,7 +1074,7 @@ namespace Xtensive.Orm.Upgrade
       index.IsUnique = indexInfo.IsUnique;
       index.IsClustered = indexInfo.IsClustered;
       foreach (var keyColumn in indexInfo.KeyColumns)
-        index.CreateIndexColumn(
+        _ = index.CreateIndexColumn(
           FindColumn(table, keyColumn.Value.Name),
           keyColumn.Direction==Direction.Positive);
       index.NonkeyColumns.AddRange(
@@ -1033,7 +1097,7 @@ namespace Xtensive.Orm.Upgrade
           idColumn,
           sequenceInfo.Current ?? sequenceInfo.Seed,
           sequenceInfo.Increment);
-      sequenceTable.CreatePrimaryKey($"PK_{sequenceInfo.Name}", idColumn);
+      _ = sequenceTable.CreatePrimaryKey($"PK_{sequenceInfo.Name}", idColumn);
       if (!providerInfo.Supports(ProviderFeatures.InsertDefaultValues)) {
         var fakeColumn = sequenceTable.CreateColumn(WellKnown.GeneratorFakeColumnName, driver.MapValueType(WellKnownTypes.Int32));
         fakeColumn.IsNullable = true;
@@ -1045,12 +1109,11 @@ namespace Xtensive.Orm.Upgrade
     {
       var node = resolver.Resolve(sqlModel, sequenceInfo.Name);
       var sequenceTable = node.GetTable();
-      string lockedTable;
-      sqlModel.LockedTables.TryGetValue(resolver.GetNodeName(sequenceTable), out lockedTable);
+      _ = sqlModel.LockedTables.TryGetValue(resolver.GetNodeName(sequenceTable), out var lockedTable);
       if (!lockedTable.IsNullOrEmpty())
         throw new SchemaSynchronizationException(lockedTable);
       currentOutput.RegisterCommand(SqlDdl.Drop(sequenceTable));
-      node.Schema.Tables.Remove(sequenceTable);
+      _ = node.Schema.Tables.Remove(sequenceTable);
     }
 
     private void RenameSchemaTable(Table table, Schema oldSchema, Schema newSchema, string newName)
@@ -1059,7 +1122,7 @@ namespace Xtensive.Orm.Upgrade
 
       // Renamed table must be removed and added with new name
       // for reregistring in dictionary
-      oldSchema.Tables.Remove(table);
+      _ = oldSchema.Tables.Remove(table);
       table.Name = newName;
       newSchema.Tables.Add(table);
     }
@@ -1069,7 +1132,7 @@ namespace Xtensive.Orm.Upgrade
       // Renamed column must be removed and added with new name
       // for reregistring in dictionary
       var table = column.Table;
-      table.TableColumns.Remove(column);
+      _ = table.TableColumns.Remove(column);
       column.Name = newName;
       table.TableColumns.Add(column);
     }
@@ -1228,7 +1291,7 @@ namespace Xtensive.Orm.Upgrade
 
       if (!providerInfo.Supports(ProviderFeatures.InsertDefaultValues)) {
         var fakeColumn = table.TableColumns[WellKnown.GeneratorFakeColumnName];
-        insert.Values[tableRef[fakeColumn.Name]] = SqlDml.Null;
+        insert.ValueRows.Add(new Dictionary<SqlColumn, SqlExpression>(1) { { tableRef[fakeColumn.Name], SqlDml.Null } });
       }
 
       var result = SqlDml.Batch();
@@ -1260,34 +1323,29 @@ namespace Xtensive.Orm.Upgrade
       ActionSequence actions, SchemaExtractionResult sqlModel, StorageModel sourceModel, StorageModel targetModel,
       List<string> enforceChangedColumns, bool allowCreateConstraints)
     {
-      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(sqlExecutor, "sqlExecutor");
-      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
-      ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
-      ArgumentValidator.EnsureArgumentNotNull(sqlModel, "sqlModel");
-      ArgumentValidator.EnsureArgumentNotNull(sourceModel, "sourceModel");
-      ArgumentValidator.EnsureArgumentNotNull(targetModel, "targetModel");
-      ArgumentValidator.EnsureArgumentNotNull(enforceChangedColumns, "enforceChangedColumns");
+      ArgumentNullException.ThrowIfNull(handlers);
 
       driver = handlers.StorageDriver;
       providerInfo = handlers.ProviderInfo;
       sequenceQueryBuilder = handlers.SequenceQueryBuilder;
-      providerInfo = handlers.ProviderInfo;
       typeIdColumnName = handlers.NameBuilder.TypeIdColumnName;
 
-      this.resolver = resolver;
-      this.sqlModel = sqlModel;
-      this.actions = actions;
-      this.sourceModel = sourceModel;
-      this.targetModel = targetModel;
-      this.enforceChangedColumns = enforceChangedColumns;
-      this.sqlExecutor = sqlExecutor;
+      this.resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
+      this.sqlModel = sqlModel ?? throw new ArgumentNullException(nameof(sqlModel));
+      this.actions = actions ?? throw new ArgumentNullException(nameof(actions));
+      this.sourceModel = sourceModel ?? throw new ArgumentNullException(nameof(sourceModel));
+      this.targetModel = targetModel ?? throw new ArgumentNullException(nameof(targetModel));
+      this.enforceChangedColumns = enforceChangedColumns ?? throw new ArgumentNullException(nameof(enforceChangedColumns));
+      this.sqlExecutor = sqlExecutor ?? throw new ArgumentNullException(nameof(sqlExecutor));
       this.allowCreateConstraints = allowCreateConstraints;
 
       if (providerInfo.Supports(ProviderFeatures.Collations)) {
         var collation = handlers.Domain.Configuration.Collation;
         if (!string.IsNullOrEmpty(collation))
           collationName = collation;
+      }
+      if (providerInfo.ProviderName == WellKnown.Provider.MySql) {
+        removeFkBeforeIndex = true;
       }
     }
   }

@@ -43,8 +43,8 @@ namespace Xtensive.Orm.Tests.Storage.ActivatorModel
     public InitializebleClass()
     {
       syncRoot = new object();
-      // Ëîãèêà, êîòîðàÿ þçàåò syncRoot.
-      Assert.IsNotNull(syncRoot);
+      // Ã‹Ã®Ã£Ã¨ÃªÃ , ÃªÃ®Ã²Ã®Ã°Ã Ã¿ Ã¾Ã§Ã Ã¥Ã² syncRoot.
+      Assert.That(syncRoot, Is.Not.Null);
     }
 
     [Field, Key]
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Storage.ActivatorModel");
+      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Storage.ActivatorModel");
       return config;
     }
 
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (var t = session.OpenTransaction())
         {
           var obj1 = new  InitializebleClass();
-          Assert.IsNotNull(obj1.syncRoot);
+          Assert.That(obj1.syncRoot, Is.Not.Null);
           t.Complete();
         }
       }
@@ -84,8 +84,8 @@ namespace Xtensive.Orm.Tests.Storage
         using (var t = session.OpenTransaction())
         {
           var obj1 = session.Query.All<InitializebleClass>().First();
-          Assert.IsNotNull(obj1);
-          Assert.IsNotNull(obj1.syncRoot);
+          Assert.That(obj1, Is.Not.Null);
+          Assert.That(obj1.syncRoot, Is.Not.Null);
           t.Complete();
         }
       }
@@ -105,10 +105,10 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction()) {
           var ancestor = session.Query.SingleOrDefault<Ancestor>(key);
-          Assert.IsNotNull(ancestor);
+          Assert.That(ancestor, Is.Not.Null);
 
           var descendant = session.Query.SingleOrDefault<Descendant>(key);
-          Assert.IsNotNull(descendant);
+          Assert.That(descendant, Is.Not.Null);
         }        
       }
     }

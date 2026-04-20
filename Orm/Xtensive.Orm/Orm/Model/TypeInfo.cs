@@ -6,18 +6,18 @@
 
 using System;
 using System.Collections;
-using System.Collections.Immutable;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
 using Xtensive.Tuples;
 using Xtensive.Tuples.Transform;
 using Tuple = Xtensive.Tuples.Tuple;
-using JetBrains.Annotations;
 
 namespace Xtensive.Orm.Model
 {
@@ -54,7 +54,6 @@ namespace Xtensive.Orm.Model
     private IReadOnlyList<AssociationInfo> removalSequence;
     private IReadOnlyList<FieldInfo> versionFields;
     private IReadOnlyList<ColumnInfo> versionColumns;
-    private IList<IObjectValidator> validators;
     private Type underlyingType;
     private HierarchyInfo hierarchy;
     private int typeId = NoTypeId;
@@ -68,9 +67,9 @@ namespace Xtensive.Orm.Model
     private IDictionary<Pair<FieldInfo>, FieldInfo> structureFieldMapping;
     private List<AssociationInfo> overridenAssociations;
     private FieldInfo typeIdField;
+ 
 
     private TypeInfo ancestor;
-
     private IReadOnlySet<TypeInfo> ancestors;
 
     private ISet<TypeInfo> directDescendants;
@@ -528,14 +527,7 @@ namespace Xtensive.Orm.Model
     /// Gets <see cref="IObjectValidator"/> instances
     /// associated with this type.
     /// </summary>
-    public IList<IObjectValidator> Validators
-    {
-      get { return validators; }
-      internal set {
-        EnsureNotLocked();
-        validators = value;
-      }
-    }
+    public IReadOnlyList<IObjectValidator> Validators { get; internal init; }
 
     /// <summary>
     /// Gets value indicating if this type has validators (including field validators).
@@ -573,43 +565,6 @@ namespace Xtensive.Orm.Model
     {
       return primaryKeyInjector.Apply(TupleTransformType.Tuple, primaryKey, entityTuple);
     }
-
-    /// <summary>
-    /// Gets the direct implementors of this instance.
-    /// </summary>
-    /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implementors will be returned.</param>
-    [Obsolete("Use DirectImplementors/AllImplementors properties instead")]
-    public IEnumerable<TypeInfo> GetImplementors(bool recursive = false) => recursive ? AllImplementors : DirectImplementors;
-
-    /// <summary>
-    /// Gets the persistent interfaces this instance implements.
-    /// </summary>
-    /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implemented interfaces will be returned.</param>
-    [Obsolete("Use DirectInterfaces/AllInterfaces properties instead")]
-    public IEnumerable<TypeInfo> GetInterfaces(bool recursive = false) => recursive ? AllInterfaces : DirectInterfaces;
-
-    /// <summary>
-    /// Gets descendants of this instance.
-    /// </summary>
-    /// <param name="recursive">if set to <see langword="true"/> then both direct and nested descendants will be returned.</param>
-    /// <returns></returns>
-    [Obsolete("Use DirectDescendants/AllDescendants properties instead")]
-    public IEnumerable<TypeInfo> GetDescendants(bool recursive) => recursive ? AllDescendants : DirectDescendants;
-
-    /// <summary>
-    /// Gets the ancestors recursively. Root-to-inheritor order.
-    /// </summary>
-    /// <returns>The ancestor</returns>
-    [Obsolete("Use Ancestors property instead")]
-    public IReadOnlyList<TypeInfo> GetAncestors() => Ancestors.ToList();
-
-    /// <summary>
-    /// Gets the root of the hierarchy.
-    /// </summary>
-    /// <returns>The hierarchy root.</returns>
-    [Obsolete("Use Root property instead")]
-    [CanBeNull]
-    public TypeInfo GetRoot() => Root;
 
     public IEnumerable<AssociationInfo> GetTargetAssociations()
     {
@@ -745,7 +700,7 @@ namespace Xtensive.Orm.Model
         }
       }
 
-      HasValidators = validators.Count > 0 || fields.Any(f => f.HasValidators);
+      HasValidators = Validators.Count > 0 || fields.Any(f => f.HasValidators);
 
       // Selecting master parts from paired associations & single associations
       var associations = model.Associations.Find(this)
@@ -769,11 +724,13 @@ namespace Xtensive.Orm.Model
         .SelectMany(a => a.Ancestors.Concat(a.Reversed == null ? Enumerable.Empty<AssociationInfo>() : a.Reversed.Ancestors))
         .ToList();
       var ancestor = Ancestor;
-      if (ancestor != null && ancestor.overridenAssociations != null)
+      if (ancestor != null && ancestor.overridenAssociations != null) {
         overridenAssociations.AddRange(ancestor.overridenAssociations);
+      }
 
-      foreach (var ancestorAssociation in overridenAssociations)
+      foreach (var ancestorAssociation in overridenAssociations) {
         associations.Remove(ancestorAssociation);
+      }
 
       //
       //Commented action sequence bellow may add dublicates to "sequence".
@@ -832,8 +789,6 @@ namespace Xtensive.Orm.Model
 
       if (!recursive)
         return;
-
-      validators = Array.AsReadOnly(validators.ToArray());
 
       directDescendants = directDescendants != null
         ? new Collections.ReadOnlyHashSet<TypeInfo>((HashSet<TypeInfo>) directDescendants)

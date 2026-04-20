@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.10.26
 
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       var config = base.BuildConfiguration();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
+      config.Types.RegisterCaching(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
       return config;
     }
 
@@ -80,8 +80,11 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         BindingFlags.NonPublic | BindingFlags.Instance);
       PrefetchProcessorField = typeof (SqlSessionHandler).GetField("prefetchManager",
         BindingFlags.NonPublic | BindingFlags.Instance);
-      PrefetchTestHelper.FillDataBase(Domain);
+      
     }
+
+    protected override void PopulateData() => PrefetchTestHelper.FillDataBase(Domain);
+
 
     protected Key GetFirstKey<T>()
       where T : Entity
@@ -97,9 +100,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       Session session)
     {
       EntitySetState state;
-      Assert.IsTrue(session.Handler.LookupState(key, field, out state));
-      Assert.AreEqual(count, state.Count());
-      Assert.AreEqual(isFullyLoaded, state.IsFullyLoaded);
+      Assert.That(session.Handler.LookupState(key, field, out state), Is.True);
+      Assert.That(state.Count(), Is.EqualTo(count));
+      Assert.That(state.IsFullyLoaded, Is.EqualTo(isFullyLoaded));
     }
 
     internal GraphContainer GetSingleGraphContainer(PrefetchManager prefetchManager)

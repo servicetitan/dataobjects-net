@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
 
     private void Test(double speedFactor)
     {
-      TestLog.Info("Class size: {0} bytes", ClassSize);
+      TestLog.Info($"Class size: {ClassSize} bytes");
       TestClassAllocation(speedFactor);
       TestStructAllocation(speedFactor);
     }
@@ -92,7 +92,6 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       // Warmup
       int iterations = 100;
       AllocateClass_SlimObject(iterations);
-      AllocateClass_SlimObject_ByFormatterServices(iterations);
       AllocateClass_FinalizableSlimObject(iterations);
       AllocateClass_InheritedObject3(iterations);
       AllocateClass<SlimObject>(iterations);
@@ -109,9 +108,6 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
         using (TestLog.InfoRegion("Allocation to nothing")) {
           using (new Measurement("SlimObject", MeasurementOptions.Log, iterations))
             AllocateClass_SlimObject(iterations);
-          TestHelper.CollectGarbage();
-          using (new Measurement("SlimObject (using FormatterServices)", MeasurementOptions.Log, iterations))
-            AllocateClass_SlimObject_ByFormatterServices(iterations);
           TestHelper.CollectGarbage();
           using (new Measurement("FinalizableSlimObject", MeasurementOptions.Log, iterations))
             AllocateClass_FinalizableSlimObject(iterations);
@@ -207,23 +203,6 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
         new InheritedObject3();
         new InheritedObject3();
         new InheritedObject3();
-      }
-    }
-
-    private void AllocateClass_SlimObject_ByFormatterServices(int iterationCount)
-    {
-      var type = typeof(SlimObject);
-      for (int i = 0; i<iterationCount; i+=10) {
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
-        FormatterServices.GetUninitializedObject(type);
       }
     }
 

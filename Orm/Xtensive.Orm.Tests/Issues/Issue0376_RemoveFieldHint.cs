@@ -157,7 +157,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model1");
+      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model1");
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
     }
@@ -180,7 +180,7 @@ namespace Xtensive.Orm.Tests.Issues
       Require.AllFeaturesSupported(ProviderFeatures.UpdateFrom);
       // Test MoveFieldHint (RemoveFieldHint)
       var config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model2");
+      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model2");
       config.UpgradeMode = DomainUpgradeMode.PerformSafely;
       Domain domain;
       using (M2.Upgrader.Enable()) {
@@ -189,23 +189,23 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
           var son = session.Query.All<M2.Son>().Single();
-          Assert.AreEqual("FirstName", son.FirstName);
-          Assert.AreEqual("LastName", son.LastName);
-          Assert.AreEqual("NickName", son.NickName);
+          Assert.That(son.FirstName, Is.EqualTo("FirstName"));
+          Assert.That(son.LastName, Is.EqualTo("LastName"));
+          Assert.That(son.NickName, Is.EqualTo("NickName"));
           transactionScope.Complete();
         }
       }
       
       // Test RemoveTypeHint
       config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model3");
+      config.Types.RegisterCaching(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Issues.Issue0376.Model3");
       config.UpgradeMode = DomainUpgradeMode.PerformSafely;
       using (M3.Upgrader.Enable()) {
         domain = Domain.Build(config);
       }
       using (var session = domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          Assert.IsTrue(session.Query.All<M3.Father>().Count()==0);
+          Assert.That(session.Query.All<M3.Father>().Count()==0, Is.True);
           transactionScope.Complete();
         }
       }

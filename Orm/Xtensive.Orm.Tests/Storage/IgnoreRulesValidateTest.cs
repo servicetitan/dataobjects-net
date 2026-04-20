@@ -344,6 +344,7 @@ namespace Xtensive.Orm.Tests.Storage
 
     private readonly bool createConstraintsWithTable = StorageProviderInfo.Instance.Provider == StorageProvider.Sqlite;
     private readonly bool noExceptionOnIndexKeyColumnDrop = StorageProviderInfo.Instance.Provider.In(StorageProvider.PostgreSql, StorageProvider.MySql);
+    private readonly bool noExceptionOnIndexIncludedColumnDrop = StorageProviderInfo.Instance.Provider.In(StorageProvider.PostgreSql);
     private readonly SqlDriver sqlDriver = TestSqlDriver.Create(GetConnectionInfo());
 
     private Key changedOrderKey;
@@ -646,8 +647,13 @@ namespace Xtensive.Orm.Tests.Storage
       var ignoreRuleCollection = new IgnoreRuleCollection();
       _ = ignoreRuleCollection.IgnoreIndex("IX_Ignored_Index").WhenTable("MyEntity2");
 
-      _ = Assert.Throws<StorageException>(
-        () => BuildDomain(DomainUpgradeMode.Perform, ignoreRuleCollection, model5Types).Dispose());
+      if (noExceptionOnIndexIncludedColumnDrop) {
+        BuildDomain(DomainUpgradeMode.Perform, ignoreRuleCollection, model6Types).Dispose();
+      }
+      else {
+        _ = Assert.Throws<StorageException>(
+          () => BuildDomain(DomainUpgradeMode.Perform, ignoreRuleCollection, model5Types).Dispose());
+      }
     }
 
     [Test]
@@ -964,13 +970,17 @@ namespace Xtensive.Orm.Tests.Storage
       using var transaction = session.OpenTransaction();
 
       var author = new Model1.Author {
-        FirstName = "Ivan", LastName = "Goncharov", Birthday = new DateTime(1812, 6, 18)
+        FirstName = "Ivan",
+        LastName = "Goncharov",
+        Birthday = new DateTime(1812, 6, 18)
       };
       var book = new Model1.Book { ISBN = "9780140440409", Title = "Oblomov" };
       _ = book.Authors.Add(author);
 
       var customer = new Model1.Customer {
-        FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(1988, 8, 31)
+        FirstName = "Alexey",
+        LastName = "Kulakov",
+        Birthday = new DateTime(1988, 8, 31)
       };
       var order = new Model1.Order { Book = book, Customer = customer };
       order["SomeIgnoredField"] = "Secret information for FBI :)";
@@ -1052,16 +1062,16 @@ namespace Xtensive.Orm.Tests.Storage
         }
 
         var part1Namespaces = firstPartTypes.Select(t => t.Namespace).Distinct();
-        var part2Namespaces = secondPartTypes.Select(t=>t.Namespace).Distinct();
+        var part2Namespaces = secondPartTypes.Select(t => t.Namespace).Distinct();
 
         if (isMultischemaTest) {
           foreach (var ns in part1Namespaces) {
             configuration.MappingRules.Map(firstPartTypes[0].Assembly, ns).ToSchema(Schema1);
           }
-          foreach(var ns in part2Namespaces) {
+          foreach (var ns in part2Namespaces) {
             configuration.MappingRules.Map(secondPartTypes[0].Assembly, ns).ToSchema(Schema2);
           }
-          
+
           configuration.DefaultSchema = DefaultSchema;
         }
         else {

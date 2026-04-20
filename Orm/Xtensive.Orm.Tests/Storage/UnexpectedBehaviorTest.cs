@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (UncreatableEntity).Assembly, typeof (UncreatableEntity).Namespace);
+      configuration.Types.RegisterCaching(typeof (UncreatableEntity).Assembly, typeof (UncreatableEntity).Namespace);
       return configuration;
     }
 
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Tests.Storage
         catch {
         }
         var wtf = session.Query.SingleOrDefault<UncreatableEntity>(42);
-        Assert.IsNull(wtf);
+        Assert.That(wtf, Is.Null);
       }
     }
   }

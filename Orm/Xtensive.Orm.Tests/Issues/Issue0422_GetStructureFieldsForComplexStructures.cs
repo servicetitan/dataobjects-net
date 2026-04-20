@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (EntityB).Assembly, typeof (EntityB).Namespace);
+      config.Types.RegisterCaching(typeof (EntityB).Assembly, typeof (EntityB).Namespace);
       config.NamingConvention.NamespacePolicy = NamespacePolicy.Synonymize;
       config.NamingConvention.NamingRules = NamingRules.None;
       return config;
@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Tests.Issues
           var str = structures.Single();
           var testEntities = session.Query.All<EntityB>().Where(b => b.ComplexStructure==str).ToArray();
           var actualEntities = session.Query.All<EntityB>().AsEnumerable().Where(b => b.ComplexStructure==str).ToArray();
-          Assert.AreEqual(0, actualEntities.Except(testEntities).Count());
+          Assert.That(actualEntities.Except(testEntities).Count(), Is.EqualTo(0));
 
           // Rollback
         }

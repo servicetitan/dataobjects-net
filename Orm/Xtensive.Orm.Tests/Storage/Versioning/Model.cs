@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2018-2020 Xtensive LLC.
+// Copyright (C) 2018-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -682,7 +682,7 @@ namespace Xtensive.Orm.Tests.Storage.VersioningConventionTestModel
       if (value is string) {
         return (T) (object) ((string) (object) value + (string) (object) value);
       }
-      throw new NotSupportedException(string.Format("Type '{0}' is not supported", typeof(T)));
+      throw new NotSupportedException($"Type '{typeof(T)}' is not supported");
     }
   }
 }

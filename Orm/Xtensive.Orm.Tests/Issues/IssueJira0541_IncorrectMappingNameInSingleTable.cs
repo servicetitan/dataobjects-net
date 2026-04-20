@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -44,14 +44,14 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      Assert.AreEqual("Name", Domain.Model.Types[typeof (FirstChild)].Fields["Name"].MappingName);
-      Assert.AreEqual("SecondChild.Name", Domain.Model.Types[typeof (SecondChild)].Fields["Name"].MappingName);
+      Assert.That(Domain.Model.Types[typeof (FirstChild)].Fields["Name"].MappingName, Is.EqualTo("Name"));
+      Assert.That(Domain.Model.Types[typeof (SecondChild)].Fields["Name"].MappingName, Is.EqualTo("SecondChild.Name"));
     }
 
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (BaseClass).Assembly, typeof (BaseClass).Namespace);
+      configuration.Types.RegisterCaching(typeof (BaseClass).Assembly, typeof (BaseClass).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }

@@ -61,8 +61,8 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(User).Assembly, typeof(User).Namespace);
-      configuration.Types.Register(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
+      configuration.Types.RegisterCaching(typeof(User).Assembly, typeof(User).Namespace);
+      configuration.Types.RegisterCaching(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
       configuration.DefaultDatabase = DOTests1Db;
       configuration.DefaultSchema = DefaultSchema;
       configuration.ForeignKeyMode = GetForeignKeyMode();
@@ -370,7 +370,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
       Assert.That(x.Ref, Is.Not.Null);
 
       for (var i = 0; i < 200; i++) {
-        _ = new Country { Value = string.Format("Country{0}", i) };
+        _ = new Country { Value = $"Country{i}" };
       }
     }
 
@@ -409,7 +409,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
       Assert.That(ioPostsInfosCount, Is.EqualTo(2));
 
       for (var i = 0; i < 200; i++) {
-        _ = new Manufacturer { Name = string.Format("Manufacturer{0}", i) };
+        _ = new Manufacturer { Name = $"Manufacturer{i}" };
       }
     }
   }

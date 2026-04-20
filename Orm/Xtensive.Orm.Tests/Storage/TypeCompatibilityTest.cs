@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -114,6 +114,12 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
     public DateTime FDateTime { get; set; }
 
     [Field]
+    public DateOnly FDateOnly { get; set; }
+
+    [Field]
+    public TimeOnly FTimeOnly { get; set; }
+
+    [Field]
     public TimeSpan FTimeSpan { get; set; }
 
     [Field(Length = 1000)]
@@ -199,6 +205,12 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
     public DateTime? FNDateTime { get; set; }
 
     [Field]
+    public DateOnly? FNDateOnly { get; set; }
+
+    [Field]
+    public TimeOnly? FNTimeOnly { get; set; }
+
+    [Field]
     public TimeSpan? FNTimeSpan { get; set; }
 
     [Field]
@@ -225,6 +237,15 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
     [Field]
     public EULong? FNEULong { get; set; }
 
+    public X(Session session)
+      : base(session)
+    {
+    }
+
+    public X()
+      : base()
+    {
+    }
   }
 
   [HierarchyRoot]
@@ -238,6 +259,11 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
 
     [Field(Precision = 18, Scale = 0)]
     public decimal d18_0 { get; set; }
+
+    public DecimalContainer(Session session)
+      : base(session)
+    {
+    }
   }
 
   [HierarchyRoot]
@@ -248,6 +274,11 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
 
     [Field]
     public double FDouble { get; set; }
+
+    public DoubleContainer(Session session)
+      : base(session)
+    {
+    }
   }
 }
 
@@ -259,7 +290,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var config =  base.BuildConfiguration();
-      config.Types.Register(typeof (X).Assembly, typeof (X).Namespace);
+      config.Types.RegisterCaching(typeof (X).Assembly, typeof (X).Namespace);
       return config;
     }
 
@@ -274,64 +305,80 @@ namespace Xtensive.Orm.Tests.Storage
           t.Complete();
         }
 
-        var field = typeof (StorageDriver).GetField("underlyingDriver", BindingFlags.Instance | BindingFlags.NonPublic);
-        var sqlDriver = (SqlDriver) field.GetValue(Domain.Handlers.StorageDriver);
+        var sqlDriver = TestSqlDriver.Create(session.Domain.Configuration.ConnectionInfo);
         var dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateTime;
-        var minValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;
+        var dateTimeMinValue = ((ValueRange<DateTime>) dataTypeInfo.ValueRange).MinValue;
+
+        dataTypeInfo = sqlDriver.ServerInfo.DataTypes.DateOnly;
+        var dateOnlyMinValue = ((ValueRange<DateOnly>) dataTypeInfo.ValueRange).MinValue;
+
+        dataTypeInfo = sqlDriver.ServerInfo.DataTypes.TimeOnly;
+        var timeOnlyMinValue = ((ValueRange<TimeOnly>) dataTypeInfo.ValueRange).MinValue;
 
         using (var t = session.OpenTransaction()) {
           X x = session.Query.SingleOrDefault<X>(key);
-          Assert.AreEqual(false, x.FBool);
-          Assert.AreEqual(0, x.FByte);
-          Assert.AreEqual(null, x.FByteArray);
-          Assert.AreEqual(minValue, x.FDateTime);
-          Assert.AreEqual(0, x.FDecimal);
-          Assert.AreEqual(0, x.FDouble);
-          Assert.AreEqual(EByte.Default, x.FEByte);
-          Assert.AreEqual(EInt.Default, x.FEInt);
-          Assert.AreEqual(ELong.Default, x.FELong);
-          Assert.AreEqual(ESByte.Default, x.FESByte);
-          Assert.AreEqual(EShort.Default, x.FEShort);
-          Assert.AreEqual(EUInt.Default, x.FEUInt);
-          Assert.AreEqual(EULong.Default, x.FEULong);
-          Assert.AreEqual(EUShort.Default, x.FEUShort);
-          Assert.AreEqual(0, x.FFloat);
-          Assert.AreEqual(Guid.Empty, x.FGuid);
-          Assert.AreEqual(0, x.FInt);
-          Assert.AreEqual(0L, x.FLong);
-          Assert.AreEqual(null, x.FLongByteArray);
-          Assert.AreEqual(null, x.FLongString);
-          Assert.AreEqual(0, x.FSByte);
-          Assert.AreEqual(0, x.FShort);
-          Assert.AreEqual(null, x.FString);
-          Assert.AreEqual(TimeSpan.Zero, x.FTimeSpan);
-          Assert.AreEqual(0, x.FUInt);
-          Assert.AreEqual(0, x.FULong);
-          Assert.AreEqual(0, x.FUShort);
+          Assert.That(x.FBool, Is.EqualTo(false));
+          Assert.That(x.FByte, Is.EqualTo(0));
+          Assert.That(x.FByteArray, Is.EqualTo(null));
+          if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql)) {
+            Assert.That(x.FDateTime, Is.EqualTo(DateTime.MinValue));
+            Assert.That(x.FDateOnly, Is.EqualTo(DateOnly.MinValue));
+            Assert.That(x.FTimeOnly, Is.EqualTo(TimeOnly.MinValue));
+          }
+          else {
+            Assert.That(x.FDateTime, Is.EqualTo(dateTimeMinValue));
+            Assert.That(x.FDateOnly, Is.EqualTo(dateOnlyMinValue));
+            Assert.That(x.FTimeOnly, Is.EqualTo(timeOnlyMinValue));
+          }
+          Assert.That(x.FDecimal, Is.EqualTo(0));
+          Assert.That(x.FDouble, Is.EqualTo(0));
+          Assert.That(x.FEByte, Is.EqualTo(EByte.Default));
+          Assert.That(x.FEInt, Is.EqualTo(EInt.Default));
+          Assert.That(x.FELong, Is.EqualTo(ELong.Default));
+          Assert.That(x.FESByte, Is.EqualTo(ESByte.Default));
+          Assert.That(x.FEShort, Is.EqualTo(EShort.Default));
+          Assert.That(x.FEUInt, Is.EqualTo(EUInt.Default));
+          Assert.That(x.FEULong, Is.EqualTo(EULong.Default));
+          Assert.That(x.FEUShort, Is.EqualTo(EUShort.Default));
+          Assert.That(x.FFloat, Is.EqualTo(0));
+          Assert.That(x.FGuid, Is.EqualTo(Guid.Empty));
+          Assert.That(x.FInt, Is.EqualTo(0));
+          Assert.That(x.FLong, Is.EqualTo(0L));
+          Assert.That(x.FLongByteArray, Is.EqualTo(null));
+          Assert.That(x.FLongString, Is.EqualTo(null));
+          Assert.That(x.FSByte, Is.EqualTo(0));
+          Assert.That(x.FShort, Is.EqualTo(0));
+          Assert.That(x.FString, Is.EqualTo(null));
+          Assert.That(x.FTimeSpan, Is.EqualTo(TimeSpan.Zero));
+          Assert.That(x.FUInt, Is.EqualTo(0));
+          Assert.That(x.FULong, Is.EqualTo(0));
+          Assert.That(x.FUShort, Is.EqualTo(0));
 
-          Assert.AreEqual(null, x.FNBool);
-          Assert.AreEqual(null, x.FNByte);
-          Assert.AreEqual(null, x.FNDateTime);
-          Assert.AreEqual(null, x.FNDecimal);
-          Assert.AreEqual(null, x.FNDouble);
-          Assert.AreEqual(null, x.FNEByte);
-          Assert.AreEqual(null, x.FNEInt);
-          Assert.AreEqual(null, x.FNELong);
-          Assert.AreEqual(null, x.FNESByte);
-          Assert.AreEqual(null, x.FNEShort);
-          Assert.AreEqual(null, x.FNEUInt);
-          Assert.AreEqual(null, x.FNEULong);
-          Assert.AreEqual(null, x.FNEUShort);
-          Assert.AreEqual(null, x.FNFloat);
-          Assert.AreEqual(null, x.FNGuid);
-          Assert.AreEqual(null, x.FNInt);
-          Assert.AreEqual(null, x.FNLong);
-          Assert.AreEqual(null, x.FNSByte);
-          Assert.AreEqual(null, x.FNShort);
-          Assert.AreEqual(null, x.FNTimeSpan);
-          Assert.AreEqual(null, x.FNUInt);
-          Assert.AreEqual(null, x.FNULong);
-          Assert.AreEqual(null, x.FNUShort);
+          Assert.That(x.FNBool, Is.EqualTo(null));
+          Assert.That(x.FNByte, Is.EqualTo(null));
+          Assert.That(x.FNDateTime, Is.EqualTo(null));
+          Assert.That(x.FNDateOnly, Is.EqualTo(null));
+          Assert.That(x.FNTimeOnly, Is.EqualTo(null));
+          Assert.That(x.FNDecimal, Is.EqualTo(null));
+          Assert.That(x.FNDouble, Is.EqualTo(null));
+          Assert.That(x.FNEByte, Is.EqualTo(null));
+          Assert.That(x.FNEInt, Is.EqualTo(null));
+          Assert.That(x.FNELong, Is.EqualTo(null));
+          Assert.That(x.FNESByte, Is.EqualTo(null));
+          Assert.That(x.FNEShort, Is.EqualTo(null));
+          Assert.That(x.FNEUInt, Is.EqualTo(null));
+          Assert.That(x.FNEULong, Is.EqualTo(null));
+          Assert.That(x.FNEUShort, Is.EqualTo(null));
+          Assert.That(x.FNFloat, Is.EqualTo(null));
+          Assert.That(x.FNGuid, Is.EqualTo(null));
+          Assert.That(x.FNInt, Is.EqualTo(null));
+          Assert.That(x.FNLong, Is.EqualTo(null));
+          Assert.That(x.FNSByte, Is.EqualTo(null));
+          Assert.That(x.FNShort, Is.EqualTo(null));
+          Assert.That(x.FNTimeSpan, Is.EqualTo(null));
+          Assert.That(x.FNUInt, Is.EqualTo(null));
+          Assert.That(x.FNULong, Is.EqualTo(null));
+          Assert.That(x.FNUShort, Is.EqualTo(null));
 
           t.Complete();
         }
@@ -357,7 +404,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession()) {
         Key key;
         using (var transactionScope = session.OpenTransaction()) {
-          var container = new DecimalContainer() {
+          var container = new DecimalContainer(session) {
             d18_9 = d18_9,
             d18_0 = d18_0
           };
@@ -366,8 +413,8 @@ namespace Xtensive.Orm.Tests.Storage
         }
         using (var transactionScope = session.OpenTransaction()) {
           var container = session.Query.Single<DecimalContainer>(key);
-          Assert.AreEqual(d18_9, container.d18_9);
-          Assert.AreEqual(d18_0, container.d18_0);
+          Assert.That(container.d18_9, Is.EqualTo(d18_9));
+          Assert.That(container.d18_0, Is.EqualTo(d18_0));
           transactionScope.Complete();
         }
       }

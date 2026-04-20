@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -62,8 +63,8 @@ namespace Xtensive.Orm
     /// <exception cref="InvalidOperationException"><see cref="Transaction.Current"/> <see cref="Transaction"/> is <see langword="null" />.</exception>
     public static void Require(Session session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
-      session.DemandTransaction();
+      ArgumentNullException.ThrowIfNull(session);
+      _ = session.DemandTransaction();
     }
 
     #endregion
@@ -154,7 +155,7 @@ namespace Xtensive.Orm
     /// </returns>
     public bool AreChangesVisibleTo(Transaction otherTransaction)
     {
-      ArgumentValidator.EnsureArgumentNotNull(otherTransaction, "otherTransaction");
+      ArgumentNullException.ThrowIfNull(otherTransaction);
       if (Outermost != otherTransaction.Outermost) {
         return false;
       }
@@ -210,7 +211,7 @@ namespace Xtensive.Orm
         PromoteLifetimeTokens();
       }
       else if (Session.Configuration.Supports(SessionOptions.NonTransactionalReads)) {
-        ClearLifetimeTokens();
+        PromoteLifetimeTokensToSession();
       }
       else {
         ExpireLifetimeTokens();
@@ -270,6 +271,14 @@ namespace Xtensive.Orm
     {
       Outer.lifetimeTokens.AddRange(lifetimeTokens);
       ClearLifetimeTokens();
+    }
+
+    private void PromoteLifetimeTokensToSession()
+    {
+      if (Outer == null
+          && Session.TryPromoteTokens(Enumerable.Repeat(LifetimeToken, 1).Union(lifetimeTokens))) {
+        ClearLifetimeTokens();
+      }
     }
 
     private void ClearLifetimeTokens()

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Configuration;
 
@@ -9,12 +9,6 @@ namespace Xtensive.Orm.Reprocessing.Configuration
   /// </summary>
   public class ConfigurationSection : System.Configuration.ConfigurationSection
   {
-    /// <summary>
-    /// Gets default section name for reprocessing configuration.
-    /// Value is "Xtensive.Reprocessing".
-    /// </summary>
-    public static readonly string DefaultSectionName = "Xtensive.Orm.Reprocessing";
-
     /// <summary>
     /// Gets or sets default transaction open mode.
     /// </summary>

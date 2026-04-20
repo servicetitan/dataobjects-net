@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Company).Assembly, typeof (Company).Namespace);
+      config.Types.RegisterCaching(typeof (Company).Assembly, typeof (Company).Namespace);
       return config;
     }
 
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Tests.Issues
           company.Employees.Add(employee1);
           company.Employees.Add(employee2);
           company.Employees.Add(employee3);
-          Assert.IsNotNull(company.Employees.ElementAt(0));
+          Assert.That(company.Employees.ElementAt(0), Is.Not.Null);
           // Rollback
         }
       }

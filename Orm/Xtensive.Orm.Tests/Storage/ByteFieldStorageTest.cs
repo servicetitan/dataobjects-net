@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (BlobEntity).Assembly, typeof (BlobEntity).Namespace);
+      config.Types.RegisterCaching(typeof (BlobEntity).Assembly, typeof (BlobEntity).Namespace);
       return config;
     }
 
@@ -53,8 +53,8 @@ namespace Xtensive.Orm.Tests.Storage
       using (Domain.OpenSession()) {
         using (var transactionScope = Session.Current.OpenTransaction()) {
           var blob = Query.All<BlobEntity>().Single();
-          Assert.AreEqual(blobData.Length, blob.BlobData.Length);
-          Assert.AreEqual(blobData, blob.BlobData);
+          Assert.That(blob.BlobData.Length, Is.EqualTo(blobData.Length));
+          Assert.That(blob.BlobData, Is.EqualTo(blobData));
           transactionScope.Complete();
         }
       }

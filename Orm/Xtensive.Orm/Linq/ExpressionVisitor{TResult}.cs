@@ -60,6 +60,11 @@ namespace Xtensive.Linq
       case ExpressionType.ArrayLength:
       case ExpressionType.Quote:
       case ExpressionType.TypeAs:
+      case ExpressionType.Decrement:
+      case ExpressionType.Increment:
+      case ExpressionType.IsFalse:
+      case ExpressionType.IsTrue:
+      case ExpressionType.OnesComplement:
         result = VisitUnary((UnaryExpression) e);
         break;
       case ExpressionType.Add:
@@ -85,9 +90,12 @@ namespace Xtensive.Linq
       case ExpressionType.RightShift:
       case ExpressionType.LeftShift:
       case ExpressionType.ExclusiveOr:
+      case ExpressionType.Power:
+      case ExpressionType.Assign:
         result = VisitBinary((BinaryExpression) e);
         break;
       case ExpressionType.TypeIs:
+      case ExpressionType.TypeEqual:
         result = VisitTypeIs((TypeBinaryExpression) e);
         break;
       case ExpressionType.Conditional:
@@ -95,6 +103,9 @@ namespace Xtensive.Linq
         break;
       case ExpressionType.Constant:
         result = VisitConstant((ConstantExpression) e);
+        break;
+      case ExpressionType.Default:
+        result = VisitDefault((DefaultExpression) e);
         break;
       case ExpressionType.Parameter:
         result = VisitParameter((ParameterExpression) e);
@@ -150,6 +161,20 @@ namespace Xtensive.Linq
     }
 
     /// <summary>
+    /// Visits the expression list.
+    /// </summary>
+    /// <param name="expressions">The expression list.</param>
+    /// <returns>Visit result.</returns>
+    protected virtual IReadOnlyList<TResult> VisitExpressionList(IReadOnlyList<Expression> expressions)
+    {
+      var results = new TResult[expressions.Count];
+      for (int i = 0, n = expressions.Count; i < n; i++) {
+        results[i] = Visit(expressions[i]);
+      }
+      return results;
+    }
+
+    /// <summary>
     /// Visits the unknown expression.
     /// </summary>
     /// <param name="e">The unknown expression.</param>
@@ -189,6 +214,13 @@ namespace Xtensive.Linq
     /// <param name="c">The constant expression.</param>
     /// <returns>Visit result.</returns>
     protected abstract TResult VisitConstant(ConstantExpression c);
+
+    /// <summary>
+    /// Visits the default expression.
+    /// </summary>
+    /// <param name="d">The default expression.</param>
+    /// <returns>Visit result.</returns>
+    protected abstract TResult VisitDefault(DefaultExpression d);
     
     /// <summary>
     /// Visits the conditional expression.

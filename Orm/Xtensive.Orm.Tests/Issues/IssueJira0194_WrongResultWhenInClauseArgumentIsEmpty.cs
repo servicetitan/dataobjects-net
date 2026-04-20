@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Document).Assembly, typeof (Document).Namespace);
+      config.Types.RegisterCaching(typeof (Document).Assembly, typeof (Document).Namespace);
       return config;
     }
 
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Tests.Issues
           var document = new Document();
           var forbiddenIds = new List<int>();
           var result = session.Query.All<Document>().Where(doc => !doc.Id.In(forbiddenIds)).Count();
-          Assert.AreEqual(1, result);
+          Assert.That(result, Is.EqualTo(1));
           // Rollback
         }
       }
@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Tests.Issues
         using (var t = session.OpenTransaction()) {
           var document = new Document();
           var result = session.Query.All<Document>().Where(doc => !doc.Id.In(new List<int>())).Count();
-          Assert.AreEqual(1, result);
+          Assert.That(result, Is.EqualTo(1));
           // Rollback
         }
       }
@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Tests.Issues
           var document = new Document {Owner = person};
           var forbiddenOwners = new List<Person>();
           var result = session.Query.All<Document>().Where(doc => !doc.Owner.In(forbiddenOwners)).Count();
-          Assert.AreEqual(1, result);
+          Assert.That(result, Is.EqualTo(1));
           // Rollback
         }
       }
@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Tests.Issues
           var person = new Person("Vasily", "Petrov");
           var document = new Document {Owner = person};
           var result = session.Query.All<Document>().Where(doc => !doc.Owner.In(new List<Person>())).Count();
-          Assert.AreEqual(1, result);
+          Assert.That(result, Is.EqualTo(1));
           // Rollback
         }
       }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
+      config.Types.RegisterCaching(typeof (Person).Assembly, typeof (Person).Namespace);
       return config;
     }
 
@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Tests.Issues
           var query = from person in session.Query.All<Person>()
                       select new {Status = person.IntField == null ? Status.Married : Status.Single};
           var result = query.ToList();
-          Assert.AreEqual(3, result.Count);
+          Assert.That(result.Count, Is.EqualTo(3));
           // Rollback
         }
       }

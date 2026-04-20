@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -12,6 +12,8 @@ using Xtensive.Linq.SerializableExpressions;
 using Xtensive.Linq.SerializableExpressions.Internals;
 
 using System.Linq;
+using Xtensive.Reflection;
+using System.Collections.Concurrent;
 
 namespace Xtensive.Core
 {
@@ -20,6 +22,8 @@ namespace Xtensive.Core
   /// </summary>
   public static class ExpressionExtensions
   {
+    private readonly static ConcurrentDictionary<Type, object> StructDefaultValues = new();
+
     /// <summary>
     /// Formats the <paramref name="expression"/>.
     /// </summary>
@@ -51,7 +55,7 @@ namespace Xtensive.Core
     /// </returns>
     public static bool IsNull(this Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       if (expression.NodeType==ExpressionType.Constant) {
         var constantExpression = (ConstantExpression) expression;
         return constantExpression.Value==null;
@@ -105,10 +109,39 @@ namespace Xtensive.Core
     /// Converts specified <see cref="SerializableExpression"/> to <see cref="Expression"/>.
     /// </summary>
     /// <param name="expression">The expression to convert.</param>
-    /// <returns></returns>
+    /// <returns>Expression that represents given <see cref="SerializableExpression"/>.</returns>
     public static Expression ToExpression(this SerializableExpression expression)
     {
       return new SerializableExpressionToExpressionConverter(expression).Convert();
+    }
+
+    /// <summary>
+    /// Converts <see cref="DefaultExpression"/> to <see cref="ConstantExpression"/>
+    /// with value of default value of type in the <paramref name="defaultExpression"/>.
+    /// </summary>
+    /// <param name="defaultExpression">The expression to convert.</param>
+    /// <returns>Result constant expression.</returns>
+    public static ConstantExpression ToConstantExpression(this DefaultExpression defaultExpression)
+    {
+      var value = GetDefaultValue(defaultExpression);
+
+      return Expression.Constant(value, defaultExpression.Type);
+    }
+
+    /// <summary>
+    /// Gets the value represented by given <see cref="DefaultExpression"/>.
+    /// </summary>
+    /// <param name="defaultExpression">The default value expression.</param>
+    /// <returns>Object value of default value.</returns>
+    public static object GetDefaultValue(this DefaultExpression defaultExpression)
+    {
+      if (defaultExpression.Type != typeof(void) && defaultExpression.Type.IsValueType) {
+        return StructDefaultValues.GetOrAdd<DefaultExpression>(
+          defaultExpression.Type,
+          (type, expr) => { return ((Func<object>) Expression.Lambda(Expression.Convert(expr, WellKnownTypes.Object)).Compile()).Invoke(); },
+          defaultExpression);
+      }
+      return null;
     }
 
     /// <summary>
@@ -133,12 +166,12 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">The root node of expression isn't of <see cref="MemberExpression"/> type.</exception>
     public static MemberInfo GetMember(this Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       expression = expression.StripLambda().StripCasts();
       var me = expression as MemberExpression;
       if (me==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (MemberExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (MemberExpression)), nameof(expression));
       return me.Member;
     }
 
@@ -182,12 +215,12 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Expression must reference event.</exception>
     public static MethodInfo GetMethod(this Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       expression = expression.StripLambda().StripCasts();
       var mce = expression as MethodCallExpression;
       if (mce==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (MethodCallExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (MethodCallExpression)), nameof(expression));
       return mce.Method;
     }
 
@@ -199,12 +232,12 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Expression must reference event.</exception>
     public static PropertyInfo GetIndexer(this Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       expression = expression.StripLambda().StripCasts();
       var ie = expression as IndexExpression;
       if (ie==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (IndexExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (IndexExpression)), nameof(expression));
       return ie.Indexer;
     }
 
@@ -216,12 +249,12 @@ namespace Xtensive.Core
     /// <exception cref="ArgumentException">Expression must reference event.</exception>
     public static ConstructorInfo GetConstructor(this Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      ArgumentNullException.ThrowIfNull(expression);
       expression = expression.StripLambda().StripCasts();
       var ne = expression as NewExpression;
       if (ne==null)
         throw new ArgumentException(
-          string.Format(Strings.ExInvalidArgumentType, typeof (NewExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (NewExpression)), nameof(expression));
       return ne.Constructor;
     }
 
@@ -279,6 +312,32 @@ namespace Xtensive.Core
     {
       while (expression.NodeType==ExpressionType.MemberAccess)
         expression = ((MemberExpression) expression).Expression;
+      return expression;
+    }
+
+    /// <summary>
+    /// Strips implicit cast operators calls.
+    /// </summary>
+    /// <param name="expression">Expression to process.</param>
+    /// <returns><paramref name="expression"/> with chan of implicit casts removed (if any).</returns>
+    public static Expression StripImplicitCast(this Expression expression)
+    {
+      while (expression.NodeType is ExpressionType.Call or ExpressionType.Convert or ExpressionType.ConvertChecked) {
+        if (expression.NodeType == ExpressionType.Call) {
+          var mc = expression as MethodCallExpression;
+          if (mc.Method.Name.Equals(WellKnown.Operator.Implicit, StringComparison.Ordinal))
+            expression = mc.Arguments[0];
+          else
+            break;
+        }
+        else {
+          var unary = expression as UnaryExpression;
+          if (unary.Method is not null && unary.Method.Name.Equals(WellKnown.Operator.Implicit, StringComparison.Ordinal))
+            expression = unary.Operand;
+          else
+            break;
+        }
+      }
       return expression;
     }
 

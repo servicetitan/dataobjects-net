@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2022 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -25,13 +25,9 @@ namespace Xtensive.Sql.Dml
       Arguments = replacingExpression.Arguments;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (!context.NodeMapping.TryGetValue(this, out var clone)) {
-        context.NodeMapping[this] = clone = new SqlFunctionCall(FunctionType, Arguments.Select(o => (SqlExpression) o.Clone(context)).ToArray(Arguments.Count));
-      }
-      return clone;
-    }
+    internal override SqlFunctionCall Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlFunctionCall(t.FunctionType, t.Arguments.Select(o => o.Clone(c)).ToArray(t.Arguments.Count)));
 
     public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
 

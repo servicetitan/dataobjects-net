@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config =  base.BuildConfiguration();
-      config.Types.Register(typeof (Slave).Assembly, typeof (Slave).Namespace);
+      config.Types.RegisterCaching(typeof (Slave).Assembly, typeof (Slave).Namespace);
       return config;
     }
 
@@ -59,15 +59,15 @@ namespace Xtensive.Orm.Tests.Issues
           Master m = new Master();
           Slave s = new Slave();
           m.Slave = s;
-          Assert.IsNotNull(m.Slave);
-          Assert.AreSame(s, m.Slave);
+          Assert.That(m.Slave, Is.Not.Null);
+          Assert.That(m.Slave, Is.SameAs(s));
 
           m.Slave = null;
-          Assert.IsNull(m.Slave);
+          Assert.That(m.Slave, Is.Null);
 
           s.Master = m;
-          Assert.IsNotNull(s.Master);
-          Assert.AreSame(m, s.Master);
+          Assert.That(s.Master, Is.Not.Null);
+          Assert.That(s.Master, Is.SameAs(m));
 
           t.Complete();
         }

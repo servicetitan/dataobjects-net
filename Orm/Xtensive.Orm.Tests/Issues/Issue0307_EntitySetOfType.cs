@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       public override string ToString()
       {
-        return string.Format("{0} {1}", FirstName, LastName);
+        return $"{FirstName} {LastName}";
       }
     }
 
@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof(Skill).Assembly, typeof(Skill).Namespace);
+      config.Types.RegisterCaching(typeof(Skill).Assembly, typeof(Skill).Namespace);
       return config;
     }
 

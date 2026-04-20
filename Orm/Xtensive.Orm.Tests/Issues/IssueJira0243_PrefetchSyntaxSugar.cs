@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Owner).Assembly, typeof (Target).Namespace);
+      configuration.Types.RegisterCaching(typeof (Owner).Assembly, typeof (Target).Namespace);
       return configuration;
     }
 
@@ -84,8 +84,8 @@ namespace Xtensive.Orm.Tests.Issues
           .Prefetch(x => new {x.Target1, x.Target2})
           .ToList();
         // Check that Target1 and Target2 are loaded into session.
-        Assert.IsTrue(StorageTestHelper.IsFetched(session, target1Key));
-        Assert.IsTrue(StorageTestHelper.IsFetched(session, target2Key));
+        Assert.That(StorageTestHelper.IsFetched(session, target1Key), Is.True);
+        Assert.That(StorageTestHelper.IsFetched(session, target2Key), Is.True);
       }
     }
 
@@ -115,8 +115,8 @@ namespace Xtensive.Orm.Tests.Issues
           .Prefetch(x => x.Items1.Prefetch(y => new {y.RelatedTarget}))
           .ToList();
         // Check that Target1 and Target2 are loaded into session.
-        Assert.IsTrue(StorageTestHelper.IsFetched(session, target1Key));
-        Assert.IsTrue(StorageTestHelper.IsFetched(session, target2Key));
+        Assert.That(StorageTestHelper.IsFetched(session, target1Key), Is.True);
+        Assert.That(StorageTestHelper.IsFetched(session, target2Key), Is.True);
       }
     }
 
@@ -146,8 +146,8 @@ namespace Xtensive.Orm.Tests.Issues
           .Prefetch(x => new {v = x.Items1.Prefetch(y => y.RelatedTarget)})
           .ToList();
         // Check that Target1 and Target2 are loaded into session.
-        Assert.IsTrue(StorageTestHelper.IsFetched(session, target1Key));
-        Assert.IsTrue(StorageTestHelper.IsFetched(session, target2Key));
+        Assert.That(StorageTestHelper.IsFetched(session, target1Key), Is.True);
+        Assert.That(StorageTestHelper.IsFetched(session, target2Key), Is.True);
       }
     }
 

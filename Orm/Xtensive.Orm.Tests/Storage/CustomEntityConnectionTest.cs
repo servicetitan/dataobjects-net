@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Book).Assembly, typeof (Book).Namespace);
+      configuration.Types.RegisterCaching(typeof (Book).Assembly, typeof (Book).Namespace);
       return configuration;
     }
 
@@ -82,8 +82,8 @@ namespace Xtensive.Orm.Tests.Storage
         var author = new Author();
         new AuthorBookLink(author, book);
         // Session.Current.Persist();
-        Assert.AreEqual(1, book.Links.Count);
-        Assert.AreEqual(1, author.Links.Count);
+        Assert.That(book.Links.Count, Is.EqualTo(1));
+        Assert.That(author.Links.Count, Is.EqualTo(1));
         t.Complete();
       }
     }

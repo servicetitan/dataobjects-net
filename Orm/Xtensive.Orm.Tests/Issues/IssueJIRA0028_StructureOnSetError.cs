@@ -31,8 +31,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJIRA0028_StructureOnSetError_Model
         n = newValue as Point;
         if (o == null || n == null)
           return;
-        Assert.AreNotEqual(o.X, n.X);
-        Assert.AreNotEqual(o.Y, n.Y);
+        Assert.That(n.X, Is.Not.EqualTo(o.X));
+        Assert.That(n.Y, Is.Not.EqualTo(o.Y));
       }
     }
   }
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Interval).Assembly, typeof (Interval).Namespace);
+      config.Types.RegisterCaching(typeof (Interval).Assembly, typeof (Interval).Namespace);
       return config;
     }
 

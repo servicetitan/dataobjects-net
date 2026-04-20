@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Address).Assembly, typeof (Address).Namespace);
+      config.Types.RegisterCaching(typeof (Address).Assembly, typeof (Address).Namespace);
       return config;
     }
 
@@ -63,8 +63,8 @@ namespace Xtensive.Orm.Tests.Issues
           .Skip(() => 1)
           .Take(() => 5);
         var result = query.ToList();
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual("Vasya", result[0].Name);
+        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result[0].Name, Is.EqualTo("Vasya"));
 
         t.Complete();
       }

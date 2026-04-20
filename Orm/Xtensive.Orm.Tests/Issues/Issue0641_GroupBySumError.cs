@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof (Line).Assembly, typeof (Line).Namespace);
+      config.Types.RegisterCaching(typeof (Line).Assembly, typeof (Line).Namespace);
       return config;
     }
 
@@ -91,8 +91,8 @@ namespace Xtensive.Orm.Tests.Issues
                          into g
                          select new {Rate = g.Key, BaseAmount = g.Sum(l => l.Amount.GetValueOrDefault())})
                          .Single();
-          Assert.AreEqual(expected.Rate, actual.Rate);
-          Assert.AreEqual(expected.BaseAmount, actual.BaseAmount);
+          Assert.That(actual.Rate, Is.EqualTo(expected.Rate));
+          Assert.That(actual.BaseAmount, Is.EqualTo(expected.BaseAmount));
         }
       }
     }

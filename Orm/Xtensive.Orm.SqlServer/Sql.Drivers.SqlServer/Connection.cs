@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
       else {
         var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
-        if (connectionAccessorEx == null) {
+        if (connectionAccessorEx is null) {
           OpenWithCheckFast(DefaultCheckConnectionQuery);
         }
         else {
@@ -58,7 +58,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
 
       var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
-      if (connectionAccessorEx == null) {
+      if (connectionAccessorEx is null) {
         return OpenWithCheckFastAsync(DefaultCheckConnectionQuery, cancellationToken);
       }
       else {
@@ -78,7 +78,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
         ? DefaultCheckConnectionQuery
         : initializationScript;
       var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
-      if (connectionAccessorEx == null) {
+      if (connectionAccessorEx is null) {
         OpenWithCheckFast(script);
       }
       else {
@@ -97,7 +97,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
         ? DefaultCheckConnectionQuery
         : initializationScript;
       var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
-      return connectionAccessorEx == null
+      return connectionAccessorEx is null
         ? OpenWithCheckFastAsync(script, token)
         : OpenWithCheckAndNotificationAsync(script, connectionAccessorEx, token);
     }
@@ -126,11 +126,11 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
       try {
         if (!IsTransactionZombied()) {
-          ActiveTransaction.Rollback();
+          activeTransaction.Rollback();
         }
       }
       finally {
-        ActiveTransaction.Dispose();
+        activeTransaction.Dispose();
         ClearActiveTransaction();
       }
     }
@@ -143,11 +143,11 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
       try {
         if (!IsTransactionZombied()) {
-          await ActiveTransaction.RollbackAsync(token).ConfigureAwait(false);
+          await activeTransaction.RollbackAsync(token).ConfigureAwait(false);
         }
       }
       finally {
-        await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
+        await activeTransaction.DisposeAsync().ConfigureAwait(false);
         ClearActiveTransaction();
       }
     }
@@ -353,7 +353,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
     private bool IsTransactionZombied()
     {
-      return ActiveTransaction != null && ActiveTransaction.Connection == null;
+      return activeTransaction.Connection == null;
     }
 
     // Constructors

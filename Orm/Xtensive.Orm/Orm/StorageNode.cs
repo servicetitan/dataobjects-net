@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2021 Xtensive LLC.
+// Copyright (C) 2014-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -72,7 +72,7 @@ namespace Xtensive.Orm
     /// </summary>
     internal ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)> RefsToEntityQueryCache { get; }
     internal ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; }
-    internal ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; }
+    internal ConcurrentDictionary<PersistRequestBuilderTask, IReadOnlyCollection<PersistRequest>> PersistRequestCache { get; private set; }
 
     /// <inheritdoc/>
     public Session OpenSession() =>
@@ -97,7 +97,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken = default)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
 
       SessionScope sessionScope = null;
       try {
@@ -116,10 +116,10 @@ namespace Xtensive.Orm
 
     internal StorageNode(Domain domain, NodeConfiguration configuration, ModelMapping mapping, TypeIdRegistry typeIdRegistry)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domain, nameof(domain));
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
-      ArgumentValidator.EnsureArgumentNotNull(mapping, nameof(mapping));
-      ArgumentValidator.EnsureArgumentNotNull(typeIdRegistry, nameof(typeIdRegistry));
+      ArgumentNullException.ThrowIfNull(domain);
+      ArgumentNullException.ThrowIfNull(configuration);
+      ArgumentNullException.ThrowIfNull(mapping);
+      ArgumentNullException.ThrowIfNull(typeIdRegistry);
 
       EntityLockProviderCache = new ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider>();
       EntityFetchQueryCache = new ConcurrentDictionary<RecordSetCacheKey, CompilableProvider>();
@@ -127,7 +127,7 @@ namespace Xtensive.Orm
       EntitySetTypeStateCache = new ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState>();
       RefsToEntityQueryCache = new ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)>();
       KeySequencesCache = new ConcurrentDictionary<SequenceInfo, object>();
-      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>>();
+      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, IReadOnlyCollection<PersistRequest>>();
 
       this.domain = domain;
       Configuration = configuration;

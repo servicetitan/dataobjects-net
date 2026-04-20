@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override Orm.Configuration.DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (MembershipType).Assembly, typeof (MembershipType).Namespace);
+      configuration.Types.RegisterCaching(typeof (MembershipType).Assembly, typeof (MembershipType).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
@@ -104,8 +104,8 @@ namespace Xtensive.Orm.Tests.Issues
         var membership = new Membership() {Type = new MembershipType(), Status = MembershipStatus.Active};
         var countAfterInsertionUsingDelayedQuery = session.Query.CreateDelayedQuery(endpoint => endpoint.All<Membership>().Count());
         GetAllMembershipWithTypes(GetMembershipTypes(jobKey));
-        Assert.Greater(countAfterInsertionUsingDelayedQuery.Value, countBeforeInsertion);
-        Assert.AreEqual(1, countAfterInsertionUsingDelayedQuery.Value - countBeforeInsertion);
+        Assert.That(countAfterInsertionUsingDelayedQuery.Value, Is.GreaterThan(countBeforeInsertion));
+        Assert.That(countAfterInsertionUsingDelayedQuery.Value - countBeforeInsertion, Is.EqualTo(1));
       }
     }
 
@@ -123,11 +123,11 @@ namespace Xtensive.Orm.Tests.Issues
         var countOfActiveMemberships = session.Query.CreateDelayedQuery(queryEndpoint =>
           queryEndpoint.All<Membership>().Count(el => el.Status == MembershipStatus.Active));
         var userDefinedQueryTasks = GetUserDefinedQueryTasks(session);
-        Assert.AreEqual(4, userDefinedQueryTasks.Count);
+        Assert.That(userDefinedQueryTasks.Count, Is.EqualTo(4));
         //must be fetching without execution of user defined queries
         var customerMembership = firstCustomer.Memberships.ToList();
         userDefinedQueryTasks = GetUserDefinedQueryTasks(session);
-        Assert.AreEqual(4, userDefinedQueryTasks.Count);
+        Assert.That(userDefinedQueryTasks.Count, Is.EqualTo(4));
       }
     }
 

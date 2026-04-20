@@ -67,11 +67,8 @@ namespace Xtensive.Orm.BulkOperations
 
     public QueryTranslationResult GetRequest(IQueryable<T> query) => QueryBuilder.TranslateQuery(query);
 
-    public QueryTranslationResult GetRequest(Type type, IQueryable query)
-    {
-      var translateQueryMethod = WellKnownMembers.TranslateQueryMethod.CachedMakeGenericMethod(type);
-      return (QueryTranslationResult) translateQueryMethod.Invoke(QueryBuilder, new object[] {query});
-    }
+    public QueryTranslationResult GetRequest(Type type, IQueryable query) =>
+      (QueryTranslationResult) WellKnownMembers.TranslateQueryMethod.CachedMakeGenericMethodInvoker(type).Invoke(QueryBuilder, query);
 
     public TypeInfo GetTypeInfo(Type entityType) =>
       Session.Domain.Model.Hierarchies.SelectMany(a => a.Types).Single(a => a.UnderlyingType == entityType);

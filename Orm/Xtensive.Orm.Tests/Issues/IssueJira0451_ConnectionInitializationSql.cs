@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013-2021 Xtensive LLC.
+// Copyright (C) 2013-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Tests.Issues
       const string db2 = MultidatabaseTest.Database2Name;
 
       var configuration = BuildConfiguration(db1, DomainUpgradeMode.Recreate);
-      configuration.ConnectionInitializationSql = string.Format("use [{0}]", db2);
+      configuration.ConnectionInitializationSql = $"use [{db2}]";
 
       long entityId;
 
@@ -74,7 +74,8 @@ namespace Xtensive.Orm.Tests.Issues
     private static ConnectionInfo OverrideDatabase(ConnectionInfo connectionInfo, string database)
     {
       var builder = new SqlConnectionStringBuilder(connectionInfo.ConnectionString) {
-        InitialCatalog = database
+        InitialCatalog = database,
+        Encrypt = false
       };
       return new ConnectionInfo(WellKnown.Provider.SqlServer, builder.ToString());
     }

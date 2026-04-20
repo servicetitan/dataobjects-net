@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
+// Copyright (C) 2003-2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Julian Mamokin
@@ -138,8 +138,8 @@ namespace Xtensive.Orm.Tests.Model
       var hierarchy = Domain.Model.Types[typeof (HierarchyWithFullTextIndex)];
       var hierarchyTableColumnNames = hierarchy.Columns.Select(c => c.Name).ToList();
       var hierarchyIndexColumnNames = hierarchy.FullTextIndex.Columns.Select(c => c.Name).ToList();
-      Assert.IsTrue(hierarchy.FullTextIndex.Columns.Count==10);
-      Assert.IsTrue(hierarchyTableColumnNames.ContainsAll(hierarchyIndexColumnNames));
+      Assert.That(hierarchy.FullTextIndex.Columns.Count==10, Is.True);
+      Assert.That(hierarchyTableColumnNames.ContainsAll(hierarchyIndexColumnNames), Is.True);
     }
 
     [Test]
@@ -148,10 +148,10 @@ namespace Xtensive.Orm.Tests.Model
       var classTable = Domain.Model.Types[typeof (ClassTableHierarchy)];
       var classTableColumnNames = classTable.Columns.Select(c => c.Name).ToList();
       var classtableIndexColumnNames = classTable.FullTextIndex.Columns.Select(c => c.Name).ToList();
-      Assert.IsTrue(classTable.FullTextIndex.Columns.Count==9);
-      Assert.IsTrue(classTableColumnNames.ContainsAll(classtableIndexColumnNames));
+      Assert.That(classTable.FullTextIndex.Columns.Count==9, Is.True);
+      Assert.That(classTableColumnNames.ContainsAll(classtableIndexColumnNames), Is.True);
       foreach (var columnName in UnderscoreRuleExpectedColumns) {
-        Assert.IsTrue(classtableIndexColumnNames.Contains(columnName));
+        Assert.That(classtableIndexColumnNames.Contains(columnName), Is.True);
       }
     }
 
@@ -161,10 +161,10 @@ namespace Xtensive.Orm.Tests.Model
       var concreteTable = Domain.Model.Types[typeof (ConcreteTableHierarchy)];
       var concreteTableColumnNames = concreteTable.Columns.Select(c => c.Name).ToList();
       var concreteTableIndexColumnNames = concreteTable.FullTextIndex.Columns.Select(c => c.Name).ToList();
-      Assert.IsTrue(concreteTable.FullTextIndex.Columns.Count==9);
-      Assert.IsTrue(concreteTableColumnNames.ContainsAll(concreteTableIndexColumnNames));
+      Assert.That(concreteTable.FullTextIndex.Columns.Count==9, Is.True);
+      Assert.That(concreteTableColumnNames.ContainsAll(concreteTableIndexColumnNames), Is.True);
       foreach (var columnName in UnderscoreRuleExpectedColumns) {
-        Assert.IsTrue(concreteTableIndexColumnNames.Contains(columnName));
+        Assert.That(concreteTableIndexColumnNames.Contains(columnName), Is.True);
       }
     }
 
@@ -174,10 +174,10 @@ namespace Xtensive.Orm.Tests.Model
       var singleTable = Domain.Model.Types[typeof (SingleTableHierarchy)];
       var singleTableColumnNames = singleTable.Columns.Select(c => c.Name).ToList().ToList();
       var singleTableIndexColumnNames = singleTable.FullTextIndex.Columns.Select(c => c.Name).ToList();
-      Assert.IsTrue(singleTable.FullTextIndex.Columns.Count==9);
-      Assert.IsTrue(singleTableColumnNames.ContainsAll(singleTableIndexColumnNames));
+      Assert.That(singleTable.FullTextIndex.Columns.Count==9, Is.True);
+      Assert.That(singleTableColumnNames.ContainsAll(singleTableIndexColumnNames), Is.True);
       foreach (var columnName in UnderscoreRuleExpectedColumns) {
-        Assert.IsTrue(singleTableIndexColumnNames.Contains(columnName));
+        Assert.That(singleTableIndexColumnNames.Contains(columnName), Is.True);
       }
     }
 
@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Tests.Model
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (ClassTableHierarchy).Assembly, typeof (ClassTableHierarchy).Namespace);
+      config.Types.RegisterCaching(typeof (ClassTableHierarchy).Assembly, typeof (ClassTableHierarchy).Namespace);
       config.NamingConvention.NamingRules = NamingRules.UnderscoreDots;
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;

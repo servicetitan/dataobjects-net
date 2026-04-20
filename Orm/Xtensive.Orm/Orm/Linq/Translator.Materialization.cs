@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Linq
       if (context.SessionTags != null)
         result = ApplySessionTags(result, context.SessionTags);
       var newItemProjector = result.ItemProjector.EnsureEntityIsJoined();
-      result = result.Apply(newItemProjector);
+      result = result.ApplyItemProjector(newItemProjector);
 
       var optimized = Optimize(result);
 
@@ -89,10 +89,9 @@ namespace Xtensive.Orm.Linq
       if (usedColumns.Count == 0)
         usedColumns.Add(0);
       if (usedColumns.Count < origin.ItemProjector.DataSource.Header.Length) {
-        var usedColumnsArray = usedColumns.ToArray();
-        var resultProvider = new SelectProvider(originProvider, usedColumnsArray);
-        var itemProjector = origin.ItemProjector.Remap(resultProvider, usedColumnsArray);
-        var result = origin.Apply(itemProjector);
+        var resultProvider = new SelectProvider(originProvider, usedColumns);
+        var itemProjector = origin.ItemProjector.Remap(resultProvider, usedColumns);
+        var result = origin.ApplyItemProjector(itemProjector);
         return result;
       }
       return origin;
@@ -115,7 +114,7 @@ namespace Xtensive.Orm.Linq
         var projector = currentProjection.ItemProjector;
         var newDataSource = projector.DataSource.Tag(tag);
         var newItemProjector = new ItemProjectorExpression(projector.Item, newDataSource, projector.Context);
-        currentProjection = currentProjection.Apply(newItemProjector);
+        currentProjection = currentProjection.ApplyItemProjector(newItemProjector);
       }
       return currentProjection;
     }
@@ -152,25 +151,53 @@ namespace Xtensive.Orm.Linq
       return new Materializer(projectorExpression.CachingCompile());
     }
 
-    private List<Expression> VisitNewExpressionArguments(NewExpression n)
+    private Expression[] VisitNewExpressionArguments(NewExpression n, out ParameterInfo[] constructorParameters)
     {
-      var arguments = new List<Expression>();
-      foreach (var argument in n.Arguments) {
+      constructorParameters = n.GetConstructorParameters();
+      if (n.Arguments.Count == 0) {
+        return Array.Empty<Expression>();
+      }
+      var arguments = new Expression[n.Arguments.Count];
+      var origArguments = n.Arguments;
+
+      for (int i = 0, count = origArguments.Count; i < count; i++) {
+        var argument = origArguments[i];
+
         Expression body;
         using (CreateScope(new TranslatorState(State) { CalculateExpressions = false })) {
           body = Visit(argument);
+          if (argument.IsQuery()) {
+            context.RegisterPossibleQueryReuse(n.Members[i]);
+          }
         }
         body = body.IsProjection()
           ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
           : ProcessProjectionElement(body);
-        arguments.Add(body);
-      }
-      var constructorParameters = n.GetConstructorParameters();
-      for (int i = 0; i < arguments.Count; i++) {
-        if (arguments[i].Type != constructorParameters[i].ParameterType)
-          arguments[i] = Expression.Convert(arguments[i], constructorParameters[i].ParameterType);
+        arguments[i] = body.Type != constructorParameters[i].ParameterType
+          ? Expression.Convert(body, constructorParameters[i].ParameterType)
+          : body;
       }
       return arguments;
+    }
+
+
+    private void VisitNewExpressionArgumentsSkipResults(NewExpression n)
+    {
+      var origArguments = n.Arguments;
+      for (int i = 0, count = origArguments.Count; i < count; i++) {
+        var argument = origArguments[i];
+
+        Expression body;
+        using (CreateScope(new TranslatorState(State) { CalculateExpressions = false })) {
+          body = Visit(argument);
+          if (argument.IsQuery()) {
+            context.RegisterPossibleQueryReuse(n.Members[i]);
+          }
+        }
+        body = body.IsProjection()
+          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
+          : ProcessProjectionElement(body);
+      }
     }
 
     private ProjectionExpression GetIndexBinding(LambdaExpression le, ref ProjectionExpression sequence)
@@ -183,7 +210,7 @@ namespace Xtensive.Orm.Linq
         var indexItemProjector = new ItemProjectorExpression(itemExpression, indexDataSource, context);
         var indexProjectionExpression = new ProjectionExpression(WellKnownTypes.Int64, indexItemProjector, sequence.TupleParameterBindings);
         var sequenceItemProjector = sequence.ItemProjector.Remap(indexDataSource, 0);
-        sequence = sequence.Apply(sequenceItemProjector);
+        sequence = sequence.ApplyItemProjector(sequenceItemProjector);
         return indexProjectionExpression;
       }
       return null;
@@ -192,10 +219,9 @@ namespace Xtensive.Orm.Linq
     private Expression VisitQuerySingle(MethodCallExpression mc)
     {
       var returnType = mc.Method.ReturnType;
-
       var argument = mc.Arguments[0];
-      var queryAll = Expression.Call(null, WellKnownMembers.Query.All.CachedMakeGenericMethod(returnType));
-      var source = ConstructQueryable(queryAll);
+
+      var source = ConstructQueryable(returnType);
       var parameter = Expression.Parameter(returnType, "entity");
       var keyAccessor = Expression.MakeMemberAccess(parameter, WellKnownMembers.IEntityKey);
       var equility = Expression.Equal(keyAccessor, argument);

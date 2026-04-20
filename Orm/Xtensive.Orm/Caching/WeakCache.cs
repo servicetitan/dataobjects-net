@@ -87,7 +87,7 @@ namespace Xtensive.Caching
     [SecuritySafeCritical]
     public override TItem Add(TItem item, bool replaceIfExists)
     {
-      ArgumentValidator.EnsureArgumentNotNull(item, nameof(item));
+      ArgumentNullException.ThrowIfNull(item);
       RegisterOperation(2);
       var key = KeyExtractor(item);
       if (items == null) {
@@ -175,7 +175,7 @@ namespace Xtensive.Caching
       finally {
         // Logging
         if (CoreLog.IsLogged(LogLevel.Debug)) {
-          CoreLog.Debug("WeakCache.CollectGarbage: removed: {0} from {1}", removedCount, count);
+          CoreLog.Debug($"WeakCache.CollectGarbage: removed: {removedCount} from {count}");
           if (error != null)
             CoreLog.Debug(error, "Caught at WeakCache.CollectGarbage");
         }
@@ -225,9 +225,8 @@ namespace Xtensive.Caching
     /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     public WeakCache(bool trackResurrection, Converter<TItem, TKey> keyExtractor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
       this.trackResurrection = trackResurrection;
-      this.KeyExtractor = keyExtractor;
+      this.KeyExtractor = keyExtractor ?? throw new ArgumentNullException(nameof(keyExtractor));
     }
 
     // Dispose pattern

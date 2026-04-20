@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (MyEntity).Assembly, typeof (MyEntity).Namespace);
+      config.Types.RegisterCaching(typeof (MyEntity).Assembly, typeof (MyEntity).Namespace);
       return config;
     }
 
@@ -60,10 +60,10 @@ namespace Xtensive.Orm.Tests.Issues
     public void MainTest()
     {
       var type = Domain.Model.Types[typeof (MyEntity)];
-      Assert.AreEqual(6, type.Indexes.Count);
+      Assert.That(type.Indexes.Count, Is.EqualTo(6));
 
       type = Domain.Model.Types[typeof (MyEntityInfo<MyEntity>)];
-      Assert.AreEqual(2, type.Indexes.Count);
+      Assert.That(type.Indexes.Count, Is.EqualTo(2));
     }
   }
 }

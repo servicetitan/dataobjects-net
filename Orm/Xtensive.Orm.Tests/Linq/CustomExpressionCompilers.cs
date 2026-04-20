@@ -5,13 +5,13 @@
 // Created:    2009.11.13
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq.CustomExpressionCompilersModel;
-using System.Linq;
 
 namespace Xtensive.Orm.Tests.Linq.CustomExpressionCompilersModel
 {
@@ -34,12 +34,12 @@ namespace Xtensive.Orm.Tests.Linq.CustomExpressionCompilersModel
 
     public string Fullname
     {
-      get { return string.Format("{0} {1}", FirstName, LastName); }
+      get { return $"{FirstName} {LastName}"; }
     }
 
     public string AddPrefix(string prefix)
     {
-      return string.Format("{0}{1}", prefix, LastName);
+      return $"{prefix}{LastName}";
     }
   }
 
@@ -80,24 +80,21 @@ namespace Xtensive.Orm.Tests.Linq.CustomExpressionCompilersModel
       return value * Id;
     }
   }
-}
 
-namespace Xtensive.Orm.Tests.Linq
-{
-  [CompilerContainer(typeof (Expression))]
+  [CompilerContainer(typeof(Expression))]
   internal static class CustomLinqCompilerContainer
   {
-    [Compiler(typeof (Person), "Fullname", TargetKind.PropertyGet)]
+    [Compiler(typeof(Person), "Fullname", TargetKind.PropertyGet)]
     public static Expression FullName(Expression personExpression)
     {
       Expression<Func<Person, string>> ex = person => person.FirstName + " " + person.LastName;
       return ex.BindParameters(personExpression);
     }
 
-    [Compiler(typeof (Person), "AddPrefix", TargetKind.Method)]
+    [Compiler(typeof(Person), "AddPrefix", TargetKind.Method)]
     public static Expression AddPrefix(Expression personExpression, Expression prefixExpression)
     {
-      Expression<Func<Person, string, string>> ex =  (person, prefix) => prefix + person.LastName;
+      Expression<Func<Person, string, string>> ex = (person, prefix) => prefix + person.LastName;
       return ex.BindParameters(personExpression, prefixExpression);
     }
 
@@ -108,14 +105,16 @@ namespace Xtensive.Orm.Tests.Linq
       return ex.BindParameters(assignmentExpression);
     }
   }
+}
 
+namespace Xtensive.Orm.Tests.Linq
+{
   public class CustomExpressionCompilers : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
-      config.Types.Register(typeof (CustomLinqCompilerContainer));
+      config.Types.RegisterCaching(typeof (Person).Assembly, typeof (Person).Namespace);
       RegisterLinqExtensions(config);
       return config;
     }
@@ -123,7 +122,7 @@ namespace Xtensive.Orm.Tests.Linq
     private static void RegisterLinqExtensions(DomainConfiguration config)
     {
       var extensions = config.LinqExtensions;
-      var type = typeof (RegistrarTestEntity);
+      var type = typeof(RegistrarTestEntity);
       Expression<Func<int>> staticProperty = () => 0;
       extensions.Register(type.GetProperty("StaticProperty"), staticProperty);
       Expression<Func<RegistrarTestEntity, int>> instanceProperty = e => e.Id % 10;
@@ -137,35 +136,41 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          Fill();
-          var expected1 = session.Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
-          Assert.Greater(expected1.Count, 0);
-          var fullNames1 = session.Query.All<Person>().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
-          Assert.IsTrue(expected1.SequenceEqual(fullNames1));
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        Fill();
+        var expected1 = session.Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
+        Assert.That(expected1.Count, Is.GreaterThan(0));
+        var fullNames1 = session.Query.All<Person>().OrderBy(p => p.Id).Select(p => p.Fullname).ToList();
+        Assert.That(expected1.SequenceEqual(fullNames1), Is.True);
 
-          var expected2 = session.Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
-          var fullNames2 = session.Query.All<Person>().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
-          Assert.IsTrue(expected2.SequenceEqual(fullNames2));
-          // Rollback
-        }
+        var expected2 = session.Query.All<Person>().AsEnumerable().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
+        var fullNames2 = session.Query.All<Person>().OrderBy(p => p.Id).Select(p => p.AddPrefix("Mr. ")).ToList();
+        Assert.That(expected2.SequenceEqual(fullNames2), Is.True);
+        // Rollback
       }
     }
 
     [Test]
     public void AssignmentCurrentTest()
     {
+      var baseDate = DateTime.Today;
+      (bool active, DateTime startDate, DateTime? endDate)[] dataset = new[] {
+        (true,  baseDate.AddYears(-20), (DateTime?)null),
+        (false, baseDate.AddYears(-20), (DateTime?)null),
+        (false, baseDate.AddYears(-5),  baseDate.AddYears(20)),
+        (true,  baseDate.AddYears(1),   baseDate.AddYears(20)),
+        (true,  baseDate.AddYears(-15), baseDate.AddYears(20)),
+      };
+
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        new Assignment() {Active = true, Start = new DateTime(2009, 11, 23), End = null};
-        new Assignment() {Active = false, Start = new DateTime(2009, 10, 3), End = null};
-        new Assignment() {Active = false, Start = new DateTime(2020, 01, 10), End = new DateTime(2044, 12, 3)};
-        new Assignment() {Active = true, Start = new DateTime(2026, 01, 10), End = new DateTime(2045, 11, 3)};
-        new Assignment() {Active = true, Start = new DateTime(2010, 01, 10), End = new DateTime(2035, 11, 3)};
+        foreach (var data in dataset) {
+          _ = new Assignment() { Active = data.active, Start = data.startDate, End = data.endDate };
+        }
 
         var currentCount = session.Query.All<Assignment>().Count(a => a.Current);
-        Assert.AreEqual(2, currentCount);
+        Assert.That(currentCount, Is.EqualTo(2));
         // Rollback
       }
     }
@@ -188,18 +193,18 @@ namespace Xtensive.Orm.Tests.Linq
           // Fake check to force execution at server side
           .Where(item => item.Id >= 0 || item.InstanceMethod == item.InstanceProperty)
           .Single();
-        Assert.AreEqual(RegistrarTestEntity.StaticMethod(1), actual.StaticMethod);
-        Assert.AreEqual(RegistrarTestEntity.StaticProperty, actual.StaticProperty);
-        Assert.AreEqual(test.InstanceMethod(1), actual.InstanceMethod);
-        Assert.AreEqual(test.InstanceProperty, actual.InstanceProperty);
+        Assert.That(actual.StaticMethod, Is.EqualTo(RegistrarTestEntity.StaticMethod(1)));
+        Assert.That(actual.StaticProperty, Is.EqualTo(RegistrarTestEntity.StaticProperty));
+        Assert.That(actual.InstanceMethod, Is.EqualTo(test.InstanceMethod(1)));
+        Assert.That(actual.InstanceProperty, Is.EqualTo(test.InstanceProperty));
       }
     }
 
     private void Fill()
     {
-      new Person {FirstName = "Ivan", LastName = "Semenov"};
-      new Person {FirstName = "John", LastName = "Smith"};
-      new Person {FirstName = "Andrew", LastName = "Politkovsky"};
+      _ = new Person { FirstName = "Ivan", LastName = "Semenov" };
+      _ = new Person { FirstName = "John", LastName = "Smith" };
+      _ = new Person { FirstName = "Andrew", LastName = "Politkovsky" };
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (DiscriminatedByValue).Assembly, typeof (DiscriminatedByValue).Namespace);
+      config.Types.RegisterCaching(typeof (DiscriminatedByValue).Assembly, typeof (DiscriminatedByValue).Namespace);
       return config;
     }
 
@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var t = session.OpenTransaction()) {
         var d = new DiscriminatedByValue();
         var items = session.Query.All<DiscriminatedByValue>().ToList();
-        Assert.AreEqual(new Guid(CodeRegistry.DefaultCode), d.Code);
+        Assert.That(d.Code, Is.EqualTo(new Guid(CodeRegistry.DefaultCode)));
       }
     }
 
@@ -97,8 +97,8 @@ namespace Xtensive.Orm.Tests.Storage
       using (var t = session.OpenTransaction()) {
         var items = Query.All<DiscriminatedByRef>().ToList();
         var d = items[0];
-        Assert.IsNotNull(d.Ref);
-        Assert.AreEqual(new Guid(CodeRegistry.DefaultCode), d.Ref.Id);
+        Assert.That(d.Ref, Is.Not.Null);
+        Assert.That(d.Ref.Id, Is.EqualTo(new Guid(CodeRegistry.DefaultCode)));
       }
     }
   }

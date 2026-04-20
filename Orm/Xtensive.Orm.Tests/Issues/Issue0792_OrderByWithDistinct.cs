@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 
@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
+      config.Types.RegisterCaching(typeof (Person).Assembly, typeof (Person).Namespace);
       return config;
     }
 
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Issues
           var person1 = new Person {Name = "Person1"};
           session.SaveChanges();
           var query = session.Query.All<Person>().OrderBy(p => p.Name).Distinct().ToList();
-          Assert.IsTrue(query.SequenceEqual(new []{person1, person2, person3}));
+          Assert.That(query.SequenceEqual(new []{person1, person2, person3}), Is.True);
           // Rollback
         }
       }

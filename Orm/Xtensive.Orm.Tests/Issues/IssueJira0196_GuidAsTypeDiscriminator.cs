@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof(User).Assembly, typeof(User).Namespace);
+      config.Types.RegisterCaching(typeof(User).Assembly, typeof(User).Namespace);
       return config;
     }
 
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Issues
     private void CheckUserType(User user)
     {
       var expected = new Guid(user.GetType().GetAttribute<TypeDiscriminatorValueAttribute>().Value.ToString());
-      Assert.AreEqual(expected, user.UserType);
+      Assert.That(user.UserType, Is.EqualTo(expected));
     }
   }
 }

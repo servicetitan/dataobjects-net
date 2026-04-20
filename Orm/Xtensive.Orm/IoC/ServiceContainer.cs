@@ -27,9 +27,9 @@ namespace Xtensive.IoC
   [Serializable]
   public class ServiceContainer : ServiceContainerBase
   {
-    private static readonly Type typeofIServiceContainer = typeof(IServiceContainer);
+    private static readonly Type iServiceContainerType = typeof(IServiceContainer);
 
-    private static readonly Func<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> ConstructorFactory = serviceInfo => {
+    private static readonly Func<ServiceRegistration, Pair<ConstructorInvoker, ParameterInfo[]>> ConstructorFactory = serviceInfo => {
       var mappedType = serviceInfo.MappedType;
       var ctor = (
         from c in mappedType.GetConstructors()
@@ -37,18 +37,16 @@ namespace Xtensive.IoC
         select c
         ).SingleOrDefault() ?? mappedType.GetConstructor(Array.Empty<Type>());
       var @params = ctor?.GetParameters();
-      return new Pair<ConstructorInfo, ParameterInfo[]>(ctor, @params);
+      return new(ctor is null ? null : ConstructorInvoker.Create(ctor), @params);
     };
 
     private readonly IReadOnlyDictionary<Key, List<ServiceRegistration>> types;
 
-    private readonly ConcurrentDictionary<ServiceRegistration, Lazy<object>> instances =
-      new ConcurrentDictionary<ServiceRegistration, Lazy<object>>();
+    private readonly ConcurrentDictionary<ServiceRegistration, Lazy<object>> instances = new();
 
-    private readonly ConcurrentDictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> constructorCache =
-      new ConcurrentDictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>>();
+    private readonly ConcurrentDictionary<ServiceRegistration, Pair<ConstructorInvoker, ParameterInfo[]>> constructorCache = new();
 
-    private readonly ConcurrentDictionary<(Type, int), bool> creating = new ConcurrentDictionary<(Type, int), bool>();
+    private readonly ConcurrentDictionary<(Type, int), bool> creating = new();
 
     #region Protected virtual methods (to override)
 
@@ -85,7 +83,8 @@ namespace Xtensive.IoC
         return null;
       }
       var pInfos = cachedInfo.Second;
-      if (pInfos.Length == 0) {
+      var nArg = pInfos.Length;
+      if (nArg == 0) {
         return Activator.CreateInstance(serviceInfo.MappedType);
       }
       var managedThreadId = Environment.CurrentManagedThreadId;
@@ -93,9 +92,9 @@ namespace Xtensive.IoC
       if (!creating.TryAdd(key, true)) {
         throw new ActivationException(Strings.ExRecursiveConstructorParameterDependencyIsDetected);
       }
-      var args = new object[pInfos.Length];
+      var args = new object[nArg];
       try {
-        for (var i = 0; i < pInfos.Length; i++) {
+        for (var i = 0; i < nArg; i++) {
           var type = pInfos[i].ParameterType;
           if (creating.ContainsKey((type, managedThreadId))) {
             throw new ActivationException(Strings.ExRecursiveConstructorParameterDependencyIsDetected);
@@ -106,7 +105,7 @@ namespace Xtensive.IoC
       finally {
         _ = creating.TryRemove(key, out _);
       }
-      return cInfo.Invoke(args);
+      return cInfo.Invoke(args.AsSpan());
     }
 
     #endregion
@@ -186,23 +185,23 @@ namespace Xtensive.IoC
     /// <exception cref="ArgumentException">Wrong container type.</exception>
     public static IServiceContainer Create(Type containerType, object configuration, IServiceContainer parent)
     {
-      ArgumentValidator.EnsureArgumentNotNull(containerType, "containerType");
-      if (!typeofIServiceContainer.IsAssignableFrom(containerType))
+      ArgumentNullException.ThrowIfNull(containerType);
+      if (!iServiceContainerType.IsAssignableFrom(containerType))
         throw new ArgumentException(string.Format(
-          Strings.ExContainerTypeMustImplementX, typeofIServiceContainer.GetShortName()), "containerType");
+          Strings.ExContainerTypeMustImplementX, iServiceContainerType.Name));
 
       Type configurationType = configuration?.GetType(),
         parentType = parent?.GetType();
       return (IServiceContainer) (
-        FindConstructor(containerType, configurationType, parentType)?.Invoke(new[] { configuration, parent })
-        ?? FindConstructor(containerType, configurationType)?.Invoke(new[] { configuration })
-        ?? FindConstructor(containerType, parentType)?.Invoke(new[] { parent })
-        ?? throw new ArgumentException(Strings.ExContainerTypeDoesNotProvideASuitableConstructor, "containerType")
+        FindConstructorInvoker(containerType, configurationType, parentType)?.Invoke(configuration, parent)
+        ?? FindConstructorInvoker(containerType, configurationType)?.Invoke(configuration)
+        ?? FindConstructorInvoker(containerType, parentType)?.Invoke(parent)
+        ?? throw new ArgumentException(Strings.ExContainerTypeDoesNotProvideASuitableConstructor, nameof(containerType))
       );
     }
 
-    private static ConstructorInfo FindConstructor(Type containerType, params Type[] argumentTypes) =>
-      containerType.GetSingleConstructorOrDefault(argumentTypes);
+    private static ConstructorInvoker FindConstructorInvoker(Type containerType, params Type[] argumentTypes) =>
+      containerType.GetSingleConstructorInvokerOrDefault(argumentTypes);
 
     #endregion
 
@@ -275,7 +274,7 @@ namespace Xtensive.IoC
       var typeRegistry = new TypeRegistry(new ServiceTypeRegistrationProcessor());
 
       foreach (var typeRegistrationElement in configuration.Auto)
-        typeRegistry.Register(typeRegistrationElement.ToNative());
+        _ = typeRegistry.Register(typeRegistrationElement.ToNative());
       foreach (var type in typeRegistry)
         registrations.AddRange(ServiceRegistration.CreateAll(type));
       foreach (var serviceRegistrationElement in configuration.Explicit)
@@ -318,7 +317,7 @@ namespace Xtensive.IoC
       using (var toDispose = new DisposableSet()) {
         foreach (var lazy in instances.Values) {
           if (lazy.IsValueCreated && lazy.Value is IDisposable disposable) {
-            toDispose.Add(disposable);
+            _ = toDispose.Add(disposable);
           }
         }
       }

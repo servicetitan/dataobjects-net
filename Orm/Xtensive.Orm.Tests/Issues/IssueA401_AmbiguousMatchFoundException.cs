@@ -50,14 +50,14 @@ namespace Xtensive.Orm.Tests.Issues
     public void MainTest()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof(ConcreteEntity).Assembly, typeof(ConcreteEntity).Namespace);
+      config.Types.RegisterCaching(typeof(ConcreteEntity).Assembly, typeof(ConcreteEntity).Namespace);
       var domain = Domain.Build(config);
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var concrete = new ConcreteEntity(new Some());
 
         var result = Query.All<ConcreteEntity>().ToList();
-        Assert.AreEqual(1, result.Count);
+        Assert.That(result.Count, Is.EqualTo(1));
         t.Complete();
       }
     }

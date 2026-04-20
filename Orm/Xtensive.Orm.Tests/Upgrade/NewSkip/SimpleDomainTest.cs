@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
         Assert.That(x.Ref, Is.Not.Null);
 
         for (int i = 0; i < 200; i++)
-          new Country {Value = string.Format("Country{0}", i)};
+          new Country {Value = $"Country{i}"};
 
         transaction.Complete();
       }
@@ -248,7 +248,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (User).Assembly, typeof (User).Namespace);
+      configuration.Types.RegisterCaching(typeof (User).Assembly, typeof (User).Namespace);
       configuration.ForeignKeyMode = GetForeignKeyMode();
       return configuration;
     }

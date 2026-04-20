@@ -114,7 +114,7 @@ namespace Xtensive.Orm
     public new void AddRange<TElement>(IEnumerable<TElement> items)
       where TElement: TItem
     {
-      ArgumentValidator.EnsureArgumentNotNull(items, "items");
+      ArgumentNullException.ThrowIfNull(items);
       base.AddRange(items);
     }
 
@@ -127,7 +127,7 @@ namespace Xtensive.Orm
     public new void IntersectWith<TElement>(IEnumerable<TElement> other)
       where TElement : TItem
     {
-      ArgumentValidator.EnsureArgumentNotNull(other, "other");
+      ArgumentNullException.ThrowIfNull(other);
       base.IntersectWith(other);
     }
 
@@ -140,7 +140,7 @@ namespace Xtensive.Orm
     public new void UnionWith<TElement>(IEnumerable<TElement> other)
       where TElement : TItem
     {
-      ArgumentValidator.EnsureArgumentNotNull(other, "other");
+      ArgumentNullException.ThrowIfNull(other);
       base.UnionWith(other);
     }
 
@@ -152,7 +152,7 @@ namespace Xtensive.Orm
     public new void ExceptWith<TElement>(IEnumerable<TElement> other)
       where TElement : TItem
     {
-      ArgumentValidator.EnsureArgumentNotNull(other, "other");
+      ArgumentNullException.ThrowIfNull(other);
       base.ExceptWith(other);
     }
 
@@ -228,12 +228,12 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     protected sealed override Func<QueryEndpoint,Int64> GetItemCountQueryDelegate(FieldInfo field)
     {
-      return qe => GetItemsQuery(qe, field).LongCount();
+      return qe => GetItemsQuery(qe, field, this.Session.Domain).LongCount();
     }
 
-    private static IQueryable<TItem> GetItemsQuery(QueryEndpoint qe, FieldInfo field)
+    private static IQueryable<TItem> GetItemsQuery(QueryEndpoint qe, FieldInfo field, Domain domain)
     {
-      var queryExpression = QueryHelper.CreateEntitySetQuery(OwnerPropertyExpression, field);
+      var queryExpression = QueryHelper.CreateEntitySetQuery(OwnerPropertyExpression, field, domain);
       return qe.Provider.CreateQuery<TItem>(queryExpression);
     }
 

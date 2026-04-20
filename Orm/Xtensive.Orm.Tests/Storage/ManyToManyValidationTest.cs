@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Author).Assembly, typeof (Author).Namespace);
+      config.Types.RegisterCaching(typeof (Author).Assembly, typeof (Author).Namespace);
       return config;
     }
 
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Tests.Storage
       session.Validate();
       for (int i = 0; i < originalValidationCounts.Length; i++) {
         var originalValidationCount = originalValidationCounts[i];
-        Assert.AreNotEqual(originalValidationCounts[i], checkList[i].ValidationCount);
+        Assert.That(checkList[i].ValidationCount, Is.Not.EqualTo(originalValidationCounts[i]));
       }
     }
   }

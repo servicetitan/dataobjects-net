@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2022 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -8,16 +8,16 @@ using System;
 using System.Configuration;
 using System.Linq;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Configuration;
 using Xtensive.Core;
-using Xtensive.Orm.Configuration.Elements;
 using Xtensive.Orm.Internals;
-using ConfigurationSection=Xtensive.Orm.Configuration.Elements.ConfigurationSection;
+using ConfigurationSection = Xtensive.Orm.Configuration.Elements.ConfigurationSection;
 
 namespace Xtensive.Orm.Configuration
 {
   /// <summary>
   /// The configuration of the <see cref="Domain"/>.
-  /// </summary> 
+  /// </summary>
   [Serializable]
   public class DomainConfiguration : ConfigurationBase
   {
@@ -67,12 +67,12 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Default <see cref="ShareStorageSchemaOverNodes"/> value:
-    /// <see langword="false"/>
+    /// <see langword="false"/>.
     /// </summary>
     public const bool DefaultShareStorageSchemaOverNodes = false;
 
     /// <summary>
-    /// Default <see cref="AllowCyclicDatabaseDependencies" /> value: <see langword="false" />
+    /// Default <see cref="AllowCyclicDatabaseDependencies" /> value: <see langword="false" />.
     /// </summary>
     public const bool DefaultAllowCyclicDatabaseDependencies = false;
 
@@ -82,12 +82,6 @@ namespace Xtensive.Orm.Configuration
     public const bool DefaultEnsureConnectionIsAlive = true;
 
     /// <summary>
-    /// Default <see cref="EntityVersioningPolicy"/> value;
-    /// </summary>
-    [Obsolete("Use VersioningConvention.DefaultVersioningPolicy")]
-    public const EntityVersioningPolicy DefaultVersioningPolicy = EntityVersioningPolicy.Default;
-
-    /// <summary>
     /// Default <see cref="UpgradeMode"/> value.
     /// </summary>
     public const DomainUpgradeMode DefaultUpgradeMode = DomainUpgradeMode.Default;
@@ -95,7 +89,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Default <see cref="ForeignKeyMode"/> value.
     /// </summary>
-    public const ForeignKeyMode DefauktForeignKeyMode = ForeignKeyMode.Default;
+    public const ForeignKeyMode DefaultForeignKeyMode = ForeignKeyMode.Default;
 
     /// <summary>
     /// Default <see cref="FullTextChangeTrackingMode"/> value.
@@ -138,12 +132,14 @@ namespace Xtensive.Orm.Configuration
     private DatabaseConfigurationCollection databases = new();
     private KeyGeneratorConfigurationCollection keyGenerators = new();
     private IgnoreRuleCollection ignoreRules = new();
+    private ExtensionConfigurationCollection extensionConfigurations = new();
     private NamingConvention namingConvention = new();
     private VersioningConvention versioningConvention = new();
     private int keyCacheSize = DefaultKeyCacheSize;
     private int keyGeneratorCacheSize = DefaultKeyGeneratorCacheSize;
     private int queryCacheSize = DefaultQueryCacheSize;
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
+    private int maxNumberOfConditons = WellKnown.DefaultMaxNumberOfConditions;
     private Type serviceContainerType;
     private string forcedServerVersion = string.Empty;
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
@@ -154,7 +150,7 @@ namespace Xtensive.Orm.Configuration
     private bool ensureConnectionIsAlive = DefaultEnsureConnectionIsAlive;
     private bool preferTypeIdsAsQueryParameters = DefaultPreferTypeIdsAsQueryParameters;
     private DomainUpgradeMode upgradeMode = DefaultUpgradeMode;
-    private ForeignKeyMode foreignKeyMode = DefauktForeignKeyMode;
+    private ForeignKeyMode foreignKeyMode = DefaultForeignKeyMode;
     private FullTextChangeTrackingMode fullTextChangeTrackingMode = DefaultFullTextChangeTrackingMode;
     private DomainOptions options = DefaultDomainOptions;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = DefaultSchemaSyncExceptionFormat;
@@ -174,7 +170,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => sectionName;
       set {
-        ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
+        ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, nameof(value));
         if (sectionNameIsDefined) {
           throw Exceptions.AlreadyInitialized(nameof(SectionName));
         }
@@ -191,7 +187,7 @@ namespace Xtensive.Orm.Configuration
       get => name;
       set {
         EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         name = value;
       }
     }
@@ -347,6 +343,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets or sets a value indicating change tracking mode of full-text indexes.
     /// The property may have no effect for certain storages where there is no support for such option.
+    /// Default value is <see cref="DomainConfiguration.DefaultFullTextChangeTrackingMode"/>.
     /// </summary>
     public FullTextChangeTrackingMode FullTextChangeTrackingMode
     {
@@ -379,7 +376,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => sessions;
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         EnsureNotLocked();
         sessions = value;
       }
@@ -392,7 +389,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => mappingRules;
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         EnsureNotLocked();
         mappingRules = value;
       }
@@ -405,7 +402,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => databases;
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         EnsureNotLocked();
         databases = value;
       }
@@ -418,7 +415,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => keyGenerators;
       set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(value);
         EnsureNotLocked();
         keyGenerators = value;
       }
@@ -433,6 +430,18 @@ namespace Xtensive.Orm.Configuration
       set {
         EnsureNotLocked();
         serviceContainerType = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets collection of additional configurations (configurations of extensions)
+    /// that might be required during domain build process.
+    /// </summary>
+    public ExtensionConfigurationCollection ExtensionConfigurations {
+      get => extensionConfigurations;
+      set {
+        EnsureNotLocked();
+        extensionConfigurations = value;
       }
     }
 
@@ -583,7 +592,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets or sets versioning convention.
+    /// Gets or sets rules of entity versioning.
     /// </summary>
     public VersioningConvention VersioningConvention
     {
@@ -596,6 +605,13 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Enables extra check if connection is not broken on its opening.
+    /// For some RDBMSs physical connection may become broken but connection pool, which
+    /// is in charge of logical connections, is not aware of it.
+    /// In such cases connection pool provides connection
+    /// which is dead on arrival and causes exception on first use of it.
+    /// Such connection should be re-created and re-opened. The extra check
+    /// tests connection by making "first use" of it, if check failed connection
+    /// will be restored automatically.
     /// </summary>
     public bool EnsureConnectionIsAlive
     {
@@ -631,6 +647,31 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Maximam number of filtering values in IN clause which are
+    /// to be placed inside a resulted SQL command (as boolean predicate).
+    /// Affects only <see cref="QueryableExtensionsEx.In{T}(T, T[])"/> group of methods with 
+    /// <see cref="IncludeAlgorithm.Auto"/>. If collection of parameters has more items
+    /// than this parameter allows then temporary table will be used to store values.
+    /// Default value is <see cref="WellKnown.DefaultMaxNumberOfConditions"/>
+    /// </summary>
+    /// <remarks>
+    /// Some RDBMSs may have limitations for number of values in IN clause or for
+    /// overall number of parameters of SQL command. Increasing of this paramter may
+    /// cause you less IN clauses within one SQL command for the RDBMSs that limits overall
+    /// parameters count and decreasing it may allow you to have more of them, but it also changes
+    /// limit when temproary table will be chosen to store items.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">Current value is not in allowed range of values.</exception>
+    public int MaxNumberOfConditions
+    {
+      get => maxNumberOfConditons;
+      set {
+        EnsureNotLocked();
+        maxNumberOfConditons = value;
+      }
+    }
+
+    /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
     /// </summary>
     public bool IsMultidatabase => isMultidatabase ?? GetIsMultidatabase();
@@ -640,6 +681,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public bool IsMultischema => isMultischema ?? GetIsMultischema();
 
+    internal bool Supports(DomainOptions optionsToCheck) => (options & optionsToCheck) == optionsToCheck;
+
+    internal bool Supports(ForeignKeyMode modeToCheck) => (foreignKeyMode & modeToCheck) == modeToCheck;
 
     private bool GetIsMultidatabase()
     {
@@ -667,6 +711,7 @@ namespace Xtensive.Orm.Configuration
       // because override sequence of Lock() is so broken.
       ValidateMappingConfiguration(multischema, multidatabase);
       ValidateIgnoreConfiguration();
+      ValidateMaxNumberOfConditions();
 
       types.Lock(true);
       sessions.Lock(true);
@@ -676,6 +721,7 @@ namespace Xtensive.Orm.Configuration
       keyGenerators.Lock(true);
       ignoreRules.Lock(true);
       versioningConvention.Lock(true);
+      extensionConfigurations.Lock(true);
 
       base.Lock(recursive);
 
@@ -706,6 +752,13 @@ namespace Xtensive.Orm.Configuration
       }
     }
 
+    private void ValidateMaxNumberOfConditions()
+    {
+      if (MaxNumberOfConditions < 2 || MaxNumberOfConditions > 999) {
+        throw new InvalidOperationException(string.Format(Strings.ExMaxNumberOfConditionsShouldBeBetweenXAndY, 2, 999));
+      }
+    }
+
     /// <inheritdoc/>
     protected override ConfigurationBase CreateClone() => new DomainConfiguration();
 
@@ -726,14 +779,14 @@ namespace Xtensive.Orm.Configuration
       connectionInfo = configuration.ConnectionInfo;
       defaultSchema = configuration.DefaultSchema;
       defaultDatabase = configuration.DefaultDatabase;
-      types = (DomainTypeRegistry) configuration.Types.Clone();
-      linqExtensions = (LinqExtensionRegistry) configuration.LinqExtensions.Clone();
-      namingConvention = (NamingConvention) configuration.NamingConvention.Clone();
+      types = configuration.Types.Clone();
+      linqExtensions = configuration.LinqExtensions.Clone();
+      namingConvention = configuration.NamingConvention.Clone();
       keyCacheSize = configuration.KeyCacheSize;
       keyGeneratorCacheSize = configuration.KeyGeneratorCacheSize;
       queryCacheSize = configuration.QueryCacheSize;
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
-      sessions = (SessionConfigurationCollection) configuration.Sessions.Clone();
+      sessions = configuration.Sessions.Clone();
       upgradeMode = configuration.UpgradeMode;
       foreignKeyMode = configuration.ForeignKeyMode;
       serviceContainerType = configuration.ServiceContainerType;
@@ -747,13 +800,15 @@ namespace Xtensive.Orm.Configuration
       multidatabaseKeys = configuration.MultidatabaseKeys;
       ensureConnectionIsAlive = configuration.EnsureConnectionIsAlive;
       options = configuration.Options;
-      databases = (DatabaseConfigurationCollection) configuration.Databases.Clone();
-      mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
-      keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();
-      ignoreRules = (IgnoreRuleCollection) configuration.IgnoreRules.Clone();
+      databases = configuration.Databases.Clone();
+      mappingRules = configuration.MappingRules.Clone();
+      keyGenerators = configuration.KeyGenerators.Clone();
+      ignoreRules = configuration.IgnoreRules.Clone();
       shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
-      versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
+      versioningConvention = configuration.VersioningConvention.Clone();
       preferTypeIdsAsQueryParameters = configuration.PreferTypeIdsAsQueryParameters;
+      maxNumberOfConditons = configuration.MaxNumberOfConditions;
+      extensionConfigurations = configuration.ExtensionConfigurations.Clone();
     }
 
     /// <summary>
@@ -761,6 +816,8 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     /// <returns>The clone of this configuration.</returns>
     public new DomainConfiguration Clone() => (DomainConfiguration) base.Clone();
+
+    #region Static DomainConfiguration.Load() methods
 
     /// <summary>
     /// Loads the <see cref="DomainConfiguration"/> for <see cref="Domain"/>
@@ -791,7 +848,7 @@ namespace Xtensive.Orm.Configuration
     /// the <see cref="Domain"/> with specified <paramref name="name"/>.</exception>
     public static DomainConfiguration Load(string sectionName, string name)
     {
-      var section = (ConfigurationSection)ConfigurationManager.GetSection(sectionName);
+      var section = (ConfigurationSection)System.Configuration.ConfigurationManager.GetSection(sectionName);
       if (section == null) {
         throw new InvalidOperationException(string.Format(
           Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));
@@ -841,11 +898,6 @@ namespace Xtensive.Orm.Configuration
       return LoadConfigurationFromSection(section, name);
     }
 
-    internal bool Supports(DomainOptions optionsToCheck) => (options & optionsToCheck) == optionsToCheck;
-
-    internal bool Supports(ForeignKeyMode modeToCheck) => (foreignKeyMode & modeToCheck) == modeToCheck;
-
-
     private static DomainConfiguration LoadConfigurationFromSection(ConfigurationSection section, string name)
     {
       var domainElement = section.Domains[name];
@@ -855,6 +907,70 @@ namespace Xtensive.Orm.Configuration
       }
       return domainElement.ToNative();
     }
+
+    /// <summary>
+    /// Loads the <see cref="DomainConfiguration"/> for <see cref="Domain"/>
+    /// with the specified <paramref name="name"/>.
+    /// </summary>
+    /// <param name="configurationSection">Root configuration section where domain configurations are placed</param>
+    /// <param name="name">Name of the <see cref="Domain"/>.</param>
+    /// <returns>Domain configuration.</returns>
+    /// <exception cref="InvalidOperationException">The "domains" section is not found or domain with requested name is not found.</exception>
+    public static DomainConfiguration Load(IConfigurationSection configurationSection, string name)
+    {
+      ArgumentNullException.ThrowIfNull(configurationSection);
+
+      var jsonParser = new JsonToDomainConfigurationReader();
+      var xmlParser = new XmlToDomainConfigurationReader();
+
+      var parseResult = jsonParser.Read(configurationSection, name);
+      if (parseResult != null)
+        return parseResult;
+      parseResult = xmlParser.Read(configurationSection, name);
+      if (parseResult != null)
+        return parseResult;
+
+      throw new InvalidOperationException(string.Format(
+          Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
+    }
+
+    public static DomainConfiguration Load(IConfigurationRoot configurationRoot, string name)
+    {
+      ArgumentNullException.ThrowIfNull(configurationRoot);
+
+      var jsonParser = new JsonToDomainConfigurationReader();
+      var xmlParser = new XmlToDomainConfigurationReader();
+
+      var parseResult = jsonParser.Read(configurationRoot, name);
+      if (parseResult != null)
+        return parseResult;
+      parseResult = xmlParser.Read(configurationRoot, name);
+      if (parseResult != null)
+        return parseResult;
+
+      throw new InvalidOperationException(string.Format(
+          Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
+    }
+
+    public static DomainConfiguration Load(IConfigurationRoot configurationRoot, string sectionName, string name)
+    {
+      ArgumentNullException.ThrowIfNull(configurationRoot);
+
+      var jsonParser = new JsonToDomainConfigurationReader();
+      var xmlParser = new XmlToDomainConfigurationReader();
+
+      var parseResult = jsonParser.Read(configurationRoot, sectionName, name);
+      if (parseResult != null)
+        return parseResult;
+      parseResult = xmlParser.Read(configurationRoot, sectionName, name);
+      if (parseResult != null)
+        return parseResult;
+
+      throw new InvalidOperationException(string.Format(
+          Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
+    }
+
+    #endregion
 
     // Constructors
 

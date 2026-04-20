@@ -1,6 +1,6 @@
-// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2011.05.19
 
@@ -8,11 +8,11 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Storage.MultipleFKViaStructureTestModel;
+using Xtensive.Orm.Tests.Issues.MultipleFKViaStructureTestModel;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Orm.Tests.Storage.MultipleFKViaStructureTestModel
+namespace Xtensive.Orm.Tests.Issues.MultipleFKViaStructureTestModel
 {
   [HierarchyRoot]
   public class Target1 : Entity
@@ -81,14 +81,14 @@ namespace Xtensive.Orm.Tests.Storage.MultipleFKViaStructureTestModel
   }
 }
 
-namespace Xtensive.Orm.Tests.Storage
+namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0117_FKStructureTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Target1).Assembly, typeof (Target1).Namespace);
+      config.Types.RegisterCaching(typeof (Target1).Assembly, typeof (Target1).Namespace);
       return config;
     }
 
@@ -96,8 +96,8 @@ namespace Xtensive.Orm.Tests.Storage
     public void AssociationThroughStructureTest()
     {
       var type = Domain.Model.Types[typeof (Owner1)];
-      Assert.AreEqual(2, type.GetOwnerAssociations().Count());
-      Assert.AreEqual(8, Domain.Model.Associations.Count);
+      Assert.That(type.GetOwnerAssociations().Count(), Is.EqualTo(2));
+      Assert.That(Domain.Model.Associations.Count, Is.EqualTo(8));
     }
 
     [Test]
@@ -108,17 +108,17 @@ namespace Xtensive.Orm.Tests.Storage
       var schema = mapping[Domain.Model.Types[typeof (Metadata.Type)]].Schema;
 
       var count = GetForeignKeysCount(schema, typeof(Owner1));
-      Assert.AreEqual(count, GetForeignKeysCount(schema, typeof(Owner2)));
-      Assert.AreEqual(count, GetForeignKeysCount(schema, typeof(Owner3)));
+      Assert.That(GetForeignKeysCount(schema, typeof(Owner2)), Is.EqualTo(count));
+      Assert.That(GetForeignKeysCount(schema, typeof(Owner3)), Is.EqualTo(count));
     }
 
     [Test]
     public void IndexesCountTest()
     {
       var count = GetIndexesCount(typeof (Owner0));
-      Assert.AreEqual(count, GetIndexesCount(typeof(Owner1)));
-      Assert.AreEqual(count, GetIndexesCount(typeof(Owner2)));
-      Assert.AreEqual(count, GetIndexesCount(typeof(Owner3)));
+      Assert.That(GetIndexesCount(typeof(Owner1)), Is.EqualTo(count));
+      Assert.That(GetIndexesCount(typeof(Owner2)), Is.EqualTo(count));
+      Assert.That(GetIndexesCount(typeof(Owner3)), Is.EqualTo(count));
     }
 
     private int GetIndexesCount(Type type)

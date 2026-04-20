@@ -169,8 +169,9 @@ namespace Xtensive.Orm.Internals
           if ((expression as ConstantExpression).Value == null) {
             return null;
           }
-          if (expression.Type.IsClosure()) {
-            if (expression.Type == closureType) {
+          var expressionType = expression.Type;
+          if (expressionType.IsClosure()) {
+            if (expressionType == closureType) {
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
             }
             else {
@@ -180,18 +181,20 @@ namespace Xtensive.Orm.Internals
           }
 
           if (closureType.DeclaringType == null) {
-            if (expression.Type.IsAssignableFrom(closureType))
+            if (expressionType.IsAssignableFrom(closureType))
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           }
           else {
-            if (expression.Type.IsAssignableFrom(closureType))
+            if (expressionType.IsAssignableFrom(closureType))
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-            if (expression.Type.IsAssignableFrom(closureType.DeclaringType)) {
-              var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
-              if (memberInfo != null)
-                return Expression.MakeMemberAccess(
+            if (expressionType.IsAssignableFrom(closureType.DeclaringType)) {
+              var members = closureType.TryGetFieldInfoFromClosure(expressionType);
+              if (members != null) {
+                var newExpression = members.Aggregate(
                   Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
-                  memberInfo);
+                  (left, right) => Expression.MakeMemberAccess(left, right));
+                return newExpression;
+              }
             }
           }
         }
@@ -221,9 +224,13 @@ namespace Xtensive.Orm.Internals
       domain = session.Domain;
 
       this.endpoint = endpoint;
-      this.queryKey = new Pair<object, string>(queryKey, session.StorageNodeId);
       this.queryTarget = queryTarget;
       this.outerContext = outerContext;
+
+      var domainConfig = domain.Configuration;
+      this.queryKey = domainConfig.ShareStorageSchemaOverNodes && domainConfig.PreferTypeIdsAsQueryParameters
+        ? queryKey
+        : new Pair<object, string>(queryKey, session.StorageNodeId);
     }
   }
 }

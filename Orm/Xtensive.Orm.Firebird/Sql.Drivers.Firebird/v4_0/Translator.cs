@@ -7,14 +7,14 @@ using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Drivers.Firebird.v4_0
 {
-  internal class Translator : v2_5.Translator
+  internal class Translator : v3_0.Translator
   {
     public override void Translate(SqlCompilerContext context, SqlJoinExpression node, JoinSection section)
     {
       var output = context.Output;
       switch (section) {
         case JoinSection.Specification:
-          if (node.Expression == null) {
+          if (node.Expression is null) {
             switch (node.JoinType) {
               case SqlJoinType.CrossApply:
                 _ = output.Append("CROSS JOIN LATERAL");

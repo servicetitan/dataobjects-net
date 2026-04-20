@@ -5,6 +5,7 @@
 // Created:    2008.11.07
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -20,7 +21,8 @@ namespace Xtensive.Orm
   {
     private const string SavepointNameFormat = "s{0}";
 
-    private readonly StateLifetimeToken sessionLifetimeToken = new StateLifetimeToken();
+    private readonly StateLifetimeToken sessionLifetimeToken;
+    private readonly List<StateLifetimeToken> promotedLifetimeTokens;
     private int nextSavepoint;
 
     /// <summary>
@@ -258,7 +260,9 @@ namespace Xtensive.Orm
       ValidationContext.Validate(ValidationReason.Commit);
 
       SystemEvents.NotifyTransactionCommitting(transaction);
-      Events.NotifyTransactionCommitting(transaction);
+      using (PreventRegistryChanges()) {
+        Events.NotifyTransactionCommitting(transaction);
+      }
 
       Handler.CompletingTransaction(transaction);
       if (transaction.IsNested) {
@@ -364,24 +368,28 @@ namespace Xtensive.Orm
       Transaction = transaction.Outer;
 
       switch (transaction.State) {
-      case TransactionState.Committed:
-        if (IsDebugEventLoggingEnabled) {
-          OrmLog.Debug(nameof(Strings.LogSessionXCommittedTransaction), this);
-        }
+        case TransactionState.Committed:
+          if (IsDebugEventLoggingEnabled) {
+            OrmLog.Debug(nameof(Strings.LogSessionXCommittedTransaction), this);
+          }
 
-        SystemEvents.NotifyTransactionCommitted(transaction);
-        Events.NotifyTransactionCommitted(transaction);
-        break;
-      case TransactionState.RolledBack:
-        if (IsDebugEventLoggingEnabled) {
-          OrmLog.Debug(nameof(Strings.LogSessionXRolledBackTransaction), this);
-        }
+          SystemEvents.NotifyTransactionCommitted(transaction);
+          using (PreventRegistryChanges()) {
+            Events.NotifyTransactionCommitted(transaction);
+          }
+          break;
+        case TransactionState.RolledBack:
+          if (IsDebugEventLoggingEnabled) {
+            OrmLog.Debug(nameof(Strings.LogSessionXRolledBackTransaction), this);
+          }
 
-        SystemEvents.NotifyTransactionRollbacked(transaction);
-        Events.NotifyTransactionRollbacked(transaction);
-        break;
-      default:
-        throw new ArgumentOutOfRangeException("transaction.State");
+          SystemEvents.NotifyTransactionRollbacked(transaction);
+          using (PreventRegistryChanges()) {
+            Events.NotifyTransactionRollbacked(transaction);
+          }
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("transaction.State");
       }
     }
 
@@ -491,6 +499,15 @@ namespace Xtensive.Orm
       if (Configuration.Supports(SessionOptions.NonTransactionalReads))
         return sessionLifetimeToken;
       throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt);
+    }
+
+    internal bool TryPromoteTokens(IEnumerable<StateLifetimeToken> tokens)
+    {
+      if (promotedLifetimeTokens is null) {
+        return false;
+      }
+      promotedLifetimeTokens.AddRange(tokens);
+      return true;
     }
   }
 }

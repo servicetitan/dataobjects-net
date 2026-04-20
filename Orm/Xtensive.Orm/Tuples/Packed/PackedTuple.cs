@@ -20,12 +20,12 @@ namespace Xtensive.Tuples.Packed
       get { return PackedDescriptor; }
     }
 
-    public override Tuple Clone()
+    public override PackedTuple Clone()
     {
       return new PackedTuple(this);
     }
 
-    public override Tuple CreateNew()
+    public override PackedTuple CreateNew()
     {
       return new PackedTuple(PackedDescriptor);
     }
@@ -119,7 +119,7 @@ namespace Xtensive.Tuples.Packed
       return (TupleFieldState) ((Values[stateIndex] >> stateBitOffset) & 3);
     }
 
-    public PackedTuple(TupleDescriptor descriptor)
+    public PackedTuple(in TupleDescriptor descriptor)
     {
       PackedDescriptor = descriptor;
 

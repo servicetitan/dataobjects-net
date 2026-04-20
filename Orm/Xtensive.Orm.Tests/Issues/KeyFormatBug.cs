@@ -49,9 +49,9 @@ namespace Xtensive.Orm.Tests.Issues.KeyFormatBug
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Base).Assembly, typeof (Base).Namespace);
+      config.Types.RegisterCaching(typeof (Base).Assembly, typeof (Base).Namespace);
       var nestedBaseType = typeof (Nested.Base);
-      config.Types.Register(nestedBaseType.Assembly, nestedBaseType.Namespace);
+      config.Types.RegisterCaching(nestedBaseType.Assembly, nestedBaseType.Namespace);
       config.NamingConvention.NamespacePolicy = NamespacePolicy.Synonymize;
 
       var persistentType = typeof(Persistent);
@@ -90,13 +90,13 @@ namespace Xtensive.Orm.Tests.Issues.KeyFormatBug
         var key = entity.Key;
 
         string formattedKey = key.Format();
-        TestLog.Info("Key.ToString() result: {0}", key.ToString());
-        TestLog.Info("Key.Format()   result: {0}", formattedKey);
-        Assert.True(formattedKey.Contains("Child"));
-        Assert.False(formattedKey.Contains("Base"));
+        TestLog.Info($"Key.ToString() result: {key.ToString()}");
+        TestLog.Info($"Key.Format()   result: {formattedKey}");
+        Assert.That(formattedKey.Contains("Child"));
+        Assert.That(formattedKey.Contains("Base"), Is.False);
         
         var parsedKey = Key.Parse(Domain, formattedKey);
-        Assert.AreEqual(key, parsedKey);
+        Assert.That(parsedKey, Is.EqualTo(key));
       }
     }
   }

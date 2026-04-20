@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Tests.Storage.IoC
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (FakeClass).Assembly, typeof (FakeClass).Namespace);
+      config.Types.RegisterCaching(typeof (FakeClass).Assembly, typeof (FakeClass).Namespace);
       return config;
     }
 
@@ -51,10 +51,10 @@ namespace Xtensive.Orm.Tests.Storage.IoC
         using (var t = session.OpenTransaction()) {
 
           var s = session.Services.GetService<IMyService>();
-          Assert.IsNotNull(s);
+          Assert.That(s, Is.Not.Null);
           s = session.Services.Get<IMyService>();
-          Assert.IsNotNull(s);
-          Assert.IsNotNull((s as SessionBound).Session);
+          Assert.That(s, Is.Not.Null);
+          Assert.That((s as SessionBound).Session, Is.Not.Null);
           // Rollback
         }
       }

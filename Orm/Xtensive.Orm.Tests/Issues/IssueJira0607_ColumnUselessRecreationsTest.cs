@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Modelling.Actions;
@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Tests.Issues
       Assert.That(exception.ComparisonResult.HasUnsafeActions, Is.True);
       Assert.That(exception.ComparisonResult.UnsafeActions.Count, Is.EqualTo(4));
       foreach (var unsafeAction in exception.ComparisonResult.UnsafeActions) {
-        Assert.IsInstanceOf(typeof(PropertyChangeAction), unsafeAction);
+        Assert.That(unsafeAction, Is.InstanceOf(typeof(PropertyChangeAction)));
         var propertyChangeAction = unsafeAction as PropertyChangeAction;
         Assert.That(propertyChangeAction.Properties.ContainsKey("Type"), Is.True);
         var targetColumnInfo = unsafeAction.Difference.Target as StorageTypeInfo;
@@ -274,7 +274,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = DomainConfigurationFactory.Create();
       foreach (var type in types) {
-        configuration.Types.Register(type.Assembly, type.Namespace);
+        configuration.Types.RegisterCaching(type.Assembly, type.Namespace);
       }
       configuration.UpgradeMode = (isInitial) ? DomainUpgradeMode.Recreate : DomainUpgradeMode.PerformSafely;
       return configuration;

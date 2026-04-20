@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
+// Copyright (C) 2003-2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Julian Mamokin
@@ -165,7 +165,7 @@ namespace Xtensive.Orm.Tests.Model
       Assert.That(ftIndex.Columns.Contains(firstNameField.Column.Name));
 
       var lastNameField = customer.Fields["LastName"];
-      Assert.IsTrue(ftIndex.Columns.Contains(lastNameField.Column.Name));
+      Assert.That(ftIndex.Columns.Contains(lastNameField.Column.Name), Is.True);
     }
 
     [Test]
@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Tests.Model
       var indexedColumns = addressField.Fields
         .Where(f => f.Name.In("Country", "Region", "City", "Street"))
         .Select(f => f.Column);
-      Assert.IsTrue(indexedColumns.All(c => ftIndex.Columns.Contains(c.Name)));
+      Assert.That(indexedColumns.All(c => ftIndex.Columns.Contains(c.Name)), Is.True);
     }
 
     [Test]
@@ -191,7 +191,7 @@ namespace Xtensive.Orm.Tests.Model
       var indexedColumns = optionalAddressField.Fields
         .Where(f => f.Name.In("Country", "Region", "City", "Street"))
         .Select(f => f.Column);
-      Assert.IsTrue(indexedColumns.All(c => ftIndex.Columns.Contains(c.Name)));
+      Assert.That(indexedColumns.All(c => ftIndex.Columns.Contains(c.Name)), Is.True);
 
       var store = Domain.Model.Types[typeof (Store)];
       ftIndex = store.FullTextIndex;
@@ -200,13 +200,13 @@ namespace Xtensive.Orm.Tests.Model
       indexedColumns = addressField.Fields
         .Where(f => f.Name.In("Country", "Region", "City", "Street"))
         .Select(f => f.Column);
-      Assert.IsTrue(indexedColumns.All(c => ftIndex.Columns.Contains(c.Name)));
+      Assert.That(indexedColumns.All(c => ftIndex.Columns.Contains(c.Name)), Is.True);
     }
 
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Customer).Assembly, typeof (Customer).Namespace);
+      configuration.Types.RegisterCaching(typeof (Customer).Assembly, typeof (Customer).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }

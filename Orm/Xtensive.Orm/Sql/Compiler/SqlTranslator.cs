@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2022 Xtensive LLC.
+// Copyright (C) 2003-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -13,8 +13,6 @@ using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
-using Index = Xtensive.Sql.Model.Index;
-using System.Runtime.CompilerServices;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -33,7 +31,7 @@ namespace Xtensive.Sql.Compiler
     public NumberFormatInfo FloatNumberFormat { get; private set; }
     public NumberFormatInfo DoubleNumberFormat { get; private set; }
 
-    public virtual string NewLine => "\r\n";
+    public virtual string NewLine { get { return Environment.NewLine; } }
 
     public virtual string OpeningParenthesis => "(";
     public virtual string ClosingParenthesis => ")";
@@ -71,6 +69,22 @@ namespace Xtensive.Sql.Compiler
     /// See <see cref="DateTime.ToString(string)"/> for details.
     /// </summary>
     public abstract string DateTimeFormatString { get; }
+
+    /// <summary>
+    /// Gets the <see cref="DateOnly"/> format string.
+    /// See <see cref="DateOnly.ToString(string)"/> for details
+    /// </summary>
+    public abstract string DateOnlyFormatString { get; }
+
+    /// <summary>
+    /// Gets the <see cref="TimeOnly"/> format string.
+    /// </summary>
+    public abstract string TimeOnlyFormatString { get; }
+
+    /// <summary>
+    /// Gets the <see cref="DateTimeOffset"/> format string
+    /// </summary>
+    public virtual string DateTimeOffsetFormatString => throw new NotImplementedException();
 
     /// <summary>
     /// Gets the time span format string.
@@ -1215,6 +1229,17 @@ namespace Xtensive.Sql.Compiler
     }
 
     /// <summary>
+    /// Translates <see cref="SqlTruncateTable"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
+    /// </summary>
+    /// <param name="context">The compiler context.</param>
+    /// <param name="node">Statement to translate.</param>
+    public virtual void Translate(SqlCompilerContext context, SqlTruncateTable node)
+    {
+      _ = context.Output.Append("TRUNCATE TABLE ");
+      Translate(context, node.Table);
+    }
+
+    /// <summary>
     /// Translates <see cref="SqlDropTable"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
     /// </summary>
     /// <param name="context">The compiler context.</param>
@@ -1393,19 +1418,22 @@ namespace Xtensive.Sql.Compiler
         case InsertSection.Entry:
           _ = output.Append("INSERT INTO");
           break;
-        case InsertSection.ColumnsEntry when node.Values.Keys.Count > 0:
+        case InsertSection.ColumnsEntry when node.ValueRows.Count > 0:
           _ = output.AppendOpeningPunctuation("(");
           break;
-        case InsertSection.ColumnsExit when node.Values.Keys.Count > 0:
+        case InsertSection.ColumnsExit when node.ValueRows.Count > 0:
           _ = output.Append(")");
           break;
         case InsertSection.From:
           _ = output.Append("FROM");
           break;
-        case InsertSection.ValuesEntry:
+        case InsertSection.ValuesEntry when node.ValueRows.Count == 0:
           _ = output.AppendOpeningPunctuation("VALUES (");
           break;
-        case InsertSection.ValuesExit:
+        case InsertSection.ValuesEntry when node.ValueRows.Count > 0:
+          _ = output.AppendOpeningPunctuation("VALUES ");
+          break;
+        case InsertSection.ValuesExit when node.ValueRows.Count == 0:
           _ = output.Append(")");
           break;
         case InsertSection.DefaultValues:
@@ -1518,6 +1546,12 @@ namespace Xtensive.Sql.Compiler
         case Guid:
         case byte[]:
           throw new NotSupportedException(string.Format(Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
+        case DateOnly dateOnly:
+          _ = output.Append(dateOnly.ToString(DateOnlyFormatString, DateTimeFormat));
+          break;
+        case TimeOnly timeOnly:
+          _ = output.Append(timeOnly.ToString(TimeOnlyFormatString, DateTimeFormat));
+          break;
         default:
           _ = output.Append(literalValue.ToString());
           break;
@@ -1955,7 +1989,7 @@ namespace Xtensive.Sql.Compiler
       var dbQualified = node.Schema.Catalog != null
         && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
 
-      
+
       if (node.Schema.IsNamesReadingDenied) {
         // if schema is shared we use placeholders to translate
         // schema node in PostCompiler
@@ -1985,6 +2019,11 @@ namespace Xtensive.Sql.Compiler
 
     #region Enums and other types that require translation to string
 
+    /// <summary>
+    /// Translates <see cref="SqlNodeType"/> and writes the result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="type">Enum value to translate.</param>
     public virtual void Translate(IOutput output, SqlNodeType type)
     {
       _ = output.Append(type switch {
@@ -2050,7 +2089,6 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     /// <param name="output">The output to write to.</param>
     /// <param name="type">Enum value to translate.</param>
-    /// <returns>SQL variant of join type.</returns>
     public virtual void Translate(IOutput output, SqlJoinType type)
     {
       _ = output.Append(type switch {
@@ -2065,6 +2103,11 @@ namespace Xtensive.Sql.Compiler
       });
     }
 
+    /// <summary>
+    /// Translates <see cref="SqlMatchType"/> ant writes result to the <paramref name="output"/>
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="type">Enum value to translate/</param>
     public virtual void Translate(IOutput output, SqlMatchType type)
     {
       _ = output.Append(type switch {
@@ -2074,6 +2117,11 @@ namespace Xtensive.Sql.Compiler
       });
     }
 
+    /// <summary>
+    /// Translates <see cref="ReferentialAction"/> ant writes result to the <paramref name="output"/>
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="action">Enum value to translate/</param>
     public virtual void Translate(IOutput output, ReferentialAction action)
     {
       _ = output.Append(action switch {
@@ -2256,6 +2304,40 @@ namespace Xtensive.Sql.Compiler
     }
 
     /// <summary>
+    /// Translates <see cref="SqlDateTimePart"/> writes the result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="datePart">Enum value to translate.</param>
+    public virtual void Translate(IOutput output, SqlDatePart datePart)
+    {
+      _ = output.Append(datePart switch {
+        SqlDatePart.Year => "YEAR",
+        SqlDatePart.Month => "MONTH",
+        SqlDatePart.Day => "DAY",
+        SqlDatePart.DayOfYear => "DAYOFYEAR",
+        SqlDatePart.DayOfWeek => "DAYOFWEEK",
+        _ => throw new ArgumentOutOfRangeException(nameof(datePart))
+      });
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlTimePart"/> writes the result to the <paramref name="output"/>.
+    /// </summary>
+    /// <param name="output">The output to write to.</param>
+    /// <param name="timePart">Enum value to translate.</param>
+    public virtual void Translate(IOutput output, SqlTimePart timePart)
+    {
+      _ = output.Append(timePart switch {
+        SqlTimePart.Hour => "HOUR",
+        SqlTimePart.Minute => "MINUTE",
+        SqlTimePart.Second => "SECOND",
+        SqlTimePart.Millisecond => "MILLISECOND",
+        SqlTimePart.Nanosecond => "NANOSECOND",
+        _ => throw new ArgumentOutOfRangeException(nameof(timePart))
+      });
+    }
+
+    /// <summary>
     /// Translates <see cref="SqlDateTimeOffsetPart"/> and writes result to the <paramref name="output"/>.
     /// </summary>
     /// <param name="output">The output to write to.</param>
@@ -2409,6 +2491,11 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    /// <summary>
+    /// Translates identifier name and writes result to <paramref name="output"/>
+    /// </summary>
+    /// <param name="output">The output.</param>
+    /// <param name="name">The identifier.</param>
     public void TranslateIdentifier(IOutput output, string name)
     {
       if (string.IsNullOrEmpty(name))
@@ -2445,8 +2532,8 @@ namespace Xtensive.Sql.Compiler
       var expectedLength = BatchBegin.Length + BatchEnd.Length
         + ((BatchItemDelimiter.Length + NewLine.Length) * statements.Count)
         + statements.Sum(statement => statement.Length);
-      var builder = new StringBuilder(expectedLength);
-      _ = builder.Append(BatchBegin);
+      var valueBuilder = new ValueStringBuilder(expectedLength);
+      valueBuilder.Append(BatchBegin);
       foreach (var statement in statements) {
         var statementAsSpan = (ReadOnlySpan<char>) statement;
         var actualStatement = statementAsSpan
@@ -2458,12 +2545,12 @@ namespace Xtensive.Sql.Compiler
           .Trim();
         if (actualStatement.Length == 0)
           continue;
-        _ = builder.Append(actualStatement)
-          .Append(BatchItemDelimiter)
-          .Append(NewLine);
+        valueBuilder.Append(actualStatement.ToString());
+        valueBuilder.Append(BatchItemDelimiter);
+        valueBuilder.Append(NewLine);
       }
-      _ = builder.Append(BatchEnd);
-      return builder.ToString();
+      valueBuilder.Append(BatchEnd);
+      return valueBuilder.ToString();
     }
 
     /// <summary>
@@ -2474,6 +2561,7 @@ namespace Xtensive.Sql.Compiler
     /// <remarks>
     /// Use TranslateString instead of this method within SqlTranslators/SqlCompilers where possible.
     /// </remarks>
+    [Obsolete]
     public virtual string QuoteString(string str)
     {
       //Use TranslateString instead of this method within SqlTranslators/SqlCompilers where possible

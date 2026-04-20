@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2023 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -15,6 +15,7 @@ using Xtensive.Sql.Model;
 using Index = Xtensive.Sql.Model.Index;
 using System.Linq;
 using Xtensive.Core;
+using System.Collections.Generic;
 
 namespace Xtensive.Orm.Tests.Sql.SqlServer
 {
@@ -36,8 +37,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
   {
     private SqlDriver sqlDriver;
     private SqlConnection sqlConnection;
+#pragma warning disable NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
     private DbCommand dbCommand;
     private DbCommand sqlCommand;
+#pragma warning restore NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
 
     protected virtual bool PerformanceCheck => false;
 
@@ -85,6 +88,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         if (sqlConnection != null && sqlConnection.State != ConnectionState.Closed) {
           sqlConnection.Close();
         }
+        sqlConnection?.Dispose();
       }
       catch (Exception ex) {
         Console.WriteLine(ex.Message);
@@ -94,7 +98,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void TestExtractCatalog()
     {
-      Assert.GreaterOrEqual(Catalog.Schemas.Count, 1);
+      Assert.That(Catalog.Schemas.Count, Is.GreaterThanOrEqualTo(1));
     }
 
     #region Internals
@@ -116,8 +120,24 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       Console.WriteLine(commandText);
       dbCommand.CommandText = commandText;
 
-      var r1 = GetExecuteDataReaderResult(dbCommand);
-      var r2 = GetExecuteDataReaderResult(sqlCommand);
+      DbCommandExecutionResult r1, r2;
+      sqlConnection.BeginTransaction();
+      try {
+        dbCommand.Transaction = sqlConnection.ActiveTransaction;
+        r1 = GetExecuteDataReaderResult(dbCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
+
+      sqlConnection.BeginTransaction();
+      try {
+        sqlCommand.Transaction = sqlConnection.ActiveTransaction;
+        r2 = GetExecuteDataReaderResult(sqlCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
 
       Console.WriteLine();
       Console.WriteLine();
@@ -155,8 +175,24 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       Console.WriteLine(commandText);
       dbCommand.CommandText = commandText;
 
-      var r1 = GetExecuteNonQueryResult(dbCommand);
-      var r2 = GetExecuteNonQueryResult(sqlCommand);
+      DbCommandExecutionResult r1, r2;
+      sqlConnection.BeginTransaction();
+      try {
+        dbCommand.Transaction = sqlConnection.ActiveTransaction;
+        r1 = GetExecuteNonQueryResult(dbCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
+
+      sqlConnection.BeginTransaction();
+      try {
+        sqlCommand.Transaction = sqlConnection.ActiveTransaction;
+        r2 = GetExecuteNonQueryResult(sqlCommand);
+      }
+      finally {
+        sqlConnection.Rollback();
+      }
 
       Console.WriteLine();
       Console.WriteLine();
@@ -282,7 +318,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.OrderBy.Add(product["ListPrice"]);
       select.OrderBy.Add(1);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
 
     }
 
@@ -296,7 +332,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var select = SqlDml.Select(purchasing);
       select.Columns.Add(SqlDml.Asterisk);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -315,7 +351,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.From = select.From.InnerJoin(store, customer["CustomerID"]==store["CustomerID"]);
       select.Where = customer["TerritoryID"]==1;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -336,7 +372,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(customer["CustomerID"], store["Name"]);
       select.Where = customer["TerritoryID"]==1;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -352,7 +388,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(salesOrderHeader["ShipToAddressID"], salesOrderHeader["TerritoryID"]);
       select.OrderBy.Add(salesOrderHeader["TerritoryID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -370,7 +406,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = salesOrderHeader["OrderDate"]<DateTime.Now;
       select.OrderBy.Add(salesOrderHeader["OrderDate"], false);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -394,7 +430,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.OrderBy.Add(contact["LastName"]);
       select.OrderBy.Add(contact["FirstName"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -409,7 +445,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(SqlDml.Asterisk);
       select.OrderBy.Add(product["Name"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -431,7 +467,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product.Asterisk);
       select.OrderBy.Add(product["ProductID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -446,7 +482,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(SqlDml.Asterisk);
       select.OrderBy.Add(customer["CustomerID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -466,7 +502,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(customer["ModifiedDate"]);
       select.OrderBy.Add(customer["CustomerID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -485,7 +521,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(contact["FirstName"], contact["Phone"]);
       select.OrderBy.Add(contact["FirstName"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -501,7 +537,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.OrderBy.Add(contact["LastName"]);
       select.OrderBy.Add(contact["FirstName"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -516,7 +552,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(SqlDml.Round(product["ListPrice"]*0.9, 2), "DiscountPrice");
       select.Where = product["ProductID"]==58;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -531,7 +567,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(
         SqlDml.Cast(product["ProductID"], new SqlValueType("varchar(10)")), "ProductIDName");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -556,7 +592,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       discountPrice.Else = SqlDml.Round(product["ListPrice"]*0.6, 2);
       select.Columns.Add(discountPrice, "DiscountPrice");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -581,7 +617,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(sumOfSales, "SumOfSales");
       select.OrderBy.Add(product["ProductID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -603,7 +639,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.GroupBy.AddRange(p["ProductID"], p["Name"]);
       select.OrderBy.Add(p["ProductID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -623,7 +659,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         "DaysSinceShipped");
       select.Where = SqlDml.IsNotNull(salesOrderHeader["ShipDate"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -643,7 +679,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         "DaysSinceShipped");
       select.Where = SqlDml.IsNotNull(salesOrderHeader["ShipDate"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -658,7 +694,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product["Name"], "Product Name");
       select.OrderBy.Add(product["Name"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -671,7 +707,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var select = SqlDml.Select(product);
       select.Columns.Add(SqlDml.Sum(product["TotalDue"]), "sum");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -686,7 +722,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Distinct = true;
       select.Columns.Add(productInventory["ProductID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -707,7 +743,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.From = select.From.InnerJoin(ord, cst["CustomerID"]==ord["CustomerID"]);
       select.Columns.AddRange(cst["CustomerID"], st["Name"], ord["ShipDate"], ord["Freight"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -742,7 +778,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.OrderBy.Add(c["LastName"]);
       select.OrderBy.Add(c["FirstName"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -781,7 +817,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var select = SqlDml.Select(c.InnerJoin(s, c["CustomerID"]==s["CustomerID"]));
       select.Columns.AddRange(c["CustomerID"], s["Name"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -799,7 +835,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(c["CustomerID"], s["Name"]);
       select.Where = c["TerritoryID"]==1;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -828,7 +864,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.GroupBy.Add(ordD1["SalesOrderID"]);
       select.Having = SqlDml.Sum(ordD1["OrderQty"])>100;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -845,7 +881,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = product["Class"]=='H';
       select.OrderBy.Add(product["ProductID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -862,7 +898,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = SqlDml.Between(product["ListPrice"], 100, 500);
       select.OrderBy.Add(product["ListPrice"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -879,7 +915,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = SqlDml.In(product["Color"], SqlDml.Row("Multi", "Silver"));
       select.OrderBy.Add(product["ProductID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -896,7 +932,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = SqlDml.Like(product["Name"], "Ch%");
       select.OrderBy.Add(product["ProductID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -916,7 +952,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = SqlDml.IsNotNull(s["SalesPersonID"]);
       select.OrderBy.Add(s["Name"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -941,7 +977,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(ordD1["SalesOrderID"], ordD1["ProductID"]);
       select.Where = ordD1["OrderQty"] > SqlDml.All(subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -958,7 +994,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = product["ListPrice"] < 500 ||
         (product["Class"] == 'L' && product["ProductLine"] == 'S');
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -973,7 +1009,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product["Name"]);
       select.Where = product["ListPrice"]>50;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -988,7 +1024,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(product["ProductID"], product["Name"]);
       select.Where = SqlDml.Between(product["ListPrice"], 15, 25);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1003,7 +1039,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(product["ProductID"], product["Name"]);
       select.Where = product["ListPrice"]==15 || product["ListPrice"]==25;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1018,7 +1054,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(product["ProductID"], product["Name"]);
       select.Where = product["ListPrice"]>15 && product["ListPrice"]<25;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1033,7 +1069,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(product["ProductID"], product["Name"]);
       select.Where = !SqlDml.Between(product["ListPrice"], 15, 25);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1050,7 +1086,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = product["ProductSubcategoryID"]==12 || product["ProductSubcategoryID"]==14 ||
         product["ProductSubcategoryID"]==16;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1065,7 +1101,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(product["ProductID"], product["Name"]);
       select.Where = SqlDml.In(product["ProductSubcategoryID"], SqlDml.Row(12, 14, 16));
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1088,7 +1124,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product["Name"]);
       select.Where = SqlDml.In(product["ProductModelID"], subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1111,7 +1147,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product["Name"]);
       select.Where = SqlDml.NotIn(product["ProductModelID"], subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1126,7 +1162,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(contact["Phone"]);
       select.Where = SqlDml.Like(contact["Phone"], "415%");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1141,7 +1177,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(contact["Phone"]);
       select.Where = !SqlDml.Like(contact["Phone"], "415%");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1156,7 +1192,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(contact["Phone"]);
       select.Where = SqlDml.Like(contact["Phone"], "415%") && SqlDml.IsNotNull(contact["Phone"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1171,7 +1207,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(contact["Phone"]);
       select.Where = SqlDml.Like(contact["Phone"], "%5/%%", '/');
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1186,7 +1222,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(product["ProductID"], product["Name"], product["Color"]);
       select.Where = SqlDml.IsNull(product["Color"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1204,7 +1240,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = SqlDml.In(customer["TerritoryID"], SqlDml.Row(1, 2, 3)) ||
         SqlDml.IsNull(customer["TerritoryID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1220,7 +1256,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         customer["CustomerID"], customer["AccountNumber"], customer["TerritoryID"]);
       select.Where = customer["TerritoryID"]==SqlDml.Null;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1235,7 +1271,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(store["CustomerID"], store["Name"]);
       select.Where = SqlDml.Like(store["CustomerID"], "1%") && SqlDml.Like(store["Name"], "Bicycle%");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1250,7 +1286,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(store["CustomerID"], store["Name"]);
       select.Where = SqlDml.Like(store["CustomerID"], "1%") || SqlDml.Like(store["Name"], "Bicycle%");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1267,7 +1303,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = product["ProductModelID"] == 20 ||
         (product["ProductModelID"] == 21 && product["Color"] == "RED");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1284,7 +1320,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = (product["ProductModelID"] == 20 || product["ProductModelID"] == 21) &&
         product["Color"] == "RED";
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1301,7 +1337,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = product["ProductModelID"] == 20 ||
         (product["ProductModelID"] == 21 && product["Color"] == "RED");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1319,7 +1355,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.GroupBy.Add(sod["SalesOrderID"]);
       select.OrderBy.Add(sod["SalesOrderID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1337,7 +1373,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(SqlDml.Count(), "NumberOfHires");
       select.GroupBy.Add(SqlDml.Extract(SqlDateTimePart.Year, employee["HireDate"]));
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1360,7 +1396,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.GroupBy.AddRange(salesOrderDetail["ProductID"], salesOrderDetail["SpecialOfferID"]);
       select.OrderBy.Add(salesOrderDetail["ProductID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1383,7 +1419,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.GroupBy.AddRange(salesOrderDetail["ProductID"], salesOrderDetail["SpecialOfferID"]);
       select.OrderBy.Add(salesOrderDetail["ProductID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1403,7 +1439,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.GroupBy.Add(product["ProductModelID"]);
       select.OrderBy.Add(product["ProductModelID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1425,7 +1461,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         SqlDml.Avg(salesOrderDetail["OrderQty"]) < 3;
       select.GroupBy.Add(salesOrderDetail["ProductID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1443,7 +1479,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Having = SqlDml.Sum(salesOrderDetail["LineTotal"])>2000000;
       select.GroupBy.Add(salesOrderDetail["ProductID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1461,7 +1497,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Having = SqlDml.Count()>1500;
       select.GroupBy.Add(salesOrderDetail["ProductID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1480,7 +1516,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Having = SqlDml.Avg(salesOrderDetail["OrderQty"]) > 5;
       select.OrderBy.Add(salesOrderDetail["ProductID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1503,7 +1539,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Having = SqlDml.Like(pm["Name"], "Mountain%");
       select.OrderBy.Add(pm["Name"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1523,7 +1559,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.GroupBy.Add(salesOrderDetail["ProductID"]);
       select.OrderBy.Add(salesOrderDetail["ProductID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1543,7 +1579,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.GroupBy.Add(product["Color"]);
       select.OrderBy.Add(product["Color"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1560,7 +1596,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.OrderBy.Add(product["ProductSubcategoryID"], false);
       select.OrderBy.Add(product["ListPrice"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1577,7 +1613,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.OrderBy.Add(
         SqlDml.Collate(contact["LastName"], Catalog.Schemas["Person"].Collations["Traditional_Spanish_CI_AI"]));
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1595,7 +1631,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.GroupBy.Add(product["Color"]);
       select.OrderBy.Add(select.Columns["average list price"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1617,7 +1653,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(ord["SalesOrderID"], ord["OrderDate"]);
       select.Columns.Add(subSelect, "MaxUnitPrice");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1639,7 +1675,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(product1["Name"]);
       select.Where = product1["ListPrice"]==subSelect;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1657,7 +1693,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(prd1["Name"]);
       select.Where = prd2["Name"]=="Chainring Bolts";
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1679,7 +1715,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(store["Name"]);
       select.Where = SqlDml.NotIn(store["CustomerID"], subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1701,7 +1737,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(employee1["EmployeeID"], employee1["ManagerID"]);
       select.Where = SqlDml.In(employee1["ManagerID"], subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1719,7 +1755,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         SqlDml.Select(e1.InnerJoin(e2, e1["ManagerID"]==e2["ManagerID"] && e2["EmployeeID"]==12));
       select.Columns.AddRange(e1["EmployeeID"], e1["ManagerID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1741,7 +1777,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(e1["EmployeeID"], e1["ManagerID"]);
       select.Where = SqlDml.In(e1["ManagerID"], subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1764,7 +1800,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product["Name"]);
       select.Where = SqlDml.In(product["ProductSubcategoryID"], subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1783,7 +1819,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
           s, p["ProductSubcategoryID"] == s["ProductSubcategoryID"] && s["Name"] == "Wheels"));
       select.Columns.AddRange(p["Name"], s["Name"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1808,7 +1844,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = vendor["CreditRating"] == 1 &&
         SqlDml.In(vendor["VendorID"], subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1829,7 +1865,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(v["Name"]);
       select.Where = v["CreditRating"] == 1 && p["MinOrderQty"] >= 20 && SqlDml.IsNull(p["OnOrderQty"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1854,7 +1890,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product["Name"]);
       select.Where = SqlDml.NotIn(product["ProductSubcategoryID"], subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1876,7 +1912,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       update.Values[product["ListPrice"]] = product["ListPrice"] * 2;
       update.Where = SqlDml.In(product["ProductID"], subSelect);
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+      Assert.That(CompareExecuteNonQuery(nativeSql, update), Is.True);
     }
 
     [Test]
@@ -1896,7 +1932,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       update.Values[product["ListPrice"]] = p["ListPrice"] * 2;
       update.From = p.InnerJoin(pv, p["ProductID"] == pv["ProductID"] && pv["VendorID"] == 51);
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+      Assert.That(CompareExecuteNonQuery(nativeSql, update), Is.True);
     }
 
     [Test]
@@ -1918,7 +1954,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(customer["CustomerID"]);
       select.Where = customer["TerritoryID"] == subSelect;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1938,7 +1974,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product1["Name"]);
       select.Where = product1["ListPrice"]>subSelect;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1962,7 +1998,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product1["Name"]);
       select.Where = product1["ListPrice"]>subSelect;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -1984,7 +2020,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product1["Name"]);
       select.Where = product1["ListPrice"]>=SqlDml.Any(subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2007,7 +2043,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product["Name"]);
       select.Where = product["ProductSubcategoryID"]==SqlDml.Any(subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2030,7 +2066,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product["Name"]);
       select.Where = SqlDml.In(product["ProductSubcategoryID"], subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2050,7 +2086,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(customer["CustomerID"]);
       select.Where = customer["TerritoryID"]!=SqlDml.Any(subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2076,7 +2112,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product["Name"]);
       select.Where = SqlDml.Exists(subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2099,7 +2135,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product["Name"]);
       select.Where = SqlDml.In(product["ProductSubcategoryID"], subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2125,7 +2161,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product["Name"]);
       select.Where = !SqlDml.Exists(subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2149,7 +2185,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product1["ListPrice"]-subSelect, "Difference");
       select.Where = product1["ProductSubcategoryID"]==1;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2176,7 +2212,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(contact["LastName"], contact["FirstName"]);
       select.Where = SqlDml.In(contact["ContactID"], subSelect1);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2197,7 +2233,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.From = select.From.InnerJoin(s, e["EmployeeID"]==s["SalesPersonID"]);
       select.Columns.AddRange(c["LastName"], c["FirstName"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2222,7 +2258,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(c["LastName"], c["FirstName"]);
       select.Where = SqlDml.In(5000.00, subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2239,7 +2275,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(c["LastName"], c["FirstName"]);
       select.Where = SqlDml.In(5000, SqlDml.Row(5000));
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2264,7 +2300,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = SqlDml.In(pv1["ProductID"], subSelect);
       select.OrderBy.Add(pv1["VendorID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2285,7 +2321,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(pv1["ProductID"], pv1["VendorID"]);
       select.OrderBy.Add(pv1["VendorID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2307,7 +2343,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(s1["ProductID"], s1["OrderQty"]);
       select.Where = s1["OrderQty"]<subSelect;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2329,7 +2365,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(p1["ProductSubcategoryID"], p1["Name"]);
       select.Where = p1["ListPrice"]>subSelect;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2353,7 +2389,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.GroupBy.Add(p1["ProductModelID"]);
       select.Having = SqlDml.Max(p1["ListPrice"])>=SqlDml.All(subSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2372,7 +2408,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(productVendor["ProductID"], vendor["VendorID"], vendor["Name"]);
       select.Where = productVendor["StandardPrice"]>10 && SqlDml.Like(vendor["Name"], "F%");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2390,7 +2426,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(pv["ProductID"], v["VendorID"], v["Name"]);
       select.Where = pv["StandardPrice"]>10 && SqlDml.Like(v["Name"], "F%");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2409,7 +2445,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = pv["VendorID"]==v["VendorID"] && pv["StandardPrice"]>10 &&
         SqlDml.Like(v["Name"], "F%");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2425,7 +2461,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var select = SqlDml.Select(e.InnerJoin(s, e["EmployeeID"]==s["SalesPersonID"]));
       select.Columns.Add(e["EmployeeID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2442,7 +2478,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var select = SqlDml.Select(e.InnerJoin(c, e["ContactID"]==c["ContactID"]));
       select.Columns.Add(SqlDml.Asterisk);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2464,7 +2500,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(sd["UnitPrice"], "Selling Price");
       select.Where = p["ProductID"]==718;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2490,7 +2526,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = p1["ListPrice"]<15 && p2["ListPrice"]<15;
       select.OrderBy.Add(p1["ProductSubcategoryID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2511,7 +2547,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = p1["VendorID"] != p2["VendorID"];
       select.OrderBy.Add(p1["VendorID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2527,7 +2563,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var select = SqlDml.Select(p.LeftOuterJoin(pr, p["ProductID"]==pr["ProductID"]));
       select.Columns.AddRange(p["Name"], pr["ProductReviewID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2544,7 +2580,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(st["Name"], "Territory");
       select.Columns.Add(sp["SalesPersonID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2563,7 +2599,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(sp["SalesPersonID"]);
       select.Where = st["SalesYTD"]<2000000;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2584,7 +2620,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = SqlDml.IsNull(p["ProductID"]) || SqlDml.IsNull(sod["ProductID"]);
       select.OrderBy.Add(p["Name"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2603,7 +2639,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.OrderBy.Add(e["EmployeeID"]);
       select.OrderBy.Add(d["Name"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2625,7 +2661,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.OrderBy.Add(e["EmployeeID"]);
       select.OrderBy.Add(d["Name"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2646,7 +2682,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.OrderBy.Add(e["EmployeeID"]);
       select.OrderBy.Add(d["Name"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2667,7 +2703,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.AddRange(pv1["ProductID"], pv1["VendorID"]);
       select.OrderBy.Add(pv1["ProductID"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2692,7 +2728,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = p["ProductSubcategoryID"]==15;
       select.OrderBy.Add(v["Name"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -2703,11 +2739,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var unitMeasure = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["UnitMeasure"]);
       var insert = SqlDml.Insert(unitMeasure);
-      insert.Values[unitMeasure[0]] = "F2";
-      insert.Values[unitMeasure[1]] = "Square Feet";
-      insert.Values[unitMeasure[2]] = SqlDml.CurrentDate();
+      insert.AddValueRow(
+        (unitMeasure[0], "F2"),
+        (unitMeasure[1], "Square Feet"),
+        (unitMeasure[2], SqlDml.CurrentDate())
+      );
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, insert));
+      Assert.That(CompareExecuteNonQuery(nativeSql, insert), Is.True);
     }
 
     [Test]
@@ -2722,7 +2760,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       update.Values[product["ListPrice"]] = product["ListPrice"]*1.1;
       update.Where = product["ProductModelID"]==37;
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+      Assert.That(CompareExecuteNonQuery(nativeSql, update), Is.True);
     }
 
     [Test]
@@ -2737,7 +2775,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       update.Values[product["PostalCode"]] = "98000";
       update.Where = product["City"]=="Bothell";
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+      Assert.That(CompareExecuteNonQuery(nativeSql, update), Is.True);
     }
 
     [Test]
@@ -2752,7 +2790,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       update.Values[product["CommissionPct"]] = .10;
       update.Values[product["SalesQuota"]] = SqlDml.Null;
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+      Assert.That(CompareExecuteNonQuery(nativeSql, update), Is.True);
     }
 
     [Test]
@@ -2765,7 +2803,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var update = SqlDml.Update(product);
       update.Values[product["ListPrice"]] = product["ListPrice"]*2;
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+      Assert.That(CompareExecuteNonQuery(nativeSql, update), Is.True);
     }
 
     [Test]
@@ -2795,7 +2833,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var update = SqlDml.Update(salesPerson);
       update.Values[salesPerson["SalesYTD"]] = salesPerson["SalesYTD"]+select;
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+      Assert.That(CompareExecuteNonQuery(nativeSql, update), Is.True);
     }
 
     [Test]
@@ -2810,7 +2848,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       update.Values[salesReason["Name"]] = "Unknown";
       update.Where = salesReason["Name"]=="Other";
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+      Assert.That(CompareExecuteNonQuery(nativeSql, update), Is.True);
     }
 
     [Test]
@@ -2838,7 +2876,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var update = SqlDml.Update(salesPerson);
       update.Values[salesPerson["SalesYTD"]] = salesPerson["SalesYTD"];
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+      Assert.That(CompareExecuteNonQuery(nativeSql, update), Is.True);
     }
 
     [Test]
@@ -2868,7 +2906,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var update = SqlDml.Update(salesPerson);
       update.Values[salesPerson["SalesYTD"]] = salesPerson["SalesYTD"]+select;
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+      Assert.That(CompareExecuteNonQuery(nativeSql, update), Is.True);
     }
 
     [Test]
@@ -2883,7 +2921,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       update.Values[store["SalesPersonID"]] = 276;
       update.Where = store["SalesPersonID"]==275;
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+      Assert.That(CompareExecuteNonQuery(nativeSql, update), Is.True);
     }
 
     [Test]
@@ -2909,7 +2947,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       update.From = th;
       update.Where = employee2["EmployeeID"]==th["EmployeeID"];
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+      Assert.That(CompareExecuteNonQuery(nativeSql, update), Is.True);
     }
 
     [Test]
@@ -2930,7 +2968,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var delete = SqlDml.Delete(salesPersonQuotaHistory);
       delete.Where = SqlDml.In(salesPersonQuotaHistory["SalesPersonID"], subSelect);
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, delete));
+      Assert.That(CompareExecuteNonQuery(nativeSql, delete), Is.True);
     }
 
     [Test]
@@ -2953,7 +2991,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var delete = SqlDml.Delete(salesPersonQuotaHistory);
       delete.Where = SqlDml.In(salesPersonQuotaHistory["SalesPersonID"], subSelect);
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, delete));
+      Assert.That(CompareExecuteNonQuery(nativeSql, delete), Is.True);
     }
 
     [Test]
@@ -2976,7 +3014,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var delete = SqlDml.Delete(purchaseOrderDetail1);
       delete.Where = SqlDml.In(purchaseOrderDetail1["PurchaseOrderDetailID"], select);
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, delete));
+      Assert.That(CompareExecuteNonQuery(nativeSql, delete), Is.True);
     }
 
     [Test]
@@ -3024,7 +3062,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(c, "Abbreviation");
       select.Where = department["GroupName"]=="Executive General and Administration";
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -3055,7 +3093,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(product["Name"]);
       select.OrderBy.Add(product["ProductNumber"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -3084,7 +3122,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(c, "Price Range");
       select.OrderBy.Add(product["ProductNumber"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -3106,7 +3144,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = SqlDml.Like(contact["LastName"], find);
       batch.Add(select);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, batch));
+      Assert.That(CompareExecuteDataReader(nativeSql, batch), Is.True);
     }
 
     [Test]
@@ -3123,7 +3161,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         SqlDml.In(
           s["Name"], SqlDml.Array("West Side Mart", "West Wind Distributors", "Westside IsCyclic Store"));
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -3138,7 +3176,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(SqlDml.Asterisk);
       select.Where = SqlDml.In(s["CustomerID"], SqlDml.Array(1, 2, 3));
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -3179,7 +3217,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       batch.Add(update);
       batch.Add(cursor.Close());
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, batch));
+      Assert.That(CompareExecuteDataReader(nativeSql, batch), Is.True);
     }
 
     [Test]
@@ -3805,7 +3843,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Loop, abcd));
 
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -3835,7 +3873,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Merge, d));
       select.Hints.Add(SqlDml.JoinHint(SqlJoinMethod.Loop, abcd));
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -3852,7 +3890,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Columns.Add(c["EmailAddress"]);
       select.Where = SqlDml.Like(c["EmailAddress"], "a%");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -3871,7 +3909,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select.Where = SqlDml.Like(c["EmailAddress"], "a%");
       select.Hints.Add(SqlDml.FastFirstRowsHint(10));
       select.Hints.Add(SqlDml.NativeHint("KEEP PLAN, ROBUST PLAN"));
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -3895,7 +3933,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       select2.Columns.Add(c["EmailAddress"]);
       select2.Where = SqlDml.Like(c["EmailAddress"], "a%");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, SqlDml.UnionAll(select1, select2)));
+      Assert.That(CompareExecuteDataReader(nativeSql, SqlDml.UnionAll(select1, select2)), Is.True);
     }
 
     [Test]
@@ -3917,7 +3955,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       batch.Add(cursor.Fetch());
       batch.Add(cursor.Close());
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, batch));
+      Assert.That(CompareExecuteDataReader(nativeSql, batch), Is.True);
     }
 
     [Test]
@@ -3928,7 +3966,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var unitMeasure = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
       var insert = SqlDml.Insert(unitMeasure);
 
-      _ = Assert.Throws<Microsoft.Data.SqlClient.SqlException>(() => Assert.IsTrue(CompareExecuteNonQuery(nativeSql, insert)));
+      _ = Assert.Throws<Microsoft.Data.SqlClient.SqlException>(() => Assert.That(CompareExecuteNonQuery(nativeSql, insert), Is.True));
     }
 
     [Test]
@@ -3948,7 +3986,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var select = SqlDml.Select(qr);
       select.Columns.Add(qr["f"]);
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
+      Assert.That(CompareExecuteNonQuery(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -3974,7 +4012,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       batch.Add(block);
       batch.Add(cursor.Close());
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, batch));
+      Assert.That(CompareExecuteDataReader(nativeSql, batch), Is.True);
     }
 
     [Test]
@@ -4003,7 +4041,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       outerSelect.OrderBy.Add(categoryName);
       outerSelect.OrderBy.Add(productName);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, outerSelect));
+      Assert.That(CompareExecuteDataReader(nativeSql, outerSelect), Is.True);
     }
 
     [Test]
@@ -4022,8 +4060,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       
       var delete = SqlDml.Delete(specialOfferProduct);
       delete.Where = SqlDml.Not(SqlDml.Exists(select));
-      
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, delete));
+
+      Assert.That(CompareExecuteNonQuery(nativeSql, delete), Is.True);
     }
 
     [Test]
@@ -4045,9 +4083,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
         var exModel1 = sqlDriver.ExtractCatalog(sqlConnection);
         var exT1 = exModel1.Schemas[schema.DbName].Tables[table.DbName];
-        Assert.IsNotNull(exT1);
+        Assert.That(exT1, Is.Not.Null);
         var exC1 = exT1.TableColumns["C1"];
-        Assert.IsNotNull(exC1);
+        Assert.That(exC1, Is.Not.Null);
 
         using (var cmd = sqlConnection.CreateCommand()) {
           var batch = SqlDml.Batch();
@@ -4059,9 +4097,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
         var exModel2 = sqlDriver.ExtractCatalog(sqlConnection);
         var exT2 = exModel2.Schemas[schema.DbName].Tables["T2"];
-        Assert.IsNotNull(exT2);
+        Assert.That(exT2, Is.Not.Null);
         var exC2 = exT2.TableColumns["C2"];
-        Assert.IsNotNull(exC2);
+        Assert.That(exC2, Is.Not.Null);
 
       }
       finally {
@@ -4084,7 +4122,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var delete = SqlDml.Delete(product);
       delete.From = p.InnerJoin(pv, p["ProductID"] == pv["ProductID"] && pv["VendorID"] == 0);
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, delete));
+      Assert.That(CompareExecuteNonQuery(nativeSql, delete), Is.True);
     }
 
     /*

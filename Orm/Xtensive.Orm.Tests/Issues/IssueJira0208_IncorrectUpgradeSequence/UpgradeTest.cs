@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
@@ -35,6 +35,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
     }
 
     [Test]
+    [IgnoreIfGithubActions(StorageProvider.Firebird)]
     public void UpgradeToVersion2Test()
     {
       using (var domain = BuildDomain("2", DomainUpgradeMode.PerformSafely))
@@ -42,7 +43,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
       using (var tx = session.OpenTransaction()) {
         var toKeep1 = session.Query.All<M2.EntityToKeep1>().Single();
         var toKeep2 = session.Query.All<M2.EntityToKeep2>().Single();
-        Assert.AreEqual(2, session.Query.All<M2.VeryUniqueEntity>().Count());
+        Assert.That(session.Query.All<M2.VeryUniqueEntity>().Count(), Is.EqualTo(2));
       }
     }
 
@@ -54,7 +55,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0208_IncorrectUpgradeSequence
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       configuration.NamingConvention.NamingRules = NamingRules.UnderscoreDots;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), nsPrefix + version);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), nsPrefix + version);
       configuration.Types.Register(typeof(Upgrader));
 
       using (Upgrader.Enable(version)) {

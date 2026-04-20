@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override Orm.Configuration.DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Equipment).Assembly, typeof (Equipment).Namespace);
+      configuration.Types.RegisterCaching(typeof (Equipment).Assembly, typeof (Equipment).Namespace);
       return configuration;
     }
 
@@ -247,7 +247,7 @@ namespace Xtensive.Orm.Tests.Issues
         var technicalProcesses = Query.All<TechnicalProcess>()
           .Where(tp => tp.Equipment.In(equipments)).ToArray();
 
-        Assert.AreEqual(2, technicalProcesses.Length);
+        Assert.That(technicalProcesses.Length, Is.EqualTo(2));
       }
     }
 
@@ -299,7 +299,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Concat(session.Query.All<TechnicalProcess>().Select(p => p.StatusParameter.Url))
           .ToArray();
 
-        Assert.AreEqual(9, urls.Length);
+        Assert.That(urls.Length, Is.EqualTo(9));
       }
     }
   }

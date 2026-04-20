@@ -12,13 +12,13 @@ let should (f : 'a -> #Constraint) x (y : obj) =
 
 let equal x = new EqualConstraint(x)
 
-let not x = new NotConstraint(x)
+let notc x = new NotConstraint(x)
 
 let contain x = new ContainsConstraint(x)
 
-let haveLength n = Has.Length.EqualTo(n)
+//let haveLength n = Has.Length.EqualTo(n)
 
-let haveCount n = Has.Count.EqualTo(n)
+//let haveCount n = Has.Count.EqualTo(n)
 
 let be = id
 

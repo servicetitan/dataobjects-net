@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Node).Assembly, typeof (Node).Namespace);
+      config.Types.RegisterCaching(typeof (Node).Assembly, typeof (Node).Namespace);
       return config;
     }
 
@@ -59,8 +59,7 @@ namespace Xtensive.Orm.Tests.Issues
             root.Left = new Node();
             root = next;
           }
-
-          Assert.Less(count, Session.Current.EntityChangeRegistry.GetItems(PersistenceState.New).Count());
+          Assert.That(session.EntityChangeRegistry.GetItems(PersistenceState.New).Count(), Is.LessThan(count));
 
           t.Complete();
         }

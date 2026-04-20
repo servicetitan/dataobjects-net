@@ -1,13 +1,11 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2014-2026 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2014.09.08
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0553_IncorrectLeftJoinOnNotNullEntityFieldModel;
@@ -96,7 +94,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var domainConfiguration = base.BuildConfiguration();
-      domainConfiguration.Types.Register(typeof(Car).Assembly, typeof(Car).Namespace);
+      domainConfiguration.Types.RegisterCaching(typeof(Car).Assembly, typeof(Car).Namespace);
       domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
       return domainConfiguration;
     }
@@ -106,20 +104,20 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var car = new Car();
-        new EmployeeWithCar { Car = car };
-        new Employee();
-        new Employee();
+        _ = new EmployeeWithCar { Car = car };
+        _ = new Employee();
+        _ = new Employee();
 
         var customer = new Customer();
         for (var i = 0; i < 10; i++) {
-          if (i % 2==0) {
+          if (i % 2 == 0) {
             var job = new Job() {
-                                  Location = new Location() {
-                                                              Address = new Address() {
-                                                                                        Street = string.Format("{0} street", i + 1.ToString())
-                                                                                      }
-                                                            }
-                                };
+              Location = new Location() {
+                Address = new Address() {
+                  Street = $"{i + 1.ToString()} street"
+                }
+              }
+            };
             var invoice = new Invoice() {Customer = customer, Job = job};
           }
           else {
@@ -130,6 +128,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+#if NET10_0_OR_GREATER
     [Test]
     public void BadWorkTest()
     {
@@ -145,7 +144,7 @@ namespace Xtensive.Orm.Tests.Issues
               CarObject = ewc.Car
             });
 
-        Assert.AreEqual(3, badResult.Count());
+        Assert.That(badResult.Count(), Is.EqualTo(3));
       }
     }
 
@@ -163,7 +162,7 @@ namespace Xtensive.Orm.Tests.Issues
               e.Id,
               Car = ewc.Car.Id
             });
-        Assert.AreEqual(3, goodResult.Count());
+        Assert.That(goodResult.Count(), Is.EqualTo(3));
       }
     }
 
@@ -189,9 +188,77 @@ namespace Xtensive.Orm.Tests.Issues
               e.Id,
               Car = c
             });
-        Assert.AreEqual(3, wordaround.Count());
+
+
+        Assert.That(wordaround.Count(), Is.EqualTo(3));
       }
     }
+#else
+    [Test]
+    public void BadWorkTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var badResult = session.Query.All<Employee>()
+          .LeftJoinEx(
+            session.Query.All<EmployeeWithCar>(),
+            e => e.Id,
+            ewc => ewc.Id,
+            (e, ewc) => new {
+              e.Id,
+              CarObject = ewc.Car
+            });
+
+        Assert.That(badResult.Count(), Is.EqualTo(3));
+      }
+    }
+
+    [Test]
+    public void GoodWorkTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var goodResult = session.Query.All<Employee>()
+          .LeftJoinEx(
+            session.Query.All<EmployeeWithCar>(),
+            e => e.Id,
+            ewc => ewc.Id,
+            (e, ewc) => new {
+              e.Id,
+              Car = ewc.Car.Id
+            });
+        Assert.That(goodResult.Count(), Is.EqualTo(3));
+      }
+    }
+
+    [Test]
+    public void WorkaroundTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var wordaround = session.Query.All<Employee>()
+          .LeftJoinEx(
+            session.Query.All<EmployeeWithCar>(),
+              e => e.Id,
+              ewc => ewc.Id,
+              (e, ewc) => new {
+                e.Id,
+                CarId = ewc.Car.Id
+              })
+          .LeftJoinEx(
+            session.Query.All<Car>(),
+            e => e.CarId,
+            c => c.Id,
+            (e, c) => new {
+              e.Id,
+              Car = c
+            });
+
+
+        Assert.That(wordaround.Count(), Is.EqualTo(3));
+      }
+    }
+#endif
 
     [Test]
     public void Test01()
@@ -199,11 +266,20 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var customer = session.Query.All<Customer>().First();
-        var result = (from i in session.Query.All<Invoice>()
+        var results =
+          (from i in session.Query.All<Invoice>()
           from j in session.Query.All<Job>().Where(j => j==i.Job).DefaultIfEmpty()
           where i.Customer.Id==customer.Id
           select new {i.Id, Location = j!=null && j.Location!=null ? j.Location.Address.Street : ""}).ToList();
-        Assert.AreEqual(10, result.Count);
+
+        var localResults =
+          (from i in session.Query.All<Invoice>().AsEnumerable()
+           from j in session.Query.All<Job>().AsEnumerable().Where(j => j == i.Job).DefaultIfEmpty()
+           where i.Customer.Id == customer.Id
+           select new { i.Id, Location = j != null && j.Location != null ? j?.Location.Address.Street : "" }).ToList();
+
+        Assert.That(localResults.Count, Is.EqualTo(10));
+        Assert.That(results.Count, Is.EqualTo(localResults.Count));
       }
     }
 
@@ -212,25 +288,46 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var results = (from i in session.Query.All<Invoice>()
-          from j in session.Query.All<Job>().Where(j => j==i.Job).DefaultIfEmpty()
-          select new {i.Id, Location = j.Location}).Where(el => el.Location!=null || string.IsNullOrEmpty(el.Location.Address.Street)).ToList();
-        Assert.AreEqual(5, results.Count);
+        var results =
+          (from i in session.Query.All<Invoice>()
+           from j in session.Query.All<Job>().Where(j => j == i.Job).DefaultIfEmpty()
+           select new { i.Id, Location = j.Location })
+         .Where(el => el.Location != null || string.IsNullOrEmpty(el.Location.Address.Street))
+         .ToList();
+
+        var localResults =
+          (from i in session.Query.All<Invoice>().AsEnumerable()
+           from j in session.Query.All<Job>().AsEnumerable().Where(j => j == i.Job).DefaultIfEmpty()
+           select new { i.Id, Location = j?.Location })
+          .Where(el => el.Location != null || string.IsNullOrEmpty(el.Location?.Address?.Street)).ToList();
+
+        Assert.That(localResults.Count, Is.EqualTo(10));
+        Assert.That(results.Count, Is.EqualTo(localResults.Count));
       }
     }
 
     [Test]
-    public void Test3()
+    public void Test03()
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var cusomer = session.Query.All<Customer>().First();
-        var result = (from i in session.Query.All<Invoice>()
-                      from j in session.Query.All<Job>().Where(j => j==i.Job).DefaultIfEmpty()
-                      from l in session.Query.All<Location>().Where(l => l==j.Location).DefaultIfEmpty()
-                      where i.Customer.Id==cusomer.Id
-                      select new { i.Id, Location = l!=null ? l.Address.Street : "", }).ToList();
-        Assert.AreEqual(10, result.Count);
+        var results =
+          (from i in session.Query.All<Invoice>()
+           from j in session.Query.All<Job>().Where(j => j == i.Job).DefaultIfEmpty()
+           from l in session.Query.All<Location>().Where(l => l == j.Location).DefaultIfEmpty()
+           where i.Customer.Id == cusomer.Id
+           select new { i.Id, Location = l != null ? l.Address.Street : "", }).ToList();
+
+        var localResults =
+          (from i in session.Query.All<Invoice>().AsEnumerable()
+           from j in session.Query.All<Job>().AsEnumerable().Where(j => j == i?.Job).DefaultIfEmpty()
+           from l in session.Query.All<Location>().AsEnumerable().Where(l => l == j?.Location).DefaultIfEmpty()
+           where i?.Customer?.Id == cusomer.Id
+           select new { i.Id, Location = l != null ? l.Address.Street : "", }).ToList();
+
+        Assert.That(localResults.Count, Is.EqualTo(10));
+        Assert.That(results.Count, Is.EqualTo(localResults.Count));
       }
     }
   }

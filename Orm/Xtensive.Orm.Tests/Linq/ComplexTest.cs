@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void CachedQueryTest()
     {
-      Assert.Throws<QueryTranslationException>(() => {
+      _ = Assert.Throws<QueryTranslationException>(() => {
         for (char c = 'A'; c <= 'Z'; c++) {
           string firstChar = c.ToString();
           var builtQuery = GetQuery(Session.Query, firstChar);
@@ -37,11 +37,11 @@ namespace Xtensive.Orm.Tests.Linq
           var fullQuery = Session.Query.All<Customer>()
             .Where(cn => cn.CompanyName.StartsWith(firstChar))
             .Select(customer => customer.CompanyName);
-          Assert.IsTrue(query.ToList().SequenceEqual(fullQuery.ToList()));
+          Assert.That(query.ToList().SequenceEqual(fullQuery.ToList()), Is.True);
           var cachedQueryList = cachedQuery.ToList();
           var fullQueryList = fullQuery.ToList();
           var condition = cachedQueryList.SequenceEqual(fullQueryList);
-          Assert.IsTrue(condition);
+          Assert.That(condition, Is.True);
         }
       });
     }
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(invoice => InvoiceLines
           .Where(p=>p.Invoice==invoice)
           .Count());
-      Assert.AreEqual(0, expectedResult.Except(result).Count());
+      Assert.That(expectedResult.Except(result).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
     }
 
@@ -128,10 +128,10 @@ namespace Xtensive.Orm.Tests.Linq
           .Select(s => s.BillingAddress.StreetAddress)
       };
       var list = result.ToList();
-      Assert.Greater(list.Count, 0);
+      Assert.That(list.Count, Is.GreaterThan(0));
       foreach (var p in list)
         foreach (var address in p.Addresses)
-          Assert.IsNotNull(address);
+          Assert.That(address, Is.Not.Null);
     }
 
     [Test]
@@ -148,9 +148,9 @@ namespace Xtensive.Orm.Tests.Linq
         select c;
       var resultList = result.ToList();
       var expectedList = expected.ToList();
-      Assert.AreEqual(resultList.Count, expectedList.Count);
+      Assert.That(expectedList.Count, Is.EqualTo(resultList.Count));
       for (int i = 0; i < resultList.Count; i++)
-        Assert.AreEqual(resultList[i], expectedList[i]);
+        Assert.That(expectedList[i], Is.EqualTo(resultList[i]));
     }
 
     [Test]
@@ -166,12 +166,14 @@ namespace Xtensive.Orm.Tests.Linq
               .Any(e => e.FirstName.StartsWith("A")))
         select c;
       var list = result.ToList();
-      Assert.AreEqual(1, list.Count);
+      Assert.That(list.Count, Is.EqualTo(1));
     }
 
     [Test]
     public void GroupByWithSelectorSelectManyTest()
     {
+      Require.AllFeaturesSupported(Providers.ProviderFeatures.Apply);
+
       var result = Session.Query.All<InvoiceLine>()
         .GroupBy(c => c.Track.Name,
           (trackName, invoiceLines) => invoiceLines.Where(k => k.Invoice.Customer.FirstName.Substring(0, 1)==trackName.Substring(0, 1)))
@@ -180,7 +182,7 @@ namespace Xtensive.Orm.Tests.Linq
         .GroupBy(c => c.Track.Name,
           (trackName, invoiceLines) => invoiceLines.Where(k => k.Invoice.Customer.FirstName.Substring(0, 1)==trackName.Substring(0, 1)))
         .SelectMany(k => k);
-      Assert.AreEqual(0, expected.Except(result).Count());
+      Assert.That(expected.Except(result).Count(), Is.EqualTo(0));
       QueryDumper.Dump(result);
     }
 
@@ -188,8 +190,8 @@ namespace Xtensive.Orm.Tests.Linq
     public void AsEnumerableSelectDistinctTest()
     {
       var result = Session.Query.All<Invoice>().ToList().Select(o => o.Customer).Distinct();
-      Assert.IsNotNull(result.First());
-      Assert.GreaterOrEqual(result.Count(), 59);
+      Assert.That(result.First(), Is.Not.Null);
+      Assert.That(result.Count(), Is.GreaterThanOrEqualTo(59));
     }
 
     [Test]

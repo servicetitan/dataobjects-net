@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (ITest).Assembly, typeof (ITest).Namespace);
+      configuration.Types.RegisterCaching(typeof (ITest).Assembly, typeof (ITest).Namespace);
       configuration.Sessions.Default.Options = SessionOptions.AutoActivation | SessionOptions.AutoSaveChanges;
       return configuration;
     }
@@ -100,14 +100,14 @@ namespace Xtensive.Orm.Tests.Issues
 
         var personsQuery = persons.Where(p => p.RegionName=="13123123121");
         var result = personsQuery.ToList();
-        Assert.AreEqual(1, result.Count);
+        Assert.That(result.Count, Is.EqualTo(1));
 
         var interfaces = persons as IQueryable<ITest>;
         if (interfaces!=null) {
           // Convariant upcast will work in .NET 4.0+
           var interfacesQuery = interfaces.Where(test => test.RegionName=="13123123121");
           var interfaceResult = interfacesQuery.ToList();
-          Assert.AreEqual(1, interfaceResult.Count);
+          Assert.That(interfaceResult.Count, Is.EqualTo(1));
         }
       }
     }

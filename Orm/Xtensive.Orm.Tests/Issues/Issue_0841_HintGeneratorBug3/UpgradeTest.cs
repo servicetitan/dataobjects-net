@@ -40,9 +40,9 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3
       using (session.OpenTransaction()) {
         var a = session.Query.All<M2.Base>().SingleOrDefault(e => e.Text == null);
         var b = session.Query.All<M2.Base>().SingleOrDefault(e => e.Text != null);
-        Assert.IsNotNull(a);
-        Assert.IsNotNull(b);
-        Assert.AreEqual("B", b.Text);
+        Assert.That(a, Is.Not.Null);
+        Assert.That(b, Is.Not.Null);
+        Assert.That(b.Text, Is.EqualTo("B"));
       }
     }
 
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), nsPrefix + version);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), nsPrefix + version);
       configuration.Types.Register(typeof(Upgrader));
 
       using (Upgrader.Enable(version)) {

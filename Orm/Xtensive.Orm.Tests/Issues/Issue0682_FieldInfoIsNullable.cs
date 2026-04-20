@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Base).Assembly, typeof (Base).Namespace);
+      config.Types.RegisterCaching(typeof (Base).Assembly, typeof (Base).Namespace);
       return config;
     }
 
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Issues
       var qweType = typeof (Base);
       var qweTypeInfo = Domain.Model.Types[qweType];
       var sysNameFieldInfo = qweTypeInfo.Fields["SysName"];
-      Assert.IsFalse(sysNameFieldInfo.IsNullable);
+      Assert.That(sysNameFieldInfo.IsNullable, Is.False);
     }
   }
 }

@@ -15,18 +15,18 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Hexagon).Assembly, typeof (Hexagon).Namespace);
+      configuration.Types.RegisterCaching(typeof (Hexagon).Assembly, typeof (Hexagon).Namespace);
       return configuration;
     }
 
     protected static void AssertStateIsValid(Entity entity)
     {
-      Assert.IsTrue(CheckLifetime(entity));
+      Assert.That(CheckLifetime(entity), Is.True);
     }
 
     protected static void AssertStateIsInvalid(Entity entity)
     {
-      Assert.IsFalse(CheckLifetime(entity));
+      Assert.That(CheckLifetime(entity), Is.False);
     }
 
     private static bool CheckLifetime(Entity entity)

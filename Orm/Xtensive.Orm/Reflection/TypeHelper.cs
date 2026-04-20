@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2022 Xtensive LLC.
+// Copyright (C) 2007-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Nick Svetlov
@@ -47,24 +47,32 @@ namespace Xtensive.Reflection
 
     private static readonly object EmitLock = new object();
     private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
-    private static readonly int ValueTuple1 = typeof(ValueTuple<>).MetadataToken;
-    private static readonly int ValueTuple8 = typeof(ValueTuple<,,,,,,,>).MetadataToken;
+    private static readonly int ValueTuple1MetadataToken = typeof(ValueTuple<>).MetadataToken;
+    private static readonly int ValueTuple8MetadataToken = typeof(ValueTuple<,,,,,,,>).MetadataToken;
     private static readonly Module SystemCoreLibModule = WellKnownTypes.NullableOfT.Module;
     private static readonly Type CompilerGeneratedAttributeType = typeof(CompilerGeneratedAttribute);
     private static readonly string TypeHelperNamespace = typeof(TypeHelper).Namespace;
 
-    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> ConstructorInfoByTypes =
+    #region Caches and cache items factories
+
+    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInvoker> ConstructorInvokerByTypes =
       new(new TypesEqualityComparer());
 
     private static readonly ConcurrentDictionary<Type, Type[]> OrderedInterfaces = new();
 
+    private static readonly ConcurrentDictionary<Type, Type[]> UnorderedInterfaces = new();
+
     private static readonly ConcurrentDictionary<Type, Type[]> OrderedCompatibles = new();
 
-    private static readonly ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps = new();
+    private static readonly ConcurrentDictionary<(Type, Type), InterfaceMapping> interfaceMaps = new();
 
     private static readonly ConcurrentDictionary<(MethodInfo, Type), MethodInfo> GenericMethodInstances1 = new();
 
     private static readonly ConcurrentDictionary<(MethodInfo, Type, Type), MethodInfo> GenericMethodInstances2 = new();
+
+    private static readonly ConcurrentDictionary<(MethodInfo, Type), MethodInvoker> GenericMethodInvokers1 = new();
+
+    private static readonly ConcurrentDictionary<(MethodInfo, Type, Type), MethodInvoker> GenericMethodInvokers2 = new();
 
     private static readonly ConcurrentDictionary<(Type, Type), Type> GenericTypeInstances1 = new();
 
@@ -76,11 +84,19 @@ namespace Xtensive.Reflection
     private static readonly Func<(MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2), MethodInfo> GenericMethodFactory2 =
       key => key.genericDefinition.MakeGenericMethod(key.typeArgument1, key.typeArgument2);
 
-    private static readonly Func<(Type genericDefinition, Type typeArgument), Type> GenericTypeFactory1 = key =>
-      key.genericDefinition.MakeGenericType(key.typeArgument);
+    private static readonly Func<(Type genericDefinition, Type typeArgument), Type> GenericTypeFactory1 =
+      key => key.genericDefinition.MakeGenericType(key.typeArgument);
 
-    private static readonly Func<(Type genericDefinition, Type typeArgument1, Type typeArgument2), Type> GenericTypeFactory2 = key =>
-      key.genericDefinition.MakeGenericType(key.typeArgument1, key.typeArgument2);
+    private static readonly Func<(Type genericDefinition, Type typeArgument1, Type typeArgument2), Type> GenericTypeFactory2 =
+      key => key.genericDefinition.MakeGenericType(key.typeArgument1, key.typeArgument2);
+
+    private static readonly Func<(MethodInfo genericDefinition, Type typeArgument), MethodInvoker> GenericMethodInvokerFactory1 =
+      key => MethodInvoker.Create(key.genericDefinition.MakeGenericMethod(key.typeArgument));
+
+    private static readonly Func<(MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2), MethodInvoker> GenericMethodInvokerFactory2 =
+      key => MethodInvoker.Create(key.genericDefinition.MakeGenericMethod(key.typeArgument1, key.typeArgument2));
+
+    #endregion
 
     private static int createDummyTypeNumber = 0;
     private static AssemblyBuilder assemblyBuilder;
@@ -140,7 +156,7 @@ namespace Xtensive.Reflection
       object[] constructorParams, IEnumerable<Pair<Assembly, string>> highPriorityLocations, bool exactTypeMatch)
       where T : class
     {
-      ArgumentValidator.EnsureArgumentNotNull(forType, nameof(forType));
+      ArgumentNullException.ThrowIfNull(forType);
       if (forType.IsGenericTypeDefinition) {
         throw new InvalidOperationException(string.Format(
           Strings.ExCantCreateAssociateForGenericTypeDefinitions, GetShortName(forType)));
@@ -232,7 +248,7 @@ namespace Xtensive.Reflection
       }
 
       // Nothing is found; trying to find an associate for implemented interface
-      var interfaces = currentForType.GetInterfaces();
+      var interfaces = GetInterfacesUnordered(currentForType).ToArray();
       var interfaceCount = interfaces.Length;
       var suppressed = new BitArray(interfaceCount);
       while (interfaceCount > 0) {
@@ -400,8 +416,7 @@ namespace Xtensive.Reflection
     public static Type CreateDummyType(string namePrefix, Type inheritFrom, bool implementProtectedConstructorAccessor)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(namePrefix, nameof(namePrefix));
-      ArgumentValidator.EnsureArgumentNotNull(inheritFrom, nameof(inheritFrom));
-
+      ArgumentNullException.ThrowIfNull(inheritFrom);
 
       var n = Interlocked.Increment(ref createDummyTypeNumber);
       var typeName = $"{TypeHelperNamespace}.Internal.{namePrefix}{n}";
@@ -421,7 +436,7 @@ namespace Xtensive.Reflection
       bool implementProtectedConstructorAccessor)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, nameof(typeName));
-      ArgumentValidator.EnsureArgumentNotNull(inheritFrom, nameof(inheritFrom));
+      ArgumentNullException.ThrowIfNull(inheritFrom);
       EnsureEmitInitialized();
       lock (EmitLock) {
         var typeBuilder = moduleBuilder.DefineType(
@@ -527,7 +542,7 @@ namespace Xtensive.Reflection
     public static object Activate(Assembly assembly, string typeName, Type[] genericArguments,
       params object[] arguments)
     {
-      ArgumentValidator.EnsureArgumentNotNull(assembly, nameof(assembly));
+      ArgumentNullException.ThrowIfNull(assembly);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, nameof(typeName));
       var type = assembly.GetType(typeName, false);
       return type == null ? null : Activate(type, genericArguments, arguments);
@@ -629,39 +644,27 @@ namespace Xtensive.Reflection
     }
 
     /// <summary>
-    /// Gets the public constructor of type <paramref name="type"/>
-    /// accepting specified <paramref name="arguments"/>.
-    /// </summary>
-    /// <param name="type">The type to get the constructor for.</param>
-    /// <param name="arguments">The arguments.</param>
-    /// <returns>
-    /// Appropriate constructor, if a single match is found;
-    /// otherwise, <see langword="null"/>.
-    /// </returns>
-    [Obsolete, CanBeNull]
-    public static ConstructorInfo GetConstructor(this Type type, object[] arguments) =>
-      GetSingleConstructorOrDefault(type, arguments.Select(a => a?.GetType()).ToArray());
-
-    /// <summary>
-    /// Gets the public constructor of type <paramref name="type"/>
+    /// Gets <see cref="ConstructorInvoker"/> of the public constructor of type <paramref name="type"/>
     /// accepting specified <paramref name="argumentTypes"/>.
     /// </summary>
     /// <param name="type">The type to get the constructor for.</param>
     /// <param name="argumentTypes">The arguments.</param>
     /// <returns>
-    /// Appropriate constructor, if a single match is found;
+    /// Appropriate constructor invoker, if a single match is found;
     /// otherwise throws <see cref="InvalidOperationException"/>.
     /// </returns>
     /// <exception cref="InvalidOperationException">
     /// The <paramref name="type"/> has no constructors suitable for <paramref name="argumentTypes"/>
     /// -or- more than one such constructor.
     /// </exception>
-    public static ConstructorInfo GetSingleConstructor(this Type type, Type[] argumentTypes) =>
-      ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor)
-        ?? throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters);
+    internal static ConstructorInvoker GetSingleConstructorInvoker(this Type type, Type[] argumentTypes) =>
+      ConstructorInvokerByTypes.GetOrAdd((type, argumentTypes),
+        static t => ConstructorExtractor(t) is ConstructorInfo ctor
+         ? ConstructorInvoker.Create(ctor)
+         : throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters));
 
     /// <summary>
-    /// Gets the public constructor of type <paramref name="type"/>
+    /// Gets <see cref="ConstructorInvoker"/> of the public constructor of type <paramref name="type"/>
     /// accepting specified <paramref name="argumentTypes"/>.
     /// </summary>
     /// <param name="type">The type to get the constructor for.</param>
@@ -671,8 +674,9 @@ namespace Xtensive.Reflection
     /// otherwise, <see langword="null"/>.
     /// </returns>
     [CanBeNull]
-    public static ConstructorInfo GetSingleConstructorOrDefault(this Type type, Type[] argumentTypes) =>
-      ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
+    internal static ConstructorInvoker GetSingleConstructorInvokerOrDefault(this Type type, Type[] argumentTypes) =>
+      ConstructorInvokerByTypes.GetOrAdd((type, argumentTypes),
+        static t => ConstructorExtractor(t) is ConstructorInfo ctor ? ConstructorInvoker.Create(ctor) : null);
 
     private static readonly Func<(Type, Type[]), ConstructorInfo> ConstructorExtractor = t => {
       (var type, var argumentTypes) = t;
@@ -703,8 +707,8 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="types">The types to sort.</param>
     /// <returns>The list of <paramref name="types"/> ordered by their inheritance.</returns>
-    public static List<Type> OrderByInheritance(this IEnumerable<Type> types) =>
-      TopologicalSorter.Sort(types, (t1, t2) => t1.IsAssignableFrom(t2));
+    public static IEnumerable<Type> OrderByInheritance(this IEnumerable<Type> types) =>
+      TopologicalSorter.Sort(types, static (t1, t2) => t1.IsAssignableFrom(t2));
 
     /// <summary>
     /// Fast analogue of <see cref="Type.GetInterfaceMap"/>.
@@ -713,24 +717,22 @@ namespace Xtensive.Reflection
     /// <param name="targetInterface">The target interface.</param>
     /// <returns>Interface map for the specified interface.</returns>
     public static InterfaceMapping GetInterfaceMapFast(this Type type, Type targetInterface) =>
-      interfaceMaps.GetOrAdd(new Pair<Type, Type>(type, targetInterface),
-        pair => new InterfaceMapping(pair.First.GetInterfaceMap(pair.Second)));
+      interfaceMaps.GetOrAdd((type, targetInterface), static pair => new InterfaceMapping(pair.Item1.GetInterfaceMap(pair.Item2)));
+
+    /// <summary>
+    /// Gets the interfaces of the specified type.
+    /// Interfaces will be unordered.
+    /// </summary>
+    /// <param name="type">The type to get the interfaces of.</param>
+    public static IReadOnlyList<Type> GetInterfacesUnordered(Type type) =>
+      UnorderedInterfaces.GetOrAdd(type, static t => t.GetInterfaces());
 
     /// <summary>
     /// Gets the interfaces of the specified type.
     /// Interfaces will be ordered from the very base ones to ancestors.
     /// </summary>
     /// <param name="type">The type to get the interfaces of.</param>
-    [Obsolete("Use GetInterfacesOrderByInheritance instead")]
-    public static Type[] GetInterfaces(this Type type) =>
-      OrderedInterfaces.GetOrAdd(type, t => t.GetInterfaces().OrderByInheritance().ToArray());
-
-    /// <summary>
-    /// Gets the interfaces of the specified type.
-    /// Interfaces will be ordered from the very base ones to ancestors.
-    /// </summary>
-    /// <param name="type">The type to get the interfaces of.</param>
-    public static Type[] GetInterfacesOrderByInheritance(this Type type) =>
+    public static Type[] GetInterfacesOrderedByInheritance(this Type type) =>
       OrderedInterfaces.GetOrAdd(type, t => t.GetInterfaces().OrderByInheritance().ToArray());
 
     /// <summary>
@@ -742,7 +744,7 @@ namespace Xtensive.Reflection
     public static Type[] GetCompatibles(this Type type) =>
       OrderedCompatibles.GetOrAdd(type,
         t => {
-          var interfaces = t.GetInterfaces();
+          var interfaces = GetInterfacesUnordered(t);
           var bases = EnumerableUtils.Unfold(t.BaseType, baseType => baseType.BaseType);
           return bases
             .Concat(interfaces)
@@ -834,21 +836,23 @@ namespace Xtensive.Reflection
             .ToArray();
         }
 
-        var sb = new StringBuilder().Append(TrimGenericSuffix(result)).Append('<');
+        var sb = new ValueStringBuilder(stackalloc char[4096]);
+        sb.Append(TrimGenericSuffix(result));
+        sb.Append('<');
         char? comma = default;
         foreach (var argument in arguments) {
           if (comma.HasValue) {
-            _ = sb.Append(comma.Value);
+            sb.Append(comma.Value);
           }
 
           if (!type.IsGenericTypeDefinition) {
-            _ = sb.Append(InnerGetTypeName(argument, useShortForm));
+            sb.Append(InnerGetTypeName(argument, useShortForm));
           }
 
           comma = ',';
         }
 
-        _ = sb.Append('>');
+        sb.Append('>');
         result = sb.ToString();
       }
 
@@ -926,15 +930,66 @@ namespace Xtensive.Reflection
         || method.Module == genericMethodDefinition.Module)
       && method.IsGenericMethod && genericMethodDefinition.IsGenericMethodDefinition;
 
+    /// <summary>
+    /// Makes generic <see cref="MethodInfo"/> for given definition and type argument
+    /// or returns already existing instance from cache.
+    /// </summary>
+    /// <param name="genericDefinition">Generic definition of method.</param>
+    /// <param name="typeArgument">Type argument for final generic method.</param>
+    /// <returns>Newly created instance or already existing one.</returns>
     public static MethodInfo CachedMakeGenericMethod(this MethodInfo genericDefinition, Type typeArgument) =>
       GenericMethodInstances1.GetOrAdd((genericDefinition, typeArgument), GenericMethodFactory1);
 
+    /// <summary>
+    /// Makes generic <see cref="MethodInfo"/> for given definition and type arguments
+    /// or returns already existing instance from cache.
+    /// </summary>
+    /// <param name="genericDefinition">Generic definition of method.</param>
+    /// <param name="typeArgument1">First type argument for final generic method.</param>
+    /// <param name="typeArgument2">Second type argument for final generic method.</param>
+    /// <returns>Newly created instance or already existing one.</returns>
     public static MethodInfo CachedMakeGenericMethod(this MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2) =>
       GenericMethodInstances2.GetOrAdd((genericDefinition, typeArgument1, typeArgument2), GenericMethodFactory2);
 
+    /// <summary>
+    /// Makes <see cref="MethodInvoker"/> for generic <see cref="MethodInfo"/> for given definition and type argument
+    /// or returns already existing instance from cache.
+    /// </summary>
+    /// <param name="genericDefinition">Generic definition of method.</param>
+    /// <param name="typeArgument">Type argument for final generic method.</param>
+    /// <returns>Newly created instance or already existing one.</returns>
+    public static MethodInvoker CachedMakeGenericMethodInvoker(this MethodInfo genericDefinition, Type typeArgument) =>
+      GenericMethodInvokers1.GetOrAdd((genericDefinition, typeArgument), GenericMethodInvokerFactory1);
+
+    /// <summary>
+    /// Makes <see cref="MethodInvoker"/> for generic <see cref="MethodInfo"/> for given definition and type arguments
+    /// or returns already existing instance from cache.
+    /// </summary>
+    /// <param name="genericDefinition">Generic definition of method.</param>
+    /// <param name="typeArgument1">First type argument for final generic method.</param>
+    /// <param name="typeArgument2">Second type argument for final generic method.</param>
+    /// <returns>Newly created instance or already existing one.</returns>
+    public static MethodInvoker CachedMakeGenericMethodInvoker(this MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2) =>
+      GenericMethodInvokers2.GetOrAdd((genericDefinition, typeArgument1, typeArgument2), GenericMethodInvokerFactory2);
+
+    /// <summary>
+    /// Makes generic type of given type definition and type argument
+    /// or returns already existing instance from cache.
+    /// </summary>
+    /// <param name="genericDefinition">Generic type definition.</param>
+    /// <param name="typeArgument">Type argument for final generic type.</param>
+    /// <returns>Newly created instance or already existing one.</returns>
     public static Type CachedMakeGenericType(this Type genericDefinition, Type typeArgument) =>
       GenericTypeInstances1.GetOrAdd((genericDefinition, typeArgument), GenericTypeFactory1);
 
+    /// <summary>
+    /// Makes generic type of given type definition and type argument
+    /// or returns already existing instance from cache.
+    /// </summary>
+    /// <param name="genericDefinition">Generic type definition.</param>
+    /// <param name="typeArgument1">First type argument for final generic type.</param>
+    /// <param name="typeArgument2">Second type argument for final generic type.</param>
+    /// <returns>Newly created instance or already existing one.</returns>
     public static Type CachedMakeGenericType(this Type genericDefinition, Type typeArgument1, Type typeArgument2) =>
       GenericTypeInstances2.GetOrAdd((genericDefinition, typeArgument1, typeArgument2), GenericTypeFactory2);
 
@@ -1014,7 +1069,7 @@ namespace Xtensive.Reflection
       }
 
       // We don't use LINQ as we don't want to create a closure here
-      foreach (var implementedInterface in type.GetInterfaces()) {
+      foreach (var implementedInterface in GetInterfacesUnordered(type)) {
         if ((implementedInterface.MetadataToken ^ metadataToken) == 0
           && ReferenceEquals(implementedInterface.Module, module)) {
           return implementedInterface;
@@ -1037,7 +1092,7 @@ namespace Xtensive.Reflection
     /// </returns>
     public static Type ToNullable(this Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
+      ArgumentNullException.ThrowIfNull(type);
       return type.IsValueType && !type.IsNullable()
         ? WellKnownTypes.NullableOfT.CachedMakeGenericType(type)
         : type;
@@ -1055,7 +1110,7 @@ namespace Xtensive.Reflection
     /// </returns>
     public static Type StripNullable(this Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
+      ArgumentNullException.ThrowIfNull(type);
       return type.IsNullable()
         ? type.GetGenericArguments()[0]
         : type;
@@ -1105,8 +1160,8 @@ namespace Xtensive.Reflection
     /// </returns>
     public static bool IsPublicNonAbstractInheritorOf(this Type type, Type baseType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
-      ArgumentValidator.EnsureArgumentNotNull(baseType, nameof(baseType));
+      ArgumentNullException.ThrowIfNull(type);
+      ArgumentNullException.ThrowIfNull(baseType);
       return type.IsPublic && !type.IsAbstract && baseType.IsAssignableFrom(type);
     }
 
@@ -1120,7 +1175,7 @@ namespace Xtensive.Reflection
     /// </returns>
     public static bool IsNumericType(this Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
+      ArgumentNullException.ThrowIfNull(type);
       var nonNullableType = type.StripNullable();
       if (nonNullableType.IsEnum) {
         return false;
@@ -1154,7 +1209,7 @@ namespace Xtensive.Reflection
       // this stands on the theory that tokens for all generic versions of ValueTuple
       // go one after another.
       var currentToken = type.MetadataToken;
-      return ((currentToken >= ValueTuple1) && currentToken <= ValueTuple8)
+      return ((currentToken >= ValueTuple1MetadataToken) && currentToken <= ValueTuple8MetadataToken)
         && ReferenceEquals(type.Module, SystemCoreLibModule);
     }
 
@@ -1165,12 +1220,40 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="closureType">Closure type.</param>
     /// <param name="fieldType">Type of field in closure.</param>
-    /// <returns>If field of <paramref name="fieldType"/> exists in closure then returns
-    /// <see cref="MemberInfo"/> of that field, otherwise, <see langword="null"/>.</returns>
-    internal static MemberInfo TryGetFieldInfoFromClosure(this Type closureType, Type fieldType) =>
-      closureType.IsClosure()
-        ? closureType.GetFields().FirstOrDefault(field => field.FieldType == fieldType)
-        : null;
+    /// <returns>If field of <paramref name="fieldType"/> exists in closure then returns one
+    /// or a chain of <see cref="MemberInfo"/>s to access needed field, otherwise, <see langword="null"/>.</returns>
+    internal static MemberInfo[] TryGetFieldInfoFromClosure(this Type closureType, Type fieldType)
+    {
+      if (!closureType.IsClosure())
+        return null;
+
+      var closureTypeFields = closureType.GetFields();
+
+      // this is old closure types structure check, keep it for older assemblies
+      var resultForOldStructure = closureTypeFields.FirstOrDefault(field => field.FieldType == fieldType);
+      if (resultForOldStructure != null) {
+        return new[] { resultForOldStructure };
+      }
+
+      // new closure types structure with extra layer of complesity
+      // where there is a field with name like 'CS$8__locals1' as actual variables storage.
+      var localsContainerFields = closureTypeFields.Where(f => f.Name.Contains("_locals", StringComparison.Ordinal) && f.FieldType.IsClosure()).ToChainedBuffer();
+      if (localsContainerFields.Count == 0) {
+        return null;
+      }
+
+      MemberInfo[] memberCallChain = null;
+      foreach (var f in localsContainerFields) {
+        var nestedField = f.FieldType.GetFields().FirstOrDefault(field => field.FieldType == fieldType);
+        if (nestedField != null) {
+          if (memberCallChain == null)
+            memberCallChain = new[] { f, nestedField };
+          else
+            return null;
+        }
+      }
+      return memberCallChain;
+    }
 
     private static string TrimGenericSuffix(string @string)
     {

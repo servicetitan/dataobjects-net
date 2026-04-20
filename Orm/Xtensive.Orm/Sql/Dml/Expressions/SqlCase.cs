@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections;
@@ -18,8 +18,8 @@ namespace Xtensive.Sql.Dml
 
     public SqlCase Add(SqlExpression key, SqlExpression value)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      ArgumentNullException.ThrowIfNull(key);
+      ArgumentNullException.ThrowIfNull(value);
       cases.Add(new KeyValuePair<SqlExpression, SqlExpression>(key, value));
       return this;
     }
@@ -66,8 +66,8 @@ namespace Xtensive.Sql.Dml
       }
       set
       {
-        ArgumentValidator.EnsureArgumentNotNull(key, "key");
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        ArgumentNullException.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(value);
         int index = IndexOf(key);
         KeyValuePair<SqlExpression, SqlExpression> @case = new KeyValuePair<SqlExpression, SqlExpression>(key, value);
         if (index >= 0)
@@ -103,23 +103,18 @@ namespace Xtensive.Sql.Dml
         cases.Add(pair);
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var v)) {
-        return v;
-      }
+    internal override SqlCase Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlCase(t.value?.Clone(c));
 
-      var clone = new SqlCase(value is null ? null : (SqlExpression) value.Clone(context));
+        if (t.@else is not null)
+          clone.Else = t.@else.Clone(c);
 
-      if (@else is not null)
-        clone.Else = (SqlExpression) @else.Clone(context);
+        foreach (KeyValuePair<SqlExpression, SqlExpression> pair in t.cases)
+          clone[pair.Key.Clone(c)] = pair.Value.Clone(c);
 
-      foreach (KeyValuePair<SqlExpression, SqlExpression> pair in cases)
-        clone[(SqlExpression) pair.Key.Clone(context)] = (SqlExpression) pair.Value.Clone(context);
-
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+        return clone;
+      });
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(Book).Assembly, typeof(Book).Namespace);
+      configuration.Types.RegisterCaching(typeof(Book).Assembly, typeof(Book).Namespace);
       return configuration;
     }
 
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Issues
         var bookRef = new RefHolder<Book>();
         bookRef.Ref = book;
         book.BookRef = bookRef;
-        Assert.AreEqual(book, book.BookRef.Ref);
+        Assert.That(book.BookRef.Ref, Is.EqualTo(book));
       }
     }
   }

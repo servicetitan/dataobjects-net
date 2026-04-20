@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Child).Assembly, typeof (Child).Namespace);
+      config.Types.RegisterCaching(typeof (Child).Assembly, typeof (Child).Namespace);
       return config;
     }
 
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var model = Domain.Model;
       var type = model.Types[typeof(Child)];
-      Assert.IsTrue(type.Indexes.Any(i => i.IsSecondary && i.IsUnique));
+      Assert.That(type.Indexes.Any(i => i.IsSecondary && i.IsUnique), Is.True);
     }
   }
 }

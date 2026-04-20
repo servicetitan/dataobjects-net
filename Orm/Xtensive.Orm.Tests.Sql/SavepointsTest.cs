@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.20
 
@@ -8,6 +8,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql
 {
@@ -27,31 +28,31 @@ namespace Xtensive.Orm.Tests.Sql
         Connection.BeginTransaction();
 
         DoInsert();
-        Assert.AreEqual(1, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(1));
         Connection.MakeSavepoint("sp1");
         DoInsert();
-        Assert.AreEqual(2, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(2));
         Connection.RollbackToSavepoint("sp1");
-        Assert.AreEqual(1, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(1));
         // we need to recreate savepoint after we rolled back to it
         Connection.MakeSavepoint("sp1"); 
 
         DoInsert();
         DoInsert();
-        Assert.AreEqual(3, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(3));
         Connection.MakeSavepoint("sp2");
         DoInsert();
-        Assert.AreEqual(4, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(4));
         Connection.MakeSavepoint("sp3");
         DoInsert();
-        Assert.AreEqual(5, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(5));
         Connection.RollbackToSavepoint("sp2");
-        Assert.AreEqual(3, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(3));
         Connection.RollbackToSavepoint("sp1");
-        Assert.AreEqual(1, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(1));
 
         Connection.Rollback();
-        Assert.AreEqual(0, GetCount());
+        Assert.That(GetCount(), Is.EqualTo(0));
       }
       finally {
         if (Connection.ActiveTransaction!=null)
@@ -63,10 +64,22 @@ namespace Xtensive.Orm.Tests.Sql
     {
       base.TestFixtureSetUp();
       var testSchema = ExtractDefaultSchema();
-      EnsureTableNotExists(testSchema, TestTable);
-      var table = testSchema.CreateTable(TestTable);
-      table.CreateColumn(IdColumn, new SqlValueType(SqlType.Decimal, 10, 0));
-      ExecuteNonQuery(SqlDdl.Create(table));
+      Table table;
+      try {
+        Connection.BeginTransaction();
+        EnsureTableNotExists(testSchema, TestTable);
+        table = testSchema.CreateTable(TestTable);
+        _ = table.CreateColumn(IdColumn, new SqlValueType(SqlType.Decimal, 10, 0));
+
+        _ = ExecuteNonQuery(SqlDdl.Create(table));
+        Connection.Commit();
+      }
+      catch {
+        if (Connection.ActiveTransaction != null)
+          Connection.Rollback();
+        throw;
+      }
+
       tableRef = SqlDml.TableRef(table);
 
       var select = SqlDml.Select(tableRef);
@@ -83,9 +96,10 @@ namespace Xtensive.Orm.Tests.Sql
     private void DoInsert()
     {
       var insert = SqlDml.Insert(tableRef);
-      insert.Values.Add(tableRef[IdColumn], nextId++);
-      using (var command = Connection.CreateCommand(insert))
-        command.ExecuteNonQuery();
+      insert.AddValueRow((tableRef[IdColumn], nextId++));
+      using (var command = Connection.CreateCommand(insert)) {
+        _ = command.ExecuteNonQuery();
+      }
     }
   }
 }

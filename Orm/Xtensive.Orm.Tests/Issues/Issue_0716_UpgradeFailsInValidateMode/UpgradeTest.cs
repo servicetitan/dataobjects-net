@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
       using (var domain = BuildDomain("2", DomainUpgradeMode.Validate))
       using (var session = domain.OpenSession())
       using (session.OpenTransaction()) {
-        Assert.AreEqual(1, session.Query.All<Model.Version2.Article>().Count());
+        Assert.That(session.Query.All<Model.Version2.Article>().Count(), Is.EqualTo(1));
       }
     }
 
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), nsPrefix + version);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), nsPrefix + version);
       configuration.Types.Register(typeof(Upgrader));
 
       using (Upgrader.Enable(version)) {

@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.20
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -124,6 +125,13 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    protected void ValidateCommandPartParameters(CommandPart commandPart)
+    {
+      if (commandPart.Parameters.Count > MaxQueryParameterCount) {
+        throw new ParametersLimitExceededException(commandPart.Parameters.Count, MaxQueryParameterCount);
+      }
+    }
+
     protected ExecutionBehavior GetCommandExecutionBehavior(ICollection<CommandPart> commandParts, int currentParametersCount)
     {
       if (MaxQueryParameterCount == int.MaxValue) {
@@ -155,9 +163,8 @@ namespace Xtensive.Orm.Providers
     /// <param name="maxQueryParameterCount">The maximum parameter count per query.</param>
     protected CommandProcessor(CommandFactory factory, int maxQueryParameterCount)
     {
-      ArgumentValidator.EnsureArgumentNotNull(factory, "factory");
       ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(maxQueryParameterCount, 0, "maxQueryParameterCount");
-      Factory = factory;
+      Factory = factory ?? throw new ArgumentNullException(nameof(factory));
       MaxQueryParameterCount = maxQueryParameterCount;
     }
   }

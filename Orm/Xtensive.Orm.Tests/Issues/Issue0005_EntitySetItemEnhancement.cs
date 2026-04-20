@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Book).Assembly, typeof (Book).Namespace);
+      config.Types.RegisterCaching(typeof (Book).Assembly, typeof (Book).Namespace);
       return config;
     }
 
@@ -24,8 +24,8 @@ namespace Xtensive.Orm.Tests.Issues
     public void MainTest()
     {
       TypeInfo type = Domain.Model.Types["Book-Authors-Author"];
-      Assert.IsNotNull(type.Fields["Master"]);
-      Assert.IsNotNull(type.Fields["Slave"]);
+      Assert.That(type.Fields["Master"], Is.Not.Null);
+      Assert.That(type.Fields["Slave"], Is.Not.Null);
     }
   }
 }

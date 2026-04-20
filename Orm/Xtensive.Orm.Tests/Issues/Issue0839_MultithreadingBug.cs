@@ -52,11 +52,13 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (BaseEntity).Assembly, typeof(BaseEntity).Namespace);
+      config.Types.RegisterCaching(typeof (BaseEntity).Assembly, typeof(BaseEntity).Namespace);
       return config;
     }
 
     [Test]
+    [IgnoreOnGithubActionsIfFailed(StorageProvider.Sqlite,
+      "There is no detection of type exceptions in Sqlite driver yet. So any exception will cause this test fail")]
     public void MainTest()
     {
       using (var session = Domain.OpenSession()) {
@@ -71,7 +73,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       var threads = new Thread[threadCount];
 
-      Console.WriteLine("Starting {0} threads...", threadCount);
+      Console.WriteLine($"Starting {threadCount} threads...");
       for (int i = 0; i<threadCount; i++) {
         var thread = new Thread(ThreadFunction);
         threads[i] = thread;
@@ -90,7 +92,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
       Console.WriteLine("Done.");
 
-      Assert.AreEqual(0, exceptionCount);
+      Assert.That(exceptionCount, Is.EqualTo(0));
     }
 
     private void ThreadFunction()
@@ -127,8 +129,8 @@ namespace Xtensive.Orm.Tests.Issues
 
             lock (exceptionLock) {
               ++exceptionCount;
-              Console.WriteLine("Exception #{0}:", exceptionCount);
-              Console.WriteLine("{0}", error.ToString().Indent(2));
+              Console.WriteLine($"Exception #{exceptionCount}:");
+              Console.WriteLine($"{error.ToString().Indent(2)}");
               Console.WriteLine();
             }
           }

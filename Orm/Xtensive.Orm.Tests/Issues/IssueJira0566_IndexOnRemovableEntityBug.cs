@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -180,8 +180,8 @@ namespace Xtensive.Orm.Tests.Issues
         using (var transaction = session.OpenTransaction()) {
           model1.TestEntity[] array = null;
           Assert.DoesNotThrow(() => { array = session.Query.All<model1.WithEntitySet>().First().List.ToArray(); });
-          Assert.IsNotNull(array);
-          Assert.AreEqual(25, array.Length);
+          Assert.That(array, Is.Not.Null);
+          Assert.That(array.Length, Is.EqualTo(25));
         }
       }
     }
@@ -214,8 +214,8 @@ namespace Xtensive.Orm.Tests.Issues
         using (var transaction = session.OpenTransaction()) {
           model2.TestEntity[] array = null;
           Assert.DoesNotThrow(() => { array = session.Query.All<model2.WithEntitySet>().First().List.ToArray(); });
-          Assert.IsNotNull(array);
-          Assert.AreEqual(25, array.Length);
+          Assert.That(array, Is.Not.Null);
+          Assert.That(array.Length, Is.EqualTo(25));
         }
       }
     }
@@ -248,8 +248,8 @@ namespace Xtensive.Orm.Tests.Issues
         using (var transaction = session.OpenTransaction()) {
           model3.TestEntity[] array = null;
           Assert.DoesNotThrow(() => { array = session.Query.All<model3.WithEntitySet>().First().List.ToArray(); });
-          Assert.IsNotNull(array);
-          Assert.AreEqual(25, array.Length);
+          Assert.That(array, Is.Not.Null);
+          Assert.That(array.Length, Is.EqualTo(25));
         }
       }
     }
@@ -257,7 +257,7 @@ namespace Xtensive.Orm.Tests.Issues
     private DomainConfiguration BuildConfiguration(Type typeFromRegisteringModel)
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeFromRegisteringModel.Assembly, typeFromRegisteringModel.Namespace);
+      configuration.Types.RegisterCaching(typeFromRegisteringModel.Assembly, typeFromRegisteringModel.Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }

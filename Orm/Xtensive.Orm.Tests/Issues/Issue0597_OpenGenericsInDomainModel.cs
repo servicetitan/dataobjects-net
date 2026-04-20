@@ -140,14 +140,14 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof(MediaBase).Assembly, typeof(MediaBase).Namespace);
+      config.Types.RegisterCaching(typeof(MediaBase).Assembly, typeof(MediaBase).Namespace);
       return config;
     }
 
     [Test]
     public void MainTest()
     {
-      Assert.IsFalse(Domain.Model.Types.Contains(typeof(WrongMediaItemBase<VirtualMedia>)));
+      Assert.That(Domain.Model.Types.Contains(typeof(WrongMediaItemBase<VirtualMedia>)), Is.False);
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
       }

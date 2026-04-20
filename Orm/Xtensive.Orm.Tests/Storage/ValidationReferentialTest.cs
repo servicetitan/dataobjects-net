@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Company).Assembly, typeof (Company).Namespace);
+      config.Types.RegisterCaching(typeof (Company).Assembly, typeof (Company).Namespace);
       return config;
     }
 
@@ -60,12 +60,12 @@ namespace Xtensive.Orm.Tests.Storage
           contact = new Contact {Company = company};
           session.Validate();
 
-          Assert.AreEqual(1, company.Contacts.Count);
-          Assert.AreEqual(company.Contacts.First(), contact);
+          Assert.That(company.Contacts.Count, Is.EqualTo(1));
+          Assert.That(contact, Is.EqualTo(company.Contacts.First()));
 
           contact.Remove();
 
-          Assert.AreEqual(0, company.Contacts.Count);
+          Assert.That(company.Contacts.Count, Is.EqualTo(0));
           transactionScope.Complete();
         }
       }

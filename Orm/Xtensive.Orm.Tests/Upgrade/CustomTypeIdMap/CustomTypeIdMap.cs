@@ -467,37 +467,37 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = BuildConfiguration(typeof(initialModel.Author), typeof(onlyCustomsTypeIdsModel.OnlyCustomIdsUpgrader), DomainUpgradeMode.Recreate);
       using (var domain = BuildDomain(configuration)) {
         foreach (var type in domain.Model.Types.Where(type => type.IsEntity && !type.IsSystem)) {
-          Assert.GreaterOrEqual(type.TypeId, 200);
+          Assert.That(type.TypeId, Is.GreaterThanOrEqualTo(200));
         }
 
-        Assert.AreEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreEqual(203, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreEqual(202, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreEqual(204, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.EqualTo(203));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.EqualTo(202));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.EqualTo(204));
       }
 
       configuration = BuildConfiguration(typeof(initialModel.Author), typeof(partialSequencialTypeIdModel.PartiallySequentialTypeIdsUpgrader), DomainUpgradeMode.Recreate);
       using (var domain = BuildDomain(configuration)) {
         foreach (var type in domain.Model.Types.Where(type => type.IsEntity && !type.IsSystem)) {
-          Assert.GreaterOrEqual(type.TypeId, 200);
+          Assert.That(type.TypeId, Is.GreaterThanOrEqualTo(200));
         }
 
-        Assert.AreEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.EqualTo(201));
       }
 
       configuration = BuildConfiguration(typeof(initialModel.Author), typeof(partialRandomTypeIdModel.PartiallyRandomTypeIdsUpgrader), DomainUpgradeMode.Recreate);
       using (var domain = BuildDomain(configuration)) {
         foreach (var type in domain.Model.Types.Where(type => type.IsEntity && !type.IsSystem)) {
-          Assert.GreaterOrEqual(type.TypeId, 110);
+          Assert.That(type.TypeId, Is.GreaterThanOrEqualTo(110));
         }
 
-        Assert.AreEqual(150, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreEqual(149, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreEqual(250, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreEqual(110, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreEqual(251, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.EqualTo(150));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.EqualTo(149));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.EqualTo(250));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.EqualTo(110));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.EqualTo(251));
       }
 
       configuration = BuildConfiguration(typeof(initialModel.Author), typeof(typeNotExistsModel.TypeIdForNotExistingTypeUpgrader), DomainUpgradeMode.Recreate);
@@ -513,11 +513,11 @@ namespace Xtensive.Orm.Tests.Upgrade
       BuildInitialDomain();
       var configuration = BuildConfiguration(typeof(initialModel.Author), DomainUpgradeMode.Skip);
       using (var domain = BuildDomain(configuration)) {
-        Assert.AreNotEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreNotEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreNotEqual(203, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreNotEqual(202, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreNotEqual(204, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.Not.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.Not.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.Not.EqualTo(203));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.Not.EqualTo(202));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.Not.EqualTo(204));
       }
 
       BuildInitialDomain();
@@ -535,11 +535,11 @@ namespace Xtensive.Orm.Tests.Upgrade
       BuildInitialDomain();
       var configuration = BuildConfiguration(typeof(initialModel.Author), DomainUpgradeMode.Validate);
       using (var domain = BuildDomain(configuration)) {
-        Assert.AreNotEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreNotEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreNotEqual(203, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreNotEqual(202, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreNotEqual(204, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.Not.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.Not.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.Not.EqualTo(203));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.Not.EqualTo(202));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.Not.EqualTo(204));
       }
 
       BuildInitialDomain();
@@ -557,41 +557,41 @@ namespace Xtensive.Orm.Tests.Upgrade
       BuildInitialDomain();
       var configuration = BuildConfiguration(typeof(initialModel.Author), DomainUpgradeMode.Perform);
       using (var domain = BuildDomain(configuration)) {
-        Assert.AreNotEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreNotEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreNotEqual(203, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreNotEqual(202, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreNotEqual(204, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.Not.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.Not.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.Not.EqualTo(203));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.Not.EqualTo(202));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.Not.EqualTo(204));
       }
 
       BuildInitialDomain();
       configuration = BuildConfiguration(typeof(initialModel.Author), DomainUpgradeMode.PerformSafely);
       using (var domain = BuildDomain(configuration)) {
-        Assert.AreNotEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreNotEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreNotEqual(203, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreNotEqual(202, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreNotEqual(204, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.Not.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.Not.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.Not.EqualTo(203));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.Not.EqualTo(202));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.Not.EqualTo(204));
       }
 
       BuildInitialDomain();
       configuration = BuildConfiguration(typeof(initialModel.Author), typeof(onlyCustomsTypeIdsModel.OnlyCustomIdsUpgrader), DomainUpgradeMode.Perform);
       using (var domain = BuildDomain(configuration)) {
-        Assert.AreNotEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreNotEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreNotEqual(203, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreNotEqual(202, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreNotEqual(204, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.Not.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.Not.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.Not.EqualTo(203));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.Not.EqualTo(202));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.Not.EqualTo(204));
       }
 
       BuildInitialDomain();
       configuration = BuildConfiguration(typeof(initialModel.Author), typeof(onlyCustomsTypeIdsModel.OnlyCustomIdsUpgrader), DomainUpgradeMode.PerformSafely);
       using (var domain = BuildDomain(configuration)) {
-        Assert.AreNotEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreNotEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreNotEqual(203, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreNotEqual(202, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreNotEqual(204, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.Not.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.Not.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.Not.EqualTo(203));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.Not.EqualTo(202));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.Not.EqualTo(204));
       }
 
       BuildInitialDomain();
@@ -605,49 +605,49 @@ namespace Xtensive.Orm.Tests.Upgrade
       BuildInitialDomain();
       configuration = BuildConfiguration(typeof(initialModel.Author), typeof(performWithNewType.UpgradeWithNewTypeUpgrader), DomainUpgradeMode.Perform);
       using (var domain = BuildDomain(configuration)) {
-        Assert.AreNotEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreNotEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreNotEqual(203, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreNotEqual(202, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreNotEqual(204, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
-        Assert.AreEqual(110, domain.Model.Types[typeof(performWithNewType.Comment)].TypeId);
-        Assert.AreEqual(113, domain.Model.Types[typeof(performWithNewType.User)].TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.Not.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.Not.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.Not.EqualTo(203));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.Not.EqualTo(202));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.Not.EqualTo(204));
+        Assert.That(domain.Model.Types[typeof(performWithNewType.Comment)].TypeId, Is.EqualTo(110));
+        Assert.That(domain.Model.Types[typeof(performWithNewType.User)].TypeId, Is.EqualTo(113));
       }
 
       BuildInitialDomain();
       configuration = BuildConfiguration(typeof(initialModel.Author), typeof(performWithNewType.UpgradeWithNewTypeUpgrader), DomainUpgradeMode.PerformSafely);
       using (var domain = BuildDomain(configuration)) {
-        Assert.AreNotEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreNotEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreNotEqual(203, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreNotEqual(202, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreNotEqual(204, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
-        Assert.AreEqual(110, domain.Model.Types[typeof(performWithNewType.Comment)].TypeId);
-        Assert.AreEqual(113, domain.Model.Types[typeof(performWithNewType.User)].TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.Not.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.Not.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.Not.EqualTo(203));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.Not.EqualTo(202));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.Not.EqualTo(204));
+        Assert.That(domain.Model.Types[typeof(performWithNewType.Comment)].TypeId, Is.EqualTo(110));
+        Assert.That(domain.Model.Types[typeof(performWithNewType.User)].TypeId, Is.EqualTo(113));
       }
 
       BuildInitialDomain();
       configuration = BuildConfiguration(typeof(initialModel.Author), typeof(performWithNewTypes.UpgradeWithNewTypesUpgrader), DomainUpgradeMode.Perform);
       using (var domain = BuildDomain(configuration)) {
-        Assert.AreNotEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreNotEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreNotEqual(203, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreNotEqual(202, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreNotEqual(204, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
-        Assert.AreEqual(110, domain.Model.Types[typeof(performWithNewTypes.Comment)].TypeId);
-        Assert.AreEqual(112, domain.Model.Types[typeof(performWithNewTypes.User)].TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.Not.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.Not.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.Not.EqualTo(203));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.Not.EqualTo(202));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.Not.EqualTo(204));
+        Assert.That(domain.Model.Types[typeof(performWithNewTypes.Comment)].TypeId, Is.EqualTo(110));
+        Assert.That(domain.Model.Types[typeof(performWithNewTypes.User)].TypeId, Is.EqualTo(112));
       }
 
       BuildInitialDomain();
       configuration = BuildConfiguration(typeof(initialModel.Author), typeof(performWithNewTypes.UpgradeWithNewTypesUpgrader), DomainUpgradeMode.PerformSafely);
       using (var domain = BuildDomain(configuration)) {
-        Assert.AreNotEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreNotEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreNotEqual(203, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreNotEqual(202, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreNotEqual(204, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
-        Assert.AreEqual(110, domain.Model.Types[typeof(performWithNewTypes.Comment)].TypeId);
-        Assert.AreEqual(112, domain.Model.Types[typeof(performWithNewTypes.User)].TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.Not.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.Not.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.Not.EqualTo(203));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.Not.EqualTo(202));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.Not.EqualTo(204));
+        Assert.That(domain.Model.Types[typeof(performWithNewTypes.Comment)].TypeId, Is.EqualTo(110));
+        Assert.That(domain.Model.Types[typeof(performWithNewTypes.User)].TypeId, Is.EqualTo(112));
       }
     }
 
@@ -658,39 +658,39 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = BuildConfiguration(typeof(initialModel.Author), typeof(onlyCustomsTypeIdsModel.OnlyCustomIdsUpgrader), DomainUpgradeMode.LegacySkip);
       using (var domain = BuildDomain(configuration)) {
         foreach (var type in domain.Model.Types.Where(type => type.IsEntity && !type.IsSystem)) {
-          Assert.GreaterOrEqual(type.TypeId, 200);
+          Assert.That(type.TypeId, Is.GreaterThanOrEqualTo(200));
         }
 
-        Assert.AreEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreEqual(203, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreEqual(202, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreEqual(204, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.EqualTo(203));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.EqualTo(202));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.EqualTo(204));
       }
 
       BuildInitialDomain();
       configuration = BuildConfiguration(typeof(initialModel.Author), typeof(partialSequencialTypeIdModel.PartiallySequentialTypeIdsUpgrader), DomainUpgradeMode.LegacySkip);
       using (var domain = BuildDomain(configuration)) {
         foreach (var type in domain.Model.Types.Where(type => type.IsEntity && !type.IsSystem)) {
-          Assert.GreaterOrEqual(type.TypeId, 200);
+          Assert.That(type.TypeId, Is.GreaterThanOrEqualTo(200));
         }
 
-        Assert.AreEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.EqualTo(201));
       }
 
       BuildInitialDomain();
       configuration = BuildConfiguration(typeof(initialModel.Author), typeof(partialRandomTypeIdModel.PartiallyRandomTypeIdsUpgrader), DomainUpgradeMode.LegacySkip);
       using (var domain = BuildDomain(configuration)) {
         foreach (var type in domain.Model.Types.Where(type => type.IsEntity && !type.IsSystem)) {
-          Assert.GreaterOrEqual(type.TypeId, 110);
+          Assert.That(type.TypeId, Is.GreaterThanOrEqualTo(110));
         }
 
-        Assert.AreEqual(150, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreEqual(149, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreEqual(250, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreEqual(110, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreEqual(251, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.EqualTo(150));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.EqualTo(149));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.EqualTo(250));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.EqualTo(110));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.EqualTo(251));
       }
 
       BuildInitialDomain();
@@ -709,39 +709,39 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = BuildConfiguration(typeof(initialModel.Author), typeof(onlyCustomsTypeIdsModel.OnlyCustomIdsUpgrader), DomainUpgradeMode.LegacyValidate);
       using (var domain = BuildDomain(configuration)) {
         foreach (var type in domain.Model.Types.Where(type => type.IsEntity && !type.IsSystem)) {
-          Assert.GreaterOrEqual(type.TypeId, 200);
+          Assert.That(type.TypeId, Is.GreaterThanOrEqualTo(200));
         }
 
-        Assert.AreEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreEqual(203, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreEqual(202, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreEqual(204, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.EqualTo(203));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.EqualTo(202));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.EqualTo(204));
       }
 
       BuildInitialDomain();
       configuration = BuildConfiguration(typeof(initialModel.Author), typeof(partialSequencialTypeIdModel.PartiallySequentialTypeIdsUpgrader), DomainUpgradeMode.LegacyValidate);
       using (var domain = BuildDomain(configuration)) {
         foreach (var type in domain.Model.Types.Where(type => type.IsEntity && !type.IsSystem)) {
-          Assert.GreaterOrEqual(type.TypeId, 200);
+          Assert.That(type.TypeId, Is.GreaterThanOrEqualTo(200));
         }
 
-        Assert.AreEqual(200, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreEqual(201, domain.Model.Types[typeof(initialModel.Book)].TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.EqualTo(201));
       }
 
       BuildInitialDomain();
       configuration = BuildConfiguration(typeof(initialModel.Author), typeof(partialRandomTypeIdModel.PartiallyRandomTypeIdsUpgrader), DomainUpgradeMode.LegacyValidate);
       using (var domain = BuildDomain(configuration)) {
         foreach (var type in domain.Model.Types.Where(type => type.IsEntity && !type.IsSystem)) {
-          Assert.GreaterOrEqual(type.TypeId, 110);
+          Assert.That(type.TypeId, Is.GreaterThanOrEqualTo(110));
         }
 
-        Assert.AreEqual(150, domain.Model.Types[typeof(initialModel.Author)].TypeId);
-        Assert.AreEqual(149, domain.Model.Types[typeof(initialModel.Book)].TypeId);
-        Assert.AreEqual(250, domain.Model.Types[typeof(initialModel.Store)].TypeId);
-        Assert.AreEqual(110, domain.Model.Types[typeof(initialModel.BookInStore)].TypeId);
-        Assert.AreEqual(251, domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId);
+        Assert.That(domain.Model.Types[typeof(initialModel.Author)].TypeId, Is.EqualTo(150));
+        Assert.That(domain.Model.Types[typeof(initialModel.Book)].TypeId, Is.EqualTo(149));
+        Assert.That(domain.Model.Types[typeof(initialModel.Store)].TypeId, Is.EqualTo(250));
+        Assert.That(domain.Model.Types[typeof(initialModel.BookInStore)].TypeId, Is.EqualTo(110));
+        Assert.That(domain.Model.Types.Find("Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1.EntitySetItems.Author-Books-Book").TypeId, Is.EqualTo(251));
       }
 
       BuildInitialDomain();
@@ -760,7 +760,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var expectedMap = new Dictionary<string, int>();
       BuildInitialDomains();
       var firstConfiguration = DomainConfigurationFactory.Create();
-      firstConfiguration.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      firstConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
       firstConfiguration.UpgradeMode = DomainUpgradeMode.PerformSafely;
       firstConfiguration.DefaultDatabase = DOTests2Db;
       firstConfiguration.DefaultSchema = dbo;
@@ -770,9 +770,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
 
       var secondConfiguration = DomainConfigurationFactory.Create();
-      secondConfiguration.Types.Register(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
-      secondConfiguration.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
-      secondConfiguration.Types.Register(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
+      secondConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
+      secondConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      secondConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
       secondConfiguration.UpgradeMode = DomainUpgradeMode.LegacySkip;
       secondConfiguration.DefaultDatabase = DOTests2Db;
       secondConfiguration.DefaultSchema = dbo;
@@ -790,60 +790,60 @@ namespace Xtensive.Orm.Tests.Upgrade
         var currentMap = domain.Model.Types.ToDictionary(key => key.UnderlyingType.FullName, value => value.TypeId);
         foreach (var map in expectedMap) {
           _ = currentMap.TryGetValue(map.Key, out var typeId);
-          Assert.AreEqual(map.Value, typeId);
+          Assert.That(typeId, Is.EqualTo(map.Value));
         }
-        Assert.AreEqual(200, domain.Model.Types[typeof(multyDatabaseModel.Database2.Parent)].TypeId);
-        Assert.AreEqual(201, domain.Model.Types[typeof(multyDatabaseModel.Database2.Child)].TypeId);
-        Assert.AreEqual(300, domain.Model.Types[typeof(multyDatabaseModel.Database3.Car)].TypeId);
-        Assert.AreEqual(301, domain.Model.Types[typeof(multyDatabaseModel.Database3.Engine)].TypeId);
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database2.Parent)].TypeId, Is.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database2.Child)].TypeId, Is.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database3.Car)].TypeId, Is.EqualTo(300));
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database3.Engine)].TypeId, Is.EqualTo(301));
       }
 
       using (var domain = BuildDomain(firstConfiguration)) {
         var currentMap = domain.Model.Types.ToDictionary(key => key.UnderlyingType.FullName, value => value.TypeId);
-        Assert.AreEqual(expectedMap.Count, currentMap.Count);
-        Assert.AreEqual(expectedMap, currentMap);
+        Assert.That(currentMap.Count, Is.EqualTo(expectedMap.Count));
+        Assert.That(currentMap, Is.EqualTo(expectedMap));
       }
 
       using (var domain = BuildDomain(secondConfiguration)) {
         var currentMap = domain.Model.Types.ToDictionary(key => key.UnderlyingType.FullName, value => value.TypeId);
         foreach (var map in expectedMap) {
           _ = currentMap.TryGetValue(map.Key, out var typeId);
-          Assert.AreEqual(map.Value, typeId);
+          Assert.That(typeId, Is.EqualTo(map.Value));
         }
-        Assert.AreEqual(200, domain.Model.Types[typeof(multyDatabaseModel.Database2.Parent)].TypeId);
-        Assert.AreEqual(201, domain.Model.Types[typeof(multyDatabaseModel.Database2.Child)].TypeId);
-        Assert.AreEqual(300, domain.Model.Types[typeof(multyDatabaseModel.Database3.Car)].TypeId);
-        Assert.AreEqual(301, domain.Model.Types[typeof(multyDatabaseModel.Database3.Engine)].TypeId);
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database2.Parent)].TypeId, Is.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database2.Child)].TypeId, Is.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database3.Car)].TypeId, Is.EqualTo(300));
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database3.Engine)].TypeId, Is.EqualTo(301));
       }
 
       using (var domain = BuildDomain(secondConfiguration)) {
         var currentMap = domain.Model.Types.ToDictionary(key => key.UnderlyingType.FullName, value => value.TypeId);
         foreach (var map in expectedMap) {
           _ = currentMap.TryGetValue(map.Key, out var typeId);
-          Assert.AreEqual(map.Value, typeId);
+          Assert.That(typeId, Is.EqualTo(map.Value));
         }
-        Assert.AreEqual(200, domain.Model.Types[typeof(multyDatabaseModel.Database2.Parent)].TypeId);
-        Assert.AreEqual(201, domain.Model.Types[typeof(multyDatabaseModel.Database2.Child)].TypeId);
-        Assert.AreEqual(300, domain.Model.Types[typeof(multyDatabaseModel.Database3.Car)].TypeId);
-        Assert.AreEqual(301, domain.Model.Types[typeof(multyDatabaseModel.Database3.Engine)].TypeId);
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database2.Parent)].TypeId, Is.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database2.Child)].TypeId, Is.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database3.Car)].TypeId, Is.EqualTo(300));
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database3.Engine)].TypeId, Is.EqualTo(301));
       }
 
       using (var domain = BuildDomain(firstConfiguration)) {
         var currentMap = domain.Model.Types.ToDictionary(key => key.UnderlyingType.FullName, value => value.TypeId);
-        Assert.AreEqual(expectedMap.Count, currentMap.Count);
-        Assert.AreEqual(expectedMap, currentMap);
+        Assert.That(currentMap.Count, Is.EqualTo(expectedMap.Count));
+        Assert.That(currentMap, Is.EqualTo(expectedMap));
       }
 
       using (var domain = BuildDomain(secondConfiguration)) {
         var currentMap = domain.Model.Types.ToDictionary(key => key.UnderlyingType.FullName, value => value.TypeId);
         foreach (var map in expectedMap) {
           _ = currentMap.TryGetValue(map.Key, out var typeId);
-          Assert.AreEqual(map.Value, typeId);
+          Assert.That(typeId, Is.EqualTo(map.Value));
         }
-        Assert.AreEqual(200, domain.Model.Types[typeof(multyDatabaseModel.Database2.Parent)].TypeId);
-        Assert.AreEqual(201, domain.Model.Types[typeof(multyDatabaseModel.Database2.Child)].TypeId);
-        Assert.AreEqual(300, domain.Model.Types[typeof(multyDatabaseModel.Database3.Car)].TypeId);
-        Assert.AreEqual(301, domain.Model.Types[typeof(multyDatabaseModel.Database3.Engine)].TypeId);
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database2.Parent)].TypeId, Is.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database2.Child)].TypeId, Is.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database3.Car)].TypeId, Is.EqualTo(300));
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database3.Engine)].TypeId, Is.EqualTo(301));
       }
     }
 
@@ -854,7 +854,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var expectedMap = new Dictionary<string, int>();
       BuildInitialDomains();
       var firstConfiguration = DomainConfigurationFactory.Create();
-      firstConfiguration.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      firstConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
       firstConfiguration.UpgradeMode = DomainUpgradeMode.PerformSafely;
       firstConfiguration.DefaultDatabase = DOTests2Db;
       firstConfiguration.DefaultSchema = dbo;
@@ -864,9 +864,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
 
       var secondConfiguration = DomainConfigurationFactory.Create();
-      secondConfiguration.Types.Register(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
-      secondConfiguration.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
-      secondConfiguration.Types.Register(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
+      secondConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
+      secondConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      secondConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
       secondConfiguration.UpgradeMode = DomainUpgradeMode.LegacyValidate;
       secondConfiguration.DefaultDatabase = DOTests2Db;
       secondConfiguration.DefaultSchema = dbo;
@@ -884,12 +884,12 @@ namespace Xtensive.Orm.Tests.Upgrade
         var currentMap = domain.Model.Types.ToDictionary(key => key.UnderlyingType.FullName, value => value.TypeId);
         foreach (var map in expectedMap) {
           _ = currentMap.TryGetValue(map.Key, out var typeId);
-          Assert.AreEqual(map.Value, typeId);
+          Assert.That(typeId, Is.EqualTo(map.Value));
         }
-        Assert.AreEqual(200, domain.Model.Types[typeof(multyDatabaseModel.Database2.Parent)].TypeId);
-        Assert.AreEqual(201, domain.Model.Types[typeof(multyDatabaseModel.Database2.Child)].TypeId);
-        Assert.AreEqual(300, domain.Model.Types[typeof(multyDatabaseModel.Database3.Car)].TypeId);
-        Assert.AreEqual(301, domain.Model.Types[typeof(multyDatabaseModel.Database3.Engine)].TypeId);
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database2.Parent)].TypeId, Is.EqualTo(200));
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database2.Child)].TypeId, Is.EqualTo(201));
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database3.Car)].TypeId, Is.EqualTo(300));
+        Assert.That(domain.Model.Types[typeof(multyDatabaseModel.Database3.Engine)].TypeId, Is.EqualTo(301));
       }
     }
 
@@ -898,9 +898,9 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multidatabase | ProviderFeatures.Multischema);
       var rightConfiguration = DomainConfigurationFactory.Create();
-      rightConfiguration.Types.Register(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
-      rightConfiguration.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
-      rightConfiguration.Types.Register(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
+      rightConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
+      rightConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      rightConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
       rightConfiguration.UpgradeMode = DomainUpgradeMode.LegacyValidate;
       rightConfiguration.DefaultDatabase = DOTests2Db;
       rightConfiguration.DefaultSchema = dbo;
@@ -917,9 +917,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var domain = BuildDomain(rightConfiguration)) { }
 
       var wrongConfiguration1 = DomainConfigurationFactory.Create();
-      wrongConfiguration1.Types.Register(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
-      wrongConfiguration1.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
-      wrongConfiguration1.Types.Register(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
+      wrongConfiguration1.Types.RegisterCaching(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
+      wrongConfiguration1.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      wrongConfiguration1.Types.RegisterCaching(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
       wrongConfiguration1.UpgradeMode = DomainUpgradeMode.LegacyValidate;
       wrongConfiguration1.DefaultDatabase = DOTests2Db;
       wrongConfiguration1.DefaultSchema = dbo;
@@ -935,9 +935,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       _ = Assert.Throws<DomainBuilderException>(() => BuildDomain(wrongConfiguration1));
 
       var wrongConfiguration2 = DomainConfigurationFactory.Create();
-      wrongConfiguration2.Types.Register(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
-      wrongConfiguration2.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
-      wrongConfiguration2.Types.Register(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
+      wrongConfiguration2.Types.RegisterCaching(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
+      wrongConfiguration2.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      wrongConfiguration2.Types.RegisterCaching(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
       wrongConfiguration2.UpgradeMode = DomainUpgradeMode.LegacyValidate;
       wrongConfiguration2.DefaultDatabase = DOTests2Db;
       wrongConfiguration2.DefaultSchema = dbo;
@@ -953,9 +953,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       _ = Assert.Throws<DomainBuilderException>(() => BuildDomain(wrongConfiguration2));
 
       var wrongConfiguration3 = DomainConfigurationFactory.Create();
-      wrongConfiguration3.Types.Register(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
-      wrongConfiguration3.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
-      wrongConfiguration3.Types.Register(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
+      wrongConfiguration3.Types.RegisterCaching(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
+      wrongConfiguration3.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      wrongConfiguration3.Types.RegisterCaching(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
       wrongConfiguration3.UpgradeMode = DomainUpgradeMode.LegacyValidate;
       wrongConfiguration3.DefaultDatabase = DOTests2Db;
       wrongConfiguration3.DefaultSchema = dbo;
@@ -974,7 +974,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     private void BuildInitialDomain()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(initialModel.Author).Assembly, typeof(initialModel.Author).Namespace);
+      configuration.Types.RegisterCaching(typeof(initialModel.Author).Assembly, typeof(initialModel.Author).Namespace);
       configuration.Types.Register(typeof(initialModelUpgrader.Upgrader));
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       using (var domain = BuildDomain(configuration)) { }
@@ -983,7 +983,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     private void BuildInitialDomains()
     {
       var firstConfiguration = DomainConfigurationFactory.Create();
-      firstConfiguration.Types.Register(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
+      firstConfiguration.Types.RegisterCaching(typeof(multyDatabaseModel.Database1.Book).Assembly, typeof(multyDatabaseModel.Database1.Book).Namespace);
       firstConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
       firstConfiguration.DefaultDatabase = DOTests2Db;
       firstConfiguration.DefaultSchema = dbo;
@@ -992,7 +992,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       domain1.Dispose();
 
       var secondConfig = DomainConfigurationFactory.Create();
-      secondConfig.Types.Register(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
+      secondConfig.Types.RegisterCaching(typeof(multyDatabaseModel.Database2.Child).Assembly, typeof(multyDatabaseModel.Database2.Child).Namespace);
       secondConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       secondConfig.DefaultDatabase = DOTests1Db;
       secondConfig.DefaultSchema = dbo;
@@ -1001,7 +1001,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       domain2.Dispose();
 
       var thirdConfig = DomainConfigurationFactory.Create();
-      thirdConfig.Types.Register(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
+      thirdConfig.Types.RegisterCaching(typeof(multyDatabaseModel.Database3.Car).Assembly, typeof(multyDatabaseModel.Database3.Car).Namespace);
       thirdConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       thirdConfig.DefaultDatabase = DOTests3Db;
       thirdConfig.DefaultSchema = dbo;
@@ -1016,10 +1016,10 @@ namespace Xtensive.Orm.Tests.Upgrade
     private DomainConfiguration BuildConfiguration(Type baseNamespaceType, Type additionalNamespaceType, DomainUpgradeMode mode)
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(baseNamespaceType.Assembly, baseNamespaceType.Namespace);
+      configuration.Types.RegisterCaching(baseNamespaceType.Assembly, baseNamespaceType.Namespace);
 
       if (additionalNamespaceType != null) {
-        configuration.Types.Register(additionalNamespaceType.Assembly, additionalNamespaceType.Namespace);
+        configuration.Types.RegisterCaching(additionalNamespaceType.Assembly, additionalNamespaceType.Namespace);
       }
 
       configuration.UpgradeMode = mode;

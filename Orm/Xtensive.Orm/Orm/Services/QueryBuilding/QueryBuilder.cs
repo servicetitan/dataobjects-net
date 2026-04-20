@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2022 Xtensive LLC.
+// Copyright (C) 2012-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Services
     /// <returns>Translated query.</returns>
     public QueryTranslationResult TranslateQuery<TResult>(IQueryable<TResult> query)
     {
-      ArgumentValidator.EnsureArgumentNotNull(query, "query");
+      ArgumentNullException.ThrowIfNull(query);
 
       var configuration = Session.CompilationService.CreateConfiguration(Session);
       configuration.PrepareRequest = false;
@@ -47,9 +47,14 @@ namespace Xtensive.Orm.Services
 
       var request = sqlProvider.Request;
 
-      return new QueryTranslationResult(
-        request.Statement,
-        request.ParameterBindings.Select(b => new QueryParameterBinding(b)));
+      if (request.ParameterBindings is ICollection<Providers.QueryParameterBinding> bindingCollection) {
+        return new QueryTranslationResult(
+          request.Statement,
+          bindingCollection.SelectToArray(b => new QueryParameterBinding(b)));
+      }
+      else
+        return new QueryTranslationResult(request.Statement,
+          request.ParameterBindings.Select(b => new QueryParameterBinding(b)).ToList());
     }
 
     /// <summary>
@@ -59,7 +64,7 @@ namespace Xtensive.Orm.Services
     /// <returns>Compiled query.</returns>
     public SqlCompilationResult CompileQuery(ISqlCompileUnit query)
     {
-      ArgumentValidator.EnsureArgumentNotNull(query, "query");
+      ArgumentNullException.ThrowIfNull(query);
       return driver.Compile(query);
     }
 
@@ -72,8 +77,8 @@ namespace Xtensive.Orm.Services
     /// <returns>Created binding.</returns>
     public QueryParameterBinding CreateParameterBinding(Type valueType, Func<ParameterContext, object> valueAccessor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(valueType, "valueType");
-      ArgumentValidator.EnsureArgumentNotNull(valueAccessor, "valueAccessor");
+      ArgumentNullException.ThrowIfNull(valueType);
+      ArgumentNullException.ThrowIfNull(valueAccessor);
 
       var mapping = driver.GetTypeMapping(valueType);
       return new QueryParameterBinding(
@@ -86,8 +91,8 @@ namespace Xtensive.Orm.Services
     /// <returns>Built request.</returns>
     public QueryRequest CreateRequest(SqlCompilationResult compiledQuery, IEnumerable<QueryParameterBinding> bindings)
     {
-      ArgumentValidator.EnsureArgumentNotNull(compiledQuery, "compiledQuery");
-      ArgumentValidator.EnsureArgumentNotNull(bindings, "bindings");
+      ArgumentNullException.ThrowIfNull(compiledQuery);
+      ArgumentNullException.ThrowIfNull(bindings);
 
       return new QueryRequest(new UserQueryRequest(
         compiledQuery,
@@ -102,7 +107,7 @@ namespace Xtensive.Orm.Services
     /// <returns>Created command.</returns>
     public QueryCommand CreateCommand(QueryRequest request)
     {
-      ArgumentValidator.EnsureArgumentNotNull(request, "request");
+      ArgumentValidator.EnsureArgumentIsNotDefault(request, nameof(request));
 
       var command = commandFactory.CreateCommand();
       command.AddPart(commandFactory.CreateQueryPart(request.RealRequest, new ParameterContext()));

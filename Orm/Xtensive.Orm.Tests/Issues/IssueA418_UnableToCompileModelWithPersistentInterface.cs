@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void MainTest()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (IWithReference).Assembly, typeof (IWithReference).Namespace);
+      config.Types.RegisterCaching(typeof (IWithReference).Assembly, typeof (IWithReference).Namespace);
       var domain = Domain.Build(config);
 
       using (var session = domain.OpenSession())
@@ -58,9 +58,9 @@ namespace Xtensive.Orm.Tests.Issues
           .Prefetch(s => s.Reference)
           .ToList();
 
-        Assert.AreEqual(1, result.Count);
-        Assert.IsNotNull(result.Single());
-        Assert.IsNotNull(result.Single().Reference);
+        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result.Single(), Is.Not.Null);
+        Assert.That(result.Single().Reference, Is.Not.Null);
 
         t.Complete();
       }

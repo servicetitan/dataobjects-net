@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override Xtensive.Orm.Configuration.DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Master).Assembly, typeof (Master).Namespace);
+      config.Types.RegisterCaching(typeof (Master).Assembly, typeof (Master).Namespace);
       return config;
     }
 
@@ -72,10 +72,10 @@ namespace Xtensive.Orm.Tests.Storage
           Master m = new Master();
           
           m.ManyToMany.Add(new Slave());
-          Assert.AreEqual(1, m.ManyToMany.Count);
+          Assert.That(m.ManyToMany.Count, Is.EqualTo(1));
 
           m.ManyToMany.Add(new Slave());
-          Assert.AreEqual(2, m.ManyToMany.Count);
+          Assert.That(m.ManyToMany.Count, Is.EqualTo(2));
 
           t.Complete();
         }

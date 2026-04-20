@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof (MyEntity).Assembly, typeof (MyEntity).Namespace);
+      config.Types.RegisterCaching(typeof (MyEntity).Assembly, typeof (MyEntity).Namespace);
       return config;
     }
 
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Tests.Issues
       var ti = Domain.Model.Types[typeof (MyEntity)];
       string tableName = Domain.Services.Get<NameBuilder>().ApplyNamingRules(ti.MappingName);
       var schema = StorageTestHelper.GetDefaultSchema(Domain);
-      Assert.IsTrue(schema.Tables[tableName].TableConstraints.OfType<ForeignKey>().Any());
+      Assert.That(schema.Tables[tableName].TableConstraints.OfType<ForeignKey>().Any(), Is.True);
     }
   }
 }

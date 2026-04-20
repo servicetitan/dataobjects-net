@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (MyEntity).Assembly, typeof (MyEntity).Namespace);
+      config.Types.RegisterCaching(typeof (MyEntity).Assembly, typeof (MyEntity).Namespace);
       return config;
     }
 
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction())
-        Assert.AreEqual(ticks, session.Query.All<MyEntity>().First().Interval.Ticks);
+        Assert.That(session.Query.All<MyEntity>().First().Interval.Ticks, Is.EqualTo(ticks));
     }
   }
 }

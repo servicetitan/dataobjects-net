@@ -49,7 +49,7 @@ namespace Xtensive.Modelling.Actions
     /// <inheritdoc/>
     public virtual void Execute(IModel model)
     {
-      ArgumentValidator.EnsureArgumentNotNull(model, "model");
+      ArgumentNullException.ThrowIfNull(model);
       var item = model.Resolve(path, true);
       ActionHandler.Current.Execute(this);
       PerformExecute(model, item);
@@ -90,7 +90,7 @@ namespace Xtensive.Modelling.Actions
       var parameters = new List<Pair<string>>();
       GetParameters(parameters);
       foreach (var kvp in parameters)
-        sb.AppendFormat(", {0}={1}", kvp.First, kvp.Second);
+        sb.AppendFormat($", {kvp.First}={kvp.Second}");
       if (this is GroupingNodeAction)
         sb.Append("]");
       var nestedActions = GetNestedActions();
@@ -105,8 +105,7 @@ namespace Xtensive.Modelling.Actions
     /// <returns>The name of the action.</returns>
     protected virtual string GetActionName()
     {
-      string sn = GetType().GetShortName();
-      return sn.TryCutSuffix("Action");
+      return GetType().Name.TryCutSuffix("Action");
     }
 
     /// <summary>

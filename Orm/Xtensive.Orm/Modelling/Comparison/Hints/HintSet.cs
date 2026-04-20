@@ -1,6 +1,6 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2009.03.26
 
@@ -66,7 +66,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <see cref="Hint.GetTargets"/> method isn't found.</exception>
     public void Add(Hint hint)
     {
-      ArgumentValidator.EnsureArgumentNotNull(hint, "hint");
+      ArgumentNullException.ThrowIfNull(hint);
 
       if (set.Contains(hint))
         throw new InvalidOperationException(Strings.ExItemAlreadyExists);
@@ -76,7 +76,7 @@ namespace Xtensive.Modelling.Comparison.Hints
         var nodes = new List<Node>();
         foreach (var target in targets) {
           Node node;
-          if (target.Model==ModelType.Source)
+          if (target.Model == ModelType.Source)
             node = (Node) SourceModel.Resolve(target.Path, true);
           else
             node = (Node) TargetModel.Resolve(target.Path, true);
@@ -165,7 +165,7 @@ namespace Xtensive.Modelling.Comparison.Hints
 
     private Dictionary<Type, object> GetNodeHints(Node node)
     {
-      ArgumentValidator.EnsureArgumentNotNull(node, "node");
+      ArgumentNullException.ThrowIfNull(node);
 
       if (!hintMap.TryGetValue(node, out var nodeHintMap)) {
         hintMap.Add(node, nodeHintMap = new Dictionary<Type, object>());
@@ -206,10 +206,8 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <param name="targetModel">The target model.</param>
     public HintSet(IModel sourceModel, IModel targetModel)
     {
-      ArgumentValidator.EnsureArgumentNotNull(sourceModel, "sourceModel");
-      ArgumentValidator.EnsureArgumentNotNull(targetModel, "targetModel");
-      SourceModel = sourceModel;
-      TargetModel = targetModel;
+      SourceModel = sourceModel ?? throw new ArgumentNullException(nameof(sourceModel));
+      TargetModel = targetModel ?? throw new ArgumentNullException(nameof(targetModel));
     }
 
     private HintSet()

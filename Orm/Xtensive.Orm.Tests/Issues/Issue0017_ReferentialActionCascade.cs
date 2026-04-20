@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Master).Assembly, typeof (Master).Namespace);
+      config.Types.RegisterCaching(typeof (Master).Assembly, typeof (Master).Namespace);
       return config;
     }
 
@@ -59,10 +59,10 @@ namespace Xtensive.Orm.Tests.Issues
           var m1 = new Master();
           var s1 = new Slave();
           m1.Slave = s1;
-          Assert.AreEqual(m1, s1.Master1);
+          Assert.That(s1.Master1, Is.EqualTo(m1));
           m1.Remove();
-          Assert.AreEqual(PersistenceState.Removed, m1.PersistenceState);
-          Assert.AreEqual(PersistenceState.Removed, s1.PersistenceState);
+          Assert.That(m1.PersistenceState, Is.EqualTo(PersistenceState.Removed));
+          Assert.That(s1.PersistenceState, Is.EqualTo(PersistenceState.Removed));
           Session.Current.SaveChanges();
           // Rollback
         }

@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Building.Builders
 
     public static void BuildFilter(IndexInfo index)
     {
-      ArgumentValidator.EnsureArgumentNotNull(index, "index");
+      ArgumentNullException.ThrowIfNull(index);
       var builder = new PartialIndexFilterBuilder(index);
       var body = builder.Visit(index.FilterExpression.Body);
       var filter = new PartialIndexFilterInfo {
@@ -90,6 +90,8 @@ namespace Xtensive.Orm.Building.Builders
         return BuildEntityCheck(field, b.NodeType);
       if (entityAccessMap.TryGetValue(right, out field) && IsNull(left))
         return BuildEntityCheck(field, b.NodeType);
+      if (entityAccessMap.TryGetValue(left, out var _) && entityAccessMap.TryGetValue(right, out var _))
+        throw UnableToTranslate(b, Strings.ComparisonOfTwoEntityFieldsIsNotSupported);
 
       return base.VisitBinary(b);
 

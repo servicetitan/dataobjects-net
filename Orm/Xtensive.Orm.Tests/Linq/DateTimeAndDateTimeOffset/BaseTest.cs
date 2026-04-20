@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.09.15
 
@@ -36,6 +36,14 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       }
     }
 
+    protected void ExecuteInsideSession(Action<Session> action)
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        action(session);
+      }
+    }
+
     protected override void PopulateData()
     {
       PopulateNonPersistentData();
@@ -61,13 +69,26 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       where T : Entity
     {
       var count = Query.All<T>().Count(filter);
-      Assert.AreEqual(rightCount, count);
+      Assert.That(count, Is.EqualTo(rightCount));
+    }
+
+    protected void RunTest<T>(Session session, Expression<Func<T, bool>> filter, int rightCount = 1)
+      where T : Entity
+    {
+      var count = session.Query.All<T>().Count(filter);
+      Assert.That(count, Is.EqualTo(rightCount));
     }
 
     protected void RunWrongTest<T>(Expression<Func<T, bool>> filter)
       where T : Entity
     {
       RunTest(filter, 0);
+    }
+
+    protected void RunWrongTest<T>(Session session, Expression<Func<T, bool>> filter)
+      where T : Entity
+    {
+      RunTest(session, filter, 0);
     }
   }
 }

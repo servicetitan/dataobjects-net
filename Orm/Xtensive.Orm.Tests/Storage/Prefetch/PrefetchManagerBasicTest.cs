@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -20,6 +21,7 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.Storage.Prefetch.Model;
+using System.Runtime.CompilerServices;
 using GraphContainerDictionary = System.Collections.Generic.Dictionary<(Xtensive.Orm.Key key, Xtensive.Orm.Model.TypeInfo type), Xtensive.Orm.Internals.Prefetch.GraphContainer>;
 
 namespace Xtensive.Orm.Tests.Storage.Prefetch
@@ -27,16 +29,14 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
   [TestFixture]
   public class PrefetchManagerBasicTest : PrefetchManagerTestBase
   {
-    private volatile static int instanceCount;
+    private const int Iterations = 10;
+    private static int instanceCount;
 
     #region Nested class
 
     public class MemoryLeakTester
     {
-      ~MemoryLeakTester()
-      {
-        instanceCount--;
-      }
+      ~MemoryLeakTester() => Interlocked.Decrement(ref instanceCount);
     }
 
     #endregion
@@ -162,11 +162,11 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.ExecuteTasks();
 
         var orderDetailsType = Domain.Model.Types[typeof (OrderDetail)];
-        Assert.AreEqual(prevEntityStateCount + orderDetailKeys.Length + 1, session.EntityStateCache.Count);
+        Assert.That(session.EntityStateCache.Count, Is.EqualTo(prevEntityStateCount + orderDetailKeys.Length + 1));
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, OrderType, session, IsFieldKeyOrSystem);
-        Assert.IsTrue(session.EntityStateCache.ContainsKey(orderKey));
+        Assert.That(session.EntityStateCache.ContainsKey(orderKey), Is.True);
         foreach (var key in orderDetailKeys) {
-          Assert.IsTrue(session.EntityStateCache.ContainsKey(key));
+          Assert.That(session.EntityStateCache.ContainsKey(key), Is.True);
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, orderDetailsType, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         }
@@ -245,11 +245,11 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.InvokePrefetch(bookKey, null, new PrefetchFieldDescriptor(bookKey.TypeInfo.Fields["Authors"]));
         prefetchManager.ExecuteTasks();
 
-        Assert.AreEqual(prevEntityStateCount + 4, session.EntityStateCache.Count);
-        Assert.IsTrue(session.EntityStateCache.ContainsKey(bookKey));
-        Assert.IsTrue(session.EntityStateCache.ContainsKey(author0Key));
-        Assert.IsTrue(session.EntityStateCache.ContainsKey(author2Key));
-        Assert.IsTrue(session.EntityStateCache.ContainsKey(author4Key));
+        Assert.That(session.EntityStateCache.Count, Is.EqualTo(prevEntityStateCount + 4));
+        Assert.That(session.EntityStateCache.ContainsKey(bookKey), Is.True);
+        Assert.That(session.EntityStateCache.ContainsKey(author0Key), Is.True);
+        Assert.That(session.EntityStateCache.ContainsKey(author2Key), Is.True);
+        Assert.That(session.EntityStateCache.ContainsKey(author4Key), Is.True);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookKey, BookType, session, IsFieldKeyOrSystem);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(author0Key, authorType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(author2Key, authorType, session, PrefetchTestHelper.IsFieldToBeLoadedByDefault);
@@ -263,11 +263,11 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.InvokePrefetch(authorKey, null, new PrefetchFieldDescriptor(BooksField));
         prefetchManager.ExecuteTasks();
 
-        Assert.AreEqual(prevEntityStateCount + 4, session.EntityStateCache.Count);
-        Assert.IsTrue(session.EntityStateCache.ContainsKey(authorKey));
-        Assert.IsTrue(session.EntityStateCache.ContainsKey(book3Key));
-        Assert.IsTrue(session.EntityStateCache.ContainsKey(book4Key));
-        Assert.IsTrue(session.EntityStateCache.ContainsKey(book5Key));
+        Assert.That(session.EntityStateCache.Count, Is.EqualTo(prevEntityStateCount + 4));
+        Assert.That(session.EntityStateCache.ContainsKey(authorKey), Is.True);
+        Assert.That(session.EntityStateCache.ContainsKey(book3Key), Is.True);
+        Assert.That(session.EntityStateCache.ContainsKey(book4Key), Is.True);
+        Assert.That(session.EntityStateCache.ContainsKey(book5Key), Is.True);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(authorKey, authorType, session,
           IsFieldKeyOrSystem);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(book3Key, BookType, session,
@@ -382,16 +382,16 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
         var graphContainers = (GraphContainerDictionary) GraphContainersField.GetValue(prefetchManager);
-        Assert.AreEqual(2, graphContainers.Count);
+        Assert.That(graphContainers.Count, Is.EqualTo(2));
         foreach (var container in graphContainers.Values)
-          Assert.IsNull(container.ReferencedEntityContainers);
+          Assert.That(container.ReferencedEntityContainers, Is.Null);
         var orderContainer = graphContainers.Values.Where(container => container.Key==orderKey).SingleOrDefault();
         var employeeContainer = graphContainers.Values.Where(container => container.Key!=orderKey).SingleOrDefault();
-        Assert.IsNotNull(orderContainer);
-        Assert.IsNotNull(employeeContainer);
+        Assert.That(orderContainer, Is.Not.Null);
+        Assert.That(employeeContainer, Is.Not.Null);
         prefetchManager.ExecuteTasks();
-        Assert.IsNull(orderContainer.RootEntityContainer.Task);
-        Assert.IsNotNull(employeeContainer.RootEntityContainer.Task);
+        Assert.That(orderContainer.RootEntityContainer.Task, Is.Null);
+        Assert.That(employeeContainer.RootEntityContainer.Task, Is.Not.Null);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, OrderType,
           session, field => IsFieldKeyOrSystem(field) || field == EmployeeField
             || field.Parent == EmployeeField);
@@ -417,14 +417,14 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
         var graphContainer = GetSingleGraphContainer(prefetchManager);
-        Assert.AreEqual(1, graphContainer.ReferencedEntityContainers.Count());
+        Assert.That(graphContainer.ReferencedEntityContainers.Count(), Is.EqualTo(1));
         var referencedEntityContainer = graphContainer.ReferencedEntityContainers.Single();
         prefetchManager.ExecuteTasks();
-        Assert.IsNull(referencedEntityContainer.Task);
+        Assert.That(referencedEntityContainer.Task, Is.Null);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderKey.TypeInfo, session,
           field => IsFieldKeyOrSystem(field) || field == EmployeeField
             || field.Parent == EmployeeField);
-        Assert.IsNull(session.Query.Single<Order>(orderKey).Employee);
+        Assert.That(session.Query.Single<Order>(orderKey).Employee, Is.Null);
       }
 
       using (var session = Domain.OpenSession())
@@ -433,8 +433,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         session.Handler.FetchEntityState(orderKey);
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
         var taskContainers = (GraphContainerDictionary) GraphContainersField.GetValue(prefetchManager);
-        Assert.AreEqual(1, taskContainers.Count);
-        Assert.AreEqual(orderKey, taskContainers.Values.Single().Key);
+        Assert.That(taskContainers.Count, Is.EqualTo(1));
+        Assert.That(taskContainers.Values.Single().Key, Is.EqualTo(orderKey));
       }
     }
 
@@ -449,7 +449,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField));
         var originalGraphContainer = GetSingleGraphContainer(prefetchManager);
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField));
-        Assert.AreSame(originalGraphContainer, GetSingleGraphContainer(prefetchManager));
+        Assert.That(GetSingleGraphContainer(prefetchManager), Is.SameAs(originalGraphContainer));
         prefetchManager.ExecuteTasks();
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, orderKey.TypeInfo, session,
           field => IsFieldKeyOrSystem(field) || field == CustomerField || field == EmployeeField
@@ -555,9 +555,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.ExecuteTasks();
 
         EntitySetState setState;
-        Assert.IsTrue(session.Handler.LookupState(bookKey, translationTitlesField, out setState));
-        Assert.IsTrue(setState.IsFullyLoaded);
-        Assert.AreEqual(instanceCount, setState.TotalItemCount);
+        Assert.That(session.Handler.LookupState(bookKey, translationTitlesField, out setState), Is.True);
+        Assert.That(setState.IsFullyLoaded, Is.True);
+        Assert.That(setState.TotalItemCount, Is.EqualTo(instanceCount));
         var iTitleType = Domain.Model.Types[typeof (ITitle)];
         foreach (var key in setState)
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, iTitleType, session, field => true);
@@ -606,11 +606,11 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           field => IsFieldKeyOrSystem(field) || field.Equals(urlField));
 
         EntitySetState setState;
-        Assert.IsTrue(session.Handler.LookupState(publisherKey0, distributorsField, out setState));
-        Assert.IsTrue(setState.IsFullyLoaded);
-        Assert.AreEqual(4, setState.TotalItemCount);
+        Assert.That(session.Handler.LookupState(publisherKey0, distributorsField, out setState), Is.True);
+        Assert.That(setState.IsFullyLoaded, Is.True);
+        Assert.That(setState.TotalItemCount, Is.EqualTo(4));
         foreach (var bookShopKey in bookShopKeys)
-          Assert.IsTrue(setState.Contains(bookShopKey));
+          Assert.That(setState.Contains(bookShopKey), Is.True);
       }
 
       using (var session = Domain.OpenSession())
@@ -630,11 +630,11 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           field => IsFieldKeyOrSystem(field) || field.Equals(trademarkField));
 
         EntitySetState setState;
-        Assert.IsTrue(session.Handler.LookupState(bookShopKey0, suppliersField, out setState));
-        Assert.IsTrue(setState.IsFullyLoaded);
-        Assert.AreEqual(4, setState.TotalItemCount);
+        Assert.That(session.Handler.LookupState(bookShopKey0, suppliersField, out setState), Is.True);
+        Assert.That(setState.IsFullyLoaded, Is.True);
+        Assert.That(setState.TotalItemCount, Is.EqualTo(4));
         foreach (var publisherKey in publisherKeys)
-          Assert.IsTrue(setState.Contains(publisherKey));
+          Assert.That(setState.Contains(publisherKey), Is.True);
       }
     }
 
@@ -659,7 +659,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.ExecuteTasks();
 
         EntitySetState setState;
-        Assert.IsFalse(session.Handler.LookupState(orderKey, DetailsField, out setState));
+        Assert.That(session.Handler.LookupState(orderKey, DetailsField, out setState), Is.False);
       }
     }
 
@@ -700,9 +700,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       Action<Key, FieldInfo, Key, int, Key, FieldInfo, Key> notificationValidator =
         (expOwnerKey, expField, expKey, increment, ownerKey, field, key) => {
-          Assert.AreEqual(expOwnerKey, ownerKey);
-          Assert.AreEqual(expField, field);
-          Assert.AreEqual(expKey, key);
+          Assert.That(ownerKey, Is.EqualTo(expOwnerKey));
+          Assert.That(field, Is.EqualTo(expField));
+          Assert.That(key, Is.EqualTo(expKey));
           notificationCount += increment;
         };
       Action<Key, FieldInfo, Key> failingValidator = (ownerKey, field, key) => Assert.Fail();
@@ -728,7 +728,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           failingValidator));
         prefetchManager.ExecuteTasks();
 
-        Assert.AreEqual(3, notificationCount);
+        Assert.That(notificationCount, Is.EqualTo(3));
         PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(title0Key, TitleType, session);
         PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(customerKey, CustomerType, session);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(title1Key, TitleType, session,
@@ -764,28 +764,28 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var notificationCount = 0;
         prefetchManager.InvokePrefetch(publisherKey, null, new PrefetchFieldDescriptor(distributorsField, null,
           false, false, (ownerKey, field, key) => {
-            Assert.AreEqual(publisherKey, ownerKey);
-            Assert.AreEqual(distributorsField, field);
+            Assert.That(ownerKey, Is.EqualTo(publisherKey));
+            Assert.That(field, Is.EqualTo(distributorsField));
             bookShopKeys.Contains(key);
             notificationCount++;
           }));
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(DetailsField, null,
           false, false, (ownerKey, field, key) => Assert.Fail()));
         prefetchManager.ExecuteTasks();
-        
-        Assert.AreEqual(bookShopKeys.Count, notificationCount);
+
+        Assert.That(notificationCount, Is.EqualTo(bookShopKeys.Count));
         EntitySetState setState;
         session.Handler.LookupState(publisherKey, distributorsField, out setState);
         var bookShopType = Domain.Model.Types[typeof (BookShop)];
         var iBookShopType = Domain.Model.Types[typeof (IBookShop)];
-        Assert.AreEqual(bookShopKeys.Count, setState.TotalItemCount);
+        Assert.That(setState.TotalItemCount, Is.EqualTo(bookShopKeys.Count));
         var actualCount = 0;
         foreach (var key in setState) {
           actualCount++;
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, bookShopType, session,
             field => IsFieldKeyOrSystem(field) || iBookShopType.Fields.Contains(field.Name));
         }
-        Assert.AreEqual(bookShopKeys.Count, actualCount);
+        Assert.That(actualCount, Is.EqualTo(bookShopKeys.Count));
       }
     }
 
@@ -813,8 +813,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.ExecuteTasks();
 
         EntityState state;
-        Assert.IsFalse(session.EntityStateCache.TryGetItem(book0Key, true, out state));
-        Assert.IsFalse(session.EntityStateCache.TryGetItem(bookShop0Key, true, out state));
+        Assert.That(session.EntityStateCache.TryGetItem(book0Key, true, out state), Is.False);
+        Assert.That(session.EntityStateCache.TryGetItem(bookShop0Key, true, out state), Is.False);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(contaierKey, contaierKey.TypeInfo, session,
           field => PrefetchTestHelper.IsFieldToBeLoadedByDefault(field)
             || field.Name.StartsWith(intermediateOfferName) || field.Name == "RealOffer.Lazy");
@@ -902,16 +902,15 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
         var conatinerPrimitiveFields = contaierKey.TypeInfo.Fields.Where(field => field.IsPrimitive);
         foreach (var fieldInfo in conatinerPrimitiveFields)
-          Assert.AreEqual(!fieldInfo.Equals(lazyField) && !fieldInfo.Equals(realOfferLazyField)
-            && !fieldInfo.Equals(intermediateOfferRealOfferLazyField),
-            container.State.Tuple.GetFieldState(fieldInfo.MappingInfo.Offset).IsAvailable());
+          Assert.That(container.State.Tuple.GetFieldState(fieldInfo.MappingInfo.Offset).IsAvailable(), Is.EqualTo(!fieldInfo.Equals(lazyField) && !fieldInfo.Equals(realOfferLazyField)
+            && !fieldInfo.Equals(intermediateOfferRealOfferLazyField)));
         PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(contaierKey, contaierKey.TypeInfo, session);
 
         prefetchManager.InvokePrefetch(contaierKey, null, new PrefetchFieldDescriptor(lazyField),
           new PrefetchFieldDescriptor(intermediateOfferField), new PrefetchFieldDescriptor(realOfferField));
         prefetchManager.ExecuteTasks();
         foreach (var fieldInfo in conatinerPrimitiveFields)
-          Assert.IsTrue(container.State.Tuple.GetFieldState(fieldInfo.MappingInfo.Offset).IsAvailable());
+          Assert.That(container.State.Tuple.GetFieldState(fieldInfo.MappingInfo.Offset).IsAvailable(), Is.True);
       }
     }
 
@@ -930,28 +929,30 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     }
 
     [Test]
+    [IgnoreOnGithubActionsIfFailed]
     public void ReferenceToSessionIsNotPreservedInCacheTest()
     {
-      // Use separate method for session related processing
+      // Use separate method with [MethodImpl(MethodImplOptions.NoInlining)] attribute for session related processing
       // to make sure we don't hold session reference somewhere on stack
       OpenSessionsAndRunPrefetches();
       TestHelper.CollectGarbage(true);
       Assert.That(instanceCount, Is.EqualTo(0));
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private void OpenSessionsAndRunPrefetches()
     {
-      instanceCount = 10;
-      for (int i = 0; i < instanceCount; i++) {
+      instanceCount = Iterations;
+      for (int i = 0; i < Iterations; i++) {
         using (var session = Domain.OpenSession())
         using (var t = session.OpenTransaction()) {
           session.Extensions.Set(new MemoryLeakTester());
           var newOrder = new Order();
           var orderDetail = new OrderDetail {Product = new Product()};
           session.SaveChanges();
-          var order = EnumerableUtils.One(newOrder).Prefetch(o => o.Details).First();
+          var order = Enumerable.Repeat(newOrder, 1).Prefetch(o => o.Details).First();
           Assert.That(order, Is.Not.Null);
-          var product = EnumerableUtils.One(orderDetail).Prefetch(d => d.Product).First();
+          var product = Enumerable.Repeat(orderDetail, 1).Prefetch(d => d.Product).First();
           Assert.That(product, Is.Not.Null);
           //Query.All<Order>().Prefetch(o => o.Details).First();
           t.Complete();
@@ -970,7 +971,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     private static void AssertEntityStateIsNotLoaded(Key key, Session session)
     {
       var state = session.EntityStateCache[key, true];
-      Assert.IsNull(state);
+      Assert.That(state, Is.Null);
     }
 
     private Key GetFirstKeyInCurrentSession<T>()

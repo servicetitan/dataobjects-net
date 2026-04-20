@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2010 Xtensive LLC.
+// Copyright (C) 2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexis Kochetov
@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(typeof(Issue0768_WrongJoinBehavior_Model.Node).Assembly, typeof(Issue0768_WrongJoinBehavior_Model.Node).Namespace);
+      config.Types.RegisterCaching(typeof(Issue0768_WrongJoinBehavior_Model.Node).Assembly, typeof(Issue0768_WrongJoinBehavior_Model.Node).Namespace);
       return config;
     }
 
@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var list = session.Query.All<Issue0768_WrongJoinBehavior_Model.Node>().Select(node => new { Parent = node.Parent.Ref.Name, node.Name }).ToList();
-        Assert.AreEqual(3, list.Count());
+        Assert.That(list.Count(), Is.EqualTo(3));
 
         // Current wrong way
         /*Join (Inner, #a.Ref.Id == #b.Id)

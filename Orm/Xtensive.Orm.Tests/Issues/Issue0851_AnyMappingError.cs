@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2010 Xtensive LLC.
+// Copyright (C) 2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Gamzov
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (IHasItems).Assembly, typeof (IHasItems).Namespace);
+      config.Types.RegisterCaching(typeof (IHasItems).Assembly, typeof (IHasItems).Namespace);
       return config;
     }
 
@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Tests.Issues
             .Where(container => container.Items.Any())
             .ToList();
 
-          Assert.AreEqual(1, l.Count);
+          Assert.That(l.Count, Is.EqualTo(1));
         }
       }
     }

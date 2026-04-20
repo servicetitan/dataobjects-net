@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Rse.Providers
       FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, Func<ParameterContext, int> topN, bool fullFeatured)
       : base(ProviderType.FreeText)
     {
-      SearchCriteria = searchCriteria;
+      SearchCriteria = searchCriteria ?? throw new ArgumentNullException(nameof(searchCriteria));
       FullFeatured = fullFeatured;
       TopN = topN;
       PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);
@@ -61,12 +61,12 @@ namespace Xtensive.Orm.Rse.Providers
         if (primaryIndexKeyColumns.Count!=1)
           throw new InvalidOperationException(Strings.ExOnlySingleColumnKeySupported);
         var fieldTypes = primaryIndexKeyColumns
-          .Select(columnInfo => columnInfo.Key.ValueType)
+          .Select(static columnInfo => columnInfo.Key.ValueType)
           .Append(WellKnownTypes.Double)
           .ToArray(primaryIndexKeyColumns.Count + 1);
         var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
         var columns = primaryIndexKeyColumns
-          .Select((c, i) => (Column) new MappedColumn("KEY", i, c.Key.ValueType))
+          .Select(static (c, i) => (Column) new MappedColumn("KEY", i, c.Key.ValueType))
           .Append(new MappedColumn("RANK", tupleDescriptor.Count, WellKnownTypes.Double))
           .ToArray(primaryIndexKeyColumns.Count + 1);
         indexHeader = new RecordSetHeader(tupleDescriptor, columns);

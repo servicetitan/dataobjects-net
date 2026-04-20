@@ -37,8 +37,8 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRules
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var person = session.Query.All<M2.Person>().SingleOrDefault();
-        Assert.NotNull(person);
-        Assert.AreSame(person, person.NewFriend);
+        Assert.That(person, Is.Not.Null);
+        Assert.That(person.NewFriend, Is.SameAs(person));
       }
     }
 
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRules
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(Assembly.GetExecutingAssembly(), nsPrefix + version);
+      configuration.Types.RegisterCaching(Assembly.GetExecutingAssembly(), nsPrefix + version);
       configuration.Types.Register(typeof(Upgrader));
       configuration.NamingConvention.NamingRules = NamingRules.UnderscoreDots;
 

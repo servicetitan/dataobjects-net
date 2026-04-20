@@ -142,7 +142,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <returns>New <see cref="RecordSetReader"/> bound to specified <paramref name="session"/>.</returns>
     public RecordSetReader GetRecordSetReader(Session session, ParameterContext parameterContext)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
+      ArgumentNullException.ThrowIfNull(session);
       var enumerationContext = session.CreateEnumerationContext(parameterContext);
       return RecordSetReader.Create(enumerationContext, this);
     }
@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Rse.Providers
     public async Task<RecordSetReader> GetRecordSetReaderAsync(
       Session session, ParameterContext parameterContext, CancellationToken token)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
+      ArgumentNullException.ThrowIfNull(session);
       var enumerationContext =
         await session.CreateEnumerationContextAsync(parameterContext, token).ConfigureAwait(false);
       return await RecordSetReader.CreateAsync(enumerationContext, this, token).ConfigureAwait(false);
@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="origin">The <see cref="Origin"/> property value.</param>
     /// <param name="sources">The <see cref="Provider.Sources"/> property value.</param>
-    protected ExecutableProvider(CompilableProvider origin, params ExecutableProvider[] sources)
+    protected ExecutableProvider(CompilableProvider origin, IReadOnlyList<ExecutableProvider> sources)
       : base(origin.Type, sources)
     {
       Origin = origin;

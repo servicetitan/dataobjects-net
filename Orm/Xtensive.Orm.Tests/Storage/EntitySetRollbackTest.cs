@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration =  base.BuildConfiguration();
-      configuration.Types.Register(typeof (AccountingDocument).Assembly, typeof (AccountingDocument).Namespace);
+      configuration.Types.RegisterCaching(typeof (AccountingDocument).Assembly, typeof (AccountingDocument).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
@@ -217,10 +217,10 @@ namespace Xtensive.Orm.Tests.Storage
           document.Employees.Add(employee);
           addedItemsCount++;
           var entitySetState = session.EntitySetChangeRegistry.GetItems().First();
-          Assert.AreEqual(addedItemsCount, entitySetState.CachedItemCount);
-          Assert.AreEqual(0, entitySetState.FetchedItemsCount);
-          Assert.AreEqual(addedItemsCount, entitySetState.AddedItemsCount);
-          Assert.AreEqual(removedItemsCount, entitySetState.RemovedItemsCount);
+          Assert.That(entitySetState.CachedItemCount, Is.EqualTo(addedItemsCount));
+          Assert.That(entitySetState.FetchedItemsCount, Is.EqualTo(0));
+          Assert.That(entitySetState.AddedItemsCount, Is.EqualTo(addedItemsCount));
+          Assert.That(entitySetState.RemovedItemsCount, Is.EqualTo(removedItemsCount));
           transaction.Complete();
         }
 
@@ -230,23 +230,23 @@ namespace Xtensive.Orm.Tests.Storage
           document.Employees.Remove(employee);
           removedItemsCount++;
           var entitySetState = session.EntitySetChangeRegistry.GetItems().First();
-          Assert.AreEqual(WellKnown.EntitySetPreloadCount + 1 - removedItemsCount, entitySetState.CachedItemCount);
-          Assert.AreEqual(WellKnown.EntitySetPreloadCount + 1, entitySetState.FetchedItemsCount);
-          Assert.AreEqual(0, entitySetState.AddedItemsCount);
-          Assert.AreEqual(removedItemsCount, entitySetState.RemovedItemsCount);
+          Assert.That(entitySetState.CachedItemCount, Is.EqualTo(WellKnown.EntitySetPreloadCount + 1 - removedItemsCount));
+          Assert.That(entitySetState.FetchedItemsCount, Is.EqualTo(WellKnown.EntitySetPreloadCount + 1));
+          Assert.That(entitySetState.AddedItemsCount, Is.EqualTo(0));
+          Assert.That(entitySetState.RemovedItemsCount, Is.EqualTo(removedItemsCount));
 
           document.Employees.Prefetch(35);
-          Assert.AreEqual(35, entitySetState.CachedItemCount);
-          Assert.AreEqual(35, entitySetState.FetchedItemsCount);
-          Assert.AreEqual(0, entitySetState.AddedItemsCount);
-          Assert.AreEqual(0, entitySetState.RemovedItemsCount);
+          Assert.That(entitySetState.CachedItemCount, Is.EqualTo(35));
+          Assert.That(entitySetState.FetchedItemsCount, Is.EqualTo(35));
+          Assert.That(entitySetState.AddedItemsCount, Is.EqualTo(0));
+          Assert.That(entitySetState.RemovedItemsCount, Is.EqualTo(0));
           transaction.Complete();
         }
         
         using (var transaction = session.OpenTransaction()) {
           var document = session.Query.Single<AccountingDocument>(documentKey);
           var employees = document.Employees.ToList();
-          Assert.AreEqual(addedItemsCount - removedItemsCount, employees.Count);
+          Assert.That(employees.Count, Is.EqualTo(addedItemsCount - removedItemsCount));
         }
       }
     }
@@ -255,7 +255,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void NonPairedEntitySetInDisconnectedSessionTest()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(AccountingDocument).Assembly, typeof(AccountingDocument).Namespace);
+      configuration.Types.RegisterCaching(typeof(AccountingDocument).Assembly, typeof(AccountingDocument).Namespace);
       var defaultConfiguration = configuration.Sessions.Default;
       defaultConfiguration.Options = SessionOptions.ClientProfile | SessionOptions.AutoActivation;
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
@@ -291,7 +291,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void PairedEnitySetInDisconnectedSessionTest()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(AccountingDocument).Assembly, typeof(AccountingDocument).Namespace);
+      configuration.Types.RegisterCaching(typeof(AccountingDocument).Assembly, typeof(AccountingDocument).Namespace);
       var defaultConfiguration = configuration.Sessions.Default;
       defaultConfiguration.Options = SessionOptions.ClientProfile | SessionOptions.AutoActivation;
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
@@ -327,7 +327,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void RemoveFromEntitySetInDisconnectedSessionTest()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (AccountingDocument).Assembly, typeof (AccountingDocument).Namespace);
+      configuration.Types.RegisterCaching(typeof (AccountingDocument).Assembly, typeof (AccountingDocument).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
       var defaultConfiguration = configuration.Sessions.Default;
       defaultConfiguration.Options = SessionOptions.ClientProfile | SessionOptions.AutoActivation;
@@ -351,7 +351,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void RemoveFromPairedEntitySetInDisconnectedSessionTest()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(AccountingDocument).Assembly, typeof(AccountingDocument).Namespace);
+      configuration.Types.RegisterCaching(typeof(AccountingDocument).Assembly, typeof(AccountingDocument).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
       var defaultConfiguration = configuration.Sessions.Default;
       defaultConfiguration.Options = SessionOptions.ClientProfile | SessionOptions.AutoActivation;

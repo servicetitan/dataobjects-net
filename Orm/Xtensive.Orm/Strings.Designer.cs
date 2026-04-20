@@ -151,6 +151,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Comparison of two entity fields is not supported..
+        /// </summary>
+        internal static string ComparisonOfTwoEntityFieldsIsNotSupported {
+            get {
+                return ResourceManager.GetString("ComparisonOfTwoEntityFieldsIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ComparisonRule({0}, {1}).
         /// </summary>
         internal static string ComparisonRuleFormat {
@@ -1353,6 +1362,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to DateOnly.ToString() method is not supported, use the DateOnly.ToString(&quot;o&quot;)..
+        /// </summary>
+        internal static string ExDateOnlyToStringMethodIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExDateOnlyToStringMethodIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DateTime.ToString() method is not supported, use the DateTime.ToString(&quot;s&quot;)..
         /// </summary>
         internal static string ExDateTimeToStringMethodIsNotSupported {
@@ -1561,11 +1579,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Entity is removed..
+        ///   Looks up a localized string similar to Entity of type &apos;{0}&apos; is removed..
         /// </summary>
-        internal static string ExEntityIsRemoved {
+        internal static string ExEntityOfTypeXIsRemoved {
             get {
-                return ResourceManager.GetString("ExEntityIsRemoved", resourceCulture);
+                return ResourceManager.GetString("ExEntityOfTypeXIsRemoved", resourceCulture);
             }
         }
         
@@ -2562,6 +2580,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Inner and outer selector expressions have the same parameter instance. Probably you use the same lambda expression for both selectors, which is currently not supported..
+        /// </summary>
+        internal static string ExJoinHasSameInnerAndOuterParameterInstances {
+            get {
+                return ResourceManager.GetString("ExJoinHasSameInnerAndOuterParameterInstances", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The Key belongs to different storage node..
         /// </summary>
         internal static string ExKeyBelongsToDifferentStorageNode {
@@ -2828,6 +2855,15 @@ namespace Xtensive {
         internal static string ExMaxItemCountIsN {
             get {
                 return ResourceManager.GetString("ExMaxItemCountIsN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to DomainConfiguration.MaxNumberOfConditions should be between {0} and {1} (included)..
+        /// </summary>
+        internal static string ExMaxNumberOfConditionsShouldBeBetweenXAndY {
+            get {
+                return ResourceManager.GetString("ExMaxNumberOfConditionsShouldBeBetweenXAndY", resourceCulture);
             }
         }
         
@@ -3427,6 +3463,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Changes of persistent objects are not allowed at this point due to possibility of changes not saved to database..
+        /// </summary>
+        internal static string ExPersistentChangesAreNotAllowed {
+            get {
+                return ResourceManager.GetString("ExPersistentChangesAreNotAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Persistent type &apos;{0}&apos; is not entity or persistent interface..
         /// </summary>
         internal static string ExPersistentTypeXIsNotEntityOrPersistentInterface {
@@ -3711,6 +3756,15 @@ namespace Xtensive {
         internal static string ExResultIsNotAvailable {
             get {
                 return ResourceManager.GetString("ExResultIsNotAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Result selector is not supported for SelectMany over GroupBy result..
+        /// </summary>
+        internal static string ExResultSelectorIsNotSupportedForSelectManyOverGrouping {
+            get {
+                return ResourceManager.GetString("ExResultSelectorIsNotSupportedForSelectManyOverGrouping", resourceCulture);
             }
         }
         
@@ -4300,6 +4354,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to TimeOnly.ToString() method is not supported, use the TimeOnly.ToString(&quot;o&quot;)..
+        /// </summary>
+        internal static string ExTimeOnlyToStringMethodIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExTimeOnlyToStringMethodIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Transaction is not active..
         /// </summary>
         internal static string ExTransactionIsNotActive {
@@ -4327,11 +4390,20 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Translation of DateOnly.ToString(string) with arbitrary arguments is not supported. Use DateOnly.ToString(&quot;s&quot;)..
+        /// </summary>
+        internal static string ExTranslationOfDateOnlyToStringWithArbitraryArgumentIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExTranslationOfDateOnlyToStringWithArbitraryArgumentIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Translation of DateTime.ToString(string) with arbitrary arguments is not supported. Use DateTime.ToString(&quot;s&quot;)..
         /// </summary>
-        internal static string ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported {
+        internal static string ExTranslationOfDateTimeToStringWithArbitraryArgumentIsNotSupported {
             get {
-                return ResourceManager.GetString("ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported", resourceCulture);
+                return ResourceManager.GetString("ExTranslationOfDateTimeToStringWithArbitraryArgumentIsNotSupported", resourceCulture);
             }
         }
         
@@ -4350,6 +4422,15 @@ namespace Xtensive {
         internal static string ExTranslationOfLiteralOfTypeXIsNotSupported {
             get {
                 return ResourceManager.GetString("ExTranslationOfLiteralOfTypeXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Translation of TimeOnly.ToString(string) with arbitrary arguments is not supported. Use TimeOnly.ToString(&quot;s&quot;)..
+        /// </summary>
+        internal static string ExTranslationOfTimeOnlyToStringWithArbitraryArgumentIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExTranslationOfTimeOnlyToStringWithArbitraryArgumentIsNotSupported", resourceCulture);
             }
         }
         
@@ -4603,6 +4684,15 @@ namespace Xtensive {
         internal static string ExTypeXShouldNotBeGeneric {
             get {
                 return ResourceManager.GetString("ExTypeXShouldNotBeGeneric", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The type &apos;{0}&apos;,which contains renaming field &apos;{1}&apos;, doesn&apos;t exist in storage model..
+        /// </summary>
+        internal static string ExTypeXWhichContainsRenamingFieldYDoesntExistInStorageModel {
+            get {
+                return ResourceManager.GetString("ExTypeXWhichContainsRenamingFieldYDoesntExistInStorageModel", resourceCulture);
             }
         }
         
@@ -6039,6 +6129,15 @@ namespace Xtensive {
         internal static string LogItemFormat {
             get {
                 return ResourceManager.GetString("LogItemFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Key generator kind for hierarchy with root &apos;{0}&apos; has changed to None. Make sure that all key values are recieved by constructor and passed to one of Entity constructors..
+        /// </summary>
+        internal static string LogKeyGeneratorKindForHierarchyWithRootXHasChangedToNone {
+            get {
+                return ResourceManager.GetString("LogKeyGeneratorKindForHierarchyWithRootXHasChangedToNone", resourceCulture);
             }
         }
         

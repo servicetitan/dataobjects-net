@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2025 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2010.06.24
 
@@ -127,33 +127,36 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   public class Issue0676_NonNullableReferenceBug : AutoBuildTest
   {
-    private const string VersionFieldName = "Version";
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
+      configuration.Types.RegisterCaching(typeof(Person).Assembly, typeof(Person).Namespace);
       return configuration;
     }
 
     [Test]
     public void StandardTest()
     {
-      using (var session = Domain.OpenSession()) {
-        var tAnimal = session.Domain.Model.Types[typeof (Animal)];
-        var fMate = tAnimal.Fields["Mate"];
-        Assert.AreEqual(OnRemoveAction.None, fMate.GetAssociation(tAnimal).OnOwnerRemove);
-        Assert.AreEqual(OnRemoveAction.None, fMate.GetAssociation(tAnimal).OnTargetRemove);
-        var fMateDenyRemove = tAnimal.Fields["MateDenyRemove"];
-        Assert.AreEqual(OnRemoveAction.None, fMateDenyRemove.GetAssociation(tAnimal).OnOwnerRemove);
-        Assert.AreEqual(OnRemoveAction.Deny, fMateDenyRemove.GetAssociation(tAnimal).OnTargetRemove);
+      Require.ProviderIsNot(StorageProvider.MySql,
+        @"Self-reference requires ability to temporary set nulls to non-nullable column and later update it to some value.
+      MySQL doesn't allow this and we don't have a work-around implemented");
 
-        Animal a,b;
+      using (var session = Domain.OpenSession()) {
+        var tAnimal = session.Domain.Model.Types[typeof(Animal)];
+        var fMate = tAnimal.Fields["Mate"];
+        var fMateAssociation = fMate.GetAssociation(tAnimal);
+        Assert.That(fMateAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.None));
+        Assert.That(fMateAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.None));
+        var fMateDenyRemove = tAnimal.Fields["MateDenyRemove"];
+        var fMateDenyRemoveAssociation = fMateDenyRemove.GetAssociation(tAnimal);
+        Assert.That(fMateDenyRemoveAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.None));
+        Assert.That(fMateDenyRemoveAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.Deny));
+
+        Animal a, b;
         Key aKey;
-        using (var tx = session.OpenTransaction())
-        {
+        using (var tx = session.OpenTransaction()) {
           a = new Animal("A");
-          b = new Animal("B") {Mate = a, MateDenyRemove = a};
+          b = new Animal("B") { Mate = a, MateDenyRemove = a };
           aKey = a.Key;
           AssertEx.Throws<ReferentialIntegrityException>(a.Remove);
           b.MateDenyRemove = b;
@@ -163,7 +166,7 @@ namespace Xtensive.Orm.Tests.Issues
 
         using (var tx = session.OpenTransaction()) {
           var dpa = session.Services.Demand<DirectPersistentAccessor>();
-          Assert.AreEqual(aKey, dpa.GetReferenceKey(b, fMate));
+          Assert.That(dpa.GetReferenceKey(b, fMate), Is.EqualTo(aKey));
           tx.Complete();
         }
         ((Action) (() => b.Remove())).InvokeTransactionally(session);
@@ -171,22 +174,79 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    public void StandardMysqlTest()
+    {
+      Require.ProviderIs(StorageProvider.MySql,
+        @"Self-reference requires ability to temporary set nulls to non-nullable column and later update it to some value.
+      MySQL doesn't allow this and we don't have a work-around implemented");
+
+      using (var session = Domain.OpenSession()) {
+        var tAnimal = session.Domain.Model.Types[typeof(Animal)];
+        var fMate = tAnimal.Fields["Mate"];
+        var fMateAssociation = fMate.GetAssociation(tAnimal);
+        Assert.That(fMateAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.None));
+        Assert.That(fMateAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.None));
+        var fMateDenyRemove = tAnimal.Fields["MateDenyRemove"];
+        var fMateDenyRemoveAssociation = fMateDenyRemove.GetAssociation(tAnimal);
+        Assert.That(fMateDenyRemoveAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.None));
+        Assert.That(fMateDenyRemoveAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.Deny));
+
+        Animal a, b;
+        Key aKey;
+        using (var tx = session.OpenTransaction()) {
+          a = new Animal("A");
+          b = new Animal("B") { Mate = a, MateDenyRemove = a };
+          aKey = a.Key;
+
+          // cannot insert NULL to non-nullable column
+          _ = Assert.Throws<StorageException>(() => session.SaveChanges());
+        }
+      }
+    }
+
+    [Test]
     public void HasNullEntityTest()
     {
+      Require.ProviderIsNot(StorageProvider.MySql,
+        @"Self-reference requires ability to temporary set nulls to non-nullable column and later update it to some value.
+      MySQL doesn't allow this and we don't have a work-around implemented");
+
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var tPerson = session.Domain.Model.Types[typeof(Person)];
         var fMate = tPerson.Fields["Mate"];
-        Assert.AreEqual(OnRemoveAction.None, fMate.GetAssociation(tPerson).OnOwnerRemove);
-        Assert.AreEqual(OnRemoveAction.Clear, fMate.GetAssociation(tPerson).OnTargetRemove);
+        var fMateAssociation = fMate.GetAssociation(tPerson);
+        Assert.That(fMateAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.None));
+        Assert.That(fMateAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.Clear));
 
         var nullPerson = new Person(Person.NullName);
-        Assert.AreSame(nullPerson, Person.Null);
+        Assert.That(Person.Null, Is.SameAs(nullPerson));
 
         var a = new Person("A");
         var b = new Person("B") { Mate = a };
         a.Remove();
-        Assert.AreSame(nullPerson, b.Mate);
+        Assert.That(b.Mate, Is.SameAs(nullPerson));
+      }
+    }
+
+    [Test]
+    public void HasNullEntityMysqlTest()
+    {
+      Require.ProviderIs(StorageProvider.MySql,
+        @"Self-reference requires ability to temporary set nulls to non-nullable column and later update it to some value.
+      MySQL doesn't allow this and we don't have a work-around implemented");
+
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var tPerson = session.Domain.Model.Types[typeof(Person)];
+        var fMate = tPerson.Fields["Mate"];
+        var fMateAssociation = fMate.GetAssociation(tPerson);
+        Assert.That(fMateAssociation.OnOwnerRemove, Is.EqualTo(OnRemoveAction.None));
+        Assert.That(fMateAssociation.OnTargetRemove, Is.EqualTo(OnRemoveAction.Clear));
+
+        var nullPerson = new Person(Person.NullName);
+        // cannot insert NULL to non-nullable column
+        _ = Assert.Throws<StorageException>(() => session.SaveChanges());
       }
     }
   }

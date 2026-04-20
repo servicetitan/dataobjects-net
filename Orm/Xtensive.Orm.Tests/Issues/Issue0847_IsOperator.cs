@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues_Issue0847_IsOperator;
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Alex).Assembly, typeof (Alex).Namespace);
+      config.Types.RegisterCaching(typeof (Alex).Assembly, typeof (Alex).Namespace);
       return config;
     }
 
@@ -56,8 +56,8 @@ namespace Xtensive.Orm.Tests.Issues
           var alex = new Alex();
           session.SaveChanges();
           var query = session.Query.All<Developer>().Select(developer => new {IsSoloProfessional = developer is IAmSoloProfessional}).ToArray();
-          Assert.AreEqual(1, query.Length);
-          Assert.AreEqual(true, query[0].IsSoloProfessional);
+          Assert.That(query.Length, Is.EqualTo(1));
+          Assert.That(query[0].IsSoloProfessional, Is.EqualTo(true));
         }
       }
     }
@@ -70,8 +70,8 @@ namespace Xtensive.Orm.Tests.Issues
           var alex = new Alex();
           session.SaveChanges();
           var query = session.Query.All<Developer>().Select(developer => new {SoloProfessional = developer as IAmSoloProfessional}).ToArray();
-          Assert.AreEqual(1, query.Length);
-          Assert.AreSame(alex, query[0].SoloProfessional);
+          Assert.That(query.Length, Is.EqualTo(1));
+          Assert.That(query[0].SoloProfessional, Is.SameAs(alex));
         }
       }
     }

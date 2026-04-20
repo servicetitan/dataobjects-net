@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (X).Assembly, typeof (X).Namespace);
+      configuration.Types.RegisterCaching(typeof (X).Assembly, typeof (X).Namespace);
       return configuration;
     }
 
@@ -29,9 +29,9 @@ namespace Xtensive.Orm.Tests.Issues
         new X {FNInt = 5};
         new X();
         var sum1 = session.Query.All<X>().Sum(x => x.FNInt.GetValueOrDefault());
-        Assert.AreEqual(5, sum1);
+        Assert.That(sum1, Is.EqualTo(5));
         var sum2 = session.Query.All<X>().Sum(x => x.FNInt.GetValueOrDefault(1));
-        Assert.AreEqual(6, sum2);
+        Assert.That(sum2, Is.EqualTo(6));
       }
     }
   }

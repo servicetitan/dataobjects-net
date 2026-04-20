@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Derived).Assembly, typeof (Derived).Namespace);
+      config.Types.RegisterCaching(typeof (Derived).Assembly, typeof (Derived).Namespace);
       return config;
     }
 
@@ -49,20 +49,17 @@ namespace Xtensive.Orm.Tests.Issues
       using (var t = session.OpenTransaction()) {
         var derived = new Derived();
 
-//        Assert.AreEqual("FOO", derived.Foo);
-//        Assert.AreEqual(100500, derived.GetProperty<int>("Bar"));
-
         derived.SetProperty("Foo", "foo!!!");
         derived.SetProperty("Bar", 9000);
 
-        Assert.AreEqual("foo!!!", derived.Foo);
-        Assert.AreEqual(9000, derived.GetProperty<int>("Bar"));
+        Assert.That(derived.Foo, Is.EqualTo("foo!!!"));
+        Assert.That(derived.GetProperty<int>("Bar"), Is.EqualTo(9000));
 
         derived["Foo"] = "!!!foo!!!";
         derived["Bar"] =  9;
 
-        Assert.AreEqual("!!!foo!!!", derived["Foo"]);
-        Assert.AreEqual(9, derived["Bar"]);
+        Assert.That(derived["Foo"], Is.EqualTo("!!!foo!!!"));
+        Assert.That(derived["Bar"], Is.EqualTo(9));
         t.Complete();
       }
     }

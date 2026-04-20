@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2025 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -40,14 +40,26 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     private Schema schema = null;
 
     [OneTimeSetUp]
+    public override void OneTimeSetUp()
+    {
+      base.OneTimeSetUp();
+
+      schema = Catalog.DefaultSchema;
+    }
+
     public override void SetUp()
     {
       base.SetUp();
 
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();
+    }
 
-      schema = Catalog.DefaultSchema;
+    public override void TearDown()
+    {
+      dbCommand?.Dispose();
+      sqlCommand?.Dispose();
+      base.TearDown();
     }
 
     protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.Sqlite);
@@ -128,7 +140,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     [Test]
     public void TestExtractCatalog()
     {
-      Assert.GreaterOrEqual(Catalog.Schemas.Count, 1);
+      Assert.That(Catalog.Schemas.Count, Is.GreaterThanOrEqualTo(1));
     }
 
     [Test]
@@ -158,7 +170,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       select.Where = employees["FirstName"] == SqlDml.ParameterRef(p.ParameterName);
       select.OrderBy.Add(employees["LastName"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -180,7 +192,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       select.Columns.AddRange(employees["FirstName"]);
       select.Where = employees["Title"] == SqlDml.ParameterRef(p.ParameterName);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -192,7 +204,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var select = SqlDml.Select(region);
       select.Columns.Add(SqlDml.Asterisk);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -215,7 +227,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       select.OrderBy.Add(customer["FirstName"]);
       select.OrderBy.Add(3, false);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -237,7 +249,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       sqlCommand.Prepare();
 
       var r = GetExecuteDataReaderResult(sqlCommand);
-      Assert.AreEqual(14, r.RowCount);
+      Assert.That(r.RowCount, Is.EqualTo(14));
     }
 
     [Test]
@@ -258,7 +270,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       sqlCommand.Prepare();
 
       var r = GetExecuteDataReaderResult(sqlCommand);
-      Assert.AreEqual(10, r.RowCount);
+      Assert.That(r.RowCount, Is.EqualTo(10));
     }
 
     [Test]
@@ -283,7 +295,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 
       select.OrderBy.Add(track["TrackId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -323,7 +335,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       select.Columns.Add(invoiceLine["UnitPrice"]);
       select.Columns.Add(invoiceLine["Quantity"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -342,7 +354,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       select.Columns.Add(SqlDml.Round(invoice["Commission"] * 12, 1), "Rounded");
       select.Where = invoice["invoiceId"]==412;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -372,7 +384,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 
       select.OrderBy.Add(customer["CustomerId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -400,7 +412,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       select.Columns.Add(SqlDml.Sum(invoiceLine["UnitPrice"]), "TotalUnits");
       select.GroupBy.AddRange(invoiceLine["TrackId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -421,7 +433,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       select.Where = SqlDml.IsNotNull(invoice["BillingState"]);
       select.OrderBy.Add(invoice["InvoiceId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -432,7 +444,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.DateTimeAddMonths("NOW", 1), "Days");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -440,7 +452,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     {
       var invoice = SqlDml.TableRef(schema.Tables["invoice"], "r");
       var select = SqlDml.Select(invoice);
-      select.Columns.Add(SqlDml.FunctionCall("DATE", invoice["PaymentDate"], SqlDml.Native(string.Format("'{0} MONTHS'", 1 + 1))), "TimeToToday");
+      select.Columns.Add(SqlDml.FunctionCall("DATE", invoice["PaymentDate"], SqlDml.Native($"'{1 + 1} MONTHS'")), "TimeToToday");
       select.Where = SqlDml.IsNotNull(invoice["PaymentDate"]);
 
       Console.WriteLine(Compile(select));
@@ -465,7 +477,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.DateTimeAddMonths("NOW", -15), "Days");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -476,7 +488,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.DateTimeAddMonths("NOW", 1 + 1), "Days");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -487,7 +499,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Day, "NOW"), "DayOfMonth");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -498,7 +510,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Month, "NOW"), "Month");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -509,7 +521,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Year, "NOW"), "Year");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -520,7 +532,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Hour, "NOW"), "Hour");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -531,7 +543,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Minute, "NOW"), "Minutes");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -542,7 +554,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Second, "NOW"), "Seconds");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -553,7 +565,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Millisecond, "NOW"), "Milliseconds");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -564,7 +576,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.DateTimeConstruct(2011, 11, 16), "BirthDay");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -586,7 +598,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var select = SqlDml.Select(invoices);
       select.Columns.Add(SqlDml.Sum(invoices["Commission"]), "sum");
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -610,7 +622,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var select = SqlDml.Select(customer);
       select.Columns.Add(customer["CustomerId"]);
       select.Columns.Add(SqlDml.Concat(SqlDml.Concat(customer["FirstName"], SqlDml.Literal(", ")), customer["LastName"]), "FullName");
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -640,7 +652,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 
       select.Having = SqlDml.Sum(invoice["Commission"]) > 140;
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -675,7 +687,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       select.GroupBy.Add(customer["CompanyName"]);
       select.GroupBy.Add(customer["LastName"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -695,7 +707,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       select.Where = SqlDml.Between(track["Milliseconds"], 50, 40000);
       select.OrderBy.Add(track["TrackId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -716,7 +728,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       select.Where = SqlDml.In(track["AlbumId"], SqlDml.Row(2, 8));
       select.OrderBy.Add(track["TrackId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -737,7 +749,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       select.Where = SqlDml.Like(track["Name"], "R%");
       select.OrderBy.Add(track["TrackId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -757,7 +769,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       select.Where = (track["AlbumId"] == 3 || track["AlbumId"] == 8) && track["UnitPrice"] < 1;
       select.OrderBy.Add(track["TrackId"]);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -777,7 +789,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 
       select.GroupBy.Add(SqlDml.Extract(SqlDateTimePart.Year, invoice["PaymentDate"]));
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -802,7 +814,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 
       select.Where = SqlDml.Equals(invoice1["Commission"], innerSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -828,7 +840,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       select.Columns.Add(customer["CompanyName"]);
       select.Where = SqlDml.Exists(innerSelect);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -842,7 +854,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       select.Offset = 0;
       select.Columns.Add(SqlDml.Asterisk);
 
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
+      Assert.That(CompareExecuteDataReader(nativeSql, select), Is.True);
     }
 
     [Test]
@@ -855,7 +867,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       update.Values[invoice["Total"]] = invoice["Total"] * 1;
       update.Where = invoice["InvoiceId"] == 10;
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, update));
+      Assert.That(CompareExecuteNonQuery(nativeSql, update), Is.True);
     }
 
     [Test]
@@ -973,7 +985,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var select = SqlDml.Select(qr);
       select.Columns.Add(qr["f"]);
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
+      Assert.That(CompareExecuteNonQuery(nativeSql, select), Is.True);
     }
 
     [Test]

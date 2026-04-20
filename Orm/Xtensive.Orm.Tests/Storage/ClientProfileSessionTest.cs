@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Tests.UI
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(Author).Assembly, typeof(Author).Namespace);
+      configuration.Types.RegisterCaching(typeof(Author).Assembly, typeof(Author).Namespace);
       return configuration;
     }
 
@@ -56,13 +56,13 @@ namespace Xtensive.Orm.Tests.UI
         AssertNoTransaction(session);
       }
       using (var session = Domain.OpenSession(config)) {
-        Assert.IsFalse(session.Query.All<Author>().Any(a => a.Name == "Alex"));
+        Assert.That(session.Query.All<Author>().Any(a => a.Name == "Alex"), Is.False);
         AssertNoTransaction(session);
       }
       using (var session = Domain.OpenSession(config)) {
         new Author(session) { Name = "Alex" };
         session.SaveChanges();
-        Assert.IsTrue(session.Query.All<Author>().Any(a => a.Name == "Alex"));
+        Assert.That(session.Query.All<Author>().Any(a => a.Name == "Alex"), Is.True);
         AssertNoTransaction(session);
       }
     }
@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Tests.UI
         new Author(session) { Name = "Alex" };
         session.SaveChanges();
         var authors = session.Query.All<Author>().Where(a => a.Name == "Alex").ToList();
-        Assert.Greater(authors.Count, 0);
+        Assert.That(authors.Count, Is.GreaterThan(0));
       }
     }
   }

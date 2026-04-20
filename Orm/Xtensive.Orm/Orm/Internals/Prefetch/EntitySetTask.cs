@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -215,7 +215,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       AddResultColumnIndexes(resultColumns, primaryTargetIndex, 0);
       var association = cachingKey.ReferencingField.Associations.Last();
       var field = association.Reversed.OwnerField;
-      var keyColumnTypes = field.Columns.Select(column => column.ValueType).ToList();
+      var keyColumnTypes = field.Columns.SelectToArray(column => column.ValueType);
       return primaryTargetIndex
         .GetQuery()
         .Filter(QueryHelper.BuildFilterLambda(field.MappingInfo.Offset, keyColumnTypes, ownerParameter));
@@ -260,15 +260,11 @@ namespace Xtensive.Orm.Internals.Prefetch
     public EntitySetTask(Key ownerKey, PrefetchFieldDescriptor referencingFieldDescriptor, bool isOwnerCached,
       PrefetchManager manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(ownerKey, "ownerKey");
-      ArgumentValidator.EnsureArgumentNotNull(referencingFieldDescriptor, "referencingFieldDescriptor");
-      ArgumentValidator.EnsureArgumentNotNull(manager, "processor");
-
-      this.ownerKey = ownerKey;
-      this.referencingFieldDescriptor = referencingFieldDescriptor;
+      this.ownerKey = ownerKey ?? throw new ArgumentNullException(nameof(ownerKey));
+      this.referencingFieldDescriptor = referencingFieldDescriptor ?? throw new ArgumentNullException(nameof(referencingFieldDescriptor));
       this.isOwnerCached = isOwnerCached;
       ItemCountLimit = referencingFieldDescriptor.EntitySetItemCountLimit;
-      this.manager = manager;
+      this.manager = manager ?? throw new ArgumentNullException(nameof(manager));
       cacheKey = new ItemsQueryCacheKey(ReferencingField, ItemCountLimit);
     }
   }

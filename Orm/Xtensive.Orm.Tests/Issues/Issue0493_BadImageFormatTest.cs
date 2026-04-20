@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
+      config.Types.RegisterCaching(typeof (Person).Assembly, typeof (Person).Namespace);
       return config;
     }
 
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Issues
 
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          Assert.IsNotNull(session.Query.All<PersonInfo>().First());
+          Assert.That(session.Query.All<PersonInfo>().First(), Is.Not.Null);
         }
       }
     }

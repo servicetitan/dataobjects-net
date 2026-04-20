@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -51,6 +51,11 @@ namespace Xtensive.Linq
       case ExpressionType.ArrayLength:
       case ExpressionType.Quote:
       case ExpressionType.TypeAs:
+      case ExpressionType.Decrement:
+      case ExpressionType.Increment:
+      case ExpressionType.IsFalse:
+      case ExpressionType.IsTrue:
+      case ExpressionType.OnesComplement:
         return VisitUnary((UnaryExpression) x, (UnaryExpression) y);
       case ExpressionType.Add:
       case ExpressionType.AddChecked:
@@ -75,13 +80,19 @@ namespace Xtensive.Linq
       case ExpressionType.RightShift:
       case ExpressionType.LeftShift:
       case ExpressionType.ExclusiveOr:
+      case ExpressionType.Power:
+      case ExpressionType.Assign:
         return VisitBinary((BinaryExpression) x, (BinaryExpression) y);
       case ExpressionType.TypeIs:
         return VisitTypeIs((TypeBinaryExpression) x, (TypeBinaryExpression) y);
+      case ExpressionType.TypeEqual:
+        return VisitTypeEqual((TypeBinaryExpression) x, (TypeBinaryExpression) y);
       case ExpressionType.Conditional:
         return VisitConditional((ConditionalExpression) x, (ConditionalExpression) y);
       case ExpressionType.Constant:
         return VisitConstant((ConstantExpression) x, (ConstantExpression) y);
+      case ExpressionType.Default:
+        return true; // types and references are already compared
       case ExpressionType.Parameter:
         return VisitParameter((ParameterExpression) x, (ParameterExpression) y);
       case ExpressionType.MemberAccess:
@@ -111,7 +122,7 @@ namespace Xtensive.Linq
       return VisitNew(x.NewExpression, y.NewExpression)
         && x.Initializers.Count==y.Initializers.Count
         && x.Initializers
-          .Zip(y.Initializers, (first, second) => new Pair<ElementInit>(first, second))
+          .Zip(y.Initializers)
           .All(p => VisitElementInit(p.First, p.Second));
     }
 
@@ -126,7 +137,7 @@ namespace Xtensive.Linq
       return VisitNew(x.NewExpression, y.NewExpression)
         && x.Bindings.Count==y.Bindings.Count
         && x.Bindings
-          .Zip(y.Bindings, (first, second) => new Pair<MemberBinding>(first, second))
+          .Zip(y.Bindings)
           .All(p => VisitMemberBinding(p.First, p.Second));
     }
 
@@ -145,14 +156,14 @@ namespace Xtensive.Linq
           var mby = (MemberMemberBinding)y;
           return mbx.Bindings.Count==mby.Bindings.Count
                  && mbx.Bindings
-                    .Zip(mby.Bindings, (first, second) => new Pair<MemberBinding>(first, second))
+                    .Zip(mby.Bindings)
                     .All(p => VisitMemberBinding(p.First, p.Second));
         case MemberBindingType.ListBinding:
           var mlx = (MemberListBinding)x;
           var mly = (MemberListBinding)y;
           return mlx.Initializers.Count==mly.Initializers.Count
                  && mlx.Initializers
-                    .Zip(mly.Initializers, (first, second) => new Pair<ElementInit>(first, second))
+                    .Zip(mly.Initializers)
                     .All(p => VisitElementInit(p.First, p.Second));
         default:
           throw new ArgumentOutOfRangeException();
@@ -189,7 +200,7 @@ namespace Xtensive.Linq
         return false;
       if (x.Members.Count != y.Members.Count)
         return false;
-      for (int i = 0; i < x.Members.Count; i++)
+      for (int i = 0, count = x.Members.Count; i < count; i++)
         if (x.Members[i] != y.Members[i])
           return false;
       return true;
@@ -236,6 +247,11 @@ namespace Xtensive.Linq
       return x.TypeOperand==y.TypeOperand && Visit(x.Expression, y.Expression);
     }
 
+    private bool VisitTypeEqual(TypeBinaryExpression x, TypeBinaryExpression y)
+    {
+      return x.TypeOperand == y.TypeOperand && Visit(x.Expression, y.Expression);
+    }
+
     private bool VisitBinary(BinaryExpression x, BinaryExpression y)
     {
       return x.Method==y.Method && Visit(x.Left, y.Left) && Visit(x.Right, y.Right);
@@ -253,7 +269,7 @@ namespace Xtensive.Linq
     {
       if (x.Count != y.Count)
         return false;
-      for (int i = 0; i < x.Count; i++)
+      for (int i = 0, count = x.Count; i < count; i++)
         if (!Visit(x[i], y[i]))
           return false;
       return true;

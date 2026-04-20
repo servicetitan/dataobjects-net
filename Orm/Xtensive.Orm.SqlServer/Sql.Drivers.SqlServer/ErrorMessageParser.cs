@@ -23,12 +23,12 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private sealed class PreparedTemplate
     {
       public readonly Regex ParserExpression;
-      public readonly ReadOnlyCollection<int> Indexes;
+      public readonly IReadOnlyList<int> Indexes;
 
-      public PreparedTemplate(string regex, IEnumerable<int> indexes)
+      public PreparedTemplate(string regex, IReadOnlyList<int> indexes)
       {
         ParserExpression = new Regex(regex, RegexOptions.Compiled | RegexOptions.CultureInvariant);
-        Indexes = indexes.ToList().AsReadOnly();
+        Indexes = indexes;
       }
     }
 
@@ -47,9 +47,10 @@ namespace Xtensive.Sql.Drivers.SqlServer
     /// <returns>All placeholder values taken from message with their position numbers.</returns>
     public Dictionary<int, string> Parse(int code, string message)
     {
-      ArgumentValidator.EnsureArgumentNotNull(message, "message");
-      PreparedTemplate template;
-      if (!templates.TryGetValue(code, out template))
+      ArgumentNullException.ThrowIfNull(message);
+      ArgumentNullException.ThrowIfNull(message);
+
+      if (!templates.TryGetValue(code, out var template))
         throw new InvalidOperationException(string.Format(Strings.ExNoMessageTemplateIsRegisteredForCodeX, code));
       // Fill result with empty string for each expected index for more simple API
       var result = template.Indexes.ToDictionary(index => index, index => string.Empty);
@@ -78,7 +79,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     /// otherwise original <paramref name="text"/>.</returns>
     public static string ExtractQuotedText(string text)
     {
-      ArgumentValidator.EnsureArgumentNotNull(text, "text");
+      ArgumentNullException.ThrowIfNull(text);
       var quoted = ExtractQuotedText(text, '\'');
       return quoted==text ? ExtractQuotedText(text, '"') : quoted;
     }
@@ -91,7 +92,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     /// <returns><paramref name="table"/> with schema prefix removed.</returns>
     public static string CutSchemaPrefix(string table)
     {
-      ArgumentValidator.EnsureArgumentNotNull(table, "table");
+      ArgumentNullException.ThrowIfNull(table);
       return CutPrefix(table);
     }
 
@@ -103,7 +104,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     /// <returns><paramref name="table"/> with database and schema prefix removed.</returns>
     public static string CutDatabaseAndSchemaPrefix(string table)
     {
-      ArgumentValidator.EnsureArgumentNotNull(table, "table");
+      ArgumentNullException.ThrowIfNull(table);
       return CutPrefix(CutPrefix(table));
     }
 
@@ -190,7 +191,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
 
       CollectLastChunk(regexBuilder, template, offset);
-      return new PreparedTemplate(regexBuilder.ToString(), Enumerable.Range(1, count));
+      return new PreparedTemplate(regexBuilder.ToString(), Enumerable.Range(1, count).ToArray(count));
     }
 
     private static PreparedTemplate PrepareNonEnglishTemplate(string template)
@@ -240,7 +241,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     /// <param name="isEnglish">Indicates whether the provided <see paramref="messageTemplates"/> are in English.</param>
     public ErrorMessageParser(IEnumerable<KeyValuePair<int,string>> messageTemplates, bool isEnglish)
     {
-      ArgumentValidator.EnsureArgumentNotNull(messageTemplates, "messageTemplates");
+      ArgumentNullException.ThrowIfNull(messageTemplates);
       templates = isEnglish
         ? messageTemplates.ToDictionary(item => item.Key, item => PrepareEnglishTemplate(item.Value))
         : messageTemplates.ToDictionary(item => item.Key, item => PrepareNonEnglishTemplate(item.Value));

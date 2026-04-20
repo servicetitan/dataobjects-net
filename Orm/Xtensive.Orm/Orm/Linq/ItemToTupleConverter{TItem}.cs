@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Linq
       public void Add(Type type)
       {
         count++;
-        types = types==null ? EnumerableUtils.One(type) : types.Concat(EnumerableUtils.One(type));
+        types = types==null ? Enumerable.Repeat(type, 1) : types.Append(type);
       }
 
       public void AddRange(IReadOnlyCollection<Type> newTypes)
@@ -97,13 +97,15 @@ namespace Xtensive.Orm.Linq
       type = type.StripNullable();
       return type.IsPrimitive ||
         type.IsEnum ||
-        type==WellKnownTypes.ByteArray ||
-        type==WellKnownTypes.Decimal ||
-        type==WellKnownTypes.String ||
-        type==WellKnownTypes.DateTime ||
-        type==WellKnownTypes.DateTimeOffset ||
-        type==WellKnownTypes.Guid ||
-        type==WellKnownTypes.TimeSpan;
+        type == WellKnownTypes.ByteArray ||
+        type == WellKnownTypes.Decimal ||
+        type == WellKnownTypes.String ||
+        type == WellKnownTypes.DateTime ||
+        type == WellKnownTypes.DateTimeOffset ||
+        type == WellKnownTypes.DateOnly ||
+        type == WellKnownTypes.TimeOnly ||
+        type == WellKnownTypes.Guid ||
+        type == WellKnownTypes.TimeSpan;
     }
 
 

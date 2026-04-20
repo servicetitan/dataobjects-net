@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2015 Xtensive LLC.
+// Copyright (C) 2015 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Tests.Issues
         Console.WriteLine(watch1.ElapsedMilliseconds);
 
         watch1.Reset();
-        Assert.AreEqual(0, watch1.ElapsedMilliseconds);
+        Assert.That(watch1.ElapsedMilliseconds, Is.EqualTo(0));
         watch1.Start();
         var query2 = session.Query.All<EntityWithUnnormalDecimal>().Select(el => el.Decimal).ToArray();
         watch1.Stop();
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (EntityWithNormalDecimal).Assembly, typeof (EntityWithNormalDecimal).Namespace);
+      configuration.Types.RegisterCaching(typeof (EntityWithNormalDecimal).Assembly, typeof (EntityWithNormalDecimal).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }

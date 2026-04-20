@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Item).Assembly, typeof (Item).Namespace);
+      config.Types.RegisterCaching(typeof (Item).Assembly, typeof (Item).Namespace);
       return config;
     }
 
@@ -52,8 +52,8 @@ namespace Xtensive.Orm.Tests.Issues
             );
 
           var result = query.ToList();
-          Assert.AreEqual(1, result.Count);
-          Assert.AreEqual(2, result[0].LineCount);
+          Assert.That(result.Count, Is.EqualTo(1));
+          Assert.That(result[0].LineCount, Is.EqualTo(2));
         }
       }
     }
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Issues
             });
 
           var result = query.ToList();
-          Assert.AreEqual(1, result.Count);
+          Assert.That(result.Count, Is.EqualTo(1));
         }
       }
     }
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Issues
             });
           session.SaveChanges();
           var result = query.ToList();
-          Assert.AreEqual(1, result.Count);
+          Assert.That(result.Count, Is.EqualTo(1));
         }
       }
     }

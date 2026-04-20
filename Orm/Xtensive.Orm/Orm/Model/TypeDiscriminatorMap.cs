@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2024 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.11.26
 
@@ -22,17 +22,17 @@ namespace Xtensive.Orm.Model
     private TypeInfo @default;
     private readonly Dictionary<object, TypeInfo> map = new Dictionary<object, TypeInfo>();
     private readonly Dictionary<TypeInfo, object> reversedMap = new Dictionary<TypeInfo, object>();
-    private FieldInfo field;
+    private FieldInfo @field;
 
     public FieldInfo Field
     {
-      get { return field; }
+      get { return @field; }
       set
       {
         EnsureNotLocked();
-        if (field != null)
+        if (@field != null)
           throw new InvalidOperationException(Strings.ExTypeDiscriminatorFieldIsAlreadySet);
-        field = value;
+        @field = value;
       }
     }
 
@@ -67,6 +67,8 @@ namespace Xtensive.Orm.Model
         return null;
       }
     }
+
+    public int Count => map.Count;
 
     public void RegisterTypeMapping(TypeInfo type, object typeDiscriminatorValue)
     {

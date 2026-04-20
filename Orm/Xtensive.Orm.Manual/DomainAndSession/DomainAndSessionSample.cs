@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Manual.DomainAndSession
     public const string OracleUrl1     = @"oracle://user:password@localhost/MyDatabase";
     public const string OracleUrl2     = @"oracle://user:password@dbServer:5511/MyDatabase";
     public const string PostrgeSqlUrl1 = @"postgresql://user:password@127.0.0.1:8032/MyDatabase?Encoding=Unicode";
-    public const string PostrgeSqlUrl2 = @"postgresql://user:password@dbServer/MyDatabase?Pooling=on&MinPoolSize=1&MaxPoolSize=5";
+    public const string PostrgeSqlUrl2 = @"postgresql://user:password@dbServer/MyDatabase?Pooling=True&MinPoolSize=1&MaxPoolSize=5";
     public const string InMemoryUrl    = @"memory://localhost/MyDatabase";
     
     #endregion
@@ -140,9 +140,9 @@ namespace Xtensive.Orm.Manual.DomainAndSession
           var newPerson = new Person(session);
           var fetchedPerson = session.Query.Single<Person>(personId);
 
-          Console.WriteLine("Current session is null: {0}", Session.Current==null);
-          Console.WriteLine("New entity is bound to our session: {0}", newPerson.Session==session);
-          Console.WriteLine("Fetched entity is bound to our session: {0}", fetchedPerson.Session==session);
+          Console.WriteLine($"Current session is null: {Session.Current == null}");
+          Console.WriteLine($"New entity is bound to our session: {newPerson.Session == session}");
+          Console.WriteLine($"Fetched entity is bound to our session: {fetchedPerson.Session == session}");
 
           transactionScope.Complete();
         }
@@ -157,9 +157,9 @@ namespace Xtensive.Orm.Manual.DomainAndSession
           var newPerson = new Person();
           var fetchedPerson = session.Query.Single<Person>(personId);
 
-          Console.WriteLine("Our session is current: {0}", Session.Current==session);
-          Console.WriteLine("New entity is bound to our session: {0}", newPerson.Session==session);
-          Console.WriteLine("Fetched entity is bound to our session: {0}", fetchedPerson.Session==session);
+          Console.WriteLine($"Our session is current: {Session.Current == session}");
+          Console.WriteLine($"New entity is bound to our session: {newPerson.Session == session}");
+          Console.WriteLine($"Fetched entity is bound to our session: {fetchedPerson.Session == session}");
 
           transactionScope.Complete();
         }
@@ -200,10 +200,10 @@ namespace Xtensive.Orm.Manual.DomainAndSession
       // Second named Session configuration
       var sessionConfigTwo = config.Sessions["TestSession"];
 
-      Assert.AreEqual(sessionConfigTwo.BatchSize, sessionCongfigOne.BatchSize);
-      Assert.AreEqual(sessionConfigTwo.DefaultIsolationLevel, sessionCongfigOne.DefaultIsolationLevel);
-      Assert.AreEqual(sessionConfigTwo.CacheSize, sessionCongfigOne.CacheSize);
-      Assert.AreEqual(sessionConfigTwo.Options, sessionCongfigOne.Options);
+      Assert.That(sessionCongfigOne.BatchSize, Is.EqualTo(sessionConfigTwo.BatchSize));
+      Assert.That(sessionCongfigOne.DefaultIsolationLevel, Is.EqualTo(sessionConfigTwo.DefaultIsolationLevel));
+      Assert.That(sessionCongfigOne.CacheSize, Is.EqualTo(sessionConfigTwo.CacheSize));
+      Assert.That(sessionCongfigOne.Options, Is.EqualTo(sessionConfigTwo.Options));
 
       using (domain.OpenSession(sessionConfigTwo)) {
         // ...

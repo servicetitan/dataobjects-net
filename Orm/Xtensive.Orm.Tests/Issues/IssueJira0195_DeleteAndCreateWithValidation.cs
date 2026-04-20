@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (Guider).Assembly, typeof (Guider).Namespace);
+      config.Types.RegisterCaching(typeof (Guider).Assembly, typeof (Guider).Namespace);
       return config;
     }
 
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Issues
           var g = session.Query.Single<Guider>(id);
           g.Remove();
           new Guider(id) {Name = "321"};
-          Assert.IsTrue(g.IsRemoved); // Check that IsRemoved is accessible
+          Assert.That(g.IsRemoved, Is.True); // Check that IsRemoved is accessible
           g.Validate(); // Check that Validate() is no-op for removed entities
           // rollback
         }
@@ -77,8 +77,8 @@ namespace Xtensive.Orm.Tests.Issues
           var expected = new Guider(id) {Name = "123"};
           AssertEx.Throws<Exception>(() => new Guider(id) {Name = "321"});
           var actual = session.Query.All<Guider>().Single();
-          Assert.AreSame(expected, actual);
-          Assert.AreEqual("123", actual.Name);
+          Assert.That(actual, Is.SameAs(expected));
+          Assert.That(actual.Name, Is.EqualTo("123"));
         }
       }
     }

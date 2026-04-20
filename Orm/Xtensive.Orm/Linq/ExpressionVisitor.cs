@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2023 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.11.11
 
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using Xtensive.Core;
 
 namespace Xtensive.Linq
 {
@@ -30,6 +31,19 @@ namespace Xtensive.Linq
       return isChanged ? results.AsReadOnly() : expressions;
     }
 
+    protected override IReadOnlyList<Expression> VisitExpressionList(IReadOnlyList<Expression> expressions)
+    {
+      bool isChanged = false;
+      var results = new Expression[expressions.Count];
+      for (int i = 0, n = expressions.Count; i < n; i++) {
+        var expression = expressions[i];
+        var p = Visit(expression);
+        results[i] = p;
+        isChanged |= !ReferenceEquals(expression, p);
+      }
+      return isChanged ? results : expressions;
+    }
+
     /// <summary>
     /// Visits the element initializer expression.
     /// </summary>
@@ -37,7 +51,7 @@ namespace Xtensive.Linq
     /// <returns>Visit result.</returns>
     protected virtual ElementInit VisitElementInitializer(ElementInit initializer)
     {
-      ReadOnlyCollection<Expression> arguments = VisitExpressionList(initializer.Arguments);
+      var arguments = VisitExpressionList((IReadOnlyList<Expression>)initializer.Arguments);
       if (arguments!=initializer.Arguments) {
         return Expression.ElementInit(initializer.AddMethod, arguments);
       }
@@ -60,6 +74,24 @@ namespace Xtensive.Linq
         isChanged |= !ReferenceEquals(originalIntializer, p);
       }
       return isChanged ? results.AsReadOnly() : original;
+    }
+
+    /// <summary>
+    /// Visits the element initializer list.
+    /// </summary>
+    /// <param name="original">The original element initializer list.</param>
+    /// <returns>Visit result.</returns>
+    protected virtual IReadOnlyList<ElementInit> VisitElementInitializerList(IReadOnlyList<ElementInit> original)
+    {
+      var results = new ElementInit[original.Count];
+      bool isChanged = false;
+      for (int i = 0, n = original.Count; i < n; i++) {
+        var originalIntializer = original[i];
+        ElementInit p = VisitElementInitializer(originalIntializer);
+        results[i] = p;
+        isChanged |= !ReferenceEquals(originalIntializer, p);
+      }
+      return isChanged ? results : original;
     }
 
     /// <inheritdoc/>
@@ -97,6 +129,12 @@ namespace Xtensive.Linq
     }
 
     /// <inheritdoc/>
+    protected override Expression VisitDefault(DefaultExpression d)
+    {
+      return d.ToConstantExpression();
+    }
+
+    /// <inheritdoc/>
     protected override Expression VisitConditional(ConditionalExpression c)
     {
       Expression test = Visit(c.Test);
@@ -126,7 +164,7 @@ namespace Xtensive.Linq
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
       Expression instance = Visit(mc.Object);
-      IEnumerable<Expression> arguments = VisitExpressionList(mc.Arguments);
+      IEnumerable<Expression> arguments = VisitExpressionList((IReadOnlyList<Expression>) mc.Arguments);
       if ((instance==mc.Object) && (arguments==mc.Arguments))
         return mc;
       return Expression.Call(instance, mc.Method, arguments);
@@ -157,7 +195,7 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitNew(NewExpression n)
     {
-      IEnumerable<Expression> arguments = VisitExpressionList(n.Arguments);
+      IEnumerable<Expression> arguments = VisitExpressionList((IReadOnlyList<Expression>) n.Arguments);
       if (arguments==n.Arguments)
         return n;
       if (n.Members!=null)
@@ -169,7 +207,7 @@ namespace Xtensive.Linq
     protected override Expression VisitMemberInit(MemberInitExpression mi)
     {
       var newExpression = (NewExpression) VisitNew(mi.NewExpression);
-      IEnumerable<MemberBinding> bindings = VisitBindingList(mi.Bindings);
+      IEnumerable<MemberBinding> bindings = VisitBindingList((IReadOnlyList<MemberBinding>)mi.Bindings);
       if ((newExpression==mi.NewExpression) && (bindings==mi.Bindings))
         return mi;
       return Expression.MemberInit(newExpression, bindings);
@@ -179,7 +217,7 @@ namespace Xtensive.Linq
     protected override Expression VisitListInit(ListInitExpression li)
     {
       var newExpression = (NewExpression) VisitNew(li.NewExpression);
-      IEnumerable<ElementInit> initializers = VisitElementInitializerList(li.Initializers);
+      IEnumerable<ElementInit> initializers = VisitElementInitializerList((IReadOnlyList<ElementInit>) li.Initializers);
       if ((newExpression==li.NewExpression) && (initializers==li.Initializers))
         return li;
       return Expression.ListInit(newExpression, initializers);
@@ -188,7 +226,7 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitNewArray(NewArrayExpression na)
     {
-      IEnumerable<Expression> initializers = VisitExpressionList(na.Expressions);
+      IEnumerable<Expression> initializers = VisitExpressionList((IReadOnlyList<Expression>) na.Expressions);
       if (initializers==na.Expressions)
         return na;
       if (na.NodeType==ExpressionType.NewArrayInit)
@@ -199,7 +237,7 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitInvocation(InvocationExpression i)
     {
-      IEnumerable<Expression> arguments = VisitExpressionList(i.Arguments);
+      IEnumerable<Expression> arguments = VisitExpressionList((IReadOnlyList<Expression>) i.Arguments);
       Expression expression = Visit(i.Expression);
       if ((arguments==i.Arguments) && (expression==i.Expression))
         return i;
@@ -234,7 +272,7 @@ namespace Xtensive.Linq
     /// <returns>Visit result.</returns>
     protected virtual MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding binding)
     {
-      IEnumerable<MemberBinding> bindings = VisitBindingList(binding.Bindings);
+      IEnumerable<MemberBinding> bindings = VisitBindingList((IReadOnlyList<MemberBinding>) binding.Bindings);
       if (bindings!=binding.Bindings) {
         return Expression.MemberBind(binding.Member, bindings);
       }
@@ -248,7 +286,7 @@ namespace Xtensive.Linq
     /// <returns>Visit result.</returns>
     protected virtual ReadOnlyCollection<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original)
     {
-      var results = new List<MemberBinding>();
+      var results = new List<MemberBinding>(original.Count);
       bool isChanged = false;
       for (int i = 0, n = original.Count; i < n; i++) {
         var originalBinding = original[i];
@@ -259,9 +297,27 @@ namespace Xtensive.Linq
       return isChanged ? results.AsReadOnly() : original;
     }
 
+    /// <summary>
+    /// Visits the binding list.
+    /// </summary>
+    /// <param name="original">The original binding list.</param>
+    /// <returns>Visit result.</returns>
+    protected virtual IReadOnlyList<MemberBinding> VisitBindingList(IReadOnlyList<MemberBinding> original)
+    {
+      var results = new MemberBinding[original.Count];
+      bool isChanged = false;
+      for (int i = 0, n = original.Count; i < n; i++) {
+        var originalBinding = original[i];
+        MemberBinding p = VisitBinding(originalBinding);
+        results[i] = p;
+        isChanged |= !ReferenceEquals(originalBinding, p);
+      }
+      return isChanged ? results : original;
+    }
+
     protected virtual MemberListBinding VisitMemberListBinding(MemberListBinding binding)
     {
-      IEnumerable<ElementInit> initializers = VisitElementInitializerList(binding.Initializers);
+      IEnumerable<ElementInit> initializers = VisitElementInitializerList((IReadOnlyList<ElementInit>) binding.Initializers);
       if (initializers!=binding.Initializers)
         return Expression.ListBind(binding.Member, initializers);
       return binding;

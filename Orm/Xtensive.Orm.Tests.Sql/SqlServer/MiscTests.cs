@@ -21,7 +21,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
   public class MiscTests: AdventureWorks
   {
     private SqlConnection sqlConnection;
-    private DbCommand sqlCommand;
     private SqlDriver sqlDriver;
 
     [OneTimeSetUp]
@@ -30,7 +29,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       base.SetUp();
       sqlDriver = TestSqlDriver.Create(Url);
       sqlConnection = sqlDriver.CreateConnection();
-      sqlCommand = sqlConnection.CreateCommand();
     }
 
     [OneTimeTearDown]
@@ -52,17 +50,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       bool passed = false;
       if (l is not null)
         passed = true;
-      Assert.IsTrue(passed);
+      Assert.That(passed, Is.True);
       if (l is null)
         passed = false;
-      Assert.IsTrue(passed);
+      Assert.That(passed, Is.True);
     }
 
     [Test]
     public void ImplicitConversionTest()
     {
       SqlExpression e = new byte[3];
-      Assert.AreEqual(e.GetType(), typeof(SqlLiteral<byte[]>));
+      Assert.That(e.GetType(), Is.EqualTo(typeof(SqlLiteral<byte[]>)));
     }
 
     [Test]
@@ -73,12 +71,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       SqlSelect select = SqlDml.Select();
       select.Where = SqlDml.In(1, i);
 
-      MemoryStream ms = new MemoryStream();
-      BinaryFormatter bf = new BinaryFormatter();
-      bf.Serialize(ms, select);
+      using (var mStream = new MemoryStream()) {
+        var formatter = new BinaryFormatter();
+        formatter.Serialize(mStream, select);
 
-      ms.Seek(0, SeekOrigin.Begin);
-      select = (SqlSelect)bf.Deserialize(ms);
+        _ = mStream.Seek(0, SeekOrigin.Begin);
+        select = (SqlSelect) formatter.Deserialize(mStream);
+      }
 
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
@@ -88,9 +87,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     {
       SqlValueType t1 = new SqlValueType(SqlType.Decimal, 6, 4);
       SqlValueType t2 = new SqlValueType(SqlType.Decimal, 6, 4);
-      Assert.IsFalse(t1 != t2);
-      Assert.IsTrue(t1 == t2);
-      Assert.IsTrue(t1.Equals(t2));
+      Assert.That(t1 != t2, Is.False);
+      Assert.That(t1 == t2, Is.True);
+      Assert.That(t1.Equals(t2), Is.True);
     }
 
     [Test]
@@ -99,29 +98,29 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       SqlLiteral<int> l1 = SqlDml.Literal(1);
       SqlLiteral<int> l2 = SqlDml.Literal(2);
       SqlBinary b = l1 + l2;
-      Assert.AreEqual(b.NodeType, SqlNodeType.Add);
+      Assert.That(b.NodeType, Is.EqualTo(SqlNodeType.Add));
 
       b = b - ~l1;
-      Assert.AreEqual(b.NodeType, SqlNodeType.Subtract);
-      Assert.AreEqual(b.Right.NodeType, SqlNodeType.BitNot);
+      Assert.That(b.NodeType, Is.EqualTo(SqlNodeType.Subtract));
+      Assert.That(b.Right.NodeType, Is.EqualTo(SqlNodeType.BitNot));
 
       SqlSelect s = SqlDml.Select();
       s.Columns.Add(1, "id");
       b = b/s;
-      Assert.AreEqual(b.NodeType, SqlNodeType.Divide);
-      Assert.AreEqual(b.Right.NodeType, SqlNodeType.SubSelect);
+      Assert.That(b.NodeType, Is.EqualTo(SqlNodeType.Divide));
+      Assert.That(b.Right.NodeType, Is.EqualTo(SqlNodeType.SubSelect));
 
       SqlCast c = SqlDml.Cast(l1, SqlType.Decimal);
-      Assert.AreEqual(c.NodeType, SqlNodeType.Cast);
+      Assert.That(c.NodeType, Is.EqualTo(SqlNodeType.Cast));
 
       SqlFunctionCall l = SqlDml.CharLength(SqlDml.Literal("name"));
       b = c%l;
-      Assert.AreEqual(b.NodeType, SqlNodeType.Modulo);
-      Assert.AreEqual(b.Right.NodeType, SqlNodeType.FunctionCall);
+      Assert.That(b.NodeType, Is.EqualTo(SqlNodeType.Modulo));
+      Assert.That(b.Right.NodeType, Is.EqualTo(SqlNodeType.FunctionCall));
 
       b = l1*(-l2);
-      Assert.AreEqual(b.NodeType, SqlNodeType.Multiply);
-      Assert.AreEqual(b.Right.NodeType, SqlNodeType.Negate);
+      Assert.That(b.NodeType, Is.EqualTo(SqlNodeType.Multiply));
+      Assert.That(b.Right.NodeType, Is.EqualTo(SqlNodeType.Negate));
 
       SqlBatch batch = SqlDml.Batch();
       SqlVariable v1 = SqlDml.Variable("v1", SqlType.Double);
@@ -213,13 +212,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       SqlTableRef tr3 = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
 
       SqlSelect select = SqlDml.Select(tr1.InnerJoin(tr2, tr1[0] == tr2[0]).InnerJoin(tr3, tr2[0] == tr3[0]));
-      sqlCommand.CommandText = sqlDriver.Compile(select).GetCommandText();
-      sqlCommand.Prepare();
 
       int i = 0;
       SqlTableRef[] refs = new [] {tr1, tr2, tr3};
       foreach (SqlTable source in select.From)
-        Assert.AreSame(refs[i++], source);
+        Assert.That(source, Is.SameAs(refs[i++]));
     }
 
     [Test]
@@ -260,7 +257,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       s3.Where = SqlDml.In(50.00, s1.Union(s2));
       Console.WriteLine(sqlDriver.Compile(s3).GetCommandText());
       SqlQueryRef qr = SqlDml.QueryRef(s1.Union(s2), "qr");
-      Assert.Greater(qr.Columns.Count, 0);
+      Assert.That(qr.Columns.Count, Is.GreaterThan(0));
     }
 
     [Test]
@@ -363,7 +360,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     {
       SqlSelect select = SqlDml.Select();
       var table = Catalog.Schemas["Person"].Tables["Address"];
-      select.From = SqlDml.QueryRef(SqlDml.FreeTextTable(table, "How can I make my own beers and ales?", EnumerableUtils.One(table.Columns[0].Name).ToList(), EnumerableUtils.One(table.Columns[0].Name).ToList()));
+      select.From = SqlDml.QueryRef(SqlDml.FreeTextTable(table, "How can I make my own beers and ales?", new[] { table.Columns[0].Name }, new[] { table.Columns[0].Name }));
       select.Columns.Add(select.From.Asterisk);
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
@@ -375,7 +372,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var table = Catalog.Schemas["Person"].Tables["Address"];
       select.From = SqlDml.QueryRef( SqlDml.FreeTextTable(table,
         "How can I make my own beers",
-        EnumerableUtils.One(table.Columns[0].Name).ToList(),
+        new[] { table.Columns[0].Name },
         (SqlLiteral)5));
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }

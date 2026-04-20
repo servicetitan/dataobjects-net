@@ -16,8 +16,6 @@ namespace Xtensive.Orm.Internals.Prefetch
   [Serializable]
   internal abstract class EntityContainer
   {
-    private static readonly Parameter<Tuple> seekParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
-
     private SortedDictionary<int, ColumnInfo> columns;
 
     protected readonly PrefetchManager Manager;
@@ -57,24 +55,24 @@ namespace Xtensive.Orm.Internals.Prefetch
       EntityState state;
       if (!Manager.TryGetTupleOfNonRemovedEntity(ref key, out state))
         return false;
-      var tuple = state==null ? null : state.Tuple;
-      if (tuple==null && ColumnIndexesToBeLoaded!=null)
+      var tuple = state == null ? null : state.Tuple;
+      if (tuple == null && ColumnIndexesToBeLoaded != null)
         return true;
-      if (ColumnIndexesToBeLoaded!=null)
+      if (ColumnIndexesToBeLoaded != null)
         ColumnIndexesToBeLoaded = null;
       var needToFetchSystemColumns = false;
       foreach (var pair in columns)
-        if (tuple==null || !tuple.GetFieldState(pair.Key).IsAvailable())
+        if (tuple == null || !tuple.GetFieldState(pair.Key).IsAvailable())
           if (pair.Value.IsPrimaryKey || pair.Value.IsSystem)
-            needToFetchSystemColumns = ExactType && tuple==null;
+            needToFetchSystemColumns = ExactType && tuple == null;
           else {
-            if (ColumnIndexesToBeLoaded==null)
+            if (ColumnIndexesToBeLoaded == null)
               ColumnIndexesToBeLoaded = CreateColumnIndexCollection();
             ColumnIndexesToBeLoaded.Add(pair.Key);
           }
-      if (needToFetchSystemColumns && ColumnIndexesToBeLoaded==null)
+      if (needToFetchSystemColumns && ColumnIndexesToBeLoaded == null)
         ColumnIndexesToBeLoaded = CreateColumnIndexCollection();
-      return ColumnIndexesToBeLoaded!=null;
+      return ColumnIndexesToBeLoaded != null;
     }
 
     private List<int> CreateColumnIndexCollection()
@@ -89,12 +87,10 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     protected EntityContainer(Key key, TypeInfo type, bool exactType, PrefetchManager manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNull(manager, "processor");
       Key = key;
-      Type = type;
+      Type = type ?? throw new ArgumentNullException(nameof(type));
       ExactType = exactType;
-      Manager = manager;
+      Manager = manager ?? throw new ArgumentNullException(nameof(manager));
     }
   }
 }

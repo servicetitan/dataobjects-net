@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2024 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -203,13 +203,11 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public EntityGroupTask(TypeInfo type, int[] columnIndexes, PrefetchManager manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
-      ArgumentValidator.EnsureArgumentNotNull(columnIndexes, nameof(columnIndexes));
+      ArgumentNullException.ThrowIfNull(columnIndexes);
       ArgumentValidator.EnsureArgumentIsGreaterThan(columnIndexes.Length, 0, "columnIndexes.Length");
-      ArgumentValidator.EnsureArgumentNotNull(manager, nameof(manager));
 
-      this.type = type;
-      this.manager = manager;
+      this.type = type ?? throw new ArgumentNullException(nameof(type));
+      this.manager = manager ?? throw new ArgumentNullException(nameof(manager));
       var cachedHashCode = 0;
       foreach (var columnIndex in columnIndexes) {
         cachedHashCode = unchecked (379 * cachedHashCode + columnIndex);

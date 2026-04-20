@@ -36,8 +36,14 @@ namespace Xtensive.Orm.Providers
           case DateTimeOffset dateTimeOffset:
             value = dateTimeOffset.ToString("yyyy-MM-dd HH:mm:ss.fffffffK");
             break;
+          case DateOnly dateOnly:
+            value = dateOnly.ToString("yyyy-MM-dd");
+            break;
+          case TimeOnly timeOnly:
+            value = timeOnly.ToString("HH:mm:ss.fffffff");
+            break;
         }
-        result.AppendFormat("{0}='{1}';", parameter.ParameterName, value);
+        result.AppendFormat($"{parameter.ParameterName}='{value}';");
       }
       result.Remove(result.Length - 1, 1);
       result.Append("]");

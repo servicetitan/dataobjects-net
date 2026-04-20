@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexis Kochetov
@@ -270,8 +270,8 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (IHasVirtualFields).Assembly, typeof (IHasVirtualFields).Namespace);
-      configuration.Types.Register(typeof (HasVirtualFields).Assembly, typeof (HasVirtualFields).Namespace);
+      configuration.Types.RegisterCaching(typeof (IHasVirtualFields).Assembly, typeof (IHasVirtualFields).Namespace);
+      configuration.Types.RegisterCaching(typeof (HasVirtualFields).Assembly, typeof (HasVirtualFields).Namespace);
       configuration.Sessions.Default.Options = SessionOptions.ServerProfile;
       return configuration;
     }
@@ -286,13 +286,13 @@ namespace Xtensive.Orm.Tests.Issues
 
         var customers = session.Query.All<Customer>();
         var customersQuery = customers.Where(c => c.RegionName=="13123123121");
-        Assert.AreEqual(1, customersQuery.ToList().Count);
+        Assert.That(customersQuery.ToList().Count, Is.EqualTo(1));
 
         var virtualEntities = customers as IQueryable<HasVirtualFields>;
         if (virtualEntities!=null) {
           // Covariant upcast will work in .NET 4.0+
           var virtualEntitiesQuery = virtualEntities.Where(item => item.RegionName=="13123123121");
-          Assert.AreEqual(1, virtualEntitiesQuery.ToList().Count);
+          Assert.That(virtualEntitiesQuery.ToList().Count, Is.EqualTo(1));
         }
 
         var allCustomers = session.Query.All<Customer>()
@@ -315,13 +315,13 @@ namespace Xtensive.Orm.Tests.Issues
 
         var persons = session.Query.All<Person>();
         var personsQuery = persons.Where(p => p.RegionName=="13123123121");
-        Assert.AreEqual(1, personsQuery.ToList().Count);
+        Assert.That(personsQuery.ToList().Count, Is.EqualTo(1));
 
         var virtualEntities = persons as IQueryable<IHasVirtualFields>;
         if (virtualEntities!=null) {
           // Covariant upcast will work in .NET 4.0+
           var virtualEntitiesQuery = virtualEntities.Where(root => root.RegionName=="13123123121");
-          Assert.AreEqual(1, virtualEntitiesQuery.ToList().Count);
+          Assert.That(virtualEntitiesQuery.ToList().Count, Is.EqualTo(1));
         }
 
         var allPersons = session.Query.All<Person>()
