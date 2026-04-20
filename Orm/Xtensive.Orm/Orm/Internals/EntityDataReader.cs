@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Internals
       if (count == 1) {
         return new Record(tuple, ParseColumnGroup(tuple, context, 0, mappingsSpan[0]));
       }
-      var pairs = new (Key, Tuple)[count];
+      var pairs = GC.AllocateUninitializedArray<(Key, Tuple)>(count);
       var pairsSpan = pairs.AsSpan();
       for (var i = 0; i < pairsSpan.Length; i++) {
         pairsSpan[i] = ParseColumnGroup(tuple, context, i, mappingsSpan[i]);
