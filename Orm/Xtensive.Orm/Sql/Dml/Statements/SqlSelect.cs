@@ -77,7 +77,7 @@ namespace Xtensive.Sql.Dml
     // — a JIT-inlined static singleton with zero allocation. With '??=' the
     // literal would target-type to the field's concrete SqlColumnCollection
     // and allocate a real instance on every first read of an empty SELECT.
-    public IReadOnlyList<SqlColumn> GroupByReadOnly => groupBy ?? [];
+    public IReadOnlyList<SqlColumn> GroupByReadOnly => (IReadOnlyList<SqlColumn>) groupBy ?? [];
 
     /// <summary>
     /// Gets or sets the having clause.
@@ -99,7 +99,7 @@ namespace Xtensive.Sql.Dml
     /// <value>The order by clause.</value>
     public SqlOrderCollection OrderBy => orderBy ??= new();
 
-    public IReadOnlyList<SqlOrder> OrderByReadOnly => orderBy ?? [];
+    public IReadOnlyList<SqlOrder> OrderByReadOnly => (IReadOnlyList<SqlOrder>) orderBy ?? [];
 
     /// <summary>
     /// Gets or sets a value indicating whether this <see cref="SqlSelect"/> is distinct.
