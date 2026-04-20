@@ -38,9 +38,10 @@ namespace Xtensive.Sql.Dml
           ValueRows = t.ValueRows.Clone(c)
         };
 
-        if (t.Hints.Count > 0)
+        if (t.Hints.Count > 0) {
           foreach (SqlHint hint in t.Hints)
             clone.AddHint(hint.Clone(c));
+        }
         return clone;
       });
 
