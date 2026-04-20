@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Rse;
@@ -26,20 +25,10 @@ namespace Xtensive.Orm.Providers
       var sqlSelect = ExtractSqlSelect(provider, source);
 
       var columns = ExtractColumnExpressions(sqlSelect);
-      var columnsCount = columns.Count;
-      // sqlSelect.Columns is SqlColumnCollection : List<SqlColumn>, so CollectionsMarshal.AsSpan
-      // exposes its backing array and lets the JIT elide bounds checks on the hot read branch
-      // (i < selectColumnsCount), which is the common path — the overflow branch into
-      // sqlSelect.From.Columns[i] is only taken when the aggregate adds columns.
-      var selectColumnsSpan = CollectionsMarshal.AsSpan(sqlSelect.Columns);
-      var selectColumnsCount = selectColumnsSpan.Length;
-      var columnNames = new string[columnsCount];
-      var columnNamesSpan = columnNames.AsSpan();
-      for (int i = 0; i < columnNamesSpan.Length; i++) {
-        columnNamesSpan[i] = i >= selectColumnsCount
+      var columnNames = columns.Select((c, i) =>
+        i >= sqlSelect.Columns.Count
           ? sqlSelect.From.Columns[i].Name
-          : selectColumnsSpan[i].Name;
-      }
+          : sqlSelect.Columns[i].Name).ToArray();
       sqlSelect.Columns.Clear();
 
       var groupColumnIndexes = provider.GroupColumnIndexes;

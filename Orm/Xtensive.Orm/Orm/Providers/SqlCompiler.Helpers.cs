@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.InteropServices;
 using Xtensive.Core;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Transformation;
@@ -85,19 +84,8 @@ namespace Xtensive.Orm.Providers
       return sourceSelect.ShallowClone();
     }
 
-    protected IReadOnlyList<SqlExpression> ExtractColumnExpressions(SqlSelect query)
-    {
-      // query.Columns is SqlColumnCollection : List<SqlColumn>, so CollectionsMarshal.AsSpan
-      // exposes its backing array directly — no enumerator, no indexer virtual call, and the
-      // JIT eliminates per-iteration bounds checks against the source span's Length.
-      var columnsSpan = CollectionsMarshal.AsSpan(query.Columns);
-      var result = new SqlExpression[columnsSpan.Length];
-      var resultSpan = result.AsSpan();
-      for (int i = 0; i < resultSpan.Length; i++) {
-        resultSpan[i] = ExtractColumnExpression(columnsSpan[i]);
-      }
-      return result;
-    }
+    protected IReadOnlyList<SqlExpression> ExtractColumnExpressions(SqlSelect query) =>
+      query.Columns.Select(ExtractColumnExpression).ToArray();
 
     protected SqlExpression ExtractColumnExpression(SqlColumn column)
     {

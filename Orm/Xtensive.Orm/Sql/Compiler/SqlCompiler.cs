@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
@@ -337,14 +336,10 @@ namespace Xtensive.Sql.Compiler
         var expressions = RecursiveBinaryLogicExtractor.Extract(node);
         using (context.EnterScope(node)) {
           AppendTranslatedEntry(node);
-          // RecursiveBinaryLogicExtractor.Extract returns a concrete List<SqlExpression>;
-          // CollectionsMarshal.AsSpan exposes its backing array so iteration over
-          // (commonly long) AND/OR chains costs zero per-element indirection.
-          var expressionsSpan = CollectionsMarshal.AsSpan(expressions);
-          expressionsSpan[0].AcceptVisitor(this);
-          for (int i = 1; i < expressionsSpan.Length; i++) {
+          expressions[0].AcceptVisitor(this);
+          for (int i = 1, n = expressions.Count; i < n; i++) {
             AppendTranslated(node.NodeType);
-            expressionsSpan[i].AcceptVisitor(this);
+            expressions[i].AcceptVisitor(this);
           }
           AppendTranslatedExit(node);
         }

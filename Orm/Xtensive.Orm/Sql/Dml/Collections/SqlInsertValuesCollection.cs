@@ -6,7 +6,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml.Collections
@@ -16,16 +15,13 @@ namespace Xtensive.Sql.Dml.Collections
   /// </summary>
   public sealed class SqlInsertValuesCollection : IReadOnlyList<SqlRow>
   {
-    // Typed as List<SqlColumn> (not IReadOnlyList) so CollectionsMarshal.AsSpan can expose
-    // the backing array for zero-indirection iteration in the Add and Clone hot paths.
-    // All writes to this field already produce a List<SqlColumn>.
-    private List<SqlColumn> columns;
+    private IReadOnlyList<SqlColumn> columns;
     private List<SqlRow> rows = new();
 
     /// <summary>
     /// The columns collection has values for.
     /// </summary>
-    public IReadOnlyList<SqlColumn> Columns => columns ?? [];
+    public IReadOnlyList<SqlColumn> Columns => columns ?? Array.Empty<SqlColumn>();
 
     /// <summary>
     /// Count of rows.
@@ -69,13 +65,8 @@ namespace Xtensive.Sql.Dml.Collections
         else {
           //re-arrange values to be the same order
           //and also make sure all columns exist
-          // CollectionsMarshal.AsSpan exposes columns' backing array so the loop reads
-          // each SqlColumn directly from the span — no boxed enumerator and no per-element
-          // indexer call through IReadOnlyList<T>.
-          var columnsSpan = CollectionsMarshal.AsSpan(columns);
-          var rowList = new List<SqlExpression>(columnsSpan.Length);
-          for (int i = 0; i < columnsSpan.Length; i++) {
-            var column = columnsSpan[i];
+          var rowList = new List<SqlExpression>(columns.Count);
+          foreach (var column in columns) {
             if (row.TryGetValue(column, out var value)) {
               rowList.Add(value);
             }
@@ -128,10 +119,9 @@ namespace Xtensive.Sql.Dml.Collections
         return clone;
       }
 
-      var columnsSpan = CollectionsMarshal.AsSpan(columns);
-      var clonedList = new List<SqlColumn>(columnsSpan.Length);
-      for (int i = 0; i < columnsSpan.Length; i++) {
-        clonedList.Add((SqlColumn) ctx.NodeMapping[columnsSpan[i]]);
+      var clonedList = new List<SqlColumn>(columns.Count);
+      foreach (var oldColumn in columns) {
+        clonedList.Add((SqlColumn) ctx.NodeMapping[oldColumn]);
       }
       clone.columns = clonedList;
 
