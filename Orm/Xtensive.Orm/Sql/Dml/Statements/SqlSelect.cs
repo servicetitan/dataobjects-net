@@ -173,12 +173,9 @@ namespace Xtensive.Sql.Dml
         clone.Lock = t.Lock;
         clone.Comment = t.Comment?.Clone(c);
 
-        // Indexed for over Hints (typed as IReadOnlyList<SqlHint>) — foreach would allocate
-        // a boxed enumerator; clones are taken on every cached-corrector lookup, so this
-        // matters at warm steady state.
-        var hints = t.Hints;
-        for (int i = 0, n = hints.Count; i < n; i++)
-          clone.AddHint(hints[i].Clone(c));
+        if (t.Hints.Count > 0)
+          foreach (SqlHint hint in t.Hints)
+            clone.AddHint(hint.Clone(c));
 
         return clone;
       });
@@ -207,13 +204,8 @@ namespace Xtensive.Sql.Dml
       result.Limit = Limit;
       if (orderBy is { Count: > 0 } ob)
         result.OrderBy.AddRange(ob);
-      // Hints has no bulk-add API ('AddHint' is the only mutator) and the field is private
-      // to SqlQueryStatement. Indexed for over the IReadOnlyList<T> property avoids a boxed
-      // enumerator and, when the source is empty, performs zero allocations because
-      // result.AddHint is never reached.
-      var hints = Hints;
-      for (int i = 0, n = hints.Count; i < n; i++)
-        result.AddHint(hints[i]);
+      foreach (var hint in Hints)
+        result.AddHint(hint);
       result.Where = Where;
       result.Lock = Lock;
       result.Comment = Comment;

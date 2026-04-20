@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml.Collections
@@ -15,13 +16,16 @@ namespace Xtensive.Sql.Dml.Collections
   /// </summary>
   public sealed class SqlInsertValuesCollection : IReadOnlyList<SqlRow>
   {
-    private IReadOnlyList<SqlColumn> columns;
+    // Typed as List<SqlColumn> (not IReadOnlyList) so CollectionsMarshal.AsSpan can expose
+    // the backing array for zero-indirection iteration in the Add and Clone hot paths.
+    // All writes to this field already produce a List<SqlColumn>.
+    private List<SqlColumn> columns;
     private List<SqlRow> rows = new();
 
     /// <summary>
     /// The columns collection has values for.
     /// </summary>
-    public IReadOnlyList<SqlColumn> Columns => columns ?? Array.Empty<SqlColumn>();
+    public IReadOnlyList<SqlColumn> Columns => columns ?? [];
 
     /// <summary>
     /// Count of rows.
@@ -65,11 +69,13 @@ namespace Xtensive.Sql.Dml.Collections
         else {
           //re-arrange values to be the same order
           //and also make sure all columns exist
-          var rowList = new List<SqlExpression>(columns.Count);
-          // Indexed for over the IReadOnlyList<SqlColumn> field — foreach would allocate
-          // a boxed enumerator on every multi-row INSERT add.
-          for (int i = 0, n = columns.Count; i < n; i++) {
-            var column = columns[i];
+          // CollectionsMarshal.AsSpan exposes columns' backing array so the loop reads
+          // each SqlColumn directly from the span — no boxed enumerator and no per-element
+          // indexer call through IReadOnlyList<T>.
+          var columnsSpan = CollectionsMarshal.AsSpan(columns);
+          var rowList = new List<SqlExpression>(columnsSpan.Length);
+          for (int i = 0; i < columnsSpan.Length; i++) {
+            var column = columnsSpan[i];
             if (row.TryGetValue(column, out var value)) {
               rowList.Add(value);
             }
@@ -122,9 +128,10 @@ namespace Xtensive.Sql.Dml.Collections
         return clone;
       }
 
-      var clonedList = new List<SqlColumn>(columns.Count);
-      for (int i = 0, n = columns.Count; i < n; i++) {
-        clonedList.Add((SqlColumn) ctx.NodeMapping[columns[i]]);
+      var columnsSpan = CollectionsMarshal.AsSpan(columns);
+      var clonedList = new List<SqlColumn>(columnsSpan.Length);
+      for (int i = 0; i < columnsSpan.Length; i++) {
+        clonedList.Add((SqlColumn) ctx.NodeMapping[columnsSpan[i]]);
       }
       clone.columns = clonedList;
 

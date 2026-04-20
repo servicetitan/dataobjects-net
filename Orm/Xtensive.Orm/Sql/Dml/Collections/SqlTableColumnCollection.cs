@@ -59,12 +59,7 @@ namespace Xtensive.Sql.Dml
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private SqlTableColumn FindColumnInList(string name)
     {
-      // Indexed loop instead of foreach to avoid the boxed IEnumerator<T> from columnList
-      // (typed as IReadOnlyList<T>). This is the small-collection branch of the column lookup
-      // and the hottest path through SqlTableRef[name] / SqlQueryRef[name].
-      var list = columnList;
-      for (int i = 0, n = list.Count; i < n; i++) {
-        var column = list[i];
+      foreach (var column in columnList) {
         if (Comparer.Equals(column.Name, name)) {
           return column;
         }

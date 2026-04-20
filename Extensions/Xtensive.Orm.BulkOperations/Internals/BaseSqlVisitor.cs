@@ -298,16 +298,14 @@ namespace Xtensive.Orm.BulkOperations
 
     public virtual void Visit(SqlFunctionCall node)
     {
-      var args = node.Arguments;
-      for (int i = 0, n = args.Count; i < n; i++)
-        VisitInternal(args[i]);
+      foreach (SqlExpression expression in node.Arguments)
+        VisitInternal(expression);
     }
 
     public virtual void Visit(SqlCustomFunctionCall node)
     {
-      var args = node.Arguments;
-      for (int i = 0, n = args.Count; i < n; i++)
-        VisitInternal(args[i]);
+      foreach (SqlExpression expression in node.Arguments)
+        VisitInternal(expression);
     }
 
     public virtual void Visit(SqlIf node)
@@ -462,21 +460,15 @@ namespace Xtensive.Orm.BulkOperations
       foreach (SqlColumn column in node.Columns)
         VisitInternal(column);
       VisitInternal(node.From);
-      // GroupByReadOnly / OrderByReadOnly / Hints are IReadOnlyList<T>; indexed for keeps
-      // the iteration on the stack and avoids the boxed enumerator that 'foreach' would
-      // allocate on every visited SELECT. Bulk-ops walks the tree once per executed batch.
-      var groupBy = node.GroupByReadOnly;
-      for (int i = 0, n = groupBy.Count; i < n; i++)
-        VisitInternal(groupBy[i]);
+      foreach (SqlColumn column in node.GroupByReadOnly)
+        VisitInternal(column);
       VisitInternal(node.Having);
-      var hints = node.Hints;
-      for (int i = 0, n = hints.Count; i < n; i++)
-        VisitInternal(hints[i]);
+      foreach (SqlHint hint in node.Hints)
+        VisitInternal(hint);
       VisitInternal(node.Limit);
       VisitInternal(node.Offset);
-      var orderBy = node.OrderByReadOnly;
-      for (int i = 0, n = orderBy.Count; i < n; i++)
-        VisitInternal(orderBy[i]);
+      foreach (SqlOrder order in node.OrderByReadOnly)
+        VisitInternal(order);
       VisitInternal(node.Where);
     }
 
@@ -493,9 +485,8 @@ namespace Xtensive.Orm.BulkOperations
     public virtual void Visit(SqlUpdate node)
     {
       VisitInternal(node.From);
-      var hints = node.Hints;
-      for (int i = 0, n = hints.Count; i < n; i++)
-        VisitInternal(hints[i]);
+      foreach (SqlHint hint in node.Hints)
+        VisitInternal(hint);
       VisitInternal(node.Update);
       foreach (var pair in node.Values) {
         VisitInternal(pair.Key);
@@ -512,9 +503,8 @@ namespace Xtensive.Orm.BulkOperations
 
     public virtual void Visit(SqlUserFunctionCall node)
     {
-      var args = node.Arguments;
-      for (int i = 0, n = args.Count; i < n; i++)
-        VisitInternal(args[i]);
+      foreach (SqlExpression argument in node.Arguments)
+        VisitInternal(argument);
     }
 
     public virtual void Visit(SqlDeclareVariable node)

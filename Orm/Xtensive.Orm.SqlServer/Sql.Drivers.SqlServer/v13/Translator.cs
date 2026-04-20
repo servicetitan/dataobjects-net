@@ -296,12 +296,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
     {
       var output = context.Output;
       var hasHints = false;
-      // Indexed for over Hints (IReadOnlyList<SqlHint>) avoids the boxed enumerator that
-      // 'foreach' would create on every compiled SELECT — this is the per-statement
-      // SelectExit hot path of the SQL Server v13 translator.
-      var hints = node.Hints;
-      for (int i = 0, n = hints.Count; i < n; i++) {
-        var hint = hints[i];
+      foreach (var hint in node.Hints) {
         switch (hint) {
           case SqlForceJoinOrderHint:
             AppendHint(output, "FORCE ORDER", ref hasHints);

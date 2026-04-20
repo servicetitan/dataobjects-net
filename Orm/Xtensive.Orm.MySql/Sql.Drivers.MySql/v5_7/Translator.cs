@@ -65,16 +65,12 @@ namespace Xtensive.Sql.Drivers.MySql.v5_7
 
     public override void SelectHintsExit(SqlCompilerContext context, SqlSelect node)
     {
-      var nodeHints = node.Hints;
-      var nodeHintsCount = nodeHints.Count;
-      if (nodeHintsCount == 0) {
+      if (node.Hints.Count == 0) {
         return;
       }
-      var hints = new List<string>(nodeHintsCount);
-      // Indexed for over Hints (IReadOnlyList<SqlHint>) avoids the boxed enumerator
-      // — SelectHintsExit fires for every compiled SELECT under MySQL.
-      for (int i = 0; i < nodeHintsCount; i++) {
-        if (nodeHints[i] is SqlNativeHint sqlNativeHint) {
+      var hints = new List<string>(node.Hints.Count);
+      foreach (var hint in node.Hints) {
+        if (hint is SqlNativeHint sqlNativeHint) {
           hints.Add(SqlHelper.Quote(EscapeSetup, new[] { sqlNativeHint.HintText }));
         }
       }
