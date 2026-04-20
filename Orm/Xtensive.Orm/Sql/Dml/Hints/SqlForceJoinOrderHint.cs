@@ -3,7 +3,6 @@
 // See the License.txt file in the project root for more information.
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using Xtensive.Core;
 
@@ -18,8 +17,15 @@ namespace Xtensive.Sql.Dml
     public IReadOnlyList<SqlTable> Tables { get; }
 
     internal override SqlForceJoinOrderHint Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) =>
-        new SqlForceJoinOrderHint(t.Tables?.Select(table => (SqlTable) table.Clone()).ToArray()));
+      context.GetOrAdd(this, static (t, c) => {
+        if (t.Tables is null)
+          return new SqlForceJoinOrderHint();
+        var source = t.Tables;
+        var tablesClone = new SqlTable[source.Count];
+        for (int i = 0; i < source.Count; i++)
+          tablesClone[i] = (SqlTable) source[i].Clone(c);
+        return new SqlForceJoinOrderHint(tablesClone);
+      });
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
