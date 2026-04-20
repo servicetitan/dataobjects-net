@@ -14,7 +14,15 @@ namespace Xtensive.Sql.Dml
   {
     internal override SqlRow Clone(SqlNodeCloneContext context)
     {
-      return (context.TryGet(this) as SqlRow) ?? new(expressions.Select(e => e.Clone(context)).ToArray());
+      if (context.TryGet(this) is SqlRow existing) {
+        return existing;
+      }
+      var count = expressions.Count;
+      var clones = new SqlExpression[count];
+      for (int i = 0; i < count; i++) {
+        clones[i] = expressions[i].Clone(context);
+      }
+      return new SqlRow(clones);
     }
 
     public override void ReplaceWith(SqlExpression expression) =>

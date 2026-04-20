@@ -20,10 +20,11 @@ namespace Xtensive.Sql.Dml
         return (SqlConcat)value;
       }
 
-      var expressionsClone = new SqlExpression[expressions.Count];
-      int i = 0;
-      foreach (var e in expressions)
-        expressionsClone[i++] = e.Clone(context);
+      var count = expressions.Count;
+      var expressionsClone = new SqlExpression[count];
+      for (int i = 0; i < count; i++) {
+        expressionsClone[i] = expressions[i].Clone(context);
+      }
 
       var clone = new SqlConcat(expressionsClone);
       return clone;

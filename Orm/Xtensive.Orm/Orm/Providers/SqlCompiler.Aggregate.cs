@@ -25,10 +25,15 @@ namespace Xtensive.Orm.Providers
       var sqlSelect = ExtractSqlSelect(provider, source);
 
       var columns = ExtractColumnExpressions(sqlSelect);
-      var columnNames = columns.Select((c, i) =>
-        i >= sqlSelect.Columns.Count
+      var columnsCount = columns.Count;
+      var selectColumns = sqlSelect.Columns;
+      var selectColumnsCount = selectColumns.Count;
+      var columnNames = new string[columnsCount];
+      for (int i = 0; i < columnsCount; i++) {
+        columnNames[i] = i >= selectColumnsCount
           ? sqlSelect.From.Columns[i].Name
-          : sqlSelect.Columns[i].Name).ToArray();
+          : selectColumns[i].Name;
+      }
       sqlSelect.Columns.Clear();
 
       var groupColumnIndexes = provider.GroupColumnIndexes;
