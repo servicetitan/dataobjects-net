@@ -2,6 +2,7 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
+using System;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -74,7 +75,9 @@ namespace Xtensive.Orm.Linq.Materialization
       ParameterContext = parameterContext;
       MaterializationContext = materializationContext;
 
-      entities = new Entity[materializationContext.EntitiesInRow];
+      // Reuse the MaterializationContext-owned buffer across rows instead of allocating a new array per row.
+      entities = materializationContext.EntitiesBuffer;
+      Array.Clear(entities, 0, entities.Length);
     }
   }
 }

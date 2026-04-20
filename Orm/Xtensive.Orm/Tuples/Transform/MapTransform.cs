@@ -164,7 +164,7 @@ namespace Xtensive.Tuples.Transform
     /// <returns>Transformation result - 
     /// either <see cref="TransformedTuple"/> or <see cref="Tuple"/> descendant,
     /// dependently on specified <paramref name="transformType"/>.</returns>
-    protected Tuple Apply(TupleTransformType transformType, Tuple source)
+    protected internal Tuple Apply(TupleTransformType transformType, Tuple source)
     {
       if (sourceCount>1)
         throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
@@ -193,7 +193,7 @@ namespace Xtensive.Tuples.Transform
     /// <returns>Transformation result - 
     /// either <see cref="TransformedTuple"/> or <see cref="Tuple"/> descendant,
     /// dependently on specified <paramref name="transformType"/>.</returns>
-    protected Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2)
+    protected internal Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2)
     {
       if (sourceCount>2)
         throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));

@@ -80,7 +80,7 @@ namespace Xtensive.Sql.Dml
         if (t.where is not null)
           clone.Where = t.where.Clone(c);
         if (t.limit is not null)
-          clone.Limit = t.where.Clone(c);
+          clone.Limit = t.limit.Clone(c);
         var hints = t.Hints;
         for (int i = 0, n = hints.Count; i < n; i++)
           clone.AddHint(hints[i].Clone(c));

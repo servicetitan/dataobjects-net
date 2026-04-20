@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
@@ -12,18 +11,14 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlRow: SqlExpressionList
   {
-    internal override SqlRow Clone(SqlNodeCloneContext context)
-    {
-      if (context.TryGet(this) is SqlRow existing) {
-        return existing;
-      }
-      var count = expressions.Count;
-      var clones = new SqlExpression[count];
-      for (int i = 0; i < count; i++) {
-        clones[i] = expressions[i].Clone(context);
-      }
-      return new SqlRow(clones);
-    }
+    internal override SqlRow Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var source = t.expressions;
+        var expressionsClone = new SqlExpression[source.Count];
+        for (int i = 0; i < source.Count; i++)
+          expressionsClone[i] = source[i].Clone(c);
+        return new SqlRow(expressionsClone);
+      });
 
     public override void ReplaceWith(SqlExpression expression) =>
       expressions = ArgumentValidator.EnsureArgumentIs<SqlRow>(expression).expressions;

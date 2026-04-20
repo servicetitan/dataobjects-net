@@ -79,6 +79,10 @@ namespace Xtensive.Orm.Providers
     {
       VisitNullable(node.Value);
       VisitNullable(node.Else);
+      foreach (var pair in (IEnumerable<KeyValuePair<SqlExpression, SqlExpression>>) node) {
+        VisitNullable(pair.Key);
+        VisitNullable(pair.Value);
+      }
     }
 
     public void Visit(SqlCast node)
@@ -441,6 +445,13 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlSelect node)
     {
+      // Prune unused columns from the immediate FROM clause before recursing
+      // into it. Doing this at the start of every Visit(SqlSelect) cascades
+      // top-down through nested selects via the visitor's own recursion —
+      // the inner SqlSelect's pruning sees the already-reduced parent column
+      // set when its own Visit(SqlSelect) runs.
+      SqlColumnPruner.PruneFromClause(node);
+
       foreach (var column in node.Columns)
         Visit(column);
       // GroupByReadOnly / OrderByReadOnly / Hints are typed as IReadOnlyList<T>; foreach over
@@ -538,6 +549,8 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlVariant node)
     {
+      VisitNullable(node.Main);
+      VisitNullable(node.Alternative);
     }
 
     public void Visit(SqlWhile node)

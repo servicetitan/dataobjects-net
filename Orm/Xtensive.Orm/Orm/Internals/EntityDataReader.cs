@@ -68,12 +68,18 @@ namespace Xtensive.Orm.Internals
       return source.Select(tuple => ParseRow(tuple, context, cacheItem.Mappings));
     }
 
-    private Record ParseRow(Tuple tuple, MaterializationContext context, IReadOnlyList<RecordPartMapping> recordPartMappings) =>
-      recordPartMappings.Count == 1
-        ? new Record(tuple, ParseColumnGroup(tuple, context, 0, recordPartMappings[0]))
-        : new Record(tuple, recordPartMappings.Select(
-            (recordPartMapping, i) => ParseColumnGroup(tuple, context, i, recordPartMapping))
-          );
+    private Record ParseRow(Tuple tuple, MaterializationContext context, IReadOnlyList<RecordPartMapping> recordPartMappings)
+    {
+      var count = recordPartMappings.Count;
+      if (count == 1) {
+        return new Record(tuple, ParseColumnGroup(tuple, context, 0, recordPartMappings[0]));
+      }
+      var pairs = new (Key, Tuple)[count];
+      for (var i = 0; i < count; i++) {
+        pairs[i] = ParseColumnGroup(tuple, context, i, recordPartMappings[i]);
+      }
+      return new Record(tuple, pairs);
+    }
 
     private (Key, Tuple) ParseColumnGroup(Tuple tuple, MaterializationContext context, int groupIndex, in RecordPartMapping mapping)
     {
