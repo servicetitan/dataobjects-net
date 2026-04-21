@@ -17,6 +17,7 @@ namespace Xtensive.Orm.Providers
     private readonly SqlSelect rootSelect;
     private readonly ProviderInfo providerInfo;
     private readonly HashSet<SqlExpression> visitedExpressions = new HashSet<SqlExpression>();
+    private readonly HashSet<SqlSelect> visitedSelects = new HashSet<SqlSelect>();
 
     public void Visit(SqlAggregate node)
     {
@@ -441,6 +442,15 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlSelect node)
     {
+      // Re-entrancy guard: aliased SqlSelect nodes (e.g. produced by
+      // SqlSelect.ShallowClone) can be reached from multiple paths in the
+      // tree. Without this guard the comment-merge block below would append
+      // the same tag(s) into rootSelect.Comment more than once via
+      // SqlComment.Join (which mutates Text in place).
+      if (!visitedSelects.Add(node)) {
+        return;
+      }
+
       // Prune unused columns from the immediate FROM clause before recursing
       // into it. Doing this at the start of every Visit(SqlSelect) cascades
       // top-down through nested selects via the visitor's own recursion —

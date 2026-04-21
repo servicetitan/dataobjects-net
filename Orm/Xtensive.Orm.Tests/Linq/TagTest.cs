@@ -8,6 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -792,6 +793,76 @@ namespace Xtensive.Orm.Tests.Linq
       }
     }
 #endif
+
+    [Test]
+    public void TagInGroupByWithDefaultIfEmptyAndAggregateSubqueries()
+    {
+      // Regression for production query pattern where .Tag(...) on the outer
+      // source is combined with a LEFT OUTER JOIN (DefaultIfEmpty), GroupBy and
+      // multiple aggregate subqueries over the grouping. The same tag was being
+      // emitted multiple times in the main statement comment because aliased
+      // SqlSelect nodes had their (shared/equivalent) Comment merged into
+      // rootSelect.Comment more than once by SqlSelectProcessor.
+      var session = GetSession();
+      var allCommands = new List<string>();
+
+      using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
+        var bu1 = new BusinessUnit() { Name = "TagDup#BU1", Active = true };
+        _ = new Property() { Name = "TagDup#P1", Owner = bu1 };
+        _ = new Property() { Name = "TagDup#P2", Owner = bu1 };
+        var bu2 = new BusinessUnit() { Name = "TagDup#BU2", Active = false };
+        _ = new Property() { Name = "TagDup#P3", Owner = bu2 };
+
+        session.SaveChanges();
+
+        var query =
+          (from p in session.Query.All<Property>().Tag("dupTagX")
+              .Where(p => p.Name != null)
+            from bu in session.Query.All<BusinessUnit>()
+              .Where(b => b.Id == p.Owner.Id && b.Active)
+              .DefaultIfEmpty()
+            group new {
+              A1 = bu == null ? 0L : bu.Id,
+              A2 = bu == null ? 0L : bu.Id,
+              A3 = bu == null ? 0L : bu.Id,
+              A4 = bu == null ? 0L : bu.Id,
+              A5 = bu == null ? 0L : bu.Id
+            } by p
+            into records
+            select new {
+              records.Key.Name,
+              Sum1 = records.Sum(x => x.A1),
+              Sum2 = records.Sum(x => x.A2),
+              Sum3 = records.Sum(x => x.A3),
+              Sum4 = records.Sum(x => x.A4),
+              Sum5 = records.Sum(x => x.A5),
+              Count = records.Count(x => x.A1 != 0)
+            })
+          .Where(r => r.Sum1 != 0 || r.Sum2 != 0 || r.Sum3 != 0 || r.Sum4 != 0 || r.Sum5 != 0 || r.Count > 0)
+          .Select(r => r.Name)
+          .Distinct();
+
+        session.Events.DbCommandExecuting += SqlCapturer;
+        _ = query.ToList();
+        session.Events.DbCommandExecuting -= SqlCapturer;
+
+        PrintList(allCommands);
+
+        Assert.That(allCommands.Count, Is.GreaterThanOrEqualTo(1));
+
+        var mainCommand = cursorCutter(allCommands[0]);
+        var mainTagCount = Regex.Matches(mainCommand, Regex.Escape("dupTagX")).Count;
+        Assert.That(
+          mainTagCount,
+          Is.EqualTo(1),
+          $"Tag 'dupTagX' is duplicated in the main statement comment ({mainTagCount} occurrences). Command: {mainCommand}");
+      }
+
+      void SqlCapturer(object sender, DbCommandEventArgs args)
+      {
+        allCommands.Add(args.Command.CommandText);
+      }
+    }
 
     [Test]
     public void SessionTagInlineQuery()
