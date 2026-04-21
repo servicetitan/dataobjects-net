@@ -101,10 +101,14 @@ namespace Xtensive.Sql.Dml.Collections
       columns = null;
     }
 
-    /// <inheritdoc/>
-    public IEnumerator<SqlRow> GetEnumerator() => rows.GetEnumerator();
+    // Returns the concrete List<T>.Enumerator struct so 'foreach (var row in coll)' resolves
+    // to this method via the C# foreach pattern and avoids the boxed IEnumerator<T> allocation.
+    // Iteration on this collection happens once per row written by an INSERT, so the saving
+    // is one heap object per compile of every batched INSERT statement.
+    public List<SqlRow>.Enumerator GetEnumerator() => rows.GetEnumerator();
 
-    /// <inheritdoc/>
+    IEnumerator<SqlRow> IEnumerable<SqlRow>.GetEnumerator() => GetEnumerator();
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     internal SqlInsertValuesCollection Clone(SqlNodeCloneContext ctx)

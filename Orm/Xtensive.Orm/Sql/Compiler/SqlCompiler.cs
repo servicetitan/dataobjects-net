@@ -337,9 +337,9 @@ namespace Xtensive.Sql.Compiler
         using (context.EnterScope(node)) {
           AppendTranslatedEntry(node);
           expressions[0].AcceptVisitor(this);
-          foreach (var operand in expressions.Skip(1)) {
+          for (int i = 1, n = expressions.Count; i < n; i++) {
             AppendTranslated(node.NodeType);
-            operand.AcceptVisitor(this);
+            expressions[i].AcceptVisitor(this);
           }
           AppendTranslatedExit(node);
         }
@@ -1901,15 +1901,14 @@ namespace Xtensive.Sql.Compiler
       translator.UpdateSet(context);
 
       using (context.EnterCollectionScope()) {
-        foreach (var item in node.Values.Keys) {
+        foreach (var kv in node.Values) {
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
-          var tc = item as SqlTableColumn;
+          var tc = kv.Key as SqlTableColumn;
           if (tc is not null && tc.SqlTable != node.Update)
             throw new SqlCompilerException(string.Format(Strings.ExUnboundColumn, tc.Name));
           translator.TranslateIdentifier(context.Output, tc.Name);
           AppendTranslated(SqlNodeType.Equals);
-          var value = node.Values[item];
-          value.AcceptVisitor(this);
+          kv.Value.AcceptVisitor(this);
         }
       }
     }

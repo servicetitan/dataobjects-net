@@ -72,7 +72,12 @@ namespace Xtensive.Sql.Dml
     /// <value>The collection of columns.</value>
     public SqlColumnCollection GroupBy => groupBy ??= new();
 
-    public IReadOnlyList<SqlColumn> GroupByReadOnly => groupBy ??= [];
+    // Use '??' (not '??=') so the '[]' literal target-types to the property's
+    // IReadOnlyList<SqlColumn> return type and lowers to Array.Empty<SqlColumn>()
+    // — a JIT-inlined static singleton with zero allocation. With '??=' the
+    // literal would target-type to the field's concrete SqlColumnCollection
+    // and allocate a real instance on every first read of an empty SELECT.
+    public IReadOnlyList<SqlColumn> GroupByReadOnly => (IReadOnlyList<SqlColumn>) groupBy ?? [];
 
     /// <summary>
     /// Gets or sets the having clause.
@@ -94,7 +99,7 @@ namespace Xtensive.Sql.Dml
     /// <value>The order by clause.</value>
     public SqlOrderCollection OrderBy => orderBy ??= new();
 
-    public IReadOnlyList<SqlOrder> OrderByReadOnly => orderBy ??= [];
+    public IReadOnlyList<SqlOrder> OrderByReadOnly => (IReadOnlyList<SqlOrder>) orderBy ?? [];
 
     /// <summary>
     /// Gets or sets a value indicating whether this <see cref="SqlSelect"/> is distinct.
@@ -185,12 +190,20 @@ namespace Xtensive.Sql.Dml
         : SqlDml.Select(From);
       result.Columns.AddRange(Columns);
       result.Distinct = Distinct;
-      result.GroupBy.AddRange(GroupByReadOnly);
+      // Skip the GroupBy/OrderBy copy entirely when the source has no entries. The getters
+      // are 'groupBy/orderBy ??= new()', so even an empty AddRange would allocate a fresh
+      // SqlColumnCollection / SqlOrderCollection on the clone — wasted for the common case
+      // of SELECTs without GROUP BY / ORDER BY. When the source is non-empty, AddRange is
+      // preferred over a per-element loop because List<T>.AddRange takes the ICollection<T>
+      // fast path: it pre-sizes capacity once and bulk-copies, avoiding per-Add capacity
+      // checks and a possible array regrow.
+      if (groupBy is { Count: > 0 } gb)
+        result.GroupBy.AddRange(gb);
       result.Having = Having;
       result.Offset = Offset;
       result.Limit = Limit;
-      foreach (var order in OrderByReadOnly)
-        result.OrderBy.Add(order);
+      if (orderBy is { Count: > 0 } ob)
+        result.OrderBy.AddRange(ob);
       foreach (var hint in Hints)
         result.AddHint(hint);
       result.Where = Where;

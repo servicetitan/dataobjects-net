@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Providers
         sqlSelect = ExtractSqlSelect(provider, source);
 
       var sourceColumns = ExtractColumnExpressions(sqlSelect);
-      var allBindings = Enumerable.Empty<QueryParameterBinding>();
+      List<QueryParameterBinding> allBindings = null;
       foreach (var column in provider.CalculatedColumns) {
         var result = ProcessExpression(column.Expression, true, sourceColumns);
         var predicate = result.Item1;
@@ -121,7 +121,9 @@ namespace Xtensive.Orm.Providers
         if (column.Type.StripNullable()==WellKnownTypes.Bool)
           predicate = GetBooleanColumnExpression(predicate);
         AddInlinableColumn(provider, column, sqlSelect, predicate);
-        allBindings = allBindings.Concat(bindings);
+        foreach (var binding in bindings) {
+          (allBindings ??= new List<QueryParameterBinding>()).Add(binding);
+        }
       }
       return CreateProvider(sqlSelect, allBindings, provider, source);
     }

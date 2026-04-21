@@ -3,15 +3,20 @@
 // For conditions of distribution and use, see license.
 
 using System;
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
 namespace Xtensive.Sql.Dml
 {
   /// <summary>
   /// Represents collection of <see cref="SqlOrder"/>s.
   /// </summary>
+  // Inheriting from List<T> (instead of Collection<T>) so that 'foreach (var o in collection)'
+  // resolves to List<T>.GetEnumerator() and uses the struct enumerator. Collection<T> only
+  // exposes IEnumerator<T> through its IList<T>/IEnumerable<T> interface implementations,
+  // which forces the C# foreach pattern to allocate a boxed enumerator on every iteration —
+  // and this collection is iterated on every SQL select compile.
   [Serializable]
-  public class SqlOrderCollection : Collection<SqlOrder>
+  public class SqlOrderCollection : List<SqlOrder>
   {
     public void Add(SqlExpression expression)
     {
