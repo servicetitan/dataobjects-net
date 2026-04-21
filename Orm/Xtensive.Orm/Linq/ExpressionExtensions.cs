@@ -27,7 +27,6 @@ namespace Xtensive.Linq
     private static readonly Func<Type, MethodInfo> TupleValueAccessorFactory = type => tupleGenericAccessor.CachedMakeGenericMethod(type);
 
     private static readonly Type MemoryExtensionsType = typeof(MemoryExtensions);
-
     private static readonly int[] MemoryExtensionsContainsMethodTokens;
     private static readonly MethodInfo EnumerableContains;
 

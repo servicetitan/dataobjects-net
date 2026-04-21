@@ -430,6 +430,23 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValue"/>
+    /// in the current <see cref="session"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="keyValue">Key value.</param>
+    /// <param name="token">The token to cancel this operation.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="keyValue"/> identify.
+    /// </returns>
+    /// <exception cref="KeyNotFoundException">Entity with the specified key is not found.</exception>
+    public async Task<T> SingleAsync<T>(object keyValue, CancellationToken token = default)
+      where T : class, IEntity
+    {
+      return (T) (object) (await SingleAsync(GetKeyByValue<T>(keyValue), token).ConfigureAwait(false));
+    }
+
+    /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
     /// in the current <see cref="Session"/>.
     /// </summary>
@@ -480,33 +497,8 @@ namespace Xtensive.Orm
       return (T)(object)SingleOrDefault(GetKeyByValues<T>(keyValues));
     }
 
-    /// <summary>
-    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
-    /// in the current <see cref="Session"/>.
-    /// </summary>
-    /// <typeparam name="T">Type of the entity.</typeparam>
-    /// <param name="keyValues">Key values.</param>
-    /// <returns>
-    /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
-    /// <see langword="null"/>, if there is no such entity.
-    /// </returns>
-    public async ValueTask<T> SingleAsync<T>(object key, CancellationToken ct = default) where T : class, IEntity =>
-      (T)(object)(await SingleAsync(GetKeyByValues<T>([key]), ct));
-
     public async ValueTask<T> SingleAsync<T>(object key1, object key2, CancellationToken ct = default) where T : class, IEntity =>
       (T)(object)(await SingleAsync(GetKeyByValues<T>([key1, key2]), ct));
-
-    /// <summary>
-    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValues"/>
-    /// in the current <see cref="Session"/>.
-    /// </summary>
-    /// <typeparam name="T">Type of the entity.</typeparam>
-    /// <param name="keyValues">Key values.</param>
-    /// <returns>
-    /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
-    /// </returns>
-    public async ValueTask<T> SingleOrDefaultAsync<T>(object key, CancellationToken ct = default) where T : class, IEntity =>
-      (T)(object)(await SingleOrDefaultAsync(GetKeyByValues<T>([key]), ct));
 
     public async ValueTask<T> SingleOrDefaultAsync<T>(object key1, object key2, CancellationToken ct = default) where T : class, IEntity =>
       (T)(object)(await SingleOrDefaultAsync(GetKeyByValues<T>([key1, key2]), ct));
@@ -525,6 +517,23 @@ namespace Xtensive.Orm
     public async Task<T> SingleOrDefaultAsync<T>(object[] keyValues, CancellationToken token = default)
       where T : class, IEntity =>
       (T) (object) (await SingleOrDefaultAsync(GetKeyByValues<T>(keyValues), token));
+
+    /// <summary>
+    /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="keyValue"/>
+    /// in the current <see cref="session"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="keyValue">Key value.</param>
+    /// <param name="token">The token to cancel this operation.</param>
+    /// <returns>
+    /// The <see cref="Entity"/> specified <paramref name="keyValue"/> identify.
+    /// <see langword="null"/>, if there is no such entity.
+    /// </returns>
+    public async Task<T> SingleOrDefaultAsync<T>(object keyValue, CancellationToken token = default)
+      where T : class, IEntity
+    {
+      return (T) (object) (await SingleOrDefaultAsync(GetKeyByValue<T>(keyValue), token).ConfigureAwait(false));
+    }
 
     /// <summary>
     /// Fetches multiple instances of specified type  by provided <paramref name="keys"/>.
@@ -1002,6 +1011,25 @@ namespace Xtensive.Orm
 
     private static void ThrowKeyNotFoundException(Key key) =>
         throw new KeyNotFoundException(String.Format(Strings.EntityWithKeyXDoesNotExist, key));
+
+    private Key GetKeyByValue<T>(object keyValue)
+    {
+      ArgumentNullException.ThrowIfNull(keyValue);
+      switch (keyValue) {
+        case Key key:
+          return key;
+        case Entity entity:
+          return entity.Key;
+      }
+      return Key.Create(Session.Domain, Session.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, keyValue);
+    }
+
+    private Expression BuildRootExpression(Type elementType)
+    {
+      return RootBuilder!=null
+        ? RootBuilder.BuildRootExpression(elementType)
+        : QueryHelper.CreateEntityQuery(elementType);
+    }
 
     #endregion
 
