@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Linq.Rewriters
               // Treat it as "not a subquery-correlation filter" instead.
               var leftIsParameter = leftAccess.Object.NodeType==ExpressionType.Parameter;
               var stack = leftIsParameter ? meaningfulLefts : meaningfulRights;
-             @continue = stack.TryPop(out var top) && top == leftAccess.Object;        
+              @continue = stack.TryPop(out var top) && top == leftAccess.Object;        
             }
           }
           else {
