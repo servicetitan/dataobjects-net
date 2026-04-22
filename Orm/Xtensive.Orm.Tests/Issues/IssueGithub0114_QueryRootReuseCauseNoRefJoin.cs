@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueGithub0114_QueryRootReuseCauseNoRefJoin
 namespace Xtensive.Orm.Tests.Issues
 {
   [TestFixture]
-  public sealed class IssueGithub0114_QueryRootReuseCauseNoRefJoin : AutoBuildTest
+  public sealed partial class IssueGithub0114_QueryRootReuseCauseNoRefJoin : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {

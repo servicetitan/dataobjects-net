@@ -191,6 +191,12 @@ namespace Xtensive.Orm.Linq
             break;
           case QueryableMethodKind.LongCount:
           case QueryableMethodKind.Count:
+            var src = mcArguments[0];
+            if (argsCount == 2) {
+              using var _ = CreateScope(new TranslatorState(State) { BuildingProjection = false });
+              src = VisitWhere(mcArguments[0], mcArguments[1].StripQuotes());
+            }
+            return VisitAggregate(src, mc.Method, null, context.IsRoot(mc), mc);
           case QueryableMethodKind.Max:
           case QueryableMethodKind.Min:
           case QueryableMethodKind.Sum:
