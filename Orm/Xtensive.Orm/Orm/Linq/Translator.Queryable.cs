@@ -194,7 +194,7 @@ namespace Xtensive.Orm.Linq
             var src = mcArguments[0];
             if (argsCount == 2) {
               using var _ = CreateScope(new TranslatorState(State) { BuildingProjection = false });
-              src = VisitWhere(mcArguments[0], mcArguments[1].StripQuotes());
+              src = VisitWhere(src, mcArguments[1].StripQuotes());
             }
             return VisitAggregate(src, mc.Method, null, context.IsRoot(mc), mc);
           case QueryableMethodKind.Max:
