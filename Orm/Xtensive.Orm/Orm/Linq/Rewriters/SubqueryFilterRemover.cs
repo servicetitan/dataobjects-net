@@ -57,12 +57,25 @@ namespace Xtensive.Orm.Linq.Rewriters
           }
           else if (@continue && rightConstant!=null) {
             var rightIsNullValue = rightConstant.Value==null;
-            if (!rightIsNullValue)
+            if (!rightIsNullValue) {
               @continue = false;
+            }
             else {
+              // A bare null-check such as `x.Field == null` may appear in a
+              // FilterProvider predicate that the checker reaches before any
+              // correlation equality has pushed anything onto the stacks
+              // (e.g. `GroupBy(k).Select(g => g.Count(x => x.Field == null))`).
+              // The legacy implementation called Pop() on an empty stack here
+              // and crashed with InvalidOperationException("Stack empty.").
+              // Treat it as "not a subquery-correlation filter" instead.
               var leftIsParameter = leftAccess.Object.NodeType==ExpressionType.Parameter;
-              var onStackValue = (leftIsParameter) ? meaningfulLefts.Pop() : meaningfulRights.Pop();
-              @continue = onStackValue == leftAccess.Object;
+              var stack = leftIsParameter ? meaningfulLefts : meaningfulRights;
+              if (stack.Count==0) {
+                @continue = false;
+              }
+              else {
+                @continue = stack.Pop()==leftAccess.Object;
+              }
             }
           }
           else {
