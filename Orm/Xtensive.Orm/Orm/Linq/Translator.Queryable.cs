@@ -917,6 +917,12 @@ namespace Xtensive.Orm.Linq
       //     (peels Where chains so the rewrite below can see the grouping parameter)
       //   source.Count(filter)   -> source.Select(filter ? 1 : 0).Sum()
       //     (only for a grouping-parameter source; enables aggregate fusion)
+      //   source.Where(f1)...Where(fn).Sum/Min/Max/Avg(selector)
+      //     -> source.Sum/Min/Max/Avg(x => (f1(x) AND ... AND fn(x)) ? selector(x) : else)
+      //     where `else` is 0 for a non-nullable Sum selector (preserves the
+      //     LINQ "empty set = 0" contract) and NULL otherwise (SQL
+      //     Sum/Min/Max/Avg ignore NULLs). Fires only for a grouping-parameter
+      //     source; enables aggregate fusion with the parent GROUP BY.
       //   source.Count(filter)   -> source.Where(filter).Count()
       //   source.Sum(selector)   -> source.Select(selector).Sum()
       // If parameterless method is called this method simply processes source.
@@ -927,47 +933,54 @@ namespace Xtensive.Orm.Linq
       ProjectionExpression sourceProjection;
       ColNum aggregatedColumnIndex;
 
+      // Unified Where-peel + grouping-aggregate fusion. Builds a single
+      // predicate lambda (`fusionPredicate`) from any peeled Where chain plus,
+      // for Count, the call's own predicate. When the peeled source is a
+      // fusable grouping parameter the aggregate is rewritten to fuse with
+      // the parent GROUP BY:
+      //
+      //   Count(p)            -> Sum(x => p(x) ? 1 : 0)
+      //   Where(p).Sum(s)     -> Sum(x => p(x) ? s(x) : 0 | NULL)
+      //   Where(p).Min/Max/Avg(s) -> Min/Max/Avg(x => p(x) ? s(x) : NULL)
+      //
+      // In the non-fusable case the peeled Where chain is collapsed into a
+      // single predicate passed to VisitWhere, yielding one FilterProvider
+      // with an AndAlso-tree body instead of stacked FilterProviders. SQL
+      // translation produces the same WHERE clause either way; this just
+      // saves the RSE pipeline a few redundant nodes.
+      var fusionPredicate = PeelWhereChain(ref source, aggregateParameter?.Parameters[0]);
+      var fusionSelector = aggregateParameter;
       if (aggregateType == AggregateType.Count) {
-        // Collapse Where chains into a single Count(predicate) so the fusion
-        // rewrite below can match a grouping-parameter source uniformly for
-        // both g.Count(p) and g.Where(p).Count() shapes.
-        while (source is MethodCallExpression whereCall
-          && QueryableVisitor.GetQueryableMethod(whereCall) == QueryableMethodKind.Where
-          && whereCall.Arguments.Count == 2) {
-          var wherePredicate = (LambdaExpression) whereCall.Arguments[1].StripQuotes();
-          if (aggregateParameter == null) {
-            aggregateParameter = wherePredicate;
-          }
-          else {
-            var outerParam = aggregateParameter.Parameters[0];
-            var rebasedBody = ExpressionReplacer.Replace(
-              wherePredicate.Body, wherePredicate.Parameters[0], outerParam);
-            aggregateParameter = FastExpression.Lambda(
-              Expression.AndAlso(rebasedBody, aggregateParameter.Body),
-              outerParam);
-          }
-          source = whereCall.Arguments[0];
-        }
+        // Count's own predicate participates as part of the fusion predicate,
+        // not as a selector — the selector for Count-as-Sum is the constant 1.
+        fusionPredicate = CombinePredicates(fusionPredicate, aggregateParameter);
+        fusionSelector = null;
+      }
 
-        // Rewrite Count(predicate) over a grouping into Sum(predicate ? 1 : 0)
-        // so the aggregate can fuse with the parent grouping AggregateProvider
-        // instead of being emitted as a per-group correlated subquery.
-        if (aggregateParameter != null
-          && source is ParameterExpression fusableGroupingParameter
-          && context.Bindings.TryGetValue(fusableGroupingParameter, out var fusableGroupingProjection)
-          && fusableGroupingProjection.ItemProjector.DataSource is AggregateProvider
-          && fusableGroupingProjection.ItemProjector.Item.StripMarkers().IsGroupingExpression()) {
-          aggregateParameter = FastExpression.Lambda(
-            Expression.Condition(aggregateParameter.Body, Expression.Constant(1), Expression.Constant(0)),
-            aggregateParameter.Parameters[0]);
-          aggregateType = AggregateType.Sum;
-        }
-        else {
-          aggregatedColumnIndex = 0;
-          sourceProjection = aggregateParameter != null
-            ? VisitWhere(source, aggregateParameter) : VisitSequence(source);
-          return (sourceProjection, aggregatedColumnIndex);
-        }
+      if (fusionPredicate != null && IsFusableGroupingSource(source)) {
+        var fusedType = aggregateType == AggregateType.Count ? AggregateType.Sum : aggregateType;
+        aggregateParameter = BuildFusedAggregateSelector(fusedType, fusionPredicate, fusionSelector);
+        aggregateType = fusedType;
+      }
+      else if (aggregateType == AggregateType.Count) {
+        // Non-fusable Count: source.Where(f1)...Where(fn).Count([p]) becomes
+        // one VisitWhere(source, f1 AND ... AND fn [AND p]) + Count(*).
+        aggregatedColumnIndex = 0;
+        sourceProjection = fusionPredicate != null
+          ? VisitWhere(source, fusionPredicate) : VisitSequence(source);
+        return (sourceProjection, aggregatedColumnIndex);
+      }
+      else if (fusionPredicate != null) {
+        // Non-fusable Sum/Min/Max/Avg with peeled Where(s): rebuild source as
+        // a single Queryable.Where(source, fusionPredicate) so the primary
+        // aggregate-selector path below sees one FilterProvider instead of
+        // stacked ones. Equivalent SQL in either form (both emit
+        // WHERE f1 AND ... AND fn on the same SELECT), but keeps the RSE
+        // tree smaller and consistent with the non-fusable Count path.
+        source = Expression.Call(WellKnownMembers.Queryable.Where.CachedMakeGenericMethod(
+            fusionPredicate.Parameters[0].Type),
+          source,
+          Expression.Quote(fusionPredicate));
       }
 
       IReadOnlyList<ColNum> columnList = null;
@@ -1005,6 +1018,125 @@ namespace Xtensive.Orm.Linq
 
       aggregatedColumnIndex = columnList[0];
       return (sourceProjection, aggregatedColumnIndex);
+    }
+
+    /// <summary>
+    /// Walks <c>Queryable.Where</c> calls off <paramref name="source"/> and
+    /// combines their predicates with <c>AndAlso</c> into a single lambda.
+    /// Advances <paramref name="source"/> past each consumed call; leaves it
+    /// untouched when no <c>Where</c> is found.
+    /// </summary>
+    /// <param name="initialParameter">
+    /// Optional lambda parameter to rebase every peeled predicate onto. When
+    /// <see langword="null"/> the first peeled predicate's own parameter is
+    /// adopted; subsequent predicates are rebased onto it.
+    /// </param>
+    /// <returns>
+    /// The combined predicate, or <see langword="null"/> when no <c>Where</c>
+    /// call was peeled.
+    /// </returns>
+    private static LambdaExpression PeelWhereChain(ref Expression source, ParameterExpression initialParameter)
+    {
+      LambdaExpression combined = null;
+      var param = initialParameter;
+      while (source is MethodCallExpression whereCall
+        && QueryableVisitor.GetQueryableMethod(whereCall) == QueryableMethodKind.Where
+        && whereCall.Arguments.Count == 2) {
+        var predicate = (LambdaExpression) whereCall.Arguments[1].StripQuotes();
+        // Queryable exposes both Where(source, Func<T,bool>) and the indexed
+        // Where(source, Func<T,int,bool>) under the same QueryableMethodKind.
+        // Only the 1-parameter overload is safe to AND-combine: the indexed
+        // variant binds the element's position in the *current* sequence, so
+        // collapsing it into another Where would change the index semantics.
+        // Bail out and let the caller leave the indexed Where in place for
+        // the normal VisitWhere path to handle.
+        if (predicate.Parameters.Count != 1) {
+          break;
+        }
+        param ??= predicate.Parameters[0];
+        var rebased = ExpressionReplacer.Replace(predicate.Body, predicate.Parameters[0], param);
+        combined = combined == null
+          ? FastExpression.Lambda(rebased, param)
+          : FastExpression.Lambda(Expression.AndAlso(rebased, combined.Body), param);
+        source = whereCall.Arguments[0];
+      }
+      return combined;
+    }
+
+    /// <summary>
+    /// Combines two predicates with <c>AndAlso</c>, rebasing
+    /// <paramref name="extra"/> onto <paramref name="primary"/>'s parameter.
+    /// Returns whichever input is non-null when the other is, or
+    /// <see langword="null"/> when both are.
+    /// </summary>
+    private static LambdaExpression CombinePredicates(LambdaExpression primary, LambdaExpression extra)
+    {
+      if (extra == null) {
+        return primary;
+      }
+      if (primary == null) {
+        return extra;
+      }
+      var param = primary.Parameters[0];
+      var rebased = ExpressionReplacer.Replace(extra.Body, extra.Parameters[0], param);
+      return FastExpression.Lambda(Expression.AndAlso(rebased, primary.Body), param);
+    }
+
+    /// <summary>
+    /// True when <paramref name="source"/> is a parameter bound to a grouping
+    /// projection whose data source is a bare <see cref="AggregateProvider"/> —
+    /// the shape produced by <c>GroupBy</c> on a scalar/tuple key. A caller
+    /// recognising this shape may fuse an additional aggregate into that
+    /// provider's aggregate columns instead of emitting a per-group
+    /// correlated subquery.
+    /// </summary>
+    private bool IsFusableGroupingSource(Expression source)
+    {
+      return source is ParameterExpression groupingParameter
+        && context.Bindings.TryGetValue(groupingParameter, out var groupingProjection)
+        && groupingProjection.ItemProjector.DataSource is AggregateProvider
+        && groupingProjection.ItemProjector.Item.StripMarkers().IsGroupingExpression();
+    }
+
+    /// <summary>
+    /// Builds a <c>x =&gt; predicate(x) ? selector(x) : else</c> lambda used to
+    /// fuse a filtered aggregate into the parent GROUP BY. When
+    /// <paramref name="selector"/> is <see langword="null"/> the selector is
+    /// the constant <c>1</c> (Count-as-Sum rewrite). The ELSE value is
+    /// <c>0</c> for a non-nullable <see cref="AggregateType.Sum"/> selector —
+    /// preserves the LINQ "empty set = 0" contract; substituting NULL would
+    /// leak through as a nullable aggregate result — and <c>NULL</c>
+    /// otherwise (SQL Sum/Min/Max/Avg ignore NULLs, and LINQ's empty-set
+    /// semantics for Min/Max/Avg/nullable-Sum also yield NULL).
+    /// </summary>
+    private static LambdaExpression BuildFusedAggregateSelector(
+      AggregateType targetType, LambdaExpression predicate, LambdaExpression selector)
+    {
+      var param = predicate.Parameters[0];
+      var selectorBody = selector == null
+        ? (Expression) Expression.Constant(1)
+        : ExpressionReplacer.Replace(selector.Body, selector.Parameters[0], param);
+
+      var selectorType = selectorBody.Type;
+      Type caseType;
+      Expression elseValue;
+      if (targetType == AggregateType.Sum && selectorType.IsValueType && !selectorType.IsNullable()) {
+        caseType = selectorType;
+        elseValue = Expression.Constant(System.Activator.CreateInstance(selectorType), selectorType);
+      }
+      else {
+        caseType = selectorType.IsValueType && !selectorType.IsNullable()
+          ? typeof(Nullable<>).MakeGenericType(selectorType)
+          : selectorType;
+        elseValue = Expression.Constant(null, caseType);
+      }
+
+      var thenValue = selectorBody.Type != caseType
+        ? (Expression) Expression.Convert(selectorBody, caseType)
+        : selectorBody;
+
+      return FastExpression.Lambda(
+        Expression.Condition(predicate.Body, thenValue, elseValue), param);
     }
 
     private static void EnsureAggregateIsPossible(Type type, AggregateType aggregateType, Expression visitedExpression)

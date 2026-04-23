@@ -5,6 +5,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Linq.Optimization.Model;
 
 namespace Xtensive.Orm.Tests.Linq.Optimization
@@ -396,6 +397,236 @@ namespace Xtensive.Orm.Tests.Linq.Optimization
       var count = session.Query.All<Order>().Count(o => o.Code == "no-such-code");
 
       Assert.That(count, Is.EqualTo(0));
+    }
+
+    /// <summary>
+    /// Generalized fusion: <c>g.Where(p).Sum(selector)</c> on a grouping
+    /// parameter must be pulled into the aggregate selector as
+    /// <c>g.Sum(x =&gt; p(x) ? selector(x) : 0)</c> (0 ELSE branch for a
+    /// non-nullable numeric selector preserves the LINQ "empty set = 0"
+    /// contract for <c>Sum</c>) so it fuses with the parent <c>GROUP BY</c>
+    /// instead of emitting a correlated subquery.
+    /// </summary>
+    [Test]
+    public void GroupByWhereSum_FusesIntoSingleAggregate()
+    {
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      var query = session.Query.All<Order>()
+        .GroupBy(o => o.IsActive)
+        .Select(g => new {
+          Active = g.Key,
+          PublishedIdSum = g.Where(x => x.PublishedOn != null).Sum(x => x.Id),
+        })
+        .OrderBy(r => r.Active);
+
+      var sql = Sql(session, query);
+      TestContext.WriteLine(sql);
+      AssertCount(sql, "(SELECT COUNT", 0);
+      AssertCount(sql, "(SELECT SUM", 0);
+
+      var expected = session.Query.All<Order>().ToArray()
+        .GroupBy(o => o.IsActive)
+        .Select(g => new {
+          Active = g.Key,
+          PublishedIdSum = g.Where(x => x.PublishedOn != null).Sum(x => x.Id),
+        })
+        .OrderBy(r => r.Active)
+        .Select(r => (r.Active, r.PublishedIdSum))
+        .ToArray();
+
+      var actual = query.ToArray().Select(r => (r.Active, r.PublishedIdSum)).ToArray();
+      Assert.That(actual, Is.EqualTo(expected));
+    }
+
+    /// <summary>
+    /// Generalized fusion: <c>g.Where(p).Min(selector)</c> must fuse via
+    /// <c>g.Min(x =&gt; p(x) ? (T?)selector(x) : null)</c>; SQL <c>MIN</c>
+    /// ignores <c>NULL</c>s so the rewrite is semantically equivalent.
+    /// </summary>
+    [Test]
+    public void GroupByWhereMin_FusesIntoSingleAggregate()
+    {
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      var query = session.Query.All<Order>()
+        .GroupBy(o => o.IsActive)
+        .Select(g => new {
+          Active = g.Key,
+          MinPublishedId = g.Where(x => x.PublishedOn != null).Min(x => (long?) x.Id),
+        })
+        .OrderBy(r => r.Active);
+
+      var sql = Sql(session, query);
+      TestContext.WriteLine(sql);
+      AssertCount(sql, "(SELECT MIN", 0);
+
+      var expected = session.Query.All<Order>().ToArray()
+        .GroupBy(o => o.IsActive)
+        .Select(g => new {
+          Active = g.Key,
+          MinPublishedId = g.Where(x => x.PublishedOn != null).Min(x => (long?) x.Id),
+        })
+        .OrderBy(r => r.Active)
+        .Select(r => (r.Active, r.MinPublishedId))
+        .ToArray();
+
+      var actual = query.ToArray().Select(r => (r.Active, r.MinPublishedId)).ToArray();
+      Assert.That(actual, Is.EqualTo(expected));
+    }
+
+    /// <summary>
+    /// Generalized fusion: <c>g.Where(p).Max(selector)</c> must fuse via the
+    /// same <c>NULL</c>-in-ELSE trick as <see cref="GroupByWhereMin_FusesIntoSingleAggregate"/>.
+    /// </summary>
+    [Test]
+    public void GroupByWhereMax_FusesIntoSingleAggregate()
+    {
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      var query = session.Query.All<Order>()
+        .GroupBy(o => o.IsActive)
+        .Select(g => new {
+          Active = g.Key,
+          MaxPublishedId = g.Where(x => x.PublishedOn != null).Max(x => (long?) x.Id),
+        })
+        .OrderBy(r => r.Active);
+
+      var sql = Sql(session, query);
+      TestContext.WriteLine(sql);
+      AssertCount(sql, "(SELECT MAX", 0);
+
+      var expected = session.Query.All<Order>().ToArray()
+        .GroupBy(o => o.IsActive)
+        .Select(g => new {
+          Active = g.Key,
+          MaxPublishedId = g.Where(x => x.PublishedOn != null).Max(x => (long?) x.Id),
+        })
+        .OrderBy(r => r.Active)
+        .Select(r => (r.Active, r.MaxPublishedId))
+        .ToArray();
+
+      var actual = query.ToArray().Select(r => (r.Active, r.MaxPublishedId)).ToArray();
+      Assert.That(actual, Is.EqualTo(expected));
+    }
+
+    /// <summary>
+    /// Generalized fusion: <c>g.Where(p).Average(selector)</c> must fuse via
+    /// <c>NULL</c>-in-ELSE; SQL <c>AVG</c> ignores <c>NULL</c>s, matching
+    /// LINQ's "average over passing rows" contract.
+    /// </summary>
+    [Test]
+    public void GroupByWhereAverage_FusesIntoSingleAggregate()
+    {
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      var query = session.Query.All<Order>()
+        .GroupBy(o => o.IsActive)
+        .Select(g => new {
+          Active = g.Key,
+          AvgPublishedId = g.Where(x => x.PublishedOn != null).Average(x => (double?) x.Id),
+        })
+        .OrderBy(r => r.Active);
+
+      var sql = Sql(session, query);
+      TestContext.WriteLine(sql);
+      AssertCount(sql, "(SELECT AVG", 0);
+
+      var expected = session.Query.All<Order>().ToArray()
+        .GroupBy(o => o.IsActive)
+        .Select(g => new {
+          Active = g.Key,
+          AvgPublishedId = g.Where(x => x.PublishedOn != null).Average(x => (double?) x.Id),
+        })
+        .OrderBy(r => r.Active)
+        .Select(r => (r.Active, r.AvgPublishedId))
+        .ToArray();
+
+      var actual = query.ToArray().Select(r => (r.Active, r.AvgPublishedId)).ToArray();
+      Assert.That(actual, Is.EqualTo(expected));
+    }
+
+    /// <summary>
+    /// Regression: <c>g.Where(p).Sum(selector)</c> where no rows match the
+    /// predicate in a group must materialize as <c>0</c> (LINQ <c>Sum</c>'s
+    /// empty-sequence contract for non-nullable numeric selectors) and not
+    /// as <c>NULL</c>. The rewrite must use <c>0</c> — not <c>NULL</c> — in
+    /// the ELSE branch when the selector result type is non-nullable.
+    /// </summary>
+    [Test]
+    public void GroupByWhereSum_ZeroMatchingRows_ReturnsZero()
+    {
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      var query = session.Query.All<Order>()
+        .GroupBy(o => o.IsActive)
+        .Select(g => new {
+          Active = g.Key,
+          PublishedIdSum = g.Where(x => x.PublishedOn != null).Sum(x => x.Id),
+        })
+        .OrderBy(r => r.Active);
+
+      var rows = query.ToArray();
+      var inactive = rows.Single(r => !r.Active);
+      Assert.That(inactive.PublishedIdSum, Is.EqualTo(0L),
+        "Sum(selector) over an empty filter in a grouping must materialize as 0, not NULL, for a non-nullable selector.");
+    }
+
+    /// <summary>
+    /// Guard: <see cref="Queryable.Where{T}(IQueryable{T}, System.Linq.Expressions.Expression{System.Func{T, int, bool}})"/>
+    /// — the indexed <c>Where</c> overload — must not be folded into a
+    /// combined predicate by <c>PeelWhereChain</c>. The <c>index</c>
+    /// parameter refers to the row's position in the current sequence; AND-
+    /// combining an indexed <c>Where</c> with another predicate would
+    /// silently change its semantics and produce an expression tree with an
+    /// unbound parameter. The correct behaviour is to stop peeling at the
+    /// indexed call and let <c>VisitWhere</c> handle it normally.
+    /// </summary>
+    [Test]
+    public void IndexedWhereChainBeforeCount_IsNotCollapsed()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
+
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      var query = session.Query.All<Order>()
+        .OrderBy(o => o.Id)
+        .Where((o, i) => i >= 0)
+        .Count(o => o.PublishedOn == null);
+
+      Assert.That(query, Is.EqualTo(3));
+    }
+
+    /// <summary>
+    /// Root-level (non-fusable) Sum with a Where chain must collapse into a
+    /// single WHERE in the emitted SQL — one <c>FilterProvider</c> instead of
+    /// stacked ones — and produce the same numeric result as the in-memory
+    /// reference. Verifies the <c>PeelWhereChain</c> rebuild path for
+    /// Sum/Min/Max/Avg when fusion does not apply.
+    /// </summary>
+    [Test]
+    public void RootLevelWhereChainSum_CollapsesAndMatchesReference()
+    {
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      var actual = session.Query.All<Order>()
+        .Where(o => o.IsActive)
+        .Where(o => o.PublishedOn != null)
+        .Sum(o => o.Id);
+
+      var expected = session.Query.All<Order>().ToArray()
+        .Where(o => o.IsActive)
+        .Where(o => o.PublishedOn != null)
+        .Sum(o => o.Id);
+
+      Assert.That(actual, Is.EqualTo(expected));
     }
   }
 }
