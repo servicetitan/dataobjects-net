@@ -776,7 +776,7 @@ namespace Xtensive.Orm.Linq
     {
       var aggregateType = ExtractAggregateType(expressionPart);
 
-      var origin = VisitAggregateSource(source, argument, ref aggregateType, expressionPart);
+      var origin = VisitAggregateSource(ref source, argument, ref aggregateType, expressionPart);
       var originProjection = origin.Item1;
       var originColumnIndex = origin.Item2;
 
@@ -908,23 +908,47 @@ namespace Xtensive.Orm.Linq
       return null;
     }
 
-    private (ProjectionExpression, ColNum) VisitAggregateSource(Expression source, LambdaExpression aggregateParameter,
+    private (ProjectionExpression, ColNum) VisitAggregateSource(ref Expression source, LambdaExpression aggregateParameter,
       ref AggregateType aggregateType, Expression visitedExpression)
     {
       // Process any selectors or filters specified via parameter to aggregating method.
       // Substitutions applied:
+      //   source.Where(f1)...Where(fn)[.Count(f)]   -> source.Count(f1 AND ... AND fn [AND f])
+      //     (peels Where chains so the rewrite below can see the grouping parameter)
       //   source.Count(filter)   -> source.Select(filter ? 1 : 0).Sum()
       //     (only for a grouping-parameter source; enables aggregate fusion)
       //   source.Count(filter)   -> source.Where(filter).Count()
       //   source.Sum(selector)   -> source.Select(selector).Sum()
       // If parameterless method is called this method simply processes source.
       // Returns source projection and the column index to aggregate over;
-      // aggregateType is updated when the Count->Sum rewrite is applied.
+      // source and aggregateType are updated when the Where-peel / Count->Sum
+      // rewrites are applied so the caller sees the post-rewrite shape.
 
       ProjectionExpression sourceProjection;
       ColNum aggregatedColumnIndex;
 
       if (aggregateType == AggregateType.Count) {
+        // Collapse Where chains into a single Count(predicate) so the fusion
+        // rewrite below can match a grouping-parameter source uniformly for
+        // both g.Count(p) and g.Where(p).Count() shapes.
+        while (source is MethodCallExpression whereCall
+          && QueryableVisitor.GetQueryableMethod(whereCall) == QueryableMethodKind.Where
+          && whereCall.Arguments.Count == 2) {
+          var wherePredicate = (LambdaExpression) whereCall.Arguments[1].StripQuotes();
+          if (aggregateParameter == null) {
+            aggregateParameter = wherePredicate;
+          }
+          else {
+            var outerParam = aggregateParameter.Parameters[0];
+            var rebasedBody = ExpressionReplacer.Replace(
+              wherePredicate.Body, wherePredicate.Parameters[0], outerParam);
+            aggregateParameter = FastExpression.Lambda(
+              Expression.AndAlso(rebasedBody, aggregateParameter.Body),
+              outerParam);
+          }
+          source = whereCall.Arguments[0];
+        }
+
         // Rewrite Count(predicate) over a grouping into Sum(predicate ? 1 : 0)
         // so the aggregate can fuse with the parent grouping AggregateProvider
         // instead of being emitted as a per-group correlated subquery.

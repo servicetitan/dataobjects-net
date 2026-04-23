@@ -20,18 +20,9 @@ namespace Xtensive.Orm.Tests.Linq.Optimization
   ///   <item>Shape assertions (<see cref="AssertNotContains"/>, <see cref="AssertCount"/>) for the generated SQL string.</item>
   ///   <item><see cref="AssertResultsEqual{T}"/> to pair every shape assertion with a correctness check.</item>
   /// </list>
-  /// Subclasses that need to opt into a specific <see cref="TranslatorOptimizations"/>
-  /// flag override <see cref="Optimizations"/>.
   /// </summary>
   public abstract class OptimizationTestBase : AutoBuildTest
   {
-    /// <summary>
-    /// Flags to apply to <see cref="DomainConfiguration.TranslatorOptimizations"/>.
-    /// Default keeps the legacy translator behavior so this base class is a no-op
-    /// for tests that only care about correctness.
-    /// </summary>
-    protected virtual TranslatorOptimizations Optimizations => TranslatorOptimizations.Default;
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
@@ -39,7 +30,6 @@ namespace Xtensive.Orm.Tests.Linq.Optimization
       configuration.Types.Register(typeof(Workflow));
       configuration.Types.Register(typeof(Order));
       configuration.Types.Register(typeof(OrderItem));
-      configuration.TranslatorOptimizations = Optimizations;
       return configuration;
     }
 

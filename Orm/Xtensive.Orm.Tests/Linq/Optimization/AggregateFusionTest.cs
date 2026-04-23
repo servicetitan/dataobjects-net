@@ -75,6 +75,121 @@ namespace Xtensive.Orm.Tests.Linq.Optimization
     }
 
     /// <summary>
+    /// <c>g.Where(p).Count()</c> on a grouping parameter is semantically identical
+    /// to <c>g.Count(p)</c>; the translator must recognize the shape and fuse it
+    /// into the parent <c>GROUP BY</c> the same way as the direct form.
+    /// </summary>
+    [Test]
+    public void GroupByWhereCount_FusesIntoSingleAggregate()
+    {
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      var query = session.Query.All<Order>()
+        .GroupBy(o => o.IsActive)
+        .Select(g => new {
+          Active = g.Key,
+          Drafts = g.Where(x => x.PublishedOn == null).Count(),
+        })
+        .OrderBy(r => r.Active);
+
+      var sql = Sql(session, query);
+      TestContext.WriteLine(sql);
+      AssertCount(sql, "(SELECT COUNT", 0);
+      AssertCount(sql, "(SELECT SUM", 0);
+
+      var expected = session.Query.All<Order>().ToArray()
+        .GroupBy(o => o.IsActive)
+        .Select(g => new {
+          Active = g.Key,
+          Drafts = g.Where(x => x.PublishedOn == null).Count(),
+        })
+        .OrderBy(r => r.Active)
+        .Select(r => (r.Active, r.Drafts))
+        .ToArray();
+
+      var actual = query.ToArray().Select(r => (r.Active, r.Drafts)).ToArray();
+      Assert.That(actual, Is.EqualTo(expected));
+    }
+
+    /// <summary>
+    /// Chained <c>Where</c>s followed by <c>Count()</c> on a grouping parameter
+    /// must fuse as a single aggregate; the translator combines the predicates
+    /// with <c>AndAlso</c> and applies the same <c>Count -&gt; Sum(CASE)</c>
+    /// rewrite as for the direct form.
+    /// </summary>
+    [Test]
+    public void GroupByChainedWhereCount_FusesIntoSingleAggregate()
+    {
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      var query = session.Query.All<Order>()
+        .GroupBy(o => o.IsActive)
+        .Select(g => new {
+          Active = g.Key,
+          DraftsD = g.Where(x => x.PublishedOn == null).Where(x => x.Code.StartsWith("D")).Count(),
+        })
+        .OrderBy(r => r.Active);
+
+      var sql = Sql(session, query);
+      TestContext.WriteLine(sql);
+      AssertCount(sql, "(SELECT COUNT", 0);
+      AssertCount(sql, "(SELECT SUM", 0);
+
+      var expected = session.Query.All<Order>().ToArray()
+        .GroupBy(o => o.IsActive)
+        .Select(g => new {
+          Active = g.Key,
+          DraftsD = g.Where(x => x.PublishedOn == null).Where(x => x.Code.StartsWith("D")).Count(),
+        })
+        .OrderBy(r => r.Active)
+        .Select(r => (r.Active, r.DraftsD))
+        .ToArray();
+
+      var actual = query.ToArray().Select(r => (r.Active, r.DraftsD)).ToArray();
+      Assert.That(actual, Is.EqualTo(expected));
+    }
+
+    /// <summary>
+    /// Variant of <see cref="GroupByWhereCount_FusesIntoSingleAggregate"/> for
+    /// the <c>LongCount</c> path; the collapsed form must still produce the
+    /// correct <c>long</c> result and fuse.
+    /// </summary>
+    [Test]
+    public void GroupByWhereLongCount_FusesIntoSingleAggregate()
+    {
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      var query = session.Query.All<Order>()
+        .GroupBy(o => o.IsActive)
+        .Select(g => new {
+          Active = g.Key,
+          Drafts = g.Where(x => x.PublishedOn == null).LongCount(),
+        })
+        .OrderBy(r => r.Active);
+
+      var sql = Sql(session, query);
+      TestContext.WriteLine(sql);
+      AssertCount(sql, "(SELECT COUNT", 0);
+      AssertCount(sql, "(SELECT SUM", 0);
+
+      var expected = session.Query.All<Order>().ToArray()
+        .GroupBy(o => o.IsActive)
+        .Select(g => new {
+          Active = g.Key,
+          Drafts = g.Where(x => x.PublishedOn == null).LongCount(),
+        })
+        .OrderBy(r => r.Active)
+        .Select(r => (r.Active, r.Drafts))
+        .ToArray();
+
+      var actual = query.ToArray().Select(r => (r.Active, r.Drafts)).ToArray();
+      Assert.That(actual, Is.EqualTo(expected));
+    }
+
+    /// <summary>
     /// Multiple predicated counts in the same projection all fuse into a single
     /// <c>SELECT ... GROUP BY</c>.
     /// </summary>
