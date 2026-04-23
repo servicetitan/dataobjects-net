@@ -94,29 +94,18 @@ namespace Xtensive.Orm.Providers
       IncludeProvider provider, IReadOnlyList<TypeMapping> mappings, Func<ParameterContext, object> valueAccessor,
       IReadOnlyList<SqlExpression> sourceColumns, QueryParameterBinding binding = null)
     {
-      binding ??= new QueryRowFilterParameterBinding(mappings, valueAccessor, null, false);
-      return (SqlDml.DynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding);
-    }
-
-    protected (SqlExpression, QueryParameterBinding) CreateIncludeViaTableValuedParameter(
-      IncludeProvider provider, IReadOnlyList<TypeMapping> mappings, Func<ParameterContext, object> valueAccessor,
-      IReadOnlyList<SqlExpression> sourceColumns,
-      Type tableValuedParameterType,
-      bool enforceTvp)
-    {
-      var tvpMapping = Driver.GetTypeMapping(
-        tableValuedParameterType == WellKnownTypes.String ? typeof(List<string>)
-          : tableValuedParameterType == WellKnownTypes.Guid ? typeof(List<Guid>)
-          : typeof(List<long>));
-      QueryRowFilterParameterBinding binding = new(mappings, valueAccessor, tvpMapping, enforceTvp);
-      return (SqlDml.TvpDynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding);
+      var filterTupleDescriptor = provider.FilteredTupleDescriptor;
+      binding = new QueryRowFilterParameterBinding(mappings, valueAccessor);
+      var resultExpression = SqlDml.DynamicFilter(binding);
+      resultExpression.Expressions.AddRange(provider.FilteredColumns.Select(index => sourceColumns[index]));
+      return resultExpression;
     }
 
     protected SqlExpression CreateIncludeViaTemporaryTableExpression(
       IncludeProvider provider, IReadOnlyList<SqlExpression> sourceColumns,
       out TemporaryTableDescriptor tableDescriptor)
     {
-      var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
+      var filterTupleDescriptor = provider.FilteredTupleDescriptor;
       var filteredColumns = provider.FilteredColumns
         .Select(index => sourceColumns[index])
         .ToArray();

@@ -109,7 +109,7 @@
 
     <GeneratePackageOnBuild Condition="$(DoGeneratePackage) == 'true' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <ContinuousIntegrationBuild>false</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>

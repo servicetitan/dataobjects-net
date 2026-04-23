@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
@@ -19,68 +18,60 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class ContainsTableProvider : CompilableProvider
   {
-    private readonly RecordSetHeader indexHeader;
+    public Func<ParameterContext, string> SearchCriteria { get; }
 
-    public Func<ParameterContext, string> SearchCriteria { get; private set; }
+    public IndexInfoRef PrimaryIndex { get; }
 
-    public IndexInfoRef PrimaryIndex { get; private set; }
+    public bool FullFeatured { get; }
 
-    public bool FullFeatured { get; private set; }
-
-    public Func<ParameterContext, int> TopN { get; private set; }
+    public Func<ParameterContext, int> TopN { get; }
 
     public IReadOnlyList<FullTextColumnInfo> TargetColumns { get; }
+    
 
-    protected override RecordSetHeader BuildHeader()
+    #region Header build
+    private static RecordSetHeader BuildHeader(FullTextIndexInfo index, string rankColumnName, bool fullFeatured)
     {
-      return indexHeader;
-    }
-
-    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitContainsTable(this);
-
-    public ContainsTableProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, bool fullFeatured)
-      : this(index, searchCriteria, rankColumnName, new List<ColumnInfo>(), null, fullFeatured)
-    {
-    }
-
-    public ContainsTableProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, IList<ColumnInfo> targetColumns, bool fullFeatured)
-      : this(index, searchCriteria, rankColumnName, targetColumns, null, fullFeatured)
-    {
-
-    }
-
-    public ContainsTableProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, IList<ColumnInfo> targetColumns, Func<ParameterContext, int> topNByRank, bool fullFeatured)
-      : base(ProviderType.ContainsTable)
-    {
-      SearchCriteria = searchCriteria ?? throw new ArgumentNullException(nameof(searchCriteria));
-      FullFeatured = fullFeatured;
-      PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);
-      TargetColumns = targetColumns.Select(tc => index.Columns.First(c => c.Column == tc))
-        .ToArray()
-        .AsSafeWrapper();
-      TopN = topNByRank;
-      if (FullFeatured) {
+      if (fullFeatured) {
         var primaryIndexRecordsetHeader =
           index.PrimaryIndex.ReflectedType.Indexes.PrimaryIndex.GetRecordSetHeader();
         var rankColumn = new MappedColumn(rankColumnName, primaryIndexRecordsetHeader.Length, WellKnownTypes.Double);
-        indexHeader = primaryIndexRecordsetHeader.Add(rankColumn);
+        return primaryIndexRecordsetHeader.Add(rankColumn);
       }
       else {
         var primaryIndexKeyColumns = index.PrimaryIndex.KeyColumns;
         if (primaryIndexKeyColumns.Count!=1)
           throw new InvalidOperationException(Strings.ExOnlySingleColumnKeySupported);
-        var fieldTypes = primaryIndexKeyColumns
-          .Select(static columnInfo => columnInfo.Key.ValueType)
-          .Append(WellKnownTypes.Double)
-          .ToArray();
+
+        var keyValueType = primaryIndexKeyColumns[0].Key.ValueType;
+        var fieldTypes = new Type[2] { keyValueType, WellKnownTypes.Double };
         var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
-        var columns = primaryIndexKeyColumns
-          .Select(static (c, i) => (Column) new MappedColumn("KEY", (ColNum) i, c.Key.ValueType))
-          .Append(new MappedColumn("RANK", tupleDescriptor.Count, WellKnownTypes.Double))
-          .ToArray();;
-        indexHeader = new RecordSetHeader(tupleDescriptor, columns);
+        var columns = new Column[2] { new MappedColumn("KEY", 0, keyValueType), new MappedColumn("RANK", tupleDescriptor.Count, WellKnownTypes.Double) };
+
+        return new RecordSetHeader(tupleDescriptor, columns);
       }
-      Initialize();
+    }
+    #endregion
+
+    internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitContainsTable(this);
+
+    // Constructors
+
+    public ContainsTableProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, IList<ColumnInfo> targetColumns, bool fullFeatured)
+      : this(index, searchCriteria, rankColumnName, targetColumns, null, fullFeatured)
+    {      
+    }
+
+    public ContainsTableProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, IList<ColumnInfo> targetColumns, Func<ParameterContext, int> topNByRank, bool fullFeatured)
+      : base(ProviderType.ContainsTable, BuildHeader(index, rankColumnName, fullFeatured))
+    {
+      SearchCriteria = searchCriteria ?? throw new ArgumentNullException(nameof(searchCriteria));
+      FullFeatured = fullFeatured;
+      PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);
+      TargetColumns = targetColumns.Select(tc => index.Columns.First(c => c.Column == tc))
+        .ToList(targetColumns.Count)
+        .AsReadOnly();
+      TopN = topNByRank;
     }
   }
 }

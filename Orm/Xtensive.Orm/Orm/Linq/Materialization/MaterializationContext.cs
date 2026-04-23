@@ -4,6 +4,9 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.29
 
+using System;
+using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Tuples.Transform;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
@@ -77,8 +80,8 @@ namespace Xtensive.Orm.Linq.Materialization
       var keyIndexes = new ColNum[keyCount];
       Array.Copy(allIndexes, keyIndexes, keyCount);
 
-      var transform    = new MapTransform(true, descriptor, allIndexes);
-      var keyTransform = new MapTransform(true, keyInfo.TupleDescriptor, keyIndexes);
+      var transform    = new MapTransform(descriptor, allIndexes);
+      var keyTransform = new MapTransform(keyInfo.TupleDescriptor, keyIndexes);
 
       result = new TypeMapping(type, keyTransform, transform, keyIndexes);
 

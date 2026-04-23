@@ -26,7 +26,6 @@ namespace Xtensive.Orm.Rse.Providers
     public DistinctProvider(CompilableProvider source)
       : base(ProviderType.Distinct, source)
     {
-      Initialize();
     }
   }
 }

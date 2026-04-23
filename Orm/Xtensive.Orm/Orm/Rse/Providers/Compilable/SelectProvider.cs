@@ -24,12 +24,6 @@ namespace Xtensive.Orm.Rse.Providers
     public IReadOnlyList<ColNum> ColumnIndexes { [DebuggerStepThrough] get; }
 
     /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return base.BuildHeader().Select(ColumnIndexes);
-    }
-
-    /// <inheritdoc/>
     protected override string ParametersToString()
     {
       return Header.Columns.Columns.Select(c => c.Name).ToCommaDelimitedString();
@@ -42,12 +36,10 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     ///   Initializes a new instance of this class.
     /// </summary>
-    public SelectProvider(CompilableProvider provider, IReadOnlyList<ColNum> columnIndexes)
-      : base(ProviderType.Select, provider)
+    public SelectProvider(CompilableProvider provider, IReadOnlyList<int> columnIndexes)
+      : base(ProviderType.Select, provider.Header.Select(columnIndexes), provider)
     {
-      ColumnIndexes = columnIndexes.AsSafeWrapper();
-
-      Initialize();
+      ColumnIndexes = columnIndexes;
     }
   }
 }

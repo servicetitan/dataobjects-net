@@ -182,6 +182,9 @@ namespace Xtensive.Tuples.Packed
     : PackedFieldAccessor(BitOperations.Log2((uint)bitCount), index)
   {
     public Type FieldType { get; protected set; }
+
+    private static int GetRank(int bitSize) =>
+      BitOperations.Log2((uint)bitSize);
   }
 
   internal abstract class ValueFieldAccessor<T> : ValueFieldAccessor

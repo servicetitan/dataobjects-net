@@ -27,7 +27,6 @@ namespace Xtensive.Orm.Rse.Providers
     {
       ArgumentException.ThrowIfNullOrWhiteSpace(tag);
       Tag = tag;
-      Initialize();
     }
   }
 }

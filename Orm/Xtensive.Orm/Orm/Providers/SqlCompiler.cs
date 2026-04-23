@@ -549,7 +549,7 @@ namespace Xtensive.Orm.Providers
 
       var query = ExtractSqlSelect(provider, source);
       var rowNumber = SqlDml.RowNumber();
-      query.Columns.Add(rowNumber, header.Columns.Columns.Last().Name);
+      query.Columns.Add(rowNumber, header.Columns.Columns[^1].Name);
       var columns = ExtractColumnExpressions(query);
       foreach (var order in directionCollection)
         rowNumber.OrderBy.Add(columns[order.Key], order.Value==Direction.Positive);

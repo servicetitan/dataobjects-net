@@ -20,13 +20,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Alias of the result.
     /// </summary>
-    public string Alias { get; private set; }
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return base.BuildHeader().Alias(Alias);
-    }
+    public string Alias { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -44,11 +38,9 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="alias">The <see cref="Alias"/> property value.</param>
     public AliasProvider(CompilableProvider source, string alias)
-      : base(ProviderType.Alias, source)
+      : base(ProviderType.Alias, source.Header.Alias(alias), source)
     {
-      ArgumentException.ThrowIfNullOrEmpty(alias);
       Alias = alias;
-      Initialize();
     }
   }
 }

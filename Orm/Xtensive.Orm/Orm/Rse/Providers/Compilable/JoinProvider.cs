@@ -5,11 +5,8 @@
 // Created:    2008.07.03
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
-
 
 
 namespace Xtensive.Orm.Rse.Providers
@@ -26,7 +23,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Join operation type.
     /// </summary>
-    public JoinType JoinType { get; private set; }
+    public JoinType JoinType { get; }
 
     /// <summary>
     /// Pairs of equal column indexes.
@@ -36,7 +33,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Pairs of equal columns.
     /// </summary>
-    public IReadOnlyList<(Column Left, Column Right)> EqualColumns { get; private set; }
+    public IReadOnlyList<(Column Left, Column Right)> EqualColumns { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -46,19 +43,16 @@ namespace Xtensive.Orm.Rse.Providers
         EqualColumns.Select(p => p.Left.Name + " == " + p.Right.Name).ToCommaDelimitedString());
     }
 
-    /// <inheritdoc/>
-    protected override void Initialize()
+
+    private static (Column Left, Column Right)[] BuildEqualColumns(ColumnCollection leftHeaderColumns, ColumnCollection rightHeaderColumns, IReadOnlyList<(ColNum Left, ColNum Right)> equalIndexes)
     {
-      base.Initialize();
-      var leftColumns = Left.Header.Columns;
-      var rightColumns = Right.Header.Columns;
-      var n = EqualIndexes.Count;
-      var equalColumns = new (Column Left, Column Right)[n];
-      for (int i = n; i-- > 0;) {
-        var (leftIndex, rightIndex) = EqualIndexes[i];
-        equalColumns[i] = (leftColumns[leftIndex], rightColumns[rightIndex]);
+      var count = equalIndexes.Count;
+      var equalColumns = new (Column Left, Column Right)[count];
+      for (int i = 0; i < count; i++) {
+        var (left, right) = equalIndexes[i];
+        equalColumns[i] = (leftHeaderColumns[left], rightHeaderColumns[right]);
       }
-      EqualColumns = equalColumns;
+      return equalColumns;
     }
 
     internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitJoin(this);
@@ -76,12 +70,13 @@ namespace Xtensive.Orm.Rse.Providers
     public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType, IReadOnlyList<(ColNum Left, ColNum Right)> equalIndexes)
       : base(ProviderType.Join, left, right)
     {
-      if (equalIndexes==null || equalIndexes.Count==0)
+      if (equalIndexes == null || equalIndexes.Count == 0) {
         throw new ArgumentException(
-          Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, "equalIndexes");
+          Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, nameof(equalIndexes));
+      }
       JoinType = joinType;
       EqualIndexes = equalIndexes;
-      Initialize();
+      EqualColumns = BuildEqualColumns(left.Header.Columns, right.Header.Columns, equalIndexes);
     }
 
     /// <summary>
@@ -95,15 +90,17 @@ namespace Xtensive.Orm.Rse.Providers
     public JoinProvider(CompilableProvider left, CompilableProvider right, JoinType joinType, params ColNum[] equalIndexes)
       : base(ProviderType.Join, left, right)
     {
-      if (equalIndexes==null || equalIndexes.Length<2)
+      if (equalIndexes == null || equalIndexes.Length < 2) {
         throw new ArgumentException(
-          Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, "equalIndexes");
+          Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, nameof(equalIndexes));
+      }
       var ei = new (ColNum Left, ColNum Right)[equalIndexes.Length / 2];
-      for (int i = 0, j = 0; i < ei.Length; i++)
+      for (int i = 0, j = 0; i < ei.Length; i++) {
         ei[i] = (equalIndexes[j++], equalIndexes[j++]);
+      }
       JoinType = joinType;
       EqualIndexes = ei;
-      Initialize();
+      EqualColumns = BuildEqualColumns(left.Header.Columns, right.Header.Columns, ei);
     }
   }
 }

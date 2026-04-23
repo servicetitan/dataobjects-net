@@ -4,7 +4,7 @@
 // Created by: Elena Vakhtina
 // Created:    2009.04.01
 
-using Xtensive.Collections;
+using System.Buffers;
 
 namespace Xtensive.Orm.Rse.Providers;
 
@@ -12,27 +12,36 @@ public abstract class ConcatUnionBaseProvider : BinaryProvider
 {
   protected abstract void EnsureOperationIsPossible();
 
-  protected override RecordSetHeader BuildHeader()
+  private static RecordSetHeader BuildHeader(CompilableProvider left, CompilableProvider right)
   {
-    EnsureOperationIsPossible();
-    HashSet<ColNum> mappedColumnIndexes = [];
-    var leftHeader = Left.Header;
-    var leftHeaderColumns = leftHeader.Columns;
-    var rightHeaderColumns = Right.Header.Columns;
-    var columns = new Column[leftHeaderColumns.Count];
-    for (ColNum i = 0; i < columns.Length; i++) {
-      var leftColumn = leftHeaderColumns[i];
-      var rightColumn = rightHeaderColumns[i];
-      if (leftColumn is MappedColumn leftMappedColumn
-          && rightColumn is MappedColumn rightMappedColumn
-          && leftMappedColumn.ColumnInfoRef.Equals(rightMappedColumn.ColumnInfoRef)) {
-        columns[i] = leftMappedColumn;
-        mappedColumnIndexes.Add(i);
+    var leftHeader = left.Header;
+    var rightHeader = right.Header;
+    EnsureConcatIsPossible(leftHeader, rightHeader);
+
+    var mappedColumnIndexes = new List<int>();
+    var rented = ArrayPool<Column>.Shared.Rent(Math.Max(leftHeader.Columns.Count, 64));
+    var lastIndex = 0;
+    for (int i = 0, count = leftHeader.Columns.Count; i < count; i++) {
+      var leftColumn = leftHeader.Columns[i];
+      var rightColumn = rightHeader.Columns[i];
+      if (leftColumn is MappedColumn leftMappedColumn && rightColumn is MappedColumn rightMappedColumn) {
+        if (leftMappedColumn.ColumnInfoRef.Equals(rightMappedColumn.ColumnInfoRef)) {
+          rented[lastIndex++] = leftColumn;
+          mappedColumnIndexes.Add(i);
+        }
+        else {
+          rented[lastIndex++] = new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type);
+        }
       }
-      else
-        columns[i] = new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type);
+      else {
+        rented[lastIndex++] = new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type);
+      }
     }
-    var columnGroups = leftHeader.ColumnGroups.Where(cg => mappedColumnIndexes.IsSupersetOf(cg.Keys)).ToArray();
+    var columns = new Column[lastIndex];
+    Array.Copy(rented, columns, lastIndex);
+    ArrayPool<Column>.Shared.Return(rented, true);
+
+    var columnGroups = leftHeader.ColumnGroups.Where(cg => cg.Keys.All(mappedColumnIndexes.Contains)).ToList();
 
     return new RecordSetHeader(
       leftHeader.TupleDescriptor,
@@ -42,10 +51,26 @@ public abstract class ConcatUnionBaseProvider : BinaryProvider
       null);
   }
 
-  protected ConcatUnionBaseProvider(ProviderType type, CompilableProvider left, CompilableProvider right)
-    : base(type, left, right)
+  private static void EnsureConcatIsPossible(RecordSetHeader leftHeader, RecordSetHeader rightHeader)
   {
-    Initialize();
+    var left = leftHeader.TupleDescriptor;
+    var right = rightHeader.TupleDescriptor;
+    if (!left.Equals(right)) {
+      throw new InvalidOperationException(string.Format(Strings.ExXCantBeExecuted, "Concatenation"));
+    }
+  }
+
+  // Constructors
+
+
+  /// <summary>
+  ///  Initializes a new instance of this class.
+  /// </summary>
+  /// <param name="left">The left provider to intersect.</param>
+  /// <param name="right">The right provider to intersect.</param>
+  protected ConcatUnionBaseProvider(ProviderType type, CompilableProvider left, CompilableProvider right)
+    : base(type, BuildHeader(left, right), left, right)
+  {
   }
 }
 

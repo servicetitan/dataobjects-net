@@ -6,12 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
-
-using Xtensive.Tuples.Transform;
-using Xtensive.Collections;
-using System.Collections.Generic;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -32,34 +27,29 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     public CalculatedColumn[] CalculatedColumns { get; }
 
-    /// <summary>
-    /// Gets header resize transform.
-    /// </summary>
-    public MapTransform ResizeTransform { get; private set; }
-
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return Source.Header.Add(CalculatedColumns);
-    }
-
     /// <inheritdoc/>
     protected override string ParametersToString()
     {
       return CalculatedColumns.ToCommaDelimitedString();
     }
 
-    /// <inheritdoc/>
-    protected override void Initialize()
+    #region Header build
+    private static RecordSetHeader BuildHeaderAndColumns(
+      CompilableProvider source,
+      IReadOnlyList<CalculatedColumnDescriptor> columnDescriptors,
+      out CalculatedColumn[] calculatedColumns)
     {
-      base.Initialize();
-      var columnIndexes = new ColNum[Header.Length];
-      var sourceHeaderLength = Source.Header.Length;
-      for (ColNum i = 0; i < columnIndexes.Length; i++)
-        columnIndexes[i] = i < sourceHeaderLength ? i : MapTransform.NoMapping;
-      ResizeTransform = new MapTransform(false, Header.TupleDescriptor, columnIndexes);
+      var sourceHeader = source.Header;
+      var sourceHeaderLength = sourceHeader.Length;
+      var descriptorsCount = columnDescriptors.Count;
+      calculatedColumns = new CalculatedColumn[descriptorsCount];
+      for (int i = 0; i < descriptorsCount; i++) {
+        calculatedColumns[i] = new CalculatedColumn(columnDescriptors[i], (ColNum)(sourceHeaderLength + i));
+      }
+
+      return sourceHeader.Add(calculatedColumns);
     }
+    #endregion
 
     internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitCalculate(this);
 
@@ -72,19 +62,10 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="isInlined">The <see cref="IsInlined"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
     public CalculateProvider(CompilableProvider source, IReadOnlyList<CalculatedColumnDescriptor> columnDescriptors, bool isInlined = false)
-      : base(ProviderType.Calculate, source)
+      : base(ProviderType.Calculate, BuildHeaderAndColumns(source, columnDescriptors, out var calculatedColumns), source)
     {
-      ArgumentNullException.ThrowIfNull(columnDescriptors);
-
       IsInlined = isInlined;
-      var baseIndex = Source.Header.Length;
-      var columns = new CalculatedColumn[columnDescriptors.Count];
-      for (int i = 0, count = columnDescriptors.Count; i < count; i++) {
-        var col = new CalculatedColumn(columnDescriptors[i], (ColNum) (baseIndex + i));
-        columns.SetValue(col, i);
-      }
-      CalculatedColumns = columns;
-      Initialize();
+      CalculatedColumns = calculatedColumns;
     }
   }
 }

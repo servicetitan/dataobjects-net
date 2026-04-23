@@ -5,14 +5,8 @@
 // Created:    2009.03.05
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Collections;
-using Xtensive.Core;
 
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -27,12 +21,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Join operation type.
     /// </summary>
-    public JoinType JoinType { get; private set; }
+    public JoinType JoinType { get; }
 
     /// <summary>
     /// Gets the predicate.
     /// </summary>
-    public Expression<Func<Tuple, Tuple, bool>> Predicate { get; private set; }
+    public Expression<Func<Tuple, Tuple, bool>> Predicate { get; }
 
     internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitPredicateJoin(this);
 
@@ -47,7 +41,6 @@ namespace Xtensive.Orm.Rse.Providers
     {
       Predicate = predicate ?? throw new ArgumentNullException(nameof(predicate));
       JoinType = joinType;
-      Initialize();
     }
   }
 }
