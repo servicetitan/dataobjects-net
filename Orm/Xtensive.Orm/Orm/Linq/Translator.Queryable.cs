@@ -775,8 +775,8 @@ namespace Xtensive.Orm.Linq
       MethodCallExpression expressionPart)
     {
       var aggregateType = ExtractAggregateType(expressionPart);
-      
-      var origin = VisitAggregateSource(source, argument, aggregateType, expressionPart);
+
+      var origin = VisitAggregateSource(source, argument, ref aggregateType, expressionPart);
       var originProjection = origin.Item1;
       var originColumnIndex = origin.Item2;
 
@@ -909,22 +909,41 @@ namespace Xtensive.Orm.Linq
     }
 
     private (ProjectionExpression, ColNum) VisitAggregateSource(Expression source, LambdaExpression aggregateParameter,
-      AggregateType aggregateType, Expression visitedExpression)
+      ref AggregateType aggregateType, Expression visitedExpression)
     {
       // Process any selectors or filters specified via parameter to aggregating method.
-      // This effectively substitutes source.Count(filter) -> source.Where(filter).Count()
-      // and source.Sum(selector) -> source.Select(selector).Sum()
+      // Substitutions applied:
+      //   source.Count(filter)   -> source.Select(filter ? 1 : 0).Sum()
+      //     (only for a grouping-parameter source; enables aggregate fusion)
+      //   source.Count(filter)   -> source.Where(filter).Count()
+      //   source.Sum(selector)   -> source.Select(selector).Sum()
       // If parameterless method is called this method simply processes source.
-      // This method returns project for source expression and index of a column in RSE provider
-      // to which aggregate function should be applied.
+      // Returns source projection and the column index to aggregate over;
+      // aggregateType is updated when the Count->Sum rewrite is applied.
 
       ProjectionExpression sourceProjection;
       ColNum aggregatedColumnIndex;
 
       if (aggregateType == AggregateType.Count) {
-        aggregatedColumnIndex = 0;
-        sourceProjection = aggregateParameter != null ? VisitWhere(source, aggregateParameter) : VisitSequence(source);
-        return (sourceProjection, aggregatedColumnIndex);
+        // Rewrite Count(predicate) over a grouping into Sum(predicate ? 1 : 0)
+        // so the aggregate can fuse with the parent grouping AggregateProvider
+        // instead of being emitted as a per-group correlated subquery.
+        if (aggregateParameter != null
+          && source is ParameterExpression fusableGroupingParameter
+          && context.Bindings.TryGetValue(fusableGroupingParameter, out var fusableGroupingProjection)
+          && fusableGroupingProjection.ItemProjector.DataSource is AggregateProvider
+          && fusableGroupingProjection.ItemProjector.Item.StripMarkers().IsGroupingExpression()) {
+          aggregateParameter = FastExpression.Lambda(
+            Expression.Condition(aggregateParameter.Body, Expression.Constant(1), Expression.Constant(0)),
+            aggregateParameter.Parameters[0]);
+          aggregateType = AggregateType.Sum;
+        }
+        else {
+          aggregatedColumnIndex = 0;
+          sourceProjection = aggregateParameter != null
+            ? VisitWhere(source, aggregateParameter) : VisitSequence(source);
+          return (sourceProjection, aggregatedColumnIndex);
+        }
       }
 
       IReadOnlyList<ColNum> columnList = null;
