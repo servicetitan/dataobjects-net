@@ -1095,20 +1095,18 @@ namespace Xtensive.Orm.Linq
       source = current;
       var param = peeled[^1].Parameters[0];
 
-      // Iterate outer-to-inner so the resulting AndAlso tree keeps the
-      // outer predicate on the outer branch; short-circuit semantics then
-      // evaluate inner-most predicate first, matching the original nested
-      // Where order.
-      LambdaExpression combined = null;
-      foreach (var pred in peeled) {
+      // Build (p_inner AND p_next AND ... AND p_outer) so short-circuit
+      // evaluation matches the original nested Where order. peeled[^1] is
+      // already typed against param, so only outer predicates need rebasing.
+      var body = peeled[^1].Body;
+      for (var i = peeled.Count - 2; i >= 0; i--) {
+        var pred = peeled[i];
         var rebased = ReferenceEquals(pred.Parameters[0], param)
           ? pred.Body
           : ExpressionReplacer.Replace(pred.Body, pred.Parameters[0], param);
-        combined = combined == null
-          ? FastExpression.Lambda(rebased, param)
-          : FastExpression.Lambda(Expression.AndAlso(rebased, combined.Body), param);
+        body = Expression.AndAlso(body, rebased);
       }
-      return combined;
+      return FastExpression.Lambda(body, param);
     }
 
     /// <summary>
