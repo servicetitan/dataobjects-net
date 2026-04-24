@@ -1065,11 +1065,12 @@ namespace Xtensive.Orm.Linq
     private static LambdaExpression PeelWhereChain(ref Expression source, out MethodInfo innermostWhereMethod)
     {
       // Collect outer-to-inner so we can pick the innermost predicate's
-      // parameter (narrowest type) to rebase everyone onto.
+      // parameter (narrowest type) to rebase everyone onto. source is
+      // advanced in place; an indexed-Where bail or non-Where node leaves
+      // it pointing at the unconsumed remainder of the chain.
       List<LambdaExpression> peeled = null;
       innermostWhereMethod = null;
-      var current = source;
-      while (current is MethodCallExpression whereCall
+      while (source is MethodCallExpression whereCall
         && GetQueryableMethod(whereCall) == QueryableMethodKind.Where
         && whereCall.Arguments.Count == 2) {
         var predicate = whereCall.Arguments[1].StripQuotes();
@@ -1085,14 +1086,13 @@ namespace Xtensive.Orm.Linq
         }
         (peeled ??= new List<LambdaExpression>()).Add(predicate);
         innermostWhereMethod = whereCall.Method;
-        current = whereCall.Arguments[0];
+        source = whereCall.Arguments[0];
       }
 
       if (peeled == null) {
         return null;
       }
 
-      source = current;
       var param = peeled[^1].Parameters[0];
 
       // Build (p_inner AND p_next AND ... AND p_outer) so short-circuit
