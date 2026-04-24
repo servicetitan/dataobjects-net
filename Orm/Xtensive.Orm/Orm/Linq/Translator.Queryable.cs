@@ -983,8 +983,14 @@ namespace Xtensive.Orm.Linq
         // arg — hard-coding Queryable.Where<T_predicate> can type-mismatch
         // the source when the original chain widened via IEnumerable<T>
         // covariance (source is IEnumerable<Tinner> but predicate's param is
-        // a wider T).
-        source = Expression.Call(innermostWhereMethod, source, Expression.Quote(fusionPredicate));
+        // a wider T). Quote the lambda only when the method expects an
+        // Expression<Func<>> (Queryable.Where); Enumerable.Where (used on
+        // IGrouping/IEnumerable sources) takes a raw Func<> directly.
+        var whereParamType = innermostWhereMethod.GetParameters()[1].ParameterType;
+        var predicateArg = typeof(Expression).IsAssignableFrom(whereParamType)
+          ? (Expression) Expression.Quote(fusionPredicate)
+          : fusionPredicate;
+        source = Expression.Call(innermostWhereMethod, source, predicateArg);
       }
 
       IReadOnlyList<ColNum> columnList = null;

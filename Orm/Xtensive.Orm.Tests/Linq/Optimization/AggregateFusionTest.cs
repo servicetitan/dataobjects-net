@@ -441,6 +441,39 @@ namespace Xtensive.Orm.Tests.Linq.Optimization
     }
 
     /// <summary>
+    /// Non-fusable grouping (here: <c>Where</c>-after-<c>GroupBy</c> wraps the
+    /// projector with a <c>FilterProvider</c>) takes the peel-and-rebuild
+    /// path. <c>g.Where(p)</c> on <see cref="IGrouping{TKey, TElement}"/>
+    /// resolves to <see cref="Enumerable"/>.<c>Where</c>, which expects a
+    /// raw <c>Func</c>; quoting the lambda makes <c>Expression.Call</c>
+    /// throw <c>ArgumentException: Expression of type
+    /// 'Expression`1[Func`2[…]]' cannot be used for parameter of type
+    /// 'Func`2[…]'</c>.
+    /// </summary>
+    [Test]
+    public void NonFusableGroupingWhereSum_DoesNotThrow()
+    {
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      var query = session.Query.All<Order>()
+        .GroupBy(o => o.IsActive)
+        .Where(g => g.Key)
+        .Select(g => new {
+          Active = g.Key,
+          PublishedSum = g.Where(x => x.PublishedOn != null).Sum(x => x.Id),
+        });
+
+      var expected = session.Query.All<Order>().ToArray()
+        .GroupBy(o => o.IsActive)
+        .Where(g => g.Key)
+        .Select(g => (g.Key, PublishedSum: g.Where(x => x.PublishedOn != null).Sum(x => x.Id)))
+        .ToArray();
+
+      var actual = query.ToArray().Select(r => (r.Active, r.PublishedSum)).ToArray();
+      Assert.That(actual, Is.EquivalentTo(expected));
+    }
+    /// <summary>
     /// Generalized fusion: <c>g.Where(p).Min(selector)</c> must fuse via
     /// <c>g.Min(x =&gt; p(x) ? (T?)selector(x) : null)</c>; SQL <c>MIN</c>
     /// ignores <c>NULL</c>s so the rewrite is semantically equivalent.
