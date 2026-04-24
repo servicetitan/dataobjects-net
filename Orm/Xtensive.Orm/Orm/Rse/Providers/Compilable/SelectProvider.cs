@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     ///   Initializes a new instance of this class.
     /// </summary>
-    public SelectProvider(CompilableProvider provider, IReadOnlyList<int> columnIndexes)
+    public SelectProvider(CompilableProvider provider, IReadOnlyList<ColNum> columnIndexes)
       : base(ProviderType.Select, provider.Header.Select(columnIndexes), provider)
     {
       ColumnIndexes = columnIndexes;

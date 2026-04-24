@@ -44,14 +44,10 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public static ColNum[] CreateSingleSourceMap(int targetLength, IEnumerable<(ColNum From, ColNum To)> remappedColumns)
     {
-      var map = new int[targetLength];
+      var map = new ColNum[targetLength];
       Array.Fill(map, TransformUtil.NoMapping);
-
-      for (var i = 0; i < remappedColumns.Count; i++) {
-        var remappedColumn = remappedColumns[i];
-        var targetIndex = remappedColumn.First;
-        var sourceIndex = remappedColumn.Second;
-        map[targetIndex] = sourceIndex;
+      foreach (var p in remappedColumns) {
+        map[p.From] = p.To;
       }
       return map;
     }

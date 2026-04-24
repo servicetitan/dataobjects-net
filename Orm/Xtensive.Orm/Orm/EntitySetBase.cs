@@ -4,11 +4,8 @@
 // Created by: Aleksey Gamzov
 // Created:    2008.09.10
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -35,23 +32,14 @@ namespace Xtensive.Orm
     INotifyCollectionChanged
   {
     #region Nested types
-    private class SeekKeyTupleBuilder
+    private readonly struct SeekKeyTupleBuilder(TupleDescriptor keyDescriptor, IReadOnlyList<ColNum> itemColumnOffsets)
     {
-      private readonly TupleDescriptor keyDescriptor;
-      private readonly IReadOnlyList<int> itemColumnOffsets;
-
       public Tuple Build(Tuple ownerKeyTuple, Tuple itemTuple)
       {
         var result = Tuple.Create(keyDescriptor);
         ownerKeyTuple.CopyTo(result);
         itemTuple.CopyTo(result, itemColumnOffsets);
         return result;
-      }
-
-      public SeekKeyTupleBuilder(TupleDescriptor keyDescriptor, IReadOnlyList<int> itemColumnOffsets)
-      {
-        this.keyDescriptor = keyDescriptor;
-        this.itemColumnOffsets = itemColumnOffsets;
       }
     }
     #endregion
@@ -65,7 +53,6 @@ namespace Xtensive.Orm
 
     private static readonly Func<FieldInfo, EntitySetBase, EntitySetTypeState> EntitySetTypeStateFactory = BuildEntitySetTypeState;
 
-    private readonly Entity owner;
     private readonly ConcatTransform auxilaryTypeKeyTransform;
     private readonly bool skipOwnerVersionChange;
     private bool isInitialized;
@@ -79,7 +66,7 @@ namespace Xtensive.Orm
     Persistent IFieldValueAdapter.Owner => Owner;
 
     /// <inheritdoc/>
-    public FieldInfo Field { get; private set; }
+    public FieldInfo Field { get; }
 
     /// <summary>
     /// Gets the number of elements contained in the <see cref="EntitySetBase"/>.
@@ -956,18 +943,18 @@ namespace Xtensive.Orm
       var targetDescriptor = association.TargetType.Key.TupleDescriptor;
       var ownerFieldCount = ownerDescriptor.Count;
 
-      IReadOnlyList<int> itemColumnOffsets;
+      IReadOnlyList<ColNum> itemColumnOffsets;
       if (association.AuxiliaryType == null) {
-        itemColumnOffsets = Enumerable.Repeat(-1, ownerFieldCount)
+        itemColumnOffsets = Enumerable.Repeat(-1, ownerFieldCount).Select(o => (ColNum) o)
           .Concat(association.UnderlyingIndex.ValueColumns
             .Where(ci => ci.IsPrimaryKey)
             .Select(ci => ci.Field.MappingInfo.Offset)).ToList();
       }
       else {
         var keyFieldCount = ownerDescriptor.Count + targetDescriptor.Count;
-        var offsetMap = new int[keyFieldCount];
+        var offsetMap = new ColNum[keyFieldCount];
         for (var index = 0; index < keyFieldCount; index++) {
-          offsetMap[index] = index - ownerFieldCount;
+          offsetMap[index] = (ColNum) (index - ownerFieldCount);
         }
         itemColumnOffsets = offsetMap;
 

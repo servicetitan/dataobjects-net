@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Rse.Transformation
       var source = VisitCompilable(provider.Source);
 
       var currentMapping = mappings[provider.Source];
-      var calulatedColumn = provider.Header.Columns[^1];
+      var calulatedColumn = provider.Header.Columns.Columns[^1];
       mappings[provider] = Merge(currentMapping, Enumerable.Repeat(calulatedColumn.Index, 1));
       if (source == provider.Source) {
         return provider;

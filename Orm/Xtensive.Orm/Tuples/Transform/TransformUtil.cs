@@ -13,6 +13,6 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Means that no mapping is available for the specified field index.
     /// </summary>
-    public const int NoMapping = int.MinValue;
+    public const ColNum NoMapping = ColNum.MinValue;
   }
 }

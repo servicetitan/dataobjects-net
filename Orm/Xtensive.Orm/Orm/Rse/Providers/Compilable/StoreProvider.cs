@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Rse.Providers
     public StoreProvider(CompilableProvider source, string name)
       : base(ProviderType.Store, source.Header, source)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, nameof(name));
+      ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
 
       Name = name;
       Source = source ?? throw new ArgumentNullException(nameof(source));

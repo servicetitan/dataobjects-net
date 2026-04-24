@@ -4,9 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
@@ -99,6 +96,20 @@ namespace Xtensive.Orm.Providers
       var resultExpression = SqlDml.DynamicFilter(binding);
       resultExpression.Expressions.AddRange(provider.FilteredColumns.Select(index => sourceColumns[index]));
       return resultExpression;
+    }
+
+    protected (SqlExpression, QueryParameterBinding) CreateIncludeViaTableValuedParameter(
+      IncludeProvider provider, IReadOnlyList<TypeMapping> mappings, Func<ParameterContext, object> valueAccessor,
+      IReadOnlyList<SqlExpression> sourceColumns,
+      Type tableValuedParameterType,
+      bool enforceTvp)
+    {
+      var tvpMapping = Driver.GetTypeMapping(
+        tableValuedParameterType == WellKnownTypes.String ? typeof(List<string>)
+        : tableValuedParameterType == WellKnownTypes.Guid ? typeof(List<Guid>)
+        : typeof(List<long>));
+      QueryRowFilterParameterBinding binding = new(mappings, valueAccessor, tvpMapping, enforceTvp);
+      return (SqlDml.TvpDynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding);
     }
 
     protected SqlExpression CreateIncludeViaTemporaryTableExpression(

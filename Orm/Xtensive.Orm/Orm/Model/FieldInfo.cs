@@ -722,7 +722,7 @@ namespace Xtensive.Orm.Model
 
       if (IsEntity || IsStructure) {
         valueExtractor = new SegmentTransform(
-          reflectedType.TupleDescriptor, new Segment<int>(mappingInfo.Offset, mappingInfo.Length));
+          reflectedType.TupleDescriptor, new Segment<ColNum>(mappingInfo.Offset, mappingInfo.Length));
       }
     }
 

@@ -172,7 +172,7 @@ namespace Xtensive.Orm.Rse.Providers
       for (int i = 0; i < descriptorsCount; i++) {
         var agrColumnDescriptor = columnDescriptors[i];
         var type = GetAggregateColumnType(sourceHeaderColumns[agrColumnDescriptor.SourceIndex].Type, agrColumnDescriptor.AggregateType);
-        aggregateColumns[i] = new AggregateColumn(agrColumnDescriptor, groupIndexes.Count + i, type);
+        aggregateColumns[i] = new AggregateColumn(agrColumnDescriptor, (ColNum) (groupIndexes.Count + i), type);
       }
 
       return sourceHeader.Select(groupIndexes).Add(aggregateColumns);

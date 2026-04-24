@@ -18,10 +18,10 @@ public abstract class ConcatUnionBaseProvider : BinaryProvider
     var rightHeader = right.Header;
     EnsureConcatIsPossible(leftHeader, rightHeader);
 
-    var mappedColumnIndexes = new List<int>();
-    var rented = ArrayPool<Column>.Shared.Rent(Math.Max(leftHeader.Columns.Count, 64));
+    var mappedColumnIndexes = new List<ColNum>();
+    var rented = ArrayPool<Column>.Shared.Rent(Math.Max((int) leftHeader.Columns.Count, 64));
     var lastIndex = 0;
-    for (int i = 0, count = leftHeader.Columns.Count; i < count; i++) {
+    for (ColNum i = 0, count = leftHeader.Columns.Count; i < count; i++) {
       var leftColumn = leftHeader.Columns[i];
       var rightColumn = rightHeader.Columns[i];
       if (leftColumn is MappedColumn leftMappedColumn && rightColumn is MappedColumn rightMappedColumn) {
