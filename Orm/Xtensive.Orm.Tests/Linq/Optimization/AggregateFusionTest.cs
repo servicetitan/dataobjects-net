@@ -628,5 +628,110 @@ namespace Xtensive.Orm.Tests.Linq.Optimization
 
       Assert.That(actual, Is.EqualTo(expected));
     }
+
+    /// <summary>
+    /// Inner <c>Where</c> typed for a derived entity, outer <c>Where</c>
+    /// typed for a wider base — the shape behind
+    /// <c>Owner.Items.Where(i =&gt; i.Active).Where(…).Sum(i =&gt; i.Total)</c>
+    /// where <c>Active</c> is declared only on the derived type.
+    /// <c>PeelWhereChain</c> must rebase onto the inner (narrower) parameter;
+    /// rebasing onto the outer parameter throws
+    /// <c>ArgumentException: Property '…' is not defined for type '…'</c>.
+    /// </summary>
+    [Test]
+    public void WhereWithDerivedTypedPredicate_CountWithBaseTypedPredicate_PreservesDerivedMemberAccess()
+    {
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      var expected = session.Query.All<Order>().ToArray()
+        .Where(o => o.IsActive)
+        .Count();
+
+      // Widen via IQueryable<out T> covariance so the outer Where binds
+      // T = Entity while the inner Where stays Where<Order>; two peeled
+      // Wheres with different parameter types are required to exercise the
+      // rebase decision.
+      IQueryable<Entity> chain = session.Query.All<Order>().Where(o => o.IsActive);
+
+      var actual = chain.Where(e => e != null).Count();
+
+      Assert.That(actual, Is.EqualTo(expected));
+    }
+
+    /// <summary>
+    /// Chained generic extensions, each constrained on a different facet
+    /// interface (<see cref="IHasActivation"/>, <see cref="IHasCode"/>,
+    /// <see cref="IHasPublishDate"/>). The concrete entity satisfies every
+    /// constraint so the compiler binds <c>T = Order</c> throughout — a
+    /// regression guard ensuring the rebase fix keeps the homogeneously-typed
+    /// case working when interface members are accessed through an
+    /// <c>Order</c>-typed parameter.
+    /// </summary>
+    [Test]
+    public void InterfaceConstrainedExtensionsChain_Count_ResolvesAgainstConcreteEntity()
+    {
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      var expected = session.Query.All<Order>().ToArray()
+        .Where(o => o.IsActive)
+        .Where(o => o.Code == "P1")
+        .Count(o => o.PublishedOn == new DateTime(2024, 1, 1));
+
+      var actual = session.Query.All<Order>()
+        .ActiveOnly()
+        .HavingCode("P1")
+        .CountPublishedOn(new DateTime(2024, 1, 1));
+
+      Assert.That(actual, Is.EqualTo(expected));
+    }
+
+    /// <summary>
+    /// Mixed-type chain: inner <c>Where&lt;Order&gt;</c> references
+    /// <c>Order.IsActive</c>, outer <c>Where</c>/<c>Count</c> bind
+    /// <c>T = IHasCode</c> after an <c>IQueryable&lt;out T&gt;</c> covariant
+    /// widening and reference <c>IHasCode.Code</c>. Every lambda body in the
+    /// peel window needs rebasing; the fix pins the accumulator to the inner
+    /// (<c>Order</c>) parameter so both sides' members resolve.
+    /// </summary>
+    [Test]
+    public void StackedMixedInterfaceWhereChain_CountWithInterfacePredicate_ResolvesViaInnermostType()
+    {
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      var expected = session.Query.All<Order>().ToArray()
+        .Where(o => o.IsActive)
+        .Where(o => o.Code == "P1")
+        .Count(o => o.Code != "SKIP");
+
+      // Widen via IQueryable<out T> covariance; subsequent operators bind
+      // T = IHasCode while the inner Where stays Where<Order>.
+      IQueryable<IHasCode> chain = session.Query.All<Order>().Where(o => o.IsActive);
+
+      var actual = chain
+        .Where(x => x.Code == "P1")
+        .Count(x => x.Code != "SKIP");
+
+      Assert.That(actual, Is.EqualTo(expected));
+    }
+  }
+
+  /// <summary>
+  /// Query-building extensions each constrained on a single facet interface.
+  /// Composed on a concrete entity that implements all three to mimic the
+  /// real-world pattern of pipelines assembled from small generic helpers.
+  /// </summary>
+  internal static class FacetExtensions
+  {
+    public static IQueryable<T> ActiveOnly<T>(this IQueryable<T> q) where T : IHasActivation =>
+      q.Where(x => x.IsActive);
+
+    public static IQueryable<T> HavingCode<T>(this IQueryable<T> q, string code) where T : IHasCode =>
+      q.Where(x => x.Code == code);
+
+    public static int CountPublishedOn<T>(this IQueryable<T> q, DateTime? date) where T : IHasPublishDate =>
+      q.Count(x => x.PublishedOn == date);
   }
 }

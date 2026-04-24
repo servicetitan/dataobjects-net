@@ -948,7 +948,7 @@ namespace Xtensive.Orm.Linq
       // with an AndAlso-tree body instead of stacked FilterProviders. SQL
       // translation produces the same WHERE clause either way; this just
       // saves the RSE pipeline a few redundant nodes.
-      var fusionPredicate = PeelWhereChain(ref source, aggregateParameter?.Parameters[0]);
+      var fusionPredicate = PeelWhereChain(ref source, out var innermostWhereMethod);
       var fusionSelector = aggregateParameter;
       if (aggregateType == AggregateType.Count) {
         // Count's own predicate participates as part of the fusion predicate,
@@ -972,15 +972,19 @@ namespace Xtensive.Orm.Linq
       }
       else if (fusionPredicate != null) {
         // Non-fusable Sum/Min/Max/Avg with peeled Where(s): rebuild source as
-        // a single Queryable.Where(source, fusionPredicate) so the primary
+        // a single Where(source, fusionPredicate) call so the primary
         // aggregate-selector path below sees one FilterProvider instead of
         // stacked ones. Equivalent SQL in either form (both emit
-        // WHERE f1 AND ... AND fn on the same SELECT), but keeps the RSE
-        // tree smaller and consistent with the non-fusable Count path.
-        source = Expression.Call(WellKnownMembers.Queryable.Where.CachedMakeGenericMethod(
-            fusionPredicate.Parameters[0].Type),
-          source,
-          Expression.Quote(fusionPredicate));
+        // WHERE f1 AND ... AND fn on the same SELECT); this just keeps the
+        // RSE tree smaller and consistent with the non-fusable Count path.
+        //
+        // Reuses the innermost peeled Where's MethodInfo so we preserve the
+        // original Queryable.Where/Enumerable.Where choice and exact generic
+        // arg — hard-coding Queryable.Where<T_predicate> can type-mismatch
+        // the source when the original chain widened via IEnumerable<T>
+        // covariance (source is IEnumerable<Tinner> but predicate's param is
+        // a wider T).
+        source = Expression.Call(innermostWhereMethod, source, Expression.Quote(fusionPredicate));
       }
 
       IReadOnlyList<ColNum> columnList = null;
@@ -1021,44 +1025,82 @@ namespace Xtensive.Orm.Linq
     }
 
     /// <summary>
-    /// Walks <c>Queryable.Where</c> calls off <paramref name="source"/> and
-    /// combines their predicates with <c>AndAlso</c> into a single lambda.
-    /// Advances <paramref name="source"/> past each consumed call; leaves it
-    /// untouched when no <c>Where</c> is found.
+    /// Walks <c>Where</c> calls (<see cref="Queryable"/> or
+    /// <see cref="Enumerable"/>) off <paramref name="source"/> and combines
+    /// their predicates with <c>AndAlso</c> into a single lambda. Advances
+    /// <paramref name="source"/> past each consumed call; leaves it untouched
+    /// when no <c>Where</c> is found.
     /// </summary>
-    /// <param name="initialParameter">
-    /// Optional lambda parameter to rebase every peeled predicate onto. When
-    /// <see langword="null"/> the first peeled predicate's own parameter is
-    /// adopted; subsequent predicates are rebased onto it.
+    /// <param name="innermostWhereMethod">
+    /// The <see cref="MethodInfo"/> of the innermost (last-peeled) <c>Where</c>
+    /// call, or <see langword="null"/> when nothing was peeled. The caller
+    /// can reuse it to rebuild a single <c>Where</c> node of the correct
+    /// flavour (Queryable vs. Enumerable) and generic argument matching the
+    /// peeled source's element type.
     /// </param>
     /// <returns>
     /// The combined predicate, or <see langword="null"/> when no <c>Where</c>
     /// call was peeled.
     /// </returns>
-    private static LambdaExpression PeelWhereChain(ref Expression source, ParameterExpression initialParameter)
+    /// <remarks>
+    /// Every peeled predicate is rebased onto the innermost predicate's
+    /// parameter. In a well-formed LINQ <c>Where</c> chain the generic
+    /// argument <c>T</c> can only grow wider towards the outer calls
+    /// (via <see cref="IEnumerable{T}"/> covariance — <c>IQueryable{T}</c>
+    /// is invariant so widening happens only on the Enumerable boundary),
+    /// which makes the innermost parameter the narrowest type across the
+    /// chain. A subtype has every member of all its supertypes, so rebasing
+    /// every outer body onto it preserves the member accesses inside. The
+    /// reverse (rebasing onto an outer/wider parameter) would produce
+    /// member-access expressions that reference members not declared on
+    /// the rebased parameter's static type and fail downstream translation
+    /// with "property not defined for type …".
+    /// </remarks>
+    private static LambdaExpression PeelWhereChain(ref Expression source, out MethodInfo innermostWhereMethod)
     {
-      LambdaExpression combined = null;
-      var param = initialParameter;
-      while (source is MethodCallExpression whereCall
-        && QueryableVisitor.GetQueryableMethod(whereCall) == QueryableMethodKind.Where
+      // Collect outer-to-inner so we can pick the innermost predicate's
+      // parameter (narrowest type) to rebase everyone onto.
+      List<LambdaExpression> peeled = null;
+      innermostWhereMethod = null;
+      var current = source;
+      while (current is MethodCallExpression whereCall
+        && GetQueryableMethod(whereCall) == QueryableMethodKind.Where
         && whereCall.Arguments.Count == 2) {
-        var predicate = (LambdaExpression) whereCall.Arguments[1].StripQuotes();
-        // Queryable exposes both Where(source, Func<T,bool>) and the indexed
-        // Where(source, Func<T,int,bool>) under the same QueryableMethodKind.
-        // Only the 1-parameter overload is safe to AND-combine: the indexed
-        // variant binds the element's position in the *current* sequence, so
-        // collapsing it into another Where would change the index semantics.
-        // Bail out and let the caller leave the indexed Where in place for
-        // the normal VisitWhere path to handle.
+        var predicate = whereCall.Arguments[1].StripQuotes();
+        // Queryable/Enumerable both expose Where(src, Func<T,bool>) and the
+        // indexed Where(src, Func<T,int,bool>) under the same
+        // QueryableMethodKind. Only the 1-parameter overload is safe to
+        // AND-combine: the indexed variant binds the element's position in
+        // the *current* sequence, so collapsing it into another Where would
+        // change the index semantics. Stop peeling and let the caller hand
+        // the remaining chain to the normal VisitWhere path.
         if (predicate.Parameters.Count != 1) {
           break;
         }
-        param ??= predicate.Parameters[0];
-        var rebased = ExpressionReplacer.Replace(predicate.Body, predicate.Parameters[0], param);
+        (peeled ??= new List<LambdaExpression>()).Add(predicate);
+        innermostWhereMethod = whereCall.Method;
+        current = whereCall.Arguments[0];
+      }
+
+      if (peeled == null) {
+        return null;
+      }
+
+      source = current;
+      var param = peeled[^1].Parameters[0];
+
+      // Iterate outer-to-inner so the resulting AndAlso tree keeps the
+      // outer predicate on the outer branch; short-circuit semantics then
+      // evaluate inner-most predicate first, matching the original nested
+      // Where order.
+      LambdaExpression combined = null;
+      foreach (var pred in peeled) {
+        var rebased = ReferenceEquals(pred.Parameters[0], param)
+          ? pred.Body
+          : ExpressionReplacer.Replace(pred.Body, pred.Parameters[0], param);
         combined = combined == null
           ? FastExpression.Lambda(rebased, param)
           : FastExpression.Lambda(Expression.AndAlso(rebased, combined.Body), param);
-        source = whereCall.Arguments[0];
       }
       return combined;
     }

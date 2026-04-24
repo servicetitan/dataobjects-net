@@ -35,8 +35,30 @@ namespace Xtensive.Orm.Tests.Linq.Optimization.Model
     public string Name { get; set; }
   }
 
+  /// <summary>
+  /// Non-intersecting facet interfaces intentionally split <see cref="Order"/>'s
+  /// shape so that generic query-building extensions can constrain on a single
+  /// aspect (publishability / code-ownership / activation) without exposing
+  /// the full entity surface. Their member sets do not overlap — a predicate
+  /// typed against one cannot blindly see members declared on another.
+  /// </summary>
+  public interface IHasCode
+  {
+    string Code { get; }
+  }
+
+  public interface IHasPublishDate
+  {
+    DateTime? PublishedOn { get; }
+  }
+
+  public interface IHasActivation
+  {
+    bool IsActive { get; }
+  }
+
   [HierarchyRoot]
-  public class Order : Entity
+  public class Order : Entity, IHasCode, IHasPublishDate, IHasActivation
   {
     [Field, Key]
     public long Id { get; private set; }
