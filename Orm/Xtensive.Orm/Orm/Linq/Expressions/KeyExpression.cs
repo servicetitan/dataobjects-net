@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public static KeyExpression Create(TypeInfo entityType, ColNum offset)
     {
-      var mapping = new Segment<ColNum>(offset, entityType.Key.TupleDescriptor.Count);
+      var mapping = new Segment<ColNum>(offset, (ColNum) entityType.Key.TupleDescriptor.Count);
 
       var fields = entityType.IsLocked
         ? entityType.Key.Columns.Select(CreateField).ToArray()

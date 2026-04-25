@@ -5,12 +5,9 @@
 // Created:    2007.05.30
 
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using System.Text;
 using Xtensive.Core;
 using Xtensive.Linq.SerializableExpressions.Internals;
 using Xtensive.Reflection;
@@ -90,20 +87,19 @@ namespace Xtensive.Tuples
     [field: NonSerialized]
     private Type[] FieldTypes { get; }
 
-    #region IList members
+    #region IReadOnlyList members
 
     /// <inheritdoc/>
     public Type this[int fieldIndex]
     {
       get => FieldTypes[fieldIndex];
-      set => throw Exceptions.CollectionIsReadOnly(null);
     }
 
     /// <inheritdoc/>
-    public ColNum Count
+    public int Count
     {
       [DebuggerStepThrough]
-      get => (ColNum) FieldTypes.Length;
+      get => FieldTypes.Length;
     }
 
     int IReadOnlyCollection<Type>.Count => Count;
@@ -125,13 +121,76 @@ namespace Xtensive.Tuples
 
     #endregion
 
+    /// <summary>
+    /// Creates tuple descriptor containing head of the current one.
+    /// </summary>
+    /// <param name="fieldCount">Head field count.</param>
+    /// <returns>
+    /// New tuple descriptor describing the specified set of fields.
+    /// </returns>
+    public TupleDescriptor Head(int fieldCount)
+    {
+      ArgumentOutOfRangeException.ThrowIfLessThan(fieldCount, 1);
+      ArgumentOutOfRangeException.ThrowIfGreaterThan(fieldCount, FieldTypes.Length);
+      var fieldTypes = new Type[fieldCount];
+      Array.Copy(FieldTypes, 0, fieldTypes, 0, fieldCount);
+      return new TupleDescriptor(fieldTypes);
+    }
+
+    /// <summary>
+    /// Creates tuple descriptor containing tail of the current one.
+    /// </summary>
+    /// <param name="tailFieldCount">Tail field count.</param>
+    /// <returns>
+    /// New tuple descriptor describing the specified set of fields.
+    /// </returns>
+    public TupleDescriptor Tail(int tailFieldCount)
+    {
+      ArgumentOutOfRangeException.ThrowIfLessThan(tailFieldCount, 1);
+      ArgumentOutOfRangeException.ThrowIfGreaterThan(tailFieldCount, FieldTypes.Length);
+      var fieldTypes = new Type[tailFieldCount];
+      Array.Copy(FieldTypes, Count - tailFieldCount, fieldTypes, 0, tailFieldCount);
+      return new TupleDescriptor(fieldTypes);
+    }
+
+    /// <summary>
+    /// Creates tuple descriptor containing segment of the current one
+    /// </summary>
+    /// <param name="segment">Offset and length of segment in form of Segment</param>
+    /// <returns>
+    /// New tuple descriptor describing the specified set of fields.
+    /// </returns>
+    public TupleDescriptor Segment(in Segment<ColNum> segment)
+    {
+      var fieldTypes = new Type[segment.Length];
+      Array.Copy(FieldTypes, segment.Offset, fieldTypes, 0, segment.Length);
+
+      return new TupleDescriptor(fieldTypes);
+    }
+
+    /// <summary>
+    /// Concats fields of the current and the given descriptors to form new one.
+    /// </summary>
+    /// <param name="second">Tail fields descriptor.</param>
+    /// <returns>New tuple descriptor containing fields of the both given source descriptors.</returns>
+    public TupleDescriptor ConcatWith(in TupleDescriptor second)
+    {
+      var firstLength = FieldTypes.Length;
+      var secondLength = second.FieldTypes.Length;
+      var fieldTypes = new Type[firstLength + secondLength];
+      Array.Copy(FieldTypes, fieldTypes, firstLength);
+      Array.Copy(second.FieldTypes, 0, fieldTypes, firstLength, secondLength);
+
+      return new TupleDescriptor(fieldTypes);
+    }
+
     #region IEquatable members, GetHashCode
 
     /// <inheritdoc/>
     public bool Equals(TupleDescriptor other)
     {
       if (other is null) {
-         return false;
+        return false;
       }
       var a = FieldTypes;
       var b = other.FieldTypes;
@@ -221,34 +280,6 @@ namespace Xtensive.Tuples
       return normalizedFieldTypes.Length == 0 ? Empty : new(normalizedFieldTypes, true);
     }
 
-    /// <summary>
-    /// Creates tuple descriptor containing head of the current one.
-    /// </summary>
-    /// <param name="fieldCount">Head field count.</param>
-    /// <returns>Either new or existing tuple descriptor
-    /// describing the specified set of fields.</returns>
-    public TupleDescriptor Head(int fieldCount)
-    {
-      ArgumentValidator.EnsureArgumentIsInRange(fieldCount, 1, Count, nameof(fieldCount));
-      var fieldTypes = new Type[fieldCount];
-      Array.Copy(FieldTypes, 0, fieldTypes, 0, fieldCount);
-      return new(fieldTypes, true);
-    }
-
-    /// <summary>
-    /// Creates tuple descriptor containing tail of the current one.
-    /// </summary>
-    /// <param name="tailFieldCount">Tail field count.</param>
-    /// <returns>Either new or existing tuple descriptor
-    /// describing the specified set of fields.</returns>
-    public TupleDescriptor Tail(int tailFieldCount)
-    {
-      ArgumentValidator.EnsureArgumentIsInRange(tailFieldCount, 1, Count, nameof(tailFieldCount));
-      var fieldTypes = new Type[tailFieldCount];
-      Array.Copy(FieldTypes, Count - tailFieldCount, fieldTypes, 0, tailFieldCount);
-      return new(fieldTypes, true);
-    }
-
     #endregion
 
     #region Create<...> methods (generic shortcuts)
@@ -306,12 +337,27 @@ namespace Xtensive.Tuples
 
     private TupleDescriptor(Type[] fieldTypes)
     {
+      var fieldCount = fieldTypes.Length;
       FieldTypes = fieldTypes;
-      for (int i = 0, n = fieldTypes.Length; i < n; ++i) {
-        ref var fieldType = ref fieldTypes[i];
-        if (TupleLayout.ValueFieldAccessorResolver.GetValue(fieldType) is { } valueAccessor) {
-          fieldType = valueAccessor.FieldType;
-        }
+
+      switch (fieldCount) {
+        case 0:
+          Data.ValuesLength = 0;
+          Data.ObjectsLength = 0;
+          return;
+        case 1:
+          TupleLayout.ConfigureLen1(ref FieldTypes[0],
+            ref FieldDescriptors[0],
+            out Data.ValuesLength, out Data.ObjectsLength);
+          break;
+        case 2:
+          TupleLayout.ConfigureLen2(FieldTypes,
+            ref FieldDescriptors[0], ref FieldDescriptors[1],
+            out Data.ValuesLength, out Data.ObjectsLength);
+          break;
+        default:
+          TupleLayout.Configure(FieldTypes, FieldDescriptors, out Data.ValuesLength, out Data.ObjectsLength);
+          break;
       }
     }
 

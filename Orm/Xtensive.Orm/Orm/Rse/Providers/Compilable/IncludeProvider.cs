@@ -4,17 +4,13 @@
 // Created by: Alexey Gamzov
 // Created:    2009.10.22
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core;
-
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Tuples.Transform;
-using System.Linq;
 using Xtensive.Reflection;
+using Xtensive.Tuples;
+using Xtensive.Tuples.Transform;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -27,21 +23,21 @@ namespace Xtensive.Orm.Rse.Providers
   public sealed class IncludeProvider: UnaryProvider,
     IInlinableProvider
   {
-    /// <summary>
+    /// <summary>https://github.com/servicetitan/dataobjects-net/blob/master-servicetitan/Orm/Xtensive.Orm/Orm/Providers/SqlIncludeProvider.cs
     /// Gets a value indicating whether result column should be inlined.
     /// </summary>
-    public bool IsInlined { get; private set; }
+    public bool IsInlined { get; }
 
     /// <summary>
     /// Gets the name of the column.
     /// </summary>
-    public string ResultColumnName { get; private set; }
+    public string ResultColumnName { get; }
 
     /// <summary>
     /// Gets the algorithm that performs filtering.
     /// For non-SQL storages value of this field has no effect.
     /// </summary>
-    public IncludeAlgorithm Algorithm { get; private set; }
+    public IncludeAlgorithm Algorithm { get; }
 
     /// <summary>
     /// Gets the filtered columns.
@@ -51,28 +47,26 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets filter data.
     /// </summary>
-    public Expression<Func<ParameterContext, IEnumerable<Tuple>>> FilterDataSource { get; private set; }
+    public Expression<Func<ParameterContext, IEnumerable<Tuple>>> FilterDataSource { get; }
 
     public MapTransform FilteredColumnsExtractionTransform { get; private set; }
 
-    public CombineTransform ResultTransform { get; private set; }
+    public TupleDescriptor FilteredTupleDescriptor { get; }
 
-    private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] {WellKnownTypes.Bool});
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
+    #region Header build
+    private static RecordSetHeader BuildHeaderAndFilteredTupleDescriptor(
+      CompilableProvider source, IReadOnlyList<ColNum> filteredColumns, string resultColumnName, out TupleDescriptor filteredTupleDescriptor)
     {
-      var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, Source.Header.Length, WellKnownTypes.Bool));
-      var fieldTypes = new Type[FilteredColumns.Count];
-      var newHeaderColumns = newHeader.Columns;
-      for (var index = 0; index < fieldTypes.Length; index++) {
-        fieldTypes[index] = newHeaderColumns[FilteredColumns[index]].Type;
+      var header = source.Header.Add(new SystemColumn(resultColumnName, source.Header.Length, WellKnownTypes.Bool));
+      var columnCount = filteredColumns.Count;
+      var fieldTypes = new Type[columnCount];
+      for (var index = 0; index < columnCount; index++) {
+        fieldTypes[index] = header.Columns[filteredColumns[index]].Type;
       }
-      var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
-      FilteredColumnsExtractionTransform = new MapTransform(true, tupleDescriptor, FilteredColumns);
-      ResultTransform = new CombineTransform(true, Source.Header.TupleDescriptor, BoolTupleDescriptor);
-      return newHeader;
+      filteredTupleDescriptor = TupleDescriptor.Create(fieldTypes);
+      return header;
     }
+    #endregion
 
     internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitInclude(this);
 
@@ -89,18 +83,16 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="filteredColumns">A value for <see cref="FilteredColumns"/>.</param>
     public IncludeProvider(CompilableProvider source, IncludeAlgorithm algorithm, bool isInlined,
       Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource, string resultColumnName, IReadOnlyList<ColNum> filteredColumns)
-      : base(ProviderType.Include, source)
+      : base(ProviderType.Include, BuildHeaderAndFilteredTupleDescriptor(source, filteredColumns, resultColumnName, out var filteredTupleDescriptor), source)
     {
-      ArgumentNullException.ThrowIfNull(filterDataSource);
-      ArgumentException.ThrowIfNullOrEmpty(resultColumnName);
-      ArgumentNullException.ThrowIfNull(filteredColumns);
       Algorithm = algorithm;
       IsInlined = isInlined;
       FilterDataSource = filterDataSource ?? throw new ArgumentNullException(nameof(filterDataSource));
       ResultColumnName = resultColumnName;
-      FilteredColumns = filteredColumns;
 
-      Initialize();
+      FilteredColumns = filteredColumns;
+      FilteredTupleDescriptor = filteredTupleDescriptor;
+      FilteredColumnsExtractionTransform = new MapTransform(true, filteredTupleDescriptor, FilteredColumns);
     }
   }
 }

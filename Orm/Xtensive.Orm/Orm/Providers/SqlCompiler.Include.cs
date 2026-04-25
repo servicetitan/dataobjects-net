@@ -4,9 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
@@ -94,7 +91,8 @@ namespace Xtensive.Orm.Providers
       IncludeProvider provider, IReadOnlyList<TypeMapping> mappings, Func<ParameterContext, object> valueAccessor,
       IReadOnlyList<SqlExpression> sourceColumns, QueryParameterBinding binding = null)
     {
-      binding ??= new QueryRowFilterParameterBinding(mappings, valueAccessor, null, false);
+      var filterTupleDescriptor = provider.FilteredTupleDescriptor;
+      binding = new QueryRowFilterParameterBinding(mappings, valueAccessor, null, false);
       return (SqlDml.DynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding);
     }
 
@@ -106,8 +104,8 @@ namespace Xtensive.Orm.Providers
     {
       var tvpMapping = Driver.GetTypeMapping(
         tableValuedParameterType == WellKnownTypes.String ? typeof(List<string>)
-          : tableValuedParameterType == WellKnownTypes.Guid ? typeof(List<Guid>)
-          : typeof(List<long>));
+        : tableValuedParameterType == WellKnownTypes.Guid ? typeof(List<Guid>)
+        : typeof(List<long>));
       QueryRowFilterParameterBinding binding = new(mappings, valueAccessor, tvpMapping, enforceTvp);
       return (SqlDml.TvpDynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding);
     }
@@ -116,7 +114,7 @@ namespace Xtensive.Orm.Providers
       IncludeProvider provider, IReadOnlyList<SqlExpression> sourceColumns,
       out TemporaryTableDescriptor tableDescriptor)
     {
-      var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
+      var filterTupleDescriptor = provider.FilteredTupleDescriptor;
       var filteredColumns = provider.FilteredColumns
         .Select(index => sourceColumns[index])
         .ToArray();

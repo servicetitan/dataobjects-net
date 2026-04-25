@@ -6,14 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 using Xtensive.Reflection;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -37,19 +32,6 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     public IReadOnlyList<ColNum> GroupColumnIndexes { get; }
 
-    /// <summary>
-    /// Gets header resize transform.
-    /// </summary>
-    public MapTransform Transform { get; private set; }
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return Source.Header
-        .Select(GroupColumnIndexes)
-        .Add(AggregateColumns);
-    }
-
     /// <inheritdoc/>
     protected override string ParametersToString()
     {
@@ -67,21 +49,6 @@ namespace Xtensive.Orm.Rse.Providers
         ToStringFormatFull,
         AggregateColumns.ToCommaDelimitedString(),
         GroupColumnIndexes.ToCommaDelimitedString());
-    }
-
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      base.Initialize();
-      var fieldTypes = new Type[GroupColumnIndexes.Count];
-      var columnIndexes = new ColNum[GroupColumnIndexes.Count];
-      var i = 0;
-      foreach (var index in GroupColumnIndexes) {
-        fieldTypes[i] = Source.Header.Columns[index].Type;
-        columnIndexes[i] = index;
-        i++;
-      }
-      Transform = new MapTransform(false, TupleDescriptor.Create(fieldTypes), columnIndexes);
     }
 
     /// <summary>
@@ -190,6 +157,48 @@ namespace Xtensive.Orm.Rse.Providers
 
     #endregion
 
+    #region Header build
+    private static RecordSetHeader BuildHeaderAndColumns(
+      CompilableProvider source,
+      IReadOnlyList<AggregateColumnDescriptor> columnDescriptors,
+      ref IReadOnlyList<ColNum> groupIndexes,
+      out AggregateColumn[] aggregateColumns)
+    {
+      groupIndexes ??= Array.Empty<ColNum>();
+      var descriptorsCount = columnDescriptors.Count;
+      aggregateColumns = new AggregateColumn[descriptorsCount];
+      var sourceHeader = source.Header;
+      var sourceHeaderColumns = sourceHeader.Columns;
+      for (int i = 0; i < descriptorsCount; i++) {
+        var agrColumnDescriptor = columnDescriptors[i];
+        var type = GetAggregateColumnType(sourceHeaderColumns[agrColumnDescriptor.SourceIndex].Type, agrColumnDescriptor.AggregateType);
+        aggregateColumns[i] = new AggregateColumn(agrColumnDescriptor, (ColNum) (groupIndexes.Count + i), type);
+      }
+
+      return sourceHeader.Select(groupIndexes).Add(aggregateColumns);
+    }
+
+    private static RecordSetHeader BuildHeaderAndColumns(
+      CompilableProvider source,
+      IReadOnlyList<AggregateColumn> columns,
+      ref IReadOnlyList<ColNum> groupIndexes,
+      out AggregateColumn[] aggregateColumns)
+    {
+      groupIndexes ??= Array.Empty<ColNum>();
+      var descriptorsCount = columns.Count;
+      aggregateColumns = new AggregateColumn[descriptorsCount];
+      var sourceHeader = source.Header;
+      var sourceHeaderColumns = sourceHeader.Columns;
+      for (int i = 0; i < descriptorsCount; i++) {
+        var agrColumnDescriptor = columns[i].Descriptor;
+        var type = GetAggregateColumnType(sourceHeaderColumns[agrColumnDescriptor.SourceIndex].Type, agrColumnDescriptor.AggregateType);
+        aggregateColumns[i] = new AggregateColumn(agrColumnDescriptor, (ColNum) (groupIndexes.Count + i), type);
+      }
+
+      return sourceHeader.Select(groupIndexes).Add(aggregateColumns);
+    }
+    #endregion
+
     // Constructors
 
     /// <summary>
@@ -199,15 +208,10 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="groupIndexes">The column indexes to group by.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="AggregateColumns"/>.</param>
     public AggregateProvider(CompilableProvider source, IReadOnlyList<ColNum> groupIndexes, IReadOnlyList<AggregateColumnDescriptor> columnDescriptors)
-      : base(ProviderType.Aggregate, source)
+      : base(ProviderType.Aggregate, BuildHeaderAndColumns(source, columnDescriptors, ref groupIndexes, out var columns), source)
     {
-      GroupColumnIndexes = groupIndexes ?? Array.Empty<ColNum>();
-      var baseIndex = GroupColumnIndexes.Count;
-      var columns = Source.Header.Columns;
-      AggregateColumns = columnDescriptors
-        .Select((d, i) => new AggregateColumn(d, (ColNum)(baseIndex + i), GetAggregateColumnType(columns[d.SourceIndex].Type, d.AggregateType)))
-        .ToArray();
-      Initialize();
+      AggregateColumns = columns;
+      GroupColumnIndexes = groupIndexes;
     }
 
     /// <summary>
@@ -217,20 +221,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="groupIndexes">The column indexes to group by.</param>
     /// <param name="descriptorSource">Columns of old AggregateProvider as source of descriptors.</param>
     internal AggregateProvider(CompilableProvider source, IReadOnlyList<ColNum> groupIndexes, IReadOnlyList<AggregateColumn> descriptorSource)
-      : base(ProviderType.Aggregate, source)
+      : base(ProviderType.Aggregate, BuildHeaderAndColumns(source, descriptorSource, ref groupIndexes, out var columns), source)
     {
       // Having this dedicated ctor saves some resources on not having to make
       // an array just to pass descriptors for simple enumeration
-      GroupColumnIndexes = groupIndexes ?? Array.Empty<ColNum>();
-      var baseIndex = GroupColumnIndexes.Count;
-      var columns = Source.Header.Columns;
-      AggregateColumns = descriptorSource
-        .Select((ds, i) => {
-          var sourceDescriptor = ds.Descriptor;
-          AggregateColumnDescriptor d = new(sourceDescriptor.Name, sourceDescriptor.SourceIndex, sourceDescriptor.AggregateType);
-          return new AggregateColumn(d, (ColNum) (baseIndex + i), GetAggregateColumnType(columns[d.SourceIndex].Type, d.AggregateType));
-        }).ToArray();
-      Initialize();
+      AggregateColumns = columns;
+      GroupColumnIndexes = groupIndexes;
     }
   }
 }

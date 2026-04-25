@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Internals
       var fieldOwnerKey = context.TryRemapKey(info.FieldOwner);
       var fieldValueKey = context.TryRemapKey(info.FieldValue);
 
-      var transformer = new CombineTransform(false, fieldOwnerKey.Value.Descriptor, fieldValueKey.Value.Descriptor);
+      var transformer = new ConcatTransform(fieldOwnerKey.Value.Descriptor, fieldValueKey.Value.Descriptor);
       var combinedTuple = transformer.Apply(TupleTransformType.Tuple, fieldOwnerKey.Value, fieldValueKey.Value);
 
       var newCombinedKey = Key.Create(session.Domain, session.StorageNodeId, fieldAssociation.AuxiliaryType, TypeReferenceAccuracy.ExactType, combinedTuple);

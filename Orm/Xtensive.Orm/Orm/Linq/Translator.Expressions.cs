@@ -1009,7 +1009,7 @@ namespace Xtensive.Orm.Linq
           return entityExpression.Fields.First(field => field.Name == evaluatedArgument);
         }
         if (typeInfo.IsStructure) {
-          var structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, new Segment<ColNum>(0, typeInfo.TupleDescriptor.Count));
+          var structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, new Segment<ColNum>(0, (ColNum) typeInfo.TupleDescriptor.Count));
           return structureExpression.Fields.First(field => field.Name == evaluatedArgument);
         }
       }
