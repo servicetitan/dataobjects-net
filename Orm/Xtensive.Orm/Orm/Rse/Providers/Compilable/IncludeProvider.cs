@@ -4,13 +4,12 @@
 // Created by: Alexey Gamzov
 // Created:    2009.10.22
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
+using Xtensive.Tuples.Transform;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -49,6 +48,8 @@ namespace Xtensive.Orm.Rse.Providers
     /// Gets filter data.
     /// </summary>
     public Expression<Func<ParameterContext, IEnumerable<Tuple>>> FilterDataSource { get; }
+
+    public MapTransform FilteredColumnsExtractionTransform { get; private set; }
 
     public TupleDescriptor FilteredTupleDescriptor { get; }
 

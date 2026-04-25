@@ -96,10 +96,10 @@ namespace Xtensive.Tuples
     }
 
     /// <inheritdoc/>
-    public ColNum Count
+    public int Count
     {
       [DebuggerStepThrough]
-      get => (ColNum) FieldTypes.Length;
+      get => FieldTypes.Length;
     }
 
     int IReadOnlyCollection<Type>.Count => Count;

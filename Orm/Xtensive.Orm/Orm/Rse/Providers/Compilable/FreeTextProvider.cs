@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Rse.Providers
         var keyValueType = primaryIndexKeyColumns[0].Key.ValueType;
         var fieldTypes = new Type[2] { keyValueType, WellKnownTypes.Double };
         var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
-        var columns = new Column[2] { new MappedColumn("KEY", 0, keyValueType), new MappedColumn("RANK", tupleDescriptor.Count, WellKnownTypes.Double) };
+        var columns = new Column[2] { new MappedColumn("KEY", 0, keyValueType), new MappedColumn("RANK", (ColNum) tupleDescriptor.Count, WellKnownTypes.Double) };
         return new RecordSetHeader(tupleDescriptor, columns);
       }
     }

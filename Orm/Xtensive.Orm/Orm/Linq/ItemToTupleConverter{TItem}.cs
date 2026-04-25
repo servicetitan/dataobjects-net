@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Linq
           var structure = (Structure) item;
           var typeInfo = structureExpression.PersistentType;
           var tupleDescriptor = typeInfo.TupleDescriptor;
-          var tupleSegment = new Segment<ColNum>(0, tupleDescriptor.Count);
+          var tupleSegment = new Segment<ColNum>(0, (ColNum) tupleDescriptor.Count);
           var structureTuple = structure.Tuple.GetSegment(tupleSegment);
           structureTuple.CopyTo(tuple, 0, structureExpression.Mapping.Offset, structureTuple.Count);
           break;
@@ -220,7 +220,7 @@ namespace Xtensive.Orm.Linq
       if (type.IsSubclassOf(WellKnownOrmTypes.Structure)) {
         var typeInfo = model.Types[type];
         var tupleDescriptor = typeInfo.TupleDescriptor;
-        var tupleSegment = new Segment<ColNum>(index, tupleDescriptor.Count);
+        var tupleSegment = new Segment<ColNum>(index, (ColNum)tupleDescriptor.Count);
         var structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, tupleSegment);
         index += (ColNum)tupleDescriptor.Count;
         types.AddRange(tupleDescriptor);

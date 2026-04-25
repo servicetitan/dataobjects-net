@@ -105,17 +105,17 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
 
       int count = IterationCount * 10;
 
-      _ = new SegmentTransform(false, t.Descriptor, new Segment<int>(1, 1));
-      _ = new SegmentTransform(false, t.Descriptor, new Segment<int>(1, 2));
-      _ = new SegmentTransform(false, t.Descriptor, new Segment<int>(1, 3));
-      _ = new SegmentTransform(false, t.Descriptor, new Segment<int>(1, 4));
-      _ = new SegmentTransform(false, t.Descriptor, new Segment<int>(1, 5));
+      _ = new SegmentTransform(false, t.Descriptor, new Segment<ColNum>(1, 1));
+      _ = new SegmentTransform(false, t.Descriptor, new Segment<ColNum>(1, 2));
+      _ = new SegmentTransform(false, t.Descriptor, new Segment<ColNum>(1, 3));
+      _ = new SegmentTransform(false, t.Descriptor, new Segment<ColNum>(1, 4));
+      _ = new SegmentTransform(false, t.Descriptor, new Segment<ColNum>(1, 5));
 
       for (var run = 0; run < MeasurementRuns; run++) {
         TestHelper.CollectGarbage();
         using (var mx = new Measurement("S1|1", MeasurementOptions.Log, count)) {
           for (int i = 0; i < count; i++) {
-            _ = new SegmentTransform(false, t.Descriptor, new Segment<int>(1, 1));
+            _ = new SegmentTransform(false, t.Descriptor, new Segment<ColNum>(1, 1));
           }
 
           mx.Complete();
@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
         TestHelper.CollectGarbage();
         using (var mx = new Measurement("S1|5", MeasurementOptions.Log, count)) {
           for (int i = 0; i < count; i++) {
-            _ = new SegmentTransform(false, t.Descriptor, new Segment<int>(1, 5));
+            _ = new SegmentTransform(false, t.Descriptor, new Segment<ColNum>(1, 5));
           }
 
           mx.Complete();

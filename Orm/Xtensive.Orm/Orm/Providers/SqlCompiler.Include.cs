@@ -92,10 +92,8 @@ namespace Xtensive.Orm.Providers
       IReadOnlyList<SqlExpression> sourceColumns, QueryParameterBinding binding = null)
     {
       var filterTupleDescriptor = provider.FilteredTupleDescriptor;
-      binding = new QueryRowFilterParameterBinding(mappings, valueAccessor);
-      var resultExpression = SqlDml.DynamicFilter(binding);
-      resultExpression.Expressions.AddRange(provider.FilteredColumns.Select(index => sourceColumns[index]));
-      return resultExpression;
+      binding = new QueryRowFilterParameterBinding(mappings, valueAccessor, null, false);
+      return (SqlDml.DynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding);
     }
 
     protected (SqlExpression, QueryParameterBinding) CreateIncludeViaTableValuedParameter(

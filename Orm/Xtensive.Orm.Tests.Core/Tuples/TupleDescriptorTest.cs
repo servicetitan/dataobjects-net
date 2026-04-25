@@ -177,25 +177,25 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     public void GetSegmentTest()
     {
       var dAll = TupleDescriptor.Create(FieldTypes);
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => dAll.Segment(new Xtensive.Core.Segment<int>(-1, 2)));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => dAll.Segment(new Xtensive.Core.Segment<ColNum>(-1, 2)));
 
-      var head2 = dAll.Segment(new Xtensive.Core.Segment<int>(0, 2));
+      var head2 = dAll.Segment(new Xtensive.Core.Segment<ColNum>(0, 2));
       Assert.That(head2.Count, Is.EqualTo(2));
       Assert.That(head2[0], Is.EqualTo(dAll[0]));
       Assert.That(head2[1], Is.EqualTo(dAll[1]));
-      var middle5 = dAll.Segment(new Xtensive.Core.Segment<int>(5, 5));
+      var middle5 = dAll.Segment(new Xtensive.Core.Segment<ColNum>(5, 5));
       Assert.That(middle5.Count, Is.EqualTo(5));
       Assert.That(middle5[0], Is.EqualTo(dAll[5]));
       Assert.That(middle5[1], Is.EqualTo(dAll[6]));
       Assert.That(middle5[2], Is.EqualTo(dAll[7]));
       Assert.That(middle5[3], Is.EqualTo(dAll[8]));
       Assert.That(middle5[4], Is.EqualTo(dAll[9]));
-      var complete = dAll.Segment(new Xtensive.Core.Segment<int>(0, dAll.Count));
+      var complete = dAll.Segment(new Xtensive.Core.Segment<ColNum>(0, (ColNum) dAll.Count));
       Assert.That(complete, Is.EqualTo(dAll));
 
-      _ = Assert.Throws<ArgumentException>(() => dAll.Segment(new Xtensive.Core.Segment<int>(0, FieldTypes.Length + 2)));
-      _ = Assert.Throws<ArgumentException>(() => dAll.Segment(new Xtensive.Core.Segment<int>(1, FieldTypes.Length + 3)));
-      _ = Assert.Throws<ArgumentException>(() => dAll.Segment(new Xtensive.Core.Segment<int>(2, FieldTypes.Length + 4)));
+      _ = Assert.Throws<ArgumentException>(() => dAll.Segment(new Xtensive.Core.Segment<ColNum>(0, (ColNum) (FieldTypes.Length + 2))));
+      _ = Assert.Throws<ArgumentException>(() => dAll.Segment(new Xtensive.Core.Segment<ColNum>(1, (ColNum) (FieldTypes.Length + 3))));
+      _ = Assert.Throws<ArgumentException>(() => dAll.Segment(new Xtensive.Core.Segment<ColNum>(2, (ColNum) (FieldTypes.Length + 4))));
     }
 
     [Test]
