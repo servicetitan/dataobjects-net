@@ -92,6 +92,7 @@ namespace Xtensive.Orm.Rse.Providers
 
       FilteredColumns = filteredColumns;
       FilteredTupleDescriptor = filteredTupleDescriptor;
+      FilteredColumnsExtractionTransform = new MapTransform(true, filteredTupleDescriptor, FilteredColumns);
     }
   }
 }
