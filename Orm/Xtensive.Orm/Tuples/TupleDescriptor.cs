@@ -337,27 +337,15 @@ namespace Xtensive.Tuples
 
     private TupleDescriptor(Type[] fieldTypes)
     {
-      var fieldCount = fieldTypes.Length;
       FieldTypes = fieldTypes;
-
-      switch (fieldCount) {
-        case 0:
-          Data.ValuesLength = 0;
-          Data.ObjectsLength = 0;
-          return;
-        case 1:
-          TupleLayout.ConfigureLen1(ref FieldTypes[0],
-            ref FieldDescriptors[0],
-            out Data.ValuesLength, out Data.ObjectsLength);
-          break;
-        case 2:
-          TupleLayout.ConfigureLen2(FieldTypes,
-            ref FieldDescriptors[0], ref FieldDescriptors[1],
-            out Data.ValuesLength, out Data.ObjectsLength);
-          break;
-        default:
-          TupleLayout.Configure(FieldTypes, FieldDescriptors, out Data.ValuesLength, out Data.ObjectsLength);
-          break;
+      // Eagerly normalize field types in place (Nullable<T> -> T, enum -> underlying, ...)
+      // so FieldTypes is canonical at construction. Heavy packed-layout configuration
+      // (and the DO_MAX_1000_COLUMNS guard) is deferred to LazyData materialization.
+      for (int i = 0, n = fieldTypes.Length; i < n; ++i) {
+        ref var fieldType = ref fieldTypes[i];
+        if (TupleLayout.ValueFieldAccessorResolver.GetValue(fieldType) is { } valueAccessor) {
+          fieldType = valueAccessor.FieldType;
+        }
       }
     }
 
