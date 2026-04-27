@@ -132,8 +132,6 @@ namespace Xtensive.Orm.Rse
         newColumns[j++] = c.Clone((ColNum) (columnCount + c.Index));
       }
 
-      var newTupleDescriptor = CreateTupleDescriptor(newColumns);
-
       var columnGroupCount = ColumnGroups.Count;
       var groups = new ColumnGroup[columnGroupCount + joined.ColumnGroups.Count];
       j = 0;
