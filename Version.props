@@ -3,7 +3,7 @@
 
 <PropertyGroup>
     <DoVersion>7.3.18</DoVersion>
-    <DoVersionSuffix>servicetitan-upstream-fix-2</DoVersionSuffix>
+    <DoVersionSuffix>servicetitan-upstream-fix-3</DoVersionSuffix>
 </PropertyGroup>
 
 </Project>
