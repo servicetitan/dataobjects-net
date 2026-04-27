@@ -91,8 +91,9 @@ namespace Xtensive.Orm.Providers
       IncludeProvider provider, IReadOnlyList<TypeMapping> mappings, Func<ParameterContext, object> valueAccessor,
       IReadOnlyList<SqlExpression> sourceColumns, QueryParameterBinding binding = null)
     {
-      var filterTupleDescriptor = provider.FilteredTupleDescriptor;
-      binding = new QueryRowFilterParameterBinding(mappings, valueAccessor, null, false);
+      // In the Auto+TVP path both SqlDml.Variant branches must share the TVP binding
+      // so CommandFactory can switch to a single table-valued parameter at runtime.
+      binding ??= new QueryRowFilterParameterBinding(mappings, valueAccessor, null, false);
       return (SqlDml.DynamicFilter(binding, provider.FilteredColumns.Select(index => sourceColumns[index]).ToArray()), binding);
     }
 

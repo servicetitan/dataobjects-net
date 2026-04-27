@@ -164,5 +164,40 @@ namespace Xtensive.Orm.BulkOperations.Tests
         Assert.That(session.Query.All<TagType>().Count(t => t.ProjectedValueAdjustment == -1 && t.Id > 700), Is.EqualTo(1));
       }
     }
+
+    // Regression: large collections in Bulk Update Contains used to trip the SQL
+    // Server 2100-parameter limit because SqlDml.Variant branches did not share
+    // their TVP binding. Both branches must reuse the same QueryRowFilterParameterBinding.
+    [Test]
+    public void TestManyIdsContains()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var ids = tagIds.Concat(Enumerable.Range(4000, 2200).Select(o => (long) o)).ToArray();
+        var updatedRows = session.Query.All<TagType>()
+          .Where(t => ids.Contains(t.Id))
+          .Set(t => t.ProjectedValueAdjustment, 2)
+          .Update();
+        Assert.That(updatedRows, Is.EqualTo(100));
+        Assert.That(session.Query.All<TagType>().Count(t => t.ProjectedValueAdjustment == 2 && t.Id <= 200), Is.EqualTo(100));
+        Assert.That(session.Query.All<TagType>().Count(t => t.ProjectedValueAdjustment == -1 && t.Id > 700), Is.EqualTo(1));
+      }
+    }
+
+    [Test]
+    public void TestManyGuidsContains()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var ids = guids.Concat(Enumerable.Range(4000, 2200).Select(IntToGuid)).ToArray();
+        var updatedRows = session.Query.All<TagType>()
+          .Where(t => ids.Contains(t.Guid))
+          .Set(t => t.ProjectedValueAdjustment, 2)
+          .Update();
+        Assert.That(updatedRows, Is.EqualTo(100));
+        Assert.That(session.Query.All<TagType>().Count(t => t.ProjectedValueAdjustment == 2 && t.Id <= 200), Is.EqualTo(100));
+        Assert.That(session.Query.All<TagType>().Count(t => t.ProjectedValueAdjustment == -1 && t.Id > 700), Is.EqualTo(1));
+      }
+    }
   }
 }
