@@ -267,7 +267,7 @@ namespace Xtensive.Orm.Rse
       for (var i = 0; i < n; i++) {
         newFieldTypes[i] = newColumns[i].Type;
       }
-      return TupleDescriptor.Create(newFieldTypes);
+      return TupleDescriptor.CreateFromNormalized(newFieldTypes);
     }
 
     /// <inheritdoc/>
