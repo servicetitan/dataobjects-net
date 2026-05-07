@@ -17,7 +17,7 @@ namespace Xtensive.Orm
   /// </example>
   [Serializable]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, AllowMultiple = true, Inherited = false)]
-  public sealed class IndexAttribute : StorageAttribute
+  public class IndexAttribute : StorageAttribute
   {
     internal double? fillFactor;
     internal bool? unique;
