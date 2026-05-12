@@ -138,11 +138,11 @@ namespace Xtensive.Sql
 
     #region Array
 
-    private static ConstructorInvoker GetArrayConstructorInvoker(Type type) =>
-      ArrayConstructorByType.GetOrAdd(type, static t =>
+    private static SqlArray ConstructSqlArrayOfType(Type type, object[] values) =>
+      (SqlArray) ArrayConstructorByType.GetOrAdd(type, static t =>
         ConstructorInvoker.Create(typeof(SqlArray<>).CachedMakeGenericType(t)
           .GetConstructor(BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic, null, [typeof(object[])], null)!)
-      );
+      ).Invoke([values]);
 
     public static SqlArray Array(IEnumerable<object> values)
     {
@@ -154,7 +154,7 @@ namespace Xtensive.Sql
         if (!itemType.IsAssignableFrom(t))
           throw new ArgumentException(Strings.ExTypesOfValuesAreDifferent);
       }
-      return (SqlArray) GetArrayConstructorInvoker(itemType).Invoke([valueList]);
+      return ConstructSqlArrayOfType(itemType, valueList);
     }
 
     public static SqlArray Array(object[] values)
@@ -167,7 +167,7 @@ namespace Xtensive.Sql
           throw new ArgumentException(Strings.ExTypesOfValuesAreDifferent);
       }
 
-      return (SqlArray) GetArrayConstructorInvoker(itemType).Invoke([values]);
+      return ConstructSqlArrayOfType(itemType, values);
     }
 
     public static SqlArray<bool> Array(params bool[] value)
