@@ -385,10 +385,8 @@ namespace Xtensive.Orm.Linq.Materialization
     /// <exception cref="InvalidOperationException">Unable to materialize Entity.</exception>
     private Expression CreateEntity(IEntityExpression expression, Expression tupleExpression)
     {
-      ref var index = ref CollectionsMarshal.GetValueRefOrAddDefault(entityRegistry, expression, out var exists);
-      if (!exists) {
-        index = entityRegistry.Count - 1;
-      }
+      ref var indexRef = ref CollectionsMarshal.GetValueRefOrAddDefault(entityRegistry, expression, out var exists);
+      var index = exists ? indexRef : (indexRef = entityRegistry.Count - 1);
 
       if (itemMaterializationContextParameter==null)
         throw new InvalidOperationException(
