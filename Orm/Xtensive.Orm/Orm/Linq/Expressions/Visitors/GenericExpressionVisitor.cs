@@ -29,10 +29,9 @@ internal sealed class GenericExpressionVisitor<T>(Func<T, Expression> genericPro
     if (e is T mapped)
       return VisitGenericExpression(mapped);
 
-    if (e is ExtendedExpression extendedExpression && extendedExpression.ExtendedType == ExtendedExpressionType.Marker) {
-      var marker = (MarkerExpression) e;
-      var result = Visit(marker.Target);
-      if (result == marker.Target)
+    if (e is MarkerExpression { Target: var target } marker) {
+      var result = Visit(target);
+      if (result == target)
         return result;
       return new MarkerExpression(result, marker.MarkerType);
     }
