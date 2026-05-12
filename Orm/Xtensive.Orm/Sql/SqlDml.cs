@@ -2,16 +2,11 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Collections.Concurrent;
 using System.Reflection;
-using Xtensive.Collections;
-using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using System.Linq;
 
 namespace Xtensive.Sql
 {
@@ -20,15 +15,14 @@ namespace Xtensive.Sql
   /// </summary>
   public static class SqlDml
   {
-    private static readonly Type
-      SqlArrayOfTType = typeof(SqlArray<>),
-      SqlLiteralOfTType = typeof(SqlLiteral<>);
-
     public static readonly SqlDefaultValue DefaultValue = new SqlDefaultValue();
     public static readonly SqlNull Null = new SqlNull();
     public static readonly SqlBreak Break = new SqlBreak();
     public static readonly SqlContinue Continue = new SqlContinue();
     public static readonly SqlNative Asterisk = Native("*");
+
+    private static readonly ConcurrentDictionary<Type, ConstructorInvoker> LiteralConstructorByType = new();
+    private static readonly ConcurrentDictionary<Type, ConstructorInvoker> ArrayConstructorByType = new();
 
     #region Aggregates
 
@@ -144,6 +138,12 @@ namespace Xtensive.Sql
 
     #region Array
 
+    private static SqlArray ConstructSqlArrayOfType(Type type, object[] values) =>
+      (SqlArray) ArrayConstructorByType.GetOrAdd(type, static t =>
+        ConstructorInvoker.Create(typeof(SqlArray<>).CachedMakeGenericType(t)
+          .GetConstructor(BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic, null, [typeof(object[])], null)!)
+      ).Invoke([values]);
+
     public static SqlArray Array(IEnumerable<object> values)
     {
       var valueList = values.ToArray();
@@ -154,12 +154,7 @@ namespace Xtensive.Sql
         if (!itemType.IsAssignableFrom(t))
           throw new ArgumentException(Strings.ExTypesOfValuesAreDifferent);
       }
-      var resultType = SqlArrayOfTType.CachedMakeGenericType(itemType);
-      var result = Activator.CreateInstance(
-        resultType,
-        BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
-        null, new object[] {valueList}, null);
-      return (SqlArray) result;
+      return ConstructSqlArrayOfType(itemType, valueList);
     }
 
     public static SqlArray Array(object[] values)
@@ -172,12 +167,7 @@ namespace Xtensive.Sql
           throw new ArgumentException(Strings.ExTypesOfValuesAreDifferent);
       }
 
-      var resultType = SqlArrayOfTType.CachedMakeGenericType(itemType);
-      var result = Activator.CreateInstance(
-        resultType,
-        BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
-        null, new object[] { values }, null);
-      return (SqlArray) result;
+      return ConstructSqlArrayOfType(itemType, values);
     }
 
     public static SqlArray<bool> Array(params bool[] value)
@@ -1175,16 +1165,11 @@ namespace Xtensive.Sql
       return new SqlLiteral<Guid>(value);
     }
 
-    public static SqlLiteral Literal(object value)
-    {
-      var valueType = value.GetType();
-      var resultType = SqlLiteralOfTType.CachedMakeGenericType(valueType);
-      var result = Activator.CreateInstance(
-        resultType,
-        BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
-        null, new[] {value}, null);
-      return (SqlLiteral) result;
-    }
+    public static SqlLiteral Literal(object value) =>
+      (SqlLiteral) LiteralConstructorByType.GetOrAdd(value.GetType(), static t =>
+        ConstructorInvoker.Create(typeof(SqlLiteral<>).CachedMakeGenericType(t)
+          .GetConstructor(BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic, null, [t], null)!)
+      ).Invoke(value);
 
     public static SqlExpression LiteralOrContainer(object value)
     {
