@@ -6,6 +6,7 @@
 
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Internals;
@@ -384,10 +385,8 @@ namespace Xtensive.Orm.Linq.Materialization
     /// <exception cref="InvalidOperationException">Unable to materialize Entity.</exception>
     private Expression CreateEntity(IEntityExpression expression, Expression tupleExpression)
     {
-      if (!entityRegistry.TryGetValue(expression, out var index)) {
-        index = entityRegistry.Count;
-        entityRegistry.Add(expression, index);
-      }
+      ref var indexRef = ref CollectionsMarshal.GetValueRefOrAddDefault(entityRegistry, expression, out var exists);
+      var index = exists ? indexRef : (indexRef = entityRegistry.Count - 1);
 
       if (itemMaterializationContextParameter==null)
         throw new InvalidOperationException(
