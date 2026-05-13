@@ -4,10 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.28
 
-using System;
-using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Orm.Configuration;
+using System.Runtime.InteropServices;
 using Xtensive.Orm.Model;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -207,11 +204,11 @@ namespace Xtensive.Orm.Providers
 
     private PersistParameterBinding GetBinding(PersistRequestBuilderContext context, ColumnInfo column, Table table, ColNum fieldIndex)
     {
-      if (!context.ParameterBindings.TryGetValue(column, out var binding)) {
+      ref var binding = ref CollectionsMarshal.GetValueRefOrAddDefault(context.ParameterBindings, column, out var exists);
+      if (!exists) {
         var typeMapping = driver.GetTypeMapping(column);
         var bindingType = GetTransmissionType(table.TableColumns[column.Name]);
         binding = new PersistParameterBinding(typeMapping, fieldIndex, bindingType);
-        context.ParameterBindings.Add(column, binding);
       }
       return binding;
     }

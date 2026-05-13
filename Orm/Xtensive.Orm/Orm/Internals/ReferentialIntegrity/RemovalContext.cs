@@ -4,11 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.02
 
-using System;
-using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
-using System.Linq;
 
 namespace Xtensive.Orm.ReferentialIntegrity
 {
@@ -68,12 +66,12 @@ namespace Xtensive.Orm.ReferentialIntegrity
       else {
         types.Enqueue(type);
       }
-      if (queue.TryGetValue(type, out var set)) {
+      ref var set = ref CollectionsMarshal.GetValueRefOrAddDefault(queue, type, out var exists);
+      if (exists) {
         _ = set.Add(entity);
       }
       else {
-        set = new HashSet<Entity> { entity };
-        queue.Add(type, set);
+        set = [entity];
       }
 
       removeReasons[entity] = reason;
@@ -92,10 +90,8 @@ namespace Xtensive.Orm.ReferentialIntegrity
           types.Enqueue(type);
         }
 
-        if (!queue.TryGetValue(type, out var set1)) {
-          set1 = new HashSet<Entity>();
-          queue.Add(type, set1);
-        }
+        ref var set1Ref = ref CollectionsMarshal.GetValueRefOrAddDefault(queue, type, out var exists);
+        var set1 = exists ? set1Ref : (set1Ref = []);
         foreach (var entity in group) {
           removeReasons[entity] = reason;
           _ = set1.Add(entity);

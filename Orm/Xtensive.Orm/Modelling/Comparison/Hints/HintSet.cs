@@ -4,13 +4,9 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.26
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reflection;
-using Xtensive.Collections;
-using System.Linq;
+using System.Runtime.InteropServices;
 using Xtensive.Core;
 
 namespace Xtensive.Modelling.Comparison.Hints
@@ -165,10 +161,8 @@ namespace Xtensive.Modelling.Comparison.Hints
     {
       ArgumentNullException.ThrowIfNull(node);
 
-      if (!hintMap.TryGetValue(node, out var nodeHintMap)) {
-        hintMap.Add(node, nodeHintMap = new Dictionary<Type, object>());
-      }
-      return nodeHintMap;
+      ref var nodeHintMap = ref CollectionsMarshal.GetValueRefOrAddDefault(hintMap, node, out var exists);
+      return exists ? nodeHintMap : (nodeHintMap = new());
     }
 
     #region ILockable methods

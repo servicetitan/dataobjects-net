@@ -4,12 +4,11 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.09.26
 
-using System;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
-using Xtensive.Orm.Linq;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -334,12 +333,8 @@ namespace Xtensive.Orm.Providers
         return result;
       }
 
-      if (bindingsWithIdentity.TryGetValue(identity.Value, out result))
-        return result;
-
-      result = new QueryParameterBinding(mapping, accessor.CachingCompile(), bindingType);
-      bindingsWithIdentity.Add(identity.Value, result);
-      return result;
+      ref var resultRef = ref CollectionsMarshal.GetValueRefOrAddDefault(bindingsWithIdentity, identity.Value, out var exists);
+      return exists ? resultRef : (resultRef = new QueryParameterBinding(mapping, accessor.CachingCompile(), bindingType));
     }
   }
 }

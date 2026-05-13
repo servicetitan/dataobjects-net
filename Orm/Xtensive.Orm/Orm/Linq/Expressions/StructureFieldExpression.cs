@@ -5,6 +5,7 @@
 // Created:    2009.05.05
 
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Linq.Expressions.Visitors;
@@ -95,12 +96,13 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override StructureFieldExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (processedExpressions.TryGetValue(this, out var value)) {
-        return (StructureFieldExpression)value;
+      ref var resultRef = ref CollectionsMarshal.GetValueRefOrAddDefault(processedExpressions, this, out var exists);
+      if (exists) {
+        return (StructureFieldExpression) resultRef;
       }
 
       var result = new StructureFieldExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);
-      processedExpressions.Add(this, result);
+      resultRef = result;
       var processedFields = new PersistentFieldExpression[fields.Count];
       int i = 0;
       foreach (var field in fields) {
@@ -120,12 +122,13 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override StructureFieldExpression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      if (processedExpressions.TryGetValue(this, out var value)) {
-        return (StructureFieldExpression) value;
+      ref var resultRef = ref CollectionsMarshal.GetValueRefOrAddDefault(processedExpressions, this, out var exists);
+      if (exists) {
+        return (StructureFieldExpression) resultRef;
       }
 
       var result = new StructureFieldExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);
-      processedExpressions.Add(this, result);
+      resultRef = result;
       var processedFields = new PersistentFieldExpression[fields.Count];
       int i = 0;
       foreach (var field in fields) {

@@ -6,6 +6,7 @@
 
 using System.Collections.Concurrent;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -120,10 +121,8 @@ namespace Xtensive.IoC
     private static void Register(Dictionary<Key, List<ServiceRegistration>> types, ServiceRegistration serviceRegistration)
     {
       var key = GetKey(serviceRegistration.Type, serviceRegistration.Name);
-      if (!types.TryGetValue(key, out var list)) {
-        types[key] = list = new List<ServiceRegistration>(1);
-      }
-      list.Add(serviceRegistration);
+      ref var list = ref CollectionsMarshal.GetValueRefOrAddDefault(types, key, out var exists);
+      (exists ? list : (list = new(1))).Add(serviceRegistration);
     }
 
     #endregion

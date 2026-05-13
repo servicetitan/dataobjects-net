@@ -4,10 +4,8 @@
 // Created by: Alexey Kochetov
 // Created:    2007.12.27
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.InteropServices;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Model
@@ -52,11 +50,13 @@ namespace Xtensive.Orm.Model
       if (!map.TryAdd(interfaceField, typeField)) {
         return false;
       }
-      if (reversedMap.TryGetValue(typeField, out var interfaceFields)) {
+      ref var interfaceFields = ref CollectionsMarshal.GetValueRefOrAddDefault(reversedMap, typeField, out var exists);
+      if (exists) {
         interfaceFields.Add(interfaceField);
       }
-      else
-        reversedMap.Add(typeField, new HashSet<FieldInfo> { interfaceField });
+      else {
+        interfaceFields = [interfaceField];
+      }
       return true;
     }
 

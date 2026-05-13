@@ -7,6 +7,7 @@
 using System.Text;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions;
@@ -68,13 +69,13 @@ namespace Xtensive.Orm.Linq
 
     public ApplyParameter GetApplyParameter(CompilableProvider provider)
     {
-      if (!applyParameters.TryGetValue(provider, out var parameter)) {
+      ref var parameter = ref CollectionsMarshal.GetValueRefOrAddDefault(applyParameters, provider, out var exists);
+      if (!exists) {
         var providerType = provider.GetType();
         parameter = new ApplyParameter(providerType.IsGenericType ? providerType.GetShortName() : providerType.Name);
         // parameter = new ApplyParameter(provider.ToString()); 
         // ENABLE ONLY FOR DEBUGGING! 
         // May lead TO entity.ToString() calls, while ToString can be overridden.
-        applyParameters.Add(provider, parameter);
       }
       return parameter;
     }
@@ -110,20 +111,14 @@ namespace Xtensive.Orm.Linq
 
     public Parameter<Tuple> GetTupleParameter(ParameterExpression expression)
     {
-      if (!tupleParameters.TryGetValue(expression, out var parameter)) {
-        parameter = new Parameter<Tuple>(expression.ToString());
-        tupleParameters.Add(expression, parameter);
-      }
-      return parameter;
+      ref var parameter = ref CollectionsMarshal.GetValueRefOrAddDefault(tupleParameters, expression, out var exists);
+      return exists ? parameter : (parameter = new(expression.ToString()));
     }
 
     public ItemProjectorExpression GetBoundItemProjector(ParameterExpression parameter, ItemProjectorExpression itemProjector)
     {
-      if (!boundItemProjectors.TryGetValue(parameter, out var result)) {
-        result = itemProjector.BindOuterParameter(parameter);
-        boundItemProjectors.Add(parameter, result);
-      }
-      return result;
+      ref var result = ref CollectionsMarshal.GetValueRefOrAddDefault(boundItemProjectors, parameter, out var exists);
+      return exists ? result : (result = itemProjector.BindOuterParameter(parameter));
     }
 
     public void RegisterPossibleQueryReuse(MemberInfo memberInfo)

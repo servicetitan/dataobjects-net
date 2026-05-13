@@ -4,13 +4,9 @@
 // Created by: Alexey Gamzov
 // Created:    2009.09.09
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Collections;
-using Xtensive.Core;
+using System.Runtime.InteropServices;
 using Xtensive.Orm.Linq.Expressions.Visitors;
 
 namespace Xtensive.Orm.Linq.Expressions
@@ -56,22 +52,25 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override ParameterizedExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (processedExpressions.TryGetValue(this, out var value))
-        return (ParameterizedExpression) value;
-
+      ref var resultRef = ref CollectionsMarshal.GetValueRefOrAddDefault(processedExpressions, this, out var exists);
+      if (exists) {
+        return (ParameterizedExpression) resultRef;
+      }
       var result = new LocalCollectionExpression(Type, MemberInfo, expressionAsString);
-      processedExpressions.Add(this, result);
+      resultRef = result;
       result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.BindParameter(parameter, processedExpressions));
       return result;
     }
 
     public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      if (processedExpressions.TryGetValue(this, out var value))
-        return value;
+      ref var resultRef = ref CollectionsMarshal.GetValueRefOrAddDefault(processedExpressions, this, out var exists);
+      if (exists) {
+        return resultRef;
+      }
 
       var result = new LocalCollectionExpression(Type, MemberInfo, expressionAsString);
-      processedExpressions.Add(this, result);
+      resultRef = result;
       result.Fields = Fields.ToDictionary(f=>f.Key, f=>(IMappedExpression)f.Value.RemoveOuterParameter(processedExpressions));
       return result;
     }
@@ -84,7 +83,6 @@ namespace Xtensive.Orm.Linq.Expressions
       Fields = new Dictionary<MemberInfo, IMappedExpression>();
       MemberInfo = memberInfo;
       expressionAsString = sourceExpression.ToString();
-      ;
     }
 
     internal override Expression Accept(ExtendedExpressionVisitor visitor) => visitor.VisitLocalCollectionExpression(this);

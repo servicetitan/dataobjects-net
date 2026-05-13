@@ -4,12 +4,9 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.05.22
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
-using Xtensive.Core;
+using System.Runtime.InteropServices;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -34,12 +31,12 @@ namespace Xtensive.Orm.Rse.Transformation
         return false;
       var newPair = (provider, provider.Header.Columns);
 
-      if (owner.State.CalculateProviders.TryGetValue(applyParameter, out var existingList)) {
-        existingList.Add(newPair);
+      ref var list = ref CollectionsMarshal.GetValueRefOrAddDefault(owner.State.CalculateProviders, applyParameter, out var exists);
+      if (exists) {
+        list.Add(newPair);
       }
       else {
-        owner.State.CalculateProviders.Add(applyParameter,
-          new List<(CalculateProvider, ColumnCollection)> {newPair});
+        list = [newPair];
       }
       return true;
     }

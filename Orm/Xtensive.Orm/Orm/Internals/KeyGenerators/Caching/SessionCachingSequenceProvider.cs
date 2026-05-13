@@ -4,9 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.05.17
 
-using System;
-using System.Collections.Generic;
-using Xtensive.Core;
+using System.Runtime.InteropServices;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 
@@ -20,11 +18,8 @@ namespace Xtensive.Orm.Internals.KeyGenerators
 
       public CachingSequence<TValue> GetSequence(SequenceInfo sequenceInfo, IStorageSequenceAccessor accessor)
       {
-        if (!sequences.TryGetValue(sequenceInfo, out var result)) {
-          result = new CachingSequence<TValue>(accessor, false);
-          sequences.Add(sequenceInfo, result);
-        }
-        return result;
+        ref var result = ref CollectionsMarshal.GetValueRefOrAddDefault(sequences, sequenceInfo, out var exists);
+        return exists ? result : (result = new(accessor, false));
       }
 
       private void OnTransactionRollbacked(object sender, TransactionEventArgs e)

@@ -4,10 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.24
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Collections;
+using System.Runtime.InteropServices;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
@@ -26,12 +24,13 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public void RegisterChild(Expression parent, Expression child)
     {
-      HashSet<Expression> children;
-      if (!childrenMap.TryGetValue(parent, out children)) {
-        children = new HashSet<Expression>();
-        childrenMap.Add(parent, children);
+      ref var children = ref CollectionsMarshal.GetValueRefOrAddDefault(childrenMap, parent, out var exists);
+      if (exists) {
+        children.Add(child);
       }
-      children.Add(child);
+      else {
+        children = [child];
+      }
     }
   }
 }

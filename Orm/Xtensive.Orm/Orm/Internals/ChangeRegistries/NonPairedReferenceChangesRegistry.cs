@@ -4,10 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2016.06.21
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Core;
+using System.Runtime.InteropServices;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals
@@ -43,8 +40,8 @@ namespace Xtensive.Orm.Internals
       }
     }
 
-    private readonly IDictionary<Identifier, HashSet<EntityState>> removedReferences = new Dictionary<Identifier, HashSet<EntityState>>();
-    private readonly IDictionary<Identifier, HashSet<EntityState>> addedReferences = new Dictionary<Identifier, HashSet<EntityState>>();
+    private readonly Dictionary<Identifier, HashSet<EntityState>> removedReferences = new();
+    private readonly Dictionary<Identifier, HashSet<EntityState>> addedReferences = new();
     private readonly object accessGuard = new();
 
     internal Session Session { get; }
@@ -125,14 +122,17 @@ namespace Xtensive.Orm.Internals
           return;
         }
       }
-      if (removedReferences.TryGetValue(oldKey, out var renivedRefs)) {
+
+      ref var renivedRefs = ref CollectionsMarshal.GetValueRefOrAddDefault(removedReferences, oldKey, out var exists);
+      if (exists) {
         if (!renivedRefs.Add(referencingState)) {
           throw new InvalidOperationException(Strings.ExReferenceRregistrationErrorReferenceRemovalIsAlreadyRegistered);
         }
-        return;
       }
-      EnsureRegistrationsAllowed();
-      removedReferences.Add(oldKey, new HashSet<EntityState>{referencingState});
+      else {
+        EnsureRegistrationsAllowed();
+        renivedRefs = [referencingState];
+      }
     }
 
     private void RegisterAddInternal(Identifier newKey, EntityState referencingState)
@@ -146,14 +146,16 @@ namespace Xtensive.Orm.Internals
         }
         return;
       }
-      if (addedReferences.TryGetValue(newKey, out var addedRefs)) {
+      ref var addedRefs = ref CollectionsMarshal.GetValueRefOrAddDefault(addedReferences, newKey, out var exists);
+      if (exists) {
         if (!addedRefs.Add(referencingState)) {
           throw new InvalidOperationException(Strings.ExReferenceRegistrationErrorReferenceAdditionIsAlreadyRegistered);
         }
-        return;
       }
-      EnsureRegistrationsAllowed();
-      addedReferences.Add(newKey, new HashSet<EntityState>{referencingState});
+      else {
+        EnsureRegistrationsAllowed();
+        addedRefs = [referencingState];
+      }
     }
 
     private void Initialize()

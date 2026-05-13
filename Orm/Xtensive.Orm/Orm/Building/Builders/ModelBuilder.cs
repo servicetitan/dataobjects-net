@@ -4,10 +4,9 @@
 // Created by: Dmitri Maximov
 // Created:    2007.09.26
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
@@ -242,12 +241,8 @@ namespace Xtensive.Orm.Building.Builders
                 if (paired.Item1.TargetType.IsInterface || typesWithProcessedInheritedAssociations.Contains(paired.Item1.TargetType))
                   AssociationBuilder.BuildReversedAssociation(context, paired.Item1, paired.Item2);
                 else {
-                  List<(AssociationInfo, string)> pairs;
-                  if (!pairedAssociationsToReverse.TryGetValue(paired.Item1.TargetType, out pairs)) {
-                    pairs = new List<(AssociationInfo, string)>();
-                    pairedAssociationsToReverse.Add(paired.Item1.TargetType, pairs);
-                  }
-                  pairs.Add(paired);
+                  ref var pairs = ref CollectionsMarshal.GetValueRefOrAddDefault(pairedAssociationsToReverse, paired.Item1.TargetType, out var exists);
+                  (exists ? pairs : (pairs = new(1))).Add(paired);
                 }
               }
               continue;
@@ -483,17 +478,25 @@ namespace Xtensive.Orm.Building.Builders
         var typeImplementors = type.DirectImplementors;
         var descendantTypes = type.AllDescendants;
         if (typeImplementors.Any()) {
-          foreach (var implementor in typeImplementors)
-            if (referenceRegistrator.TryGetValue(implementor, out var refCount))
-              referenceRegistrator[implementor] = refCount + 1;
+          foreach (var implementor in typeImplementors) {
+            ref var refCount = ref CollectionsMarshal.GetValueRefOrNullRef(referenceRegistrator, implementor);
+            if (!Unsafe.IsNullRef(ref refCount)) {
+              ++refCount;
+            }
+          }
         }
         else {
-          if (referenceRegistrator.TryGetValue(type, out var refCount))
-            referenceRegistrator[type] = refCount + 1;
+          ref var refCount = ref CollectionsMarshal.GetValueRefOrNullRef(referenceRegistrator, type);
+          if (!Unsafe.IsNullRef(ref refCount)) {
+            ++refCount;
+          }
+
           if (descendantTypes.Any()) {
             foreach (var descendant in descendantTypes) {
-              if (referenceRegistrator.TryGetValue(descendant, out var refCount1))
-                referenceRegistrator[descendant] = refCount1 + 1;
+              ref var refCount1 = ref CollectionsMarshal.GetValueRefOrNullRef(referenceRegistrator, descendant);
+              if (!Unsafe.IsNullRef(ref refCount1)) {
+                ++refCount1;
+              }
             }
           }
         }
