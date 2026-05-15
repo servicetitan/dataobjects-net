@@ -68,11 +68,20 @@ namespace Xtensive.Orm.Building.Builders
           var index = BuildInheritedIndex(type, interfaceIndex, false);
           if (IndexBuiltOverInheritedFields(index)) {
             BuildLog.Warning(string.Format(Strings.ExUnableToBuildIndexXBecauseItWasBuiltOverInheritedFields, index.Name));
+            index.Dispose();
+            continue;
           }
-          else {
-            type.Indexes.Add(index);
-            context.Model.RealIndexes.Add(index);
+          // The same logical interface index can arrive through multiple paths in DirectInterfaces
+          // (e.g. a type implements IBusinessEntity directly via one base AND transitively via a
+          // sub-interface like INamedBusinessEntity). The identity-equality guard above misses this
+          // because each path yields a distinct IndexInfo. Mirror BuildConcreteTableIndexes' name-
+          // based guard after BuildInheritedIndex to drop the redundant emission.
+          if (type.Indexes.Contains(index.Name)) {
+            index.Dispose();
+            continue;
           }
+          type.Indexes.Add(index);
+          context.Model.RealIndexes.Add(index);
         }
       }
 
