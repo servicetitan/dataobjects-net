@@ -57,6 +57,14 @@ namespace Xtensive.Orm.Tests.Storage
       [Field]
       public int Payload { get; set; }
     }
+
+    // HierarchyInfo.UpdateState() demotes single-type hierarchies to ConcreteTable, which
+    // would mask the ClassTable assertion below. A concrete descendant keeps Types.Count > 1.
+    public class Leaf : Root
+    {
+      [Field]
+      public int Extra { get; set; }
+    }
   }
 
   /// <summary>
