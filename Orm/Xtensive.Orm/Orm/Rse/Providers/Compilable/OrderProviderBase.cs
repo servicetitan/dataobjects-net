@@ -63,16 +63,6 @@ namespace Xtensive.Orm.Rse.Providers
     protected override void Initialize()
     {
       base.Initialize();
-      var comparisonRules = new ComparisonRules[Order.Count];
-      for (int i = 0; i < Order.Count; i++) {
-        var orderItem = Order[i];
-        var column = Header.Columns[orderItem.Key];
-
-        var culture = column is MappedColumn mColumn && mColumn.ColumnInfoRef.TypeName != null
-          ? mColumn.ColumnInfoRef.CultureInfo
-          : CultureInfo.InvariantCulture;
-        comparisonRules[i] = new ComparisonRule(orderItem.Value, culture);
-      }
 
       var fieldTypes = new Type[Order.Count];
       var map = new int[Order.Count];
