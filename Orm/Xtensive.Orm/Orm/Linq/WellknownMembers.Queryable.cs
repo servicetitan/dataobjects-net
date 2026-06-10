@@ -292,7 +292,7 @@ namespace Xtensive.Orm.Linq
               }
               break;
             case nameof(System.Linq.Queryable.Join):
-              if (parameters.Length == 5) {
+              if (parameters.Length == 5 && methodInfo.GetGenericArguments().Length == 4) {
                 Join = methodInfo;
               }
               break;
