@@ -284,7 +284,7 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 
     private ParameterExpression FindParameterSlow(Type type, string name)
     {
-      foreach (var scope in parameterScopes) {
+      foreach (var scope in parameterScopes.Skip(1)) {
         if (scope.TryGetValue(name, out var replacement) && replacement.Type == type)
           return replacement;
       }
