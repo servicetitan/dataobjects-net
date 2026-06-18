@@ -198,7 +198,8 @@ namespace Xtensive.Orm.Tests.Storage
           throw new AssertionException("Not all TypeId mentions were replaced");
         }
 
-        Assert.That(command.Parameters.Count, Is.EqualTo(4));
+        // Three implementors share one binding per distinct TypeId (no duplicate parameters).
+        Assert.That(command.Parameters.Count, Is.EqualTo(3));
         Assert.That(
           command.Parameters.Cast<DbParameter>()
             .Select(p => (int) p.Value)
