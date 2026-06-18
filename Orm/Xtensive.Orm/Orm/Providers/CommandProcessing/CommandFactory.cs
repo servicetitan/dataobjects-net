@@ -110,6 +110,8 @@ namespace Xtensive.Orm.Providers
           : new SqlPostCompilerConfiguration();
       ;
       var result = new CommandPart(null, new(), new());
+      var scalarFilterResults = new Dictionary<ScalarFilterKey, string[][]>();
+      var tvpParameterReferences = new Dictionary<TvpParameterKey, string>();
 
       foreach (var binding in request.ParameterBindings) {
         object parameterValue = GetParameterValue(binding, parameterContext);
@@ -152,31 +154,39 @@ namespace Xtensive.Orm.Providers
             }
             else if (rowFilterParameterBinding.TvpTypeMapping != null
                 && (rowFilterParameterBinding.EnforceTvp || filterData.Count > Session.Domain.Configuration.MaxNumberOfConditions)) {
-              configuration.AlternativeBranches.Add(binding);
-              string paramName = GetParameterName(parameterNamePrefix, ref parameterIndex);
-              var parameterReference = Driver.BuildParameterReference(paramName);
+              _ = configuration.AlternativeBranches.Add(binding);
+              var tvpKey = new TvpParameterKey(rowFilterParameterBinding.TvpTypeMapping, filterData);
+              if (!tvpParameterReferences.TryGetValue(tvpKey, out var parameterReference)) {
+                var paramName = GetParameterName(parameterNamePrefix, ref parameterIndex);
+                parameterReference = Driver.BuildParameterReference(paramName);
+                var parameter = Connection.CreateParameter();
+                parameter.ParameterName = paramName;
+                rowFilterParameterBinding.TvpTypeMapping.BindValue(parameter, parameterValue);
+                result.Parameters.Add(parameter);
+                tvpParameterReferences.Add(tvpKey, parameterReference);
+              }
+
               configuration.PlaceholderValues.Add(binding, parameterReference);
-              var parameter = Connection.CreateParameter();
-              parameter.ParameterName = paramName;
-              rowFilterParameterBinding.TvpTypeMapping.BindValue(parameter, parameterValue);
-              result.Parameters.Add(parameter);
               var filterValues = new string[1][] { [parameterReference] };
               configuration.DynamicFilterValues.Add(binding, filterValues);
             }
             else {
-              var commonPrefix = GetParameterName(parameterNamePrefix, ref parameterIndex);
-              var filterValues = new string[filterData.Count][];
-              var rowTypeMapping = rowFilterParameterBinding.RowTypeMapping;
-              for (int tupleIndex = 0; tupleIndex < filterData.Count; tupleIndex++) {
-                var tuple = filterData[tupleIndex];
-                var parameterReferences = new string[tuple.Count];
-                for (int fieldIndex = 0; fieldIndex < tuple.Count; fieldIndex++) {
-                  var name = $"{commonPrefix}_{tupleIndex.ToString("G")}_{fieldIndex.ToString("G")}";
-                  var value = tuple.GetValueOrDefault(fieldIndex);
-                  parameterReferences[fieldIndex] = Driver.BuildParameterReference(name);
-                  AddRegularParameter(result, rowTypeMapping[fieldIndex], name, value);
+              var scalarKey = new ScalarFilterKey(rowFilterParameterBinding.RowTypeMapping, filterData);
+              if (!scalarFilterResults.TryGetValue(scalarKey, out var filterValues)) {
+                var commonPrefix = GetParameterName(parameterNamePrefix, ref parameterIndex);
+                filterValues = new string[filterData.Count][];
+                var rowTypeMapping = rowFilterParameterBinding.RowTypeMapping;
+                for (var tupleIndex = 0; tupleIndex < filterData.Count; tupleIndex++) {
+                  var tuple = filterData[tupleIndex];
+                  var parameterReferences = new string[tuple.Count];
+                  for (var fieldIndex = 0; fieldIndex < tuple.Count; fieldIndex++) {
+                    var name = $"{commonPrefix}_{tupleIndex:G}_{fieldIndex:G}";
+                    AddRegularParameter(result, rowTypeMapping[fieldIndex], name, tuple.GetValueOrDefault(fieldIndex));
+                    parameterReferences[fieldIndex] = Driver.BuildParameterReference(name);
+                  }
+                  filterValues[tupleIndex] = parameterReferences;
                 }
-                filterValues[tupleIndex] = parameterReferences;
+                scalarFilterResults.Add(scalarKey, filterValues);
               }
               configuration.DynamicFilterValues.Add(binding, filterValues);
             }
@@ -297,9 +307,94 @@ namespace Xtensive.Orm.Providers
     
     private string GetParameterName(in string prefix, ref int index)
     {
-      var result = $"{prefix}{index.ToString("G")}"; //leave ToString(). it is faster
+      var result = $"{prefix}{index:G}"; //leave ToString(). it is faster
       index++;
       return result;
+    }
+
+    // Identifies a scalar row-filter parameter set by its field type mappings and the sequence of values,
+    // so two row filters referencing the same local collection share one set of scalar parameters.
+    private sealed class ScalarFilterKey(IReadOnlyList<TypeMapping> rowTypeMapping, List<Tuple> filterData) : IEquatable<ScalarFilterKey>
+    {
+      private readonly IReadOnlyList<TypeMapping> rowTypeMapping = rowTypeMapping;
+      private readonly List<Tuple> filterData = filterData;
+      private int hashCode;
+
+      public bool Equals(ScalarFilterKey other)
+      {
+        if (other == null || filterData.Count != other.filterData.Count
+            || rowTypeMapping.Count != other.rowTypeMapping.Count) {
+          return false;
+        }
+        for (var i = 0; i < rowTypeMapping.Count; i++) {
+          if (!ReferenceEquals(rowTypeMapping[i], other.rowTypeMapping[i])) {
+            return false;
+          }
+        }
+        for (var i = 0; i < filterData.Count; i++) {
+          if (!filterData[i].Equals(other.filterData[i])) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      public override bool Equals(object obj) => Equals(obj as ScalarFilterKey);
+
+      public override int GetHashCode()
+      {
+        if (hashCode != 0) {
+          return hashCode;
+        }
+        var hash = new HashCode();
+        foreach (var m in rowTypeMapping) {
+          hash.Add(m);
+        }
+        foreach (var tuple in filterData) {
+          hash.Add(tuple.GetHashCode());
+        }
+        return hashCode = hash.ToHashCode();
+      }
+    }
+
+    // Identifies a table-valued parameter by its type mapping and the sequence of values it carries,
+    // so two row filters referencing the same local collection share a single TVP parameter.
+    private sealed class TvpParameterKey(TypeMapping mapping, List<Tuple> filterData) : IEquatable<TvpParameterKey>
+    {
+      private readonly TypeMapping mapping = mapping;
+      private readonly List<Tuple> filterData = filterData;
+      private int hashCode;
+
+      public bool Equals(TvpParameterKey other)
+      {
+        if (other == null || !ReferenceEquals(mapping, other.mapping)
+            || filterData.Count != other.filterData.Count) {
+          return false;
+        }
+
+        for (var i = 0; i < filterData.Count; i++) {
+          if (!filterData[i].Equals(other.filterData[i])) {
+            return false;
+          }
+        }
+
+        return true;
+      }
+
+      public override bool Equals(object obj) => Equals(obj as TvpParameterKey);
+
+      public override int GetHashCode()
+      {
+        if (hashCode != 0) {
+          return hashCode;
+        }
+        var hash = new HashCode();
+        hash.Add(mapping);
+        foreach (var tuple in filterData) {
+          hash.Add(tuple.GetHashCode());
+        }
+        return hashCode = hash.ToHashCode();
+      }
     }
 
     // Constructors
