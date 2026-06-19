@@ -50,8 +50,8 @@ namespace Xtensive.Orm.Providers
 
     private readonly List<ParameterExpression> activeParameters = new();
     private readonly Dictionary<ParameterExpression, IReadOnlyList<SqlExpression>> sourceMapping = new();
-    private readonly Dictionary<QueryParameterIdentity, QueryParameterBinding> bindingsWithIdentity = new();
-    private readonly List<QueryParameterBinding> otherBindings = new();
+    private readonly Dictionary<QueryParameterIdentity, QueryParameterBinding> bindingsWithIdentity;
+    private readonly HashSet<QueryParameterBinding> usedBindings = new();
 
     private bool executed;
 
@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Providers
 
     public IEnumerable<QueryParameterBinding> GetBindings()
     {
-      return bindingsWithIdentity.Values.Concat(otherBindings);
+      return usedBindings;
     }
 
     protected override SqlExpression Visit(Expression e)
@@ -530,6 +530,8 @@ namespace Xtensive.Orm.Providers
       this.compiler = compiler; // This might be null, check before use!
       this.lambda = lambda;
       this.sourceColumns = sourceColumns;
+      // Share the dedup table across the whole compilation so equal parameters bind once per query.
+      bindingsWithIdentity = compiler?.BindingsWithIdentity ?? new();
 
       providerInfo = handlers.ProviderInfo;
       driver = handlers.StorageDriver;

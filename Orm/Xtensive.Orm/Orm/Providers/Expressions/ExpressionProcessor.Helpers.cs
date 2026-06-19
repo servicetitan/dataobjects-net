@@ -325,20 +325,18 @@ namespace Xtensive.Orm.Providers
     private QueryParameterBinding RegisterParameterBinding(TypeMapping mapping,
       Expression<Func<ParameterContext, object>> accessor, QueryParameterBindingType bindingType)
     {
-      QueryParameterBinding result;
       var identity = GetParameterIdentity(mapping, accessor, bindingType);
 
+      QueryParameterBinding result;
       if (identity == null) {
         result = new QueryParameterBinding(mapping, accessor.CachingCompile(), bindingType);
-        otherBindings.Add(result);
-        return result;
+      }
+      else if (!bindingsWithIdentity.TryGetValue(identity.Value, out result)) {
+        result = new QueryParameterBinding(mapping, accessor.CachingCompile(), bindingType);
+        bindingsWithIdentity.Add(identity.Value, result);
       }
 
-      if (bindingsWithIdentity.TryGetValue(identity.Value, out result))
-        return result;
-
-      result = new QueryParameterBinding(mapping, accessor.CachingCompile(), bindingType);
-      bindingsWithIdentity.Add(identity.Value, result);
+      _ = usedBindings.Add(result);
       return result;
     }
   }
