@@ -19,6 +19,7 @@ namespace Xtensive.Orm.Providers
     protected record struct QueryAndBindings(SqlSelect Query, List<QueryParameterBinding> Bindings);
 
     private TypeMapping int32TypeMapping;
+    private readonly Dictionary<int, QueryTypeIdentifierParameterBinding> typeIdBindings = new();
 
     /// <inheritdoc/>
     internal protected override SqlProvider VisitIndex(IndexProvider provider)
@@ -330,7 +331,13 @@ namespace Xtensive.Orm.Providers
         : fieldValue;
     }
 
-    private QueryParameterBinding CreateTypeIdentifierBinding(TypeInfo type) =>
-      new QueryTypeIdentifierParameterBinding(type.TypeId, int32TypeMapping ??= Driver.GetTypeMapping(WellKnownTypes.Int32));
+    private QueryParameterBinding CreateTypeIdentifierBinding(TypeInfo type)
+    {
+      if (!typeIdBindings.TryGetValue(type.TypeId, out var binding)) {
+        binding = new QueryTypeIdentifierParameterBinding(type.TypeId, int32TypeMapping ??= Driver.GetTypeMapping(WellKnownTypes.Int32));
+        typeIdBindings.Add(type.TypeId, binding);
+      }
+      return binding;
+    }
   }
 }

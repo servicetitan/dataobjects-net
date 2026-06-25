@@ -34,6 +34,11 @@ namespace Xtensive.Orm.Providers
     private bool anyTemporaryTablesRequired;
 
     /// <summary>
+    /// Deduplicates closure-based parameter bindings across all expression processors of this compilation.
+    /// </summary>
+    internal Dictionary<QueryParameterIdentity, QueryParameterBinding> BindingsWithIdentity { get; } = new();
+
+    /// <summary>
     /// Gets model mapping.
     /// </summary>
     protected ModelMapping Mapping { get; private set; }
