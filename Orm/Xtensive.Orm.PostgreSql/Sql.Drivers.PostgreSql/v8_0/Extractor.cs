@@ -1286,13 +1286,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var query = new StringBuilder();
       {
         var sequenceMap = context.SequenceMap;
-        foreach (var (segId, seq) in sequenceMap) {
+        foreach (var (seqId, seq) in sequenceMap) {
           if (query.Length == 0) {
-            _ = query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", segId,
+            _ = query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", seqId,
               SqlHelper.Quote(SqlHelper.EscapeSetup.WithQuotes, new[] { seq.Schema.DbName, seq.DbName }));
           }
           else {
-            _ = query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", segId,
+            _ = query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", seqId,
               SqlHelper.Quote(SqlHelper.EscapeSetup.WithQuotes, new[] { seq.Schema.DbName, seq.DbName }));
           }
         }
