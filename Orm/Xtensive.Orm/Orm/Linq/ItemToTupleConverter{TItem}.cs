@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Linq
   [Serializable]
   internal sealed class ItemToTupleConverter<TItem> : ItemToTupleConverter
   {
-    private class TupleTypeCollection: IReadOnlyCollection<Type>
+    private class TupleTypeCollection : IReadOnlyCollection<Type>
     {
       private IEnumerable<Type> types;
       private int count;
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Linq
       public void Add(Type type)
       {
         count++;
-        types = types==null ? Enumerable.Repeat(type, 1) : types.Append(type);
+        types = types == null ? Enumerable.Repeat(type, 1) : types.Append(type);
       }
 
       public void AddRange(IReadOnlyCollection<Type> newTypes)
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Linq
     private readonly bool isKeyConverter;
 
     private Func<TItem, Tuple> converter;
-    
+
 
     public override Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable()
     {
@@ -74,10 +74,11 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private bool IsPersistableType(Type type)
     {
-      if (type==WellKnownOrmTypes.Entity
+      if (type == WellKnownOrmTypes.Entity
         || type.IsSubclassOf(WellKnownOrmTypes.Entity)
-          || type==WellKnownOrmTypes.Structure
-            || type.IsSubclassOf(WellKnownOrmTypes.Structure)) {
+          || type == WellKnownOrmTypes.Structure
+            || type.IsSubclassOf(WellKnownOrmTypes.Structure)
+              || (type.IsInterface && type.IsAssignableTo(WellKnownOrmInterfaces.Entity))) {
         if (!model.Types.Contains(type))
           throw new InvalidOperationException(string.Format(Strings.ExTypeNotFoundInModel, type.FullName));
         return true;
@@ -205,7 +206,8 @@ namespace Xtensive.Orm.Linq
 //        return Expression.Convert(entityExpression, type);
 //      }
 
-      if (type.IsSubclassOf(WellKnownOrmTypes.Entity)) {
+      if (type.IsSubclassOf(WellKnownOrmTypes.Entity)
+        || (type.IsInterface && type.IsAssignableTo(WellKnownOrmInterfaces.Entity))) {
         var typeInfo = model.Types[type];
         var keyInfo = typeInfo.Key;
         var keyTupleDescriptor = keyInfo.TupleDescriptor;
