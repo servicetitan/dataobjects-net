@@ -81,6 +81,7 @@ namespace Xtensive.Sql.Dml
           clone.Where = t.where.Clone(c);
         if (t.limit is not null)
           clone.Limit = t.limit.Clone(c);
+        clone.Comment = t.Comment?.Clone(c);
         if (t.Hints.Count > 0)
           foreach (SqlHint hint in t.Hints)
             clone.AddHint(hint.Clone(c));

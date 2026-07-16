@@ -13,6 +13,11 @@ public abstract class SqlQueryStatement(SqlNodeType nodeType) : SqlStatement(nod
   private List<SqlHint> hints;
 
   /// <summary>
+  /// Gets or sets the tag comment attached to this statement.
+  /// </summary>
+  public SqlComment Comment { get; set; }
+
+  /// <summary>
   /// Gets the collection of join hints.
   /// </summary>
   /// <value>The collection of join hints.</value>

@@ -83,13 +83,17 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
     public override void Visit(SqlUpdate node)
     {
       using (context.EnterScope(node)) {
+        var comment = node.Comment;
+        VisitCommentIfBefore(comment);
         VisitUpdateEntry(node);
+        VisitCommentIfWithin(comment);
         VisitUpdateLimit(node);
         VisitUpdateUpdate(node);
         VisitUpdateSet(node);
         VisitUpdateFrom(node);
         VisitUpdateWhere(node);
         VisitUpdateExit(node);
+        VisitCommentIfAfter(comment);
       }
     }
 
@@ -112,13 +116,17 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
     public override void Visit(SqlDelete node)
     {
       using (context.EnterScope(node)) {
+        var comment = node.Comment;
+        VisitCommentIfBefore(comment);
         VisitDeleteEntry(node);
+        VisitCommentIfWithin(comment);
         VisitDeleteLimit(node);
         AppendTranslated(node, DeleteSection.From);
         VisitDeleteDelete(node);
         VisitDeleteFrom(node);
         VisitDeleteWhere(node);
         VisitDeleteExit(node);
+        VisitCommentIfAfter(comment);
       }
     }
 

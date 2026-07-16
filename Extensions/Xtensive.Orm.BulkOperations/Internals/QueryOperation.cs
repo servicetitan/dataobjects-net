@@ -86,6 +86,8 @@ namespace Xtensive.Orm.BulkOperations
 
     protected void Join(SqlQueryStatement statement, SqlSelect select)
     {
+      statement.Comment = select.Comment;
+
       if (select.HasLimit) {
         JoinWhenQueryHasLimitation(statement, select);
       }

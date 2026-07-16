@@ -968,12 +968,16 @@ namespace Xtensive.Sql.Compiler
     protected void VisitDeleteDefault(SqlDelete node)
     {
       using (context.EnterScope(node)) {
+        var comment = node.Comment;
+        VisitCommentIfBefore(comment);
         VisitDeleteEntry(node);
+        VisitCommentIfWithin(comment);
         VisitDeleteDelete(node);
         VisitDeleteFrom(node);
         VisitDeleteWhere(node);
         VisitDeleteLimit(node);
         VisitDeleteExit(node);
+        VisitCommentIfAfter(comment);
       }
     }
 
@@ -1860,13 +1864,17 @@ namespace Xtensive.Sql.Compiler
     protected void VisitUpdateDefault(SqlUpdate node)
     {
       using (context.EnterScope(node)) {
+        var comment = node.Comment;
+        VisitCommentIfBefore(comment);
         VisitUpdateEntry(node);
+        VisitCommentIfWithin(comment);
         VisitUpdateUpdate(node);
         VisitUpdateSet(node);
         VisitUpdateFrom(node);
         VisitUpdateWhere(node);
         VisitUpdateLimit(node);
         VisitUpdateExit(node);
+        VisitCommentIfAfter(comment);
       }
     }
 

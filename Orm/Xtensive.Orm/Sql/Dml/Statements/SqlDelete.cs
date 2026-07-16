@@ -69,6 +69,7 @@ namespace Xtensive.Sql.Dml
           clone.From = (SqlQueryRef) t.from.Clone(c);
         if (t.where is not null)
           clone.Where = t.where.Clone(c);
+        clone.Comment = t.Comment?.Clone(c);
 
         if (t.Hints.Count > 0)
           foreach (SqlHint hint in t.Hints)

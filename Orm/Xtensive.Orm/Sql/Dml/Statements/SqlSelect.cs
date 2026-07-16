@@ -26,8 +26,6 @@ namespace Xtensive.Sql.Dml
     private SqlExpression limit;
     private SqlExpression offset;
 
-    public SqlComment Comment { get; set; }
-
     /// <summary>
     /// Gets the collection of columns to select.
     /// </summary>
