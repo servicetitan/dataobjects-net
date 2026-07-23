@@ -69,6 +69,13 @@ jobs:
             exit 1
           fi
 
+      - name: Setup .NETs
+        if: ${{ success() }}
+        timeout-minutes: 2
+        uses: ./.github/actions/setup-dotnets
+        with:
+          target_framework: netcoreapp2.0
+
       - name: Build Orm
         if: ${{ success() }}
         run: dotnet build Orm.sln --configuration Release

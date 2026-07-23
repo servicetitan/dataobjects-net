@@ -75,6 +75,13 @@ jobs:
         if: ${{ inputs.specific_sha != '' && github.reg_type == 'branch' }}
         run: git checkout ${{ inputs.specific_sha }}
 
+      - name: Setup .NETs
+        if: ${{ success() }}
+        timeout-minutes: 2
+        uses: ./.github/actions/setup-dotnets
+        with:
+          target_framework: netcoreapp2.0
+
       - name: Build Orm
         if: ${{ success() }}
         run: dotnet build Orm.sln --configuration $BUILD_CONFIG -v ${{ inputs.verbosity }}
