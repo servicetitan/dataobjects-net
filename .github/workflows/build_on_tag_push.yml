@@ -73,7 +73,7 @@ jobs:
         timeout-minutes: 2
         uses: ./.github/actions/setup-dotnets
         with:
-          target_framework: 'net6.0' # not a target framework, but ok to install SDK
+          target_framework: netcoreapp3.1
 
       - name: Build Orm
         if: ${{ success() }}
