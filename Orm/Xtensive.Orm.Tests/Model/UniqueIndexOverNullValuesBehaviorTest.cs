@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Tests.Model
     {
       Require.ProviderIs(StorageProvider.Firebird);
 
-      TestNullsDistinct();
+      TestNullsNotDistinct();
     }
 
     [Test]
