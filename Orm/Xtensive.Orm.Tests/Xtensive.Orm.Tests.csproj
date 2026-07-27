@@ -14,7 +14,6 @@
   </PropertyGroup>
   <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
   <ItemGroup>
-    <!-- <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" /> -->
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="Npgsql" Version="4.0.17" />
     <PackageReference Include="NUnit" Version="3.14.0" />
@@ -27,7 +26,6 @@
     <PackageReference Include="System.Runtime.Serialization.Xml" Version="4.3.0" />
     <PackageReference Include="System.Spatial" Version="5.8.3" />
     <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0.0" />
-    <!-- <PackageReference Include="Microsoft.CSharp" Version="4.4.0" />-->
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj" />
