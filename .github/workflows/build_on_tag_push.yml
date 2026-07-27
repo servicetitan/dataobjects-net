@@ -68,12 +68,17 @@ jobs:
           if [ -z "$CHANGELOG_PATH" ]; then
             exit 1
           fi
-      - name: Setup .NETs
+
+      - name: Setup .NET
         if: ${{ success() }}
         timeout-minutes: 2
-        uses: ./.github/actions/setup-dotnets
-        with:
-          target_framework: netcoreapp3.1
+        uses: actions/setup-dotnet@v4
+      #- name: Setup .NETs
+      #  if: ${{ success() }}
+      #  timeout-minutes: 2
+      #  uses: ./.github/actions/setup-dotnets
+      #  with:
+      #    target_framework: netcoreapp3.1
 
       - name: Build Orm
         if: ${{ success() }}

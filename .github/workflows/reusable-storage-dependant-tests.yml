@@ -115,12 +115,16 @@ jobs:
         timeout-minutes: 10
         run: '${{ vars[env.DOCKER_SCRIPT_KEY] }}'
 
-      - name: Setup .NETs
+      - name: Setup .NET
         if: ${{ success() }}
         timeout-minutes: 2
-        uses: ./.github/actions/setup-dotnets
-        with:
-          target_framework: ${{ env.DO_TargetFrameworks }}
+        uses: actions/setup-dotnet@v4
+      #- name: Setup .NETs
+      #  if: ${{ success() }}
+      #  timeout-minutes: 2
+      #  uses: ./.github/actions/setup-dotnets
+      #  with:
+      #    target_framework: ${{ env.DO_TargetFrameworks }}
 
       - name: Build Orm
         if: ${{ success() }}

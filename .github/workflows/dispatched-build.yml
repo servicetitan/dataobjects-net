@@ -76,6 +76,8 @@ jobs:
         run: git checkout ${{ inputs.specific_sha }}
 
       - name: Setup .NET
+        if: ${{ success() }}
+        timeout-minutes: 2
         uses: actions/setup-dotnet@v4
       #- name: Setup .NETs
       #  if: ${{ success() }}

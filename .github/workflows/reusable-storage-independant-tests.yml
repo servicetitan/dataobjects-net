@@ -83,12 +83,16 @@ jobs:
         if: ${{ inputs.specific_sha != '' && github.reg_type == 'branch' }}
         run: git checkout ${{ inputs.specific_sha }}
 
-      - name: Setup .NETs
+      - name: Setup .NET
         if: ${{ success() }}
         timeout-minutes: 2
-        uses: ./.github/actions/setup-dotnets
-        with:
-          target_framework: ${{ env.DO_TargetFrameworks }}
+        uses: actions/setup-dotnet@v4
+      #- name: Setup .NETs
+      #  if: ${{ success() }}
+      #  timeout-minutes: 2
+      #  uses: ./.github/actions/setup-dotnets
+      #  with:
+      #    target_framework: ${{ env.DO_TargetFrameworks }}
 
       - name: Build Orm
         if: ${{ success() }}
