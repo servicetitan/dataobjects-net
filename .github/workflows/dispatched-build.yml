@@ -74,13 +74,15 @@ jobs:
       - name: Manual commit checkout if required
         if: ${{ inputs.specific_sha != '' && github.reg_type == 'branch' }}
         run: git checkout ${{ inputs.specific_sha }}
-        
-      - name: Setup .NETs
-        if: ${{ success() }}
-        timeout-minutes: 2
-        uses: ./.github/actions/setup-dotnets
-        with:
-          target_framework: netcoreapp3.1
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+      #- name: Setup .NETs
+      #  if: ${{ success() }}
+      #  timeout-minutes: 2
+      #  uses: ./.github/actions/setup-dotnets
+      #  with:
+      #    target_framework: netcoreapp3.1
 
       - name: Build Orm
         if: ${{ success() }}
