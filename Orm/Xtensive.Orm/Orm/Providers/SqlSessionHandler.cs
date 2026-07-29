@@ -248,6 +248,8 @@ namespace Xtensive.Orm.Providers
         throw;
       }
 
+      initializationSqlScripts.Clear();
+
       if (pendingTransaction == null) {
         return;
       }
