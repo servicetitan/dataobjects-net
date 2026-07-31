@@ -10,6 +10,8 @@ using System.ComponentModel;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
@@ -47,6 +49,24 @@ namespace Xtensive.Orm
     /// Occurs when <see cref="DbCommand"/> is canceled.
     /// </summary>
     public event EventHandler<DbCommandEventArgs> DbCommandCanceled;
+
+    /// <summary>
+    /// Occurs when the underlying <see cref="DbConnection"/> transitions from closed to open.
+    /// Does not occur when an already-open connection is reused.
+    /// </summary>
+    public event EventHandler<DbConnectionEventArgs> DbConnectionOpened;
+
+    /// <summary>
+    /// Occurs when a raw connection is handed out by <see cref="Xtensive.Orm.Services.DirectSqlAccessor.Connection"/>.
+    /// </summary>
+    public event EventHandler<DbConnectionEventArgs> RawConnectionAccessed;
+
+    /// <summary>
+    /// Occurs when a raw connection is handed out by <see cref="Xtensive.Orm.Services.DirectSqlAccessor.GetConnectionAsync"/>,
+    /// before it is returned to the caller. Unlike the other events on this type, subscribers run behind
+    /// a genuine <see langword="await"/> instead of firing synchronously.
+    /// </summary>
+    public event Func<DbConnection, CancellationToken, Task> RawConnectionAccessedAsync;
 
     /// <summary>
     /// Occurs when LINQ query is about to execute.
@@ -271,6 +291,24 @@ namespace Xtensive.Orm
 
     internal void NotifyDbCommandCanceled(DbCommand command) =>
       DbCommandCanceled?.Invoke(this, new DbCommandEventArgs(command));
+
+    internal void NotifyDbConnectionOpened(DbConnection connection) =>
+      DbConnectionOpened?.Invoke(this, new DbConnectionEventArgs(connection));
+
+    internal void NotifyRawConnectionAccessed(DbConnection connection) =>
+      RawConnectionAccessed?.Invoke(this, new DbConnectionEventArgs(connection));
+
+    internal async Task NotifyRawConnectionAccessedAsync(DbConnection connection, CancellationToken cancellationToken)
+    {
+      var handler = RawConnectionAccessedAsync;
+      if (handler == null) {
+        return;
+      }
+      foreach (var subscriber in handler.GetInvocationList()) {
+        await ((Func<DbConnection, CancellationToken, Task>) subscriber)
+          .Invoke(connection, cancellationToken).ConfigureAwaitFalse();
+      }
+    }
 
     internal Expression NotifyQueryExecuting(Expression expression)
     {
