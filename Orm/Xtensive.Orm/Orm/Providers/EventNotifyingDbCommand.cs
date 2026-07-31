@@ -1,8 +1,5 @@
-using System;
 using System.Data;
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers
@@ -13,11 +10,8 @@ namespace Xtensive.Orm.Providers
   /// <see cref="SessionEventAccessor.DbCommandExecuted"/> events around execution that the ORM's own
   /// commands raise, without translating any exception the inner command throws.
   /// </summary>
-  internal sealed class EventNotifyingDbCommand : DbCommand
+  internal sealed class EventNotifyingDbCommand(Session session, DbCommand innerCommand) : DbCommand
   {
-    private readonly Session session;
-    private readonly DbCommand innerCommand;
-
     public override string CommandText
     {
       get => innerCommand.CommandText;
@@ -165,11 +159,5 @@ namespace Xtensive.Orm.Providers
     }
 
     public override ValueTask DisposeAsync() => innerCommand.DisposeAsync();
-
-    public EventNotifyingDbCommand(Session session, DbCommand innerCommand)
-    {
-      this.session = session;
-      this.innerCommand = innerCommand;
-    }
   }
 }

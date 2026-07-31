@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var callOrder = new System.Collections.Generic.List<int>();
+        var callOrder = new List<int>();
         session.Events.RawConnectionAccessed += (_, _) => callOrder.Add(1);
         session.Events.RawConnectionAccessed += (_, _) => callOrder.Add(2);
 
