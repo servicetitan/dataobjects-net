@@ -27,6 +27,9 @@ namespace Xtensive.Orm.Tests.Linq
 
       [Field]
       public MyEnum? Value { get; set; }
+
+      [Field]
+      public MyEnum Value2 { get; set; }
     }
 
     [HierarchyRoot]
@@ -58,6 +61,7 @@ namespace Xtensive.Orm.Tests.Linq
         new RefEntity {Ref = new EntityWithNullableEnum {Value = MyEnum.Foo}};
         new RefEntity {Ref = new EntityWithNullableEnum {Value = MyEnum.Bar}};
         new RefEntity {Ref = new EntityWithNullableEnum {Value = null}};
+        new RefEntity();
         tx.Complete();
       }
     }
@@ -128,6 +132,24 @@ namespace Xtensive.Orm.Tests.Linq
         Assert.That(result.Count(r => r.Match), Is.EqualTo(2));
         tx.Complete();
       }
+    }
+
+    private class ResultModel
+    {
+      public MyEnum? Enum { get; init; }
+    }
+
+    [Test]
+    public void MaterializeNullableEnum()
+    {
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+      var result = session.Query.All<RefEntity>()
+        .Where(e => e.Ref == null)
+        .Select(e => new ResultModel { Enum = e.Ref != null ? e.Ref.Value2 : null })
+        .First();
+      Assert.That(result.Enum, Is.Null);
+      tx.Complete();
     }
   }
 }
