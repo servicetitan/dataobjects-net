@@ -6,6 +6,8 @@
 
 using System;
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm.Services;
 
 namespace Xtensive.Orm.Providers
@@ -46,5 +48,14 @@ namespace Xtensive.Orm.Providers
     /// <returns>Newly created <see cref="DbCommand"/> object.</returns>
     /// <exception cref="InvalidOperationException">Connection is not open.</exception>
     DbCommand CreateCommand();
+
+    /// <summary>
+    /// Asynchronously ensures the underlying <see cref="Connection"/> is open and returns it, without
+    /// creating a <see cref="DbCommand"/>. Intended for consumers, such as <c>SqlBulkCopy</c>, that need
+    /// the raw connection itself and can await the open behind a real asynchronous call.
+    /// </summary>
+    /// <param name="cancellationToken">The token to cancel the operation.</param>
+    /// <returns>The underlying, open <see cref="DbConnection"/>.</returns>
+    Task<DbConnection> GetConnectionAsync(CancellationToken cancellationToken = default);
   }
 }
