@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Providers
       get {
         Prepare();
         var underlyingConnection = connection.UnderlyingConnection;
-        Session.Events.NotifyRawConnectionAccessed(underlyingConnection);
+        Session.Events.NotifyRawConnectionAccessed(underlyingConnection, connection.ActiveTransaction);
         return underlyingConnection;
       }
     }
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Providers
     {
       await PrepareAsync(cancellationToken).ConfigureAwaitFalse();
       var underlyingConnection = connection.UnderlyingConnection;
-      await Session.Events.NotifyRawConnectionAccessedAsync(underlyingConnection, cancellationToken).ConfigureAwaitFalse();
+      await Session.Events.NotifyRawConnectionAccessedAsync(underlyingConnection, connection.ActiveTransaction, cancellationToken).ConfigureAwaitFalse();
       return underlyingConnection;
     }
   }

@@ -37,9 +37,9 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var hookCallCount = 0;
         DbConnection hookConnection = null;
-        session.Events.RawConnectionAccessedAsync += (connection, _) => {
+        session.Events.RawConnectionAccessedAsync += (args, _) => {
           hookCallCount++;
-          hookConnection = connection;
+          hookConnection = args.Connection;
           return Task.CompletedTask;
         };
 

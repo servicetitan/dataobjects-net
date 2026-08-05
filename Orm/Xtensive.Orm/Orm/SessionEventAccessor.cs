@@ -66,7 +66,7 @@ namespace Xtensive.Orm
     /// before it is returned to the caller. Unlike the other events on this type, subscribers run behind
     /// a genuine <see langword="await"/> instead of firing synchronously.
     /// </summary>
-    public event Func<DbConnection, CancellationToken, Task> RawConnectionAccessedAsync;
+    public event Func<DbConnectionEventArgs, CancellationToken, Task> RawConnectionAccessedAsync;
 
     /// <summary>
     /// Occurs when LINQ query is about to execute.
@@ -295,18 +295,19 @@ namespace Xtensive.Orm
     internal void NotifyDbConnectionOpened(DbConnection connection) =>
       DbConnectionOpened?.Invoke(this, new DbConnectionEventArgs(connection));
 
-    internal void NotifyRawConnectionAccessed(DbConnection connection) =>
-      RawConnectionAccessed?.Invoke(this, new DbConnectionEventArgs(connection));
+    internal void NotifyRawConnectionAccessed(DbConnection connection, DbTransaction transaction) =>
+      RawConnectionAccessed?.Invoke(this, new DbConnectionEventArgs(connection, transaction));
 
-    internal async Task NotifyRawConnectionAccessedAsync(DbConnection connection, CancellationToken cancellationToken)
+    internal async Task NotifyRawConnectionAccessedAsync(DbConnection connection, DbTransaction transaction, CancellationToken cancellationToken)
     {
       var handler = RawConnectionAccessedAsync;
       if (handler == null) {
         return;
       }
+      var args = new DbConnectionEventArgs(connection, transaction);
       foreach (var subscriber in handler.GetInvocationList()) {
-        await ((Func<DbConnection, CancellationToken, Task>) subscriber)
-          .Invoke(connection, cancellationToken).ConfigureAwaitFalse();
+        await ((Func<DbConnectionEventArgs, CancellationToken, Task>) subscriber)
+          .Invoke(args, cancellationToken).ConfigureAwaitFalse();
       }
     }
 

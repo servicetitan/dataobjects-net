@@ -7,5 +7,6 @@ namespace Xtensive.Orm
   /// and <see cref="SessionEventAccessor.RawConnectionAccessed"/>.
   /// </summary>
   /// <param name="Connection">The connection the event concerns.</param>
-  public readonly record struct DbConnectionEventArgs(DbConnection Connection);
+  /// <param name="Transaction">The connection's active transaction, or <see langword="null"/> if none.</param>
+  public readonly record struct DbConnectionEventArgs(DbConnection Connection, DbTransaction Transaction = null);
 }
