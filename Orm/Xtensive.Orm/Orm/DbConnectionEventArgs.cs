@@ -3,22 +3,9 @@ using System.Data.Common;
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// Event args for <see cref="SessionEventAccessor.DbConnectionOpened"/>.
+  /// Event args carrying a <see cref="DbConnection"/>, used by <see cref="SessionEventAccessor.DbConnectionOpened"/>
+  /// and <see cref="SessionEventAccessor.RawConnectionAccessed"/>.
   /// </summary>
-  public readonly struct DbConnectionEventArgs
-  {
-    /// <summary>
-    /// Gets the connection that transitioned from closed to open.
-    /// </summary>
-    public DbConnection Connection { get; }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="connection">The connection that transitioned from closed to open.</param>
-    public DbConnectionEventArgs(DbConnection connection)
-    {
-      Connection = connection;
-    }
-  }
+  /// <param name="Connection">The connection the event concerns.</param>
+  public readonly record struct DbConnectionEventArgs(DbConnection Connection);
 }

@@ -6,8 +6,6 @@
 
 using System;
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers
