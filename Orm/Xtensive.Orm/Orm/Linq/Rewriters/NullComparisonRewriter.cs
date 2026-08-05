@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Internals;
+using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
@@ -19,11 +20,27 @@ namespace Xtensive.Orm.Linq.Rewriters
       return e;
     }
 
+    private static bool TryApplyExplicitConvert(ref Expression e, Expression a)
+    {
+      if (a.NodeType == ExpressionType.Convert
+          && e is ConstantExpression { Type: { IsValueType: true} type } c
+          && type.IsNullable()
+          && c.Value is null) {
+        e = Expression.Convert(e, type);
+        return true;
+      }
+      return false;
+    }
+
     protected override Expression VisitConditional(ConditionalExpression c)
     {
       var test = Visit(c.Test);
       var ifTrue = Visit(c.IfTrue);
       var ifFalse = Visit(c.IfFalse);
+
+      if (!TryApplyExplicitConvert(ref ifFalse, ifTrue)) {
+        TryApplyExplicitConvert(ref ifTrue, ifFalse);
+      }
 
       if (test.NodeType is ExpressionType.Equal or ExpressionType.NotEqual) {
         var binaryExpression = (BinaryExpression) test;
