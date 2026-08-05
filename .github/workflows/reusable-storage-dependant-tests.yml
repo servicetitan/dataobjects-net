@@ -126,7 +126,7 @@ jobs:
       - name: Build Orm
         if: ${{ success() }}
         timeout-minutes: 5
-        run: dotnet build Orm.sln -c ${{ inputs.build_config }}
+        run: dotnet build Orm.slnx -c ${{ inputs.build_config }}
 
       
 
