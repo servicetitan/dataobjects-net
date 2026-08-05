@@ -21,8 +21,8 @@ namespace Xtensive.Orm.Linq.Rewriters
     }
 
     protected override Expression VisitConstant(ConstantExpression c) =>
-      c.Type.IsValueType && c.Type.IsNullable() && c.Value is null
-        ? Expression.Convert(c, c.Type)
+      c.Type is var type && type.IsValueType && type.IsNullable() && c.Value is null
+        ? Expression.Convert(c, type)
         : c;
 
     protected override Expression VisitConditional(ConditionalExpression c)
