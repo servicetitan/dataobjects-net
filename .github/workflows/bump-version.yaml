@@ -9,6 +9,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Bump
-        run: gawk -i inplace '{match($0,/(^.+DoVersion>[0-9]+.[0-9]+.[0-9]+.)([0-9]+)/,a);if(a[2]>0){print a[1]a[2]+1"</DoVersion>"}else{print $0}}' Version.props
+        run: gawk -i inplace '{match($0,/(^.+DoVersion>[0-9]+\.[0-9]+\.)([0-9]+)(<\/DoVersion>)/,a);if(a[2]>0){print a[1]a[2]+1a[3]}else{print $0}}' Version.props
       - name: Commit
         run: git config user.email 'spavlov@servicetitan.com' && git config user.name 'Bump-Version GitHub Action' && git commit -a -m 'Bump version' && git push
