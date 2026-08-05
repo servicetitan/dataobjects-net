@@ -65,7 +65,7 @@ jobs:
 
       - name: Build Orm
         if: ${{ success() }}
-        run: dotnet build Orm.sln --configuration Release
+        run: dotnet build Orm.slnx --configuration Release
         
       #check that nuget packages are built, last chance to abort
       - name: Check package exist

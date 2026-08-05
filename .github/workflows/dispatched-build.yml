@@ -71,7 +71,7 @@ jobs:
 
       - name: Build Orm
         if: ${{ success() }}
-        run: dotnet build Orm.sln --configuration $BUILD_CONFIG -v ${{ inputs.verbosity }}
+        run: dotnet build Orm.slnx --configuration $BUILD_CONFIG -v ${{ inputs.verbosity }}
 
       - name: Organize files
         if: ${{ success() && inputs.buildConfiguration == 'Release' && inputs.publish_artifacts }}
