@@ -6,8 +6,6 @@
 
 using System;
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers
@@ -26,9 +24,7 @@ namespace Xtensive.Orm.Providers
     DbConnection IDirectSqlService.Connection {
       get {
         Prepare();
-        var underlyingConnection = connection.UnderlyingConnection;
-        Session.Events.NotifyRawConnectionAccessed(underlyingConnection);
-        return underlyingConnection;
+        return connection.UnderlyingConnection;
       }
     }
 
@@ -52,16 +48,7 @@ namespace Xtensive.Orm.Providers
     DbCommand IDirectSqlService.CreateCommand()
     {
       Prepare();
-      return new EventNotifyingDbCommand(Session, connection.CreateCommand());
-    }
-
-    /// <inheritdoc/>
-    async Task<DbConnection> IDirectSqlService.GetConnectionAsync(CancellationToken cancellationToken)
-    {
-      await PrepareAsync(cancellationToken).ConfigureAwaitFalse();
-      var underlyingConnection = connection.UnderlyingConnection;
-      await Session.Events.NotifyRawConnectionAccessedAsync(underlyingConnection, cancellationToken).ConfigureAwaitFalse();
-      return underlyingConnection;
+      return connection.CreateCommand();
     }
   }
 }
