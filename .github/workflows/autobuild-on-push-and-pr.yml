@@ -67,5 +67,5 @@ jobs:
 
       - name: Build Orm
         if: ${{ success() }}
-        run: dotnet build Orm.sln --configuration $BUILD_CONFIG
+        run: dotnet build Orm.slnx --configuration $BUILD_CONFIG
 

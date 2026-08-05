@@ -5,6 +5,8 @@
 // Created:    2010.02.08
 
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 
 using Xtensive.IoC;
@@ -47,6 +49,12 @@ namespace Xtensive.Orm.Services
     public DbCommand CreateCommand()
     {
       return service.CreateCommand();
+    }
+
+    /// <see cref="IDirectSqlService.GetConnectionAsync" copy="true" />
+    public Task<DbConnection> GetConnectionAsync(CancellationToken cancellationToken = default)
+    {
+      return service.GetConnectionAsync(cancellationToken);
     }
 
 
