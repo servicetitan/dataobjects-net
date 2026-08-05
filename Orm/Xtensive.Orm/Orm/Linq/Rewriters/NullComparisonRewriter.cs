@@ -20,13 +20,10 @@ namespace Xtensive.Orm.Linq.Rewriters
       return e;
     }
 
-    protected override Expression VisitConstant(ConstantExpression c)
-    {
-      if (c.Type.IsValueType && c.Type.IsNullable() && c.Value == null) {
-        return Expression.Convert(c, c.Type);
-      }
-      return c;
-    }
+    protected override Expression VisitConstant(ConstantExpression c) =>
+      c.Type.IsValueType && c.Type.IsNullable() && c.Value is null
+        ? Expression.Convert(c, c.Type)
+        : c;
 
     protected override Expression VisitConditional(ConditionalExpression c)
     {
