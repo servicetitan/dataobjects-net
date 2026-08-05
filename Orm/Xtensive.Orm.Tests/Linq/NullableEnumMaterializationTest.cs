@@ -151,5 +151,18 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.That(result.Enum, Is.Null);
       tx.Complete();
     }
+
+    [Test]
+    public void MaterializeNullableEnumAndWhere()
+    {
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+      var result = session.Query.All<RefEntity>()
+        .Where(e => e.Ref == null)
+        .Select(e => new ResultModel { Enum = e.Ref != null ? e.Ref.Value2 : null })
+        .First(e => !e.Enum.HasValue);
+      Assert.That(result.Enum, Is.Null);
+      tx.Complete();
+    }
   }
 }

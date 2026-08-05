@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Internals;
+using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
@@ -17,6 +18,14 @@ namespace Xtensive.Orm.Linq.Rewriters
     protected override Expression VisitUnknown(Expression e)
     {
       return e;
+    }
+
+    protected override Expression VisitConstant(ConstantExpression c)
+    {
+      if (c.Type.IsValueType && c.Type.IsNullable() && c.Value == null) {
+        return Expression.Convert(c, c.Type);
+      }
+      return c;
     }
 
     protected override Expression VisitConditional(ConditionalExpression c)
