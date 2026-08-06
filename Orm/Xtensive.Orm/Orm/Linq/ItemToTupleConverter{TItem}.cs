@@ -102,9 +102,7 @@ namespace Xtensive.Orm.Linq
 
     private readonly Func<ParameterContext, IEnumerable<TItem>> enumerableFunc;
     private readonly DomainModel model;
-    private readonly Type entityTypeStoredInKey;
     private readonly bool isKeyConverter;
-    private readonly Func<TItem, Tuple> converter;
     private readonly ConstantExpression converterExpression;
 
     public override Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable()
@@ -303,12 +301,10 @@ namespace Xtensive.Orm.Linq
     {
       this.model = model;
       this.enumerableFunc = enumerableFunc;
-      entityTypeStoredInKey = storedEntityType;
       var itemType = typeof(TItem);
       isKeyConverter = itemType.IsAssignableFrom(WellKnownOrmTypes.Key);
-      converter = BuildConverter(sourceExpression,
-        isKeyConverter ? entityTypeStoredInKey : itemType);
-      converterExpression = Expression.Constant(converter);
+      converterExpression = Expression.Constant(BuildConverter(sourceExpression,
+        isKeyConverter ? storedEntityType : itemType));
     }
   }
 }
