@@ -1,1 +1,2 @@
-[main] Allow .In() and .Contains() operations for local collections of persistent interface types
+[main] Allow item.In(collection)/collection.Contains(item) operations for local collections of persistent interfaces
+[main] Improve performance of item.In(collection)/collection.Contains(item) operations' translation
