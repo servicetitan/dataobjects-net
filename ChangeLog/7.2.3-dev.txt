@@ -1,0 +1,2 @@
+[main] Allow item.In(collection)/collection.Contains(item) operations for local collections of persistent interfaces
+[main] Improve performance of item.In(collection)/collection.Contains(item) operations' translation
