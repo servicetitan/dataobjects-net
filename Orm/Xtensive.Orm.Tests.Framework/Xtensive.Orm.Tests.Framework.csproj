@@ -21,6 +21,10 @@
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="App.config" />
     <None Include="DO-Tests-Plus.sql" />
     <None Include="DO-Tests.sdf">
