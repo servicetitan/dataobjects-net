@@ -538,7 +538,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       var configuration = CreateDomainBuilderConfiguration(stage);
-      return ((Func<DomainBuilderConfiguration, Domain>) DomainBuilder.Run).Bind(configuration);
+      return () => DomainBuilder.Run(configuration);
     }
 
     private DomainBuilderConfiguration CreateDomainBuilderConfiguration(UpgradeStage stage)

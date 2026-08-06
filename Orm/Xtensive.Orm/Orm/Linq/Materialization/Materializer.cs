@@ -7,8 +7,8 @@ using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Linq.Materialization;
 
-internal readonly struct Materializer(Func<RecordSetReader, Session, ParameterContext, object> materializeMethod)
+internal readonly struct Materializer(Func<(RecordSetReader, Session, ParameterContext), object> materializeMethod)
 {
   public QueryResult<T> Invoke<T>(RecordSetReader recordSetReader, Session session, ParameterContext parameterContext) =>
-    new((IMaterializingReader<T>) materializeMethod(recordSetReader, session, parameterContext), session.GetLifetimeToken());
+    new((IMaterializingReader<T>) materializeMethod((recordSetReader, session, parameterContext)), session.GetLifetimeToken());
 }

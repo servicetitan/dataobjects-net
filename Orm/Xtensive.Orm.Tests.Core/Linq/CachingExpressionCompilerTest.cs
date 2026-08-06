@@ -37,9 +37,9 @@ namespace Xtensive.Orm.Tests.Core.Linq
     public void AlwaysNewExpressionTest()
     {
       int i = 0;
-      Func<Expression<Func<int, int, int>>> lambdaGenerator = () => {
+      Func<Expression<Func<(int, int), int>>> lambdaGenerator = () => {
         i++;
-        return (a, b) => i;
+        return _ => i;
       };
       RunCompilePerformanceTest(lambdaGenerator, true);
       RunCompilePerformanceTest(lambdaGenerator, false);
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
     [Category("Performance")]
     public void SimpleExpressionPerformanceTest()
     {
-      Expression<Func<int, int, int>> lambda = (a, b) => a + b;
+      Expression<Func<(int a, int b), int>> lambda = t => t.a + t.b;
       RunCompilePerformanceTest(lambda, true);
       RunCompilePerformanceTest(lambda, false);
     }
@@ -60,8 +60,8 @@ namespace Xtensive.Orm.Tests.Core.Linq
     [Category("Performance")]
     public void ComplexExpressionPerformanceTest()
     {
-      Expression<Func<int, int, int>> lambda =
-        (a, b) => new {Result = a + b * 2 / a}.Result + DateTime.Now.Day * a * b - a + b;
+      Expression<Func<(int a, int b), int>> lambda =
+        t => new {Result = t.a + t.b * 2 / t.a}.Result + DateTime.Now.Day * t.a * t.b - t.a + t.b;
       RunCompilePerformanceTest(lambda, true);
       RunCompilePerformanceTest(lambda, false);
     }
@@ -71,8 +71,8 @@ namespace Xtensive.Orm.Tests.Core.Linq
     [Category("Performance")]
     public void CombinedTest()
     {
-      Expression<Func<int, int, int>> lambda =
-        (a, b) => new {Result = a + b * 2 / (a + 1)}.Result + DateTime.Now.Day * a * b - a + b;
+      Expression<Func<(int a, int b), int>> lambda =
+        t => new {Result = t.a + t.b * 2 / (t.a + 1)}.Result + DateTime.Now.Day * t.a * t.b - t.a + t.b;
       RunCompileAndInvokePerformanceTest(lambda, true);
       RunCompileAndInvokePerformanceTest(lambda, false);
     }
@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
           k = original.Invoke(k);
     }
 
-    private static void RunCompilePerformanceTest(Func<Expression<Func<int, int, int>>> lambdaGenerator, bool warmUp)
+    private static void RunCompilePerformanceTest(Func<Expression<Func<(int, int), int>>> lambdaGenerator, bool warmUp)
     {
       int operationCount = warmUp ? warpUpOperationCount : actualOperationCount;
       using (CreateMeasurement(warmUp, "Without caching: ", operationCount))
@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
           lambdaGenerator.Invoke().CachingCompile();
     }
 
-    private static void RunCompilePerformanceTest(Expression<Func<int, int, int>> lambda, bool warmUp)
+    private static void RunCompilePerformanceTest(Expression<Func<(int, int), int>> lambda, bool warmUp)
     {
       int operationCount = warmUp ? warpUpOperationCount : actualOperationCount;
       using (CreateMeasurement(warmUp, "Without caching: ", operationCount))
@@ -134,20 +134,20 @@ namespace Xtensive.Orm.Tests.Core.Linq
           lambda.CachingCompile();
     }
 
-    private static void RunCompileAndInvokePerformanceTest(Expression<Func<int, int, int>> lambda, bool warmUp)
+    private static void RunCompileAndInvokePerformanceTest(Expression<Func<(int, int), int>> lambda, bool warmUp)
     {
       int operationCount = warmUp ? warpUpOperationCount : actualOperationCount;
       using (CreateMeasurement(warmUp, "Without caching: ", operationCount))
         for (int i = 0; i < operationCount; i++) {
           var func = lambda.Compile();
-          func(i, i);
+          func((i, i));
         }
 
       ClearCompilerCache();
       using (CreateMeasurement(warmUp, "With caching: ", operationCount))
         for (int i = 0; i < operationCount; i++) {
           var func = lambda.CachingCompile();
-          func(i, i);
+          func((i, i));
         }
     }
 

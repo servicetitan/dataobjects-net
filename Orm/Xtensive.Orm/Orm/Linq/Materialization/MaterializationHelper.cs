@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Linq.Materialization
     }
 
     public static IItemMaterializer<TResult> CreateItemMaterializer<TResult>(
-      Expression<Func<Tuple, ItemMaterializationContext, TResult>> itemMaterializerLambda, AggregateType? aggregateType)
+      Expression<Func<(Tuple, ItemMaterializationContext), TResult>> itemMaterializerLambda, AggregateType? aggregateType)
     {
       var materializationDelegate = itemMaterializerLambda.CachingCompile();
       return aggregateType.HasValue
@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Linq.Materialization
     }
 
     public static IItemMaterializer<TResult?> CreateNullableItemMaterializer<TResult>(
-      Expression<Func<Tuple, ItemMaterializationContext, TResult?>> itemMaterializerLambda, AggregateType? aggregateType)
+      Expression<Func<(Tuple, ItemMaterializationContext), TResult?>> itemMaterializerLambda, AggregateType? aggregateType)
       where TResult : struct
     {
       var materializationDelegate = itemMaterializerLambda.CachingCompile();
