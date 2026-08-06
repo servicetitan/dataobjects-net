@@ -34,7 +34,7 @@ using FastFactory = System.Func<
 
 namespace Xtensive.Linq
 {
-  internal sealed class LambdaExpressionFactory
+  internal static class LambdaExpressionFactory
   {
     private static readonly Type[] internalFactorySignature = new[] {
       WellKnownTypes.Expression, WellKnownTypes.String, WellKnownTypes.Bool, typeof(IReadOnlyList<ParameterExpression>)
@@ -50,14 +50,20 @@ namespace Xtensive.Linq
 
     private static readonly Func<Type, Factory> CreateHandler = CanUseFastFactory() ? CreateFactoryFast : CreateFactorySlow;
 
-    public static LambdaExpressionFactory Instance { get; } = new();
+    private static readonly ConcurrentDictionary<Type, Factory> cache = new();
 
-    private readonly ConcurrentDictionary<Type, Factory> cache = new();
+    private static class Traits<TDelegate>
+    {
+      public static readonly Factory Factory = CreateHandler(typeof(TDelegate));
+    }
 
-    public LambdaExpression CreateLambda(Type delegateType, Expression body, IReadOnlyList<ParameterExpression> parameters) =>
+    public static Expression<TDelegate> CreateLambda<TDelegate>(Expression body, IReadOnlyList<ParameterExpression> parameters) =>
+      (Expression<TDelegate>) Traits<TDelegate>.Factory(body, parameters);
+
+    public static LambdaExpression CreateLambda(Type delegateType, Expression body, IReadOnlyList<ParameterExpression> parameters) =>
       cache.GetOrAdd(delegateType, CreateHandler).Invoke(body, parameters);
 
-    public LambdaExpression CreateLambda(Expression body, IReadOnlyList<ParameterExpression> parameters)
+    public static LambdaExpression CreateLambda(Expression body, IReadOnlyList<ParameterExpression> parameters)
     {
       var delegateType = DelegateHelper.MakeDelegateType(body.Type, parameters.Select(p => p.Type), parameters.Count);
       return CreateLambda(delegateType, body, parameters);

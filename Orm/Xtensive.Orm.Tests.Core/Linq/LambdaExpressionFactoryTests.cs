@@ -43,8 +43,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
     [Test]
     public void ShouldCreateLambda()
     {
-      var lambda = (Func<int, int>) LambdaExpressionFactory.Instance
-        .CreateLambda(delegateType, plusOne.Body, plusOne.Parameters)
+      var lambda = (Func<int, int>) LambdaExpressionFactory.CreateLambda(delegateType, plusOne.Body, plusOne.Parameters)
         .Compile();
 
       Assert.That(lambda.Invoke(1), Is.EqualTo(2));

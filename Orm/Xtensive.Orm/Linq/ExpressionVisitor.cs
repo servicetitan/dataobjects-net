@@ -145,7 +145,7 @@ namespace Xtensive.Linq
 
     /// <inheritdoc/>
     protected override Expression VisitLambda<T>(Expression<T> l) =>
-      Visit((LambdaExpression)l, l.Body, static (l, body) => FastExpression.Lambda(l.Type, body, l.Parameters));
+      Visit((LambdaExpression)l, l.Body, static (l, body) => FastExpression.Lambda<T>(body, l.Parameters));
 
     protected Expression VisitLambda(LambdaExpression lambda) => base.Visit(lambda);
 
