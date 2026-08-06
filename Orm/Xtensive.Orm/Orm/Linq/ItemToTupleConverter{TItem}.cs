@@ -4,10 +4,6 @@
 // Created by: Alexey Gamzov
 // Created:    2009.10.01
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
@@ -19,15 +15,12 @@ using Xtensive.Reflection;
 using Xtensive.Tuples;
 using FieldInfo = System.Reflection.FieldInfo;
 using Tuple = Xtensive.Tuples.Tuple;
-using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq
 {
   [Serializable]
   internal sealed class ItemToTupleConverter<TItem> : ItemToTupleConverter
   {
-    private static readonly bool IsKeyConverter = typeof(TItem).IsAssignableFrom(WellKnownOrmTypes.Key);
-
     private struct TupleTypeCollection
     {
       private const int InitialTypesCollectorCapacity = 8;
@@ -258,7 +251,7 @@ namespace Xtensive.Orm.Linq
         var keyInfo = typeInfo.Key;
         var keyTupleDescriptor = keyInfo.TupleDescriptor;
         ParameterizedExpression expression;
-        if (IsKeyConverter)
+        if (isKeyConverter)
           expression = KeyExpression.Create(typeInfo, index);
         else {
           var entityExpression = EntityExpression.Create(typeInfo, index, true);
