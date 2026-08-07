@@ -50,7 +50,7 @@ namespace Xtensive.Linq
 
     private static readonly Func<Type, Factory> CreateHandler = CanUseFastFactory() ? CreateFactoryFast : CreateFactorySlow;
 
-    private static readonly ConcurrentDictionary<Type, Factory> cache = new();
+    private static readonly ConcurrentDictionary<Type, Factory> cache = [];
 
     private static class Traits<TDelegate>
     {
