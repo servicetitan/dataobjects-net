@@ -29,6 +29,24 @@ public static class ExpressionCompileExtensions
   {
     var (compiled, constants) = CachingExpressionCompiler.Compile(lambda);
     var d = (Func<object[], T1, TResult>) compiled;
-    return (arg2) => d(constants, arg2);
+    return (arg1) => d(constants, arg1);
+  }
+
+  /// <summary>Compiles the specified lambda and caches the result of compilation.</summary>
+  /// <returns>Compiled lambda.</returns>
+  public static Func<T1, T2, TResult> CachingCompile<T1, T2, TResult>(this Expression<Func<T1, T2, TResult>> lambda)
+  {
+    var (compiled, constants) = CachingExpressionCompiler.Compile(lambda);
+    var d = (Func<object[], T1, T2, TResult>) compiled;
+    return (arg1, arg2) => d(constants, arg1, arg2);
+  }
+
+  /// <summary>Compiles the specified lambda and caches the result of compilation.</summary>
+  /// <returns>Compiled lambda.</returns>
+  public static Func<T1, T2, T3, TResult> CachingCompile<T1, T2, T3, TResult>(this Expression<Func<T1, T2, T3, TResult>> lambda)
+  {
+    var (compiled, constants) = CachingExpressionCompiler.Compile(lambda);
+    var d = (Func<object[], T1, T2, T3, TResult>) compiled;
+    return (arg1, arg2, arg3) => d(constants, arg1, arg2, arg3);
   }
 }

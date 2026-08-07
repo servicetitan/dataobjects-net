@@ -18,14 +18,14 @@ namespace Xtensive.Orm.Linq.Materialization
 
   internal class ItemMaterializer<TItem> : IItemMaterializer<TItem>
   {
-    private readonly Func<(Tuple, ItemMaterializationContext), TItem> materializationDelegate;
+    private readonly Func<Tuple, ItemMaterializationContext, TItem> materializationDelegate;
 
     public virtual TItem Materialize(Tuple tuple, MaterializationContext context, ParameterContext parameterContext) =>
-      materializationDelegate.Invoke((tuple, new ItemMaterializationContext(context, parameterContext)));
+      materializationDelegate.Invoke(tuple, new ItemMaterializationContext(context, parameterContext));
 
     public virtual bool CanMaterialize(Tuple tuple) => true;
 
-    public ItemMaterializer(Func<(Tuple, ItemMaterializationContext), TItem> materializationDelegate)
+    public ItemMaterializer(Func<Tuple, ItemMaterializationContext, TItem> materializationDelegate)
     {
       this.materializationDelegate = materializationDelegate;
     }
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Linq.Materialization
       aggregateType==AggregateType.Sum || (tuple.GetFieldState(0) & TupleFieldState.Null) == 0;
 
     public AggregateResultMaterializer(
-      Func<(Tuple, ItemMaterializationContext), TResult> materializationDelegate, AggregateType aggregateType)
+      Func<Tuple, ItemMaterializationContext, TResult> materializationDelegate, AggregateType aggregateType)
       : base(materializationDelegate)
     {
       this.aggregateType = aggregateType;
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Linq.Materialization
     }
 
     public NullableAggregateResultMaterializer(
-      Func<(Tuple, ItemMaterializationContext), TResult?> materializationDelegate, AggregateType aggregateType)
+      Func<Tuple, ItemMaterializationContext, TResult?> materializationDelegate, AggregateType aggregateType)
       : base(materializationDelegate)
     {
       this.aggregateType = aggregateType;

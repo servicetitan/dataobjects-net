@@ -133,7 +133,7 @@ namespace Xtensive.Orm.Linq
       var itemMaterializerFactoryMethod = elementType.IsNullable()
           ? MaterializationHelper.CreateNullableItemMaterializerMethodInfo.CachedMakeGenericMethodInvoker(elementType.GetGenericArguments()[0])
           : MaterializationHelper.CreateItemMaterializerMethodInfo.CachedMakeGenericMethodInvoker(elementType);
-      var itemMaterializer = itemMaterializerFactoryMethod.Invoke(((Tuple)null, materializationInfo.Expression), itemProjector.AggregateType);
+      var itemMaterializer = itemMaterializerFactoryMethod.Invoke(null, materializationInfo.Expression, itemProjector.AggregateType);
 
       var materializationContextExpression = MaterializationContextCtor
         .BindParameters(Session, Expr.Constant(materializationInfo.EntitiesInRow));
@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Linq
         ParameterContext,
         Expression.Constant(itemMaterializer));
 
-      var projectorExpression = FastExpression.Lambda<Func<(RecordSetReader, Session, ParameterContext), object>>(body, TupleReaderSessionParameterContext);
+      var projectorExpression = FastExpression.Lambda<Func<RecordSetReader, Session, ParameterContext, object>>(body, TupleReaderSessionParameterContext);
       return new Materializer(projectorExpression.CachingCompile());
     }
 
