@@ -51,6 +51,13 @@ namespace Xtensive.Orm
     public event EventHandler<DbCommandEventArgs> DbCommandCanceled;
 
     /// <summary>
+    /// Occurs before a connection's initialization SQL runs, on the same closed-to-open transition as
+    /// <see cref="DbConnectionOpened"/> but before the connection opens. Subscribers may append SQL to the
+    /// initialization batch via <see cref="DbConnectionInitializingEventArgs.AppendInitializationSql"/>.
+    /// </summary>
+    public event EventHandler<DbConnectionInitializingEventArgs> DbConnectionInitializing;
+
+    /// <summary>
     /// Occurs when the underlying <see cref="DbConnection"/> transitions from closed to open.
     /// Does not occur when an already-open connection is reused.
     /// </summary>
@@ -291,6 +298,16 @@ namespace Xtensive.Orm
 
     internal void NotifyDbCommandCanceled(DbCommand command) =>
       DbCommandCanceled?.Invoke(this, new DbCommandEventArgs(command));
+
+    internal string NotifyDbConnectionInitializing(string initializationScript)
+    {
+      if (DbConnectionInitializing == null) {
+        return initializationScript;
+      }
+      var args = new DbConnectionInitializingEventArgs(Session, initializationScript);
+      DbConnectionInitializing.Invoke(this, args);
+      return args.InitializationScript;
+    }
 
     internal void NotifyDbConnectionOpened(DbConnection connection) =>
       DbConnectionOpened?.Invoke(this, new DbConnectionEventArgs(connection));

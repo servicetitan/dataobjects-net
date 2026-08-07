@@ -78,6 +78,9 @@ namespace Xtensive.Orm.Providers
       }
 
       var script = connection.Extensions.Get<InitializationSqlExtension>()?.Script;
+      if (session != null) {
+        script = session.Events.NotifyDbConnectionInitializing(script);
+      }
 
       try {
         if (!string.IsNullOrEmpty(script)) {
@@ -105,6 +108,9 @@ namespace Xtensive.Orm.Providers
       }
 
       var script = connection.Extensions.Get<InitializationSqlExtension>()?.Script;
+      if (session != null) {
+        script = session.Events.NotifyDbConnectionInitializing(script);
+      }
 
       try {
         if (!string.IsNullOrEmpty(script)) {
