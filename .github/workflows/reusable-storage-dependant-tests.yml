@@ -128,8 +128,6 @@ jobs:
         timeout-minutes: 5
         run: dotnet build Orm.slnx -c ${{ inputs.build_config }}
 
-      
-
       # Since composite action syntax does not allow to define step timeout
       # we have to run Reprocessing project here, because it may stuck in forever-loop
       - name: Test Reprocessing extension set of tests
