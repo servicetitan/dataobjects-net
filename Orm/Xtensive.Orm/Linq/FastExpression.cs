@@ -24,7 +24,7 @@ namespace Xtensive.Linq
     /// <param name="parameters">The parameters of lambda expression.</param>
     /// <returns>Constructed lambda expression.</returns>
     public static LambdaExpression Lambda(Type delegateType, Expression body, params ParameterExpression[] parameters) =>
-      LambdaExpressionFactory.Instance.CreateLambda(delegateType, body, parameters ?? Array.Empty<ParameterExpression>());
+      LambdaExpressionFactory.CreateLambda(delegateType, body, parameters ?? []);
 
     /// <summary>
     /// Generates <see cref="LambdaExpression"/> faster than <see cref="Expression.Lambda(Type,Expression,ParameterExpression[])"/>.
@@ -34,10 +34,10 @@ namespace Xtensive.Linq
     /// <param name="parameters">The parameters of lambda expression.</param>
     /// <returns>Constructed lambda expression.</returns>
     public static Expression<TDelegate> Lambda<TDelegate>(Expression body, params ParameterExpression[] parameters) =>
-      (Expression<TDelegate>) LambdaExpressionFactory.Instance.CreateLambda(typeof(TDelegate), body, parameters ?? Array.Empty<ParameterExpression>());
+      LambdaExpressionFactory.CreateLambda<TDelegate>(body, parameters ?? []);
 
     public static Expression<TDelegate> Lambda<TDelegate>(Expression body, IReadOnlyList<ParameterExpression> parameters) =>
-      (Expression<TDelegate>) LambdaExpressionFactory.Instance.CreateLambda(typeof(TDelegate), body, parameters);
+      LambdaExpressionFactory.CreateLambda<TDelegate>(body, parameters);
 
     /// <summary>
     /// Generates <see cref="LambdaExpression"/> faster than <see cref="Expression.Lambda(Type,Expression,IEnumerable{ParameterExpression})"/>.
@@ -47,7 +47,7 @@ namespace Xtensive.Linq
     /// <param name="parameters">The parameters of lambda expression.</param>
     /// <returns>Constructed lambda expression.</returns>
     public static LambdaExpression Lambda(Type delegateType, Expression body, IReadOnlyList<ParameterExpression> parameters) =>
-      LambdaExpressionFactory.Instance.CreateLambda(delegateType, body, parameters);
+      LambdaExpressionFactory.CreateLambda(delegateType, body, parameters);
 
     /// <summary>
     /// Generates <see cref="LambdaExpression"/> faster than <see cref="Expression.Lambda(Expression,ParameterExpression[])"/>.
@@ -56,7 +56,7 @@ namespace Xtensive.Linq
     /// <param name="parameters">The parameters of lambda expression.</param>
     /// <returns>Constructed lambda expression.</returns>
     public static LambdaExpression Lambda(Expression body, params ParameterExpression[] parameters) =>
-      LambdaExpressionFactory.Instance.CreateLambda(body, parameters ?? Array.Empty<ParameterExpression>());
+      LambdaExpressionFactory.CreateLambda(body, parameters ?? []);
 
     /// <summary>
     /// Generates <see cref="LambdaExpression"/> faster than <see cref="Expression.Lambda(Expression,ParameterExpression[])"/>.
@@ -65,6 +65,6 @@ namespace Xtensive.Linq
     /// <param name="parameters">The parameters of lambda expression.</param>
     /// <returns>Constructed lambda expression.</returns>
     public static LambdaExpression Lambda(Expression body, IReadOnlyList<ParameterExpression> parameters) =>
-      LambdaExpressionFactory.Instance.CreateLambda(body, parameters);
+      LambdaExpressionFactory.CreateLambda(body, parameters);
   }
 }
