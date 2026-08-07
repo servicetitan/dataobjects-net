@@ -3,7 +3,7 @@
 
 <PropertyGroup>
     <DoVersion>7.3.29</DoVersion>
-    <DoVersionSuffix>servicetitan-test-nobind</DoVersionSuffix>
+    <DoVersionSuffix>servicetitan</DoVersionSuffix>
 </PropertyGroup>
 
 </Project>
