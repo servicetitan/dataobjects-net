@@ -96,9 +96,7 @@ namespace Xtensive.Orm.Tests.Model
     private Func<Domain> CreateDomainBuilder(UpgradeContext context)
     {
       var buildingConfiguration = BuildBuilderConfiguration(context);
-
-      Func<DomainBuilderConfiguration, Domain> builder = DomainBuilder.Run;
-      return builder.Bind(buildingConfiguration);
+      return () => DomainBuilder.Run(buildingConfiguration);
     }
 
     private DomainBuilderConfiguration BuildBuilderConfiguration(UpgradeContext context)
