@@ -16,12 +16,13 @@ internal static class CachingExpressionCompiler
     public static readonly ConcurrentDictionary<ExpressionTree, Delegate> Cache = new();
   }
 
-  internal static (Delegate Compiled, object[] Constants) Compile<TDelegate>(Expression<TDelegate> lambda)
+  internal static (TCompiledDelegate Compiled, object[] Constants) Compile<TDelegate, TCompiledDelegate>(Expression<TDelegate> lambda) where TCompiledDelegate : Delegate
   {
     var constantExtractor = new ConstantExtractor(lambda);
     var expressionTree = constantExtractor.Process().ToExpressionTree();
     return (
-      Traits<TDelegate>.Cache.GetOrAdd(expressionTree, static tree => ((LambdaExpression) tree.ToExpression()).Compile()),
+      (TCompiledDelegate) Traits<TDelegate>.Cache.GetOrAdd(expressionTree,
+        static tree => ((LambdaExpression) tree.ToExpression()).Compile()),
       constantExtractor.GetConstants()
     );
   }
