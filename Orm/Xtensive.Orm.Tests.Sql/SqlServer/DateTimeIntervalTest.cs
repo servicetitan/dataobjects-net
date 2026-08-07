@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
         var match = Regex.Match(cmd.CommandText, @"'[\w\W]*'");
         var sqlLiteralValue = DateTime.Parse(match.Value.Replace("\'", ""));
-        Assert.AreEqual(literalValue, sqlLiteralValue);
+        Assert.That(literalValue, Is.EqualTo(sqlLiteralValue));
       }
     }
   }
