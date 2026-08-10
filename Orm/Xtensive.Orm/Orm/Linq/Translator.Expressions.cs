@@ -1018,7 +1018,7 @@ namespace Xtensive.Orm.Linq
         Expression.Call(
           objectExpression,
           objectExpression.Type.GetProperty(Reflection.WellKnown.IndexerPropertyName).GetGetMethod(),
-          new[] {Expression.Constant(evaluatedArgument)}),
+          Expression.Constant(evaluatedArgument)),
         fieldInfo.ValueType);
     }
 

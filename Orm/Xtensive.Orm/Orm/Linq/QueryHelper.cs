@@ -96,13 +96,13 @@ namespace Xtensive.Orm.Linq
       var indexerGetter = ownerType.GetMethod(Reflection.WellKnown.IndexerPropertyGetterName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
       if (indexerGetter.Attributes.HasFlag(MethodAttributes.SpecialName)
           && (indexerGetter.DeclaringType == WellKnownOrmTypes.Persistent || indexerGetter.DeclaringType == WellKnownOrmTypes.Entity))
-        return Expression.Convert(Expression.Call(Expression.Constant(owner), indexerGetter, new[] { Expression.Constant(entitySet.Field.Name) }), entitySet.Field.ValueType);
+        return Expression.Convert(Expression.Call(Expression.Constant(owner), indexerGetter, Expression.Constant(entitySet.Field.Name)), entitySet.Field.ValueType);
 
       // old-fashion slow way, if something went wrong
       var indexers = ownerType.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
         .Where(p => p.GetIndexParameters().Any())
         .Select(p => p.GetGetMethod());
-      return Expression.Convert(Expression.Call(Expression.Constant(owner),indexers.Single(), new []{Expression.Constant(entitySet.Field.Name)}), entitySet.Field.ValueType);
+      return Expression.Convert(Expression.Call(Expression.Constant(owner),indexers.Single(), Expression.Constant(entitySet.Field.Name)), entitySet.Field.ValueType);
     }
 
     public static Expression CreateEntitySetQuery(Expression ownerEntity, FieldInfo field, Domain domain)

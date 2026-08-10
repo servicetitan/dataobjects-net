@@ -137,7 +137,7 @@ namespace Xtensive.Orm
     {
       ArgumentNullException.ThrowIfNull(searchCriteria);
       var method = WellKnownMembers.Query.FreeTextExpression.CachedMakeGenericMethod(typeof(T));
-      var expression = Expression.Call(null, method, [searchCriteria]);
+      var expression = Expression.Call(method, searchCriteria);
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 
@@ -158,7 +158,7 @@ namespace Xtensive.Orm
       ArgumentNullException.ThrowIfNull(searchCriteria);
       ArgumentOutOfRangeException.ThrowIfNegativeOrZero(topNByRank);
       var method = WellKnownMembers.Query.FreeTextExpressionTopNByRank.CachedMakeGenericMethod(typeof (T));
-      var expression = Expression.Call(null, method, searchCriteria, Expr.Constant(topNByRank));
+      var expression = Expression.Call(method, searchCriteria, Expr.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 
@@ -198,7 +198,7 @@ namespace Xtensive.Orm
       ArgumentNullException.ThrowIfNull(searchCriteria);
       ArgumentNullException.ThrowIfNull(targetFields);
       var method = WellKnownMembers.Query.ContainsTableExprWithColumns.CachedMakeGenericMethod(typeof(T));
-      var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetFields));
+      var expression = Expression.Call(method, searchCriteria, Expression.Constant(targetFields));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 
@@ -221,7 +221,7 @@ namespace Xtensive.Orm
       ArgumentNullException.ThrowIfNull(searchCriteria);
       ArgumentOutOfRangeException.ThrowIfNegativeOrZero(topNByRank);
       var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.CachedMakeGenericMethod(typeof(T));
-      var expression = Expression.Call(null, method, searchCriteria, Expr.Constant(topNByRank));
+      var expression = Expression.Call(method, searchCriteria, Expr.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 
@@ -249,7 +249,7 @@ namespace Xtensive.Orm
       ArgumentNullException.ThrowIfNull(targetFields);
       ArgumentOutOfRangeException.ThrowIfNegativeOrZero(topNByRank);
       var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.CachedMakeGenericMethod(typeof(T));
-      var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetFields), Expr.Constant(topNByRank));
+      var expression = Expression.Call(method, searchCriteria, Expression.Constant(targetFields), Expr.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 
