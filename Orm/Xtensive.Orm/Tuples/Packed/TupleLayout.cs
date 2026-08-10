@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.12.29
 
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Xtensive.Reflection;
 
@@ -102,10 +103,11 @@ namespace Xtensive.Tuples.Packed
       };
 
       private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
+      private static readonly Module NullableTypeModule = WellKnownTypes.NullableOfT.Module;
 
       public static ValueFieldAccessor GetValue(Type probeType) =>
         TypeToAccessor.GetValueOrDefault(probeType)
-        ?? ((probeType.MetadataToken == NullableTypeMetadataToken ? probeType.GetGenericArguments()[0] : probeType) is { IsEnum: true } enumType
+        ?? ((probeType.MetadataToken == NullableTypeMetadataToken && probeType.Module == NullableTypeModule ? probeType.GetGenericArguments()[0] : probeType) is { IsEnum: true } enumType
           ? TypeToAccessor.GetValueOrDefault(Enum.GetUnderlyingType(enumType))
           : null);
     }
