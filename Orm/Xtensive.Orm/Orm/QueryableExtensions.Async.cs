@@ -1711,7 +1711,7 @@ namespace Xtensive.Orm
       CancellationToken cancellationToken = default)
     {
       var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(null, Traits<TKey, TValue>.TupleFactoryMethod,
+      var body = Expression.Call(Traits<TKey, TValue>.TupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
         ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
       var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TValue>>>(body, itemParam));
@@ -1775,7 +1775,7 @@ namespace Xtensive.Orm
       Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
     {
       var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(null, Traits<TKey, TSource>.TupleFactoryMethod,
+      var body = Expression.Call(Traits<TKey, TSource>.TupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
         itemParam[0]);
       var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TSource>>>(body, itemParam));
@@ -1811,7 +1811,7 @@ namespace Xtensive.Orm
       CancellationToken cancellationToken = default)
     {
       var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(null, Traits<TKey, TValue>.TupleFactoryMethod,
+      var body = Expression.Call(Traits<TKey, TValue>.TupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
         ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
       var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TValue>>>(body, itemParam));
@@ -1858,7 +1858,7 @@ namespace Xtensive.Orm
     {
       ArgumentNullException.ThrowIfNull(source);
       return source.Provider is QueryProvider provider
-        ? await provider.ExecuteScalarAsync<TResult>(Expression.Call(null, operation, [source.Expression]), cancellationToken)
+        ? await provider.ExecuteScalarAsync<TResult>(Expression.Call(operation, source.Expression), cancellationToken)
         : (TResult) operation.Invoke(BoxedZero, [source]);
     }
 
@@ -1871,7 +1871,7 @@ namespace Xtensive.Orm
       ArgumentNullException.ThrowIfNull(expression);
 
       return source.Provider is QueryProvider provider
-        ? await provider.ExecuteScalarAsync<TResult>(Expression.Call(null, operation, [source.Expression, expression]), cancellationToken)
+        ? await provider.ExecuteScalarAsync<TResult>(Expression.Call(operation, source.Expression, expression), cancellationToken)
         : (TResult) operation.Invoke(BoxedZero, [source, expression]);
     }
   }
