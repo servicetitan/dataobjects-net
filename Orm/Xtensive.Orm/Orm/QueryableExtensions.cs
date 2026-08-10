@@ -146,6 +146,11 @@ namespace Xtensive.Orm
           new[] {source.ElementType}, source.Expression));
     }
 
+    private static class TakeTraits<TSource>
+    {
+      public static readonly MethodInfo Method = WellKnownMembers.Queryable.ExtensionTake.CachedMakeGenericMethod(typeof(TSource));
+    }
+
     /// <summary>
     /// Version of <see cref="Queryable.Take{TSource}(IQueryable{TSource}, int)"/>, where <paramref name="count"/>
     /// is specified as <see cref="Expression"/>.
@@ -165,9 +170,13 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, providerType));
       }
 
-      var genericMethod = WellKnownMembers.Queryable.ExtensionTake.CachedMakeGenericMethod(typeof(TSource));
-      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, count});
+      var expression = Expression.Call(null, TakeTraits<TSource>.Method, [source.Expression, count]);
       return source.Provider.CreateQuery<TSource>(expression);
+    }
+
+    private static class SkipTraits<TSource>
+    {
+      public static readonly MethodInfo Method = WellKnownMembers.Queryable.ExtensionSkip.CachedMakeGenericMethod(typeof(TSource));
     }
 
     /// <summary>
@@ -189,9 +198,13 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, providerType));
       }
 
-      var genericMethod = WellKnownMembers.Queryable.ExtensionSkip.CachedMakeGenericMethod(typeof(TSource));
-      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, count});
+      var expression = Expression.Call(null, SkipTraits<TSource>.Method, [source.Expression, count]);
       return source.Provider.CreateQuery<TSource>(expression);
+    }
+
+    private static class ElementAtTraits<TSource>
+    {
+      public static readonly MethodInfo Method = WellKnownMembers.Queryable.ExtensionElementAt.CachedMakeGenericMethod(typeof(TSource));
     }
 
     /// <summary>
@@ -213,9 +226,13 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, providerType));
       }
 
-      var genericMethod = WellKnownMembers.Queryable.ExtensionElementAt.CachedMakeGenericMethod(typeof(TSource));
-      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, index});
+      var expression = Expression.Call(null, ElementAtTraits<TSource>.Method, [source.Expression, index]);
       return source.Provider.Execute<TSource>(expression);
+    }
+
+    private static class ElementAtOrDefaultTraits<TSource>
+    {
+      public static readonly MethodInfo Method = WellKnownMembers.Queryable.ExtensionElementAtOrDefault.CachedMakeGenericMethod(typeof(TSource));
     }
 
     /// <summary>
@@ -237,9 +254,13 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, providerType));
       }
 
-      var genericMethod = WellKnownMembers.Queryable.ExtensionElementAtOrDefault.CachedMakeGenericMethod(typeof(TSource));
-      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, index});
+      var expression = Expression.Call(null, ElementAtOrDefaultTraits<TSource>.Method, [source.Expression, index]);
       return source.Provider.Execute<TSource>(expression);
+    }
+
+    private static class LockTraits<TSource>
+    {
+      public static readonly MethodInfo Method = WellKnownMembers.Queryable.ExtensionLock.CachedMakeGenericMethod(typeof(TSource));
     }
 
     /// <summary>
@@ -260,8 +281,7 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, providerType));
       }
 
-      var genericMethod = WellKnownMembers.Queryable.ExtensionLock.CachedMakeGenericMethod(typeof(TSource));
-      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, Expression.Constant(lockMode), Expression.Constant(lockBehavior)});
+      var expression = Expression.Call(null, LockTraits<TSource>.Method, [source.Expression, Expression.Constant(lockMode), Expression.Constant(lockBehavior)]);
       return source.Provider.CreateQuery<TSource>(expression);
     }
 

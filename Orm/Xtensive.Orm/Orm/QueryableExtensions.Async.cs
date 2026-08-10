@@ -1330,6 +1330,11 @@ namespace Xtensive.Orm
       typeof(Tuple).GetMethods(BindingFlags.Public | BindingFlags.Static)
         .Single(mi => mi.Name == nameof(Tuple.Create) && mi.GetGenericArguments().Length == 2);
 
+    private static class Traits<TKey, TSource>
+    {
+      public static readonly MethodInfo TupleFactoryMethod = TupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TSource));
+    }
+
     /// <summary>
     /// Asynchronously creates a <see cref="List{TSource}"/> from an <see cref="IQueryable{TSource}"/>
     /// by enumerating it asynchronously.
@@ -1403,9 +1408,8 @@ namespace Xtensive.Orm
       this IQueryable<TSource> source,
       Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
     {
-      var tupleFactoryMethod = TupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TSource));
       var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(null, tupleFactoryMethod,
+      var body = Expression.Call(null, Traits<TKey, TSource>.TupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
         itemParam[0]);
       var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TSource>>>(body, itemParam));
@@ -1445,9 +1449,8 @@ namespace Xtensive.Orm
       Expression<Func<TSource, TValue>> valueSelector,
       CancellationToken cancellationToken = default)
     {
-      var tupleFactoryMethod = TupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TValue));
       var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(null, tupleFactoryMethod,
+      var body = Expression.Call(null, Traits<TKey, TValue>.TupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
         ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
       var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TValue>>>(body, itemParam));
@@ -1510,9 +1513,8 @@ namespace Xtensive.Orm
     public static async Task<ILookup<TKey, TSource>> ToLookupAsync<TKey, TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
     {
-      var tupleFactoryMethod = TupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TSource));
       var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(null, tupleFactoryMethod,
+      var body = Expression.Call(null, Traits<TKey, TSource>.TupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
         itemParam[0]);
       var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TSource>>>(body, itemParam));
@@ -1547,9 +1549,8 @@ namespace Xtensive.Orm
       Expression<Func<TSource, TValue>> valueSelector,
       CancellationToken cancellationToken = default)
     {
-      var tupleFactoryMethod = TupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TValue));
       var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(null, tupleFactoryMethod,
+      var body = Expression.Call(null, Traits<TKey, TValue>.TupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
         ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
       var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TValue>>>(body, itemParam));
