@@ -78,6 +78,9 @@ namespace Xtensive.Orm.Providers
       }
 
       var script = connection.Extensions.Get<InitializationSqlExtension>()?.Script;
+      if (session != null) {
+        script = session.Events.NotifyDbConnectionInitializing(script);
+      }
 
       try {
         if (!string.IsNullOrEmpty(script)) {
@@ -90,6 +93,8 @@ namespace Xtensive.Orm.Providers
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
       }
+
+      session?.Events.NotifyDbConnectionOpened(connection.UnderlyingConnection);
     }
 
     public Task OpenConnectionAsync(Session session, SqlConnection connection) =>
@@ -103,6 +108,9 @@ namespace Xtensive.Orm.Providers
       }
 
       var script = connection.Extensions.Get<InitializationSqlExtension>()?.Script;
+      if (session != null) {
+        script = session.Events.NotifyDbConnectionInitializing(script);
+      }
 
       try {
         if (!string.IsNullOrEmpty(script)) {
@@ -118,6 +126,8 @@ namespace Xtensive.Orm.Providers
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
       }
+
+      session?.Events.NotifyDbConnectionOpened(connection.UnderlyingConnection);
     }
 
     public void EnsureConnectionIsOpen(Session session, SqlConnection connection)

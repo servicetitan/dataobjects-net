@@ -24,7 +24,9 @@ namespace Xtensive.Orm.Providers
     DbConnection IDirectSqlService.Connection {
       get {
         Prepare();
-        return connection.UnderlyingConnection;
+        var underlyingConnection = connection.UnderlyingConnection;
+        Session.Events.NotifyRawConnectionAccessed(underlyingConnection, connection.ActiveTransaction);
+        return underlyingConnection;
       }
     }
 
@@ -48,7 +50,16 @@ namespace Xtensive.Orm.Providers
     DbCommand IDirectSqlService.CreateCommand()
     {
       Prepare();
-      return connection.CreateCommand();
+      return new EventNotifyingDbCommand(Session, connection.CreateCommand());
+    }
+
+    /// <inheritdoc/>
+    async Task<DbConnection> IDirectSqlService.GetConnectionAsync(CancellationToken cancellationToken)
+    {
+      await PrepareAsync(cancellationToken).ConfigureAwaitFalse();
+      var underlyingConnection = connection.UnderlyingConnection;
+      await Session.Events.NotifyRawConnectionAccessedAsync(underlyingConnection, connection.ActiveTransaction, cancellationToken).ConfigureAwaitFalse();
+      return underlyingConnection;
     }
   }
 }
