@@ -3,7 +3,7 @@
 
 <PropertyGroup>
     <DoVersion>7.3.24</DoVersion>
-    <DoVersionSuffix>connection-init-test</DoVersionSuffix>
+    <DoVersionSuffix>servicetitan</DoVersionSuffix>
 </PropertyGroup>
 
 </Project>
