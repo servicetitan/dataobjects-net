@@ -4,34 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.27
 
-using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Orm.Services
-{
-  /// <summary>
-  /// Result of LINQ query translation.
-  /// </summary>
-  public readonly struct QueryTranslationResult
-  {
-    /// <summary>
-    /// Gets <see cref="SqlSelect"/> query.
-    /// </summary>
-    public SqlSelect Query { get; }
+namespace Xtensive.Orm.Services;
 
-    /// <summary>
-    /// Gets parameter bindings for translated query.
-    /// </summary>
-    public IReadOnlyList<QueryParameterBinding> ParameterBindings { get; }
-
-    // Constructors
-
-    internal QueryTranslationResult(SqlSelect query, IReadOnlyList<QueryParameterBinding> bindings)
-    {
-      Query = query;
-      ParameterBindings = bindings;
-    }
-  }
-}
+public readonly record struct QueryTranslationResult(SqlSelect Query, IReadOnlyList<QueryParameterBinding> ParameterBindings);
