@@ -1679,7 +1679,7 @@ namespace Xtensive.Orm
       Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
     {
       var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(null, Traits<TKey, TSource>.TupleFactoryMethod,
+      var body = Expression.Call(Traits<TKey, TSource>.TupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
         itemParam[0]);
       var query = source.Select(FastExpression.Lambda<Func<TSource, ValueTuple<TKey, TSource>>>(body, itemParam));
