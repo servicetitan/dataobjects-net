@@ -1587,13 +1587,13 @@ namespace Xtensive.Orm
 
     #region Collection methods
 
-    private static readonly MethodInfo TupleCreateMethod =
-      typeof(Tuple).GetMethods(BindingFlags.Public | BindingFlags.Static)
-        .Single(mi => mi.Name == nameof(Tuple.Create) && mi.GetGenericArguments().Length == 2);
+    private static readonly MethodInfo ValueTupleCreateMethod =
+      typeof(ValueTuple).GetMethods(BindingFlags.Public | BindingFlags.Static)
+        .Single(mi => mi.Name == nameof(ValueTuple.Create) && mi.GetGenericArguments().Length == 2);
 
     private static class Traits<TKey, TSource>
     {
-      public static readonly MethodInfo TupleFactoryMethod = TupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TSource));
+      public static readonly MethodInfo TupleFactoryMethod = ValueTupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TSource));
     }
 
     /// <summary>
@@ -1646,6 +1646,35 @@ namespace Xtensive.Orm
       CancellationToken cancellationToken = default) =>
       (await source.ToListAsync(cancellationToken).ConfigureAwaitFalse()).ToArray();
 
+    private static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue>(this IQueryable<(TKey, TValue)> query, CancellationToken cancellationToken)
+    {
+      Dictionary<TKey, TValue> dictionary = [];
+      await foreach (var (k, v) in query.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwaitFalse()) {
+        dictionary.Add(k, v);
+      }
+      return dictionary;
+    }
+
+    private static IQueryable<(TKey, TSource)> ComposeQuery<TKey, TSource>(IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+    {
+      var itemParam = ParameterTraits<TSource>.ItemParam;
+      var body = Expression.Call(Traits<TKey, TSource>.TupleFactoryMethod,
+        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
+        itemParam[0]);
+      return source.Select(FastExpression.Lambda<Func<TSource, ValueTuple<TKey, TSource>>>(body, itemParam));
+    }
+
+    private static IQueryable<(TKey, TValue)> ComposeQuery<TKey, TValue, TSource>(IQueryable<TSource> source,
+        Expression<Func<TSource, TKey>> keySelector,
+        Expression<Func<TSource, TValue>> valueSelector)
+    {
+      var itemParam = ParameterTraits<TSource>.ItemParam;
+      var body = Expression.Call(Traits<TKey, TValue>.TupleFactoryMethod,
+        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
+        ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
+      return source.Select(FastExpression.Lambda<Func<TSource, ValueTuple<TKey, TValue>>>(body, itemParam));
+    }
+
     /// <summary>
     /// Creates a <see cref="Dictionary{TKey, TSource}"/> from an <see cref="IQueryable{TSource}"/>
     /// by enumerating it asynchronously according to a specified key selector function.
@@ -1665,23 +1694,10 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains a
     /// <see cref="Dictionary{TKey, TValue}"/> that contains values of type <typeparamref name="TSource"/>
     /// selected from the input sequence.</returns>
-    public static async Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TKey, TSource>(
-      this IQueryable<TSource> source,
-      Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
-    {
-      var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(null, Traits<TKey, TSource>.TupleFactoryMethod,
-        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
-        itemParam[0]);
-      var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TSource>>>(body, itemParam));
-      var dictionary = new Dictionary<TKey, TSource>();
-      var asyncSource = query.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwaitFalse();
-      await foreach (var tuple in asyncSource) {
-        dictionary.Add(tuple.Item1, tuple.Item2);
-      }
-
-      return dictionary;
-    }
+    public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TKey, TSource>(
+        this IQueryable<TSource> source,
+        Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default) =>
+      ToDictionaryAsync(ComposeQuery(source, keySelector), cancellationToken);
 
     /// <summary>
     /// Creates a <see cref="Dictionary{TKey, TValue}"/> from an <see cref="IQueryable{TSource}"/>
@@ -1704,25 +1720,12 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains a
     /// <see cref="Dictionary{TKey, TValue}"/> that contains values of type <typeparamref name="TValue"/>
     /// selected from the input sequence.</returns>
-    public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue, TSource>(
-      this IQueryable<TSource> source,
-      Expression<Func<TSource, TKey>> keySelector,
-      Expression<Func<TSource, TValue>> valueSelector,
-      CancellationToken cancellationToken = default)
-    {
-      var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(Traits<TKey, TValue>.TupleFactoryMethod,
-        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
-        ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
-      var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TValue>>>(body, itemParam));
-      var dictionary = new Dictionary<TKey, TValue>();
-      var asyncSource = query.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwaitFalse();
-      await foreach (var tuple in asyncSource) {
-        dictionary.Add(tuple.Item1, tuple.Item2);
-      }
-
-      return dictionary;
-    }
+    public static Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue, TSource>(
+        this IQueryable<TSource> source,
+        Expression<Func<TSource, TKey>> keySelector,
+        Expression<Func<TSource, TValue>> valueSelector,
+        CancellationToken cancellationToken = default) =>
+      ToDictionaryAsync(ComposeQuery(source, keySelector, valueSelector), cancellationToken);
 
     /// <summary>
     /// Asynchronously creates a <see cref="HashSet{TSource}"/> from an <see cref="IQueryable{TSource}"/>
@@ -1752,6 +1755,10 @@ namespace Xtensive.Orm
       return hashSet;
     }
 
+    private static async Task<ILookup<TKey, TValue>> ToLookupAsync<TKey, TValue>(this IQueryable<(TKey, TValue)> query, CancellationToken cancellationToken) =>
+      (await query.ExecuteAsync(cancellationToken).ConfigureAwaitFalse())
+      .ToLookup(tuple => tuple.Item1, tuple => tuple.Item2);
+
     /// <summary>
     /// Asynchronously creates a <see cref="ILookup{TKey, TSource}"/> from an <see cref="IQueryable{T}"/>
     /// by enumerating it asynchronously according to a specified key selector function.
@@ -1771,17 +1778,9 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains a
     /// <see cref="ILookup{TKey, TSource}"/> that contains values of type <typeparamref name="TSource"/>
     /// selected from the input sequence.</returns>
-    public static async Task<ILookup<TKey, TSource>> ToLookupAsync<TKey, TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
-    {
-      var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(Traits<TKey, TSource>.TupleFactoryMethod,
-        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
-        itemParam[0]);
-      var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TSource>>>(body, itemParam));
-      var queryResult = await query.ExecuteAsync(cancellationToken).ConfigureAwaitFalse();
-      return queryResult.ToLookup(tuple => tuple.Item1, tuple => tuple.Item2);
-    }
+    public static Task<ILookup<TKey, TSource>> ToLookupAsync<TKey, TSource>(this IQueryable<TSource> source,
+      Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default) =>
+      ToLookupAsync(ComposeQuery(source, keySelector), cancellationToken);
 
     /// <summary>
     /// Asynchronously creates a <see cref="ILookup{TKey, TValue}"/> from an <see cref="IQueryable{T}"/>
@@ -1805,19 +1804,11 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains a
     /// <see cref="ILookup{TKey, TElement}"/> that contains values of type <typeparamref name="TValue"/>
     /// selected from the input sequence.</returns>
-    public static async Task<ILookup<TKey, TValue>> ToLookupAsync<TKey, TValue, TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, TKey>> keySelector,
-      Expression<Func<TSource, TValue>> valueSelector,
-      CancellationToken cancellationToken = default)
-    {
-      var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(Traits<TKey, TValue>.TupleFactoryMethod,
-        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
-        ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
-      var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TValue>>>(body, itemParam));
-      var queryResult = await query.ExecuteAsync(cancellationToken).ConfigureAwaitFalse();
-      return queryResult.ToLookup(tuple => tuple.Item1, tuple => tuple.Item2);
-    }
+    public static Task<ILookup<TKey, TValue>> ToLookupAsync<TKey, TValue, TSource>(this IQueryable<TSource> source,
+        Expression<Func<TSource, TKey>> keySelector,
+        Expression<Func<TSource, TValue>> valueSelector,
+        CancellationToken cancellationToken = default) =>
+      ToLookupAsync(ComposeQuery(source, keySelector, valueSelector), cancellationToken);
 
     #endregion
 
