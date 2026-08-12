@@ -1587,13 +1587,13 @@ namespace Xtensive.Orm
 
     #region Collection methods
 
-    private static readonly MethodInfo TupleCreateMethod =
+    private static readonly MethodInfo ValueTupleCreateMethod =
       typeof(ValueTuple).GetMethods(BindingFlags.Public | BindingFlags.Static)
         .Single(mi => mi.Name == nameof(ValueTuple.Create) && mi.GetGenericArguments().Length == 2);
 
     private static class Traits<TKey, TSource>
     {
-      public static readonly MethodInfo TupleFactoryMethod = TupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TSource));
+      public static readonly MethodInfo TupleFactoryMethod = ValueTupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TSource));
     }
 
     /// <summary>
