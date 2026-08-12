@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Providers
       return compiledStatement;
     }
 
-    public IEnumerable<QueryParameterBinding> ParameterBindings { get; }
+    public IReadOnlyCollection<QueryParameterBinding> ParameterBindings { get; }
 
     // Constructors
 

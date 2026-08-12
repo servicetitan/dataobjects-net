@@ -38,22 +38,13 @@ namespace Xtensive.Orm.Services
       ArgumentNullException.ThrowIfNull(query);
 
       var configuration = Session.CompilationService.CreateConfiguration(Session) with { PrepareRequest = false };
-      var translated = queryProvider.Translate(query.Expression, configuration);
 
-      var sqlProvider = translated.DataSource as SqlProvider;
-      if (sqlProvider==null)
-        throw new InvalidOperationException("Query was not translated to SqlProvider");
+      var request = (queryProvider.Translate(query.Expression, configuration).DataSource as SqlProvider
+                     ?? throw new InvalidOperationException("Query was not translated to SqlProvider")
+        ).Request;
 
-      var request = sqlProvider.Request;
-
-      if (request.ParameterBindings is ICollection<Providers.QueryParameterBinding> bindingCollection) {
-        return new QueryTranslationResult(
-          request.Statement,
-          bindingCollection.Select(b => new QueryParameterBinding(b)).ToArray());
-      }
-      else
-        return new QueryTranslationResult(request.Statement,
-          request.ParameterBindings.Select(b => new QueryParameterBinding(b)).ToList());
+      return new(request.Statement,
+        request.ParameterBindings.Select(b => new QueryParameterBinding(b)).ToArray());
     }
 
     /// <summary>

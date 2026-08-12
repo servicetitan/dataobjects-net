@@ -4,14 +4,13 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.25
 
-using System.Collections.Generic;
 using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Orm.Providers
 {
   public interface IQueryRequest
   {
-    IEnumerable<QueryParameterBinding> ParameterBindings { get; }
+    IReadOnlyCollection<QueryParameterBinding> ParameterBindings { get; }
 
     SqlCompilationResult GetCompiledStatement();
   }
