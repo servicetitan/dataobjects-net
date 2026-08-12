@@ -1655,6 +1655,26 @@ namespace Xtensive.Orm
       return dictionary;
     }
 
+    private static IQueryable<(TKey, TSource)> ComposeQuery<TKey, TSource>(IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector)
+    {
+      var itemParam = ParameterTraits<TSource>.ItemParam;
+      var body = Expression.Call(Traits<TKey, TSource>.TupleFactoryMethod,
+        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
+        itemParam[0]);
+      return source.Select(FastExpression.Lambda<Func<TSource, ValueTuple<TKey, TSource>>>(body, itemParam));
+    }
+
+    private static IQueryable<(TKey, TValue)> ComposeQuery<TKey, TValue, TSource>(IQueryable<TSource> source,
+        Expression<Func<TSource, TKey>> keySelector,
+        Expression<Func<TSource, TValue>> valueSelector)
+    {
+      var itemParam = ParameterTraits<TSource>.ItemParam;
+      var body = Expression.Call(Traits<TKey, TValue>.TupleFactoryMethod,
+        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
+        ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
+      return source.Select(FastExpression.Lambda<Func<TSource, ValueTuple<TKey, TValue>>>(body, itemParam));
+    }
+
     /// <summary>
     /// Creates a <see cref="Dictionary{TKey, TSource}"/> from an <see cref="IQueryable{TSource}"/>
     /// by enumerating it asynchronously according to a specified key selector function.
@@ -1675,16 +1695,9 @@ namespace Xtensive.Orm
     /// <see cref="Dictionary{TKey, TValue}"/> that contains values of type <typeparamref name="TSource"/>
     /// selected from the input sequence.</returns>
     public static Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TKey, TSource>(
-      this IQueryable<TSource> source,
-      Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
-    {
-      var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(Traits<TKey, TSource>.TupleFactoryMethod,
-        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
-        itemParam[0]);
-      var query = source.Select(FastExpression.Lambda<Func<TSource, ValueTuple<TKey, TSource>>>(body, itemParam));
-      return ToDictionaryAsync(query, cancellationToken);
-    }
+        this IQueryable<TSource> source,
+        Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default) =>
+      ToDictionaryAsync(ComposeQuery(source, keySelector), cancellationToken);
 
     /// <summary>
     /// Creates a <see cref="Dictionary{TKey, TValue}"/> from an <see cref="IQueryable{TSource}"/>
@@ -1708,18 +1721,11 @@ namespace Xtensive.Orm
     /// <see cref="Dictionary{TKey, TValue}"/> that contains values of type <typeparamref name="TValue"/>
     /// selected from the input sequence.</returns>
     public static Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue, TSource>(
-      this IQueryable<TSource> source,
-      Expression<Func<TSource, TKey>> keySelector,
-      Expression<Func<TSource, TValue>> valueSelector,
-      CancellationToken cancellationToken = default)
-    {
-      var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(Traits<TKey, TValue>.TupleFactoryMethod,
-        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
-        ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
-      var query = source.Select(FastExpression.Lambda<Func<TSource, ValueTuple<TKey, TValue>>>(body, itemParam));
-      return ToDictionaryAsync(query, cancellationToken);
-    }
+        this IQueryable<TSource> source,
+        Expression<Func<TSource, TKey>> keySelector,
+        Expression<Func<TSource, TValue>> valueSelector,
+        CancellationToken cancellationToken = default) =>
+      ToDictionaryAsync(ComposeQuery(source, keySelector, valueSelector), cancellationToken);
 
     /// <summary>
     /// Asynchronously creates a <see cref="HashSet{TSource}"/> from an <see cref="IQueryable{TSource}"/>
@@ -1773,15 +1779,8 @@ namespace Xtensive.Orm
     /// <see cref="ILookup{TKey, TSource}"/> that contains values of type <typeparamref name="TSource"/>
     /// selected from the input sequence.</returns>
     public static Task<ILookup<TKey, TSource>> ToLookupAsync<TKey, TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
-    {
-      var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(Traits<TKey, TSource>.TupleFactoryMethod,
-        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
-        itemParam[0]);
-      var query = source.Select(FastExpression.Lambda<Func<TSource, ValueTuple<TKey, TSource>>>(body, itemParam));
-      return ToLookupAsync(query, cancellationToken);
-    }
+      Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default) =>
+      ToLookupAsync(ComposeQuery(source, keySelector), cancellationToken);
 
     /// <summary>
     /// Asynchronously creates a <see cref="ILookup{TKey, TValue}"/> from an <see cref="IQueryable{T}"/>
@@ -1806,17 +1805,10 @@ namespace Xtensive.Orm
     /// <see cref="ILookup{TKey, TElement}"/> that contains values of type <typeparamref name="TValue"/>
     /// selected from the input sequence.</returns>
     public static Task<ILookup<TKey, TValue>> ToLookupAsync<TKey, TValue, TSource>(this IQueryable<TSource> source,
-      Expression<Func<TSource, TKey>> keySelector,
-      Expression<Func<TSource, TValue>> valueSelector,
-      CancellationToken cancellationToken = default)
-    {
-      var itemParam = ParameterTraits<TSource>.ItemParam;
-      var body = Expression.Call(Traits<TKey, TValue>.TupleFactoryMethod,
-        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
-        ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
-      var query = source.Select(FastExpression.Lambda<Func<TSource, ValueTuple<TKey, TValue>>>(body, itemParam));
-      return ToLookupAsync(query, cancellationToken);
-    }
+        Expression<Func<TSource, TKey>> keySelector,
+        Expression<Func<TSource, TValue>> valueSelector,
+        CancellationToken cancellationToken = default) =>
+      ToLookupAsync(ComposeQuery(source, keySelector, valueSelector), cancellationToken);
 
     #endregion
 
