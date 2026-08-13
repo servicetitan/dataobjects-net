@@ -16,6 +16,8 @@ namespace Xtensive.Orm.Providers
   {
     public TypeMapping TypeMapping { get; }
 
+    public Type ValueType => TypeMapping?.Type;
+
     public ParameterTransmissionType TransmissionType { get; }
 
     public SqlExpression ParameterReference { get; }

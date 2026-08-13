@@ -358,7 +358,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder.Model
     private object ExecuteScalar(Services.QueryBuilder queryBuilder, ISqlCompileUnit query)
     {
       var commandtext = queryBuilder.CompileQuery(query);
-      var request = queryBuilder.CreateRequest(commandtext, Enumerable.Empty<Services.QueryParameterBinding>());
+      var request = queryBuilder.CreateRequest(commandtext, []);
       using var command = queryBuilder.CreateCommand(request);
       return command.ExecuteScalar();
     }
@@ -404,4 +404,3 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder.Model
     private string TryGetStorageNodeText(string nodeId) => string.IsNullOrEmpty(nodeId) ? "<default>" : nodeId;
   }
 }
-
