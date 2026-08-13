@@ -137,7 +137,7 @@ namespace Xtensive.Orm.Tests.Issues
       var query = GetQuery(generatorTable);
       var queryBuilder = GetQueryBuilder(session);
       var queryCompilationResult = queryBuilder.CompileQuery(query);
-      var queryRequest = queryBuilder.CreateRequest(queryCompilationResult, Enumerable.Empty<Services.QueryParameterBinding>());
+      var queryRequest = queryBuilder.CreateRequest(queryCompilationResult, []);
       using var command = queryBuilder.CreateCommand(queryRequest);
       var rowCount = command.ExecuteScalar();
       Assert.That(rowCount, Is.EqualTo(expectedValue));

@@ -14,7 +14,6 @@ using Xtensive.Orm.Services;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using QueryParameterBinding = Xtensive.Orm.Services.QueryParameterBinding;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.BulkOperations

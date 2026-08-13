@@ -10,7 +10,7 @@ namespace Xtensive.Orm.Providers
 {
   public interface IQueryRequest
   {
-    IReadOnlyCollection<QueryParameterBinding> ParameterBindings { get; }
+    IReadOnlySet<QueryParameterBinding> ParameterBindings { get; }
 
     SqlCompilationResult GetCompiledStatement();
   }

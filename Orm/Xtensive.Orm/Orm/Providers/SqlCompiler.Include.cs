@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Providers
       var source = Compile(provider.Source);
       var resultQuery = ExtractSqlSelect(provider, source);
       var sourceColumns = ExtractColumnExpressions(resultQuery);
-      var bindings = source.Request.ParameterBindings.ToHashSet();
+      var bindings = source.Request.ParameterBindings;
       var filterDataSource = provider.FilterDataSource.CachingCompile();
       var requestOptions = QueryRequestOptions.Empty;
       SqlExpression resultExpression;
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Providers
       var calculatedColumn = provider.Header.Columns[provider.Header.Length - 1];
       AddInlinableColumn(provider, calculatedColumn, resultQuery, resultExpression);
       if (extraBinding != null) {
-        bindings.Add(extraBinding);
+        bindings = bindings.Append(extraBinding).ToHashSet();
       }
 
       var request = CreateQueryRequest(Driver, resultQuery, bindings, provider.Header.TupleDescriptor, requestOptions);

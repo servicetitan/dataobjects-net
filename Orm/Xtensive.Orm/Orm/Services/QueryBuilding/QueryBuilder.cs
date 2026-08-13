@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Services
         ).Request;
 
       return new(request.Statement,
-        request.ParameterBindings.Select(b => new QueryParameterBinding(b)).ToArray());
+        request.ParameterBindings);
     }
 
     /// <summary>
@@ -70,9 +70,7 @@ namespace Xtensive.Orm.Services
       ArgumentNullException.ThrowIfNull(valueType);
       ArgumentNullException.ThrowIfNull(valueAccessor);
 
-      var mapping = driver.GetTypeMapping(valueType);
-      return new QueryParameterBinding(
-        new Providers.QueryParameterBinding(mapping, valueAccessor));
+      return new(driver.GetTypeMapping(valueType), valueAccessor);
     }
 
     /// <summary>
@@ -86,7 +84,7 @@ namespace Xtensive.Orm.Services
 
       return new QueryRequest(new UserQueryRequest(
         compiledQuery,
-        bindings.Select(b => b.RealBinding).ToHashSet()));
+        bindings.ToHashSet()));
     }
 
     /// <summary>

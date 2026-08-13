@@ -5,7 +5,8 @@
 // Created:    2012.02.27
 
 using Xtensive.Sql.Dml;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Services;
 
-public readonly record struct QueryTranslationResult(SqlSelect Query, IReadOnlyList<QueryParameterBinding> ParameterBindings);
+public readonly record struct QueryTranslationResult(SqlSelect Query, IReadOnlyCollection<QueryParameterBinding> ParameterBindings);

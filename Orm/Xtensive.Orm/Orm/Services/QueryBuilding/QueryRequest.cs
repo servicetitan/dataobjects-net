@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Services
     /// Gets all <see cref="QueryParameterBinding"/> associated with this request.
     /// </summary>
     public IEnumerable<QueryParameterBinding> ParameterBindings =>
-      RealRequest.ParameterBindings.Select(b => new QueryParameterBinding(b));
+      RealRequest.ParameterBindings;
 
     internal UserQueryRequest RealRequest { get; }
 

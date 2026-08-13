@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.25
 
-using System;
 using Xtensive.Core;
 using Xtensive.Sql;
 
@@ -15,9 +14,15 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public class QueryParameterBinding : ParameterBinding
   {
-    public Func<ParameterContext, object> ValueAccessor { get; private set; }
+    /// <summary>
+    /// Gets accessor of the parameter.
+    /// This delegate returns type that is assignable
+    /// to <see cref="ValueType"/>
+    /// unless <see cref="ValueType"/> is null.
+    /// </summary>
+    public Func<ParameterContext, object> ValueAccessor { get; }
 
-    public QueryParameterBindingType BindingType { get; private set; }
+    public QueryParameterBindingType BindingType { get; }
 
     // Constructors
 
@@ -27,14 +32,11 @@ namespace Xtensive.Orm.Providers
     {
       ArgumentNullException.ThrowIfNull(valueAccessor);
 
-      switch (bindingType) {
-      case QueryParameterBindingType.Regular:
-      case QueryParameterBindingType.SmartNull:
+      if (bindingType is QueryParameterBindingType.Regular or QueryParameterBindingType.SmartNull) {
         ArgumentNullException.ThrowIfNull(typeMapping);
-        break;
       }
 
-      ValueAccessor = valueAccessor ?? throw new ArgumentNullException(nameof(valueAccessor));
+      ValueAccessor = valueAccessor;
       BindingType = bindingType;
     }
 
