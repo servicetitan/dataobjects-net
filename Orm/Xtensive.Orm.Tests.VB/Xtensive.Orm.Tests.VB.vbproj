@@ -13,20 +13,20 @@
     <WarningLevel>2</WarningLevel>
     <LangVersion>16.9</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition = "$(Configuration.Contains('Debug')) == 'true'">
+  <PropertyGroup Condition="$(Configuration.Contains('Debug')) == 'true'">
     <DefineConstants>$(DefineConstants.Replace(';', ',')),TRACE,DEBUG</DefineConstants>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
   </PropertyGroup>
-  <PropertyGroup Condition = "$(Configuration.Contains('Release')) == 'true'">
+  <PropertyGroup Condition="$(Configuration.Contains('Release')) == 'true'">
     <DefineConstants>$(DefineConstants.Replace(';', ',')),TRACE</DefineConstants>
   </PropertyGroup>
 
   <Import Project="$(SolutionDir)MSBuild\DataObjects.Net.InternalBuild.targets" />
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
-    <PackageReference Include="NUnit" Version="4.4.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.8.1" />
+    <PackageReference Include="NUnit" Version="4.5.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="6.2.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
