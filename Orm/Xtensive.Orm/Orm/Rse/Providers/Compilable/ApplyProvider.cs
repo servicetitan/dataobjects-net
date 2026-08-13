@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Rse.Providers
       if (applyType is not JoinType.Inner and not JoinType.LeftOuter) {
         throw new ArgumentOutOfRangeException(nameof(applyType));
       }
-      ApplyParameter = applyParameter ?? throw new ArgumentNullException(nameof(applyParameter));
+      ApplyParameter = applyParameter;
       IsInlined = isInlined;
       SequenceType = applySequenceType;
       ApplyType = applyType;

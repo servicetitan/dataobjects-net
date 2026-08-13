@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Rse.Transformation
         var columnIndex = mc.GetTupleAccessArgument();
         var outerParameter = mc.GetApplyParameter();
         int newIndex = outerParameter != null
-          ? resolveOuterColumn(outerParameter, columnIndex)
+          ? resolveOuterColumn(outerParameter.Value, columnIndex)
           : Mappings.IndexOf(columnIndex);
         if ((newIndex < 0 && ignoreMissing) || newIndex == columnIndex)
           return mc;

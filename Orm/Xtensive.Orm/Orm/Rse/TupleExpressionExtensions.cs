@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="expression">The expression describing an access to outer tuple.</param>
     /// <returns></returns>
-    public static ApplyParameter GetApplyParameter(this Expression expression) =>
+    public static ApplyParameter? GetApplyParameter(this Expression expression) =>
       GetApplyParameterExpression(expression) is { } e
         ? Evaluate<ApplyParameter>(e)
         : null;

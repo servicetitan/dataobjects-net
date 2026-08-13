@@ -444,7 +444,7 @@ namespace Xtensive.Orm.Providers
       if (applyParameter!=null) {
         if (compiler==null)
           throw Exceptions.InternalError(Strings.ExOuterParameterReferenceFoundButNoSqlCompilerProvided, OrmLog.Instance);
-        result = compiler.GetOuterExpression(applyParameter, columnIndex);
+        result = compiler.GetOuterExpression(applyParameter.Value, columnIndex);
       }
       else {
         var queryRef = sourceMapping[(ParameterExpression) tupleAccess.Object];
