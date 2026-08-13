@@ -14,6 +14,12 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public class QueryParameterBinding : ParameterBinding
   {
+    /// <summary>
+    /// Gets accessor of the parameter.
+    /// This delegate returns type that is assignable
+    /// to <see cref="ValueType"/>
+    /// unless <see cref="ValueType"/> is null.
+    /// </summary>
     public Func<ParameterContext, object> ValueAccessor { get; private set; }
 
     public QueryParameterBindingType BindingType { get; private set; }

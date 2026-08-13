@@ -16,10 +16,21 @@ namespace Xtensive.Orm.Providers
   {
     public TypeMapping TypeMapping { get; }
 
+    /// <summary>
+    /// Gets type of the parameter.
+    /// Internally created <see cref="QueryParameterBinding"/>s
+    /// may have this property set to <see langword="null"/>.
+    /// Any user-created <see cref="QueryParameterBinding"/>
+    /// always has this property set to non <see langword="null"/> value.
+    /// </summary>
     public Type ValueType => TypeMapping?.Type;
 
     public ParameterTransmissionType TransmissionType { get; }
 
+    /// <summary>
+    /// Gets <see cref="SqlExpression"/> that allows
+    /// to access parameter in SQL DOM query.
+    /// </summary>
     public SqlExpression ParameterReference { get; }
 
     // Constructors
