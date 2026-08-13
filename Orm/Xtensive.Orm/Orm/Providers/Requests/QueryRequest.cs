@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Providers
     private SqlCompilationResult compiledStatement;
 
     public SqlSelect Statement { get; private set; }
-    public IReadOnlyCollection<QueryParameterBinding> ParameterBindings { get; }
+    public IReadOnlySet<QueryParameterBinding> ParameterBindings { get; }
 
     public TupleDescriptor TupleDescriptor { get; }
     public QueryRequestOptions Options { get; }
