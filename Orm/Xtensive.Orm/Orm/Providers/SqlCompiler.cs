@@ -180,31 +180,33 @@ namespace Xtensive.Orm.Providers
       // Any right part of join expression should not be join itself
       // See IssueA363_WrongInnerJoin for example of such query
 
+      var leftSelect = left.Request.Statement;
+      var rightSelect = right.Request.Statement;
       var strictJoinWorkAround =
         providerInfo.Supports(ProviderFeatures.StrictJoinSyntax)
-        && right.Request.Statement.From is SqlJoinedTable;
+        && rightSelect.From is SqlJoinedTable;
 
       var leftShouldUseReference = ShouldUseQueryReference(provider, left);
       var leftTable = leftShouldUseReference
         ? left.PermanentReference
-        : left.Request.Statement.From;
+        : leftSelect.From;
       IReadOnlyList<SqlColumn> leftColumns = leftShouldUseReference
         ? leftTable.Columns
-        : left.Request.Statement.Columns;
+        : leftSelect.Columns;
       IReadOnlyList<SqlExpression> leftExpressions = leftShouldUseReference
         ? leftTable.Columns
-        : ExtractColumnExpressions(left.Request.Statement);
+        : ExtractColumnExpressions(leftSelect);
 
       var rightShouldUseReference = strictJoinWorkAround || ShouldUseQueryReference(provider, right);
       var rightTable = rightShouldUseReference
         ? right.PermanentReference
-        : right.Request.Statement.From;
+        : rightSelect.From;
       IReadOnlyList<SqlColumn> rightColumns = rightShouldUseReference
         ? rightTable.Columns
-        : right.Request.Statement.Columns;
+        : rightSelect.Columns;
       IReadOnlyList<SqlExpression> rightExpressions = rightShouldUseReference
         ? rightTable.Columns
-        : ExtractColumnExpressions(right.Request.Statement);
+        : ExtractColumnExpressions(rightSelect);
 
       var joinType = provider.JoinType==JoinType.LeftOuter
         ? SqlJoinType.LeftOuterJoin
@@ -229,13 +231,16 @@ namespace Xtensive.Orm.Providers
 
       var query = SqlDml.Select(joinedTable);
       if (!leftShouldUseReference)
-        query.Where &= left.Request.Statement.Where;
+        query.Where &= leftSelect.Where;
       if (!rightShouldUseReference)
-        query.Where &= right.Request.Statement.Where;
+        query.Where &= rightSelect.Where;
       query.Columns.AddRange(joinedTable.AliasedColumns);
-      query.Comment = SqlComment.Join(left.Request.Statement.Comment, right.Request.Statement.Comment);
+      query.Comment = SqlComment.Join(leftSelect.Comment, rightSelect.Comment);
 
-      foreach (var sqlHint in left.Request.Statement.Hints.Concat(right.Request.Statement.Hints)) {
+      foreach (var sqlHint in leftSelect.Hints) {
+        query.AddHint(sqlHint);
+      }
+      foreach (var sqlHint in rightSelect.Hints) {
         query.AddHint(sqlHint);
       }
       return CreateProvider(query, provider, left, right);
@@ -247,27 +252,29 @@ namespace Xtensive.Orm.Providers
       var left = Compile(provider.Left);
       var right = Compile(provider.Right);
 
+      var leftSelect = left.Request.Statement;
+      var rightSelect = right.Request.Statement;
       var leftShouldUseReference = ShouldUseQueryReference(provider, left);
       var leftTable = leftShouldUseReference
         ? left.PermanentReference
-        : left.Request.Statement.From;
+        : leftSelect.From;
       var leftColumns = leftShouldUseReference
         ? (IReadOnlyList<SqlColumn>) leftTable.Columns
-        : left.Request.Statement.Columns;
+        : leftSelect.Columns;
       var leftExpressions = leftShouldUseReference
-        ? (IReadOnlyList<SqlExpression>) leftTable.Columns
-        : ExtractColumnExpressions(left.Request.Statement);
+        ? leftTable.Columns
+        : ExtractColumnExpressions(leftSelect);
 
       var rightShouldUseReference = ShouldUseQueryReference(provider, right);
       var rightTable = rightShouldUseReference
         ? right.PermanentReference
-        : right.Request.Statement.From;
+        : rightSelect.From;
       var rightColumns = rightShouldUseReference
         ? (IReadOnlyList<SqlColumn>) rightTable.Columns
-        : right.Request.Statement.Columns;
+        : rightSelect.Columns;
       var rightExpressions = rightShouldUseReference
-        ? (IReadOnlyList<SqlExpression>) rightTable.Columns
-        : ExtractColumnExpressions(right.Request.Statement);
+        ? rightTable.Columns
+        : ExtractColumnExpressions(rightSelect);
 
 
       var joinType = provider.JoinType==JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin;
@@ -286,13 +293,16 @@ namespace Xtensive.Orm.Providers
 
       var query = SqlDml.Select(joinedTable);
       if (!leftShouldUseReference)
-        query.Where &= left.Request.Statement.Where;
+        query.Where &= leftSelect.Where;
       if (!rightShouldUseReference)
-        query.Where &= right.Request.Statement.Where;
+        query.Where &= rightSelect.Where;
       query.Columns.AddRange(joinedTable.AliasedColumns);
-      query.Comment = SqlComment.Join(left.Request.Statement.Comment, right.Request.Statement.Comment);
+      query.Comment = SqlComment.Join(leftSelect.Comment, rightSelect.Comment);
 
-      foreach (var sqlHint in left.Request.Statement.Hints.Concat(right.Request.Statement.Hints)) {
+      foreach (var sqlHint in leftSelect.Hints) {
+        query.AddHint(sqlHint);
+      }
+      foreach (var sqlHint in rightSelect.Hints) {
         query.AddHint(sqlHint);
       }
       return CreateProvider(query, bindings, provider, left, right);
