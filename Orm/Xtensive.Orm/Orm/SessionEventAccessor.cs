@@ -416,13 +416,13 @@ namespace Xtensive.Orm
         EntityFieldValueGetting(this, new EntityFieldEventArgs(entity, field));
     }
 
-    internal void NotifyFieldValueGet(Entity entity, FieldInfo field, object value)
+    internal void NotifyFieldValueGet<T>(Entity entity, FieldInfo field, T value)
     {
       if (EntityFieldValueGet!=null && AreNotificationsEnabled())
         EntityFieldValueGet(this, new EntityFieldValueEventArgs(entity, field, value));
     }
 
-    internal void NotifyFieldValueGetCompleted(Entity entity, FieldInfo field, object value, Exception exception)
+    internal void NotifyFieldValueGetCompleted<T>(Entity entity, FieldInfo field, T value, Exception exception)
     {
       if (EntityFieldValueGetCompleted!=null && AreNotificationsEnabled())
         EntityFieldValueGetCompleted(this, new EntityFieldValueGetCompletedEventArgs(entity, field, value, exception));

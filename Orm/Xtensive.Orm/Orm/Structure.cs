@@ -190,14 +190,13 @@ namespace Xtensive.Orm
       Owner.SystemBeforeGetValue(ownerField);
     }
 
-    internal override sealed void SystemGetValue(FieldInfo field, object value)
+    internal override sealed void SystemGetValue<T>(FieldInfo field, T value)
     {
       if (!Session.IsSystemLogicOnly) {
         var subscriptionInfo = GetSubscription(EntityEventBroker.GetFieldEventKey);
         if (subscriptionInfo.Item2 != null)
           ((Action<Key, FieldInfo, FieldInfo, object>) subscriptionInfo.Item2)
             .Invoke(subscriptionInfo.Item1, Field, field, value);
-        OnGetFieldValue(Field, value);
       }
       if (Owner == null)
         return;
@@ -205,7 +204,7 @@ namespace Xtensive.Orm
       Owner.SystemGetValue(ownerField, value);
     }
 
-    internal override sealed void SystemGetValueCompleted(FieldInfo field, object value, Exception exception)
+    internal override sealed void SystemGetValueCompleted<T>(FieldInfo field, T value, Exception exception)
     {
       if (Owner == null)
         return;
