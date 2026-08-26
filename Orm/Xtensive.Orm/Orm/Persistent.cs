@@ -189,9 +189,8 @@ namespace Xtensive.Orm
       try {
         SystemBeforeGetValue(field);
         result = fieldAccessor.GetValue(this);
-        object resultAsObject = result;
-        SystemGetValue(field, resultAsObject);
-        SystemGetValueCompleted(field, resultAsObject, null);
+        SystemGetValue(field, result);
+        SystemGetValueCompleted(field, result, null);
         return result;
       }
       catch (Exception e) {
@@ -563,16 +562,6 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Called when field value has been read.
-    /// </summary>
-    /// <remarks>
-    /// Override it to perform some actions when field value has been read, e.g. for logging purposes.
-    /// </remarks>
-    protected virtual void OnGetFieldValue(FieldInfo field, object value)
-    {
-    }
-
-    /// <summary>
     /// Called before field value is about to be set.
     /// This event is raised on any set attempt (even if new value is the same as the current one).
     /// </summary>
@@ -636,9 +625,9 @@ namespace Xtensive.Orm
 
     internal abstract void SystemBeforeGetValue(FieldInfo field);
 
-    internal abstract void SystemGetValue(FieldInfo field, object value);
+    internal abstract void SystemGetValue<T>(FieldInfo field, T value);
 
-    internal abstract void SystemGetValueCompleted(FieldInfo field, object value, Exception exception);
+    internal abstract void SystemGetValueCompleted<T>(FieldInfo field, T value, Exception exception);
 
     internal abstract void SystemSetValueAttempt(FieldInfo field, object value);
 

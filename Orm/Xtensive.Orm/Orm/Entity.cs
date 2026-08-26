@@ -642,7 +642,7 @@ namespace Xtensive.Orm
       }
     }
 
-    internal override sealed void SystemGetValue(FieldInfo field, object value)
+    internal override sealed void SystemGetValue<T>(FieldInfo field, T value)
     {
       Session.SystemEvents.NotifyFieldValueGet(this, field, value);
       using (Session.Operations.EnableSystemOperationRegistration()) {
@@ -655,11 +655,10 @@ namespace Xtensive.Orm
         if (subscriptionInfo.Item2 != null)
           ((Action<Key, FieldInfo, object>) subscriptionInfo.Item2)
             .Invoke(subscriptionInfo.Item1, field, value);
-        OnGetFieldValue(field, value);
       }
     }
 
-    internal override sealed void SystemGetValueCompleted(FieldInfo field, object value, Exception exception)
+    internal override sealed void SystemGetValueCompleted<T>(FieldInfo field, T value, Exception exception)
     {
       Session.SystemEvents.NotifyFieldValueGetCompleted(this, field, value, exception);
       using (Session.Operations.EnableSystemOperationRegistration()) {
