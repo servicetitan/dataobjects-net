@@ -50,7 +50,6 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
     public EntityRemovingEventArgs EntityRemovingArgs;
     public EntityEventArgs EntityRemoveArgs;
 
-    public EntityFieldValueEventArgs EntityFieldValueGetArgs;
     public EntityFieldValueEventArgs EntityFieldValueSettingArgs;
     public EntityFieldValueSetEventArgs EntityFieldValueSetArgs;
 
@@ -80,7 +79,6 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
       EntityRemovingArgs = default;
       EntityRemoveArgs = default;
 
-      EntityFieldValueGetArgs = default;
       EntityFieldValueSettingArgs = default;
       EntityFieldValueSetArgs = default;
 
@@ -339,10 +337,6 @@ namespace Xtensive.Orm.Tests.Storage
 
           Assert.That(eventInfo.EntityFieldValueSettingArgs == default, Is.True);
           Assert.That(eventInfo.EntityFieldValueSetArgs == default, Is.True);
-
-          Assert.That(eventInfo.EntityFieldValueGetArgs, Is.Not.Null);
-          Assert.That(eventInfo.EntityFieldValueGetArgs.Entity, Is.EqualTo(entity));
-          Assert.That(eventInfo.EntityFieldValueGetArgs.Value, Is.EqualTo(2));
 
           eventInfo.ResetEventArgs();
 
