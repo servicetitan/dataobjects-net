@@ -640,10 +640,7 @@ namespace Xtensive.Orm
 
     internal override sealed void SystemGetValue<T>(FieldInfo field, T value)
     {
-      Session.SystemEvents.NotifyFieldValueGet(this, field, value);
       using (Session.Operations.EnableSystemOperationRegistration()) {
-        Session.Events.NotifyFieldValueGet(this, field, value);
-
         if (Session.IsSystemLogicOnly)
           return;
 

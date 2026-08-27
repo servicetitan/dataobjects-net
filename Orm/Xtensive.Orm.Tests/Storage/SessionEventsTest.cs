@@ -50,7 +50,6 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
     public EntityRemovingEventArgs EntityRemovingArgs;
     public EntityEventArgs EntityRemoveArgs;
 
-    public EntityFieldValueEventArgs EntityFieldValueGetArgs;
     public EntityFieldValueEventArgs EntityFieldValueSettingArgs;
     public EntityFieldValueSetEventArgs EntityFieldValueSetArgs;
 
@@ -80,7 +79,6 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
       EntityRemovingArgs = default;
       EntityRemoveArgs = default;
 
-      EntityFieldValueGetArgs = default;
       EntityFieldValueSettingArgs = default;
       EntityFieldValueSetArgs = default;
 
@@ -109,7 +107,6 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
     private void OnEntityCreated(object sender, EntityEventArgs e) => EntityCreatedArgs = e;
     private void OnEntityRemoving(object sender, EntityRemovingEventArgs e) => EntityRemovingArgs = e;
     private void OnEntityRemove(object sender, EntityEventArgs e) => EntityRemoveArgs = e;
-    private void OnEntityFieldValueGet(object sender, EntityFieldValueEventArgs e) => EntityFieldValueGetArgs = e;
     private void OnEntityFieldValueSetting(object sender, EntityFieldValueEventArgs e) => EntityFieldValueSettingArgs = e;
     private void OnEntityFieldValueSet(object sender, EntityFieldValueSetEventArgs e) => EntityFieldValueSetArgs = e;
     private void OnQueryExecuting(object sender, QueryEventArgs e) => QueryExecutingArgs = e;
@@ -138,7 +135,6 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
       Session.Events.EntityRemoving -= OnEntityRemoving;
       Session.Events.EntityRemove -= OnEntityRemove;
 
-      Session.Events.EntityFieldValueGet -= OnEntityFieldValueGet;
       Session.Events.EntityFieldValueSetting -= OnEntityFieldValueSetting;
       Session.Events.EntityFieldValueSet -= OnEntityFieldValueSet;
 
@@ -172,7 +168,6 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
       Session.Events.EntityRemoving += OnEntityRemoving;
       Session.Events.EntityRemove += OnEntityRemove;
 
-      Session.Events.EntityFieldValueGet += OnEntityFieldValueGet;
       Session.Events.EntityFieldValueSetting += OnEntityFieldValueSetting;
       Session.Events.EntityFieldValueSet += OnEntityFieldValueSet;
 
@@ -342,10 +337,6 @@ namespace Xtensive.Orm.Tests.Storage
 
           Assert.That(eventInfo.EntityFieldValueSettingArgs == default, Is.True);
           Assert.That(eventInfo.EntityFieldValueSetArgs == default, Is.True);
-
-          Assert.That(eventInfo.EntityFieldValueGetArgs, Is.Not.Null);
-          Assert.That(eventInfo.EntityFieldValueGetArgs.Entity, Is.EqualTo(entity));
-          Assert.That(eventInfo.EntityFieldValueGetArgs.Value, Is.EqualTo(2));
 
           eventInfo.ResetEventArgs();
 
