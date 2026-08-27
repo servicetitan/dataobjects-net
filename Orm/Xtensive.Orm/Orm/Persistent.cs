@@ -185,18 +185,10 @@ namespace Xtensive.Orm
     protected internal T GetNormalizedFieldValue<T>(FieldInfo field)
     {
       var fieldAccessor = GetNormalizedFieldAccessor<T>(field);
-      T result = default(T);
-      try {
-        SystemBeforeGetValue(field);
-        result = fieldAccessor.GetValue(this);
-        SystemGetValue(field, result);
-        SystemGetValueCompleted(field, result, null);
-        return result;
-      }
-      catch (Exception e) {
-        SystemGetValueCompleted(field, result, e);
-        throw;
-      }
+      SystemBeforeGetValue(field);
+      var result = fieldAccessor.GetValue(this);
+      SystemGetValue(field, result);
+      return result;
     }
 
     /// <summary>
@@ -211,18 +203,10 @@ namespace Xtensive.Orm
 
     private object GetNormalizedFieldValue(FieldInfo field, FieldAccessor fieldAccessor)
     {
-      object result = fieldAccessor.DefaultUntypedValue;
-      try {
-        SystemBeforeGetValue(field);
-        result = fieldAccessor.GetUntypedValue(this);
-        SystemGetValue(field, result);
-        SystemGetValueCompleted(field, result, null);
-        return result;
-      }
-      catch (Exception e) {
-        SystemGetValueCompleted(field, result, e);
-        throw;
-      }
+      SystemBeforeGetValue(field);
+      var result = fieldAccessor.GetUntypedValue(this);
+      SystemGetValue(field, result);
+      return result;
     }
 
     /// <summary>
@@ -240,42 +224,36 @@ namespace Xtensive.Orm
     protected internal Key GetReferenceKey(FieldInfo field)
     {
       Key key = null;
-      try {
-        if (field.ReflectedType.IsInterface)
-          field = TypeInfo.FieldMap[field];
-        SystemBeforeGetValue(field);
-        if (!field.IsEntity)
-          throw new InvalidOperationException(
-            String.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
+      if (field.ReflectedType.IsInterface)
+        field = TypeInfo.FieldMap[field];
+      SystemBeforeGetValue(field);
+      if (!field.IsEntity)
+        throw new InvalidOperationException(
+          String.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
 
-        var types = Session.Domain.Model.Types;
-        var type = types[field.ValueType];
-        var tuple = Tuple;
-        if (tuple.ContainsEmptyValues(field.MappingInfo))
-          return null;
+      var types = Session.Domain.Model.Types;
+      var type = types[field.ValueType];
+      var tuple = Tuple;
+      if (tuple.ContainsEmptyValues(field.MappingInfo))
+        return null;
 
-        int typeIdColumnIndex = type.Key.TypeIdColumnIndex;
-        var accuracy = TypeReferenceAccuracy.BaseType;
-        if (typeIdColumnIndex >= 0)
-          accuracy = TypeReferenceAccuracy.ExactType;
-        var keyValue = field.ExtractValue(tuple);
-        if (accuracy == TypeReferenceAccuracy.ExactType) {
-          int typeId = keyValue.GetValueOrDefault<int>(typeIdColumnIndex);
-          if (typeId != TypeInfo.NoTypeId) // != default(int) != 0
-            type = types[typeId];
-          else
-            // This may happen if reference is null
-            accuracy = TypeReferenceAccuracy.BaseType;
-        }
-        key = Key.Create(Session.Domain, Session.StorageNodeId, type, accuracy, keyValue);
-        SystemGetValue(field, key);
-        SystemGetValueCompleted(field, key, null);
-        return key;
+      int typeIdColumnIndex = type.Key.TypeIdColumnIndex;
+      var accuracy = TypeReferenceAccuracy.BaseType;
+      if (typeIdColumnIndex >= 0)
+        accuracy = TypeReferenceAccuracy.ExactType;
+      var keyValue = field.ExtractValue(tuple);
+      if (accuracy == TypeReferenceAccuracy.ExactType) {
+        int typeId = keyValue.GetValueOrDefault<int>(typeIdColumnIndex);
+        if (typeId != TypeInfo.NoTypeId) // != default(int) != 0
+          type = types[typeId];
+        else
+          // This may happen if reference is null
+          accuracy = TypeReferenceAccuracy.BaseType;
       }
-      catch (Exception e) {
-        SystemGetValueCompleted(field, key, e);
-        throw;
-      }
+
+      key = Key.Create(Session.Domain, Session.StorageNodeId, type, accuracy, keyValue);
+      SystemGetValue(field, key);
+      return key;
     }
 
     protected internal void SetReferenceKey(FieldInfo field, Key value)
@@ -616,8 +594,6 @@ namespace Xtensive.Orm
     internal abstract void SystemBeforeGetValue(FieldInfo field);
 
     internal abstract void SystemGetValue<T>(FieldInfo field, T value);
-
-    internal abstract void SystemGetValueCompleted<T>(FieldInfo field, T value, Exception exception);
 
     internal abstract void SystemSetValueAttempt(FieldInfo field, object value);
 
