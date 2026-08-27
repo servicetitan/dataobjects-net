@@ -141,11 +141,6 @@ namespace Xtensive.Orm
     public event EventHandler<EntityVersionInfoChangedEventArgs> EntityVersionInfoChanged;
 
     /// <summary>
-    /// Occurs when field value is about to be read.
-    /// </summary>
-    public event EventHandler<EntityFieldEventArgs> EntityFieldValueGetting;
-
-    /// <summary>
     /// Occurs when field value was read successfully.
     /// </summary>
     public event EventHandler<EntityFieldValueEventArgs> EntityFieldValueGet;
@@ -408,12 +403,6 @@ namespace Xtensive.Orm
       if (EntityVersionInfoChanged!=null && AreNotificationsEnabled())
         EntityVersionInfoChanged(this, new EntityVersionInfoChangedEventArgs(
           changedEntity, changedField, changed));
-    }
-
-    internal void NotifyFieldValueGetting(Entity entity, FieldInfo field)
-    {
-      if (EntityFieldValueGetting!=null && AreNotificationsEnabled())
-        EntityFieldValueGetting(this, new EntityFieldEventArgs(entity, field));
     }
 
     internal void NotifyFieldValueGet<T>(Entity entity, FieldInfo field, T value)
