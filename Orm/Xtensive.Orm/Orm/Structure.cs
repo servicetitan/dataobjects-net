@@ -203,14 +203,6 @@ namespace Xtensive.Orm
       Owner.SystemGetValue(ownerField, value);
     }
 
-    internal override sealed void SystemGetValueCompleted<T>(FieldInfo field, T value, Exception exception)
-    {
-      if (Owner == null)
-        return;
-      var ownerField = Owner.TypeInfo.StructureFieldMapping[(Field, field)];
-      Owner.SystemGetValueCompleted(ownerField, value, exception);
-    }
-
     internal override sealed void SystemSetValueAttempt(FieldInfo field, object value)
     {
       if (!Session.IsSystemLogicOnly)

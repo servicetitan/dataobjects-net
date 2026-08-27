@@ -654,14 +654,6 @@ namespace Xtensive.Orm
       }
     }
 
-    internal override sealed void SystemGetValueCompleted<T>(FieldInfo field, T value, Exception exception)
-    {
-      Session.SystemEvents.NotifyFieldValueGetCompleted(this, field, value, exception);
-      using (Session.Operations.EnableSystemOperationRegistration()) {
-        Session.Events.NotifyFieldValueGetCompleted(this, field, value, exception);
-      }
-    }
-
     internal override sealed void SystemSetValueAttempt(FieldInfo field, object value)
     {
       EnsureNotRemoved();
