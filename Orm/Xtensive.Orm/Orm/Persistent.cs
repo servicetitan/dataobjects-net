@@ -186,9 +186,7 @@ namespace Xtensive.Orm
     {
       var fieldAccessor = GetNormalizedFieldAccessor<T>(field);
       SystemBeforeGetValue(field);
-      var result = fieldAccessor.GetValue(this);
-      SystemGetValue(field, result);
-      return result;
+      return fieldAccessor.GetValue(this);
     }
 
     /// <summary>
@@ -204,9 +202,7 @@ namespace Xtensive.Orm
     private object GetNormalizedFieldValue(FieldInfo field, FieldAccessor fieldAccessor)
     {
       SystemBeforeGetValue(field);
-      var result = fieldAccessor.GetUntypedValue(this);
-      SystemGetValue(field, result);
-      return result;
+      return fieldAccessor.GetUntypedValue(this);
     }
 
     /// <summary>
@@ -223,7 +219,6 @@ namespace Xtensive.Orm
     /// <exception cref="InvalidOperationException">Field is not a reference field.</exception>
     protected internal Key GetReferenceKey(FieldInfo field)
     {
-      Key key = null;
       if (field.ReflectedType.IsInterface)
         field = TypeInfo.FieldMap[field];
       SystemBeforeGetValue(field);
@@ -251,9 +246,7 @@ namespace Xtensive.Orm
           accuracy = TypeReferenceAccuracy.BaseType;
       }
 
-      key = Key.Create(Session.Domain, Session.StorageNodeId, type, accuracy, keyValue);
-      SystemGetValue(field, key);
-      return key;
+      return Key.Create(Session.Domain, Session.StorageNodeId, type, accuracy, keyValue);
     }
 
     protected internal void SetReferenceKey(FieldInfo field, Key value)
@@ -592,8 +585,6 @@ namespace Xtensive.Orm
     internal abstract void SystemInitializationError(Exception error);
 
     internal abstract void SystemBeforeGetValue(FieldInfo field);
-
-    internal abstract void SystemGetValue<T>(FieldInfo field, T value);
 
     internal abstract void SystemSetValueAttempt(FieldInfo field, object value);
 

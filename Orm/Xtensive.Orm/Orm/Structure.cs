@@ -177,30 +177,10 @@ namespace Xtensive.Orm
 
     internal override sealed void SystemBeforeGetValue(FieldInfo field)
     {
-      if (!Session.IsSystemLogicOnly) {
-        var subscriptionInfo = GetSubscription(EntityEventBroker.GettingFieldEventKey);
-        if (subscriptionInfo.Item2 !=null)
-          ((Action<Key, FieldInfo, FieldInfo>) subscriptionInfo.Item2)
-            .Invoke(subscriptionInfo.Item1, Field, field);
-      }
       if (Owner == null) 
         return;
       var ownerField = Owner.TypeInfo.StructureFieldMapping[(Field, field)];
       Owner.SystemBeforeGetValue(ownerField);
-    }
-
-    internal override sealed void SystemGetValue<T>(FieldInfo field, T value)
-    {
-      if (!Session.IsSystemLogicOnly) {
-        var subscriptionInfo = GetSubscription(EntityEventBroker.GetFieldEventKey);
-        if (subscriptionInfo.Item2 != null)
-          ((Action<Key, FieldInfo, FieldInfo, object>) subscriptionInfo.Item2)
-            .Invoke(subscriptionInfo.Item1, Field, field, value);
-      }
-      if (Owner == null)
-        return;
-      var ownerField = Owner.TypeInfo.StructureFieldMapping[(Field, field)];
-      Owner.SystemGetValue(ownerField, value);
     }
 
     internal override sealed void SystemSetValueAttempt(FieldInfo field, object value)
