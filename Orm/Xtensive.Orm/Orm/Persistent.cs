@@ -552,16 +552,6 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Called before field value is about to be read.
-    /// </summary>
-    /// <remarks>
-    /// Override it to perform some actions before reading field value, e.g. to check access permissions.
-    /// </remarks>
-    protected virtual void OnGettingFieldValue(FieldInfo field)
-    {
-    }
-
-    /// <summary>
     /// Called before field value is about to be set.
     /// This event is raised on any set attempt (even if new value is the same as the current one).
     /// </summary>

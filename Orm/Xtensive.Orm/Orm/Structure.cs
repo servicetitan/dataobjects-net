@@ -182,7 +182,6 @@ namespace Xtensive.Orm
         if (subscriptionInfo.Item2 !=null)
           ((Action<Key, FieldInfo, FieldInfo>) subscriptionInfo.Item2)
             .Invoke(subscriptionInfo.Item1, Field, field);
-        OnGettingFieldValue(field);
       }
       if (Owner == null) 
         return;

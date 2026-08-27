@@ -638,7 +638,6 @@ namespace Xtensive.Orm
         if (subscriptionInfo.Item2 is Action<Key, FieldInfo> action) {
           action(subscriptionInfo.Item1, field);
         }
-        OnGettingFieldValue(field);
       }
     }
 
