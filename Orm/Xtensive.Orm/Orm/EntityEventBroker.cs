@@ -21,16 +21,6 @@ namespace Xtensive.Orm
     #region Event keys
 
     /// <summary>
-    /// The key for 'Getting field' event.
-    /// </summary>
-    public static readonly object GettingFieldEventKey = new object();
-
-    /// <summary>
-    /// The key of 'Get field' event.
-    /// </summary>
-    public static readonly object GetFieldEventKey = new object();
-
-    /// <summary>
     /// The key of 'Setting field attempt' event.
     /// </summary>
     public static readonly object SettingFieldAttemptEventKey = new object();
