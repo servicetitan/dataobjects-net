@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Rse.Transformation
         var columnIndex = mc.GetTupleAccessArgument();
         var outerParameter = mc.GetApplyParameter();
         if (outerParameter!=null)
-          registerOuterColumn(outerParameter, columnIndex);
+          registerOuterColumn(outerParameter.Value, columnIndex);
         else
           mappings.Add(columnIndex);
         return mc;

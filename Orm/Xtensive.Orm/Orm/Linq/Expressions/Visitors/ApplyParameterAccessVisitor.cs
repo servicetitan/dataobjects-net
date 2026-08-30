@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       if (memberExpression!=null
         && memberExpression.Member==WellKnownMembers.ApplyParameterValue
         && memberExpression.Expression.NodeType==ExpressionType.Constant
-        && ((ConstantExpression) memberExpression.Expression).Value==applyParameter) {
+        && ((ConstantExpression) memberExpression.Expression).Value is ApplyParameter ap && ap == applyParameter) {
         ColNum index = (ColNum) (int) ((ConstantExpression) tupleAccess.Arguments[0]).Value;
         return processor.Invoke(mc, index);
       }

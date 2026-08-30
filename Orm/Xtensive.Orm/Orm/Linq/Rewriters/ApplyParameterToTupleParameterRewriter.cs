@@ -34,9 +34,10 @@ namespace Xtensive.Orm.Linq.Rewriters
       if (m.Expression.NodeType!=ExpressionType.Constant)
         return base.VisitMember(m);
       var parameter = ((ConstantExpression) m.Expression).Value;
-      if (parameter!=applyParameter)
-        return base.VisitMember(m);
-      return parameterOfTupleExpression;
+      if (parameter is ApplyParameter ap && ap == applyParameter) {
+        return parameterOfTupleExpression;
+      }
+      return base.VisitMember(m);
     }
 
     internal protected override Expression VisitGroupingExpression(GroupingExpression expression)

@@ -13,9 +13,9 @@ namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class ApplyParameterSearcher : ExpressionVisitor
   {
-    private ApplyParameter result;
+    private ApplyParameter? result;
 
-    public ApplyParameter Find(LambdaExpression predicate)
+    public ApplyParameter? Find(LambdaExpression predicate)
     {
       ArgumentNullException.ThrowIfNull(predicate);
       result = null;
