@@ -562,11 +562,14 @@ namespace Xtensive.Sql
     /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void NotifyConnectionOpening(
-      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, bool reconnect = false)
+      IEnumerable<IDbConnectionAccessor> connectionAccessors,
+      DbConnection connection,
+      bool reconnect = false,
+      Session session = null)
     {
       ConnectionEventData eventData = null;
       foreach (var accessor in connectionAccessors) {
-        accessor.ConnectionOpening(eventData ??= new ConnectionEventData(connection, reconnect));
+        accessor.ConnectionOpening(eventData ??= new ConnectionEventData(connection, reconnect, session));
       }
     }
 
@@ -578,15 +581,20 @@ namespace Xtensive.Sql
     /// <param name="connection">The connection that is opening.</param>
     /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
     /// <param name="token">Cancellation token.</param>
+    /// <param name="session">Session that owns the open, if any.</param>
     /// <returns>Task performing operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task NotifyConnectionOpeningAsync(
-      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, bool reconnect = false, CancellationToken token = default)
+      IEnumerable<IDbConnectionAccessor> connectionAccessors,
+      DbConnection connection,
+      bool reconnect = false,
+      CancellationToken token = default,
+      Session session = null)
     {
       ConnectionEventData eventData = null;
       foreach (var accessor in connectionAccessors) {
         await accessor.ConnectionOpeningAsync(
-            eventData ??= new ConnectionEventData(connection, reconnect), token)
+            eventData ??= new ConnectionEventData(connection, reconnect, session), token)
           .ConfigureAwaitFalse();
       }
     }
@@ -599,12 +607,18 @@ namespace Xtensive.Sql
     /// <param name="connection">Opened but not initialized connection</param>
     /// <param name="initializationScript">The script that will run to initialize connection</param>
     /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
+    /// <param name="session">Session that owns the open, if any.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void NotifyConnectionInitializing(
-      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, string initializationScript, bool reconnect = false)
+      IEnumerable<IDbConnectionAccessor> connectionAccessors,
+      DbConnection connection,
+      string initializationScript,
+      bool reconnect = false,
+      Session session = null)
     {
       foreach (var accessor in connectionAccessors) {
-        accessor.ConnectionInitialization(new ConnectionInitEventData(initializationScript, connection, reconnect));
+        accessor.ConnectionInitialization(
+          new ConnectionInitEventData(initializationScript, connection, reconnect, session));
       }
     }
 
@@ -617,15 +631,20 @@ namespace Xtensive.Sql
     /// <param name="initializationScript">The script that will run to initialize connection</param>
     /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
     /// <param name="token">Cancellation token.</param>
+    /// <param name="session">Session that owns the open, if any.</param>
     /// <returns>Task performing operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task NotifyConnectionInitializingAsync(
-      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, string initializationScript,
-      bool reconnect = false, CancellationToken token = default)
+      IEnumerable<IDbConnectionAccessor> connectionAccessors,
+      DbConnection connection,
+      string initializationScript,
+      bool reconnect = false,
+      CancellationToken token = default,
+      Session session = null)
     {
       foreach (var accessor in connectionAccessors) {
         await accessor.ConnectionInitializationAsync(
-          new ConnectionInitEventData(initializationScript, connection, reconnect), token)
+          new ConnectionInitEventData(initializationScript, connection, reconnect, session), token)
           .ConfigureAwaitFalse();
       }
     }
@@ -637,12 +656,16 @@ namespace Xtensive.Sql
     /// <param name="connectionAccessors">The accessors that should be notified.</param>
     /// <param name="connection">The connection that is completely opened and initialized.</param>
     /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
+    /// <param name="session">Session that owns the open, if any.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void NotifyConnectionOpened(
-      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, bool reconnect = false)
+      IEnumerable<IDbConnectionAccessor> connectionAccessors,
+      DbConnection connection,
+      bool reconnect = false,
+      Session session = null)
     {
       foreach (var accessor in connectionAccessors) {
-        accessor.ConnectionOpened(new ConnectionEventData(connection, reconnect));
+        accessor.ConnectionOpened(new ConnectionEventData(connection, reconnect, session));
       }
     }
 
@@ -654,14 +677,19 @@ namespace Xtensive.Sql
     /// <param name="connection">The connection that is completely opened and initialized.</param>
     /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
     /// <param name="token">Cancellation token.</param>
+    /// <param name="session">Session that owns the open, if any.</param>
     /// <returns>Task performing operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task NotifyConnectionOpenedAsync(
-      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, bool reconnect = false, CancellationToken token = default)
+      IEnumerable<IDbConnectionAccessor> connectionAccessors,
+      DbConnection connection,
+      bool reconnect = false,
+      CancellationToken token = default,
+      Session session = null)
     {
       foreach (var accessor in connectionAccessors) {
         await accessor.ConnectionOpenedAsync(
-          new ConnectionEventData(connection, reconnect), token)
+          new ConnectionEventData(connection, reconnect, session), token)
           .ConfigureAwaitFalse();
       }
     }
@@ -674,12 +702,17 @@ namespace Xtensive.Sql
     /// <param name="connection">Connection that failed to be opened or properly initialized.</param>
     /// <param name="exception">The exception which appeared.</param>
     /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
+    /// <param name="session">Session that owns the open, if any.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void NotifyConnectionOpeningFailed(
-      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, Exception exception, bool reconnect = false)
+      IEnumerable<IDbConnectionAccessor> connectionAccessors,
+      DbConnection connection,
+      Exception exception,
+      bool reconnect = false,
+      Session session = null)
     {
       foreach (var accessor in connectionAccessors) {
-        accessor.ConnectionOpeningFailed(new ConnectionErrorEventData(exception, connection, reconnect));
+        accessor.ConnectionOpeningFailed(new ConnectionErrorEventData(exception, connection, reconnect, session));
       }
     }
 
@@ -692,15 +725,20 @@ namespace Xtensive.Sql
     /// <param name="exception">The exception which appeared.</param>
     /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
     /// <param name="token">Cancellation token.</param>
+    /// <param name="session">Session that owns the open, if any.</param>
     /// <returns>Task performing operation.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async Task NotifyConnectionOpeningFailedAsync(
-      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, Exception exception,
-      bool reconnect = false, CancellationToken token = default)
+      IEnumerable<IDbConnectionAccessor> connectionAccessors,
+      DbConnection connection,
+      Exception exception,
+      bool reconnect = false,
+      CancellationToken token = default,
+      Session session = null)
     {
       foreach (var accessor in connectionAccessors) {
         await accessor.ConnectionOpeningFailedAsync(
-          new ConnectionErrorEventData(exception, connection, reconnect), token)
+          new ConnectionErrorEventData(exception, connection, reconnect, session), token)
           .ConfigureAwaitFalse();
       }
     }

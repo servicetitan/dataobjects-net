@@ -25,6 +25,7 @@ namespace Xtensive.Sql
     private ConnectionInfo connectionInfo;
     private IExtensionCollection extensions;
     private bool isDisposed;
+    private Session notificationSession;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void EnsureIsNotDisposed()
@@ -85,6 +86,13 @@ namespace Xtensive.Sql
     /// Gets the state of the connection.
     /// </summary>
     public ConnectionState State => isDisposed ? ConnectionState.Closed : UnderlyingConnection.State;
+
+    /// <summary>
+    /// Session bound for the in-flight open notification callbacks, if any.
+    /// Set by the session-aware <see cref="Open(Session)"/> /
+    /// <see cref="OpenAndInitialize(string, Session)"/> overloads.
+    /// </summary>
+    protected Session NotificationSession => notificationSession;
 
     /// <summary>
     /// Creates and returns a <see cref="DbCommand"/> object associated with the current connection.
@@ -156,6 +164,22 @@ namespace Xtensive.Sql
       throw SqlHelper.NotSupported(ServerFeatures.LargeObjects);
 
     /// <summary>
+    /// Opens the connection on behalf of <paramref name="session"/> so connection-accessor
+    /// notifications carry that session.
+    /// </summary>
+    public void Open(Session session)
+    {
+      ArgumentNullException.ThrowIfNull(session);
+      notificationSession = session;
+      try {
+        Open();
+      }
+      finally {
+        notificationSession = null;
+      }
+    }
+
+    /// <summary>
     /// Opens the connection.
     /// </summary>
     public virtual void Open()
@@ -167,15 +191,32 @@ namespace Xtensive.Sql
       }
       else {
         var accessors = connectionAccessorEx.Accessors;
-        SqlHelper.NotifyConnectionOpening(accessors, UnderlyingConnection);
+        var session = notificationSession;
+        SqlHelper.NotifyConnectionOpening(accessors, UnderlyingConnection, session: session);
         try {
           UnderlyingConnection.Open();
-          SqlHelper.NotifyConnectionOpened(accessors, UnderlyingConnection);
+          SqlHelper.NotifyConnectionOpened(accessors, UnderlyingConnection, session: session);
         }
         catch (Exception ex) {
-          SqlHelper.NotifyConnectionOpeningFailed(accessors, UnderlyingConnection, ex);
+          SqlHelper.NotifyConnectionOpeningFailed(accessors, UnderlyingConnection, ex, session: session);
           throw;
         }
+      }
+    }
+
+    /// <summary>
+    /// Opens the connection on behalf of <paramref name="session"/> and initializes it with given script
+    /// so connection-accessor notifications carry that session.
+    /// </summary>
+    public void OpenAndInitialize(string initializationScript, Session session)
+    {
+      ArgumentNullException.ThrowIfNull(session);
+      notificationSession = session;
+      try {
+        OpenAndInitialize(initializationScript);
+      }
+      finally {
+        notificationSession = null;
       }
     }
 
@@ -199,23 +240,42 @@ namespace Xtensive.Sql
       }
       else {
         var accessors = connectionAccessorEx.Accessors;
-        SqlHelper.NotifyConnectionOpening(accessors, UnderlyingConnection);
+        var session = notificationSession;
+        SqlHelper.NotifyConnectionOpening(accessors, UnderlyingConnection, session: session);
         try {
           UnderlyingConnection.Open();
           if (string.IsNullOrEmpty(initializationScript)) {
-            SqlHelper.NotifyConnectionOpened(accessors, UnderlyingConnection);
+            SqlHelper.NotifyConnectionOpened(accessors, UnderlyingConnection, session: session);
             return;
           }
 
-          SqlHelper.NotifyConnectionInitializing(accessors, UnderlyingConnection, initializationScript);
+          SqlHelper.NotifyConnectionInitializing(
+            accessors, UnderlyingConnection, initializationScript, session: session);
           using var command = UnderlyingConnection.CreateCommand();
           command.CommandText = initializationScript;
           _ = command.ExecuteNonQuery();
+          SqlHelper.NotifyConnectionOpened(accessors, UnderlyingConnection, session: session);
         }
         catch (Exception ex) {
-          SqlHelper.NotifyConnectionOpeningFailed(accessors, UnderlyingConnection, ex);
+          SqlHelper.NotifyConnectionOpeningFailed(accessors, UnderlyingConnection, ex, session: session);
           throw;
         }
+      }
+    }
+
+    /// <summary>
+    /// Opens the connection asynchronously on behalf of <paramref name="session"/> so
+    /// connection-accessor notifications carry that session.
+    /// </summary>
+    public async Task OpenAsync(Session session, CancellationToken cancellationToken = default)
+    {
+      ArgumentNullException.ThrowIfNull(session);
+      notificationSession = session;
+      try {
+        await OpenAsync(cancellationToken).ConfigureAwaitFalse();
+      }
+      finally {
+        notificationSession = null;
       }
     }
 
@@ -236,15 +296,36 @@ namespace Xtensive.Sql
       }
       else {
         var accessors = connectionAccessorEx.Accessors;
-        await SqlHelper.NotifyConnectionOpeningAsync(accessors, UnderlyingConnection, false, cancellationToken);
+        var session = notificationSession;
+        await SqlHelper.NotifyConnectionOpeningAsync(
+          accessors, UnderlyingConnection, false, cancellationToken, session);
         try {
           await UnderlyingConnection.OpenAsync(cancellationToken);
-          await SqlHelper.NotifyConnectionOpenedAsync(accessors, UnderlyingConnection, false, cancellationToken);
+          await SqlHelper.NotifyConnectionOpenedAsync(
+            accessors, UnderlyingConnection, false, cancellationToken, session);
         }
         catch (Exception ex) {
-          await SqlHelper.NotifyConnectionOpeningFailedAsync(accessors, UnderlyingConnection, ex, false, cancellationToken);
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(
+            accessors, UnderlyingConnection, ex, false, cancellationToken, session);
           throw;
         }
+      }
+    }
+
+    /// <summary>
+    /// Opens the connection asynchronously on behalf of <paramref name="session"/> and initializes it
+    /// with given script so connection-accessor notifications carry that session.
+    /// </summary>
+    public async Task OpenAndInitializeAsync(
+      string initializationScript, Session session, CancellationToken token = default)
+    {
+      ArgumentNullException.ThrowIfNull(session);
+      notificationSession = session;
+      try {
+        await OpenAndInitializeAsync(initializationScript, token).ConfigureAwaitFalse();
+      }
+      finally {
+        notificationSession = null;
       }
     }
 
@@ -281,29 +362,36 @@ namespace Xtensive.Sql
       }
       else {
         var accessors = connectionAccessorEx.Accessors;
-        await SqlHelper.NotifyConnectionOpeningAsync(accessors, UnderlyingConnection, false, token);
+        var session = notificationSession;
+        await SqlHelper.NotifyConnectionOpeningAsync(
+          accessors, UnderlyingConnection, false, token, session);
         await UnderlyingConnection.OpenAsync(token).ConfigureAwaitFalse();
         if (string.IsNullOrEmpty(initializationScript)) {
-          await SqlHelper.NotifyConnectionOpenedAsync(accessors, UnderlyingConnection, false, token);
+          await SqlHelper.NotifyConnectionOpenedAsync(
+            accessors, UnderlyingConnection, false, token, session);
           return;
         }
 
         try {
-          await SqlHelper.NotifyConnectionInitializingAsync(accessors, UnderlyingConnection, initializationScript, false, token);
+          await SqlHelper.NotifyConnectionInitializingAsync(
+            accessors, UnderlyingConnection, initializationScript, false, token, session);
           var command = UnderlyingConnection.CreateCommand();
           await using (command.ConfigureAwaitFalse()) {
             command.CommandText = initializationScript;
             _ = await command.ExecuteNonQueryAsync(token).ConfigureAwaitFalse();
           }
-          await SqlHelper.NotifyConnectionOpenedAsync(accessors, UnderlyingConnection, false, token);
+          await SqlHelper.NotifyConnectionOpenedAsync(
+            accessors, UnderlyingConnection, false, token, session);
         }
         catch (OperationCanceledException ex) {
-          await SqlHelper.NotifyConnectionOpeningFailedAsync(accessors, UnderlyingConnection, ex, false, token);
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(
+            accessors, UnderlyingConnection, ex, false, token, session);
           await UnderlyingConnection.CloseAsync().ConfigureAwaitFalse();
           throw;
         }
         catch (Exception ex) {
-          await SqlHelper.NotifyConnectionOpeningFailedAsync(accessors, UnderlyingConnection, ex, false, token);
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(
+            accessors, UnderlyingConnection, ex, false, token, session);
           throw;
         }
       }

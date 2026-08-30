@@ -243,20 +243,25 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var connectionChecked = false;
       var restoreTriggered = false;
       var accessors = connectionAccessorEx.Accessors;
+      var session = NotificationSession;
       while (!connectionChecked) {
-        SqlHelper.NotifyConnectionOpening(accessors, UnderlyingConnection, (!connectionChecked && !restoreTriggered));
+        SqlHelper.NotifyConnectionOpening(
+          accessors, UnderlyingConnection, (!connectionChecked && !restoreTriggered), session);
         underlyingConnection.Open();
         try {
-          SqlHelper.NotifyConnectionInitializing(accessors, UnderlyingConnection, checkQueryString, (!connectionChecked && !restoreTriggered));
+          SqlHelper.NotifyConnectionInitializing(
+            accessors, UnderlyingConnection, checkQueryString, (!connectionChecked && !restoreTriggered), session);
           using (var command = underlyingConnection.CreateCommand()) {
             command.CommandText = checkQueryString;
             _ = command.ExecuteNonQuery();
           }
           connectionChecked = true;
-          SqlHelper.NotifyConnectionOpened(accessors, UnderlyingConnection, (!connectionChecked && !restoreTriggered));
+          SqlHelper.NotifyConnectionOpened(
+            accessors, UnderlyingConnection, (!connectionChecked && !restoreTriggered), session);
         }
         catch (Exception exception) {
-          SqlHelper.NotifyConnectionOpeningFailed(accessors, UnderlyingConnection, exception, (!connectionChecked && !restoreTriggered));
+          SqlHelper.NotifyConnectionOpeningFailed(
+            accessors, UnderlyingConnection, exception, (!connectionChecked && !restoreTriggered), session);
           if (InternalHelpers.ShouldRetryOn(exception)) {
             if (restoreTriggered) {
               throw;
@@ -311,17 +316,27 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var restoreTriggered = false;
       var accessors = connectionAccessorEx.Accessors;
 
+      var session = NotificationSession;
       while (!connectionChecked) {
         cancellationToken.ThrowIfCancellationRequested();
 
-        await SqlHelper.NotifyConnectionOpeningAsync(accessors,
-            UnderlyingConnection, (!connectionChecked && !restoreTriggered), cancellationToken)
+        await SqlHelper.NotifyConnectionOpeningAsync(
+            accessors,
+            UnderlyingConnection,
+            (!connectionChecked && !restoreTriggered),
+            cancellationToken,
+            session)
           .ConfigureAwaitFalse();
 
         await underlyingConnection.OpenAsync(cancellationToken).ConfigureAwaitFalse();
         try {
-          await SqlHelper.NotifyConnectionInitializingAsync(accessors,
-              UnderlyingConnection, checkQueryString, (!connectionChecked && !restoreTriggered), cancellationToken)
+          await SqlHelper.NotifyConnectionInitializingAsync(
+              accessors,
+              UnderlyingConnection,
+              checkQueryString,
+              (!connectionChecked && !restoreTriggered),
+              cancellationToken,
+              session)
             .ConfigureAwaitFalse();
 
           var command = underlyingConnection.CreateCommand();
@@ -330,12 +345,22 @@ namespace Xtensive.Sql.Drivers.SqlServer
             _ = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwaitFalse();
           }
           connectionChecked = true;
-          await SqlHelper.NotifyConnectionOpenedAsync(accessors, UnderlyingConnection, (!connectionChecked && !restoreTriggered), cancellationToken)
+          await SqlHelper.NotifyConnectionOpenedAsync(
+              accessors,
+              UnderlyingConnection,
+              (!connectionChecked && !restoreTriggered),
+              cancellationToken,
+              session)
             .ConfigureAwaitFalse();
         }
         catch (Exception exception) {
-          await SqlHelper.NotifyConnectionOpeningFailedAsync(accessors,
-              UnderlyingConnection, exception, (!connectionChecked && !restoreTriggered), cancellationToken)
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(
+              accessors,
+              UnderlyingConnection,
+              exception,
+              (!connectionChecked && !restoreTriggered),
+              cancellationToken,
+              session)
             .ConfigureAwaitFalse();
 
           if (InternalHelpers.ShouldRetryOn(exception)) {
