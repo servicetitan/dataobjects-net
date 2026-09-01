@@ -274,19 +274,12 @@ namespace Xtensive.Orm
 
     internal void CheckForSwitching()
     {
-      var currentSession = SessionScope.CurrentSession; // Not Session.Current -
-      // to avoid possible comparison with Session provided by Session.Resolver.
-      if (currentSession == null) {
-        return;
+      // Not Session.Current to avoid possible comparison with Session provided by Session.Resolver.
+      if (SessionScope.CurrentSession is { Transaction: not null } currentSession
+          && !(allowSwitching && currentSession.allowSwitching)) {
+        throw new InvalidOperationException(
+          string.Format(Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked, this, currentSession));
       }
-      if (currentSession == this) {
-        return;
-      }
-      if (currentSession.Transaction == null || (allowSwitching && currentSession.allowSwitching)) {
-        return;
-      }
-      throw new InvalidOperationException(
-        string.Format(Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked, this, currentSession));
     }
 
     private EnumerationContextOptions GetEnumerationContextOptions()
