@@ -45,7 +45,6 @@ namespace Xtensive.Orm.Providers
 
     private QueryAndBindings BuildTableQuery(IndexInfo index)
     {
-      var domainHandler = Handlers.DomainHandler;
       var table = Mapping[index.ReflectedType];
 
       var atRootPolicy = false;
@@ -57,9 +56,8 @@ namespace Xtensive.Orm.Providers
 
       var indexColumns = index.Columns;
       var tableRef = SqlDml.TableRef(table);
-      var query = SqlDml.Select(tableRef);
+      var query = SqlDml.Select(tableRef, capacity: tableRef.Columns.Count + indexColumns.Count);
       var queryColumns = query.Columns;
-      queryColumns.Capacity = queryColumns.Count + indexColumns.Count;
       if (!atRootPolicy) {
         foreach (var c in indexColumns) {
           queryColumns.Add(tableRef[c.Name]);
