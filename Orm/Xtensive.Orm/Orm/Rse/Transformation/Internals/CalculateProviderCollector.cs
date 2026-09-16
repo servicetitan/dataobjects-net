@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return (from column in newProvider.CalculatedColumns
           let parameter = parameterSearcher.Find(column.Expression)
           where parameter!=null
-          select parameter)
+          select parameter.Value)
         .Distinct()
         .ToList();
     }

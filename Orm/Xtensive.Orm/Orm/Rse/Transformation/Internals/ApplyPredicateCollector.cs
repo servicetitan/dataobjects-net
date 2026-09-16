@@ -24,12 +24,10 @@ namespace Xtensive.Orm.Rse.Transformation
 
     public bool TryAdd(FilterProvider filter)
     {
-      var applyParameter = parameterSearcher.Find(filter.Predicate);
-      if (applyParameter != null) {
-        if (!owner.State.CheckIfApplyParameterSeflConvertible(applyParameter)) {
-          SaveApplyPredicate(filter, applyParameter);
-          return true;
-        }
+      if (parameterSearcher.Find(filter.Predicate) is { } applyParameter
+          && !owner.State.CheckIfApplyParameterSeflConvertible(applyParameter)) {
+        SaveApplyPredicate(filter, applyParameter);
+        return true;
       }
       return false;
     }
