@@ -2,8 +2,8 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
+using System;
 using System.Data.Common;
-using Xtensive.Core;
 
 namespace Xtensive.Orm
 {
@@ -17,8 +17,12 @@ namespace Xtensive.Orm
     /// </summary>
     public string InitializationScript { get; }
 
-    public ConnectionInitEventData(string initializationScript, DbConnection connection, bool reconnect = false)
-      : base(connection, reconnect)
+    public ConnectionInitEventData(
+      string initializationScript,
+      DbConnection connection,
+      bool reconnect = false,
+      Session session = null)
+      : base(connection, reconnect, session)
     {
       ArgumentException.ThrowIfNullOrEmpty(initializationScript);
       InitializationScript = initializationScript;

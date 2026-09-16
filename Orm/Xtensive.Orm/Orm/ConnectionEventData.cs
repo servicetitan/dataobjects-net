@@ -4,7 +4,6 @@
 
 using System;
 using System.Data.Common;
-using Xtensive.Core;
 
 namespace Xtensive.Orm
 {
@@ -23,11 +22,19 @@ namespace Xtensive.Orm
     /// </summary>
     public bool Reconnect { get; }
 
-    public ConnectionEventData(DbConnection connection, bool reconnect = false)
+    /// <summary>
+    /// The <see cref="Session"/> that owns the open operation, if the connection is being
+    /// opened on behalf of a session. <see langword="null"/> for domain/driver opens
+    /// that are not session-scoped.
+    /// </summary>
+    public Session Session { get; }
+
+    public ConnectionEventData(DbConnection connection, bool reconnect = false, Session session = null)
     {
       ArgumentNullException.ThrowIfNull(connection);
       Connection = connection;
       Reconnect = reconnect;
+      Session = session;
     }
   }
 }
