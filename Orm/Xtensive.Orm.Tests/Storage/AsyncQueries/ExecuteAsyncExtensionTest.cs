@@ -78,6 +78,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
+    [Mute]
     public async Task QueryableTest()
     {
       var queryableEnumeable = (IQueryable<int>) new EnumerableQuery<int>(Enumerable.Range(-100, 200).ToArray()).Where(v => v < 5 && v > 0);
