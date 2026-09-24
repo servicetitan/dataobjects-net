@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Linq.Rewriters
 
       protected override ConstantExpression VisitConstant(ConstantExpression c)
       {
-        if (c.Value==filterParameter)
+        if (c.Value is ApplyParameter ap && ap == filterParameter)
           matchFound = true;
         return c;
       }

@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     protected override Expression VisitMember(MemberExpression m) =>
       m.Expression is { } target
           && target.NodeType == ExpressionType.Constant
-          && ((ConstantExpression) target).Value == filteredTuple
+          && ((ConstantExpression) target).Value is ApplyParameter ap && ap == filteredTuple
       ? CalculatedColumnParameter
       : base.VisitMember(m);
 

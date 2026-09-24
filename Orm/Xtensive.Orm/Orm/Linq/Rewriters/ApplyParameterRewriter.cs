@@ -32,9 +32,10 @@ namespace Xtensive.Orm.Linq.Rewriters
       if (m.Expression.NodeType!=ExpressionType.Constant)
         return base.VisitMember(m);
       var parameter = ((ConstantExpression) m.Expression).Value;
-      if (parameter!=oldApplyParameter)
-        return base.VisitMember(m);
-      return newApplyParameterValueExpression;
+      if (parameter is ApplyParameter ap && ap == oldApplyParameter) {
+        return newApplyParameterValueExpression;
+      }
+      return base.VisitMember(m);
     }
 
 
