@@ -4,7 +4,6 @@
 
 using System;
 using System.Data.Common;
-using Xtensive.Core;
 
 namespace Xtensive.Orm
 {
@@ -18,8 +17,12 @@ namespace Xtensive.Orm
     /// </summary>
     public Exception Exception { get; }
 
-    public ConnectionErrorEventData(Exception exception, DbConnection connection, bool reconnect = false)
-      : base(connection, reconnect)
+    public ConnectionErrorEventData(
+      Exception exception,
+      DbConnection connection,
+      bool reconnect = false,
+      Session session = null)
+      : base(connection, reconnect, session)
     {
       ArgumentNullException.ThrowIfNull(exception);
       Exception = exception;

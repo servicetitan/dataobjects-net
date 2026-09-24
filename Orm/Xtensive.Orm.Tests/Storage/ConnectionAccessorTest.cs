@@ -26,16 +26,19 @@ namespace Xtensive.Orm.Tests.Storage.ConnectionAccessorsModel
     public int ConnectionInitializationCounter;
     public int ConnectionOpenedCounter;
     public int ConnectionOpeningFailedCounter;
+    public Session LastSession;
 
     public override void ConnectionOpening(ConnectionEventData eventData)
     {
       instanceMarker = UniqueInstanceIdentifier;
       ConnectionOpeningCounter++;
+      LastSession = eventData.Session;
     }
 
     public override void ConnectionInitialization(ConnectionInitEventData eventData)
     {
       ConnectionInitializationCounter++;
+      LastSession = eventData.Session;
       if (instanceMarker != UniqueInstanceIdentifier) {
         throw new Exception("Not the same instance");
       }
@@ -44,6 +47,7 @@ namespace Xtensive.Orm.Tests.Storage.ConnectionAccessorsModel
     public override void ConnectionOpened(ConnectionEventData eventData)
     {
       ConnectionOpenedCounter++;
+      LastSession = eventData.Session;
       if (instanceMarker != UniqueInstanceIdentifier) {
         throw new Exception("Not the same instance");
       }
@@ -52,6 +56,7 @@ namespace Xtensive.Orm.Tests.Storage.ConnectionAccessorsModel
     public override void ConnectionOpeningFailed(ConnectionErrorEventData eventData)
     {
       ConnectionOpeningFailedCounter++;
+      LastSession = eventData.Session;
       if (instanceMarker != UniqueInstanceIdentifier) {
         throw new Exception("Not the same instance");
       }
@@ -209,6 +214,7 @@ namespace Xtensive.Orm.Tests.Storage
         var accessorInstance = (MyConnectionAccessor) extension.Accessors.First();
         Assert.That(accessorInstance.ConnectionOpeningCounter, Is.Not.EqualTo(0));
         Assert.That(accessorInstance.ConnectionOpenedCounter, Is.Not.EqualTo(0));
+        Assert.That(accessorInstance.LastSession, Is.SameAs(session));
         first = accessorInstance.UniqueInstanceIdentifier;
       }
 
@@ -220,6 +226,7 @@ namespace Xtensive.Orm.Tests.Storage
         var accessorInstance = (MyConnectionAccessor) extension.Accessors.First();
         Assert.That(accessorInstance.ConnectionOpeningCounter, Is.Not.EqualTo(0));
         Assert.That(accessorInstance.ConnectionOpenedCounter, Is.Not.EqualTo(0));
+        Assert.That(accessorInstance.LastSession, Is.SameAs(session));
         second = accessorInstance.UniqueInstanceIdentifier;
       }
 
@@ -242,6 +249,7 @@ namespace Xtensive.Orm.Tests.Storage
         var accessorInstance = (MyConnectionAccessor) extension.Accessors.First();
         Assert.That(accessorInstance.ConnectionOpeningCounter, Is.Not.EqualTo(0));
         Assert.That(accessorInstance.ConnectionOpenedCounter, Is.Not.EqualTo(0));
+        Assert.That(accessorInstance.LastSession, Is.SameAs(session));
         first = accessorInstance.UniqueInstanceIdentifier;
       }
 
@@ -253,6 +261,7 @@ namespace Xtensive.Orm.Tests.Storage
         var accessorInstance = (MyConnectionAccessor) extension.Accessors.First();
         Assert.That(accessorInstance.ConnectionOpeningCounter, Is.Not.EqualTo(0));
         Assert.That(accessorInstance.ConnectionOpenedCounter, Is.Not.EqualTo(0));
+        Assert.That(accessorInstance.LastSession, Is.SameAs(session));
         second = accessorInstance.UniqueInstanceIdentifier;
       }
 

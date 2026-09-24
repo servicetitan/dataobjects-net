@@ -84,10 +84,10 @@ namespace Xtensive.Orm.Providers
 
       try {
         if (!string.IsNullOrEmpty(script)) {
-          connection.OpenAndInitialize(script);
+          connection.OpenAndInitialize(script, session);
         }
         else {
-          connection.Open();
+          connection.Open(session);
         }
       }
       catch (Exception exception) {
@@ -114,10 +114,10 @@ namespace Xtensive.Orm.Providers
 
       try {
         if (!string.IsNullOrEmpty(script)) {
-          await connection.OpenAndInitializeAsync(script, cancellationToken).ConfigureAwaitFalse();
+          await connection.OpenAndInitializeAsync(script, session, cancellationToken).ConfigureAwaitFalse();
         }
         else {
-          await connection.OpenAsync(cancellationToken).ConfigureAwaitFalse();
+          await connection.OpenAsync(session, cancellationToken).ConfigureAwaitFalse();
         }
       }
       catch (OperationCanceledException) {
