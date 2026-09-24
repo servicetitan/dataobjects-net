@@ -10,7 +10,6 @@ using Xtensive.Sql;
 
 namespace Xtensive.Tuples.Packed
 {
-  [Serializable]
   internal sealed class PackedTuple : RegularTuple
   {
     public readonly TupleDescriptor PackedDescriptor;

@@ -9,7 +9,6 @@ using System.Runtime.CompilerServices;
 
 namespace Xtensive.Tuples.Packed
 {
-  [Serializable]
   internal struct PackedFieldDescriptor
   {
 #if DO_MAX_1000_COLUMNS

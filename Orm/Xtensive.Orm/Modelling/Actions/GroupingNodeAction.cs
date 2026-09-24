@@ -15,7 +15,6 @@ namespace Xtensive.Modelling.Actions
   /// <summary>
   /// A grouping node action.
   /// </summary>
-  [Serializable]
   public class GroupingNodeAction : NodeAction
   {
     private string comment;
@@ -46,12 +45,10 @@ namespace Xtensive.Modelling.Actions
       ArgumentNullException.ThrowIfNull(action);
       EnsureNotLocked();
       // Only locked actions can be added
-      var ca = action as PropertyChangeAction;
-      if (ca!=null && actions.Count!=0) {
+      if (action is PropertyChangeAction ca && actions.Count != 0) {
         // Let's try to join two change actions
         var lastIndex = actions.Count - 1;
-        var last = actions[lastIndex] as PropertyChangeAction;
-        if (last!=null && ca.Path==last.Path) {
+        if (actions[lastIndex] is PropertyChangeAction last && ca.Path == last.Path) {
           foreach (var pair in last.Properties) {
             _ = ca.Properties.TryAdd(pair.Key, pair.Value);
           }
@@ -68,8 +65,7 @@ namespace Xtensive.Modelling.Actions
     public IEnumerable<NodeAction> Flatten()
     {
       foreach (var action in actions) {
-        var gna = action as GroupingNodeAction;
-        if (gna!=null)
+        if (action is GroupingNodeAction gna)
           foreach (var nestedAction in gna.Flatten())
             yield return nestedAction;
         else

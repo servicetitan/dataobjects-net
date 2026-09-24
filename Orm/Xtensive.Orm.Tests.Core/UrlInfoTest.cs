@@ -4,6 +4,9 @@
 // Created by: Alexander Ilyin
 // Created:    2007.07.18
 
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Core;

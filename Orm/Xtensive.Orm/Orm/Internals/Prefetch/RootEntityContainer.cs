@@ -10,7 +10,6 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  [Serializable]
   internal sealed class RootEntityContainer : EntityContainer
   {
     private PrefetchFieldDescriptor referencingFieldDescriptor;
@@ -18,7 +17,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public override EntityGroupTask GetTask()
     {
-      if (Task == null) {
+      if (Task is null) {
         if (!SelectColumnsToBeLoaded())
           return null;
         Task = new EntityGroupTask(Type, ColumnIndexesToBeLoaded, Manager);

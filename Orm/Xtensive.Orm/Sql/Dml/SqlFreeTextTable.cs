@@ -7,13 +7,10 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using Xtensive.Collections;
-using Xtensive.Core;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlFreeTextTable : SqlTable, ISqlQueryExpression
   {
     public SqlTableRef TargetTable { get; private set; }

@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal sealed class NullableNullableAdvancedConverter<TFrom, TTo> : WrappingAdvancedConverter<TFrom?, TFrom, TTo?, TTo>
     where TFrom : struct
     where TTo : struct

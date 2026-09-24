@@ -7,9 +7,8 @@
 
 using System.Collections;
 using System.Diagnostics;
-using System.Runtime.Serialization;
+using System.Text;
 using Xtensive.Core;
-using Xtensive.Linq.SerializableExpressions.Internals;
 using Xtensive.Reflection;
 using Xtensive.Tuples.Packed;
 
@@ -19,8 +18,7 @@ namespace Xtensive.Tuples
   /// Tuple descriptor.
   /// Provides information about <see cref="Tuple"/> structure.
   /// </summary>
-  [Serializable]
-  public class TupleDescriptor : IEquatable<TupleDescriptor>, IReadOnlyList<Type>, ISerializable
+  public class TupleDescriptor : IEquatable<TupleDescriptor>, IReadOnlyList<Type>
   {
     public static readonly TupleDescriptor Empty = new TupleDescriptor(Array.Empty<Type>());
 
@@ -59,32 +57,14 @@ namespace Xtensive.Tuples
             break;
         }
       }
-
-      public LazyData(Type[] fieldTypes, SerializationInfo info)
-      {
-        ValuesLength = info.GetInt32("ValuesLength");
-        ObjectsLength = info.GetInt32("ObjectsLength");
-
-        var typeNames = (string[]) info.GetValue("FieldTypes", typeof(string[]));
-        FieldDescriptors = (PackedFieldDescriptor[]) info.GetValue(
-          "FieldDescriptors", typeof(PackedFieldDescriptor[]));
-
-        for (var i = 0; i < typeNames.Length; i++) {
-          TupleLayout.ConfigureFieldAccessor(ref FieldDescriptors[i], fieldTypes[i]);
-        }
-      }
     }
 
-    [NonSerialized]
-    private LazyData data;
-
-    private LazyData Data => data ??= new LazyData(FieldTypes);
+    private LazyData Data => field ??= new LazyData(FieldTypes);
 
     internal int ValuesLength => Data.ValuesLength;
     internal int ObjectsLength => Data.ObjectsLength;
     internal PackedFieldDescriptor[] FieldDescriptors => Data.FieldDescriptors;
 
-    [field: NonSerialized]
     private Type[] FieldTypes { get; }
 
     #region IReadOnlyList members
@@ -229,19 +209,6 @@ namespace Xtensive.Tuples
 
     #endregion
 
-    public void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue(nameof(ValuesLength), ValuesLength);
-      info.AddValue(nameof(ObjectsLength), ObjectsLength);
-
-      var typeNames = new string[FieldTypes.Length];
-      for (var i = 0; i < typeNames.Length; i++)
-        typeNames[i] = FieldTypes[i].ToSerializableForm();
-
-      info.AddValue(nameof(FieldTypes), typeNames);
-      info.AddValue(nameof(FieldDescriptors), FieldDescriptors);
-    }
-
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -347,16 +314,6 @@ namespace Xtensive.Tuples
           fieldType = valueAccessor.FieldType;
         }
       }
-    }
-
-    public TupleDescriptor(SerializationInfo info, StreamingContext context)
-    {
-      var typeNames = (string[]) info.GetValue(nameof(FieldTypes), typeof(string[]));
-      FieldTypes = new Type[typeNames.Length];
-      for (var i = 0; i < typeNames.Length; i++) {
-        FieldTypes[i] = typeNames[i].GetTypeFromSerializableForm();
-      }
-      data = new LazyData(FieldTypes, info);
     }
   }
 }

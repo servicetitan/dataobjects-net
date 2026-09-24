@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Model
   /// Describes a single index in terms of storage.
   /// </summary>
   [DebuggerDisplay("{Name}; Attributes = {Attributes}.")]
-  [Serializable]
   public sealed class IndexInfo : MappedNode, IDisposable
   {
     private IndexAttributes attributes;

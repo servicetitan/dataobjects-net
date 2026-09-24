@@ -12,8 +12,8 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Operations;
 using Xtensive.Orm.PairIntegrity;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.ReferentialIntegrity;
 using Xtensive.Orm.Validation;
 using Xtensive.Tuples;
@@ -130,7 +130,7 @@ namespace Xtensive.Orm
             var dt = p.DeclaringType;
             mi = dt.GetProperty(p.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetSetMethod(true);
           }
-          mi.Invoke(this, new object[] { value });
+          _ = mi.Invoke(this, new object[] { value });
         }
         else
           SetFieldValue(pair.Item1, (object) value); // Untyped, since T might be wrong
@@ -148,7 +148,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the field value.
     /// Field value type must be specified precisely.
-    /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
+    /// E.g. usage of <see cref="object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="fieldName">The field name.</param>
@@ -174,7 +174,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the field value.
     /// Field value type must be specified precisely.
-    /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
+    /// E.g. usage of <see cref="object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
@@ -314,7 +314,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Sets the field value.
     /// Field value type must be specified precisely.
-    /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
+    /// E.g. usage of <see cref="object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="fieldName">The field name.</param>
@@ -340,7 +340,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Sets the field value.
     /// Field value type must be specified precisely.
-    /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
+    /// E.g. usage of <see cref="object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
@@ -351,7 +351,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Sets the field value.
     /// Field value type must be specified precisely.
-    /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
+    /// E.g. usage of <see cref="object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
@@ -376,13 +376,13 @@ namespace Xtensive.Orm
       }
 
       try {
-        var operations = Session.Operations;
+        var (operations, operationsFactory, allowRegistration) = Session.GetOperationsContext();
         var scope = operations.BeginRegistration(Operations.OperationType.System);
         try {
           var entity = this as Entity;
           if (entity != null) {
-            if (operations.CanRegisterOperation)
-              operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, field, value));
+            if (allowRegistration && operations.CanRegisterOperation)
+              operations.RegisterOperation(operationsFactory.EntityFieldSetOperation(entity.Key, field, value));
             var entityValue = value as IEntity;
             if (entityValue != null) {
               var valueKey = entityValue.Key;
@@ -400,8 +400,8 @@ namespace Xtensive.Orm
             }
             entity = persistent as Entity;
             if (entity != null) {
-              if (operations.CanRegisterOperation)
-                operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, currentField, value));
+              if (allowRegistration && operations.CanRegisterOperation)
+                operations.RegisterOperation(operationsFactory.EntityFieldSetOperation(entity.Key, currentField, value));
               var entityValue = value as IEntity;
               if (entityValue != null) {
                 var valueKey = entityValue.Key;
@@ -411,13 +411,15 @@ namespace Xtensive.Orm
           }
 
           if (fieldAccessor.AreSameValues(oldValue, value)) {
-            operations.NotifyOperationStarting(false);
-            scope.Complete();
+            if (allowRegistration && operations.CanRegisterOperation)
+              operations.NotifyOperationStarting(false);
+            scope?.Complete();
             return;
           }
           {
             SystemBeforeSetValue(field, value);
-            operations.NotifyOperationStarting(false);
+            if (allowRegistration && operations.CanRegisterOperation)
+              operations.NotifyOperationStarting(false);
             AssociationInfo association = null;
             entity = value as Entity ?? oldValue as Entity;
             if (entity != null)
@@ -461,7 +463,7 @@ namespace Xtensive.Orm
                   try {
                     SystemSetValue(field, oldValue, value);
                     SystemSetValueCompleted(field, oldValue, value, null);
-                    scope.Complete();
+                    scope?.Complete();
                   }
                   finally {
                     scope.DisposeSafely();
@@ -478,7 +480,7 @@ namespace Xtensive.Orm
             SystemSetValue(field, oldValue, value);
             SystemSetValueCompleted(field, oldValue, value, null);
           }
-          scope.Complete();
+          scope?.Complete();
         }
         finally {
           if (removalContext == null)

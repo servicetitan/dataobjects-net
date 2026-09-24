@@ -16,14 +16,13 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// <summary>
   /// Hint for update data operation.
   /// </summary>
-  [Serializable]
   public class UpdateDataHint : DataHint
   {
     /// <summary>
     /// Gets the update parameter. The first is updated column path, 
     /// the second is new value or null (default value).
     /// </summary>
-    public IReadOnlyList<(string, object)> UpdateParameter { get; private set; }
+    public IReadOnlyList<(string, object)> UpdateParameter { get; }
 
     /// <inheritdoc/>
     public override List<HintTarget> GetTargets()

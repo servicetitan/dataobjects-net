@@ -11,7 +11,6 @@ namespace Xtensive.Core
   /// <summary>
   /// Universal alias generator.
   /// </summary>
-  [Serializable]
   public struct AliasGenerator(IReadOnlyList<string> prefixSequence, CompositeFormat aliasTemplate)
   {
     /// <summary>

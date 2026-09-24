@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Rse;
 /// <summary>
 /// Collection of <see cref="Column"/> items.
 /// </summary>
-[Serializable]
 public readonly struct ColumnCollection
 {
   private readonly Dictionary<string, int> nameIndex;

@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Rse
   /// <summary>
   /// System column of the <see cref="RecordSetHeader"/>.
   /// </summary>
-  [Serializable]
   public class SystemColumn : DerivedColumn
   {
     /// <inheritdoc/>
@@ -22,10 +21,7 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <inheritdoc/>
-    public override SystemColumn Clone(string newName)
-    {
-      return new SystemColumn(this, newName);
-    }
+    public override SystemColumn Clone(string newName) => new SystemColumn(this, newName);
 
     /// <summary>
     /// Initializes a new instance of this class.

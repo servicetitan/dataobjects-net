@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Rse
   /// <summary>
   /// Descriptor of the calculated column.
   /// </summary>
-  [Serializable]
   public readonly record struct CalculatedColumnDescriptor
   (
     string Name,

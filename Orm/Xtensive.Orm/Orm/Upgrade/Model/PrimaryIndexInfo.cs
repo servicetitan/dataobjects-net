@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// Primary index.
   /// </summary>
-  [Serializable]
   public sealed class PrimaryIndexInfo : StorageIndexInfo
   {
     /// <summary>
@@ -33,7 +32,7 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       var keySet = KeyColumns.Select(kc => kc.Value).ToHashSet();
       foreach (var column in Parent.Columns.Where(c => !keySet.Contains(c)))
-        new ValueColumnRef(this, column);
+        _ = new ValueColumnRef(this, column);
     }
 
     /// <inheritdoc/>
@@ -42,7 +41,6 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
-        base.ValidateState();
 
         var tableColumns = Parent.Columns;
         var keys = KeyColumns.Select(keyRef => keyRef.Value).ToArray(KeyColumns.Count);
@@ -81,7 +79,7 @@ namespace Xtensive.Orm.Upgrade.Model
     protected override void Initialize()
     {
       base.Initialize();
-      if (ValueColumns==null)
+      if (ValueColumns is null)
         ValueColumns = new ValueColumnRefCollection(this);
     }
 

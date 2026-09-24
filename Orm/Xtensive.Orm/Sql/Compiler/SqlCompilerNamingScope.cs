@@ -11,7 +11,6 @@ namespace Xtensive.Sql.Compiler
   /// <summary>
   /// SQL compiler naming scope.
   /// </summary>
-  [Serializable]
   public readonly struct SqlCompilerNamingScope(SqlCompilerContext context, SqlCompilerNamingOptions parentOptions = default) : IDisposable
   {
     /// <inheritdoc/>

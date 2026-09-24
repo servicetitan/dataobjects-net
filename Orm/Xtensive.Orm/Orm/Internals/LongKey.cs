@@ -10,7 +10,6 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {
-  [Serializable]
   internal sealed class LongKey(string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, Tuple value) : Key(nodeId, type, accuracy, value)
   {
     /// <inheritdoc/>

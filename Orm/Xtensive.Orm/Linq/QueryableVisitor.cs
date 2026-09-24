@@ -13,7 +13,6 @@ namespace Xtensive.Linq;
 /// <summary>
 /// Abstract base visitor that handles methods of <see cref="IQueryable"/> and <see cref="IEnumerable{T}"/> by calling <see cref="VisitQueryableMethod"/>.
 /// </summary>
-[Serializable]
 public abstract class QueryableVisitor : ExpressionVisitor
 {
   private static readonly FrozenDictionary<string, QueryableMethodKind> QueryableMethodKindFromName = new Dictionary<string, QueryableMethodKind>() {

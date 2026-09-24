@@ -7,24 +7,15 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlDropView : SqlStatement, ISqlCompileUnit
   {
-    private bool cascade = true;
-
     public View View { get; }
 
-    public bool Cascade {
-      get {
-        return cascade;
-      }
-      set {
-        cascade = value;
-      }
-    }
+    public bool Cascade { get; set; } = true;
 
     internal override SqlDropView Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) => new(t.View));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlDropView(t.View, t.Cascade));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -39,7 +30,7 @@ namespace Xtensive.Sql.Ddl
     internal SqlDropView(View view, bool cascade) : base(SqlNodeType.Drop)
     {
       View = view;
-      this.cascade = cascade;
+      Cascade = cascade;
     }
   }
 }

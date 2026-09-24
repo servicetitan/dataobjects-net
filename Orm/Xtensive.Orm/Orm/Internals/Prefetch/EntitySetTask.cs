@@ -41,7 +41,6 @@ namespace Xtensive.Orm.Internals.Prefetch
     }
   }
 
-  [Serializable]
   internal sealed class EntitySetTask : IEquatable<EntitySetTask>
   {
     private static readonly Parameter<Tuple> ownerParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);

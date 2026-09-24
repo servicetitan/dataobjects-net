@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// Foreign key.
   /// </summary>
-  [Serializable]
   [DataDependent]
   public sealed class ForeignKeyInfo : NodeBase<TableInfo>
   {
@@ -30,9 +29,8 @@ namespace Xtensive.Orm.Upgrade.Model
     [Property(Priority = -1100)]
     public PrimaryIndexInfo PrimaryKey
     {
-      get { return primaryKey; }
-      set
-      {
+      get => primaryKey;
+      set {
         EnsureIsEditable();
         using (var scope = LogPropertyChange("PrimaryKey", value)) {
           primaryKey = value;
@@ -53,9 +51,8 @@ namespace Xtensive.Orm.Upgrade.Model
     [Property(Priority = -110)]
     public ReferentialAction OnRemoveAction
     {
-      get { return onRemoveAction; }
-      set
-      {
+      get => onRemoveAction;
+      set {
         EnsureIsEditable();
         using (var scope = LogPropertyChange("OnUpdateAction", value)) {
           onRemoveAction = value;
@@ -70,9 +67,8 @@ namespace Xtensive.Orm.Upgrade.Model
     [Property(Priority = -100)]
     public ReferentialAction OnUpdateAction
     {
-      get { return onUpdateAction; }
-      set
-      {
+      get => onUpdateAction;
+      set {
         EnsureIsEditable();
         using (var scope = LogPropertyChange("OnUpdateAction", value)) {
           onUpdateAction = value;
@@ -88,10 +84,8 @@ namespace Xtensive.Orm.Upgrade.Model
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
 
-        if (PrimaryKey == null) {
-          ea.Execute(() => {
-            throw new ValidationException(Strings.ExUndefinedPrimaryKey, Path);
-          });
+        if (PrimaryKey is null) {
+          ea.Add(new ValidationException(Strings.ExUndefinedPrimaryKey, Path), handle: true);
           ea.Complete();
           return;
         }
@@ -107,14 +101,6 @@ namespace Xtensive.Orm.Upgrade.Model
               Strings.ExInvalidForeignKeyStructure, Path);
           });
         }
-
-        // var pkTypes = PrimaryKey.KeyColumns.Select(c => c.Value.Type);
-        // var fkTypes = ForeignKeyColumns.Select(c => c.Value.Type);
-        // if (pkTypes.Count()!=pkTypes.Zip(fkTypes).Where(p => p.First==p.Second).Count())
-        //  ea.Execute(() => {
-        //    throw new ValidationException(
-        //      Strings.ExInvalidForeignKeyStructure, Path);
-        //  });
 
         ea.Complete();
       }
@@ -137,7 +123,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     private static bool CompareKeyColumns(KeyColumnRef first, ForeignKeyColumnRef second)
     {
-      if (first == null || second == null)
+      if (first is null || second is null)
         return false;
 
       return first.Index==second.Index 

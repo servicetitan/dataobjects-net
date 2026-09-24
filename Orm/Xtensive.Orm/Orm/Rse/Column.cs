@@ -9,7 +9,6 @@ namespace Xtensive.Orm.Rse;
 /// <summary>
 /// Base class for any column of the <see cref="RecordSetHeader"/>.
 /// </summary>
-[Serializable]
 public abstract class Column(string name, ColNum index, Type type) : IEquatable<Column>
 {
   /// <summary>

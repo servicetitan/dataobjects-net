@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// Storage node configuration.
   /// </summary>
-  [Serializable]
   public class NodeConfiguration : LockableBase, ICloneable
   {
     private string nodeId;

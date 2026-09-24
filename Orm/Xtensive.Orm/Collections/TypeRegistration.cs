@@ -12,7 +12,6 @@ namespace Xtensive.Collections;
 /// <summary>
 /// Describes a single type registration call to <see cref="TypeRegistry"/>.
 /// </summary>
-[Serializable]
 [DebuggerDisplay("Type = {Type}, Assembly = {Assembly}, Namespace = {Namespace}")]
 public readonly struct TypeRegistration : IEquatable<TypeRegistration>
 {
@@ -60,6 +59,7 @@ public readonly struct TypeRegistration : IEquatable<TypeRegistration>
   {
     ArgumentNullException.ThrowIfNull(type);
     Type = type;
+
   }
 
   /// <summary>

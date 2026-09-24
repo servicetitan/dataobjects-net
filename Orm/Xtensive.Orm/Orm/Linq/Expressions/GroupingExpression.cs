@@ -12,19 +12,21 @@ using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  [Serializable]
   internal sealed class GroupingExpression : SubQueryExpression
   {
     public class SelectManyGroupingInfo
     {
-      public ProjectionExpression GroupByProjection { get; private set; }
+      public ProjectionExpression GroupByProjection { get; }
 
-      public ProjectionExpression GroupJoinOuterProjection { get; private set; }
-      public ProjectionExpression GroupJoinInnerProjection { get; private set; }
-      public LambdaExpression GroupJoinOuterKeySelector { get; private set; }
-      public LambdaExpression GroupJoinInnerKeySelector { get; private set; }
+      public ProjectionExpression GroupJoinOuterProjection { get; }
+      public ProjectionExpression GroupJoinInnerProjection { get; }
+      public LambdaExpression GroupJoinOuterKeySelector { get; }
+      public LambdaExpression GroupJoinInnerKeySelector { get; }
 
-      public SelectManyGroupingInfo(ProjectionExpression groupJoinOuterProjection, ProjectionExpression groupJoinInnerProjection, LambdaExpression groupJoinOuterKeySelector, LambdaExpression groupJoinInnerKeySelector)
+      public SelectManyGroupingInfo(ProjectionExpression groupJoinOuterProjection,
+        ProjectionExpression groupJoinInnerProjection,
+        LambdaExpression groupJoinOuterKeySelector,
+        LambdaExpression groupJoinInnerKeySelector)
       {
         GroupJoinOuterProjection = groupJoinOuterProjection;
         GroupJoinInnerProjection = groupJoinInnerProjection;
@@ -46,7 +48,7 @@ namespace Xtensive.Orm.Linq.Expressions
     {
       if (processedExpressions.TryGetValue(this, out var value))
         return (ParameterizedExpression) value;
-      if (!(KeyExpression is IMappedExpression mappedKey))
+      if (KeyExpression is not IMappedExpression mappedKey)
         return this;
       var processedKey = mappedKey.BindParameter(parameter, processedExpressions);
       var result = new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter, processedKey, SelectManyInfo);
@@ -56,11 +58,9 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
+      if (processedExpressions.TryGetValue(this, out var result))
         return result;
-      var mappedKey = KeyExpression as IMappedExpression;
-      if (mappedKey==null)
+      if (KeyExpression is not IMappedExpression mappedKey)
         return this;
       var processedKey = mappedKey.RemoveOuterParameter(processedExpressions);
       result = new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter, processedKey, SelectManyInfo);

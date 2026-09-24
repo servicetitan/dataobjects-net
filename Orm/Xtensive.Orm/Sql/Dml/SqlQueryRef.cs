@@ -8,25 +8,19 @@ using System.Linq;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlQueryRef : SqlTable
   {
-    private readonly ISqlQueryExpression query;
-
     /// <summary>
     /// Gets the query statement.
     /// </summary>
     /// <value>The query statement.</value>
-    public ISqlQueryExpression Query
-    {
-      get { return query; }
-    }
+    public ISqlQueryExpression Query { get; }
 
     internal override SqlQueryRef Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) =>
-        t.query is SqlSelect ss
+        t.Query is SqlSelect ss
           ? new(ss.Clone(c), t.Name)
-          : new(((SqlQueryExpression) t.query).Clone(c), t.Name));
+          : new(((SqlQueryExpression) t.Query).Clone(c), t.Name));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -35,10 +29,10 @@ namespace Xtensive.Sql.Dml
 
     internal void PruneColumns(List<int> indicesToKeep)
     {
-      if (query is SqlSelect innerSelect && !innerSelect.Distinct) {
+      if (Query is SqlSelect innerSelect && !innerSelect.Distinct) {
         PruneSelectColumns(innerSelect.Columns, indicesToKeep);
       }
-      else if (query is SqlQueryExpression queryExpression && IsUnionAllTree(queryExpression)) {
+      else if (Query is SqlQueryExpression queryExpression && IsUnionAllTree(queryExpression)) {
         PruneQueryExpressionColumns(queryExpression, indicesToKeep);
       }
       else {
@@ -100,7 +94,7 @@ namespace Xtensive.Sql.Dml
     internal SqlQueryRef(ISqlQueryExpression query, string name)
       : base(name)
     {
-      this.query = query;
+      Query = query;
       var queryColumns = new List<SqlTableColumn>();
       foreach (var queryExpression in query) {
         if (queryExpression is SqlSelect sqlSelect) {

@@ -6,7 +6,6 @@
 
 namespace Xtensive.Orm.Upgrade.Model;
 
-[Serializable]
 public readonly struct PartialIndexFilterInfo : IEquatable<PartialIndexFilterInfo>
 {
   public string Expression { get; }

@@ -230,6 +230,15 @@ namespace Xtensive.Linq
              || xValue != null && yValue != null && xValue.Equals(yValue);
     }
 
+    private bool VisitDefault(DefaultExpression x, DefaultExpression y)
+    {
+      if (ReferenceEquals(x, y))
+        return true;
+      if (ReferenceEquals(x.Type, y.Type))
+        return true;
+      return false;
+    }
+
     private bool VisitConditional(ConditionalExpression x, ConditionalExpression y)
     {
       return Visit(x.Test, y.Test) && Visit(x.IfTrue, y.IfTrue) && Visit(x.IfFalse, y.IfFalse);

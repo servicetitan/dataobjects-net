@@ -18,7 +18,6 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq
 {
-  [Serializable]
   internal sealed class ItemToTupleConverter<TItem> : ItemToTupleConverter
   {
     private struct TupleTypeCollection
@@ -98,6 +97,7 @@ namespace Xtensive.Orm.Linq
     }
 
     private static readonly IReadOnlyList<ParameterExpression> ParamContextParams = [Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context")];
+    private static readonly ParameterExpression ParamContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
     private static readonly MethodInfo SelectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof(TItem), WellKnownOrmTypes.Tuple);
 
     private readonly Func<ParameterContext, IEnumerable<TItem>> enumerableFunc;

@@ -7,34 +7,28 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlUserColumn : SqlColumn
   {
-    private SqlExpression expression;
-
     /// <summary>
     /// Gets the column expression.
     /// </summary>
     /// <value>The expression.</value>
-    public SqlExpression Expression
-    {
-      get { return expression; }
-    }
+    public SqlExpression Expression { get; private set; }
 
     public override void ReplaceWith(SqlExpression expression)
     {
       var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlUserColumn>(expression);
-      this.expression = replacingExpression.Expression;
+      Expression = replacingExpression.Expression;
     }
 
     internal override SqlUserColumn Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) => new(t.expression.Clone(c)));
+      context.GetOrAdd(this, static (t, c) => new(t.Expression.Clone(c)));
 
     // Constructor
 
     internal SqlUserColumn(SqlExpression expression)
     {
-      this.expression = expression;
+      Expression = expression;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor)

@@ -6,7 +6,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Tuples.Packed;
@@ -16,18 +15,14 @@ namespace Xtensive.Tuples
   /// <summary>
   /// A base class for auto generated tuples.
   /// </summary>
-  [DataContract]
-  [Serializable]
   public abstract class Tuple : ITuple, IEquatable<Tuple>
   {
     /// <inheritdoc />
-    [IgnoreDataMember]
     public abstract TupleDescriptor Descriptor { get; }
 
     /// <inheritdoc />
-    [IgnoreDataMember]
-    
-    public virtual int Count {
+    public virtual int Count
+    {
       [DebuggerStepThrough]
       get => Descriptor.Count;
     }

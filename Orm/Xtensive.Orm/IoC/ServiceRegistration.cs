@@ -15,7 +15,6 @@ namespace Xtensive.IoC
   /// <summary>
   /// Describes single service mapping entry for <see cref="ServiceContainer"/>.
   /// </summary>
-  [Serializable]
   public readonly struct ServiceRegistration
   {
     private static readonly ConcurrentDictionary<ServiceRegistrationKey, ServiceRegistration[]> serviceRegistrationsByType = new();

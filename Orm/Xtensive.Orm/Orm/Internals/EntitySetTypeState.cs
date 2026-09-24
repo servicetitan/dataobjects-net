@@ -9,7 +9,6 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals;
 
-[Serializable]
 internal record EntitySetTypeState(
   ExecutableProvider SeekProvider,
   Func<Tuple, Tuple, Tuple> SeekKeyBuilder,

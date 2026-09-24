@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// Name mapping collection.
   /// </summary>
-  [Serializable]
   public class NameMappingCollection : LockableBase, IEnumerable<KeyValuePair<string, string>>, ICloneable
   {
     /// <summary>
@@ -78,10 +77,7 @@ namespace Xtensive.Orm.Configuration
     /// Returns an enumerator that iterates through the collection.
     /// </summary>
     /// <returns>A <see cref="IEnumerator{T}" /> that can be used to iterate through the collection.</returns>
-    public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
-    {
-      return items.GetEnumerator();
-    }
+    public IEnumerator<KeyValuePair<string, string>> GetEnumerator() => items.GetEnumerator();
 
     /// <summary>
     /// Returns an enumerator that iterates through a collection.

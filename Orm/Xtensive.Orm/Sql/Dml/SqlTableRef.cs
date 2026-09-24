@@ -5,9 +5,6 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using Xtensive.Collections;
-using Xtensive.Core;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Dml
@@ -15,7 +12,6 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Describes a reference to <see cref="Table"/> object;
   /// </summary>
-  [Serializable]
   public class SqlTableRef : SqlTable
   {
     /// <summary>

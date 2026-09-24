@@ -6,7 +6,6 @@ using System;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public abstract class SqlHint : SqlNode
   {
     internal abstract override SqlHint Clone(SqlNodeCloneContext context);

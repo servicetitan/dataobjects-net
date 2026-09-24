@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Internals.Prefetch
   /// <summary>
   /// Descriptor of a field's fetching request.
   /// </summary>
-  [Serializable]
   public readonly struct PrefetchFieldDescriptor
   {
     private readonly Action<Key, FieldInfo, Key> keyExtractionSubscriber;

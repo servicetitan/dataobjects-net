@@ -31,7 +31,6 @@ namespace Xtensive.Orm.Model
   /// Represents an object describing any persistent type.
   /// </summary>
   [DebuggerDisplay("{underlyingType}")]
-  [Serializable]
   public sealed class TypeInfo : SchemaMappedNode
   {
     /// <summary>

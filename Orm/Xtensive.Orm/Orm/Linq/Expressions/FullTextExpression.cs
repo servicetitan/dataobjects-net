@@ -15,8 +15,8 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  [Serializable]
-  internal sealed class FullTextExpression : ParameterizedExpression
+  internal sealed class FullTextExpression : ParameterizedExpression,
+    IMappedExpression
   {
     public FullTextIndexInfo FullTextIndex { get; private set; }
 
@@ -26,8 +26,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override ParameterizedExpression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
+      if (processedExpressions.TryGetValue(this, out var result))
         return (ParameterizedExpression) result;
 
       var entityExpression = EntityExpression.BindParameter(parameter, processedExpressions);
@@ -37,8 +36,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
+      if (processedExpressions.TryGetValue(this, out var result))
         return result;
 
       var entityExpression = EntityExpression.RemoveOuterParameter(processedExpressions);
@@ -51,8 +49,7 @@ namespace Xtensive.Orm.Linq.Expressions
       if (!CanRemap)
         return this;
 
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
+      if (processedExpressions.TryGetValue(this, out var result))
         return result;
 
       var remappedEntityExpression = EntityExpression.Remap(offset, processedExpressions);
@@ -65,8 +62,7 @@ namespace Xtensive.Orm.Linq.Expressions
       if (!CanRemap)
         return this;
 
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
+      if (processedExpressions.TryGetValue(this, out var result))
         return result;
 
       var remappedEntityExpression = EntityExpression.Remap(map, processedExpressions);
