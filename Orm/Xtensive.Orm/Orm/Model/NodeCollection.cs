@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Model
   /// A base class for collection of nodes in model.
   /// </summary>
   /// <typeparam name="TNode">The type of the node.</typeparam>
-  [Serializable]
   public class NodeCollection<TNode> : CollectionBaseSlim<TNode>
     where TNode: Node
   {
@@ -39,9 +38,10 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the full name.
     /// </summary>
-    public string FullName {
+    public string FullName
+    {
       get {
-        return Owner==null 
+        return Owner is null
           ? Name
           : string.Format(Strings.NodeCollectionFullNameFormat, Owner.Name, Name);
       }
@@ -114,10 +114,7 @@ namespace Xtensive.Orm.Model
     /// <see langword="true"/> if this instance contains the specified key; otherwise, <see langword="false"/>.
     /// </returns>
     [DebuggerStepThrough]
-    public bool Contains(string key)
-    {
-      return NameIndex.ContainsKey(key);
-    }
+    public bool Contains(string key) => NameIndex.ContainsKey(key);
 
 
     /// <summary>
@@ -127,10 +124,7 @@ namespace Xtensive.Orm.Model
     /// <param name="value"><typeparamref name="TNode"/> if it was found; otherwise <see langword="null"/>.</param>
     /// <returns><see langword="true"/> if value is found by specified <paramref name="key"/>; otherwise <see langword="false"/>.</returns>
     [DebuggerStepThrough]
-    public bool TryGetValue(string key, out TNode value)
-    {
-      return NameIndex.TryGetValue(key, out value);
-    }
+    public bool TryGetValue(string key, out TNode value) => NameIndex.TryGetValue(key, out value);
 
     /// <summary>
     /// An indexer that provides access to collection items.
@@ -149,9 +143,7 @@ namespace Xtensive.Orm.Model
     }
 
     protected virtual string GetExceptionMessage(string key)
-    {
-      return string.Format(Strings.ExItemWithKeyXWasNotFound, key);
-    }
+      => string.Format(Strings.ExItemWithKeyXWasNotFound, key);
 
     /// <inheritdoc/>
     public override void Lock(bool recursive = true)

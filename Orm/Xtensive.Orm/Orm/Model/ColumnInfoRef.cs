@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Loosely-coupled reference that describes <see cref="ColumnInfo"/> instance.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("TypeName = {TypeName}, FieldName = {FieldName}, ColumnName = {ColumnName}, CultureInfo = {CultureInfo}")]
   public readonly struct ColumnInfoRef : IEquatable<ColumnInfoRef>
   {

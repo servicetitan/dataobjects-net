@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Loosely-coupled reference that describes <see cref="IndexInfo"/> instance.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("IndexName = {IndexName}, TypeName = {TypeName}")]
   public readonly struct IndexInfoRef(IndexInfo indexInfo)
   {

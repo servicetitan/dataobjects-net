@@ -10,7 +10,6 @@ namespace Xtensive.Orm.Rse.Providers;
 /// Abstract base class for any query provider,
 /// that requires storage-specific compilation before in can be executed.
 /// </summary>
-[Serializable]
 public abstract class CompilableProvider(ProviderType type, RecordSetHeader header, params Provider[] sources) : Provider(type, header, sources)
 {
   internal abstract Provider Visit(ProviderVisitor visitor);

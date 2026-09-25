@@ -14,7 +14,6 @@ using Xtensive.Orm.Tests.Storage.ActivatorModel;
 
 namespace Xtensive.Orm.Tests.Storage.ActivatorModel
 {
-  [Serializable]
   [HierarchyRoot]
   public abstract class Ancestor : Entity
   {
@@ -22,14 +21,12 @@ namespace Xtensive.Orm.Tests.Storage.ActivatorModel
     public int ID { get; private set; }
   }
 
-  [Serializable]
   public class Descendant : Ancestor
   {
     [Field]
     public int Number { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class InitializebleClass : Entity
   {

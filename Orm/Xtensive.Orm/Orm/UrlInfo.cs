@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2007.06.08
 
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -61,12 +60,9 @@ namespace Xtensive.Orm;
 /// </pre>
 /// </para>
 /// </remarks>
-[Serializable]
 [DebuggerDisplay("{Url}")]
-[TypeConverter(typeof(UrlInfoConverter))]
-public sealed record UrlInfo
-(
-) : IComparable<UrlInfo>
+public sealed record UrlInfo() :
+  IComparable<UrlInfo>
 {
   private static readonly Regex Pattern = new Regex(
         @"^(?'proto'[^:]*[^sS])(?'secure'[sS]?)://" +

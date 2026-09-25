@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Rse;
 /// <summary>
 /// Mapped column of the <see cref="RecordSetHeader"/>.
 /// </summary>
-[Serializable]
 public class MappedColumn(ColumnInfoRef columnInfoRef, string name, ColNum index, Type type)
   : Column(name, index, type)
 {

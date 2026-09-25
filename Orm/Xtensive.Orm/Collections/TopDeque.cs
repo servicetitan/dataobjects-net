@@ -19,7 +19,6 @@ namespace Xtensive.Collections
   /// </summary>
   /// <typeparam name="K">Type of the key.</typeparam>
   /// <typeparam name="V">Type of the value.</typeparam>
-  [Serializable]
   [DebuggerDisplay("Count = {Count}")]
   public class TopDeque<K, V> : ITopDeque<K, V>
   {
@@ -65,8 +64,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public bool TryGetValue(K key, bool moveToTop, out V value)
     {
-      LinkedListNode<(K, V)> valueContainer;
-      if (map.TryGetValue(key, out valueContainer)) {
+      if (map.TryGetValue(key, out var valueContainer)) {
         if (moveToTop) {
           list.Remove(valueContainer);
           list.AddFirst(valueContainer);
@@ -81,8 +79,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public bool TryChangeValue(K key, V value, bool moveToTop, bool replaceIfExists, out V oldValue)
     {
-      LinkedListNode<(K, V)> valueContainer;
-      if (map.TryGetValue(key, out valueContainer)) {
+      if (map.TryGetValue(key, out var valueContainer)) {
         oldValue = valueContainer.Value.Item2;
         if (moveToTop) {
           list.Remove(valueContainer);
@@ -107,10 +104,7 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    public bool Contains(K key)
-    {
-      return map.ContainsKey(key);
-    }
+    public bool Contains(K key) => map.ContainsKey(key);
 
     #region Properties: TopXxx, BottomXxx
 
@@ -194,8 +188,7 @@ namespace Xtensive.Collections
     /// <exception cref="KeyNotFoundException">There is no specified key.</exception>
     public void MoveToTop(K key)
     {
-      LinkedListNode<(K, V)> valueContainer;
-      if (!map.TryGetValue(key, out valueContainer))
+      if (!map.TryGetValue(key, out var valueContainer))
         throw new KeyNotFoundException(Strings.ExNoObjectWithSpecifiedKey);
       list.Remove(valueContainer);
       list.AddFirst(valueContainer);
@@ -205,8 +198,7 @@ namespace Xtensive.Collections
     /// <exception cref="KeyNotFoundException">There is no specified key.</exception>
     public void MoveToBottom(K key)
     {
-      LinkedListNode<(K, V)> valueContainer;
-      if (!map.TryGetValue(key, out valueContainer))
+      if (!map.TryGetValue(key, out var valueContainer))
         throw new KeyNotFoundException(Strings.ExNoObjectWithSpecifiedKey);
       list.Remove(valueContainer);
       list.AddLast(valueContainer);
@@ -271,10 +263,7 @@ namespace Xtensive.Collections
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc/>
     public IEnumerator<V> GetEnumerator()

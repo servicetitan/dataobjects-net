@@ -7,7 +7,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public abstract class SqlColumn : SqlExpression
   {
     /// <summary>
@@ -38,7 +37,5 @@ namespace Xtensive.Sql.Dml
       SqlTable = sqlTable;
       Name = name;
     }
-
-    internal SqlColumn(string name) : this(null, name) { }
   }
 }

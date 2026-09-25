@@ -15,8 +15,8 @@ using Xtensive.Collections;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  [Serializable]
-  internal class SubQueryExpression : ParameterizedExpression
+  internal class SubQueryExpression : ParameterizedExpression,
+    IMappedExpression
   {
     public ProjectionExpression ProjectionExpression { get; }
 

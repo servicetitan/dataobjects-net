@@ -15,7 +15,6 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Linq
 {
-  [Serializable]
   internal abstract class ItemToTupleConverter
   {
     protected static readonly Type RefOfTType = typeof(Ref<>);
@@ -28,5 +27,6 @@ namespace Xtensive.Orm.Linq
 
     public static ItemToTupleConverter BuildConverter<TItem>(Type storedEntityType, Func<ParameterContext, IEnumerable<TItem>> enumerable, DomainModel model, Expression sourceExpression) =>
       new ItemToTupleConverter<TItem>(enumerable, model, sourceExpression, storedEntityType);
+
   }
 }

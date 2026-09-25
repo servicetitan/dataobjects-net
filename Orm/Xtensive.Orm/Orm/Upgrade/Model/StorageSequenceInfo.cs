@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Upgrade.Model
   /// <summary>
   /// Sequence.
   /// </summary>
-  [Serializable]
   public sealed class StorageSequenceInfo : NodeBase<StorageModel>
   {
     private StorageTypeInfo type;
@@ -90,12 +89,8 @@ namespace Xtensive.Orm.Upgrade.Model
     {
       using (var ea = new ExceptionAggregator()) {
         ea.Execute(base.ValidateState);
-        if (Increment<=0) {
-          ea.Execute(() => {
-            throw new ValidationException(
-              string.Format(Strings.ExInvalideIncrementValue),
-              Path);
-          });
+        if (Increment <= 0) {
+          ea.Add(new ValidationException(string.Format(Strings.ExInvalideIncrementValue), Path), handle: true);
         }
         if (Type is null) {
           ea.Execute(() => {

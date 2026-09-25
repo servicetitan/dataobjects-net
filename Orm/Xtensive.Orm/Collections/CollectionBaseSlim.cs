@@ -13,7 +13,6 @@ namespace Xtensive.Collections;
 /// <summary>
 /// Lightweight base class for any collection.
 /// </summary>
-[Serializable]
 [DebuggerDisplay("Count = {Count}")]
 public class CollectionBaseSlim<TItem> : List<TItem>, ILockable
 {

@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Model;
 /// <summary>
 /// Describes a group of columns that belongs to the specified <see cref="TypeInfoRef"/>.
 /// </summary>
-[Serializable]
 [DebuggerDisplay("Type = {TypeInfoRef}, Keys = {Keys}, Columns = {Columns}")]
 public readonly record struct ColumnGroup
 (

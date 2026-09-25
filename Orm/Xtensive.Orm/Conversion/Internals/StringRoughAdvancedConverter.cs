@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2026 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -9,7 +9,6 @@ using System.Globalization;
 
 namespace Xtensive.Conversion
 {
-  [Serializable]
   internal class StringRoughAdvancedConverter(IAdvancedConverterProvider provider) :
     RoughAdvancedConverterBase(provider),
     IAdvancedConverter<string, bool>,
@@ -24,15 +23,18 @@ namespace Xtensive.Conversion
     IAdvancedConverter<string, float>,
     IAdvancedConverter<string, double>,
     IAdvancedConverter<string, decimal>,
+    IAdvancedConverter<string, DateTimeOffset>,
     IAdvancedConverter<string, DateTime>,
+    IAdvancedConverter<string, DateOnly>,
+    IAdvancedConverter<string, TimeOnly>,
     IAdvancedConverter<string, TimeSpan>,
-    IAdvancedConverter<string, Guid>
+    IAdvancedConverter<string, Guid>,
+    IAdvancedConverter<string, char>
   {
     private const string HexPrefix = "0x";
     private static readonly string[] DateTimeFormatStrings = ["yyyy/MM/dd hh:mm:ss.fffffff tt K "];
 
-    bool IAdvancedConverter<string, bool>.Convert(string value) =>
-      bool.Parse(value);
+    bool IAdvancedConverter<string, bool>.Convert(string value) => bool.Parse(value);
 
     byte IAdvancedConverter<string, byte>.Convert(string value)
     {
@@ -155,6 +157,17 @@ namespace Xtensive.Conversion
     decimal IAdvancedConverter<string, decimal>.Convert(string value) =>
       decimal.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
 
+    DateTimeOffset IAdvancedConverter<string, DateTimeOffset>.Convert(string value)
+    {
+      string[] strings = { "yyyy/MM/dd hh:mm:ss.fffffff tt zzz", "yyyy/MM/dd hh:mm:ss.fffffff ttzzz" };
+      try {
+        return DateTimeOffset.ParseExact(value, strings, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces);
+      }
+      catch (FormatException) {
+        return DateTimeOffset.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces);
+      }
+    }
+
     DateTime IAdvancedConverter<string, DateTime>.Convert(string value)
     {
       try {
@@ -165,10 +178,32 @@ namespace Xtensive.Conversion
       }
     }
 
-    TimeSpan IAdvancedConverter<string, TimeSpan>.Convert(string value) =>
-      TimeSpan.Parse(value);
+    DateOnly IAdvancedConverter<string, DateOnly>.Convert(string value)
+    {
+      string[] strings = { "yyyy/MM/dd" };
+      try {
+        return DateOnly.ParseExact(value, strings, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces);
+      }
+      catch (FormatException) {
+        return DateOnly.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces);
+      }
+    }
 
-    Guid IAdvancedConverter<string, Guid>.Convert(string value) => 
-      new(value);
+    TimeOnly IAdvancedConverter<string, TimeOnly>.Convert(string value)
+    {
+      string[] strings = { "hh:mm:ss.fffffff tt" };
+      try {
+        return TimeOnly.ParseExact(value, strings, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces);
+      }
+      catch (FormatException) {
+        return TimeOnly.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces);
+      }
+    }
+
+    TimeSpan IAdvancedConverter<string, TimeSpan>.Convert(string value) => TimeSpan.Parse(value);
+
+    Guid IAdvancedConverter<string, Guid>.Convert(string value) => new Guid(value);
+
+    char IAdvancedConverter<string, char>.Convert(string value) => char.Parse(value);
   }
 }

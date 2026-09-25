@@ -15,8 +15,8 @@ using Xtensive.Orm.Linq.Expressions.Visitors;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
-  [Serializable]
-  internal sealed class LocalCollectionExpression : ParameterizedExpression
+  internal sealed class LocalCollectionExpression : ParameterizedExpression,
+    IMappedExpression
   {
     // just to have good error
     private readonly string expressionAsString;

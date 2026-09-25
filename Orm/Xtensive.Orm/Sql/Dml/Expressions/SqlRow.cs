@@ -8,7 +8,6 @@ using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlRow: SqlExpressionList
   {
     internal override SqlRow Clone(SqlNodeCloneContext context) =>

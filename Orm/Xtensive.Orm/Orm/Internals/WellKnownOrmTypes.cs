@@ -59,5 +59,7 @@ namespace Xtensive.Orm.Internals
     public static readonly Type Entity = typeof(IEntity);
     public static readonly Type ObjectValidator = typeof(IObjectValidator);
     public static readonly Type PropertyValidator = typeof(IPropertyValidator);
+
+    public static readonly Type OperationRegistry = typeof(IOperationRegistry);
   }
 }

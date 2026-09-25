@@ -15,18 +15,17 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// <summary>
   /// An abstract base class for all data hints.
   /// </summary>
-  [Serializable]
   public abstract class DataHint : Hint
   {
     /// <summary>
     /// Gets the source table path.
     /// </summary>
-    public string SourceTablePath { get; private set; }
+    public string SourceTablePath { get; }
 
     /// <summary>
     /// Gets the identities for data operation.
     /// </summary>
-    public IReadOnlyList<IdentityPair> Identities { get; private set; }
+    public IReadOnlyList<IdentityPair> Identities { get; }
     
     /// <inheritdoc/>
     public override List<HintTarget> GetTargets()

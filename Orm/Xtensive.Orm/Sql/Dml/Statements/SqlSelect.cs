@@ -11,15 +11,13 @@ namespace Xtensive.Sql.Dml
   /// <summary>
   /// Represents SQL SELECT statement.
   /// </summary>
-  [Serializable]
   public class SqlSelect
     : SqlQueryStatement,
       ISqlQueryExpression
   {
     private readonly SqlUserColumn asterisk = SqlDml.Column(SqlDml.Asterisk);
-    private readonly SqlColumnCollection columns;
-    private SqlLockType _lock;
-    private SqlColumnCollection groupBy;
+    private readonly SqlColumnCollection columns = new SqlColumnCollection();
+    private SqlColumnCollection groupBy = new SqlColumnCollection();
     private SqlExpression having;
     private SqlOrderCollection orderBy;
     private SqlExpression where;
@@ -107,11 +105,7 @@ namespace Xtensive.Sql.Dml
 
     public SqlUserColumn Asterisk => asterisk;
 
-    public SqlLockType Lock
-    {
-      get { return _lock; }
-      set { _lock = value; }
-    }
+    public SqlLockType Lock { get; set; }
 
     /// <summary>
     /// Gets or sets the limit.

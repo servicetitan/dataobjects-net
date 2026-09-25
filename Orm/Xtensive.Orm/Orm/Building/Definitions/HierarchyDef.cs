@@ -14,13 +14,12 @@ namespace Xtensive.Orm.Building.Definitions
   /// <summary>
   /// Defines a signle persistent type hierarchy.
   /// </summary>
-  [Serializable]
   public sealed class HierarchyDef : Node
   {
     /// <summary>
     /// Gets the root of the hierarchy.
     /// </summary>
-    public TypeDef Root { get; private set; }
+    public TypeDef Root { get; }
 
     /// <summary>
     /// Gets the fields that are included in the key for this hierarchy.

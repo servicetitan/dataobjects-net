@@ -28,21 +28,13 @@ namespace Xtensive.Modelling
 
     private Func<object, object> getter;
     private Action<object, object> setter;
-    [NonSerialized]
     private bool isSystem;
-    [NonSerialized]
     private int priority;
-    [NonSerialized]
     private bool ignoreInComparison;
-    [NonSerialized]
     private bool compareCaseInsensitive;
-    [NonSerialized]
     private bool isImmutable;
-    [NonSerialized]
     private bool isVolatile;
-    [NonSerialized]
     private bool recreateParent;
-    [NonSerialized]
     private Type dependencyRootType;
 
     /// <summary>
@@ -146,7 +138,7 @@ namespace Xtensive.Modelling
     /// </summary>
     public IPathNode GetDependencyRoot(IPathNode source)
     {
-      if (source==null)
+      if (source is null)
         return null;
       if (DependencyRootType.IsAssignableFrom(source.GetType()))
         return source;
@@ -166,12 +158,12 @@ namespace Xtensive.Modelling
       var tType = propertyInfo.DeclaringType;
       var tProperty = propertyInfo.PropertyType;
       var sa = propertyInfo.GetAttribute<SystemPropertyAttribute>(AttributeSearchOptions.InheritNone);
-      isSystem = sa!=null;
+      isSystem = sa is not null;
       ignoreInComparison = isSystem;
       isVolatile = isSystem;
       isImmutable = false;
       var pa = propertyInfo.GetAttribute<PropertyAttribute>(AttributeSearchOptions.InheritNone);
-      if (pa!=null) {
+      if (pa is not null) {
         priority = pa.Priority;
         ignoreInComparison |= pa.IgnoreInComparison;
         isVolatile |= pa.IsVolatile;
@@ -187,14 +179,14 @@ namespace Xtensive.Modelling
     {
       Default = default(TProperty);
       var propertyInfo = PropertyInfo;
-      if (propertyInfo.GetGetMethod()!=null) {
+      if (propertyInfo.GetGetMethod() is not null) {
         var d = DelegateHelper.CreateGetMemberDelegate<TType, TProperty>(PropertyInfo.Name);
-        if (d!=null)
+        if (d is not null)
           getter = o => d((TType) o);
       }
       if (propertyInfo.GetSetMethod()!=null) {
         var d = DelegateHelper.CreateSetMemberDelegate<TType, TProperty>(PropertyInfo.Name);
-        if (d!=null)
+        if (d is not null)
           setter = (o,v) => d((TType) o, (TProperty) v);
       }
     }

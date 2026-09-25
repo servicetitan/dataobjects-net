@@ -12,7 +12,6 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// <summary>
   /// Hint target reference.
   /// </summary>
-  [Serializable]
   public readonly struct HintTarget : IEquatable<HintTarget>
   {
     /// <summary>

@@ -7,8 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Security;
 using Xtensive.Core;
 
 namespace Xtensive.Orm
@@ -17,8 +15,7 @@ namespace Xtensive.Orm
   /// Maps local ("disconnected") <see cref="Key"/> instances
   /// to actual (storage) <see cref="Key"/> instances.
   /// </summary>
-  [Serializable]
-  public readonly struct KeyMapping : ISerializable
+  public readonly struct KeyMapping
   {
     /// <summary>
     /// Gets the key map.
@@ -66,34 +63,6 @@ namespace Xtensive.Orm
     public KeyMapping(IReadOnlyDictionary<Key,Key> map)
     {
       Map = map;
-    }
-
-    // Serialization
-
-    /// <inheritdoc/>
-    [SecurityCritical]
-    void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      var serializedMapping = new Dictionary<Ref<Entity>, Ref<Entity>>();
-      foreach (var pair in Map)
-        serializedMapping.Add(pair.Key, pair.Value);
-
-      info.AddValue("Map", serializedMapping, typeof(Dictionary<Ref<Entity>, Ref<Entity>>));
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="KeyMapping"/> class.
-    /// </summary>
-    /// <param name="info">The info.</param>
-    /// <param name="context">The context.</param>
-    private KeyMapping(SerializationInfo info, StreamingContext context)
-    {
-      var serializedMapping = (Dictionary<Ref<Entity>, Ref<Entity>>)
-        info.GetValue("Map", typeof(Dictionary<Ref<Entity>, Ref<Entity>>));
-      var map = new Dictionary<Key, Key>();
-      foreach (var pair in serializedMapping)
-        map.Add(pair.Key, pair.Value);
-      Map = map.AsSafeWrapper();
     }
   }
 }

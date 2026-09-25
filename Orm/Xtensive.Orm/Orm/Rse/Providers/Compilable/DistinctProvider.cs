@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// <summary>
   /// Distinct provider
   /// </summary>
-  [Serializable]
   public sealed class DistinctProvider : UnaryProvider
   {
     internal override Provider Visit(ProviderVisitor visitor) => visitor.VisitDistinct(this);

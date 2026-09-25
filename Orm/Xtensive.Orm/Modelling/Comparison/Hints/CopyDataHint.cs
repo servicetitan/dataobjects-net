@@ -16,7 +16,6 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// <summary>
   /// Hint for copy data operation.
   /// </summary>
-  [Serializable]
   public sealed class CopyDataHint : DataHint
   {
     /// <summary>

@@ -13,7 +13,6 @@ namespace Xtensive.Orm
   /// Table mapping attribute.
   /// </summary>
   [Obsolete("Deprecated due to problems with Model Upgrade. Create new Entity class instead and copy data to it by Upgrade Handler or Content Upgrade")]
-  [Serializable]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property,
     AllowMultiple = false, Inherited = false)]
   public sealed class TableMappingAttribute : StorageAttribute

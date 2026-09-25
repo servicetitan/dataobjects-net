@@ -7,29 +7,15 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl
 {
-  [Serializable]
   public class SqlDropDomain : SqlStatement, ISqlCompileUnit
   {
-    private Domain domain;
-    private bool cascade = true;
+    public Domain Domain { get; }
 
-    public Domain Domain {
-      get {
-        return domain;
-      }
-    }
-
-    public bool Cascade {
-      get {
-        return cascade;
-      }
-      set {
-        cascade = value;
-      }
-    }
+    public bool Cascade { get; set; } = true;
 
     internal override SqlDropDomain Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) => new(t.domain));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlDropDomain(t.Domain));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
@@ -38,13 +24,13 @@ namespace Xtensive.Sql.Ddl
 
     internal SqlDropDomain(Domain domain) : base(SqlNodeType.Drop)
     {
-      this.domain = domain;
+      Domain = domain;
     }
 
     internal SqlDropDomain(Domain domain, bool cascade) : base(SqlNodeType.Drop)
     {
-      this.domain = domain;
-      this.cascade = cascade;
+      Domain = domain;
+      Cascade = cascade;
     }
   }
 }

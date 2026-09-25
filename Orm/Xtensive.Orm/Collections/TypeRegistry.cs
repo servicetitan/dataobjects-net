@@ -16,7 +16,6 @@ namespace Xtensive.Collections
   /// <summary>
   /// <see cref="Type"/> registration endpoint.
   /// </summary>
-  [Serializable]
   public class TypeRegistry : LockableBase,
     IEnumerable<Type>,
     ICloneable
@@ -57,7 +56,7 @@ namespace Xtensive.Collections
       EnsureNotLocked();
       ArgumentNullException.ThrowIfNull(type);
       if (!isProcessingPendingActions)
-        Register(new TypeRegistration(type));
+        _ = Register(new TypeRegistration(type));
       else if (typeSet.Add(type)) {
         serviceRegistrations = null;
         types.Add(type);
@@ -77,7 +76,7 @@ namespace Xtensive.Collections
     {
       EnsureNotLocked();
       ArgumentNullException.ThrowIfNull(assembly);
-      Register(new TypeRegistration(assembly));
+      _ = Register(new TypeRegistration(assembly));
     }
 
     /// <summary>
@@ -95,7 +94,7 @@ namespace Xtensive.Collections
       EnsureNotLocked();
       ArgumentNullException.ThrowIfNull(assembly);
       ArgumentException.ThrowIfNullOrEmpty(@namespace);
-      Register(new TypeRegistration(assembly, @namespace));
+      _ = Register(new TypeRegistration(assembly, @namespace));
     }
 
     /// <summary>
@@ -168,10 +167,7 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     #endregion
 

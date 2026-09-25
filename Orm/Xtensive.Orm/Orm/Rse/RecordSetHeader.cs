@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Rse
   /// <summary>
   /// Header of <see cref="Provider"/>.
   /// </summary>
-  [Serializable]
   public sealed class RecordSetHeader
   {
     private static readonly DirectionCollection<ColNum> EmptyOrder = new DirectionCollection<ColNum>().InitLocked();

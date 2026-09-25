@@ -20,7 +20,6 @@ namespace Xtensive.Orm.Manual.Prefetch
 {
   #region Model
 
-  [Serializable]
   [HierarchyRoot]
   public class Person : Entity
   {

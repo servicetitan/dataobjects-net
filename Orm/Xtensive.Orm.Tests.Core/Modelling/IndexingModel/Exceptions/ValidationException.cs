@@ -5,9 +5,6 @@
 // Created:    2009.03.23
 
 using System;
-using System.Runtime.Serialization;
-using System.Security;
-using System.Security.Permissions;
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
@@ -16,7 +13,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   /// Describes errors detected during 
   /// <see cref="StorageInfo"/>.<see cref="Node.Validate"/> execution.
   /// </summary>
-  [Serializable]
   public class ValidationException : Exception
   {
     /// <summary>
@@ -49,25 +45,5 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     {
       NodePath = nodePath;
     }
-
-    #region Serializing members
-
-    /// <inheritdoc/>
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-    protected ValidationException(SerializationInfo info, StreamingContext context)
-      : base(info, context)
-    {
-      NodePath = info.GetString("NodePath");
-    }
-
-    /// <inheritdoc/>
-    [SecurityCritical]
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-    public override void GetObjectData(SerializationInfo info, StreamingContext context)
-    {
-      info.AddValue("NodePath", NodePath);
-    }
-
-    #endregion
   }
 }

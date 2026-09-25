@@ -12,7 +12,6 @@ namespace Xtensive.Sql.Compiler
   /// <summary>
   /// SQL parameter name provider.
   /// </summary>
-  [Serializable]
   public struct SqlParameterNameProvider(SqlCompilerConfiguration configuration)
   {
     private const string DefaultPrefix = "p";

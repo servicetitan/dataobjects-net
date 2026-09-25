@@ -5,8 +5,6 @@
 // Created:    2007.06.08
 
 using System;
-using System.Runtime.Serialization;
-
 
 
 namespace Xtensive.Core
@@ -15,8 +13,7 @@ namespace Xtensive.Core
   /// Thrown by <see cref="ILockable"/> implementors on attempts 
   /// to change instance properties in the locked state.
   /// </summary>
-  [Serializable]
-  public class InstanceIsLockedException : InvalidOperationException
+  public sealed class InstanceIsLockedException : InvalidOperationException
   {
     /// <summary>
     /// Initializes a new instance of this type.
@@ -32,17 +29,6 @@ namespace Xtensive.Core
     /// <param name="text">Text of message.</param>
     public InstanceIsLockedException(string text)
       : base(text)
-    {
-    }
-
-    /// <summary>
-    /// Deserialization constructor.
-    /// </summary>
-    /// <param name="info"><see cref="SerializationInfo"/> object.</param>
-    /// <param name="context"><see cref="StreamingContext"/> object.</param>
-    [Obsolete(DiagnosticId = "SYSLIB0051")]
-    protected InstanceIsLockedException(SerializationInfo info, StreamingContext context)
-      : base(info, context)
     {
     }
   }

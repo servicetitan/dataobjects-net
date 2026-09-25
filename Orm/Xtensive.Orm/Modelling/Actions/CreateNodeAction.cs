@@ -17,7 +17,6 @@ namespace Xtensive.Modelling.Actions
   /// <summary>
   /// Describes node creation.
   /// </summary>
-  [Serializable]
   public class CreateNodeAction : NodeAction
   {
     private Type type;
@@ -68,7 +67,7 @@ namespace Xtensive.Modelling.Actions
       get {
         if (!IsLocked)
           return parameters;
-        return parameters==null ? null : (object[]) parameters.Clone();
+        return parameters is null ? null : (object[]) parameters.Clone();
       }
       set {
         EnsureNotLocked();
@@ -83,9 +82,9 @@ namespace Xtensive.Modelling.Actions
       ArgumentNullException.ThrowIfNull(item);
       var parent = (Node) item;
       var node = TryConstructor(model, parent, name); // Regular node
-      if (node==null)
+      if (node is null)
         node = TryConstructor(model, parent); // Unnamed node
-      if (node==null)
+      if (node is null)
         throw new InvalidOperationException(string.Format(
           Strings.ExCannotFindConstructorToExecuteX, this));
       if (index.HasValue)
@@ -105,7 +104,7 @@ namespace Xtensive.Modelling.Actions
         arguments = arguments.Concat(parameters.Select(p => PathNodeReference.Resolve(model, p))).ToArray();
       var argTypes = arguments.Select(a => a.GetType()).ToArray();
       var ci = type.GetConstructor(argTypes);
-      if (ci==null)
+      if (ci is null)
         return null;
       return (Node) ci.Invoke(arguments);
     }
@@ -118,7 +117,7 @@ namespace Xtensive.Modelling.Actions
       parameters.Add(("Name", name));
       if (index.HasValue)
         parameters.Add(("Index", index.ToString()));
-      if (this.parameters!=null)
+      if (this.parameters is not null)
         parameters.Add(("Parameters", this.parameters.ToCommaDelimitedString()));
     }
   }

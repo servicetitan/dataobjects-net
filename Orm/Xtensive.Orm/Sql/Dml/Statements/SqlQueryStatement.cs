@@ -7,7 +7,6 @@ namespace Xtensive.Sql.Dml;
 /// <summary>
 /// Base class for DML statements.
 /// </summary>
-[Serializable]
 public abstract class SqlQueryStatement(SqlNodeType nodeType) : SqlStatement(nodeType)
 {
   private List<SqlHint> hints;

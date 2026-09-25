@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Model
   /// <summary>
   /// Loosely-coupled reference that describes <see cref="TypeInfo"/> instance.
   /// </summary>
-  [Serializable]
   [DebuggerDisplay("TypeName = {TypeName}")]
   public readonly struct TypeInfoRef : IEquatable<TypeInfoRef>
   {
@@ -35,7 +34,10 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Creates reference for <see cref="TypeInfo"/>.
     /// </summary>
-    public static implicit operator TypeInfoRef (TypeInfo typeInfo) => new TypeInfoRef(typeInfo);
+    public static implicit operator TypeInfoRef(TypeInfo typeInfo)
+    {
+      return new TypeInfoRef(typeInfo);
+    }
 
     #region Equality members, ==, !=
 

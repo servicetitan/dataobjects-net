@@ -8,7 +8,6 @@ using System;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlColumnStub : SqlColumn
   {
     public SqlColumn Column { get; set; }
@@ -22,7 +21,7 @@ namespace Xtensive.Sql.Dml
     // Constructors
 
     internal SqlColumnStub(SqlColumn column)
-      : base(column.Name ?? string.Empty)
+      : base(null, column.Name ?? string.Empty)
     {
       Column = column;
     }

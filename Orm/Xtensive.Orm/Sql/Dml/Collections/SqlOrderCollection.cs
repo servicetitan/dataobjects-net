@@ -15,27 +15,14 @@ namespace Xtensive.Sql.Dml
   // exposes IEnumerator<T> through its IList<T>/IEnumerable<T> interface implementations,
   // which forces the C# foreach pattern to allocate a boxed enumerator on every iteration —
   // and this collection is iterated on every SQL select compile.
-  [Serializable]
   public class SqlOrderCollection : List<SqlOrder>
   {
-    public void Add(SqlExpression expression)
-    {
-      Add(SqlDml.Order(expression));
-    }
+    public void Add(SqlExpression expression) => Add(SqlDml.Order(expression));
 
-    public void Add(SqlExpression expression, bool ascending)
-    {
-      Add(SqlDml.Order(expression, ascending));
-    }
-    
-    public void Add(int position)
-    {
-      Add(SqlDml.Order(position));
-    }
+    public void Add(SqlExpression expression, bool ascending) => Add(SqlDml.Order(expression, ascending));
 
-    public void Add(int position, bool ascending)
-    {
-      Add(SqlDml.Order(position, ascending));
-    }
+    public void Add(int position) => Add(SqlDml.Order(position));
+
+    public void Add(int position, bool ascending) => Add(SqlDml.Order(position, ascending));
   }
 }
