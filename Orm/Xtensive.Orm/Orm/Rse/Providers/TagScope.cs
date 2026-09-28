@@ -11,15 +11,26 @@ namespace Xtensive.Orm.Rse.Providers
   public readonly struct TagScope : IDisposable
   {
     private readonly List<string> tags;
+    private readonly string tag;
+    private readonly int index;
 
-    public void Dispose() =>
-      tags.RemoveAt(tags.Count - 1);
+    // Truncating to our own slot (rather than popping the last element) keeps double and
+    // out-of-order disposal from removing a tag that belongs to an enclosing scope.
+    public void Dispose()
+    {
+      if (tags != null && index < tags.Count && ReferenceEquals(tags[index], tag)) {
+        tags.RemoveRange(index, tags.Count - index);
+      }
+    }
 
     internal TagScope(List<string> tags, string tag)
     {
       ArgumentNullException.ThrowIfNull(tags);
       ArgumentNullException.ThrowIfNull(tag);
-      (this.tags = tags).Add(tag);
+      this.tags = tags;
+      this.tag = tag;
+      index = tags.Count;
+      tags.Add(tag);
     }
   }
 }

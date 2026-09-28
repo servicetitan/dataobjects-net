@@ -254,6 +254,116 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    [TestCase(TaggingBehavior.Default)]
+    [TestCase(TaggingBehavior.LastTagOverrides)]
+    public void NestedSessionTags_InnerDisposed_OuterTagIsRestored(TaggingBehavior behavior)
+    {
+      using var domain = BuildDomain(behavior);
+      using var session = domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      using var outer = session.Tag("outerTag");
+      using (session.Tag("innerTag")) {
+      }
+
+      Assert.That(session.Tags, Is.EqualTo(new[] { "outerTag" }));
+      var queryString = RenderBookQuery(session);
+      Assert.That(queryString, Does.Contain("outerTag"));
+      Assert.That(queryString, Does.Not.Contain("innerTag"));
+    }
+
+    [Test]
+    [TestCase(TaggingBehavior.Default, new[] { "outerTag", "innerTag" })]
+    [TestCase(TaggingBehavior.LastTagOverrides, new[] { "innerTag" })]
+    public void NestedSessionTags_BothOpen_AppliesTagsPerBehavior(TaggingBehavior behavior, string[] expectedTags)
+    {
+      using var domain = BuildDomain(behavior);
+      using var session = domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      using var outer = session.Tag("outerTag");
+      using var inner = session.Tag("innerTag");
+
+      Assert.That(session.Tags, Is.EqualTo(expectedTags));
+      var queryString = RenderBookQuery(session);
+      foreach (var tag in new[] { "outerTag", "innerTag" }) {
+        Assert.That(queryString, expectedTags.Contains(tag) ? Does.Contain(tag) : Does.Not.Contain(tag));
+      }
+    }
+
+    [Test]
+    [TestCase(TaggingBehavior.Default)]
+    [TestCase(TaggingBehavior.LastTagOverrides)]
+    public void NestedSessionTags_ThreeLevels_EachDisposeRestoresEnclosingTag(TaggingBehavior behavior)
+    {
+      using var domain = BuildDomain(behavior);
+      using var session = domain.OpenSession();
+      using var tx = session.OpenTransaction();
+
+      using (session.Tag("level1")) {
+        using (session.Tag("level2")) {
+          using (session.Tag("level3")) {
+          }
+          Assert.That(RenderBookQuery(session), Does.Contain("level2").And.Not.Contain("level3"));
+        }
+        var queryString = RenderBookQuery(session);
+        Assert.That(queryString, Does.Contain("level1").And.Not.Contain("level2"));
+      }
+
+      Assert.That(session.Tags, Is.Empty);
+      Assert.That(RenderBookQuery(session), Does.Not.Contain("level1"));
+    }
+
+    [Test]
+    [TestCase(TaggingBehavior.Default)]
+    [TestCase(TaggingBehavior.LastTagOverrides)]
+    public void SessionTagScope_DisposedTwice_DoesNotRemoveEnclosingTag(TaggingBehavior behavior)
+    {
+      using var domain = BuildDomain(behavior);
+      using var session = domain.OpenSession();
+
+      using var outer = session.Tag("outerTag");
+      var inner = session.Tag("innerTag");
+      var innerCopy = inner;
+      inner.Dispose();
+
+      Assert.DoesNotThrow(() => innerCopy.Dispose());
+      Assert.That(session.Tags, Is.EqualTo(new[] { "outerTag" }));
+    }
+
+    [Test]
+    [TestCase(TaggingBehavior.Default)]
+    [TestCase(TaggingBehavior.LastTagOverrides)]
+    public void SessionTagScope_OuterDisposedFirst_RemovesNestedTagsAndInnerDisposeIsNoOp(TaggingBehavior behavior)
+    {
+      using var domain = BuildDomain(behavior);
+      using var session = domain.OpenSession();
+
+      var outer = session.Tag("outerTag");
+      var inner = session.Tag("innerTag");
+      outer.Dispose();
+
+      Assert.That(session.Tags, Is.Empty);
+      Assert.DoesNotThrow(() => inner.Dispose());
+      Assert.That(session.Tags, Is.Empty);
+    }
+
+    [Test]
+    public void DefaultSessionTagScope_Dispose_DoesNotThrow() =>
+      Assert.DoesNotThrow(() => default(Xtensive.Orm.Rse.Providers.TagScope).Dispose());
+
+    private Domain BuildDomain(TaggingBehavior behavior)
+    {
+      var config = Domain.Configuration.Clone();
+      config.TaggingBehavior = behavior;
+      config.UpgradeMode = DomainUpgradeMode.Skip;
+      return Domain.Build(config);
+    }
+
+    private static string RenderBookQuery(Session session) =>
+      session.Services.Demand<QueryFormatter>().ToSqlString(session.Query.All<Book>());
+
+    [Test]
     [TestCase("simpleTag", TestName = "OneLineTag")]
     [TestCase("A long time ago in a galaxy far,\t\rfar away...", TestName = "MultilineTag")]
     public void SingleTag(string tagText)
