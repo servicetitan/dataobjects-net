@@ -78,7 +78,6 @@ public abstract class ConcatUnionBaseProvider : BinaryProvider
 /// Produces concatenation between <see cref="BinaryProvider.Left"/> and 
 /// <see cref="BinaryProvider.Right"/> sources.
 /// </summary>
-[Serializable]
 public sealed class ConcatProvider(CompilableProvider left, CompilableProvider right)
   : ConcatUnionBaseProvider(ProviderType.Concat, left, right)
 {

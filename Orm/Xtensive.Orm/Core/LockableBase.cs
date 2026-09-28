@@ -12,7 +12,6 @@ namespace Xtensive.Core;
 /// <summary>
 /// Base class for <see cref="ILockable"/> implementors.
 /// </summary>
-[Serializable]
 public abstract class LockableBase(bool isLocked = false) : ILockable
 {
   /// <inheritdoc/>

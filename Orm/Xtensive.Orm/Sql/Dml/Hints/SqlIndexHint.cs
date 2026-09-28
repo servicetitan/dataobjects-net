@@ -2,7 +2,6 @@ using System;
 
 namespace Xtensive.Sql.Dml
 {
-  [Serializable]
   public class SqlIndexHint : SqlHint
   {
     /// <summary>
