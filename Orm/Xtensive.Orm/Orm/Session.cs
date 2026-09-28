@@ -243,7 +243,12 @@ namespace Xtensive.Orm
 
     internal CompilationService CompilationService => Handlers.DomainHandler.CompilationService;
 
-    internal IReadOnlyList<string> Tags => tags;
+    // Tags are always kept as a full stack so disposing a nested scope restores the enclosing one;
+    // LastTagOverrides is applied here, when tags are read.
+    internal IReadOnlyList<string> Tags =>
+      tags is { Count: > 1 } && Domain.TaggingBehavior == TaggingBehavior.LastTagOverrides
+        ? [tags[^1]]
+        : tags;
 
     internal void EnsureNotDisposed()
     {
@@ -594,14 +599,7 @@ namespace Xtensive.Orm
       SystemQuery = Query = new QueryEndpoint(new QueryProvider(this));
     }
 
-    public TagScope Tag(string tag)
-    {
-      tags = tags == null || Domain.Configuration.TaggingBehavior == TaggingBehavior.LastTagOverrides
-        ? new List<string>(1)
-        : tags;
-
-      return new TagScope(tags, tag);
-    }
+    public TagScope Tag(string tag) => new(tags ??= new List<string>(1), tag);
 
     // IDisposable implementation
 
