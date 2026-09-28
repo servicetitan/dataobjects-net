@@ -5,7 +5,6 @@ namespace Xtensive.Orm.Rse.Providers;
 /// <summary>
 /// Index hint provider
 /// </summary>
-[Serializable]
 public sealed class IndexHintProvider(CompilableProvider source, IndexInfoRef index) : UnaryProvider(ProviderType.IndexHint, source.Header, source)
 {
   /// <summary>

@@ -7,7 +7,6 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Ddl;
 
-[Serializable]
 public class SqlCreateTable(Table table) : SqlStatement(SqlNodeType.Create), ISqlCompileUnit
 {
   public Table Table { get; } = table;

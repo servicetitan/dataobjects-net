@@ -10,7 +10,6 @@ using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Building;
 
-[Serializable]
 internal class PrefetchActionContainer
 {
   private readonly TypeInfo type;
