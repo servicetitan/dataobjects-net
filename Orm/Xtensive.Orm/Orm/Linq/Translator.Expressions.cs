@@ -734,7 +734,7 @@ namespace Xtensive.Orm.Linq
     }
 
     internal static bool FilterBindings(MemberInfo mi, string name, Type type) =>
-      string.Equals(mi.Name, name, StringComparison.InvariantCultureIgnoreCase)
+      string.Equals(mi.Name, name, StringComparison.OrdinalIgnoreCase)
       && mi.MemberType is MemberTypes.Field or MemberTypes.Property
       && mi switch {
         FieldInfo field => field.FieldType == type && !field.IsInitOnly,
