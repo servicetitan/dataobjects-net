@@ -733,24 +733,14 @@ namespace Xtensive.Orm.Linq
       return new ConstructorExpression(newExpression.Type, bindings, nativeBindings, newExpression.Constructor, arguments);
     }
 
-    internal static bool FilterBindings(MemberInfo mi, string name, Type type)
-    {
-      var result = string.Equals(mi.Name, name, StringComparison.InvariantCultureIgnoreCase);
-      if (!result)
-        return false;
-
-      result = mi.MemberType == MemberTypes.Field || mi.MemberType == MemberTypes.Property;
-      if (!result)
-        return false;
-
-      var field = mi as FieldInfo;
-      if (field != null)
-        return field.FieldType == type && !field.IsInitOnly;
-      var property = mi as PropertyInfo;
-      if (property == null)
-        return false;
-      return property.PropertyType.IsAssignableFrom(type) && property.CanWrite;
-    }
+    internal static bool FilterBindings(MemberInfo mi, string name, Type type) =>
+      string.Equals(mi.Name, name, StringComparison.OrdinalIgnoreCase)
+      && mi.MemberType is MemberTypes.Field or MemberTypes.Property
+      && mi switch {
+        FieldInfo field => field.FieldType == type && !field.IsInitOnly,
+        PropertyInfo property => property.PropertyType.IsAssignableFrom(type) && property.CanWrite,
+        _ => false
+      };
 
     #region Private helper methods
 
@@ -758,7 +748,7 @@ namespace Xtensive.Orm.Linq
     {
       var bindings = new Dictionary<MemberInfo, Expression>();
       var duplicateMembers = new HashSet<MemberInfo>();
-      var typeMembers = newExpression.Type.GetMembers();
+      var typeMembers = Memoizer.Get(newExpression.Type, static t => t.GetMembers());
       for (var parameterIndex = 0; parameterIndex < constructorParameters.Length; parameterIndex++) {
         var constructorParameter = constructorParameters[parameterIndex];
         var members = typeMembers
