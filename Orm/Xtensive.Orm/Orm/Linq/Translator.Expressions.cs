@@ -733,18 +733,14 @@ namespace Xtensive.Orm.Linq
       return new ConstructorExpression(newExpression.Type, bindings, nativeBindings, newExpression.Constructor, arguments);
     }
 
-    internal static bool FilterBindings(MemberInfo mi, string name, Type type)
-    {
-      if (string.Equals(mi.Name, name, StringComparison.InvariantCultureIgnoreCase)
-          && mi.MemberType is MemberTypes.Field or MemberTypes.Property) {
-        return mi switch {
-          FieldInfo field => field.FieldType == type && !field.IsInitOnly,
-          PropertyInfo property => property.PropertyType.IsAssignableFrom(type) && property.CanWrite,
-          _ => false
-        };
-      }
-      return false;
-    }
+    internal static bool FilterBindings(MemberInfo mi, string name, Type type) =>
+      string.Equals(mi.Name, name, StringComparison.InvariantCultureIgnoreCase)
+      && mi.MemberType is MemberTypes.Field or MemberTypes.Property
+      && mi switch {
+        FieldInfo field => field.FieldType == type && !field.IsInitOnly,
+        PropertyInfo property => property.PropertyType.IsAssignableFrom(type) && property.CanWrite,
+        _ => false
+      };
 
     #region Private helper methods
 
