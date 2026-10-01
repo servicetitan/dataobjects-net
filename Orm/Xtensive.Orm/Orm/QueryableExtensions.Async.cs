@@ -1756,8 +1756,9 @@ namespace Xtensive.Orm
     }
 
     private static async Task<ILookup<TKey, TValue>> ToLookupAsync<TKey, TValue>(this IQueryable<(TKey, TValue)> query, CancellationToken cancellationToken) =>
-      (await query.ExecuteAsync(cancellationToken).ConfigureAwaitFalse())
-      .ToLookup(tuple => tuple.Item1, tuple => tuple.Item2);
+      await (await query.ExecuteAsync(cancellationToken).ConfigureAwaitFalse())
+        .AsAsyncEnumerable()
+        .ToLookupAsync(tuple => tuple.Item1, tuple => tuple.Item2, null, cancellationToken);
 
     /// <summary>
     /// Asynchronously creates a <see cref="ILookup{TKey, TSource}"/> from an <see cref="IQueryable{T}"/>

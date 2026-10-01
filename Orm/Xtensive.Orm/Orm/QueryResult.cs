@@ -17,20 +17,28 @@ namespace Xtensive.Orm
   /// <typeparam name="TItem">The type of items in the sequence.</typeparam>
   public readonly struct QueryResult<TItem> : IEnumerable<TItem>
   {
-    private class EnumerableReader : IMaterializingReader<TItem>
+    private class EnumerableReader(IEnumerable<TItem> items) : IMaterializingReader<TItem>
     {
-      private readonly IEnumerable<TItem> items;
+      private sealed class AsyncEnumeratorAdapter<T>(IEnumerator<T> enumerator) : IAsyncEnumerator<T>
+      {
+        public T Current => enumerator.Current;
+
+        public ValueTask<bool> MoveNextAsync() =>
+          new(enumerator.MoveNext());
+
+        public ValueTask DisposeAsync()
+        {
+          enumerator.Dispose();
+          return ValueTask.CompletedTask;
+        }
+      }
 
       public Session Session => null;
 
       public IEnumerator<TItem> AsEnumerator() => items.GetEnumerator();
 
-      public IAsyncEnumerator<TItem> AsAsyncEnumerator() => throw new System.NotSupportedException();
-
-      public EnumerableReader(IEnumerable<TItem> items)
-      {
-        this.items = items;
-      }
+      public IAsyncEnumerator<TItem> AsAsyncEnumerator() =>
+        new AsyncEnumeratorAdapter<TItem>(items.GetEnumerator());
     }
 
     private readonly StateLifetimeToken lifetimeToken;
