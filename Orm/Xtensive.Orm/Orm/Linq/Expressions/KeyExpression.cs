@@ -85,17 +85,14 @@ namespace Xtensive.Orm.Linq.Expressions
     private KeyExpression BindParameterWithNoCheck(
       ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      var fields = KeyFields.Select(BindParameter).ToArray(KeyFields.Count);
+      var fields = new FieldExpression[KeyFields.Count];
+      for (int i = 0, n = KeyFields.Count; i < n; ++i) {
+        fields[i] = KeyFields[i].BindParameter(parameter, processedExpressions);
+      }
       var result = new KeyExpression(EntityType, fields, Mapping, UnderlyingProperty, parameter, DefaultIfEmpty);
 
       processedExpressions.Add(this, result);
       return result;
-
-
-      FieldExpression BindParameter(FieldExpression f)
-      {
-        return (FieldExpression) f.BindParameter(parameter, processedExpressions);
-      }
     }
 
     public override KeyExpression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
