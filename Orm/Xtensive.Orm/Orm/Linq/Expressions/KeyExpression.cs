@@ -72,19 +72,6 @@ namespace Xtensive.Orm.Linq.Expressions
         return (KeyExpression)value;
       }
 
-      var n = KeyFields.Count;
-      var fields = new FieldExpression[n];
-      for (int i = 0; i < n; ++i) {
-        fields[i] = KeyFields[i].BindParameter(parameter, processedExpressions);
-      }
-      return BindParameterWithNoCheck(parameter, processedExpressions);
-    }
-
-    // Having this code as a separate method helps to avoid closure allocation during BindParameter call
-    // in case processedExpressions dictionary already contains a result.
-    private KeyExpression BindParameterWithNoCheck(
-      ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
-    {
       var count = KeyFields.Count;
       var fields = new FieldExpression[count];
       for (int i = 0; i < count; ++i) {
