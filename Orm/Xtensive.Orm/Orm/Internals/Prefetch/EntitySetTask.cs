@@ -96,9 +96,6 @@ namespace Xtensive.Orm.Internals.Prefetch
       var records = reader.Read(itemsQueryTask.Result, QueryProvider.Header, manager.Owner.Session);
       var entityKeys = new List<Key>(itemsQueryTask.Result.Count);
       var association = ReferencingField.Associations[^1];
-      var auxEntities = (association.AuxiliaryType != null)
-        ? new List<(Key, Tuple)>(itemsQueryTask.Result.Count)
-        : null;
 
       foreach (var record in records) {
         for (var i = 0; i < record.Count; i++) {
@@ -111,10 +108,7 @@ namespace Xtensive.Orm.Internals.Prefetch
             continue;
           }
           if (association.AuxiliaryType != null) {
-            if (i == 0) {
-              auxEntities.Add((key, tuple));
-            }
-            else {
+            if (i != 0) {
               manager.SaveStrongReference(manager.Owner.UpdateState(key, tuple));
               entityKeys.Add(key);
               if (areToNotifyAboutKeys) {
@@ -132,7 +126,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         }
       }
       var updatedState = manager.Owner.UpdateState(ownerKey, ReferencingField,
-        ItemCountLimit == null || entityKeys.Count < ItemCountLimit, entityKeys, auxEntities);
+        ItemCountLimit == null || entityKeys.Count < ItemCountLimit, entityKeys);
       if (updatedState != null) {
         updatedState.SetLastManualPrefetchId(referencingFieldDescriptor.PrefetchOperationId);
       }
