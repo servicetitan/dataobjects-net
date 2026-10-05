@@ -9,9 +9,23 @@ env:
   SQL_PASSWD: dbatools.I0
 jobs:
   test-with-sql:
-    name: SQL tests
+    name: SQL tests (${{ matrix.shard }})
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        # Orm.Tests is split by namespace; Rest is the complement of the others, so no test is skipped
+        include:
+          - shard: Issues
+            filter: FullyQualifiedName~Xtensive.Orm.Tests.Issues.
+          - shard: Linq
+            filter: FullyQualifiedName~Xtensive.Orm.Tests.Linq.
+          - shard: Storage
+            filter: FullyQualifiedName~Xtensive.Orm.Tests.Storage.
+          - shard: Rest
+            filter: FullyQualifiedName!~Xtensive.Orm.Tests.Issues.&FullyQualifiedName!~Xtensive.Orm.Tests.Linq.&FullyQualifiedName!~Xtensive.Orm.Tests.Storage.
+            other_suites: true
     steps:
       - uses: actions/checkout@v4
       - uses: szenius/set-timezone@v2.0
@@ -62,40 +76,50 @@ jobs:
       - name: Create SQL Server DO Tests Config file
         run: echo default=sqlserver://sa:${SQL_PASSWD}@localhost/DO-Tests?MultipleActiveResultSets=True >$DO_CONFIG_FILE
       - name: Xtensive.Orm.Tests with SQL Server
-        run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj --filter 'TestCategory!=Mute'
+        run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj --filter 'TestCategory!=Mute&(${{ matrix.filter }})'
         env:
             DO_STORAGE: default
       - name: Xtensive.Orm.Tests.Sql with SQL Server
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && matrix.other_suites }}
         run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests.Sql/Xtensive.Orm.Tests.Sql.csproj --filter 'TestCategory!=Mute'
         env:
             DO_STORAGE: default
       - name: Xtensive.Orm.BulkOperations.Tests with SQL Server
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && matrix.other_suites }}
         run: dotnet test --no-build -v n Extensions/Xtensive.Orm.BulkOperations.Tests/Xtensive.Orm.BulkOperations.Tests.csproj --filter 'TestCategory!=Mute'
         env:
             DO_STORAGE: default
       - name: Xtensive.Orm.Localization.Tests with SQL Server
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && matrix.other_suites }}
         run: dotnet test --no-build -v n Extensions/Xtensive.Orm.Localization.Tests/Xtensive.Orm.Localization.Tests.csproj --filter 'TestCategory!=Mute'
         env:
             DO_STORAGE: default
       - name: Xtensive.Orm.Reprocessing.Tests with SQL Server
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && matrix.other_suites }}
         # concurrent reprocessing tests can loop forever
         timeout-minutes: 10
         run: dotnet test --no-build -v n Extensions/Xtensive.Orm.Reprocessing.Tests/Xtensive.Orm.Reprocessing.Tests.csproj --filter 'TestCategory!=Mute'
         env:
             DO_STORAGE: default
       - name: Xtensive.Orm.Security.Tests with SQL Server
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && matrix.other_suites }}
         run: dotnet test --no-build -v n Extensions/Xtensive.Orm.Security.Tests/Xtensive.Orm.Security.Tests.csproj --filter 'TestCategory!=Mute'
         env:
             DO_STORAGE: default
       - name: Xtensive.Orm.Tracking.Tests with SQL Server
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && matrix.other_suites }}
         run: dotnet test --no-build -v n Extensions/Xtensive.Orm.Tracking.Tests/Xtensive.Orm.Tracking.Tests.csproj --filter 'TestCategory!=Mute'
         env:
             DO_STORAGE: default
+
+  # Single status for branch protection and the [org] Tests Passed check
+  sql-tests:
+    name: SQL tests
+    needs: test-with-sql
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check all shards passed
+        run: test "${{ needs.test-with-sql.result }}" = success
 
 
