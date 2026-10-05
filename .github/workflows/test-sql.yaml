@@ -8,8 +8,26 @@ env:
   DO_TargetFrameworks: net10.0
   SQL_PASSWD: dbatools.I0
 jobs:
+  sql-image:
+    name: Build SQL Server image
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build SQL Docker image with FTS feature
+        run: docker build -t sql .github/actions/mssql-fts
+      - name: Save image
+        run: docker save sql | zstd -T0 -3 -o sql-image.tar.zst
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sql-image
+          path: sql-image.tar.zst
+          compression-level: 0
+          retention-days: 1
+
   test-with-sql:
     name: SQL tests (${{ matrix.shard }})
+    needs: sql-image
     runs-on: ubuntu-latest
     timeout-minutes: 120
     strategy:
@@ -40,8 +58,11 @@ jobs:
         with:
           components: sqlcmd
           version: 2022
-      - name: Build SQL Docker image with FTS feature
-        run: docker build -t sql .github/actions/mssql-fts
+      - uses: actions/download-artifact@v4
+        with:
+          name: sql-image
+      - name: Load SQL Docker image
+        run: zstd -d -c sql-image.tar.zst | docker load
 #      - uses: ikalnytskyi/action-setup-postgres@v6 
 #      - name: Init PostgreSQL Test DB
 #        run: |
