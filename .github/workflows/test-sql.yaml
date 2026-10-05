@@ -13,16 +13,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build SQL Docker image with FTS feature
         run: docker build -t sql .github/actions/mssql-fts
       - name: Save image
         run: docker save sql | zstd -T0 -3 -o sql-image.tar.zst
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
-          name: sql-image
           path: sql-image.tar.zst
-          compression-level: 0
+          archive: false
           retention-days: 1
 
   test-with-sql:
@@ -45,22 +44,22 @@ jobs:
             filter: FullyQualifiedName!~Xtensive.Orm.Tests.Issues.&FullyQualifiedName!~Xtensive.Orm.Tests.Linq.&FullyQualifiedName!~Xtensive.Orm.Tests.Storage.
             other_suites: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: szenius/set-timezone@v2.0
         with:
           timezoneLinux: "UTC"
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.x
       - name: Setup MSSQL Tools
-        uses:  rails-sqlserver/setup-mssql@v1
+        uses:  rails-sqlserver/setup-mssql@v2
         with:
           components: sqlcmd
           version: 2022
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
-          name: sql-image
+          name: sql-image.tar.zst
       - name: Load SQL Docker image
         run: zstd -d -c sql-image.tar.zst | docker load
 #      - uses: ikalnytskyi/action-setup-postgres@v6 
