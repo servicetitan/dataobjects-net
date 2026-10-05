@@ -99,24 +99,9 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       foreach (var record in records) {
         for (var i = 0; i < record.Count; i++) {
-          var key = record.GetKey(i);
-          if (key is null) {
-            continue;
-          }
-          var tuple = record.GetTuple(i);
-          if (tuple == null) {
-            continue;
-          }
-          if (association.AuxiliaryType != null) {
-            if (i != 0) {
-              manager.SaveStrongReference(manager.Owner.UpdateState(key, tuple));
-              entityKeys.Add(key);
-              if (areToNotifyAboutKeys) {
-                referencingFieldDescriptor.NotifySubscriber(ownerKey, key);
-              }
-            }
-          }
-          else {
+          if (record.GetKey(i) is { } key
+              && record.GetTuple(i) is { } tuple
+              && (association.AuxiliaryType == null || i != 0)) {
             manager.SaveStrongReference(manager.Owner.UpdateState(key, tuple));
             entityKeys.Add(key);
             if (areToNotifyAboutKeys) {
