@@ -154,9 +154,9 @@ namespace Xtensive.Orm.Providers
     }
 
     internal override EntitySetState UpdateState(Key key, FieldInfo fieldInfo,
-      bool isFullyLoaded, List<Key> entities, List<(Key, Tuple)> auxEntities)
+      bool isFullyLoaded, IReadOnlyList<Key> entities)
     {
-      return ChainedHandler.UpdateState(key, fieldInfo, isFullyLoaded, entities, auxEntities);
+      return ChainedHandler.UpdateState(key, fieldInfo, isFullyLoaded, entities);
     }
 
     internal override EntityState UpdateState(Key key, Tuple tuple)

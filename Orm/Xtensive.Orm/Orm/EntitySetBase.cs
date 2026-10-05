@@ -808,11 +808,10 @@ namespace Xtensive.Orm
 
     #region Private / internal members
 
-    internal EntitySetState UpdateState(IEnumerable<Key> items, bool isFullyLoaded)
+    internal EntitySetState UpdateState(IReadOnlyList<Key> items, bool isFullyLoaded)
     {
       EnsureOwnerIsNotRemoved();
-      var itemList = items.ToList();
-      State.Update(itemList, isFullyLoaded ? (long?) itemList.Count : null);
+      State.Update(items, isFullyLoaded ? items.Count : null);
       State.IsLoaded = true;
       Session.NotifyEntitySetCached(this);
       return State;
