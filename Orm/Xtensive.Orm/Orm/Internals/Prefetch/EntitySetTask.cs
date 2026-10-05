@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var association = ReferencingField.Associations[^1];
 
       foreach (var record in records) {
-        for (var i = 0; i < record.Count; i++) {
+        for (int i = 0, count = record.Count; i < count; i++) {
           if (record.GetKey(i) is { } key
               && record.GetTuple(i) is { } tuple
               && (association.AuxiliaryType == null || i != 0)) {
