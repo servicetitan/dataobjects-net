@@ -90,40 +90,20 @@ namespace Xtensive.Orm.Internals.Prefetch
         return;
       }
 
-      var areToNotifyAboutKeys = !manager.Owner.Session.Domain.Model
+      var managerOwner = manager.Owner;
+      var areToNotifyAboutKeys = !managerOwner.Session.Domain.Model
         .Types[referencingFieldDescriptor.Field.ItemType].IsLeaf;
-      var reader = manager.Owner.Session.Domain.EntityDataReader;
-      var records = reader.Read(itemsQueryTask.Result, QueryProvider.Header, manager.Owner.Session);
+      var reader = managerOwner.Session.Domain.EntityDataReader;
+      var records = reader.Read(itemsQueryTask.Result, QueryProvider.Header, managerOwner.Session);
       var entityKeys = new List<Key>(itemsQueryTask.Result.Count);
       var association = ReferencingField.Associations[^1];
-      var auxEntities = (association.AuxiliaryType != null)
-        ? new List<(Key, Tuple)>(itemsQueryTask.Result.Count)
-        : null;
 
       foreach (var record in records) {
-        for (var i = 0; i < record.Count; i++) {
-          var key = record.GetKey(i);
-          if (key is null) {
-            continue;
-          }
-          var tuple = record.GetTuple(i);
-          if (tuple == null) {
-            continue;
-          }
-          if (association.AuxiliaryType != null) {
-            if (i == 0) {
-              auxEntities.Add((key, tuple));
-            }
-            else {
-              manager.SaveStrongReference(manager.Owner.UpdateState(key, tuple));
-              entityKeys.Add(key);
-              if (areToNotifyAboutKeys) {
-                referencingFieldDescriptor.NotifySubscriber(ownerKey, key);
-              }
-            }
-          }
-          else {
-            manager.SaveStrongReference(manager.Owner.UpdateState(key, tuple));
+        for (int i = 0, count = record.Count; i < count; i++) {
+          if (record.GetKey(i) is { } key
+              && record.GetTuple(i) is { } tuple
+              && (association.AuxiliaryType == null || i != 0)) {
+            manager.SaveStrongReference(managerOwner.UpdateState(key, tuple));
             entityKeys.Add(key);
             if (areToNotifyAboutKeys) {
               referencingFieldDescriptor.NotifySubscriber(ownerKey, key);
@@ -131,8 +111,8 @@ namespace Xtensive.Orm.Internals.Prefetch
           }
         }
       }
-      var updatedState = manager.Owner.UpdateState(ownerKey, ReferencingField,
-        ItemCountLimit == null || entityKeys.Count < ItemCountLimit, entityKeys, auxEntities);
+      var updatedState = managerOwner.UpdateState(ownerKey, ReferencingField,
+        ItemCountLimit == null || entityKeys.Count < ItemCountLimit, entityKeys);
       if (updatedState != null) {
         updatedState.SetLastManualPrefetchId(referencingFieldDescriptor.PrefetchOperationId);
       }

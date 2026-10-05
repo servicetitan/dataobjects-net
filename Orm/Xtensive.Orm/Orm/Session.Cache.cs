@@ -241,7 +241,7 @@ namespace Xtensive.Orm
       return UpdateStateInCache(key, tuple, false);
     }
 
-    internal EntitySetState UpdateStateInCache(Key key, FieldInfo fieldInfo, IEnumerable<Key> entityKeys,
+    internal EntitySetState UpdateStateInCache(Key key, FieldInfo fieldInfo, IReadOnlyList<Key> entityKeys,
       bool isFullyLoaded)
     {
       var entityState = EntityStateCache[key, true];

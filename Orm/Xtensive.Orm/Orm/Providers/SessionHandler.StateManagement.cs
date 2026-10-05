@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers
     }
 
     internal virtual EntitySetState UpdateState(Key key, FieldInfo fieldInfo,
-      bool isFullyLoaded, List<Key> entityKeys, List<(Key, Tuple)> auxEntities)
+      bool isFullyLoaded, IReadOnlyList<Key> entityKeys)
     {
       return Session.UpdateStateInCache(key, fieldInfo, entityKeys, isFullyLoaded);
     }
