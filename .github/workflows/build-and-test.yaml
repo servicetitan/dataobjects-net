@@ -19,3 +19,9 @@ jobs:
         run: dotnet build -c Release -v q
       - name: Tests.Core
         run: dotnet test -c Release --no-build -v n Orm/Xtensive.Orm.Tests.Core/Xtensive.Orm.Tests.Core.csproj --filter 'TestCategory!=Mute'
+      - name: Logging.log4net.Tests
+        if: ${{ !cancelled() }}
+        run: dotnet test -c Release --no-build -v n Extensions/Xtensive.Orm.Logging.log4net.Tests/Xtensive.Orm.Logging.log4net.Tests.csproj --filter 'TestCategory!=Mute'
+      - name: Logging.NLog.Tests
+        if: ${{ !cancelled() }}
+        run: dotnet test -c Release --no-build -v n Extensions/Xtensive.Orm.Logging.NLog.Tests/Xtensive.Orm.Logging.NLog.Tests.csproj --filter 'TestCategory!=Mute'

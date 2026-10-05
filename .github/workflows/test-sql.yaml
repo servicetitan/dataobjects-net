@@ -58,5 +58,37 @@ jobs:
         run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj --filter 'TestCategory!=Mute'
         env:
             DO_STORAGE: default
+      - name: Xtensive.Orm.Tests.Sql with SQL Server
+        if: ${{ !cancelled() }}
+        run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests.Sql/Xtensive.Orm.Tests.Sql.csproj --filter 'TestCategory!=Mute'
+        env:
+            DO_STORAGE: default
+      - name: Xtensive.Orm.BulkOperations.Tests with SQL Server
+        if: ${{ !cancelled() }}
+        run: dotnet test --no-build -v n Extensions/Xtensive.Orm.BulkOperations.Tests/Xtensive.Orm.BulkOperations.Tests.csproj --filter 'TestCategory!=Mute'
+        env:
+            DO_STORAGE: default
+      - name: Xtensive.Orm.Localization.Tests with SQL Server
+        if: ${{ !cancelled() }}
+        run: dotnet test --no-build -v n Extensions/Xtensive.Orm.Localization.Tests/Xtensive.Orm.Localization.Tests.csproj --filter 'TestCategory!=Mute'
+        env:
+            DO_STORAGE: default
+      - name: Xtensive.Orm.Reprocessing.Tests with SQL Server
+        if: ${{ !cancelled() }}
+        # concurrent reprocessing tests can loop forever
+        timeout-minutes: 10
+        run: dotnet test --no-build -v n Extensions/Xtensive.Orm.Reprocessing.Tests/Xtensive.Orm.Reprocessing.Tests.csproj --filter 'TestCategory!=Mute'
+        env:
+            DO_STORAGE: default
+      - name: Xtensive.Orm.Security.Tests with SQL Server
+        if: ${{ !cancelled() }}
+        run: dotnet test --no-build -v n Extensions/Xtensive.Orm.Security.Tests/Xtensive.Orm.Security.Tests.csproj --filter 'TestCategory!=Mute'
+        env:
+            DO_STORAGE: default
+      - name: Xtensive.Orm.Tracking.Tests with SQL Server
+        if: ${{ !cancelled() }}
+        run: dotnet test --no-build -v n Extensions/Xtensive.Orm.Tracking.Tests/Xtensive.Orm.Tracking.Tests.csproj --filter 'TestCategory!=Mute'
+        env:
+            DO_STORAGE: default
 
 
