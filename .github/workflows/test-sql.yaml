@@ -26,9 +26,34 @@ jobs:
           archive: false
           retention-days: 1
 
+  orm-build:
+    name: Build ORM
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.x
+      # obj/ files reference packages in ~/.nuget/packages, so test shards need the same cache
+      - uses: actions/cache@v6
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/*.props', '**/*.targets') }}
+      - name: Build
+        run: dotnet build -v q Orm.slnx
+      - name: Pack build output
+        run: tar -cf - _Build | zstd -T0 -3 -o orm-build.tar.zst
+      - uses: actions/upload-artifact@v7
+        with:
+          path: orm-build.tar.zst
+          archive: false
+          retention-days: 1
+
   test-with-sql:
     name: SQL tests (${{ matrix.shard }})
-    needs: sql-image
+    needs: [ sql-image, orm-build ]
     runs-on: ubuntu-latest
     timeout-minutes: 120
     strategy:
@@ -74,8 +99,23 @@ jobs:
 #            PGSERVICE: postgres
       - name: Run SQL Server container
         run: docker run -e ACCEPT_EULA=Y -e MSSQL_PID='Developer' -e MSSQL_SA_PASSWORD=${SQL_PASSWD} -p 1433:1433 -d sql
-      - name: Build
-        run: dotnet build -v q Orm.slnx
+      - name: Restore NuGet package cache
+        id: nuget
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/*.props', '**/*.targets') }}
+      - name: Restore NuGet packages (cache miss)
+        if: steps.nuget.outputs.cache-hit != 'true'
+        run: dotnet restore Orm.slnx
+      - uses: actions/download-artifact@v8
+        with:
+          name: orm-build.tar.zst
+      - name: Unpack build output
+        run: zstd -d -c orm-build.tar.zst | tar -xf -
+      - name: Wait for SQL Server
+        timeout-minutes: 3
+        run: until sqlcmd -U sa -P "$SQL_PASSWD" -C -Q "SELECT 1" > /dev/null 2>&1; do sleep 2; done
       - name: Init Test DB
         run: sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests.sql && sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests-Plus.sql
       # Same dotest login as Containers/mssql/setup.sql; some Tests.Sql tests connect with it directly
