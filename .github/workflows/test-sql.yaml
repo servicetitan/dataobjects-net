@@ -2,6 +2,8 @@ name: Tests with SQL Server
 on:
   pull_request:
     branches: [ master-servicetitan ]
+permissions:
+  contents: read
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DO_CONFIG_FILE: "/tmp/do-test.cfg"
