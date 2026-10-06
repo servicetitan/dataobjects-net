@@ -63,13 +63,13 @@ jobs:
         include:
           - shard: Issues
             filter: FullyQualifiedName~Xtensive.Orm.Tests.Issues.
+            other_suites: true
           - shard: Linq
             filter: FullyQualifiedName~Xtensive.Orm.Tests.Linq.
           - shard: Storage
             filter: FullyQualifiedName~Xtensive.Orm.Tests.Storage.
           - shard: Rest
             filter: FullyQualifiedName!~Xtensive.Orm.Tests.Issues.&FullyQualifiedName!~Xtensive.Orm.Tests.Linq.&FullyQualifiedName!~Xtensive.Orm.Tests.Storage.
-            other_suites: true
     steps:
       - uses: actions/checkout@v7
       - uses: szenius/set-timezone@v2.0
