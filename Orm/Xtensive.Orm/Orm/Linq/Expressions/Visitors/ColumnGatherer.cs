@@ -56,18 +56,19 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         : distinct;
       return ordered.ToArray();
     }
-    
+
     public static ColNum[] GetColumns(Expression expression, ColumnExtractionModes columnExtractionModes)
     {
       var gatherer = new ColumnGatherer(columnExtractionModes);
       gatherer.Visit(expression);
-      var distinct = gatherer.DistinctValues
-        ? gatherer.columns.Select(p=>p.Item1).Distinct()
-        : gatherer.columns.Select(p=>p.Item1);
-      var ordered = gatherer.OrderedValues
-        ? distinct.OrderBy(i => i)
-        : distinct;
-      return ordered.ToArray();
+      var result = (gatherer.DistinctValues
+          ? gatherer.columns.Select(p => p.Item1).Distinct()
+          : gatherer.columns.Select(p => p.Item1)
+        ).ToArray();
+      if (gatherer.OrderedValues) {
+        Array.Sort(result);
+      }
+      return result;
     }
 
     internal protected override MarkerExpression VisitMarker(MarkerExpression expression)
