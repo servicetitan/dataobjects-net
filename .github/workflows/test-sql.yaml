@@ -2,33 +2,107 @@ name: Tests with SQL Server
 on:
   pull_request:
     branches: [ master-servicetitan ]
+  # Only builds the SQL Server image: caches saved on the default branch are visible to all PRs
+  push:
+    branches: [ master-servicetitan ]
+    paths: [ '.github/actions/mssql-fts/**' ]
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DO_CONFIG_FILE: "/tmp/do-test.cfg"
   DO_TargetFrameworks: net10.0
   SQL_PASSWD: dbatools.I0
 jobs:
-  test-with-sql:
-    name: SQL tests
+  sql-image:
+    name: Build SQL Server image
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: szenius/set-timezone@v2.0
+      - uses: actions/checkout@v7
+      # Rebuilt only when the Dockerfile changes or the cached image was evicted
+      - name: Look up cached image
+        id: image-cache
+        uses: actions/cache@v6
         with:
-          timezoneLinux: "UTC"
+          path: sql-image.tar
+          key: sql-image-${{ hashFiles('.github/actions/mssql-fts/**') }}
+          lookup-only: true
+      - name: Build SQL Docker image with FTS feature
+        if: steps.image-cache.outputs.cache-hit != 'true'
+        run: docker build -t sql .github/actions/mssql-fts
+      - name: Save image
+        if: steps.image-cache.outputs.cache-hit != 'true'
+        run: docker save -o sql-image.tar sql
+
+  orm-build:
+    name: Build ORM
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.x
-      - name: Setup MSSQL Tools
-        uses:  rails-sqlserver/setup-mssql@v1
+      # obj/ files reference packages in ~/.nuget/packages, so test shards need the same cache
+      - uses: actions/cache@v6
         with:
-          components: sqlcmd
-          version: 2022
-      - name: Build SQL Docker image with FTS feature
-        run: docker build -t sql .github/actions/mssql-fts
-#      - uses: ikalnytskyi/action-setup-postgres@v6 
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/*.props', '**/*.targets') }}
+      - name: Build
+        run: dotnet build -v q Orm.slnx
+      - name: Pack build output
+        run: tar -cf - _Build | zstd -T0 -3 -o orm-build.tar.zst
+      - uses: actions/upload-artifact@v7
+        with:
+          path: orm-build.tar.zst
+          archive: false
+          retention-days: 1
+
+  test-with-sql:
+    name: SQL tests (${{ matrix.shard }})
+    needs: [ sql-image, orm-build ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      DO_STORAGE: default
+      # --blame-hang-timeout is per test; the test host is killed without a dump when it is exceeded
+      ORM_TEST_ARGS: --no-build -v n --blame-hang-timeout 10min --blame-hang-dump-type none
+      EXT_TEST_ARGS: --no-build -v n --blame-hang-timeout 1min --blame-hang-dump-type none
+    strategy:
+      fail-fast: false
+      matrix:
+        # Orm.Tests is split by namespace; Rest is the complement of the others, so no test is skipped
+        include:
+          - shard: Issues
+            filter: FullyQualifiedName~Xtensive.Orm.Tests.Issues.
+            other_suites: true
+          - shard: Linq
+            filter: FullyQualifiedName~Xtensive.Orm.Tests.Linq.
+          - shard: Storage
+            filter: FullyQualifiedName~Xtensive.Orm.Tests.Storage.
+          - shard: Rest
+            filter: FullyQualifiedName!~Xtensive.Orm.Tests.Issues.&FullyQualifiedName!~Xtensive.Orm.Tests.Linq.&FullyQualifiedName!~Xtensive.Orm.Tests.Storage.
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.x
+      - name: Restore SQL Docker image
+        uses: actions/cache/restore@v6
+        with:
+          path: sql-image.tar
+          key: sql-image-${{ hashFiles('.github/actions/mssql-fts/**') }}
+          fail-on-cache-miss: true
+      - name: Load SQL Docker image
+        run: docker load -i sql-image.tar
+#      - uses: ikalnytskyi/action-setup-postgres@v6
 #      - name: Init PostgreSQL Test DB
 #        run: |
 #            createuser dotest
@@ -36,12 +110,40 @@ jobs:
 #            psql -c "ALTER USER dotest WITH PASSWORD 'dotest' SUPERUSER"
 #        env:
 #            PGSERVICE: postgres
+      # Init scripts are mounted so they can be run with the container's own sqlcmd
       - name: Run SQL Server container
-        run: docker run -e ACCEPT_EULA=Y -e MSSQL_PID='Developer' -e MSSQL_SA_PASSWORD=${SQL_PASSWD} -p 1433:1433 -d sql
-      - name: Build
-        run: dotnet build -v q Orm.slnx
+        run: >-
+          docker run --name sql -e ACCEPT_EULA=Y -e MSSQL_PID='Developer' -e MSSQL_SA_PASSWORD="$SQL_PASSWD"
+          -v "$GITHUB_WORKSPACE/Orm/Xtensive.Orm.Tests.Framework:/scripts:ro" -p 1433:1433 -d sql
+      - name: Restore NuGet package cache
+        id: nuget
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj', '**/*.props', '**/*.targets') }}
+      - name: Restore NuGet packages (cache miss)
+        if: steps.nuget.outputs.cache-hit != 'true'
+        run: dotnet restore Orm.slnx
+      - uses: actions/download-artifact@v8
+        with:
+          name: orm-build.tar.zst
+      - name: Unpack build output
+        run: zstd -d -c orm-build.tar.zst | tar -xf -
+      - name: Wait for SQL Server
+        timeout-minutes: 3
+        run: |
+          sqlcmd="docker exec sql /opt/mssql-tools18/bin/sqlcmd -C -U sa -P $SQL_PASSWD"
+          echo "SQLCMD=$sqlcmd" >> "$GITHUB_ENV"
+          until $sqlcmd -Q "SELECT 1" > /dev/null 2>&1; do sleep 2; done
       - name: Init Test DB
-        run: sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests.sql && sqlcmd -U sa -P $SQL_PASSWD -C -i Orm/Xtensive.Orm.Tests.Framework/DO-Tests-Plus.sql
+        run: $SQLCMD -i /scripts/DO-Tests.sql && $SQLCMD -i /scripts/DO-Tests-Plus.sql
+      # Same dotest login as Containers/mssql/setup.sql; some Tests.Sql tests connect with it directly
+      - name: Create dotest login
+        run: |
+          $SQLCMD -b -Q "CREATE LOGIN [dotest] WITH PASSWORD=N'dotest', DEFAULT_DATABASE=[master], CHECK_EXPIRATION=OFF, CHECK_POLICY=OFF"
+          for db in DO-Tests DO-Tests-1 DO-Tests-2 DO-Tests-3 DO-Tests-4; do
+            $SQLCMD -b -d "$db" -Q "CREATE USER [dotest] FOR LOGIN [dotest] WITH DEFAULT_SCHEMA=[dbo]; ALTER ROLE [db_owner] ADD MEMBER [dotest]"
+          done
 #      - name: Create PostgreSQL DO Tests Config file
 #        run: echo default=postgresql://dotest:dotest@localhost/dotest >$DO_CONFIG_FILE
 #      - name: Xtensive.Orm.Tests.Sql with PostgreSQL
@@ -55,8 +157,34 @@ jobs:
       - name: Create SQL Server DO Tests Config file
         run: echo default=sqlserver://sa:${SQL_PASSWD}@localhost/DO-Tests?MultipleActiveResultSets=True >$DO_CONFIG_FILE
       - name: Xtensive.Orm.Tests with SQL Server
-        run: dotnet test --no-build -v n Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj --filter 'TestCategory!=Mute'
-        env:
-            DO_STORAGE: default
+        run: dotnet test Orm/Xtensive.Orm.Tests/Xtensive.Orm.Tests.csproj $ORM_TEST_ARGS --filter 'TestCategory!=Mute&(${{ matrix.filter }})'
+      - name: Xtensive.Orm.Tests.Sql with SQL Server
+        if: ${{ !cancelled() && matrix.other_suites }}
+        run: dotnet test Orm/Xtensive.Orm.Tests.Sql/Xtensive.Orm.Tests.Sql.csproj $ORM_TEST_ARGS --filter 'TestCategory!=Mute'
+      - name: Xtensive.Orm.BulkOperations.Tests with SQL Server
+        if: ${{ !cancelled() && matrix.other_suites }}
+        run: dotnet test Extensions/Xtensive.Orm.BulkOperations.Tests/Xtensive.Orm.BulkOperations.Tests.csproj $EXT_TEST_ARGS --filter 'TestCategory!=Mute'
+      - name: Xtensive.Orm.Localization.Tests with SQL Server
+        if: ${{ !cancelled() && matrix.other_suites }}
+        run: dotnet test Extensions/Xtensive.Orm.Localization.Tests/Xtensive.Orm.Localization.Tests.csproj $EXT_TEST_ARGS --filter 'TestCategory!=Mute'
+      - name: Xtensive.Orm.Reprocessing.Tests with SQL Server
+        if: ${{ !cancelled() && matrix.other_suites }}
+        # concurrent reprocessing tests can loop forever
+        timeout-minutes: 10
+        run: dotnet test Extensions/Xtensive.Orm.Reprocessing.Tests/Xtensive.Orm.Reprocessing.Tests.csproj $EXT_TEST_ARGS --filter 'TestCategory!=Mute'
+      - name: Xtensive.Orm.Security.Tests with SQL Server
+        if: ${{ !cancelled() && matrix.other_suites }}
+        run: dotnet test Extensions/Xtensive.Orm.Security.Tests/Xtensive.Orm.Security.Tests.csproj $EXT_TEST_ARGS --filter 'TestCategory!=Mute'
+      - name: Xtensive.Orm.Tracking.Tests with SQL Server
+        if: ${{ !cancelled() && matrix.other_suites }}
+        run: dotnet test Extensions/Xtensive.Orm.Tracking.Tests/Xtensive.Orm.Tracking.Tests.csproj $EXT_TEST_ARGS --filter 'TestCategory!=Mute'
 
-
+  # Single status for branch protection and the [org] Tests Passed check
+  sql-tests:
+    name: SQL tests
+    needs: test-with-sql
+    if: ${{ always() && github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check all shards passed
+        run: test "${{ needs.test-with-sql.result }}" = success

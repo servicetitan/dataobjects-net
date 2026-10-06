@@ -47,7 +47,10 @@ namespace Xtensive.Orm.BulkOperations
           if (localCollection is not null) {
             var valueToCheck = ex.Arguments[1];
             var genericInMethod = WellKnownMembers.InMethod.CachedMakeGenericMethod(valueToCheck.Type);
-            ex = Expression.Call(genericInMethod, valueToCheck, ComplexConditionConstant, localCollection);
+            var conditionConstant = CanUseTvp(valueToCheck.Type)
+              ? AutoConditionConstant
+              : ComplexConditionConstant;
+            ex = Expression.Call(genericInMethod, valueToCheck, conditionConstant, localCollection);
             methodInfo = ex.Method;
           }
         }

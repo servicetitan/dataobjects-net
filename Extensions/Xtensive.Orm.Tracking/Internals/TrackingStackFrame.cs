@@ -32,13 +32,6 @@ namespace Xtensive.Orm.Tracking
     {
       foreach (var sourceItem in source.Items) {
         Register(sourceItem);
-        var key = sourceItem.Key;
-        if (items.TryGetValue(key, out var existing)) {
-          existing.MergeWith(sourceItem);
-        }
-        else {
-          items.Add(key, sourceItem);
-        }
       }
     }
   }
