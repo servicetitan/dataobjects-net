@@ -4,10 +4,8 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.06
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
 
@@ -56,18 +54,30 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         : distinct;
       return ordered.ToArray();
     }
-    
+
     public static ColNum[] GetColumns(Expression expression, ColumnExtractionModes columnExtractionModes)
     {
       var gatherer = new ColumnGatherer(columnExtractionModes);
       gatherer.Visit(expression);
-      var distinct = gatherer.DistinctValues
-        ? gatherer.columns.Select(p=>p.Item1).Distinct()
-        : gatherer.columns.Select(p=>p.Item1);
-      var ordered = gatherer.OrderedValues
-        ? distinct.OrderBy(i => i)
-        : distinct;
-      return ordered.ToArray();
+      var columns = CollectionsMarshal.AsSpan(gatherer.columns);
+      var result = new ColNum[columns.Length];
+      for (int i = 0, n = result.Length; i < n; ++i) {
+        result[i] = columns[i].Item1;
+      }
+      if (!gatherer.OrderedValues) {
+        return gatherer.DistinctValues ? result.Distinct().ToArray() : result;
+      }
+      Array.Sort(result);
+      if (gatherer.DistinctValues) {
+        var n = 0;
+        foreach (var column in result) {
+          if (n == 0 || column != result[n - 1]) {
+            result[n++] = column;
+          }
+        }
+        Array.Resize(ref result, n);
+      }
+      return result;
     }
 
     internal protected override MarkerExpression VisitMarker(MarkerExpression expression)
