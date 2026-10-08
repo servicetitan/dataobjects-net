@@ -91,27 +91,13 @@ namespace Xtensive.Orm.Linq.Expressions
 
       var n = KeyFields.Count;
       var fields = new FieldExpression[n];
-      for (int i = 0; i < n; ++i) {
+      for (var i = 0; i < n; ++i) {
         fields[i] = KeyFields[i].RemoveOuterParameter(processedExpressions);
       }
-      return RemoveOuterParameterWithNoCheck(processedExpressions);
-    }
-
-    // Having this code as a separate method helps to avoid closure allocation during RemoveOuterParameter call
-    // in case processedExpressions dictionary already contains a result.
-    private KeyExpression RemoveOuterParameterWithNoCheck(Dictionary<Expression, Expression> processedExpressions)
-    {
-      var fields = KeyFields.Select(RemoveOuterParameter).ToArray(KeyFields.Count);
       var result = new KeyExpression(EntityType, fields, Mapping, UnderlyingProperty, null, DefaultIfEmpty);
 
       processedExpressions.Add(this, result);
       return result;
-
-
-      FieldExpression RemoveOuterParameter(FieldExpression f)
-      {
-        return (FieldExpression) f.RemoveOuterParameter(processedExpressions);
-      }
     }
 
     public static KeyExpression Create(TypeInfo entityType, ColNum offset)
