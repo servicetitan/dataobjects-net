@@ -2,21 +2,27 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
-using System;
-using System.Linq;
 using Xtensive.Orm.Linq.Expressions;
 
-namespace Xtensive.Orm
+namespace Xtensive.Orm;
+
+internal static class QueryResultExtensions
 {
-  internal static class QueryResultExtensions
-  {
-    public static TResult ToScalar<TResult>(this in QueryResult<TResult> sequence, ResultAccessMethod resultAccessMethod) =>
-      resultAccessMethod switch {
-        ResultAccessMethod.First => sequence.First(),
-        ResultAccessMethod.FirstOrDefault => sequence.FirstOrDefault(),
-        ResultAccessMethod.Single => sequence.Single(),
-        ResultAccessMethod.SingleOrDefault => sequence.SingleOrDefault(),
-        _ => throw new InvalidOperationException("Query is not scalar.")
-      };
-  }
+  public static TResult ToScalar<TResult>(this in QueryResult<TResult> sequence, ResultAccessMethod resultAccessMethod) =>
+    resultAccessMethod switch {
+      ResultAccessMethod.First => sequence.First(),
+      ResultAccessMethod.FirstOrDefault => sequence.FirstOrDefault(),
+      ResultAccessMethod.Single => sequence.Single(),
+      ResultAccessMethod.SingleOrDefault => sequence.SingleOrDefault(),
+      _ => throw new InvalidOperationException("Query is not scalar.")
+    };
+
+  public static async Task<TResult> ToScalarAsync<TResult>(this QueryResult<TResult> sequence, ResultAccessMethod resultAccessMethod) =>
+    resultAccessMethod switch {
+      ResultAccessMethod.First => await sequence.AsAsyncEnumerable().FirstAsync(),
+      ResultAccessMethod.FirstOrDefault => await sequence.AsAsyncEnumerable().FirstOrDefaultAsync(),
+      ResultAccessMethod.Single => await sequence.AsAsyncEnumerable().SingleAsync(),
+      ResultAccessMethod.SingleOrDefault => await sequence.AsAsyncEnumerable().SingleOrDefaultAsync(),
+      _ => throw new InvalidOperationException("Query is not scalar.")
+    };
 }
