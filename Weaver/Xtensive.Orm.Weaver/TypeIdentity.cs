@@ -11,18 +11,9 @@ namespace Xtensive.Orm.Weaver
 {
   public struct TypeIdentity : IEquatable<TypeIdentity>
   {
-    private readonly string assemblyName;
-    private readonly string typeName;
+    public readonly string AssemblyName { get; }
 
-    public string AssemblyName
-    {
-      get { return assemblyName; }
-    }
-
-    public string TypeName
-    {
-      get { return typeName; }
-    }
+    public readonly string TypeName { get; }
 
     public override bool Equals(object obj)
     {
@@ -54,8 +45,8 @@ namespace Xtensive.Orm.Weaver
     public TypeIdentity(TypeReference type)
     {
       ArgumentNullException.ThrowIfNull(type);
-      assemblyName = type.Scope.Name;
-      typeName = type.FullName;
+      AssemblyName = type.Scope.Name;
+      TypeName = type.FullName;
     }
   }
 }
