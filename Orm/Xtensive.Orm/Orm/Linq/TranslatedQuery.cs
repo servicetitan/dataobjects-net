@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Linq
       Session session, ParameterContext parameterContext, CancellationToken token)
     {
       var sequenceResult = await ExecuteSequenceAsync<TResult>(session, parameterContext, token).ConfigureAwaitFalse();
-      return sequenceResult.ToScalar(ResultAccessMethod);
+      return await sequenceResult.ToScalarAsync(ResultAccessMethod).ConfigureAwaitFalse();;
     }
 
     /// <summary>
