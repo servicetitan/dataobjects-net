@@ -38,7 +38,7 @@ public sealed class MessageLogger
 
   public void Write(MessageCode code, string extraInformation, MessageLocation location) => Write(code, extraInformation, location, null);
 
-  public void Write(MessageCode code, Exception exception) => Write(code, null, null, exception);
+  public void Write(MessageCode code, Exception exception) => Write(code, exception.Message, null, exception);
 
   public void Write(MessageCode code, string extraInformation, MessageLocation location, Exception exception)
   {
