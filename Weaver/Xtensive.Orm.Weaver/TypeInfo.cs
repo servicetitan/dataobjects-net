@@ -30,12 +30,12 @@ namespace Xtensive.Orm.Weaver
     public override string ToString()
     {
       var resultBuilder = new StringBuilder();
-      resultBuilder.AppendFormat($"{FullName}");
-      resultBuilder.AppendFormat($" [kind({Kind})]");
-      if (BaseType!=null)
-        resultBuilder.AppendFormat($" [inherits({BaseType.FullName})]");
+      _ = resultBuilder.AppendFormat($"{FullName}")
+        .AppendFormat($" [kind({Kind})]");
+      if (BaseType is not null)
+        _ = resultBuilder.AppendFormat($" [inherits({BaseType.FullName})]");
       foreach (var @interface in Interfaces)
-        resultBuilder.AppendFormat($" [implements({@interface.FullName})]");
+        _ = resultBuilder.AppendFormat($" [implements({@interface.FullName})]");
       return resultBuilder.ToString();
     }
 

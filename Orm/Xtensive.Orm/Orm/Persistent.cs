@@ -130,7 +130,12 @@ namespace Xtensive.Orm
             var dt = p.DeclaringType;
             mi = dt.GetProperty(p.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetSetMethod(true);
           }
-          _ = mi.Invoke(this, new object[] { value });
+          if (mi is not null) {
+            _ = mi.Invoke(this, new object[] { value });
+          }
+          else {
+            SetFieldValue(pair.Item1, (object) value);
+          }
         }
         else
           SetFieldValue(pair.Item1, (object) value); // Untyped, since T might be wrong

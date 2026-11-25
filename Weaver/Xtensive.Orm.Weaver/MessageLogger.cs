@@ -30,30 +30,15 @@ public sealed class MessageLogger
 
   private readonly MessageWriter writer;
 
-  public void Write(MessageCode code)
-  {
-    Write(code, null, null, null);
-  }
+  public void Write(MessageCode code) => Write(code, null, null, null);
 
-  public void Write(MessageCode code, MessageLocation location)
-  {
-    Write(code, null, location, null);
-  }
+  public void Write(MessageCode code, MessageLocation location) => Write(code, null, location, null);
 
-  public void Write(MessageCode code, string extraInformation)
-  {
-    Write(code, extraInformation, null, null);
-  }
+  public void Write(MessageCode code, string extraInformation) => Write(code, extraInformation, null, null);
 
-  public void Write(MessageCode code, string extraInformation, MessageLocation location)
-  {
-    Write(code, extraInformation, location, null);
-  }
+  public void Write(MessageCode code, string extraInformation, MessageLocation location) => Write(code, extraInformation, location, null);
 
-  public void Write(MessageCode code, Exception exception)
-  {
-    Write(code, exception.Message, null, exception);
-  }
+  public void Write(MessageCode code, Exception exception) => Write(code, null, null, exception);
 
   public void Write(MessageCode code, string extraInformation, MessageLocation location, Exception exception)
   {

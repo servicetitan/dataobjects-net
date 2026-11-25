@@ -31,6 +31,7 @@ namespace Xtensive.Orm.Weaver.Tasks
     {
       ArgumentNullException.ThrowIfNull(target);
       ArgumentNullException.ThrowIfNull(attributeConstructor);
+
       if (attributeConstructor.Parameters.Count!=parameters.Length)
         throw new ArgumentException("Invalid number of constructor parameters");
 

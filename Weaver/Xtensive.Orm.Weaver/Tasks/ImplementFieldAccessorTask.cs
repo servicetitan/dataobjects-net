@@ -67,8 +67,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       IDictionary<TypeIdentity, MethodReference> registry, MethodReference definition)
     {
       var identity = new TypeIdentity(property.PropertyType);
-      MethodReference result;
-      if (!registry.TryGetValue(identity, out result)) {
+      if (!registry.TryGetValue(identity, out var result)) {
         var accessor = new GenericInstanceMethod(definition);
         accessor.GenericArguments.Add(property.PropertyType);
         result = context.TargetModule.ImportReference(accessor);
